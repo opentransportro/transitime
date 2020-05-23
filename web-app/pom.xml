@@ -7,8 +7,8 @@
         <version>2.0.14-cs-SNAPSHOT</version>
     </parent>
     <packaging>war</packaging>
-    <artifactId>transitclockWebapp</artifactId>
-    <name>transitclockWebapp</name>
+    <artifactId>web-app</artifactId>
+    <name>web-app</name>
     <url>http://maven.apache.org</url>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

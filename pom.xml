@@ -10,7 +10,7 @@
     <modules>
         <module>core</module>
         <module>api</module>
-        <module>transitclockWebapp</module>
+        <module>web-app</module>
         <module>transitclockTraccarClient</module>
         <module>transitclockBarefootClient</module>
         <!-- <module>transitclockQuickStart</module>
