@@ -1,7 +1,7 @@
 /*
- * 
+ *
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPL) as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -22,8 +22,7 @@
  * <p>
  * If a parameter is only for a specific implementation then it can be
  * defined in that particular class instead of in this package.
- *  
- * @author SkiBu Smith
  *
+ * @author SkiBu Smith
  */
 package org.transitclock.configData;

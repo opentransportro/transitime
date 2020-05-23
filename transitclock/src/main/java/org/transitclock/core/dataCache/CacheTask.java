@@ -17,21 +17,9 @@ public class CacheTask implements ParallelTask {
 
     private static final Logger logger =
             LoggerFactory.getLogger(CacheTask.class);
-
-    /**
-     * type of cache we are dealing with
-     */
-    public enum Type {
-        TripDataHistoryCacheFactory,
-        StopArrivalDepartureCacheFactory,
-        FrequencyBasedHistoricalAverageCache,
-        ScheduleBasedHistoricalAverageCache
-    }
-
-    private Date startDate;
-    private Date endDate;
-    private Type type;
-
+    private final Date startDate;
+    private final Date endDate;
+    private final Type type;
     public CacheTask(Date startDate, Date endDate, Type type) {
         this.startDate = startDate;
         this.endDate = endDate;
@@ -69,6 +57,16 @@ public class CacheTask implements ParallelTask {
                 session.close();
             }
         }
+    }
+
+    /**
+     * type of cache we are dealing with
+     */
+    public enum Type {
+        TripDataHistoryCacheFactory,
+        StopArrivalDepartureCacheFactory,
+        FrequencyBasedHistoricalAverageCache,
+        ScheduleBasedHistoricalAverageCache
     }
 
 }

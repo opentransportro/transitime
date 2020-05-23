@@ -1,6 +1,6 @@
 /*
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPL) as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -17,39 +17,37 @@
 
 package org.transitclock.api.data;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.transitclock.ipc.data.IpcCalendar;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-
-import org.transitclock.ipc.data.IpcCalendar;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * List of GTFS calendars
- * 
- * @author SkiBu Smith
  *
+ * @author SkiBu Smith
  */
 @XmlRootElement(name = "calendars")
 public class ApiCalendars {
-	
-	@XmlElement
-	private List<ApiCalendar> calendars;
 
-	/********************** Member Functions **************************/
+    @XmlElement
+    private List<ApiCalendar> calendars;
 
-	/**
-	 * Need a no-arg constructor for Jersey. Otherwise get really obtuse
-	 * "MessageBodyWriter not found for media type=application/json" exception.
-	 */
-	protected ApiCalendars() {
-	}
+    /********************** Member Functions **************************/
 
-	public ApiCalendars(List<IpcCalendar> ipcCalendars) {
-		calendars = new ArrayList<ApiCalendar>();
-		for (IpcCalendar ipcCalendar : ipcCalendars)
-			calendars.add(new ApiCalendar(ipcCalendar));
-	}
+    /**
+     * Need a no-arg constructor for Jersey. Otherwise get really obtuse
+     * "MessageBodyWriter not found for media type=application/json" exception.
+     */
+    protected ApiCalendars() {
+    }
+
+    public ApiCalendars(List<IpcCalendar> ipcCalendars) {
+        calendars = new ArrayList<ApiCalendar>();
+        for (IpcCalendar ipcCalendar : ipcCalendars)
+            calendars.add(new ApiCalendar(ipcCalendar));
+    }
 
 }

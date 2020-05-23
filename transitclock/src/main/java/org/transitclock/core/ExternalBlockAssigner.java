@@ -25,37 +25,33 @@ import java.util.Map;
 public class ExternalBlockAssigner {
 
 
+    private static final Logger logger = LoggerFactory
+            .getLogger(ExternalBlockAssigner.class);
     static BooleanConfigValue externalAssignerEnabled =
             new BooleanConfigValue(
                     "transitclock.externalAssignerEnabled",
                     false,
                     "Set to true to enable the manual assignment feature where "
                             + "the system tries to assign vehicle to an available block");
-
     static StringConfigValue externalAssignerUrl =
             new StringConfigValue("transitclock.externalAssignerUrl",
                     null,
                     "Set to the URL or file of the external AVL feed");
-
     static StringConfigValue blockParam =
             new StringConfigValue("transitclock.externalAssigner.block_param",
                     "block",
                     "CSV header for the block of the external AVL feed");
-
-
     static StringConfigValue vehicleParam =
             new StringConfigValue("transitclock.externalAssigner.vehicle_param",
                     "vehicle",
                     "CSV header for the vehicle of the external AVL feed");
-
     static IntegerConfigValue cacheTTL =
             new IntegerConfigValue("transitclock.externalAssigner.cacheTTL",
                     60,
                     "time in seconds to cache feed");
-
-    private static final Logger logger = LoggerFactory
-            .getLogger(ExternalBlockAssigner.class);
-
+    private static ExternalBlockAssigner INSTANCE = new ExternalBlockAssigner();
+    private static BlockAssignerCache CACHE;
+    private static BlockAssignerUpdater UPDATER;
     ExternalBlockAssigner() {
         // force singleton usage
     }
@@ -69,13 +65,9 @@ public class ExternalBlockAssigner {
         return externalAssignerEnabled.getValue();
     }
 
-    private static ExternalBlockAssigner INSTANCE = new ExternalBlockAssigner();
-    private static BlockAssignerCache CACHE;
-    private static BlockAssignerUpdater UPDATER;
-
-
     /**
      * retrieve singleton instance of ExternalBlockAssigner
+     *
      * @return
      */
     public static ExternalBlockAssigner getInstance() {
@@ -98,9 +90,18 @@ public class ExternalBlockAssigner {
     }
 
     /**
+     * Force a sycnhronous update of the cache.  Managed internally, does not need to be
+     * explicitly called.
+     */
+    static void forceUpdate() {
+        CACHE.update();
+    }
+
+    /**
      * for the given avlReport, regardless of the current block assignment,
      * check configured external BLOCK_FEED (\"transitclock.externalAssignerUrl\")
      * and if block is present and active override the current assignment.
+     *
      * @param avlReport
      * @return
      */
@@ -112,7 +113,7 @@ public class ExternalBlockAssigner {
             if (assignmentId != null) {
                 int agencySeparator = assignmentId.lastIndexOf('_');
                 if (agencySeparator != -1) {
-                    assignmentId = assignmentId.substring(agencySeparator+1);
+                    assignmentId = assignmentId.substring(agencySeparator + 1);
                 }
                 Block requestedBlock = getActiveBlock(assignmentId, avlReport.getDate());
                 if (requestedBlock != null) {
@@ -131,6 +132,7 @@ public class ExternalBlockAssigner {
     /**
      * if the blockId is active within window of service date / now retrieve the
      * entire block.
+     *
      * @param assignmentId
      * @param avlReportDate
      * @return
@@ -158,6 +160,7 @@ public class ExternalBlockAssigner {
 
     /**
      * return a (potentially list) of blocks specified for given vehicleId.
+     *
      * @param vehicleId
      * @return
      */
@@ -170,13 +173,13 @@ public class ExternalBlockAssigner {
         return new ArrayList<>();
     }
 
-
     Map<String, ArrayList<String>> getBlockAssignmentsByVehicleIdMapFromCache() {
         return CACHE.getBlockAssignmentsByVehicleIdMap();
     }
 
     /**
      * retrieve a list of block ids indexed on vehicleId.  Does no caching.
+     *
      * @return
      */
     Map<String, ArrayList<String>> getBlockAssignmentsByVehicleIdMap() throws IOException {
@@ -191,15 +194,6 @@ public class ExternalBlockAssigner {
             return UPDATER.getBlockAssignmentsByVehicleIdFeed();
         return null;
     }
-
-    /**
-     * Force a sycnhronous update of the cache.  Managed internally, does not need to be
-     * explicitly called.
-     */
-    static void forceUpdate() {
-        CACHE.update();
-    }
-
 
 
 }

@@ -1,8 +1,6 @@
 package org.transitclock.custom.aws;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import com.amazonaws.services.sqs.model.Message;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -11,11 +9,11 @@ import org.slf4j.LoggerFactory;
 import org.transitclock.db.structs.AvlReport;
 import org.transitclock.db.structs.AvlReport.AssignmentType;
 
-import com.amazonaws.services.sqs.model.Message;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Implementation of SqsMessageUnmarshaller for DASH data.
- *
  */
 public class DashAvlTypeUnmarshaller implements SqsMessageUnmarshaller {
 
@@ -40,8 +38,7 @@ public class DashAvlTypeUnmarshaller implements SqsMessageUnmarshaller {
                 // try one last time
                 reports.add(toAvlReport(message));
             }
-        }
-        else {
+        } else {
             // not an array, try to deserialize as is
             reports.add(toAvlReport(message));
         }
@@ -54,8 +51,8 @@ public class DashAvlTypeUnmarshaller implements SqsMessageUnmarshaller {
         if (body == null) return reports;
         // we have an array
         JSONArray jsonArray = new JSONArray(body);
-        for (int i=0; i<jsonArray.length(); i++) {
-            reports.add(toAvlReport((JSONObject)jsonArray.get(i)));
+        for (int i = 0; i < jsonArray.length(); i++) {
+            reports.add(toAvlReport((JSONObject) jsonArray.get(i)));
         }
         return reports;
     }
@@ -63,9 +60,9 @@ public class DashAvlTypeUnmarshaller implements SqsMessageUnmarshaller {
 
     private AvlReportWrapper toAvlReport(JSONObject jsonObj) {
         JSONObject msgObj;
-        try{
+        try {
             msgObj = new JSONObject(jsonObj.getString("Message"));
-        }catch(JSONException e){
+        } catch (JSONException e) {
             msgObj = jsonObj;  //un
         }
 

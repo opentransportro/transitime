@@ -17,67 +17,65 @@ import java.util.List;
 
 public class KalmanErrorCache implements ErrorCache {
 
-	private static StringConfigValue memcachedHost = new StringConfigValue("transitclock.cache.memcached.host", "127.0.0.1",
-			"Specifies the host machine that memcache is running on.");
+    private static final StringConfigValue memcachedHost = new StringConfigValue("transitclock.cache.memcached.host", "127.0.0.1",
+            "Specifies the host machine that memcache is running on.");
 
-	private static IntegerConfigValue memcachedPort = new IntegerConfigValue("transitclock.cache.memcached.port", 11211,
-			"Specifies the port that memcache is running on.");
+    private static final IntegerConfigValue memcachedPort = new IntegerConfigValue("transitclock.cache.memcached.port", 11211,
+            "Specifies the port that memcache is running on.");
+    private static final String keystub = "KALMANERROR_";
+    private static final Logger logger = LoggerFactory
+            .getLogger(KalmanErrorCache.class);
+    MemcachedClient memcachedClient = null;
+    Integer expiryDuration = Time.SEC_PER_DAY * 28;
 
-	MemcachedClient memcachedClient = null;
-	private static String keystub = "KALMANERROR_";
-	Integer expiryDuration=Time.SEC_PER_DAY*28;
-	
-	private static final Logger logger = LoggerFactory
-			.getLogger(KalmanErrorCache.class);
-	
-	public KalmanErrorCache() throws IOException {
-		memcachedClient = new MemcachedClient(
-				new InetSocketAddress(memcachedHost.getValue(), memcachedPort.getValue().intValue()));
-	}
+    public KalmanErrorCache() throws IOException {
+        memcachedClient = new MemcachedClient(
+                new InetSocketAddress(memcachedHost.getValue(), memcachedPort.getValue().intValue()));
+    }
 
-	@Override
-	public KalmanError getErrorValue(Indices indices) {
-		KalmanErrorCacheKey key=new KalmanErrorCacheKey(indices);
-		
-		return getErrorValue(key);
-	}
+    @Override
+    public KalmanError getErrorValue(Indices indices) {
+        KalmanErrorCacheKey key = new KalmanErrorCacheKey(indices);
 
-	@Override
-	public KalmanError getErrorValue(KalmanErrorCacheKey key) {
+        return getErrorValue(key);
+    }
 
-		Double errorValue = (Double) memcachedClient.get(createKey(key));
-		if (errorValue == null || errorValue.isNaN()) {
-			return null;
-		}
-		return new KalmanError(errorValue);
-	}
+    @Override
+    public KalmanError getErrorValue(KalmanErrorCacheKey key) {
 
-	@Override
-	public void putErrorValue(Indices indices, Double value) {
-		
+        Double errorValue = (Double) memcachedClient.get(createKey(key));
+        if (errorValue == null || errorValue.isNaN()) {
+            return null;
+        }
+        return new KalmanError(errorValue);
+    }
 
-		KalmanErrorCacheKey key=new KalmanErrorCacheKey(indices);
+    @Override
+    public void putErrorValue(Indices indices, Double value) {
 
-		putErrorValue(key, value);
-	}
 
-	@Override
-	public void putErrorValue(KalmanErrorCacheKey key, Double value) {
-		
-		memcachedClient.set(createKey(key), expiryDuration, value);
+        KalmanErrorCacheKey key = new KalmanErrorCacheKey(indices);
 
-	}
+        putErrorValue(key, value);
+    }
 
-	
-	public List<KalmanErrorCacheKey> getKeys() {
-		
-		logger.info("Not implemented for memecached.");
-		return null;
-	}
+    @Override
+    public void putErrorValue(KalmanErrorCacheKey key, Double value) {
 
-	private String createKey(KalmanErrorCacheKey key) {
-		return keystub + key.getTripId() + "_" + key.getStopPathIndex();
+        memcachedClient.set(createKey(key), expiryDuration, value);
 
-	}
+    }
+
+
+    public List<KalmanErrorCacheKey> getKeys() {
+
+        logger.info("Not implemented for memecached.");
+        return null;
+    }
+
+    private String createKey(KalmanErrorCacheKey key) {
+        return keystub + key.getTripId() + "_" + key.getStopPathIndex();
+
+    }
 
 }

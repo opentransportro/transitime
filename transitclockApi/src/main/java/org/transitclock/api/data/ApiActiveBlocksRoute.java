@@ -1,6 +1,6 @@
 /*
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPL) as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -17,61 +17,59 @@
 
 package org.transitclock.api.data;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.List;
+import org.transitclock.ipc.data.IpcActiveBlock;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
-
-import org.transitclock.ipc.data.IpcActiveBlock;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A route for when outputting active blocks
  *
  * @author SkiBu Smith
- *
  */
 public class ApiActiveBlocksRoute {
 
-	// ID of route
-	@XmlAttribute
-	private String id;
+    // ID of route
+    @XmlAttribute
+    private String id;
 
-	// Route short name
-	@XmlAttribute
-	private String shortName;
+    // Route short name
+    @XmlAttribute
+    private String shortName;
 
-	// Name of route
-	@XmlAttribute
-	private String name;
+    // Name of route
+    @XmlAttribute
+    private String name;
 
-	// The active blocks for the route
-	@XmlElement(name = "block")
-	private List<ApiActiveBlock> activeBlocks;
-	
-	/********************** Member Functions **************************/
-	
+    // The active blocks for the route
+    @XmlElement(name = "block")
+    private List<ApiActiveBlock> activeBlocks;
+
+    /********************** Member Functions **************************/
+
     /**
      * Need a no-arg constructor for Jersey. Otherwise get really obtuse
      * "MessageBodyWriter not found for media type=application/json" exception.
      */
-	protected ApiActiveBlocksRoute() {
-	}
+    protected ApiActiveBlocksRoute() {
+    }
 
-	public ApiActiveBlocksRoute(String id, String shortName, String name) {
-		this.id = id;
-		this.shortName = shortName;
-		this.name = name;
-		
-		activeBlocks = new ArrayList<ApiActiveBlock>();
-	}
+    public ApiActiveBlocksRoute(String id, String shortName, String name) {
+        this.id = id;
+        this.shortName = shortName;
+        this.name = name;
 
-	public void add(IpcActiveBlock ipcActiveBlock, String agencyId) throws IllegalAccessException, InvocationTargetException {
-		activeBlocks.add(new ApiActiveBlock(ipcActiveBlock, agencyId));
-	}
-	
-	public String getName() {
-		return name;
-	}
+        activeBlocks = new ArrayList<ApiActiveBlock>();
+    }
+
+    public void add(IpcActiveBlock ipcActiveBlock, String agencyId) throws IllegalAccessException, InvocationTargetException {
+        activeBlocks.add(new ApiActiveBlock(ipcActiveBlock, agencyId));
+    }
+
+    public String getName() {
+        return name;
+    }
 }

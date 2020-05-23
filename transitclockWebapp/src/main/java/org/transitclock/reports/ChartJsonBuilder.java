@@ -1,6 +1,6 @@
 /*
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPL) as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -17,11 +17,11 @@
 
 package org.transitclock.reports;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.transitclock.utils.StringUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * For creating the JSON data string used to power a Google Chart via AJAX.
@@ -31,223 +31,218 @@ import org.transitclock.utils.StringUtils;
  * <p>
  * For each row one first calls newRow() to get a RowBuilder. Then one calls
  * RowBuilder.addRowElement() to add each element to the row. Then one calls
- * 
- * @author SkiBu Smith
  *
+ * @author SkiBu Smith
  */
 public class ChartJsonBuilder {
 
-	// Contains all the column data in JSON format
-	private List<String> columnList = new ArrayList<String>();
+    // Contains all the column data in JSON format
+    private List<String> columnList = new ArrayList<String>();
 
-	// Contains all the row data in JSON format
-	private List<RowBuilder> rowList = new ArrayList<RowBuilder>();
+    // Contains all the row data in JSON format
+    private List<RowBuilder> rowList = new ArrayList<RowBuilder>();
 
-	/**
-	 * For building a row, which consists of multiple data elements.
-	 */
-	public static class RowBuilder {
-		private List<String> rowElementsList = new ArrayList<String>();
+    /**
+     * Add a numeric column without a label
+     */
+    public void addNumberColumn() {
+        columnList.add("{\"type\": \"number\"}");
+    }
 
-		public void addRowElement(Object o) {
-			if (o instanceof Double || o instanceof Float) {
-				addRowElement(((Number) o).doubleValue());
-			} else if (o instanceof Number) {
-				addRowElement(((Number) o).longValue());
-			} else if (o instanceof String) {
-				addRowElement((String) o);
-			}
-		}
-		
-		/**
-		 * Adds a row element with a string value. The string value is quoted.
-		 * 
-		 * @param value
-		 *            The value of the element to be added to the row
-		 */
-		public void addRowElement(String value) {
-			String escapedValue = StringEscapeUtils.escapeJson(value);
-			String rowElement = "{\"v\": \"" + escapedValue + "\"}";
-			rowElementsList.add(rowElement);
-		}
+    /********************** Member Functions **************************/
 
-		/**
-		 * Adds a row element with a double value. Since it is a double it is
-		 * not quoted. Outputs just one digit after the decimal point.
-		 * 
-		 * @param value
-		 *            The value of the element to be added to the row
-		 */
-		public void addRowElement(double value) {
-			String rowElement = "{\"v\": " + StringUtils.oneDigitFormat(value)
-					+ "}";
-			rowElementsList.add(rowElement);
-		}
+    /**
+     * Add a numeric column with a label
+     *
+     * @param label
+     */
+    public void addNumberColumn(String label) {
+        columnList.add("{\"type\": \"number\", \"label\":\"" + label + "\"}");
+    }
 
-		/**
-		 * Adds a row element with a long value. Since it is a numeric it is not
-		 * quoted.
-		 * 
-		 * @param value
-		 *            The value of the element to be added to the row
-		 */
-		public void addRowElement(long value) {
-			String rowElement = "{\"v\": " + value + "}";
-			rowElementsList.add(rowElement);
-		}
+    /**
+     * Add a string/varchar column without a label
+     */
+    public void addStringColumn() {
+        columnList.add("{\"type\": \"string\"}");
+    }
 
-		/**
-		 * Adds a row element with a Number value. Since it is a numeric it is
-		 * not quoted.
-		 * 
-		 * @param value
-		 *            The value of the element to be added to the row
-		 */
-		public void addRowElement(Number value) {
-			String rowElement = "{\"v\": " + value + "}";
-			rowElementsList.add(rowElement);
-		}
+    /**
+     * Add a string/varchar column with a label
+     *
+     * @param label
+     */
+    public void addStringColumn(String label) {
+        columnList.add("{\"type\": \"string\", \"label\":\"" + label + "\"}");
+    }
 
-		/**
-		 * For when need to add null element to indicate that don't have data
-		 * for a cell. Useful for when there is now data for a row.
-		 */
-		public void addRowNullElement() {
-			rowElementsList.add("{\"v\": null}");
-		}
+    /**
+     * Add a tooltip column
+     */
+    public void addTooltipColumn() {
+        columnList.add("{\"type\": \"string\", \"p\":{\"role\":\"tooltip\"} }");
+    }
 
-		/**
-		 * Returns the JSON for this row
-		 * 
-		 * @return
-		 */
-		private String getJson() {
-			// Start the JSON string
-			StringBuilder sb = new StringBuilder();
-			sb.append("  {\"c\": [");
+    /**
+     * Add a interval column
+     */
+    public void addIntervalColumn() {
+        columnList
+                .add("{\"type\": \"string\", \"p\":{\"role\":\"interval\"} }");
+    }
 
-			boolean first = true;
-			for (String rowElement : rowElementsList) {
-				if (first)
-					first = false;
-				else
-					sb.append(",");
+    /**
+     * For adding a new row of data. The returned RowBuilder needs to be
+     * populated by calling RowBuilder.addRowElement().
+     *
+     * @return The RowBuilder for the row being added.
+     */
+    public RowBuilder newRow() {
+        RowBuilder rowBuilder = new RowBuilder();
+        rowList.add(rowBuilder);
+        return rowBuilder;
+    }
 
-				sb.append(rowElement);
-			}
+    /**
+     * Once done building a JSON object then this method is used to return it as
+     * a string.
+     *
+     * @return The complete JSON object
+     */
+    public String getJson() {
+        // Start the JSON string
+        StringBuilder sb = new StringBuilder();
+        sb.append("{");
 
-			// Wrap up the row
-			sb.append("] }");
+        // Add the column data
+        sb.append("\n \"cols\": [");
+        boolean first = true;
+        for (String column : columnList) {
+            if (first)
+                first = false;
+            else
+                sb.append(",");
 
-			// Return the row
-			return sb.toString();
-		}
-	}
+            sb.append("\n  ").append(column);
 
-	/********************** Member Functions **************************/
+        }
+        sb.append("\n  ],");
 
-	/**
-	 * Add a numeric column without a label
-	 */
-	public void addNumberColumn() {
-		columnList.add("{\"type\": \"number\"}");
-	}
+        // Add the row data
+        sb.append("\n \"rows\": [");
+        first = true;
+        for (RowBuilder row : rowList) {
+            if (first)
+                first = false;
+            else
+                sb.append(",");
 
-	/**
-	 * Add a numeric column with a label
-	 * 
-	 * @param label
-	 */
-	public void addNumberColumn(String label) {
-		columnList.add("{\"type\": \"number\", \"label\":\"" + label + "\"}");
-	}
+            sb.append("\n  ").append(row.getJson());
 
-	/**
-	 * Add a string/varchar column without a label
-	 */
-	public void addStringColumn() {
-		columnList.add("{\"type\": \"string\"}");
-	}
+        }
+        sb.append("\n  ]");
 
-	/**
-	 * Add a string/varchar column with a label
-	 * 
-	 * @param label
-	 */
-	public void addStringColumn(String label) {
-		columnList.add("{\"type\": \"string\", \"label\":\"" + label + "\"}");
-	}
+        // Wrap up the JSON string
+        sb.append("\n}");
 
-	/**
-	 * Add a tooltip column
-	 */
-	public void addTooltipColumn() {
-		columnList.add("{\"type\": \"string\", \"p\":{\"role\":\"tooltip\"} }");
-	}
+        // Return the results as a string
+        return sb.toString();
+    }
 
-	/**
-	 * Add a interval column
-	 */
-	public void addIntervalColumn() {
-		columnList
-				.add("{\"type\": \"string\", \"p\":{\"role\":\"interval\"} }");
-	}
+    /**
+     * For building a row, which consists of multiple data elements.
+     */
+    public static class RowBuilder {
+        private List<String> rowElementsList = new ArrayList<String>();
 
-	/**
-	 * For adding a new row of data. The returned RowBuilder needs to be
-	 * populated by calling RowBuilder.addRowElement().
-	 * 
-	 * @return The RowBuilder for the row being added.
-	 */
-	public RowBuilder newRow() {
-		RowBuilder rowBuilder = new RowBuilder();
-		rowList.add(rowBuilder);
-		return rowBuilder;
-	}
+        public void addRowElement(Object o) {
+            if (o instanceof Double || o instanceof Float) {
+                addRowElement(((Number) o).doubleValue());
+            } else if (o instanceof Number) {
+                addRowElement(((Number) o).longValue());
+            } else if (o instanceof String) {
+                addRowElement((String) o);
+            }
+        }
 
-	/**
-	 * Once done building a JSON object then this method is used to return it as
-	 * a string.
-	 * 
-	 * @return The complete JSON object
-	 */
-	public String getJson() {
-		// Start the JSON string
-		StringBuilder sb = new StringBuilder();
-		sb.append("{");
+        /**
+         * Adds a row element with a string value. The string value is quoted.
+         *
+         * @param value The value of the element to be added to the row
+         */
+        public void addRowElement(String value) {
+            String escapedValue = StringEscapeUtils.escapeJson(value);
+            String rowElement = "{\"v\": \"" + escapedValue + "\"}";
+            rowElementsList.add(rowElement);
+        }
 
-		// Add the column data
-		sb.append("\n \"cols\": [");
-		boolean first = true;
-		for (String column : columnList) {
-			if (first)
-				first = false;
-			else
-				sb.append(",");
+        /**
+         * Adds a row element with a double value. Since it is a double it is
+         * not quoted. Outputs just one digit after the decimal point.
+         *
+         * @param value The value of the element to be added to the row
+         */
+        public void addRowElement(double value) {
+            String rowElement = "{\"v\": " + StringUtils.oneDigitFormat(value)
+                    + "}";
+            rowElementsList.add(rowElement);
+        }
 
-			sb.append("\n  ").append(column);
+        /**
+         * Adds a row element with a long value. Since it is a numeric it is not
+         * quoted.
+         *
+         * @param value The value of the element to be added to the row
+         */
+        public void addRowElement(long value) {
+            String rowElement = "{\"v\": " + value + "}";
+            rowElementsList.add(rowElement);
+        }
 
-		}
-		sb.append("\n  ],");
+        /**
+         * Adds a row element with a Number value. Since it is a numeric it is
+         * not quoted.
+         *
+         * @param value The value of the element to be added to the row
+         */
+        public void addRowElement(Number value) {
+            String rowElement = "{\"v\": " + value + "}";
+            rowElementsList.add(rowElement);
+        }
 
-		// Add the row data
-		sb.append("\n \"rows\": [");
-		first = true;
-		for (RowBuilder row : rowList) {
-			if (first)
-				first = false;
-			else
-				sb.append(",");
+        /**
+         * For when need to add null element to indicate that don't have data
+         * for a cell. Useful for when there is now data for a row.
+         */
+        public void addRowNullElement() {
+            rowElementsList.add("{\"v\": null}");
+        }
 
-			sb.append("\n  ").append(row.getJson());
+        /**
+         * Returns the JSON for this row
+         *
+         * @return
+         */
+        private String getJson() {
+            // Start the JSON string
+            StringBuilder sb = new StringBuilder();
+            sb.append("  {\"c\": [");
 
-		}
-		sb.append("\n  ]");
+            boolean first = true;
+            for (String rowElement : rowElementsList) {
+                if (first)
+                    first = false;
+                else
+                    sb.append(",");
 
-		// Wrap up the JSON string
-		sb.append("\n}");
+                sb.append(rowElement);
+            }
 
-		// Return the results as a string
-		return sb.toString();
-	}
+            // Wrap up the row
+            sb.append("] }");
+
+            // Return the row
+            return sb.toString();
+        }
+    }
 }

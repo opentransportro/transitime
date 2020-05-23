@@ -1,35 +1,36 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="ISO-8859-1">
-<title>Test Map</title>
-  <!-- So that get proper sized map on iOS mobile device -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  
-  <link rel="stylesheet" href="css/mapUi.css" />
- 
-  <!-- Load javascript and css files -->
-  <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
-  <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
-  <!-- New version of map. CLIP_PADDING doesn't seem to work
-  <link rel="stylesheet" href="leaflet/leaflet.css" />
-  <script src="leaflet/leaflet.js"></script>
-  -->
-  <script src="javascript/leafletRotatedMarker.js"></script>
-  <script src="javascript/mapUiOptions.js"></script>
-  <script src="javascript/map.js"></script>
-  
-  <!-- Load in JQuery -->
-  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <meta charset="ISO-8859-1">
+    <title>Test Map</title>
+    <!-- So that get proper sized map on iOS mobile device -->
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
 
-  <!--  Override the body style from the includes.jsp/general.css files -->
-  <style>
+    <link href="css/mapUi.css" rel="stylesheet"/>
+
+    <!-- Load javascript and css files -->
+    <link href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" rel="stylesheet"/>
+    <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+    <!-- New version of map. CLIP_PADDING doesn't seem to work
+    <link rel="stylesheet" href="leaflet/leaflet.css" />
+    <script src="leaflet/leaflet.js"></script>
+    -->
+    <script src="javascript/leafletRotatedMarker.js"></script>
+    <script src="javascript/mapUiOptions.js"></script>
+    <script src="javascript/map.js"></script>
+
+    <!-- Load in JQuery -->
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js" type="text/javascript"></script>
+
+    <!--  Override the body style from the includes.jsp/general.css files -->
+    <style>
     body {
 	  margin: 0px;
     }
-  </style>
-  
-  <style>
+
+    </style>
+
+    <style>
   /* Make prediction popup small */
   .leaflet-popup-content {
     line-height: 1.2;
@@ -38,15 +39,16 @@
   }
   
   .prediction {font-size: large; font-weight: bold;}
-  </style>
-  
+
+    </style>
+
 </head>
 <body>
-  <!--  Create map that takes up entire view -->
-  <div id="map"></div>
+<!--  Create map that takes up entire view -->
+<div id="map"></div>
 </body>
-  
-  <script>
+
+<script>
   //Create the map with a scale and specify which map tiles to use
   var map = L.map('map');
   L.control.scale({metric: false}).addTo(map);
@@ -112,6 +114,7 @@ map.on('popupclose', function(e) {
    * such are removed as quickly as possible.
    */
   setInterval(hideThingsIfStale, 300);
-  </script>
+
+</script>
 
 </html>

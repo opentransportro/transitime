@@ -1,6 +1,6 @@
 /*
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPL) as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -20,33 +20,33 @@ import java.util.List;
 
 /**
  * For specifying an Integer parameter that can be read in from xml config file.
- * 
+ *
  * @author SkiBu Smith
  */
 public class IntegerConfigValue extends ConfigValue<Integer> {
-	
-	/**
-	 * Constructor for when there is no default value.
-	 * 
-	 * @param id
-	 * @param description
-	 */
-	public IntegerConfigValue(String id, String description) {
-		super(id, description);
-	}
-	
-	/**
-	 * Constructor.
-	 * 
-	 * @param id
-	 * @param defaultValue
-	 */
-	public IntegerConfigValue(String id, Integer defaultValue, String description) {
-		super(id, defaultValue, description);
-	}
-	
-	@Override 
-	protected Integer convertFromString(List<String> dataList) {
-		return Integer.valueOf(dataList.get(0).trim());
-	}	
+
+    /**
+     * Constructor for when there is no default value.
+     *
+     * @param id
+     * @param description
+     */
+    public IntegerConfigValue(String id, String description) {
+        super(id, description);
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param id
+     * @param defaultValue
+     */
+    public IntegerConfigValue(String id, Integer defaultValue, String description) {
+        super(id, defaultValue, description);
+    }
+
+    @Override
+    protected Integer convertFromString(List<String> dataList) {
+        return Integer.valueOf(dataList.get(0).trim());
+    }
 }

@@ -1,5 +1,6 @@
 package org.transitclock.api.rootResources;
 
+import javax.ws.rs.WebApplicationException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -8,43 +9,43 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
-import javax.ws.rs.WebApplicationException;
-
 
 public class DateParam {
 
-	private SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+    private SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 
-	private LocalDate date;
+    private LocalDate date;
 
-	public DateParam(String in) throws WebApplicationException {
-		try {
-			date=LocalDate.parse(in, DateTimeFormatter.ISO_DATE);
+    public DateParam(String in) throws WebApplicationException {
+        try {
+            date = LocalDate.parse(in, DateTimeFormatter.ISO_DATE);
 
-		}
-		catch (Exception exception) {
-			throw new WebApplicationException(400);
-		}
-	}
-	public LocalDate getDate() {
-		return date;
-	}
-	public String format() {
-		return date.toString();
-	}
-	public static void main(String[] args) {
+        } catch (Exception exception) {
+            throw new WebApplicationException(400);
+        }
+    }
 
-		LocalTime midnight = LocalTime.MIDNIGHT;
+    public static void main(String[] args) {
 
-		DateParam date=new DateParam("2016-09-03");
-		LocalDate now = date.getDate(); // 2015-11-19T19:42:19.224
+        LocalTime midnight = LocalTime.MIDNIGHT;
 
-		LocalDateTime todayMidnight = LocalDateTime.of(now, midnight);
-		LocalDateTime yesterdatMidnight = todayMidnight.plusDays(-1);
+        DateParam date = new DateParam("2016-09-03");
+        LocalDate now = date.getDate(); // 2015-11-19T19:42:19.224
 
-		Date end_date = Date.from(todayMidnight.atZone(ZoneId.systemDefault()).toInstant());
-		Date start_date = Date.from(yesterdatMidnight.atZone(ZoneId.systemDefault()).toInstant());
+        LocalDateTime todayMidnight = LocalDateTime.of(now, midnight);
+        LocalDateTime yesterdatMidnight = todayMidnight.plusDays(-1);
 
-		System.out.println(start_date+ " " +end_date);
-	}
+        Date end_date = Date.from(todayMidnight.atZone(ZoneId.systemDefault()).toInstant());
+        Date start_date = Date.from(yesterdatMidnight.atZone(ZoneId.systemDefault()).toInstant());
+
+        System.out.println(start_date + " " + end_date);
+    }
+
+    public LocalDate getDate() {
+        return date;
+    }
+
+    public String format() {
+        return date.toString();
+    }
 }

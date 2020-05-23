@@ -1,6 +1,6 @@
 /*
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPL) as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -23,33 +23,31 @@ import java.io.Serializable;
  * Contains status for an individual monitor. To be passed via IPC to client.
  *
  * @author SkiBu Smith
- *
  */
 public class MonitorResult implements Serializable {
 
-	private final String type;
-	private final String message;
+    private static final long serialVersionUID = 8865389000445125279L;
+    private final String type;
+    private final String message;
 
-	private static final long serialVersionUID = 8865389000445125279L;
+    /********************** Member Functions **************************/
 
-	/********************** Member Functions **************************/
+    public MonitorResult(String type, String message) {
+        this.type = type;
+        this.message = message;
+    }
 
-	public MonitorResult(String type, String message) {
-		this.type = type;
-		this.message = message;
-	}
-	
-	@Override
-	public String toString() {
-		return "MonitorResult [type=" + type + ", message=" + message + "]";
-	}
+    @Override
+    public String toString() {
+        return "MonitorResult [type=" + type + ", message=" + message + "]";
+    }
 
-	public String getType() {
-		return type;
-	}
+    public String getType() {
+        return type;
+    }
 
-	public String getMessage() {
-		return message;
-	}
+    public String getMessage() {
+        return message;
+    }
 
 }

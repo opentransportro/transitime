@@ -1,6 +1,6 @@
-/* 
+/*
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPL) as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -19,7 +19,7 @@
  * Contains the classes for logging debug, warning, error, and info information
  * to logfiles using logback.
  * <p>
- * See the logback documentation at http://logback.qos.ch/documentation.html for 
+ * See the logback documentation at http://logback.qos.ch/documentation.html for
  * more details.
  * <p>
  * Key addition to Transitime logging is that can easily generate an e-mail
@@ -27,8 +27,7 @@
  * <code>
  * logger.error(Markers.email(), message);
  * </code>
- * 
- * @author SkiBu Smith
  *
+ * @author SkiBu Smith
  */
 package org.transitclock.logging;

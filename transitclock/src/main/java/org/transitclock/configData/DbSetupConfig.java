@@ -1,6 +1,6 @@
 /*
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPL) as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -24,92 +24,92 @@ import org.transitclock.config.StringConfigValue;
  * Config params for database
  *
  * @author SkiBu Smith
- *
  */
 public class DbSetupConfig {
 
-	public static String getDbName() {
-		return dbName.getValue();
-	}
-	private static StringConfigValue dbName = 
-			new StringConfigValue("transitclock.db.dbName", 
-					null, // Null as default to use the projectId
-					"Specifies the name of the database. If not set then the "
-					+ "transitclock.core.agencyId will be used.");
+    private static final StringConfigValue dbName =
+            new StringConfigValue("transitclock.db.dbName",
+                    null, // Null as default to use the projectId
+                    "Specifies the name of the database. If not set then the "
+                            + "transitclock.core.agencyId will be used.");
+    private static final StringConfigValue dbHost =
+            new StringConfigValue("transitclock.db.dbHost",
+                    null, // Null as default so can get it from hibernate config
+                    "Specifies the name of the machine the database for the " +
+                            "project resides on. Use null value to use values from " +
+                            "hibernate config file. Set to \"localhost\" if database " +
+                            "running on same machine as the core application.");
+    private static final StringConfigValue dbType =
+            new StringConfigValue("transitclock.db.dbType",
+                    "mysql",
+                    "Specifies type of database when creating the URL to "
+                            + "connect to the database. Can be mysql or postgresql. "
+                            + "Should work for other dbs as well. Default is mysql.");
+    private static final StringConfigValue dbUserName =
+            new StringConfigValue("transitclock.db.dbUserName",
+                    null,
+                    "Specifies login for the project database. Use null " +
+                            "value to use values from hibernate config file.");
+    private static final StringConfigValue dbPassword =
+            new StringConfigValue("transitclock.db.dbPassword",
+                    null,
+                    "Specifies password for the project database. Use null " +
+                            "value to use values from hibernate config file.",
+                    false); // Don't log password in configParams log file
+    private static final StringConfigValue hibernateConfigFileName =
+            new StringConfigValue("transitclock.hibernate.configFile",
+                    "hsql_hibernate.cfg.xml",
+                    "Specifies the database dependent hibernate.cfg.xml file "
+                            + "to use to configure hibernate. The system will look both "
+                            + "on the file system and in the classpath. Can specify "
+                            + "mysql_hibernate.cfg.xml or postgres_hibernate.cfg.xml");
+    private static final IntegerConfigValue batchSize =
+            new IntegerConfigValue("transitclock.db.batchSize",
+                    100,
+                    "Specifies the database batch size, defaults to 100");
+    public static IntegerConfigValue socketTimeoutSec =
+            new IntegerConfigValue("transitclock.db.socketTimeoutSec",
+                    60,
+                    "So can set low-level socket timeout for JDBC connections. "
+                            + "Useful for when a session dies during a request, such as "
+                            + "for when a db is rebooted. Set to 0 to have no timeout.");
 
-	
-	public static String getDbHost() {
-		return dbHost.getValue();
-	}
-	private static StringConfigValue dbHost = 
-			new StringConfigValue("transitclock.db.dbHost", 
-					null, // Null as default so can get it from hibernate config
-					"Specifies the name of the machine the database for the " +
-					"project resides on. Use null value to use values from " +
-					"hibernate config file. Set to \"localhost\" if database " +
-					"running on same machine as the core application.");
-	
-	public static String getDbType() {
-		return dbType.getValue();
-	}
-	private static StringConfigValue dbType =
-			new StringConfigValue("transitclock.db.dbType",
-					"mysql",
-					"Specifies type of database when creating the URL to "
-					+ "connect to the database. Can be mysql or postgresql. "
-					+ "Should work for other dbs as well. Default is mysql.");
-	
-	public static String getDbUserName() {
-		return dbUserName.getValue();
-	}
-	private static StringConfigValue dbUserName = 
-			new StringConfigValue("transitclock.db.dbUserName", 
-					null,
-					"Specifies login for the project database. Use null " +
-					"value to use values from hibernate config file.");
-	
-	public static String getDbPassword() {
-		return dbPassword.getValue();
-	}
-	private static StringConfigValue dbPassword = 
-			new StringConfigValue("transitclock.db.dbPassword", 
-					null,
-					"Specifies password for the project database. Use null " +
-					"value to use values from hibernate config file.",
-					false); // Don't log password in configParams log file
-	
-	public static Integer getSocketTimeoutSec() {
-		return socketTimeoutSec.getValue();
-	}
-	public static IntegerConfigValue socketTimeoutSec =
-			new IntegerConfigValue("transitclock.db.socketTimeoutSec", 
-					60,
-					"So can set low-level socket timeout for JDBC connections. "
-					+ "Useful for when a session dies during a request, such as "
-					+ "for when a db is rebooted. Set to 0 to have no timeout.");
-	
-	/**
-	 * So that have flexibility with where the hibernate config file is.
-	 * This way can easily access it within Eclipse.
-	 * @return
-	 */
-	public static String getHibernateConfigFileName() {
-		return hibernateConfigFileName.getValue();
-	}
-	private static StringConfigValue hibernateConfigFileName = 
-			new StringConfigValue("transitclock.hibernate.configFile", 
-					"hsql_hibernate.cfg.xml",
-					"Specifies the database dependent hibernate.cfg.xml file "
-					+ "to use to configure hibernate. The system will look both "
-					+ "on the file system and in the classpath. Can specify "
-					+ "mysql_hibernate.cfg.xml or postgres_hibernate.cfg.xml");
+    public static String getDbName() {
+        return dbName.getValue();
+    }
+
+    public static String getDbHost() {
+        return dbHost.getValue();
+    }
+
+    public static String getDbType() {
+        return dbType.getValue();
+    }
+
+    public static String getDbUserName() {
+        return dbUserName.getValue();
+    }
+
+    public static String getDbPassword() {
+        return dbPassword.getValue();
+    }
+
+    public static Integer getSocketTimeoutSec() {
+        return socketTimeoutSec.getValue();
+    }
+
+    /**
+     * So that have flexibility with where the hibernate config file is.
+     * This way can easily access it within Eclipse.
+     *
+     * @return
+     */
+    public static String getHibernateConfigFileName() {
+        return hibernateConfigFileName.getValue();
+    }
 
     public static Integer getBatchSize() {
         return batchSize.getValue();
     }
-    private static IntegerConfigValue batchSize =
-            new IntegerConfigValue("transitclock.db.batchSize",
-                    100,
-                    "Specifies the database batch size, defaults to 100");
 
 }

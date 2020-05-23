@@ -26,57 +26,57 @@ public class CsvPollingAvlModule extends PollUrlAvlModule {
 
     private static final float KILOMETERS_PER_MILE = 1.60934f;
 
-    private static StringConfigValue feedUrl =
+    private static final StringConfigValue feedUrl =
             new StringConfigValue("transitclock.avl.csv.url",
                     "http://localhost:8080/csv",
                     "The URL of the CSV feed.");
 
-    private static StringConfigValue vehicleParam =
+    private static final StringConfigValue vehicleParam =
             new StringConfigValue("transitclock.avl.csv.vehicle_param",
                     "DeviceID",
                     "CSV header for vehicleId column");
 
-    private static StringConfigValue dateParam =
+    private static final StringConfigValue dateParam =
             new StringConfigValue("transitclock.avl.csv.date_param",
                     "Date",
                     "CSV header for date column");
 
-    private static BooleanConfigValue isSeparateTimeParam =
+    private static final BooleanConfigValue isSeparateTimeParam =
             new BooleanConfigValue("transitclock.avl.csv.need_time_param",
                     true,
                     "If time is separate from date");
 
-    private static StringConfigValue timeParam =
+    private static final StringConfigValue timeParam =
             new StringConfigValue("transitclock.avl.csv.time_param",
                     "Time",
                     "CSV header for time column");
 
-    private static StringConfigValue dateFormatParam =
+    private static final StringConfigValue dateFormatParam =
             new StringConfigValue("transitclock.avl.csv.date_format_param",
                     "yyyy/MM/ddHH:mm:ss",
                     "SimpleDateFormat constructor for date parsing");
 
-    private static StringConfigValue latParam =
+    private static final StringConfigValue latParam =
             new StringConfigValue("transitclock.avl.csv.lat_param",
                     "Latitude",
                     "CSV header for latitude column");
 
-    private static StringConfigValue lonParam =
+    private static final StringConfigValue lonParam =
             new StringConfigValue("transitclock.avl.csv.lon_param",
                     "Longitude",
                     "CSV header for longitude column");
 
-    private static StringConfigValue speedParam =
+    private static final StringConfigValue speedParam =
             new StringConfigValue("transitclock.avl.csv.speed_param",
                     "Speed",
                     "CSV header for speed column");
 
-    private static BooleanConfigValue speedInMphParam =
+    private static final BooleanConfigValue speedInMphParam =
             new BooleanConfigValue("transitclock.avl.csv.speed_is_mph_param",
                     true,
                     "True if speed is in miles per hour");
 
-    private static StringConfigValue headingParam =
+    private static final StringConfigValue headingParam =
             new StringConfigValue("transitclock.avl.csv.heading_param",
                     "Heading",
                     "CSV header for heading/bearing column");
@@ -125,7 +125,7 @@ public class CsvPollingAvlModule extends PollUrlAvlModule {
             }
         }
         long stop = System.currentTimeMillis();
-        logger.warn("Parsed csv feed in {} ms", (stop-start)/1000);
+        logger.warn("Parsed csv feed in {} ms", (stop - start) / 1000);
         return avlReportsReadIn;
     }
 
@@ -146,13 +146,13 @@ public class CsvPollingAvlModule extends PollUrlAvlModule {
         double lon = Double.parseDouble(lonStr);
         float speed = Float.parseFloat(speedStr);
         if (speedInMphParam.getValue()) {
-            speed = speed / (float)2.237;  // mph to m/s
+            speed = speed / (float) 2.237;  // mph to m/s
 
         }
         float heading = Float.parseFloat(headingStr);
 
         AvlReport r = new AvlReport(vehicleId, avlDate.getTime(), lat, lon,
-        speed, heading, "OpenGTS");
+                speed, heading, "OpenGTS");
 
         return r;
     }

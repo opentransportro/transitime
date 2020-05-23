@@ -27,7 +27,6 @@ import org.transitclock.trip.PollUrlTripModule;
  * feeds and for when reading in a giant batch of data.
  *
  * @author SkiBu Smith
- *
  */
 public class GtfsRealtimeTripUpdatesModule extends PollUrlTripModule {
 
@@ -35,7 +34,7 @@ public class GtfsRealtimeTripUpdatesModule extends PollUrlTripModule {
     private static final Logger logger = LoggerFactory
             .getLogger(GtfsRealtimeTripUpdatesModule.class);
 
-    private GtfsRtTripUpdatesReader reader;
+    private final GtfsRtTripUpdatesReader reader;
 
 
     /********************** Member Functions **************************/
@@ -51,6 +50,14 @@ public class GtfsRealtimeTripUpdatesModule extends PollUrlTripModule {
     }
 
     /**
+     * Just for debugging
+     */
+    public static void main(String[] args) {
+        // Create a GtfsRealtimeModule for testing
+        Module.start("org.transitclock.avl.GtfsRealtimeTripUpdatesModule");
+    }
+
+    /**
      * Reads and processes the data. Called by AvlModule.run().
      * Reading GTFS-realtime doesn't use InputSteram so overriding
      * getAndProcessData().
@@ -61,14 +68,6 @@ public class GtfsRealtimeTripUpdatesModule extends PollUrlTripModule {
         reader.process(url);
         logger.info("read complete");
         logger.info("processed feed {}", url);
-    }
-
-    /**
-     * Just for debugging
-     */
-    public static void main(String[] args) {
-        // Create a GtfsRealtimeModule for testing
-        Module.start("org.transitclock.avl.GtfsRealtimeTripUpdatesModule");
     }
 
 }

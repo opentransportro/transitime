@@ -1,6 +1,6 @@
 /*
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPL) as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -17,98 +17,96 @@
 
 package org.transitclock.ipc.data;
 
-import java.io.Serializable;
-
 import org.transitclock.db.structs.Location;
 import org.transitclock.db.structs.Stop;
 
+import java.io.Serializable;
+
 /**
- * Contains information for a single route. Since Stop objects do 
+ * Contains information for a single route. Since Stop objects do
  * not change dynamically this class is not made immutable via a
  * serialization proxy. This simplifies the class greatly.
  *
  * @author SkiBu Smith
- *
  */
 public class IpcStop implements Serializable {
 
-	private final String id;
-	private final String name;
-	private final Integer code;
-	private final Location loc;
-	private final boolean isUiStop;
-	private final String directionId;
-	private Double stopPathLength;
-	
-	public Double getStopPathLength() {
-		return stopPathLength;
-	}
+    private static final long serialVersionUID = 8964112532327897125L;
+    private final String id;
+    private final String name;
+    private final Integer code;
+    private final Location loc;
+    private final boolean isUiStop;
+    private final String directionId;
+    private Double stopPathLength;
 
-	public void setStopPathLength(Double stopPathLength) {
-		this.stopPathLength = stopPathLength;
-	}
+    /********************** Member Functions **************************/
 
-	private static final long serialVersionUID = 8964112532327897125L;
+    public IpcStop(Stop dbStop, boolean aUiStop, String directionId, Double stopPathLength) {
+        this.id = dbStop.getId();
+        this.name = dbStop.getName();
+        this.code = dbStop.getCode();
+        this.loc = dbStop.getLoc();
+        this.isUiStop = aUiStop;
+        this.directionId = directionId;
+        this.stopPathLength = stopPathLength;
+    }
 
-	/********************** Member Functions **************************/
+    /**
+     * Constructs a stop and sets isUiStop to true.
+     *
+     * @param dbStop
+     */
+    public IpcStop(Stop dbStop, String directionId) {
+        this.id = dbStop.getId();
+        this.name = dbStop.getName();
+        this.code = dbStop.getCode();
+        this.loc = dbStop.getLoc();
+        this.isUiStop = true;
+        this.directionId = directionId;
+    }
 
-	public IpcStop(Stop dbStop, boolean aUiStop, String directionId, Double stopPathLength) {
-		this.id = dbStop.getId();
-		this.name = dbStop.getName();
-		this.code = dbStop.getCode();
-		this.loc = dbStop.getLoc();
-		this.isUiStop = aUiStop;
-		this.directionId = directionId;
-		this.stopPathLength=stopPathLength;
-	}
-	
-	/**
-	 * Constructs a stop and sets isUiStop to true.
-	 * 
-	 * @param dbStop
-	 */
-	public IpcStop(Stop dbStop, String directionId) {
-		this.id = dbStop.getId();
-		this.name = dbStop.getName();
-		this.code = dbStop.getCode();
-		this.loc = dbStop.getLoc();
-		this.isUiStop = true;
-		this.directionId = directionId;
-	}
-	
-	@Override
-	public String toString() {
-		return "IpcStop [" 
-				+ "id=" + id 
-				+ ", name=" + name 
-				+ ", code=" + code
-				+ ", loc=" + loc
-				+ ", isUiStop=" + isUiStop
-				+ ", directionId" + directionId
-				+ "]";
-	}
+    public Double getStopPathLength() {
+        return stopPathLength;
+    }
 
-	public String getId() {
-		return id;
-	}
+    public void setStopPathLength(Double stopPathLength) {
+        this.stopPathLength = stopPathLength;
+    }
 
-	public String getName() {
-		return name;
-	}
+    @Override
+    public String toString() {
+        return "IpcStop ["
+                + "id=" + id
+                + ", name=" + name
+                + ", code=" + code
+                + ", loc=" + loc
+                + ", isUiStop=" + isUiStop
+                + ", directionId" + directionId
+                + "]";
+    }
 
-	public Integer getCode() {
-		return code;
-	}
+    public String getId() {
+        return id;
+    }
 
-	public Location getLoc() {
-		return loc;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public boolean isUiStop() {
-		return isUiStop;
-	}
-	
-	public String getDirectionId() {
-		return directionId;
-	}
+    public Integer getCode() {
+        return code;
+    }
+
+    public Location getLoc() {
+        return loc;
+    }
+
+    public boolean isUiStop() {
+        return isUiStop;
+    }
+
+    public String getDirectionId() {
+        return directionId;
+    }
 }

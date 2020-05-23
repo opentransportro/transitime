@@ -1,6 +1,6 @@
 /*
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPL) as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -17,40 +17,37 @@
 
 package org.transitclock.ipc.data;
 
+import org.transitclock.monitoring.MonitorResult;
+
 import java.io.Serializable;
 import java.util.List;
-
-import org.transitclock.monitoring.MonitorResult;
 
 /**
  * Represents server status for Inter Process Communication (IPC)
  *
  * @author SkiBu Smith
- *
  */
 public class IpcServerStatus implements Serializable {
 
-	private final List<MonitorResult> monitorResults;
+    private static final long serialVersionUID = 4167038313695279486L;
+    private final List<MonitorResult> monitorResults;
 
-	private static final long serialVersionUID = 4167038313695279486L;
+    /********************** Member Functions **************************/
 
-	/********************** Member Functions **************************/
+    public IpcServerStatus(List<MonitorResult> monitorResults) {
+        this.monitorResults = monitorResults;
+    }
 
-	public IpcServerStatus(List<MonitorResult> monitorResults) {
-		this.monitorResults = monitorResults;
-	}
+    @Override
+    public String toString() {
+        return "IpcServerStatus ["
+                + "monitorResults=" + monitorResults
+                + "]";
+    }
 
-	@Override
-	public String toString() {
-		return "IpcServerStatus [" 
-				+ "monitorResults=" + monitorResults
-				+ "]";
-	}
+    public List<MonitorResult> getMonitorResults() {
+        return monitorResults;
+    }
 
-	public List<MonitorResult> getMonitorResults() {
-		return monitorResults;
-	}
-	
-	
-	
+
 }

@@ -14,7 +14,7 @@ public class IpcCanceledTrip implements Serializable {
     private float latitude;
     private float longitude;
 
-    public IpcCanceledTrip(String tripId, String routeId, String tripStartTime, long timeStamp){
+    public IpcCanceledTrip(String tripId, String routeId, String tripStartTime, long timeStamp) {
         this.tripId = tripId;
         this.routeId = routeId;
         this.tripStartDate = tripStartTime;

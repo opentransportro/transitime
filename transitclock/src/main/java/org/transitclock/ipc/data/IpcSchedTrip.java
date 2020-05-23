@@ -1,6 +1,6 @@
 /*
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPL) as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -17,112 +17,110 @@
 
 package org.transitclock.ipc.data;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.transitclock.applications.Core;
 import org.transitclock.db.structs.ScheduleTime;
 import org.transitclock.db.structs.StopPath;
 import org.transitclock.db.structs.Trip;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * For describing a trip as part of a schedule
  *
  * @author SkiBu Smith
- *
  */
 public class IpcSchedTrip implements Serializable {
 
-	private final String blockId;
-	private final String tripId;
-	private final String tripShortName;
-	private final String tripHeadsign;
-	private final List<IpcSchedTime> scheduleTimes;
-	
-	private static final long serialVersionUID = 4410014384520957092L;
+    private static final long serialVersionUID = 4410014384520957092L;
+    private final String blockId;
+    private final String tripId;
+    private final String tripShortName;
+    private final String tripHeadsign;
+    private final List<IpcSchedTime> scheduleTimes;
 
-	/********************** Member Functions **************************/
+    /********************** Member Functions **************************/
 
-	/**
-	 * Constructor. Goes through the complete ordered list of stops for the
-	 * direction and creates the corresponding IpcSchedTime objects for each
-	 * one, even if there is no scheduled time for that stop for the specified
-	 * trip.
-	 * 
-	 * @param blockId
-	 * @param tripId
-	 * @param scheduleTimes
-	 */
-	public IpcSchedTrip(Trip trip) {
-		super();
-		
-		this.blockId = trip.getBlockId();
-		this.tripId = trip.getId();
-		this.tripShortName = trip.getShortName();
-		this.tripHeadsign = trip.getHeadsign();
-		this.scheduleTimes = new ArrayList<IpcSchedTime>();
+    /**
+     * Constructor. Goes through the complete ordered list of stops for the
+     * direction and creates the corresponding IpcSchedTime objects for each
+     * one, even if there is no scheduled time for that stop for the specified
+     * trip.
+     *
+     * @param blockId
+     * @param tripId
+     * @param scheduleTimes
+     */
+    public IpcSchedTrip(Trip trip) {
+        super();
 
-		// Actually fill in the schedule times		
-		// First, get list of ordered stop IDs for the direction
-		List<String> orderedStopIds = trip.getRoute().getOrderedStopsByDirection()
-				.get(trip.getDirectionId());
+        this.blockId = trip.getBlockId();
+        this.tripId = trip.getId();
+        this.tripShortName = trip.getShortName();
+        this.tripHeadsign = trip.getHeadsign();
+        this.scheduleTimes = new ArrayList<IpcSchedTime>();
 
-		// Set the schedule times for each ordered stop for the route/direction.
-		// If no scheduled time for the stop then use a null time.
-		int currentStopIdxInOrderedStops = 0;
-		for (int stopIdxInTrip=0; 
-				stopIdxInTrip<trip.getNumberStopPaths(); 
-				++stopIdxInTrip) {
-			StopPath stopPathInTrip = trip.getStopPath(stopIdxInTrip);
-			String stopIdInTrip = stopPathInTrip.getStopId();
-			
-			// Find the stop from the schedules for the trip in the list of 
-			// ordered stops...
-			int stopIdxInOrderedStops;
-			for (stopIdxInOrderedStops=currentStopIdxInOrderedStops; 
-					stopIdxInOrderedStops<orderedStopIds.size(); 
-					++stopIdxInOrderedStops) {
-				// If found the schedule time in the trip then use it
-				if (orderedStopIds.get(stopIdxInOrderedStops).equals(
-						stopIdInTrip)) {					
-					// Add a null schedule times needed for when there is an ordered
-					// stop but no corresponding schedule time
-					for (int i=currentStopIdxInOrderedStops; i<stopIdxInOrderedStops; ++i) {
-						// Create a IpcScheduleTime with a time of null so can still
-						// be added to the schedule trip.
-						String stopId = orderedStopIds.get(i);
-						addNullScheduleTime(stopId);
-					}
-					
-					// Update currentStopIdxInOrderedStops since have dealt with up to 
-					// this stop
-					currentStopIdxInOrderedStops = stopIdxInOrderedStops + 1;
+        // Actually fill in the schedule times
+        // First, get list of ordered stop IDs for the direction
+        List<String> orderedStopIds = trip.getRoute().getOrderedStopsByDirection()
+                .get(trip.getDirectionId());
 
-					ScheduleTime scheduleTime = trip
-							.getScheduleTime(stopIdxInTrip);
-					IpcSchedTime ipcScheduleTime = new IpcSchedTime(stopIdInTrip,
-							stopPathInTrip.getStopName(),
-							scheduleTime.getTime());
-					scheduleTimes.add(ipcScheduleTime);
-					
-					// Done with this stop in the trip so continue to the 
-					// next one
-					break;
-				}
-			}
-		}
-			
-		// For remaining ordered stops where there wasn't a schedule time add a 
-		// null schedule times
-		for (int i = currentStopIdxInOrderedStops; i < orderedStopIds.size(); ++i) {
-			// Create a IpcScheduleTime with a time of null so can still
-			// be added to the schedule trip.
-			String stopId = orderedStopIds.get(i);
-			addNullScheduleTime(stopId);
-		}
+        // Set the schedule times for each ordered stop for the route/direction.
+        // If no scheduled time for the stop then use a null time.
+        int currentStopIdxInOrderedStops = 0;
+        for (int stopIdxInTrip = 0;
+             stopIdxInTrip < trip.getNumberStopPaths();
+             ++stopIdxInTrip) {
+            StopPath stopPathInTrip = trip.getStopPath(stopIdxInTrip);
+            String stopIdInTrip = stopPathInTrip.getStopId();
 
-		//FIXME
+            // Find the stop from the schedules for the trip in the list of
+            // ordered stops...
+            int stopIdxInOrderedStops;
+            for (stopIdxInOrderedStops = currentStopIdxInOrderedStops;
+                 stopIdxInOrderedStops < orderedStopIds.size();
+                 ++stopIdxInOrderedStops) {
+                // If found the schedule time in the trip then use it
+                if (orderedStopIds.get(stopIdxInOrderedStops).equals(
+                        stopIdInTrip)) {
+                    // Add a null schedule times needed for when there is an ordered
+                    // stop but no corresponding schedule time
+                    for (int i = currentStopIdxInOrderedStops; i < stopIdxInOrderedStops; ++i) {
+                        // Create a IpcScheduleTime with a time of null so can still
+                        // be added to the schedule trip.
+                        String stopId = orderedStopIds.get(i);
+                        addNullScheduleTime(stopId);
+                    }
+
+                    // Update currentStopIdxInOrderedStops since have dealt with up to
+                    // this stop
+                    currentStopIdxInOrderedStops = stopIdxInOrderedStops + 1;
+
+                    ScheduleTime scheduleTime = trip
+                            .getScheduleTime(stopIdxInTrip);
+                    IpcSchedTime ipcScheduleTime = new IpcSchedTime(stopIdInTrip,
+                            stopPathInTrip.getStopName(),
+                            scheduleTime.getTime());
+                    scheduleTimes.add(ipcScheduleTime);
+
+                    // Done with this stop in the trip so continue to the
+                    // next one
+                    break;
+                }
+            }
+        }
+
+        // For remaining ordered stops where there wasn't a schedule time add a
+        // null schedule times
+        for (int i = currentStopIdxInOrderedStops; i < orderedStopIds.size(); ++i) {
+            // Create a IpcScheduleTime with a time of null so can still
+            // be added to the schedule trip.
+            String stopId = orderedStopIds.get(i);
+            addNullScheduleTime(stopId);
+        }
+
+        //FIXME
 //		// Go through all the ordered stops for the route/direction and
 //		// create corresponding IpcScheduleTime
 //		int stopIdxInTrip = 0;
@@ -175,47 +173,47 @@ public class IpcSchedTrip implements Serializable {
 //			// Add the (possibly null) schedule time
 //			scheduleTimes.add(ipcScheduleTime);
 //		}
-	}
+    }
 
-	private void addNullScheduleTime(String stopId) {
-		// Create a IpcScheduleTime with a time of null so can still
-		// be added to the schedule trip.
-		String stopName = Core.getInstance().getDbConfig()
-				.getStop(stopId).getName();
-		IpcSchedTime ipcScheduleTime = new IpcSchedTime(stopId, stopName, null);
-		scheduleTimes.add(ipcScheduleTime);				
+    private void addNullScheduleTime(String stopId) {
+        // Create a IpcScheduleTime with a time of null so can still
+        // be added to the schedule trip.
+        String stopName = Core.getInstance().getDbConfig()
+                .getStop(stopId).getName();
+        IpcSchedTime ipcScheduleTime = new IpcSchedTime(stopId, stopName, null);
+        scheduleTimes.add(ipcScheduleTime);
 
-	}
-	
-	@Override
-	public String toString() {
-		return "IpcScheduleTrip [" 
-				+ "blockId=" + blockId 
-				+ ", tripId=" + tripId
-				+ ", tripShortName=" + tripShortName
-				+ ", scheduleTimes=" + scheduleTimes 
-				+ "]";
-	}
+    }
 
-	public String getBlockId() {
-		return blockId;
-	}
+    @Override
+    public String toString() {
+        return "IpcScheduleTrip ["
+                + "blockId=" + blockId
+                + ", tripId=" + tripId
+                + ", tripShortName=" + tripShortName
+                + ", scheduleTimes=" + scheduleTimes
+                + "]";
+    }
 
-	public String getTripId() {
-		return tripId;
-	}
+    public String getBlockId() {
+        return blockId;
+    }
 
-	public String getTripShortName() {
-		return tripShortName;
-	}
-	
-	public String getTripHeadsign() {
-		return tripHeadsign;
-	}
-	
-	public List<IpcSchedTime> getSchedTimes() {
-		return scheduleTimes;
-	}
+    public String getTripId() {
+        return tripId;
+    }
 
-	
+    public String getTripShortName() {
+        return tripShortName;
+    }
+
+    public String getTripHeadsign() {
+        return tripHeadsign;
+    }
+
+    public List<IpcSchedTime> getSchedTimes() {
+        return scheduleTimes;
+    }
+
+
 }

@@ -1,6 +1,6 @@
 /*
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPL) as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -20,30 +20,30 @@ import org.transitclock.avl.NextBusAvlModule;
 import org.transitclock.config.StringConfigValue;
 
 /**
- * For lametro agency using two separate AVL feeds so need a 
+ * For lametro agency using two separate AVL feeds so need a
  * separate agency name for feed for rail.
  *
  * @author SkiBu Smith
- * 
  */
 public class LametroRailNextBusAvlModule extends NextBusAvlModule {
 
-	private static StringConfigValue agencyNameForFeed =
-			new StringConfigValue("transitclock.custom.lametro.agencyNameForLametroRailFeed",
-					"If set then specifies the agency name to use for the "
-					+ "feed. If not set then the transitclock.core.agencyId "
-					+ "is used.");
-	@Override
-	protected String getAgencyNameForFeed() {
-		return agencyNameForFeed.getValue();
-	}
+    private static final StringConfigValue agencyNameForFeed =
+            new StringConfigValue("transitclock.custom.lametro.agencyNameForLametroRailFeed",
+                    "If set then specifies the agency name to use for the "
+                            + "feed. If not set then the transitclock.core.agencyId "
+                            + "is used.");
 
-	/**
-	 * @param agencyId
-	 */
-	public LametroRailNextBusAvlModule(String agencyId) {
-		super(agencyId);
-	}
-	
+    /**
+     * @param agencyId
+     */
+    public LametroRailNextBusAvlModule(String agencyId) {
+        super(agencyId);
+    }
+
+    @Override
+    protected String getAgencyNameForFeed() {
+        return agencyNameForFeed.getValue();
+    }
+
 
 }

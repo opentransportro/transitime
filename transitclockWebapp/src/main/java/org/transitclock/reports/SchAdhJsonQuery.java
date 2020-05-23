@@ -1,6 +1,6 @@
 /*
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPL) as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -16,55 +16,43 @@
  */
 package org.transitclock.reports;
 
-import org.apache.commons.lang3.StringUtils;
-import org.transitclock.applications.Core;
-import org.transitclock.utils.Time;
-
-import java.text.ParseException;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-
 /**
  * Does a query of vehicle states data and returns result in JSON format.
- * 
- * @author Rebecca Brown
  *
+ * @author Rebecca Brown
  */
 public class SchAdhJsonQuery {
-	// Maximum number of rows that can be retrieved by a query
-	private static final int MAX_ROWS = 50000;
-	
-	/**
-	 * Queries agency for vehicle state data and returns result as a JSON string. Limited
-	 * to returning MAX_ROWS (50,000) data points.
-	 * 
-	 * @param agencyId
+    // Maximum number of rows that can be retrieved by a query
+    private static final int MAX_ROWS = 50000;
 
-	 * @param vehicleId
-	 * 			  selected vehicle Id
-	 * @return data in JSON format. Can be empty JSON array if no data
-	 *         meets criteria.
-	 */
-	public static String getJson(String agencyId, String vehicleId) {
+    /**
+     * Queries agency for vehicle state data and returns result as a JSON string. Limited
+     * to returning MAX_ROWS (50,000) data points.
+     *
+     * @param agencyId
+     * @param vehicleId selected vehicle Id
+     * @return data in JSON format. Can be empty JSON array if no data
+     * meets criteria.
+     */
+    public static String getJson(String agencyId, String vehicleId) {
 
-		String sql = "SELECT v.vehicleId, v.avlTime, v.blockId, v.routeShortName, -(v.schedAdhMsec / 60000) as schedAdh, v.avlTime "
-				+ "FROM VehicleStates v "
-				+ "JOIN "
-				+ "(select vehicleId, max(avlTime) as avlTime from VehicleStates group by vehicleId) maxv "
-				+ "ON maxv.vehicleId = v.vehicleId and maxv.avlTime = v.avlTime "
-				+ "WHERE v.schedAdh is not null ";
+        String sql = "SELECT v.vehicleId, v.avlTime, v.blockId, v.routeShortName, -(v.schedAdhMsec / 60000) as schedAdh, v.avlTime "
+                + "FROM VehicleStates v "
+                + "JOIN "
+                + "(select vehicleId, max(avlTime) as avlTime from VehicleStates group by vehicleId) maxv "
+                + "ON maxv.vehicleId = v.vehicleId and maxv.avlTime = v.avlTime "
+                + "WHERE v.schedAdh is not null ";
 
-		if (vehicleId != null && !vehicleId.trim().isEmpty()) {
-			sql += " AND v.vehicleId = '" + vehicleId + "' ";
-		}
+        if (vehicleId != null && !vehicleId.trim().isEmpty()) {
+            sql += " AND v.vehicleId = '" + vehicleId + "' ";
+        }
 
-		sql += " ORDER BY v.schedAdhMsec, v.vehicleId";
+        sql += " ORDER BY v.schedAdhMsec, v.vehicleId";
 
-		String json = GenericJsonQuery.getJsonString(agencyId, sql);
+        String json = GenericJsonQuery.getJsonString(agencyId, sql);
 
-		return json;
+        return json;
 
-	}
-	
+    }
+
 }

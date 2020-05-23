@@ -1,6 +1,6 @@
-/* 
+/*
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPL) as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -17,19 +17,18 @@
 package org.transitclock.utils;
 
 /**
- * Implements SystemTime and returns the system current time when get() 
+ * Implements SystemTime and returns the system current time when get()
  * is called.
- * 
- * @author SkiBu Smith
  *
+ * @author SkiBu Smith
  */
 public class SystemCurrentTime implements SystemTime {
-	
-	/**
-	 * @return System epoch time in milliseconds
-	 */
-	@Override
-	public long get() {
-		return System.currentTimeMillis();
-	}
+
+    /**
+     * @return System epoch time in milliseconds
+     */
+    @Override
+    public long get() {
+        return System.currentTimeMillis();
+    }
 }

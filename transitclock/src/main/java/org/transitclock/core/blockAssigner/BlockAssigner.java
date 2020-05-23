@@ -32,12 +32,11 @@ import java.util.Collection;
  * Singleton class that handles block assignments from AVL feed.
  *
  * @author SkiBu Smith
- *
  */
 public class BlockAssigner {
 
     // Singleton class
-    private static BlockAssigner singleton = new BlockAssigner();
+    private static final BlockAssigner singleton = new BlockAssigner();
 
     private static final Logger logger =
             LoggerFactory.getLogger(BlockAssigner.class);
@@ -47,7 +46,8 @@ public class BlockAssigner {
     /**
      * Constructor private since singleton class
      */
-    private BlockAssigner() {}
+    private BlockAssigner() {
+    }
 
     /**
      * Returns the BlockAssigner singleton
@@ -70,11 +70,10 @@ public class BlockAssigner {
      * could not be found for the serviceIds, it could not matched to the trip,
      * or it was a route assignment then null will be returned
      *
-     * @param avlReport
-     *            So can determine the assignment ID, and the time so that so
-     *            that can determine the proper service ID.
+     * @param avlReport So can determine the assignment ID, and the time so that so
+     *                  that can determine the proper service ID.
      * @return Block corresponding to the time and blockId from AVL report, or
-     *         null if could not determine block.
+     * null if could not determine block.
      */
     public Block getBlockAssignment(AvlReport avlReport) {
         // If vehicle has assignment...
@@ -134,7 +133,7 @@ public class BlockAssigner {
 
                             Trip tripPrefix = getTripWithServiceIdSuffix(config, avlReport.getAssignmentId());
 
-                            if (tripPrefix != null){
+                            if (tripPrefix != null) {
                                 Block blockPrefix = tripPrefix.getBlock();
                                 logger.debug("For vehicleId={} the trip assigngment from "
                                                 + "the AVL feed is tripId={} and serviceId={} which corresponds to "
@@ -184,8 +183,8 @@ public class BlockAssigner {
             if (tripPrefix != null
                     && tripPrefix.getBlock() != null
                     && tripPrefix.getBlock()
-                    .isActive( Core.getInstance().getSystemTime(), secondsIntoDay)){
-               return tripPrefix;
+                    .isActive(Core.getInstance().getSystemTime(), secondsIntoDay)) {
+                return tripPrefix;
             }
         }
         return null;

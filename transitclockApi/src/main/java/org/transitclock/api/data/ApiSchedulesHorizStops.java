@@ -1,6 +1,6 @@
 /*
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPL) as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -22,48 +22,46 @@
  * a day, such as for bus routes.
  *
  * @author SkiBu Smith
- *
  */
 package org.transitclock.api.data;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.transitclock.ipc.data.IpcSchedule;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-
-import org.transitclock.ipc.data.IpcSchedule;
+import java.util.ArrayList;
+import java.util.List;
 
 @XmlRootElement(name = "schedules")
 public class ApiSchedulesHorizStops {
 
-	@XmlAttribute
-	private String routeId;
+    @XmlAttribute
+    private String routeId;
 
-	@XmlAttribute
-	private String routeName;
+    @XmlAttribute
+    private String routeName;
 
-	@XmlElement(name = "schedule")
-	private List<ApiScheduleHorizStops> schedules;
-	
-	/********************** Member Functions **************************/
+    @XmlElement(name = "schedule")
+    private List<ApiScheduleHorizStops> schedules;
 
-	/**
-	 * Need a no-arg constructor for Jersey. Otherwise get really obtuse
-	 * "MessageBodyWriter not found for media type=application/json" exception.
-	 */
-	protected ApiSchedulesHorizStops() {
-	}
-	
-	public ApiSchedulesHorizStops(List<IpcSchedule> schedules) {
-		this.routeId = schedules.get(0).getRouteId();
-		this.routeName = schedules.get(0).getRouteName();
-		
-		this.schedules = new ArrayList<ApiScheduleHorizStops>(schedules.size());
-		for (IpcSchedule ipcSchedule : schedules) {
-			this.schedules.add(new ApiScheduleHorizStops(ipcSchedule));
-		}
-	}
+    /********************** Member Functions **************************/
+
+    /**
+     * Need a no-arg constructor for Jersey. Otherwise get really obtuse
+     * "MessageBodyWriter not found for media type=application/json" exception.
+     */
+    protected ApiSchedulesHorizStops() {
+    }
+
+    public ApiSchedulesHorizStops(List<IpcSchedule> schedules) {
+        this.routeId = schedules.get(0).getRouteId();
+        this.routeName = schedules.get(0).getRouteName();
+
+        this.schedules = new ArrayList<ApiScheduleHorizStops>(schedules.size());
+        for (IpcSchedule ipcSchedule : schedules) {
+            this.schedules.add(new ApiScheduleHorizStops(ipcSchedule));
+        }
+    }
 
 }

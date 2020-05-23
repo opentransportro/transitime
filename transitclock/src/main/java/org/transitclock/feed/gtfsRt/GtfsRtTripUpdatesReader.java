@@ -3,10 +3,10 @@ package org.transitclock.feed.gtfsRt;
 import com.google.transit.realtime.GtfsRealtime.TripDescriptor;
 import org.transitclock.core.dataCache.CanceledTripManager;
 
-public class GtfsRtTripUpdatesReader extends  GtfsRtTripUpdatesReaderBase{
+public class GtfsRtTripUpdatesReader extends GtfsRtTripUpdatesReaderBase {
 
     /********************** Member Functions **************************/
-    private CanceledTripManager canceledTripManager;
+    private final CanceledTripManager canceledTripManager;
 
 
     public GtfsRtTripUpdatesReader() {

@@ -1,6 +1,6 @@
 /*
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPL) as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -20,35 +20,35 @@ import java.util.List;
 
 /**
  * For specifying a Double parameter that can be read in from xml config file.
- * 
- * @author SkiBu Smith
  *
+ * @author SkiBu Smith
  */
 public class DoubleConfigValue extends ConfigValue<Double> {
-	
-	/**
-	 * Constructor for when there is no default value.
-	 * 
-	 * @param id
-	 * @param description
-	 */
-	public DoubleConfigValue(String id, String description) {
-		super(id, description);
-	}
-	
-	/**
-	 * Constructor.
-	 * 
-	 * @param id
-	 * @param defaultValue
-	 * @param description
-	 */
-	public DoubleConfigValue(String id, Double defaultValue, String description) {
-		super(id, defaultValue, description);
-	}
 
-	@Override protected Double convertFromString(List<String> dataList) {
-		return Double.valueOf(dataList.get(0).trim());
-	}	
+    /**
+     * Constructor for when there is no default value.
+     *
+     * @param id
+     * @param description
+     */
+    public DoubleConfigValue(String id, String description) {
+        super(id, description);
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param id
+     * @param defaultValue
+     * @param description
+     */
+    public DoubleConfigValue(String id, Double defaultValue, String description) {
+        super(id, defaultValue, description);
+    }
+
+    @Override
+    protected Double convertFromString(List<String> dataList) {
+        return Double.valueOf(dataList.get(0).trim());
+    }
 }
 

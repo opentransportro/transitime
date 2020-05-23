@@ -1,6 +1,6 @@
-/* 
+/*
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPL) as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -16,7 +16,7 @@
  */
 
 /**
- * Contains the classes associated with AVL feeds including reading data 
+ * Contains the classes associated with AVL feeds including reading data
  * from an AVL feed and providing it to the main application usually via JMS for live feeds
  * but also by reading data and then directly calling AvlProcessor.processAvlReport(avlReport) for
  * other feeds, especially batch feeds used for debugging or testing.
@@ -26,7 +26,7 @@
  * pulls data from XML feed on regular interval, XML push feed where the
  * client writes XML data to a website, and more. Also wanted test projects
  * to easily be able to read from the same feed without having to poll again.
- * Also, for large systems want to be able to use multiple threads for 
+ * Also, for large systems want to be able to use multiple threads for
  * processing the data so get more throughput per machine.
  * <p>
  * To satisfy these goals for the live feeds JMS can be used so that the feed
@@ -52,11 +52,11 @@
  * command line param -Dtransitclock.modules.optionalModulesList=XXX is
  * used to start up the desired AVL modules.
  * <p>
- * Configuration parameters for AVL modules are listed in the AvlConfig.java 
+ * Configuration parameters for AVL modules are listed in the AvlConfig.java
  * class. Important params include -Dtransitclock.db.storeDataInDatabase=false
  * if the generated data such as arrivals/departures should not be stored
- * in the database. This is important for when in playback mode for 
- * debugging or such. Another important parameter is 
+ * in the database. This is important for when in playback mode for
+ * debugging or such. Another important parameter is
  * -Dtransitclock.avl.shouldUseJms=true if you want to use JMS. In that case you
  * also need to specify both an AVL feed module and a JMS client module, such as
  * -Dtransitclock.modules.optionalModulesList=org.transitclock.avl.MuniNextBusAvlModule;org.transitclock.avl.AvlJmsClientModule

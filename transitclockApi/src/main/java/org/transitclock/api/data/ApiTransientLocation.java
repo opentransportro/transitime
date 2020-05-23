@@ -1,27 +1,27 @@
 /*
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License (GPL) as published by the
  * Free Software Foundation, either version 3 of the License, or any later
  * version.
- * 
+ *
  * Transitime.org is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with
  * Transitime.org . If not, see <http://www.gnu.org/licenses/>.
  */
 
 package org.transitclock.api.data;
 
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlTransient;
-
 import org.transitclock.utils.ChinaGpsOffset;
 import org.transitclock.utils.MathUtils;
+
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlTransient;
 
 /**
  * A simple latitude/longitude:
@@ -33,34 +33,33 @@ import org.transitclock.utils.MathUtils;
  * http://blog.bdoughan.com/2011/06/ignoring-inheritance-with-xmltransient.html
  *
  * @author SkiBu Smith
- *
  */
 @XmlTransient
 public class ApiTransientLocation {
 
-	@XmlAttribute
-	private double lat;
+    @XmlAttribute
+    private double lat;
 
-	@XmlAttribute
-	private double lon;
+    @XmlAttribute
+    private double lon;
 
-	/********************** Member Functions **************************/
+    /********************** Member Functions **************************/
 
-	/**
-	 * Need a no-arg constructor for Jersey. Otherwise get really obtuse
-	 * "MessageBodyWriter not found for media type=application/json" exception.
-	 */
-	protected ApiTransientLocation() {
-	}
+    /**
+     * Need a no-arg constructor for Jersey. Otherwise get really obtuse
+     * "MessageBodyWriter not found for media type=application/json" exception.
+     */
+    protected ApiTransientLocation() {
+    }
 
-	public ApiTransientLocation(double lat, double lon) {
-		// If location is in China (approximately) then adjust lat & lon so
-		// that will be displayed properly on map.
-		ChinaGpsOffset.LatLon latLon = ChinaGpsOffset.transform(lat, lon);
+    public ApiTransientLocation(double lat, double lon) {
+        // If location is in China (approximately) then adjust lat & lon so
+        // that will be displayed properly on map.
+        ChinaGpsOffset.LatLon latLon = ChinaGpsOffset.transform(lat, lon);
 
-		// Output only 5 digits past decimal point
-		this.lat = MathUtils.round(latLon.getLat(), 5);
-		// Output only 5 digits past decimal point
-		this.lon = MathUtils.round(latLon.getLon(), 5);
-	}
+        // Output only 5 digits past decimal point
+        this.lat = MathUtils.round(latLon.getLat(), 5);
+        // Output only 5 digits past decimal point
+        this.lon = MathUtils.round(latLon.getLon(), 5);
+    }
 }

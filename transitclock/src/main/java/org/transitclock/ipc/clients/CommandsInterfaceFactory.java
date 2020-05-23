@@ -1,6 +1,6 @@
 /*
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPL) as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -16,42 +16,41 @@
  */
 package org.transitclock.ipc.clients;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.transitclock.ipc.interfaces.CommandsInterface;
 import org.transitclock.ipc.rmi.ClientFactory;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Provides a CommandsInterface client that can be sent commands.
- * 
+ *
  * @author SkiBu Smith
- * 
  */
 public class CommandsInterfaceFactory {
 
-	// Keyed by agencyId
-	private static Map<String, CommandsInterface> commandsInterfaceMap =
-			new HashMap<String, CommandsInterface>();
+    // Keyed by agencyId
+    private static final Map<String, CommandsInterface> commandsInterfaceMap =
+            new HashMap<String, CommandsInterface>();
 
-	/********************** Member Functions **************************/
+    /********************** Member Functions **************************/
 
-	/**
-	 * Gets the singleton instance.
-	 * 
-	 * @param agencyId
-	 * @return
-	 */
-	public static CommandsInterface get(String agencyId) {
-		CommandsInterface commandsInterface =
-				commandsInterfaceMap.get(agencyId);
-		if (commandsInterface == null) {
-			commandsInterface = 
-					ClientFactory.getInstance(agencyId, CommandsInterface.class);
-			commandsInterfaceMap.put(agencyId, commandsInterface);
-		}
+    /**
+     * Gets the singleton instance.
+     *
+     * @param agencyId
+     * @return
+     */
+    public static CommandsInterface get(String agencyId) {
+        CommandsInterface commandsInterface =
+                commandsInterfaceMap.get(agencyId);
+        if (commandsInterface == null) {
+            commandsInterface =
+                    ClientFactory.getInstance(agencyId, CommandsInterface.class);
+            commandsInterfaceMap.put(agencyId, commandsInterface);
+        }
 
-		return commandsInterface;
-	}
+        return commandsInterface;
+    }
 
 }

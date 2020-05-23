@@ -1,6 +1,6 @@
 /*
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPL) as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -32,233 +32,222 @@ import java.util.List;
  * predictions that lie between an error range.
  *
  * @author SkiBu Smith
- *
  */
 public class PredAccuracyRangeQuery extends PredictionAccuracyQuery {
 
-	private static final Logger logger = LoggerFactory
-			.getLogger(PredAccuracyRangeQuery.class);
+    private static final Logger logger = LoggerFactory
+            .getLogger(PredAccuracyRangeQuery.class);
 
-	/********************** Member Functions **************************/
+    /********************** Member Functions **************************/
 
-	/**
-	 * Creates connection to database.
-	 * 
-	 * @param dbType
-	 * @param dbHost
-	 * @param dbName
-	 * @param dbUserName
-	 * @param dbPassword
-	 * @throws SQLException
-	 */
-	public PredAccuracyRangeQuery(String dbType, String dbHost, String dbName,
-			String dbUserName, String dbPassword) throws SQLException {
-		super(dbType, dbHost, dbName, dbUserName, dbPassword);
-	}
-	
-	/**
-	 * Creates connection to database specified by the agencyId.
-	 * 
-	 * @param agencyId
-	 * @throws SQLException
-	 */
-	public PredAccuracyRangeQuery(String agencyId) throws SQLException {
-		super(agencyId);
-	}
+    /**
+     * Creates connection to database.
+     *
+     * @param dbType
+     * @param dbHost
+     * @param dbName
+     * @param dbUserName
+     * @param dbPassword
+     * @throws SQLException
+     */
+    public PredAccuracyRangeQuery(String dbType, String dbHost, String dbName,
+                                  String dbUserName, String dbPassword) throws SQLException {
+        super(dbType, dbHost, dbName, dbUserName, dbPassword);
+    }
 
+    /**
+     * Creates connection to database specified by the agencyId.
+     *
+     * @param agencyId
+     * @throws SQLException
+     */
+    public PredAccuracyRangeQuery(String agencyId) throws SQLException {
+        super(agencyId);
+    }
 
-	/**
-	 * Adds the column definition in JSON string format so that chart the data
-	 * using Google charts. The column definition describes the contents of each
-	 * column but doesn't actually contain the data itself.
-	 * 
-	 * @param builder
-	 * @param maxEarlySec
-	 * @param maxLateSec
-	 */
-	private void addCols(ChartJsonBuilder builder, int maxEarlySec,
-			int maxLateSec) {
-		if (map.isEmpty()) {
-			logger.error("Called PredAccuracyStackQuery.addCols() but there "
-					+ "is no data in the map.");
-			return;
-		}
+    /**
+     * For debugging
+     *
+     * @param args
+     */
+    public static void main(String args[]) {
+        String beginDate = "06-30-2016";
+        String numDays = "1";
+        String beginTime = null;
+        String endTime = null;
+        String routeIds[] = {};
+        String source = "TransitClock";
 
-		builder.addNumberColumn();
-		builder.addNumberColumn("Earlier than predicted (more than " + maxEarlySec + " secs early)");
-		builder.addTooltipColumn();
-		builder.addNumberColumn("Within Bounds (" + maxEarlySec + " secs early to "
-				+ maxLateSec + " secs late)");
-		builder.addTooltipColumn();
-		builder.addNumberColumn("Later than predicted (more than " + maxLateSec + " secs late)");
-		builder.addTooltipColumn();
-	}
+        String dbType = "postgresql";// "mysql";
+        String dbHost = "192.168.99.100";// "localhost";
+        String dbName = "GOHART";
+        String dbUserName = "postgres";// "root";
+        String dbPassword = "transitime";
 
-	/**
-	 * Adds the row definition in JSON string format so that chart the data
-	 * using Google charts. The row definition contains the actual data.
-	 * 
-	 * @param builder
-	 * @param maxEarlySec
-	 * @param maxLateSec
-	 */
-	private void addRows(ChartJsonBuilder builder, int maxEarlySec,
-			int maxLateSec) {
-		if (map.isEmpty()) {
-			logger.error("Called PredAccuracyStackQuery.getCols() but there "
-					+ "is no data in the map.");
-			return;
-		}
+        try {
+            PredAccuracyRangeQuery query = new PredAccuracyRangeQuery(dbType,
+                    dbHost, dbName, dbUserName, dbPassword);
+            String jsonString = query.getJson(beginDate, numDays, beginTime,
+                    endTime, routeIds, source, null, -60 * Time.MS_PER_SEC,
+                    3 * Time.MS_PER_SEC);
+            System.out.println(jsonString);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
-		// Only dealing with a single source so get data for that source
-		List<List<Integer>> dataForSource = null;
-		for (String source : map.keySet()) {
-			dataForSource = map.get(source);
-		}
+    /**
+     * Adds the column definition in JSON string format so that chart the data
+     * using Google charts. The column definition describes the contents of each
+     * column but doesn't actually contain the data itself.
+     *
+     * @param builder
+     * @param maxEarlySec
+     * @param maxLateSec
+     */
+    private void addCols(ChartJsonBuilder builder, int maxEarlySec,
+                         int maxLateSec) {
+        if (map.isEmpty()) {
+            logger.error("Called PredAccuracyStackQuery.addCols() but there "
+                    + "is no data in the map.");
+            return;
+        }
 
-		// For each prediction length bucket...
-		for (int predBucketIdx = 0; predBucketIdx <= MAX_PRED_LENGTH
-				/ PREDICTION_LENGTH_BUCKET_SIZE; ++predBucketIdx) {
-			// Prediction length in seconds
-			double predBucketSecs = predBucketIdx
-					* PREDICTION_LENGTH_BUCKET_SIZE / 60.0;
+        builder.addNumberColumn();
+        builder.addNumberColumn("Earlier than predicted (more than " + maxEarlySec + " secs early)");
+        builder.addTooltipColumn();
+        builder.addNumberColumn("Within Bounds (" + maxEarlySec + " secs early to "
+                + maxLateSec + " secs late)");
+        builder.addTooltipColumn();
+        builder.addNumberColumn("Later than predicted (more than " + maxLateSec + " secs late)");
+        builder.addTooltipColumn();
+    }
 
-			List<Integer> listForPredBucket = null;
-			if (dataForSource != null && dataForSource.size() > predBucketIdx) {
-				listForPredBucket = dataForSource.get(predBucketIdx);
+    /**
+     * Adds the row definition in JSON string format so that chart the data
+     * using Google charts. The row definition contains the actual data.
+     *
+     * @param builder
+     * @param maxEarlySec
+     * @param maxLateSec
+     */
+    private void addRows(ChartJsonBuilder builder, int maxEarlySec,
+                         int maxLateSec) {
+        if (map.isEmpty()) {
+            logger.error("Called PredAccuracyStackQuery.getCols() but there "
+                    + "is no data in the map.");
+            return;
+        }
 
-				// For this prediction bucket track whether prediction below
-				// min,
-				// between min and max, and above max.
-				int tooEarly = 0, ok = 0, tooLate = 0;
-				for (int accuracyInSecs : listForPredBucket) {
-					if (accuracyInSecs < -maxEarlySec)
-						++tooEarly;
-					else if (accuracyInSecs < maxLateSec)
-						++ok;
-					else
-						++tooLate;
-				}
+        // Only dealing with a single source so get data for that source
+        List<List<Integer>> dataForSource = null;
+        for (String source : map.keySet()) {
+            dataForSource = map.get(source);
+        }
 
-				// If no data for this prediction bucket then continue to next
-				// one
-				int numPreds = listForPredBucket.size();
-				if (numPreds == 0)
-					continue;
+        // For each prediction length bucket...
+        for (int predBucketIdx = 0; predBucketIdx <= MAX_PRED_LENGTH
+                / PREDICTION_LENGTH_BUCKET_SIZE; ++predBucketIdx) {
+            // Prediction length in seconds
+            double predBucketSecs = predBucketIdx
+                    * PREDICTION_LENGTH_BUCKET_SIZE / 60.0;
 
-				double tooEarlyPercentage = 100.0 * tooEarly / numPreds;
-				double okPercentage = 100.0 * ok / numPreds;
-				double tooLatePercentage = 100.0 * tooLate / numPreds;
+            List<Integer> listForPredBucket = null;
+            if (dataForSource != null && dataForSource.size() > predBucketIdx) {
+                listForPredBucket = dataForSource.get(predBucketIdx);
 
-				RowBuilder rowBuilder = builder.newRow();
-				rowBuilder.addRowElement(predBucketSecs);
+                // For this prediction bucket track whether prediction below
+                // min,
+                // between min and max, and above max.
+                int tooEarly = 0, ok = 0, tooLate = 0;
+                for (int accuracyInSecs : listForPredBucket) {
+                    if (accuracyInSecs < -maxEarlySec)
+                        ++tooEarly;
+                    else if (accuracyInSecs < maxLateSec)
+                        ++ok;
+                    else
+                        ++tooLate;
+                }
 
-				rowBuilder.addRowElement(tooEarlyPercentage);
-				rowBuilder.addRowElement("Earlier than predicted: " + tooEarly + " points, "
-						+ StringUtils.oneDigitFormat(tooEarlyPercentage) + "%");
+                // If no data for this prediction bucket then continue to next
+                // one
+                int numPreds = listForPredBucket.size();
+                if (numPreds == 0)
+                    continue;
 
-				rowBuilder.addRowElement(okPercentage);
-				rowBuilder.addRowElement("Within Bounds: " + ok + " points, "
-						+ StringUtils.oneDigitFormat(okPercentage) + "%");
+                double tooEarlyPercentage = 100.0 * tooEarly / numPreds;
+                double okPercentage = 100.0 * ok / numPreds;
+                double tooLatePercentage = 100.0 * tooLate / numPreds;
 
-				rowBuilder.addRowElement(tooLatePercentage);
-				rowBuilder.addRowElement("Too Late: " + tooLate + " points, "
-				    + StringUtils.oneDigitFormat(tooLatePercentage) + "%");
-				rowBuilder.addRowElement("Later than predicted: " + tooLate + " points, "
-						+ StringUtils.oneDigitFormat(tooLatePercentage) + "%");
-			}
-		}
-	}
+                RowBuilder rowBuilder = builder.newRow();
+                rowBuilder.addRowElement(predBucketSecs);
 
-	/**
-	 * Performs the query and returns the data in an JSON string so that it can
-	 * be used for a chart.
-	 *
-	 * @param beginDateStr
-	 *            Begin date for date range of data to use.
-	 * @param endDateStr
-	 *            End date for date range of data to use. Since want to include
-	 *            data for the end date, 1 day is added to the end date for the
-	 *            query.
-	 * @param beginTimeStr
-	 *            For specifying time of day between the begin and end date to
-	 *            use data for. Can thereby specify a date range of a week but
-	 *            then just look at data for particular time of day, such as 7am
-	 *            to 9am, for those days. Set to null or empty string to use
-	 *            data for entire day.
-	 * @param numDays
-	 *            How long query should be run for.
-	 * @param routeIds
-	 *            Specifies which routes to do the query for. Can be null for
-	 *            all routes or an array of route IDs.
-	 * @param predSource
-	 *            The source of the predictions. Can be null or "" (for all),
-	 *            "Transitime", or "Other"
-	 * @param predType
-	 *            Whether predictions are affected by wait stop. Can be "" (for
-	 *            all), "AffectedByWaitStop", or "NotAffectedByWaitStop".
-	 * @param maxEarlySec
-	 *            How early in msec a prediction is allowed to be. Should be a
-	 *            positive value.
-	 * @param maxLateSec
-	 *            How late a in msec a prediction is allowed to be. Should be a
-	 *            positive value.
-	 * @return the full JSON string contain both cols and rows info, or null if
-	 *         no data returned from query
-	 * @throws SQLException
-	 * @throws ParseException
-	 */
-	public String getJson(String beginDateStr, String numDays,
-			String beginTimeStr, String endTimeStr, String routeIds[],
-			String predSource, String predType, int maxEarlySec, int maxLateSec)
-			throws SQLException, ParseException {
-		// Actually perform the query
-		doQuery(beginDateStr, numDays, beginTimeStr, endTimeStr, routeIds,
-				predSource, predType);
+                rowBuilder.addRowElement(tooEarlyPercentage);
+                rowBuilder.addRowElement("Earlier than predicted: " + tooEarly + " points, "
+                        + StringUtils.oneDigitFormat(tooEarlyPercentage) + "%");
 
-		// If query returned no data then simply return null so that
-		// can easily see that there is a problem
-		if (map.isEmpty()) {
-			return null;
-		}
+                rowBuilder.addRowElement(okPercentage);
+                rowBuilder.addRowElement("Within Bounds: " + ok + " points, "
+                        + StringUtils.oneDigitFormat(okPercentage) + "%");
 
-		ChartJsonBuilder builder = new ChartJsonBuilder();
-		addCols(builder, maxEarlySec, maxLateSec);
-		addRows(builder, maxEarlySec, maxLateSec);
+                rowBuilder.addRowElement(tooLatePercentage);
+                rowBuilder.addRowElement("Too Late: " + tooLate + " points, "
+                        + StringUtils.oneDigitFormat(tooLatePercentage) + "%");
+                rowBuilder.addRowElement("Later than predicted: " + tooLate + " points, "
+                        + StringUtils.oneDigitFormat(tooLatePercentage) + "%");
+            }
+        }
+    }
 
-		String jsonString = builder.getJson();
-		return jsonString;
-	}
+    /**
+     * Performs the query and returns the data in an JSON string so that it can
+     * be used for a chart.
+     *
+     * @param beginDateStr Begin date for date range of data to use.
+     * @param endDateStr   End date for date range of data to use. Since want to include
+     *                     data for the end date, 1 day is added to the end date for the
+     *                     query.
+     * @param beginTimeStr For specifying time of day between the begin and end date to
+     *                     use data for. Can thereby specify a date range of a week but
+     *                     then just look at data for particular time of day, such as 7am
+     *                     to 9am, for those days. Set to null or empty string to use
+     *                     data for entire day.
+     * @param numDays      How long query should be run for.
+     * @param routeIds     Specifies which routes to do the query for. Can be null for
+     *                     all routes or an array of route IDs.
+     * @param predSource   The source of the predictions. Can be null or "" (for all),
+     *                     "Transitime", or "Other"
+     * @param predType     Whether predictions are affected by wait stop. Can be "" (for
+     *                     all), "AffectedByWaitStop", or "NotAffectedByWaitStop".
+     * @param maxEarlySec  How early in msec a prediction is allowed to be. Should be a
+     *                     positive value.
+     * @param maxLateSec   How late a in msec a prediction is allowed to be. Should be a
+     *                     positive value.
+     * @return the full JSON string contain both cols and rows info, or null if
+     * no data returned from query
+     * @throws SQLException
+     * @throws ParseException
+     */
+    public String getJson(String beginDateStr, String numDays,
+                          String beginTimeStr, String endTimeStr, String routeIds[],
+                          String predSource, String predType, int maxEarlySec, int maxLateSec)
+            throws SQLException, ParseException {
+        // Actually perform the query
+        doQuery(beginDateStr, numDays, beginTimeStr, endTimeStr, routeIds,
+                predSource, predType);
 
-	/**
-	 * For debugging
-	 * 
-	 * @param args
-	 */
-	public static void main(String args[]) {
-		String beginDate = "06-30-2016";
-		String numDays = "1";
-		String beginTime = null;
-		String endTime = null;
-		String routeIds[] = { };
-		String source = "TransitClock";
+        // If query returned no data then simply return null so that
+        // can easily see that there is a problem
+        if (map.isEmpty()) {
+            return null;
+        }
 
-		String dbType = "postgresql";// "mysql";
-		String dbHost = "192.168.99.100";// "localhost";
-		String dbName = "GOHART";
-		String dbUserName = "postgres";// "root";
-		String dbPassword = "transitime";
+        ChartJsonBuilder builder = new ChartJsonBuilder();
+        addCols(builder, maxEarlySec, maxLateSec);
+        addRows(builder, maxEarlySec, maxLateSec);
 
-		try {
-			PredAccuracyRangeQuery query = new PredAccuracyRangeQuery(dbType,
-					dbHost, dbName, dbUserName, dbPassword);
-			String jsonString = query.getJson(beginDate, numDays, beginTime,
-					endTime, routeIds, source, null, -60 * Time.MS_PER_SEC,
-					3 * Time.MS_PER_SEC);
-			System.out.println(jsonString);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+        String jsonString = builder.getJson();
+        return jsonString;
+    }
 
 }

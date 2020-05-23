@@ -1,6 +1,6 @@
 /*
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPL) as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -16,43 +16,41 @@
  */
 package org.transitclock.ipc.clients;
 
+import org.transitclock.ipc.interfaces.CacheQueryInterface;
+import org.transitclock.ipc.rmi.ClientFactory;
+
 import java.util.HashMap;
 import java.util.Map;
 
-import org.transitclock.ipc.interfaces.CacheQueryInterface;
-import org.transitclock.ipc.interfaces.CommandsInterface;
-import org.transitclock.ipc.rmi.ClientFactory;
-
 /**
  * Provides a CacheQueryInterface client that can be sent cache queries.
- * 
+ *
  * @author Sean Og Crudden
- * 
  */
 public class CacheQueryInterfaceFactory {
 
-	// Keyed by agencyId
-	private static Map<String, CacheQueryInterface> cachequeryInterfaceMap =
-			new HashMap<String, CacheQueryInterface>();
+    // Keyed by agencyId
+    private static final Map<String, CacheQueryInterface> cachequeryInterfaceMap =
+            new HashMap<String, CacheQueryInterface>();
 
-	/********************** Member Functions **************************/
+    /********************** Member Functions **************************/
 
-	/**
-	 * Gets the singleton instance.
-	 * 
-	 * @param agencyId
-	 * @return
-	 */
-	public static CacheQueryInterface get(String agencyId) {
-		CacheQueryInterface cachequeryInterface =
-				cachequeryInterfaceMap.get(agencyId);
-		if (cachequeryInterface == null) {
-			cachequeryInterface = 
-					ClientFactory.getInstance(agencyId, CacheQueryInterface.class);
-			cachequeryInterfaceMap.put(agencyId, cachequeryInterface);
-		}
+    /**
+     * Gets the singleton instance.
+     *
+     * @param agencyId
+     * @return
+     */
+    public static CacheQueryInterface get(String agencyId) {
+        CacheQueryInterface cachequeryInterface =
+                cachequeryInterfaceMap.get(agencyId);
+        if (cachequeryInterface == null) {
+            cachequeryInterface =
+                    ClientFactory.getInstance(agencyId, CacheQueryInterface.class);
+            cachequeryInterfaceMap.put(agencyId, cachequeryInterface);
+        }
 
-		return cachequeryInterface;
-	}
+        return cachequeryInterface;
+    }
 
 }

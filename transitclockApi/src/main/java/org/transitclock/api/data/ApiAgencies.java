@@ -1,6 +1,6 @@
 /*
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPL) as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -17,33 +17,31 @@
 
 package org.transitclock.api.data;
 
-import java.util.List;
-
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.List;
 
 /**
  * A list of Agencies
  *
  * @author SkiBu Smith
- *
  */
 @XmlRootElement(name = "agencies")
 public class ApiAgencies {
 
-	@XmlElement(name = "agency")
-	private List<ApiAgency> agenciesData;
+    @XmlElement(name = "agency")
+    private List<ApiAgency> agenciesData;
 
-	/********************** Member Functions **************************/
+    /********************** Member Functions **************************/
 
-	/**
-	 * Need a no-arg constructor for Jersey. Otherwise get really obtuse
-	 * "MessageBodyWriter not found for media type=application/json" exception.
-	 */
-	protected ApiAgencies() {
-	}
+    /**
+     * Need a no-arg constructor for Jersey. Otherwise get really obtuse
+     * "MessageBodyWriter not found for media type=application/json" exception.
+     */
+    protected ApiAgencies() {
+    }
 
-	public ApiAgencies(List<ApiAgency> apiAgencies) {
-		agenciesData = apiAgencies;
-	}
+    public ApiAgencies(List<ApiAgency> apiAgencies) {
+        agenciesData = apiAgencies;
+    }
 }

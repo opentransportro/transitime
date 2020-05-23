@@ -1,12 +1,11 @@
 package org.transitclock.integration_tests;
 
+import junit.framework.TestCase;
 import org.junit.Test;
 import org.transitclock.core.dataCache.VehicleDataCache;
 import org.transitclock.ipc.data.IpcVehicleComplete;
 import org.transitclock.playback.PlaybackModule;
 import org.transitclock.utils.Time;
-
-import junit.framework.TestCase;
 
 /*
  * This tests Transitime successfully recovering from detours. In this AVL trace the
@@ -16,17 +15,17 @@ import junit.framework.TestCase;
  */
 public class RecoverFromDetourTest extends TestCase {
 
-	private static final String GTFS = "src/test/resources/gtfs/3T";
-	private static final String AVL = "src/test/resources/avl/3T_3757.csv";
-	private static final String VEHICLE = "3757";
-	
-	@Test
-	public void test() {
-		PlaybackModule.runTrace(GTFS, AVL);
-		IpcVehicleComplete v = VehicleDataCache.getInstance().getVehicle(VEHICLE);
-		assertFalse(v.isLayover());
-		int adh = Math.abs(v.getRealTimeSchedAdh().getTemporalDifference());
-		assertTrue(adh < 10 * Time.MIN_IN_MSECS);
-	}
-	
+    private static final String GTFS = "src/test/resources/gtfs/3T";
+    private static final String AVL = "src/test/resources/avl/3T_3757.csv";
+    private static final String VEHICLE = "3757";
+
+    @Test
+    public void test() {
+        PlaybackModule.runTrace(GTFS, AVL);
+        IpcVehicleComplete v = VehicleDataCache.getInstance().getVehicle(VEHICLE);
+        assertFalse(v.isLayover());
+        int adh = Math.abs(v.getRealTimeSchedAdh().getTemporalDifference());
+        assertTrue(adh < 10 * Time.MIN_IN_MSECS);
+    }
+
 }

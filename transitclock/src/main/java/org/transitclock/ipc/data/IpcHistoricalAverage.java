@@ -1,53 +1,43 @@
 package org.transitclock.ipc.data;
 
-import java.io.Serializable;
-
 import org.transitclock.core.dataCache.HistoricalAverage;
+
+import java.io.Serializable;
 
 /**
  * @author Sean Og Crudden
  * Represents an historical average.
- *
  */
-public class IpcHistoricalAverage implements Serializable{
-	
-	
-	public IpcHistoricalAverage(HistoricalAverage historicalAverage) {
-		super();
-		
-		if(historicalAverage!=null)
-		{
-			this.count = historicalAverage.getCount();
-			this.average = historicalAverage.getAverage();
-		}
-	}
+public class IpcHistoricalAverage implements Serializable {
 
 
-	public Integer getCount() {
-		return count;
-	}
+    private static final long serialVersionUID = -1285357644186049157L;
+    private Integer count = 0;
+    private Double average = 0.0;
 
 
-	public void setCount(Integer count) {
-		this.count = count;
-	}
+    public IpcHistoricalAverage(HistoricalAverage historicalAverage) {
+        super();
 
+        if (historicalAverage != null) {
+            this.count = historicalAverage.getCount();
+            this.average = historicalAverage.getAverage();
+        }
+    }
 
-	public Double getAverage() {
-		return average;
-	}
+    public Integer getCount() {
+        return count;
+    }
 
+    public void setCount(Integer count) {
+        this.count = count;
+    }
 
-	public void setAverage(Double average) {
-		this.average = average;
-	}
+    public Double getAverage() {
+        return average;
+    }
 
-
-	private static final long serialVersionUID = -1285357644186049157L;
-
-
-	private Integer count=0;
-	
-
-	private Double average=0.0;
+    public void setAverage(Double average) {
+        this.average = average;
+    }
 }

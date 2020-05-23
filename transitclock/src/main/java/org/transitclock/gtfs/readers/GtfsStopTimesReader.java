@@ -1,6 +1,6 @@
-/* 
+/*
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPL) as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -16,32 +16,31 @@
  */
 package org.transitclock.gtfs.readers;
 
-import java.text.ParseException;
-
 import org.apache.commons.csv.CSVRecord;
 import org.transitclock.gtfs.GtfsData;
 import org.transitclock.gtfs.gtfsStructs.GtfsStopTime;
 import org.transitclock.utils.csv.CsvBaseReader;
 
+import java.text.ParseException;
+
 /**
  * GTFS reader for the stop_times.txt file
- * 
- * @author SkiBu Smith
  *
+ * @author SkiBu Smith
  */
 public class GtfsStopTimesReader extends CsvBaseReader<GtfsStopTime> {
 
-	public GtfsStopTimesReader(String dirName) {
-		super(dirName, "stop_times.txt", true, false);
-	}
-	
-	@Override
-	public GtfsStopTime handleRecord(CSVRecord record, boolean supplemental) 
-			throws ParseException {
-		if (GtfsData.tripNotFiltered(record.get("trip_id")) )
-			return new GtfsStopTime(record, supplemental, getFileName());
-		else
-			return null;
-	}
-	
+    public GtfsStopTimesReader(String dirName) {
+        super(dirName, "stop_times.txt", true, false);
+    }
+
+    @Override
+    public GtfsStopTime handleRecord(CSVRecord record, boolean supplemental)
+            throws ParseException {
+        if (GtfsData.tripNotFiltered(record.get("trip_id")))
+            return new GtfsStopTime(record, supplemental, getFileName());
+        else
+            return null;
+    }
+
 }

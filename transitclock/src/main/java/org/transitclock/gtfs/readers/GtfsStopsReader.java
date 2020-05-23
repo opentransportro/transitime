@@ -1,6 +1,6 @@
-/* 
+/*
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPL) as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -16,28 +16,28 @@
  */
 package org.transitclock.gtfs.readers;
 
-import java.text.ParseException;
-
 import org.apache.commons.csv.CSVRecord;
 import org.transitclock.gtfs.gtfsStructs.GtfsStop;
 import org.transitclock.utils.csv.CsvBaseReader;
 
+import java.text.ParseException;
+
 
 /**
  * GTFS reader for the stops.txt file
- * @author SkiBu Smith
  *
+ * @author SkiBu Smith
  */
 public class GtfsStopsReader extends CsvBaseReader<GtfsStop> {
 
-	public GtfsStopsReader(String dirName) {
-		super(dirName, "stops.txt", true, false);
-	}
-	
-	@Override
-	public GtfsStop handleRecord(CSVRecord record, boolean supplemental) 
-			throws ParseException {
-		return new GtfsStop(record, supplemental, getFileName());
-	}
+    public GtfsStopsReader(String dirName) {
+        super(dirName, "stops.txt", true, false);
+    }
+
+    @Override
+    public GtfsStop handleRecord(CSVRecord record, boolean supplemental)
+            throws ParseException {
+        return new GtfsStop(record, supplemental, getFileName());
+    }
 
 }

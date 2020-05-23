@@ -16,14 +16,13 @@ import java.util.concurrent.ArrayBlockingQueue;
  */
 public class ParallelProcessor {
 
+    private static final Logger logger = LoggerFactory
+            .getLogger(ParallelProcessor.class);
     public static IntegerConfigValue parallelThreads = new IntegerConfigValue("transitclock.core.parallelThreads",
             -1,
             "Number of threads to run in parallel for cache loading.  -1 is use all cpus, 1 is no parallelism at all");
-    private static final Logger logger = LoggerFactory
-            .getLogger(ParallelProcessor.class);
-
-    private List<ParallelTask> list = Collections.synchronizedList(new ArrayList<ParallelTask>());
-    private ArrayBlockingQueue<TaskWrapper> runQueue;
+    private final List<ParallelTask> list = Collections.synchronizedList(new ArrayList<ParallelTask>());
+    private final ArrayBlockingQueue<TaskWrapper> runQueue;
     private boolean shutDown = false;
     private long startTime;
 
@@ -36,6 +35,7 @@ public class ParallelProcessor {
 
     /**
      * add a task to the queue.
+     *
      * @param task
      */
     public void enqueue(ParallelTask task) {
@@ -51,6 +51,7 @@ public class ParallelProcessor {
 
     /**
      * milliseconds that processor has been running for.
+     *
      * @return
      */
     public long getRuntime() {
@@ -59,6 +60,7 @@ public class ParallelProcessor {
 
     /**
      * if all tasks are complete.  An exception counts as complete.
+     *
      * @return
      */
     public boolean isDone() {
@@ -67,6 +69,7 @@ public class ParallelProcessor {
 
     /**
      * how many threads are actively running.
+     *
      * @return
      */
     public int getRunQueueSize() {
@@ -75,6 +78,7 @@ public class ParallelProcessor {
 
     /**
      * how many threads are waiting to run.
+     *
      * @return
      */
     public int getWaitQueueSize() {
@@ -105,7 +109,8 @@ public class ParallelProcessor {
      * Remove complete jobs from the run queue.
      */
     public static class PruneThread implements Runnable {
-        private ParallelProcessor pp;
+        private final ParallelProcessor pp;
+
         public PruneThread(ParallelProcessor pp) {
             this.pp = pp;
         }
@@ -143,7 +148,8 @@ public class ParallelProcessor {
      * as the runqueue becomes available.
      */
     public static class RunThread implements Runnable {
-        private ParallelProcessor pp;
+        private final ParallelProcessor pp;
+
         public RunThread(ParallelProcessor pp) {
             this.pp = pp;
         }
@@ -179,7 +185,7 @@ public class ParallelProcessor {
                     logger.error("exception {}", ie.toString(), ie);
                 }
             }
-            logger.info("CACHE COMPLETE:  exiting after {} s ", pp.getRuntime()/1000);
+            logger.info("CACHE COMPLETE:  exiting after {} s ", pp.getRuntime() / 1000);
         }
     }
 
@@ -187,8 +193,8 @@ public class ParallelProcessor {
      * Wrapper around the task that can be safely run as a thread.
      */
     public static class TaskWrapper implements Runnable {
-        private ParallelTask task;
-        private int taskNumber;
+        private final ParallelTask task;
+        private final int taskNumber;
         private boolean started = false;
         private boolean done = false;
 

@@ -1,6 +1,6 @@
 /*
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPL) as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -33,47 +33,44 @@ import java.util.List;
  */
 public class ActiveBlocksMonitor extends MonitorBase {
 
-    private long reportingIntervalInMillis = 60l * 1000l;
-
-    private Date lastUpdate = new Date();
-
-    private CloudwatchService cloudwatchService;
-
     private static final Logger logger = LoggerFactory
             .getLogger(ActiveBlocksMonitor.class);
+    private final long reportingIntervalInMillis = 60l * 1000l;
+    private final CloudwatchService cloudwatchService;
+    private Date lastUpdate = new Date();
 
-	public ActiveBlocksMonitor(CloudwatchService cloudwatchService, EmailSender emailSender, String agencyId) {
-		super(emailSender, agencyId);
+    public ActiveBlocksMonitor(CloudwatchService cloudwatchService, EmailSender emailSender, String agencyId) {
+        super(emailSender, agencyId);
         this.cloudwatchService = cloudwatchService;
-	}
+    }
 
-	/* (non-Javadoc)
-	 * @see org.transitclock.monitoring.MonitorBase#triggered()
-	 */
-	@Override
-	protected boolean triggered() {
+    /* (non-Javadoc)
+     * @see org.transitclock.monitoring.MonitorBase#triggered()
+     */
+    @Override
+    protected boolean triggered() {
         Date now = new Date();
-        if(now.getTime() - lastUpdate.getTime() > reportingIntervalInMillis){
+        if (now.getTime() - lastUpdate.getTime() > reportingIntervalInMillis) {
             List<Block> blocks = BlocksInfo.getCurrentlyActiveBlocks();
             double activeBlockCount = (blocks != null ? blocks.size() : 0);
             double totalBlockCount = Core.getInstance().getDbConfig().getBlockCount();
             // cloudwatch metrics for active/total moved to PredictabilityMonitor
             double activeBlockCountPercentage = 0;
-            if(activeBlockCount > 0){
+            if (activeBlockCount > 0) {
                 activeBlockCountPercentage = activeBlockCount / totalBlockCount;
             }
-            cloudwatchService.saveMetric("PercentageActiveBlockCount", activeBlockCountPercentage , 1,
+            cloudwatchService.saveMetric("PercentageActiveBlockCount", activeBlockCountPercentage, 1,
                     CloudwatchService.MetricType.SCALAR, CloudwatchService.ReportingIntervalTimeUnit.IMMEDIATE, true);
             lastUpdate = new Date();
         }
         return false;
-	}
+    }
 
-	/* (non-Javadoc)
-	 * @see org.transitclock.monitoring.MonitorBase#type()
-	 */
-	@Override
-	protected String type() {
-		return "Active Blocks";
-	}
+    /* (non-Javadoc)
+     * @see org.transitclock.monitoring.MonitorBase#type()
+     */
+    @Override
+    protected String type() {
+        return "Active Blocks";
+    }
 }

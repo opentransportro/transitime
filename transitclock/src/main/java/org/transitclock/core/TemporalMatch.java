@@ -1,6 +1,6 @@
-/* 
+/*
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPL) as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -27,45 +27,44 @@ import org.transitclock.utils.Time;
  * previous AVL report. So if a vehicle is really behind schedule but is now
  * traveling as fast as expected then the temporal difference will be close to
  * zero.
- * 
+ *
  * @author SkiBu Smith
- * 
  */
 public class TemporalMatch extends SpatialMatch {
 
-	private final TemporalDifference temporalDifference;
-	
-	/********************** Member Functions **************************/
+    private final TemporalDifference temporalDifference;
 
-	public TemporalMatch(SpatialMatch spatialMatch, 
-			TemporalDifference temporalDifference) {
-		super(spatialMatch);
-		this.temporalDifference = temporalDifference;
-	}
+    /********************** Member Functions **************************/
 
-	@Override
-	public String toString() {
-		return "TemporalMatch [" 
-				+ "temporalDifference=" + temporalDifference
-				+ ", avlTime=" + Time.dateTimeStrMsec(avlTime)
-				+ ", blockId=" + block.getId()
-				+ ", tripIndex=" + tripIndex
-				+ ", gtfsStopSeq=" + getStopPath().getGtfsStopSeq()
-				+ ", stopPathIndex=" + stopPathIndex
-				+ ", segmentIndex=" + segmentIndex
-				+ ", isLayover=" + isLayover()
-				+ ", distanceToSegment=" + Geo.distanceFormat(distanceToSegment) 
-				+ ", distanceAlongSegment=" + Geo.distanceFormat(distanceAlongSegment)
-				+ ", distanceAlongStopPath=" + Geo.distanceFormat(getDistanceAlongStopPath())
-				+ ", atStop=" + atStop
-				+ ", trip=" + getTrip().toShortString()
-				+ "]";
-	}
-	
-	/************************ Getter Methods ***************************/
-	
-	public TemporalDifference getTemporalDifference() {
-		return temporalDifference;
-	}
+    public TemporalMatch(SpatialMatch spatialMatch,
+                         TemporalDifference temporalDifference) {
+        super(spatialMatch);
+        this.temporalDifference = temporalDifference;
+    }
+
+    @Override
+    public String toString() {
+        return "TemporalMatch ["
+                + "temporalDifference=" + temporalDifference
+                + ", avlTime=" + Time.dateTimeStrMsec(avlTime)
+                + ", blockId=" + block.getId()
+                + ", tripIndex=" + tripIndex
+                + ", gtfsStopSeq=" + getStopPath().getGtfsStopSeq()
+                + ", stopPathIndex=" + stopPathIndex
+                + ", segmentIndex=" + segmentIndex
+                + ", isLayover=" + isLayover()
+                + ", distanceToSegment=" + Geo.distanceFormat(distanceToSegment)
+                + ", distanceAlongSegment=" + Geo.distanceFormat(distanceAlongSegment)
+                + ", distanceAlongStopPath=" + Geo.distanceFormat(getDistanceAlongStopPath())
+                + ", atStop=" + atStop
+                + ", trip=" + getTrip().toShortString()
+                + "]";
+    }
+
+    /************************ Getter Methods ***************************/
+
+    public TemporalDifference getTemporalDifference() {
+        return temporalDifference;
+    }
 
 }

@@ -1,6 +1,6 @@
 /*
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPL) as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -16,55 +16,53 @@
  */
 package org.transitclock.api.data;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.transitclock.ipc.data.IpcSchedTime;
+import org.transitclock.ipc.data.IpcSchedTrip;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
-
-import org.transitclock.ipc.data.IpcSchedTime;
-import org.transitclock.ipc.data.IpcSchedTrip;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Contains the schedule times for a trip. For when outputting stops
  * horizontally.
- * 
- * @author Michael
  *
+ * @author Michael
  */
 public class ApiScheduleTimesForTrip {
-	@XmlAttribute
-	private String tripShortName;
+    @XmlAttribute
+    private String tripShortName;
 
-	@XmlAttribute
-	private String tripId;
+    @XmlAttribute
+    private String tripId;
 
-	@XmlAttribute
-	private String tripHeadsign;
-	
-	@XmlAttribute
-	private String blockId;
-	
-	@XmlElement(name = "time")
-	private List<ApiScheduleTime> times;
+    @XmlAttribute
+    private String tripHeadsign;
 
-	/**
-	 * Need a no-arg constructor for Jersey. Otherwise get really obtuse
-	 * "MessageBodyWriter not found for media type=application/json" exception.
-	 */
-	protected ApiScheduleTimesForTrip() {		
-	}
-	
-	public ApiScheduleTimesForTrip(IpcSchedTrip ipcSchedTrip) {
-		this.tripShortName = ipcSchedTrip.getTripShortName();
-		this.tripId = ipcSchedTrip.getTripId();
-		this.tripHeadsign = ipcSchedTrip.getTripHeadsign();
-		this.blockId = ipcSchedTrip.getBlockId();
-		
-		times = new ArrayList<ApiScheduleTime>();
-		for (IpcSchedTime ipcSchedTime : ipcSchedTrip.getSchedTimes()) {
-			times.add(new ApiScheduleTime(ipcSchedTime.getTimeOfDay()));
-		}
-	}
+    @XmlAttribute
+    private String blockId;
+
+    @XmlElement(name = "time")
+    private List<ApiScheduleTime> times;
+
+    /**
+     * Need a no-arg constructor for Jersey. Otherwise get really obtuse
+     * "MessageBodyWriter not found for media type=application/json" exception.
+     */
+    protected ApiScheduleTimesForTrip() {
+    }
+
+    public ApiScheduleTimesForTrip(IpcSchedTrip ipcSchedTrip) {
+        this.tripShortName = ipcSchedTrip.getTripShortName();
+        this.tripId = ipcSchedTrip.getTripId();
+        this.tripHeadsign = ipcSchedTrip.getTripHeadsign();
+        this.blockId = ipcSchedTrip.getBlockId();
+
+        times = new ArrayList<ApiScheduleTime>();
+        for (IpcSchedTime ipcSchedTime : ipcSchedTrip.getSchedTimes()) {
+            times.add(new ApiScheduleTime(ipcSchedTime.getTimeOfDay()));
+        }
+    }
 
 }

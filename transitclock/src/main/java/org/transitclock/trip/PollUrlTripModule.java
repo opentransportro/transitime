@@ -35,6 +35,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.SocketTimeoutException;
 import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Subclass of Module to be used when reading Trip data from a feed. Calls the
@@ -43,31 +44,31 @@ import java.net.URLConnection;
  */
 public abstract class PollUrlTripModule extends Module {
 
-    private static StringConfigValue url =
+    private static final StringConfigValue url =
             new StringConfigValue("transitclock.trip.feedUrl",
                     "The URL of the Trip feed to poll.");
 
-    private static StringConfigValue authenticationUser =
+    private static final StringConfigValue authenticationUser =
             new StringConfigValue("transitclock.trip.authenticationUser",
                     "If authentication used for the feed then this specifies "
                             + "the user.");
 
-    private static StringConfigValue authenticationPassword =
+    private static final StringConfigValue authenticationPassword =
             new StringConfigValue("transitclock.trip.authenticationPassword",
                     "If authentication used for the feed then this specifies "
                             + "the password.");
 
-    private static BooleanConfigValue shouldProcessTripFeed =
+    private static final BooleanConfigValue shouldProcessTripFeed =
             new BooleanConfigValue("transitclock.trip.shouldProcessTripFeed",
                     true,
                     "Usually want to process the Trip Feed if it is provided and if it contains " +
                             "supplemental data such as information about canceled trips.");
 
-    private static IntegerConfigValue secondsBetweenTripFeedPolling =
+    private static final IntegerConfigValue secondsBetweenTripFeedPolling =
             new IntegerConfigValue("transitclock.trip.feedPollingRateSecs", 5,
                     "How frequently a Trip feed should be polled for new data.");
 
-    private static IntegerConfigValue tripFeedTimeoutInMSecs =
+    private static final IntegerConfigValue tripFeedTimeoutInMSecs =
             new IntegerConfigValue("transitclock.trip.feedTimeoutInMSecs", 10000,
                     "For when polling Trip XML feed. The feed logs error if "
                             + "the timeout value is exceeded when performing the XML "
@@ -103,9 +104,11 @@ public abstract class PollUrlTripModule extends Module {
 
     /**
      * Override this method if Trip feed needs to specify header info
+     *
      * @param con
      */
-    protected void setRequestHeaders(URLConnection con) {}
+    protected void setRequestHeaders(URLConnection con) {
+    }
 
     /**
      * Converts the input stream into a JSON string. Useful for when processing
@@ -119,7 +122,7 @@ public abstract class PollUrlTripModule extends Module {
     protected String getJsonString(InputStream in) throws IOException,
             JSONException {
         BufferedReader streamReader =
-                new BufferedReader(new InputStreamReader(in, "UTF-8"));
+                new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
         StringBuilder responseStrBuilder = new StringBuilder();
 
         String inputStr;
@@ -134,11 +137,10 @@ public abstract class PollUrlTripModule extends Module {
     /**
      * Abstract method for getting feed from a data source and then processing it.
      *
-     * @throws Exception
-     *             Throws a generic exception since the processing is done in
-     *             the abstract method processData() and it could throw any type
-     *             of exception since we don't really know how the Trip feed will
-     *             be processed.
+     * @throws Exception Throws a generic exception since the processing is done in
+     *                   the abstract method processData() and it could throw any type
+     *                   of exception since we don't really know how the Trip feed will
+     *                   be processed.
      */
     protected abstract void getAndProcessData(String url) throws Exception;
 
@@ -146,6 +148,7 @@ public abstract class PollUrlTripModule extends Module {
     /**
      * Does all of the work for the class. Runs forever and reads in
      * Trip data from feed and processes it.
+     *
      * @see Runnable#run()
      */
     @Override
@@ -161,7 +164,7 @@ public abstract class PollUrlTripModule extends Module {
             try {
                 // Process data
                 String[] urls = getUrl().split(",");
-                for(String url : urls){
+                for (String url : urls) {
                     getAndProcessData(url);
                 }
             } catch (SocketTimeoutException e) {
@@ -178,11 +181,11 @@ public abstract class PollUrlTripModule extends Module {
             // Wait appropriate amount of time till poll again
             long elapsedMsec = timer.elapsedMsec();
             long sleepTime =
-                    secondsBetweenTripFeedPolling.getValue()*Time.MS_PER_SEC -
+                    secondsBetweenTripFeedPolling.getValue() * Time.MS_PER_SEC -
                             elapsedMsec;
             if (sleepTime < 0) {
                 logger.warn("Supposed to have a polling rate of " +
-                        secondsBetweenTripFeedPolling.getValue()*Time.MS_PER_SEC +
+                        secondsBetweenTripFeedPolling.getValue() * Time.MS_PER_SEC +
                         " msec but processing previous data took " +
                         elapsedMsec + " msec so polling again immediately.");
             } else {

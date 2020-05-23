@@ -16,12 +16,11 @@ import java.util.concurrent.ConcurrentMap;
 public class BlockAssignerCache {
 
 
-    private ConcurrentMap<String, ArrayList<String>> _blockAssignmentsByVehicleId = new ConcurrentHashMap<>();
-    private IntegerConfigValue _cacheTTL = null;
-    private BlockAssignerUpdater _updater;
-
     private static final Logger logger = LoggerFactory
             .getLogger(BlockAssignerCache.class);
+    private final ConcurrentMap<String, ArrayList<String>> _blockAssignmentsByVehicleId = new ConcurrentHashMap<>();
+    private final BlockAssignerUpdater _updater;
+    private IntegerConfigValue _cacheTTL = null;
 
     public BlockAssignerCache(BlockAssignerUpdater updater, IntegerConfigValue cacheTTL) {
         this._updater = updater;
@@ -32,6 +31,7 @@ public class BlockAssignerCache {
     /**
      * retrieve a copy of the cache, potentially forcing a cache update AFTER the read
      * for performance reasons.
+     *
      * @return
      */
     public ConcurrentMap<String, ArrayList<String>> getBlockAssignmentsByVehicleIdMap() {
@@ -69,6 +69,7 @@ public class BlockAssignerCache {
 
         private ConcurrentMap<String, ArrayList<String>> blockAssignmentsByVehicleIdMap = null;
         private BlockAssignerUpdater updater = null;
+
         public WorkerThread(ConcurrentMap<String, ArrayList<String>> blockAssignments, BlockAssignerUpdater updater) {
             this.blockAssignmentsByVehicleIdMap = blockAssignments;
             this.updater = updater;

@@ -25,14 +25,12 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class BlockAssignerUpdater {
 
+    private static final Logger logger = LoggerFactory
+            .getLogger(BlockAssignerUpdater.class);
+    private final AtomicLong _lastRefreshTimeInMillis = new AtomicLong(0);
     private StringConfigValue _url = null;
     private StringConfigValue _blockParam = null;
     private StringConfigValue _vehicleParam = null;
-
-    private AtomicLong _lastRefreshTimeInMillis = new AtomicLong(0);
-
-    private static final Logger logger = LoggerFactory
-            .getLogger(BlockAssignerUpdater.class);
 
     public BlockAssignerUpdater(StringConfigValue externalAssignerUrl,
                                 StringConfigValue blockParam,
@@ -44,10 +42,11 @@ public class BlockAssignerUpdater {
 
     /**
      * Read the web service in an assumed CSV format and return as a map
-     * @throws IOException on any communicaton issues
+     *
      * @return a map, possibly empty, on successful retrieval and parsing of the external feed
+     * @throws IOException on any communicaton issues
      */
-    public Map<String, ArrayList<String>>  getBlockAssignmentsByVehicleIdMap() throws IOException {
+    public Map<String, ArrayList<String>> getBlockAssignmentsByVehicleIdMap() throws IOException {
         Map<String, ArrayList<String>> blockAssignmentsByVehicleId = new HashMap<>();
         CSVRecord record = null;
         CSVFormat formatter = CSVFormat.DEFAULT.withHeader().withCommentMarker('-');
@@ -93,6 +92,7 @@ public class BlockAssignerUpdater {
 
     /**
      * connect and retrieve as input stream the configured _url.  Does no caching.
+     *
      * @return
      * @throws Exception
      */
@@ -110,14 +110,12 @@ public class BlockAssignerUpdater {
 
     /**
      * test if cache is due for a refresh based on given TTL in seconds
+     *
      * @param cacheTTL
      * @return
      */
     public boolean needsUpdate(int cacheTTL) {
-        if ((System.currentTimeMillis() - _lastRefreshTimeInMillis.get()) / 1000 > cacheTTL) {
-            return true;
-        }
-        return false;
+        return (System.currentTimeMillis() - _lastRefreshTimeInMillis.get()) / 1000 > cacheTTL;
     }
 
     /**
@@ -130,6 +128,7 @@ public class BlockAssignerUpdater {
 
     /**
      * convenience method to insert into the indexed map.
+     *
      * @param blockAssignmentsByVehicleId
      * @param assignment
      */
@@ -149,6 +148,7 @@ public class BlockAssignerUpdater {
 
     /**
      * wrangle a CSVRecord into a blockId and a vehicleId based on configuration.
+     *
      * @param record
      * @return
      */

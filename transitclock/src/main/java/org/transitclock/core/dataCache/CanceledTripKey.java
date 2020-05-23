@@ -11,7 +11,7 @@ public class CanceledTripKey implements Serializable {
 
     // Since hashCode() can be called a lot might as well cache the value
     // since this object is immutable.
-    private int cachedHashCode;
+    private final int cachedHashCode;
 
     public CanceledTripKey(String vehicleId, String tripId) {
         this.vehicleId = vehicleId;
@@ -19,11 +19,11 @@ public class CanceledTripKey implements Serializable {
         this.cachedHashCode = createHashCode();
     }
 
-    public String getVehicleId(){
-       return vehicleId;
+    public String getVehicleId() {
+        return vehicleId;
     }
 
-    public String getTripId(){
+    public String getTripId() {
         return tripId;
     }
 

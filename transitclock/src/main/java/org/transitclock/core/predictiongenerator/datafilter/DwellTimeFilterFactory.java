@@ -5,25 +5,22 @@ import org.transitclock.utils.ClassInstantiator;
 
 public class DwellTimeFilterFactory {
 
-	/**
-	 * 
-	 * @author scrudden Returns the filter that is used to exclude bad dwell time
-	 *         data.
-	 *
-	 */
-	
-	private static DwellTimeDataFilter singleton = null;
+    // The name of the class to instantiate
+    private static final StringConfigValue className = new StringConfigValue("transitclock.core.predictiongenerator.datafilter.dwelltime",
+            "org.transitclock.core.predictiongenerator.datafilter.DwellTimeDataFilterImpl",
+            "Specifies the name of the class used to filter dwell times.");
+    /**
+     * @author scrudden Returns the filter that is used to exclude bad dwell time
+     * data.
+     */
 
-	// The name of the class to instantiate
-	private static StringConfigValue className = new StringConfigValue("transitclock.core.predictiongenerator.datafilter.dwelltime",
-			"org.transitclock.core.predictiongenerator.datafilter.DwellTimeDataFilterImpl",
-			"Specifies the name of the class used to filter dwell times.");
+    private static DwellTimeDataFilter singleton = null;
 
-	public static DwellTimeDataFilter getInstance() {
+    public static DwellTimeDataFilter getInstance() {
 
-		if(singleton==null)
-			singleton=ClassInstantiator.instantiate(className.getValue(), DwellTimeDataFilter.class);
-		return singleton;
-	}
+        if (singleton == null)
+            singleton = ClassInstantiator.instantiate(className.getValue(), DwellTimeDataFilter.class);
+        return singleton;
+    }
 
 }

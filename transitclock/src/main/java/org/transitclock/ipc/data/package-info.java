@@ -1,6 +1,6 @@
-/* 
+/*
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPL) as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -17,11 +17,11 @@
 
 /**
  * This package contains the low-level objects that are transmitted to
- * the clients via RMI. 
+ * the clients via RMI.
  * <p>
  * There are many goals with these objects:
  * <ul>
- * <li> Objects should be Immutable so that they are always coherent and 
+ * <li> Objects should be Immutable so that they are always coherent and
  *      threadsafe.</li>
  * <li> Objects must be serializable so can be used with RMI.
  * <li> Have a version number for the class so that can handle objects of
@@ -29,15 +29,14 @@
  *      update the servers and clients at same time.</li>
  * </ul>
  * <p>
- * The way to achieve the goals is to use a inner "SerializationProxy" 
+ * The way to achieve the goals is to use a inner "SerializationProxy"
  * class as described by Joshua Bloch in "Effective Java 2nd Edition" in
  * item 78. See the org.transitclock.ipc.data.Vehicle class for an example.
  * Yes, this is more complicated then using the default serialization but
  * the default is simply not adequate because some of the structures will
  * change over time and the default serialization cannot handle all such
  * changes.
- * 
- * @author SkiBu Smith
  *
+ * @author SkiBu Smith
  */
 package org.transitclock.ipc.data;

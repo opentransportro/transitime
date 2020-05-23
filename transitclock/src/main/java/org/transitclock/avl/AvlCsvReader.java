@@ -1,6 +1,6 @@
 /*
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPL) as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -17,30 +17,29 @@
 
 package org.transitclock.avl;
 
-import java.text.ParseException;
-
 import org.apache.commons.csv.CSVRecord;
 import org.transitclock.db.structs.AvlReport;
 import org.transitclock.utils.csv.CsvBaseReader;
+
+import java.text.ParseException;
 
 /**
  * For reading in AVL data from a CSV file.
  *
  * @author SkiBu Smith
- *
  */
 public class AvlCsvReader extends CsvBaseReader<AvlReport> {
 
-	/********************** Member Functions **************************/
+    /********************** Member Functions **************************/
 
-	public AvlCsvReader(String fileName) {
-		super(fileName);
-	}
+    public AvlCsvReader(String fileName) {
+        super(fileName);
+    }
 
-	@Override
-	public AvlReport handleRecord(CSVRecord record, boolean supplemental) 
-		throws ParseException {
-		return AvlCsvRecord.getAvlReport(record, getFileName());
-	}
+    @Override
+    public AvlReport handleRecord(CSVRecord record, boolean supplemental)
+            throws ParseException {
+        return AvlCsvRecord.getAvlReport(record, getFileName());
+    }
 
 }

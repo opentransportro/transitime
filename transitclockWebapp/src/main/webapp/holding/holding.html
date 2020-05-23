@@ -1,74 +1,75 @@
 <html>
-    <link rel="stylesheet" href="css/general.css">
-    <head>
-        
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-        <script src="js/transiTimeHolding.js"></script>
-        <script src="js/transiTimeVehicles.js"></script> 
-        <script src="js/transiTimeRoutes.js"></script> 
-        <script src="js/transiTimeTrips.js"></script> 
-        <title>Vehicle Holding Times</title>
-    </head>
-            
-    <body>
-    <div id="header"><a href="http://www.transitime.org">Transitime Extension: Holding Times for Atlanta Streetcar.</a></div>
-    <div id="title">Holding Times</div>
-    <div id="mainDiv">
-        <div class="param">
-            <label for="route">Route:</label>
-                <select name="routeId" id="routes"></select>
-            
-        </div>
-        <div class="param">
-            <label for="vehicle">Vehicle:</label>
-                <select name="vehicleId" id="vehicles"></select>
-            
-        </div>
-        <div class="param">
-            <label for="stop">Stop:</label>
-                <select name="stopId" id="stops"></select>
-            
-        </div>
-               
-       
-   
-        <table border="1">
-           
-            
-            <tr>
-                <td> 
-                    <div class="submitDiv">
-                        <input type="button" name="GetVehicleDetails_API" id="GetVehicleDetails_API" value="Get Vehicle Details"/>
-                    </div>
-                    <div id="vehicledetails"></div>
-                </td>              
-            </tr>
-            <tr>
-                <td colspan="2">
-                    <div class="submitDiv">
-                        <input type="button" name="GetHoldingTime_API" id="GetHoldingTime_API" value="Get Holding Time"/>
-                        <input type="button" name="PollHoldingTime_API" id="PollHoldingTime_API" value="Poll Holding Time"/>
-                    </div>                    
-                    <div id="result"></div>
-                </td>
-            </tr>
-            <tr>
-                <td colspan="2">                                     
-                    <div id="counter"></div>
-                </td>
-            </tr>
-            <tr>   
-                <td>
-                    <div>
-                        <input type="button" name="GetHoldingTimes_API" id="GetHoldingTimes_API" value="Get Holding Times"/>
-                    </div>
-                    <div id="holdingtimes"></div>
-                </td>
-            </tr>       
-        </table>        
-    </body>
+<link href="css/general.css" rel="stylesheet">
+<head>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="js/transiTimeHolding.js"></script>
+    <script src="js/transiTimeVehicles.js"></script>
+    <script src="js/transiTimeRoutes.js"></script>
+    <script src="js/transiTimeTrips.js"></script>
+    <title>Vehicle Holding Times</title>
+</head>
+
+<body>
+<div id="header"><a href="http://www.transitime.org">Transitime Extension: Holding Times for Atlanta Streetcar.</a>
+</div>
+<div id="title">Holding Times</div>
+<div id="mainDiv">
+    <div class="param">
+        <label for="route">Route:</label>
+        <select id="routes" name="routeId"></select>
+
     </div>
-    <script>  
+    <div class="param">
+        <label for="vehicle">Vehicle:</label>
+        <select id="vehicles" name="vehicleId"></select>
+
+    </div>
+    <div class="param">
+        <label for="stop">Stop:</label>
+        <select id="stops" name="stopId"></select>
+
+    </div>
+
+
+    <table border="1">
+
+
+        <tr>
+            <td>
+                <div class="submitDiv">
+                    <input id="GetVehicleDetails_API" name="GetVehicleDetails_API" type="button"
+                           value="Get Vehicle Details"/>
+                </div>
+                <div id="vehicledetails"></div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <div class="submitDiv">
+                    <input id="GetHoldingTime_API" name="GetHoldingTime_API" type="button" value="Get Holding Time"/>
+                    <input id="PollHoldingTime_API" name="PollHoldingTime_API" type="button" value="Poll Holding Time"/>
+                </div>
+                <div id="result"></div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <div id="counter"></div>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <div>
+                    <input id="GetHoldingTimes_API" name="GetHoldingTimes_API" type="button" value="Get Holding Times"/>
+                </div>
+                <div id="holdingtimes"></div>
+            </td>
+        </tr>
+    </table>
+</body>
+</div>
+<script>
     		var host =   host=document.location.host;; 
             getHoldingTimeKeys(host);
             getRouteDetails(host,processRoutes);
@@ -147,6 +148,7 @@
             });
                                           
        
-    </script>
-            
+
+</script>
+
 </html>

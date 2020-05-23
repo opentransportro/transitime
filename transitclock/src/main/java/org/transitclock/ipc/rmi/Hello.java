@@ -1,6 +1,6 @@
-/* 
+/*
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPL) as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -21,10 +21,9 @@ import java.rmi.RemoteException;
 
 /**
  * A test interface for showing how can work with RMI
- * 
- * @author SkiBu Smith
  *
+ * @author SkiBu Smith
  */
 public interface Hello extends Remote {
-	public String concat(String s1, String s2) throws RemoteException;
+    String concat(String s1, String s2) throws RemoteException;
 }

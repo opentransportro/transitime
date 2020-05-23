@@ -1,6 +1,6 @@
-/* 
+/*
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPL) as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -16,28 +16,27 @@
  */
 package org.transitclock.gtfs.readers;
 
-import java.text.ParseException;
-
 import org.apache.commons.csv.CSVRecord;
 import org.transitclock.gtfs.gtfsStructs.GtfsCalendarDate;
 import org.transitclock.utils.csv.CsvBaseReader;
 
+import java.text.ParseException;
+
 /**
  * GTFS reader for the calendar_dates.txt file
- * 
- * @author SkiBu Smith
  *
+ * @author SkiBu Smith
  */
 public class GtfsCalendarDatesReader extends CsvBaseReader<GtfsCalendarDate> {
 
-	public GtfsCalendarDatesReader(String dirName) {
-		super(dirName, "calendar_dates.txt", false, false);
-	}
-	
-	@Override
-	public GtfsCalendarDate handleRecord(CSVRecord record, boolean supplemental) 
-			throws ParseException {
-		return new GtfsCalendarDate(record, supplemental, getFileName());
-	}
+    public GtfsCalendarDatesReader(String dirName) {
+        super(dirName, "calendar_dates.txt", false, false);
+    }
+
+    @Override
+    public GtfsCalendarDate handleRecord(CSVRecord record, boolean supplemental)
+            throws ParseException {
+        return new GtfsCalendarDate(record, supplemental, getFileName());
+    }
 
 }

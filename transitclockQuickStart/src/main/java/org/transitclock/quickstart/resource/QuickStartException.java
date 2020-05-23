@@ -1,6 +1,6 @@
 /*
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPL) as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -20,15 +20,14 @@ import org.transitclock.gui.ExceptionPanel;
 
 public class QuickStartException extends Exception {
 
-	/**
-	 * @author Brendan Egan
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+    /**
+     * @author Brendan Egan
+     */
+    private static final long serialVersionUID = 1L;
 
-	public QuickStartException(String message, Exception ex) {
-		super(message, ex);
-		ExceptionPanel exception = new ExceptionPanel(message, ex);
-	}
+    public QuickStartException(String message, Exception ex) {
+        super(message, ex);
+        ExceptionPanel exception = new ExceptionPanel(message, ex);
+    }
 
 }

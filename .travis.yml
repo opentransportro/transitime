@@ -2,7 +2,7 @@ language: java
 jdk: openjdk8
 cache:
   directories:
-  - "$HOME/.m2"
+    - "$HOME/.m2"
 script: mvn install -DskipTests
 deploy:
   provider: releases

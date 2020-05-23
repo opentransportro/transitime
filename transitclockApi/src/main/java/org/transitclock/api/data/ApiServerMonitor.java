@@ -1,6 +1,6 @@
 /*
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPL) as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -17,35 +17,33 @@
 
 package org.transitclock.api.data;
 
+import org.transitclock.monitoring.MonitorResult;
+
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlValue;
 
-import org.transitclock.monitoring.MonitorResult;
-
 /**
- *
- *
  * @author SkiBu Smith
- *
  */
 public class ApiServerMonitor {
 
-	@XmlAttribute
-	private String type;
-	
-	@XmlValue
-	private String message;
-	
-	/********************** Member Functions **************************/
+    @XmlAttribute
+    private String type;
+
+    @XmlValue
+    private String message;
+
+    /********************** Member Functions **************************/
 
     /**
      * Need a no-arg constructor for Jersey. Otherwise get really obtuse
      * "MessageBodyWriter not found for media type=application/json" exception.
      */
-	protected ApiServerMonitor() {}
-	
-	public ApiServerMonitor(MonitorResult monitorResult) {
-		this.type = monitorResult.getType();
-		this.message = monitorResult.getMessage();
-	}
+    protected ApiServerMonitor() {
+    }
+
+    public ApiServerMonitor(MonitorResult monitorResult) {
+        this.type = monitorResult.getType();
+        this.message = monitorResult.getMessage();
+    }
 }

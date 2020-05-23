@@ -11,7 +11,7 @@ public class IpcSkippedStop implements Serializable {
     private String stopId;
     private int stopSequence;
 
-    public IpcSkippedStop(String vehicleId, String stopId, int stopSequence){
+    public IpcSkippedStop(String vehicleId, String stopId, int stopSequence) {
         this.vehicleId = vehicleId;
         this.stopId = stopId;
         this.stopSequence = stopSequence;

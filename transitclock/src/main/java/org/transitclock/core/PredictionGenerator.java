@@ -28,17 +28,15 @@ import java.util.List;
  * PredictionGenerator is needed.
  *
  * @author SkiBu Smith
- *
  */
 public interface PredictionGenerator {
-	
-	/**
-	 * Generates and returns the predictions for the vehicle. 
-	 * 
-	 * @param vehicleState
-	 *            Contains the new match for the vehicle that the predictions
-	 *            are to be based on.
-	 */
-	public List<IpcPrediction> generate(VehicleState vehicleState);
-	
+
+    /**
+     * Generates and returns the predictions for the vehicle.
+     *
+     * @param vehicleState Contains the new match for the vehicle that the predictions
+     *                     are to be based on.
+     */
+    List<IpcPrediction> generate(VehicleState vehicleState);
+
 }

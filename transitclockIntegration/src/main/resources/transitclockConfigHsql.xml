@@ -21,8 +21,8 @@
         <allowableLateSecondsForInitialMatching>2700</allowableLateSecondsForInitialMatching>
     </core>
     <avl>
-       <csvAvlFeedFileName>sample.csv</csvAvlFeedFileName>
-    	<maxSpeed>40</maxSpeed>
+        <csvAvlFeedFileName>sample.csv</csvAvlFeedFileName>
+        <maxSpeed>40</maxSpeed>
     </avl>
 
     <find>

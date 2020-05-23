@@ -40,7 +40,7 @@ public class ExternalBlockAssignerTest extends TestCase {
             InputStream feed = eba.getBlockAssignmentsByVehicleIdFeed();
             fail();
         } catch (FileNotFoundException fnfe) {
-        // good!
+            // good!
         }
 
         // flush the feed to a file on disk and load
@@ -103,8 +103,8 @@ public class ExternalBlockAssignerTest extends TestCase {
                     Block b = new Block(-1,
                             assignmentId,
                             "serviceId",
-                            (int)(System.currentTimeMillis()-1000)/1000,
-                            (int)(System.currentTimeMillis()+1000)/1000,
+                            (int) (System.currentTimeMillis() - 1000) / 1000,
+                            (int) (System.currentTimeMillis() + 1000) / 1000,
                             new ArrayList<Trip>());
                     return b;
                 }
@@ -130,7 +130,7 @@ public class ExternalBlockAssignerTest extends TestCase {
         writeToTempFile(eba, FEED_2);
 
         AvlReport avl = new AvlReport("vehicle-1", System.currentTimeMillis(), 0.0, 0.0,
-        "OpenGTS");
+                "OpenGTS");
         String blockId = eba.getActiveAssignmentForVehicle(avl);
 
         assertNotNull(blockId);

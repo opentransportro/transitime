@@ -1,6 +1,6 @@
 /*
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPL) as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -17,51 +17,48 @@
 
 package org.transitclock.api.data;
 
+import org.transitclock.ipc.data.IpcArrivalDeparture;
+
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
-import org.transitclock.ipc.data.IpcArrivalDeparture;
-import org.transitclock.ipc.data.IpcRouteSummary;
-
 /**
  * An ordered list of routes.
  *
  * @author SkiBu Smith
- *
  */
 @XmlRootElement(name = "arrivalDepartures")
 public class ApiArrivalDepartures {
 
-	@XmlElement(name = "arrivalDeparture")
-	private List<ApiArrivalDeparture> arrivalDeparturesData;
+    @XmlElement(name = "arrivalDeparture")
+    private List<ApiArrivalDeparture> arrivalDeparturesData;
 
-	/********************** Member Functions **************************/
+    /********************** Member Functions **************************/
 
-	/**
-	 * Need a no-arg constructor for Jersey. Otherwise get really obtuse
-	 * "MessageBodyWriter not found for media type=application/json" exception.
-	 */
-	protected ApiArrivalDepartures() {
-	}
+    /**
+     * Need a no-arg constructor for Jersey. Otherwise get really obtuse
+     * "MessageBodyWriter not found for media type=application/json" exception.
+     */
+    protected ApiArrivalDepartures() {
+    }
 
-	/**
-	 * Constructs an ApiRouteSummaries using a collection of IpcRouteSummary
-	 * objects.
-	 * 
-	 * @param routes
-	 * @throws InvocationTargetException 
-	 * @throws IllegalAccessException 
-	 */
-	public ApiArrivalDepartures(Collection<IpcArrivalDeparture> arrivalDepartures) throws IllegalAccessException, InvocationTargetException {
-		arrivalDeparturesData = new ArrayList<ApiArrivalDeparture>();
-		for (IpcArrivalDeparture arrivalDeparture : arrivalDepartures) {
-			ApiArrivalDeparture apiArrivalDeparture = new ApiArrivalDeparture(arrivalDeparture);
-			arrivalDeparturesData.add(apiArrivalDeparture);
-		}
-	}
+    /**
+     * Constructs an ApiRouteSummaries using a collection of IpcRouteSummary
+     * objects.
+     *
+     * @param routes
+     * @throws InvocationTargetException
+     * @throws IllegalAccessException
+     */
+    public ApiArrivalDepartures(Collection<IpcArrivalDeparture> arrivalDepartures) throws IllegalAccessException, InvocationTargetException {
+        arrivalDeparturesData = new ArrayList<ApiArrivalDeparture>();
+        for (IpcArrivalDeparture arrivalDeparture : arrivalDepartures) {
+            ApiArrivalDeparture apiArrivalDeparture = new ApiArrivalDeparture(arrivalDeparture);
+            arrivalDeparturesData.add(apiArrivalDeparture);
+        }
+    }
 }

@@ -1,6 +1,6 @@
 /*
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPL) as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -17,54 +17,52 @@
 
 package org.transitclock.api.data;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.transitclock.ipc.data.IpcServerStatus;
+import org.transitclock.monitoring.MonitorResult;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-
-import org.transitclock.ipc.data.IpcServerStatus;
-import org.transitclock.monitoring.MonitorResult;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Server status for an agency server
  *
  * @author SkiBu Smith
- *
  */
 @XmlRootElement(name = "serverStatus")
 public class ApiServerStatus {
 
-	@XmlAttribute
-	private String agencyId;
+    @XmlAttribute
+    private String agencyId;
 
-	@XmlElement(name = "serverMonitor")
-	private List<ApiServerMonitor> serverMonitors;
+    @XmlElement(name = "serverMonitor")
+    private List<ApiServerMonitor> serverMonitors;
 
-	/********************** Member Functions **************************/
+    /********************** Member Functions **************************/
 
-	/**
-	 * Need a no-arg constructor for Jersey. Otherwise get really obtuse
-	 * "MessageBodyWriter not found for media type=application/json" exception.
-	 */
-	protected ApiServerStatus() {
-	}
+    /**
+     * Need a no-arg constructor for Jersey. Otherwise get really obtuse
+     * "MessageBodyWriter not found for media type=application/json" exception.
+     */
+    protected ApiServerStatus() {
+    }
 
-	/**
-	 * Constructors a ApiServerStatus object from agencyId and IpcServerStatus
-	 * objects.
-	 * 
-	 * @param agencyId
-	 * @param ipcServerStatus
-	 */
-	public ApiServerStatus(String agencyId, IpcServerStatus ipcServerStatus) {
-		this.agencyId = agencyId;
-		
-		serverMonitors = new ArrayList<ApiServerMonitor>();
-		for (MonitorResult monitorResult : ipcServerStatus.getMonitorResults()) {
-			this.serverMonitors.add(new ApiServerMonitor(monitorResult));
-		}
-	}
+    /**
+     * Constructors a ApiServerStatus object from agencyId and IpcServerStatus
+     * objects.
+     *
+     * @param agencyId
+     * @param ipcServerStatus
+     */
+    public ApiServerStatus(String agencyId, IpcServerStatus ipcServerStatus) {
+        this.agencyId = agencyId;
+
+        serverMonitors = new ArrayList<ApiServerMonitor>();
+        for (MonitorResult monitorResult : ipcServerStatus.getMonitorResults()) {
+            this.serverMonitors.add(new ApiServerMonitor(monitorResult));
+        }
+    }
 
 }

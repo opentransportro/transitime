@@ -1,6 +1,6 @@
 /*
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPL) as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -25,32 +25,30 @@ import org.transitclock.avl.NextBusAvlModule;
  * for the mbta feed.
  *
  * @author SkiBu Smith
- *
  */
 public class MbtaNextBusAvlModule extends NextBusAvlModule {
 
-	/**
-	 * @param projectId
-	 */
-	public MbtaNextBusAvlModule(String projectId) {
-		super(projectId);
-	}
-	
-	/**
-	 * At least for mbta the feed uses '_' characters in the block
-	 * assignment but the GTFS data instead uses '-' characters.
-	 * Therefore need to process the block IDs.
-	 * 
-	 * @param originalBlockIdFromFeed
-	 *            the block ID to be modified
-	 * @return the modified block ID that corresponds to the GTFS data
-	 */
-	@Override
-	protected String processBlockId(String originalBlockIdFromFeed) {
-		if (originalBlockIdFromFeed == null)
-			return null;
-		else
-			return originalBlockIdFromFeed.replace('_', '-');
-	}
+    /**
+     * @param projectId
+     */
+    public MbtaNextBusAvlModule(String projectId) {
+        super(projectId);
+    }
+
+    /**
+     * At least for mbta the feed uses '_' characters in the block
+     * assignment but the GTFS data instead uses '-' characters.
+     * Therefore need to process the block IDs.
+     *
+     * @param originalBlockIdFromFeed the block ID to be modified
+     * @return the modified block ID that corresponds to the GTFS data
+     */
+    @Override
+    protected String processBlockId(String originalBlockIdFromFeed) {
+        if (originalBlockIdFromFeed == null)
+            return null;
+        else
+            return originalBlockIdFromFeed.replace('_', '-');
+    }
 
 }

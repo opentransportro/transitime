@@ -1,6 +1,6 @@
 /*
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPL) as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -25,32 +25,30 @@ import org.transitclock.avl.NextBusAvlModule;
  * for the sfmta AVL feed.
  *
  * @author SkiBu Smith
- * 
  */
 public class LametroNextBusAvlModule extends NextBusAvlModule {
 
-	/**
-	 * @param agencyId
-	 */
-	public LametroNextBusAvlModule(String agencyId) {
-		super(agencyId);
-	}
-	
-	/**
-	 * At least for sfmta agency they don't use a leading 0 in the block ID in
-	 * the GTFS data. Therefore to match strip out leading zeros from the block
-	 * ID here.
-	 * 
-	 * @param originalBlockIdFromFeed
-	 *            the block ID to be modified
-	 * @return the modified block ID that corresponds to the GTFS data
-	 */
-	@Override
-	protected String processBlockId(String originalBlockIdFromFeed) {
-		String block = originalBlockIdFromFeed;
-		while (block != null && block.startsWith("0"))
-			block = block.substring(1);
-		return block;
-	}
+    /**
+     * @param agencyId
+     */
+    public LametroNextBusAvlModule(String agencyId) {
+        super(agencyId);
+    }
+
+    /**
+     * At least for sfmta agency they don't use a leading 0 in the block ID in
+     * the GTFS data. Therefore to match strip out leading zeros from the block
+     * ID here.
+     *
+     * @param originalBlockIdFromFeed the block ID to be modified
+     * @return the modified block ID that corresponds to the GTFS data
+     */
+    @Override
+    protected String processBlockId(String originalBlockIdFromFeed) {
+        String block = originalBlockIdFromFeed;
+        while (block != null && block.startsWith("0"))
+            block = block.substring(1);
+        return block;
+    }
 
 }

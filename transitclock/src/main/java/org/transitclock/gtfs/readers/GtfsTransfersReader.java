@@ -1,6 +1,6 @@
-/* 
+/*
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPL) as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -16,28 +16,26 @@
  */
 package org.transitclock.gtfs.readers;
 
-import java.text.ParseException;
-
 import org.apache.commons.csv.CSVRecord;
 import org.transitclock.gtfs.gtfsStructs.GtfsTransfer;
 import org.transitclock.utils.csv.CsvBaseReader;
 
+import java.text.ParseException;
+
 
 /**
- *
  * @author SkiBu Smith
- *
  */
 public class GtfsTransfersReader extends CsvBaseReader<GtfsTransfer> {
 
-	public GtfsTransfersReader(String dirName) {
-		super(dirName, "transfers.txt", false, false);
-	}
-	
-	@Override
-	public GtfsTransfer handleRecord(CSVRecord record, boolean supplemental) 
-			throws ParseException, NumberFormatException {
-		return new GtfsTransfer(record, supplemental, getFileName());
-	}
+    public GtfsTransfersReader(String dirName) {
+        super(dirName, "transfers.txt", false, false);
+    }
+
+    @Override
+    public GtfsTransfer handleRecord(CSVRecord record, boolean supplemental)
+            throws ParseException, NumberFormatException {
+        return new GtfsTransfer(record, supplemental, getFileName());
+    }
 
 }

@@ -1,6 +1,6 @@
-/* 
+/*
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPL) as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -16,28 +16,20 @@
  */
 package org.transitclock.ipc.interfaces;
 
+import org.transitclock.ipc.data.IpcHoldingTime;
+
 import java.rmi.Remote;
 import java.rmi.RemoteException;
-import java.time.LocalDate;
-import java.util.Date;
-import java.util.List;
-
-import org.transitclock.ipc.data.IpcArrivalDeparture;
-import org.transitclock.ipc.data.IpcHistoricalAverage;
-import org.transitclock.ipc.data.IpcHistoricalAverageCacheKey;
-import org.transitclock.ipc.data.IpcHoldingTime;
-import org.transitclock.ipc.data.IpcHoldingTimeCacheKey;
-import org.transitclock.ipc.data.IpcKalmanErrorCacheKey;
 
 /**
- * Defines the RMI interface used for obtaining holding time information. 
- * 
- * @author Sean Og Crudden
+ * Defines the RMI interface used for obtaining holding time information.
  *
+ * @author Sean Og Crudden
  */
 public interface HoldingTimeInterface extends Remote {
 
-	public IpcHoldingTime getHoldTime(String stopId, String vehicleId, String tripId) throws RemoteException;
-	public IpcHoldingTime getHoldTime(String stopId, String vehicleId) throws RemoteException;
-	
-	}
+    IpcHoldingTime getHoldTime(String stopId, String vehicleId, String tripId) throws RemoteException;
+
+    IpcHoldingTime getHoldTime(String stopId, String vehicleId) throws RemoteException;
+
+}

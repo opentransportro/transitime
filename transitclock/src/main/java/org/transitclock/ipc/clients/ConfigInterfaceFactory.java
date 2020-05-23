@@ -1,6 +1,6 @@
 /*
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPL) as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -17,43 +17,42 @@
 
 package org.transitclock.ipc.clients;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.transitclock.ipc.interfaces.ConfigInterface;
 import org.transitclock.ipc.rmi.ClientFactory;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
- * Provides a ConfigInterface client that can be queried for 
+ * Provides a ConfigInterface client that can be queried for
  * configuration info.
  *
  * @author SkiBu Smith
- *
  */
 public class ConfigInterfaceFactory {
 
-	// Keyed by agencyId
-	private static Map<String, ConfigInterface> configInterfaceMap =
-			new HashMap<String, ConfigInterface>();
+    // Keyed by agencyId
+    private static final Map<String, ConfigInterface> configInterfaceMap =
+            new HashMap<String, ConfigInterface>();
 
-	/********************** Member Functions **************************/
+    /********************** Member Functions **************************/
 
-	/**
-	 * Gets the singleton instance.
-	 * 
-	 * @param agencyId
-	 * @return
-	 */
-	public static ConfigInterface get(String agencyId) {
-		ConfigInterface configInterface =
-				configInterfaceMap.get(agencyId);
-		if (configInterface == null) {
-			configInterface = 
-					ClientFactory.getInstance(agencyId, ConfigInterface.class);
-			configInterfaceMap.put(agencyId, configInterface);
-		}
+    /**
+     * Gets the singleton instance.
+     *
+     * @param agencyId
+     * @return
+     */
+    public static ConfigInterface get(String agencyId) {
+        ConfigInterface configInterface =
+                configInterfaceMap.get(agencyId);
+        if (configInterface == null) {
+            configInterface =
+                    ClientFactory.getInstance(agencyId, ConfigInterface.class);
+            configInterfaceMap.put(agencyId, configInterface);
+        }
 
-		return configInterface;
-	}
+        return configInterface;
+    }
 
 }

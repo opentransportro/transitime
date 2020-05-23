@@ -1,6 +1,6 @@
 /*
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPL) as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -17,13 +17,12 @@
 
 package org.transitclock.api.utils;
 
+import org.transitclock.config.IntegerConfigValue;
+
+import javax.ws.rs.WebApplicationException;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
-import javax.ws.rs.WebApplicationException;
-
-import org.transitclock.config.IntegerConfigValue;
 
 /**
  * For making sure that use of API doesn't exceed limits. Intended to deal with
@@ -37,59 +36,59 @@ import org.transitclock.config.IntegerConfigValue;
  * Note that a map is used to keep track of the last request times. Eventually
  * this map could take up quite a bit of memory if old requests are never
  * cleared out.
- * 
+ *
  * @author SkiBu Smith
- * 
  */
 public class UsageValidator {
 
-	// The limits of requests per IP address
+    // The limits of requests per IP address
 
-	
-	private static IntegerConfigValue maxRequests = new IntegerConfigValue(
-			"transitclock.usage.maxRequests", 2000,
-			"Maximum number of requests to allow within the specified time frame");
-	
-	private static IntegerConfigValue maxRequestsTimeMsec = new IntegerConfigValue(
-			"transitclock.usage.maxRequestsTimeMsec", 1000,
-			"Amount of time in msec before max requests count limit is reset");
-	
 
-	// This is a singleton class
-	private static UsageValidator singleton = new UsageValidator();
+    private static IntegerConfigValue maxRequests = new IntegerConfigValue(
+            "transitclock.usage.maxRequests", 2000,
+            "Maximum number of requests to allow within the specified time frame");
 
-	// Keyed on IP address. Contains list of times API last called for the 
-	// IP address.
-	private Map<String, LinkedList<Long>> requestTimesPerIp = 
-			new ConcurrentHashMap<String, LinkedList<Long>>();
+    private static IntegerConfigValue maxRequestsTimeMsec = new IntegerConfigValue(
+            "transitclock.usage.maxRequestsTimeMsec", 1000,
+            "Amount of time in msec before max requests count limit is reset");
 
-	/********************** Member Functions **************************/
 
-	/**
-	 * Constructor private because singleton class
-	 */
-	private UsageValidator() {
-	}
+    // This is a singleton class
+    private static UsageValidator singleton = new UsageValidator();
 
-	/**
-	 * Get singleton instance.
-	 * 
-	 * @return
-	 */
-	public static UsageValidator getInstance() {
-		return singleton;
-	}
+    // Keyed on IP address. Contains list of times API last called for the
+    // IP address.
+    private Map<String, LinkedList<Long>> requestTimesPerIp =
+            new ConcurrentHashMap<String, LinkedList<Long>>();
 
-	/**
-	 * TODO: previous impl was not thread safe -- so now its just a placeholder
-	 * for future checks  
-	 * @param stdParameters
-	 * @throws WebApplicationException
-	 */
-	public void validateUsage(StandardParameters stdParameters)
-			throws WebApplicationException {
+    /********************** Member Functions **************************/
 
-		return;
+    /**
+     * Constructor private because singleton class
+     */
+    private UsageValidator() {
+    }
 
-	}
+    /**
+     * Get singleton instance.
+     *
+     * @return
+     */
+    public static UsageValidator getInstance() {
+        return singleton;
+    }
+
+    /**
+     * TODO: previous impl was not thread safe -- so now its just a placeholder
+     * for future checks
+     *
+     * @param stdParameters
+     * @throws WebApplicationException
+     */
+    public void validateUsage(StandardParameters stdParameters)
+            throws WebApplicationException {
+
+        return;
+
+    }
 }

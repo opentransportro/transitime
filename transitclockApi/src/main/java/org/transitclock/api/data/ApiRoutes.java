@@ -1,6 +1,6 @@
 /*
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPL) as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -17,76 +17,73 @@
 
 package org.transitclock.api.data;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
 import org.transitclock.db.structs.Agency;
 import org.transitclock.ipc.data.IpcRoute;
 import org.transitclock.ipc.data.IpcRouteSummary;
+
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * An ordered list of routes.
  *
  * @author SkiBu Smith
- *
  */
 @XmlRootElement
 public class ApiRoutes {
-	// So can easily get agency name when getting routes. Useful for db reports 
-	// and such.
-	@XmlElement(name = "agency")
-	private String agencyName;
-	
-	// List of route info
-	@XmlElement(name = "routes")
-	private List<ApiRoute> routesData;
+    // So can easily get agency name when getting routes. Useful for db reports 
+    // and such.
+    @XmlElement(name = "agency")
+    private String agencyName;
 
-	/********************** Member Functions **************************/
+    // List of route info
+    @XmlElement(name = "routes")
+    private List<ApiRoute> routesData;
 
-	/**
-	 * Need a no-arg constructor for Jersey. Otherwise get really obtuse
-	 * "MessageBodyWriter not found for media type=application/json" exception.
-	 */
-	protected ApiRoutes() {
-	}
+    /********************** Member Functions **************************/
 
-	/**
-	 * Constructs an ApiRouteSummaries using a collection of IpcRouteSummary
-	 * objects.
-	 * 
-	 * @param routes
-	 * @param agency so can get agency name
-	 */
-	public ApiRoutes(Collection<IpcRouteSummary> routes, Agency agency) {
-		routesData = new ArrayList<ApiRoute>();
-		for (IpcRouteSummary route : routes) {
-			ApiRoute routeSummary = new ApiRoute(route);
-			routesData.add(routeSummary);
-		}
-		
-		// Also set agency name
-		agencyName = agency.getName();
-	}
-	
-	/**
-	 * Constructs an ApiRouteSummaries using a collection of IpcRoute objects.
-	 * 
-	 * @param routes
-	 * @param agency
-	 *            so can get agency name
-	 */
-	public ApiRoutes(List<IpcRoute> routes, Agency agency) {
-		routesData = new ArrayList<ApiRoute>();
-		for (IpcRouteSummary route : routes) {
-			ApiRoute routeSummary = new ApiRoute(route);
-			routesData.add(routeSummary);
-		}
-		
-		// Also set agency name
-		agencyName = agency.getName();
-	}
+    /**
+     * Need a no-arg constructor for Jersey. Otherwise get really obtuse
+     * "MessageBodyWriter not found for media type=application/json" exception.
+     */
+    protected ApiRoutes() {
+    }
+
+    /**
+     * Constructs an ApiRouteSummaries using a collection of IpcRouteSummary
+     * objects.
+     *
+     * @param routes
+     * @param agency so can get agency name
+     */
+    public ApiRoutes(Collection<IpcRouteSummary> routes, Agency agency) {
+        routesData = new ArrayList<ApiRoute>();
+        for (IpcRouteSummary route : routes) {
+            ApiRoute routeSummary = new ApiRoute(route);
+            routesData.add(routeSummary);
+        }
+
+        // Also set agency name
+        agencyName = agency.getName();
+    }
+
+    /**
+     * Constructs an ApiRouteSummaries using a collection of IpcRoute objects.
+     *
+     * @param routes
+     * @param agency so can get agency name
+     */
+    public ApiRoutes(List<IpcRoute> routes, Agency agency) {
+        routesData = new ArrayList<ApiRoute>();
+        for (IpcRouteSummary route : routes) {
+            ApiRoute routeSummary = new ApiRoute(route);
+            routesData.add(routeSummary);
+        }
+
+        // Also set agency name
+        agencyName = agency.getName();
+    }
 }

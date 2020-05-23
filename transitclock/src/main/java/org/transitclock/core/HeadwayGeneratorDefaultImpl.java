@@ -1,6 +1,6 @@
-/* 
+/*
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPL) as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -16,36 +16,32 @@
  */
 package org.transitclock.core;
 
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.db.structs.Headway;
 
 
 /**
- *
  * @author SkiBu Smith
- *
  */
 public class HeadwayGeneratorDefaultImpl implements HeadwayGenerator {
 
-	private static final Logger logger = 
-			LoggerFactory.getLogger(HeadwayGeneratorDefaultImpl.class);
+    private static final Logger logger =
+            LoggerFactory.getLogger(HeadwayGeneratorDefaultImpl.class);
 
-	/********************** Member Functions 
-	 * @return **************************/
+    /********************** Member Functions
+     * @return **************************/
 
-	/* (non-Javadoc)
-	 * @see org.transitclock.core.HeadwayGenerator#generate(org.transitclock.core.VehicleState)
-	 */
-	@Override
-	public Headway generate(VehicleState vehicleState) {		
-		// FIXME Still needs to be implemented!!
-		logger.debug("HeadwayGeneratorDefaultImpl.generate() still needs to " +
-				"be implemented");
-		return null;
-		
-		
-	}
+    /* (non-Javadoc)
+     * @see org.transitclock.core.HeadwayGenerator#generate(org.transitclock.core.VehicleState)
+     */
+    @Override
+    public Headway generate(VehicleState vehicleState) {
+        // FIXME Still needs to be implemented!!
+        logger.debug("HeadwayGeneratorDefaultImpl.generate() still needs to " +
+                "be implemented");
+        return null;
+
+
+    }
 }

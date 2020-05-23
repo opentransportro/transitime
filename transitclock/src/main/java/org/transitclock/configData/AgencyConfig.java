@@ -1,6 +1,6 @@
 /*
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPL) as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -25,23 +25,23 @@ import org.transitclock.config.StringConfigValue;
  * CoreConfig which logs lots and lots of params and clutters things up.
  *
  * @author SkiBu Smith
- *
  */
 public class AgencyConfig {
-	/**
-	 * Specifies the ID of the agency. Used for the database name and in the
-	 * logback configuration to specify the directory where to put the log
-	 * files.
-	 * 
-	 * @return
-	 */
-	public static String getAgencyId() {
-		return projectId.getValue();
-	}
-	private static StringConfigValue projectId = 
-			new StringConfigValue("transitclock.core.agencyId", 
-					null,
-					"Specifies the ID of the agency. Used for the database " +
-					"name and in the logback configuration to specify the " +
-					"directory where to put the log files.");
+    private static final StringConfigValue projectId =
+            new StringConfigValue("transitclock.core.agencyId",
+                    null,
+                    "Specifies the ID of the agency. Used for the database " +
+                            "name and in the logback configuration to specify the " +
+                            "directory where to put the log files.");
+
+    /**
+     * Specifies the ID of the agency. Used for the database name and in the
+     * logback configuration to specify the directory where to put the log
+     * files.
+     *
+     * @return
+     */
+    public static String getAgencyId() {
+        return projectId.getValue();
+    }
 }

@@ -1,6 +1,6 @@
 /*
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPL) as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -20,7 +20,7 @@
  * for user interface applications; 2) GTFS-realtime feed for large applications
  * such as Google; and 3) SIRI feed simply because it is considered a standard.
  * <p>
- * ApiApplication class also specifies which package contains all the 
+ * ApiApplication class also specifies which package contains all the
  * root-resource classes that specify the individual commands. There is a
  * separate root-resource class for each of the feeds.
  * <p>
@@ -28,13 +28,13 @@
  * means that the URIs for the feed are the application name, "v1", and then what
  * is specified in the root-resource classes. Each command requires an application
  * key and an agency. This means that URIs will be
- * something like /api/V1/key/TEST_KEY/agency/sfmta/command/predictionsByLoc 
+ * something like /api/V1/key/TEST_KEY/agency/sfmta/command/predictionsByLoc
  * where "api" is the webapp application name.
- *  
+ *
  * <p>
- * <b>Transitime commands.</b>  
+ * <b>Transitime commands.</b>
  * The agencies command for outputting information for all agencies
- * served by the web server. 
+ * served by the web server.
  * Default output is in XML. Can specify JSON by setting the accept header in
  * the request or by adding format=json to the query string.
  * <p>
@@ -43,10 +43,10 @@
  * The vehicle command for outputting location and other information for vehicles.
  * In query string can optionally specify list of vehicles or of routes. Can specify
  * vehicle IDs via v=123&v=456&etc. Can specify route via route IDs or route short
- * names using for example r=2341&r=9382 etc . 
+ * names using for example r=2341&r=9382 etc .
  * If vehicles or routes not specified then data
  * for all vehicles for agency is returned.
- * <p> 
+ * <p>
  * Default output is in XML. Can specify JSON by setting the accept header in
  * the request to "application/json" or by adding format=json to the query string.
  * <p>
@@ -62,7 +62,7 @@
  * In query string can optionally specify list of vehicles or of routes. Can specify
  * vehicle IDs via v=123&v=456&etc. Can specify route via route IDs or route short
  * names using for example r=2341&r=9382 etc. If vehicles or routes not specified then data
- * for all vehicles for agency is returned. 
+ * for all vehicles for agency is returned.
  * Default output is in XML. Can specify JSON by setting the accept header in
  * the request or by adding format=json to the query string.
  * <p>
@@ -74,8 +74,8 @@
  * separated by the "|" character so for example the query string
  * could have "rs=43|2029&rs=43|3029"
  * Can optionally specify
- * maximum number of predictions via numPreds=2 command. Default 
- * numPreds is 3. 
+ * maximum number of predictions via numPreds=2 command. Default
+ * numPreds is 3.
  * Default output is in XML. Can specify JSON by setting the accept header in
  * the request or by adding format=json to the query string.
  * <p>
@@ -84,11 +84,11 @@
  * The predictionsByLoc command for outputting prediction information for stops
  * near a specified latitude/longitude.
  * Query string parameters include lat & lon such as lat=37.3824&lon=-122.391945 .
- * Can also optionally specify maximum distance in meters nearest stop on route can be from 
+ * Can also optionally specify maximum distance in meters nearest stop on route can be from
  * lat/lon, such as maxDistance=1200 . Default value is 1200 meters.
  * Can optionally specify
- * maximum number of predictions via numPreds=2 command. Default 
- * numPreds is 3. 
+ * maximum number of predictions via numPreds=2 command. Default
+ * numPreds is 3.
  * Default output is in XML. Can specify JSON by setting the accept header in
  * the request or by adding format=json to the query string.
  * <p>
@@ -110,7 +110,7 @@
  * <p>
  * The stops command for outputting list of stops for each direction
  * for a route.
- * Specify the route ID or the route short name for the desired route using 
+ * Specify the route ID or the route short name for the desired route using
  * an option in the form r=XX.
  * Default output is in XML. Can specify JSON by setting the accept header in
  * the request or by adding format=json to the query string.
@@ -148,8 +148,8 @@
  * <p>
  * http://DOMAIN/api/v1/key/TEST_KEY/agency/sfmta/command/agencyGroup?OPTIONS
  * <p>
- * 
- * <b>GTFS-realtime commands.</b> 
+ *
+ * <b>GTFS-realtime commands.</b>
  * <p>
  * The vehiclePositions command is for outputting vehicle location information
  * in GTFS-realtime format. Can use query string option "format=human" for human readable output.
@@ -166,8 +166,8 @@
  * <b>SIRI commands.</b>
  * <p>
  * The vehicleMonitoring command is for outputting vehicle information in
- * SIRI format. In query string can optionally specify vehicle 
- * IDs via v=123&v=456 etc  and 
+ * SIRI format. In query string can optionally specify vehicle
+ * IDs via v=123&v=456 etc  and
  * route via the route ID or the route short name using r=2341&r=9382 etc . If vehicles
  * nor routes specified then data is returned for all vehicles for agency.
  * Default output is in XML. Can specify JSON by setting the accept header in
@@ -177,16 +177,15 @@
  * <p>
  * The stopMonitoring command is for outputting prediction information
  * in SIRI format. In query string need to specify route and stop.
- * Can specify route via route ID or the route short name via an option such as r=2341 . 
+ * Can specify route via route ID or the route short name via an option such as r=2341 .
  * Specify stop ID via s=1234. Can optionally specify
- * maximum number of predictions via numPreds=2 command. Default 
+ * maximum number of predictions via numPreds=2 command. Default
  * numPreds is 3.
  * Default output is in XML. Can specify JSON by setting the accept header in
  * the request or by adding format=json to the query string.
  * <p>
  * http://DOMAIN/api/v1/key/TEST_KEY/agency/sfmta/command/siri/vehicleMonitoring?OPTIONS
  * <p>
- *  
  */
 
 package org.transitclock.api;

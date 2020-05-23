@@ -3,11 +3,11 @@
 <ehcache:config xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
                 xmlns:ehcache='http://www.ehcache.org/v3'
                 xsi:schemaLocation="http://www.ehcache.org/v3 http://www.ehcache.org/schema/ehcache-core-3.1.xsd">
-    <ehcache:persistence directory="/usr/local/transitclock/cache/" />
-    <ehcache:disk-store thread-pool="pool-disk" />
+    <ehcache:persistence directory="/usr/local/transitclock/cache/"/>
+    <ehcache:disk-store thread-pool="pool-disk"/>
 
     <ehcache:cache alias="dwellTimeModelCache">
-        <ehcache:key-type >org.transitclock.core.dataCache.StopPathCacheKey</ehcache:key-type>
+        <ehcache:key-type>org.transitclock.core.dataCache.StopPathCacheKey</ehcache:key-type>
         <ehcache:value-type>org.transitclock.core.predictiongenerator.scheduled.dwell.DwellModel</ehcache:value-type>
         <ehcache:expiry>
             <ehcache:tti unit="days">1</ehcache:tti>
@@ -16,12 +16,14 @@
             <ehcache:heap unit="entries">1</ehcache:heap>
         </ehcache:resources>
         <ehcache:disk-store-settings thread-pool="pool-disk"
-                                     writer-concurrency="1" />
+                                     writer-concurrency="1"/>
     </ehcache:cache>
 
     <ehcache:cache alias="arrivalDeparturesByTrip">
-        <ehcache:key-type >org.transitclock.core.dataCache.TripKey</ehcache:key-type>
-        <ehcache:value-type serializer="org.transitclock.core.dataCache.ehcache.serializers.TripEventKyroSerializer">org.transitclock.core.dataCache.TripEvents</ehcache:value-type>
+        <ehcache:key-type>org.transitclock.core.dataCache.TripKey</ehcache:key-type>
+        <ehcache:value-type serializer="org.transitclock.core.dataCache.ehcache.serializers.TripEventKyroSerializer">
+            org.transitclock.core.dataCache.TripEvents
+        </ehcache:value-type>
         <ehcache:expiry>
             <ehcache:tti unit="days">21</ehcache:tti>
         </ehcache:expiry>
@@ -31,7 +33,7 @@
             <ehcache:disk unit="GB">40</ehcache:disk>
         </ehcache:resources>
         <ehcache:disk-store-settings thread-pool="pool-disk"
-                                     writer-concurrency="1" />
+                                     writer-concurrency="1"/>
     </ehcache:cache>
 
     <ehcache:cache alias="arrivalDeparturesByStop">
@@ -46,7 +48,7 @@
             <ehcache:disk unit="GB">40</ehcache:disk>
         </ehcache:resources>
         <ehcache:disk-store-settings thread-pool="pool-disk"
-                                     writer-concurrency="1" />
+                                     writer-concurrency="1"/>
     </ehcache:cache>
 
     <ehcache:cache alias="KalmanErrorCache">

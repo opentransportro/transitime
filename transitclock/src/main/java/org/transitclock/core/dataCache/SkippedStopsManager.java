@@ -12,14 +12,12 @@ import java.util.concurrent.TimeUnit;
 
 public class SkippedStopsManager {
 
-    private static LongConfigValue skippedStopsCacheExpireSec =
+    private static final LongConfigValue skippedStopsCacheExpireSec =
             new LongConfigValue("transitclock.avl.skippedStopsCacheExpireSec", 60l,
                     "The amount of time to keep a trip schedule status in cache.");
-
-    private Cache<String, HashSet<IpcSkippedStop>> skippedStopsCache;
-
     // This is a singleton class
     private static SkippedStopsManager singleton = new SkippedStopsManager();
+    private final Cache<String, HashSet<IpcSkippedStop>> skippedStopsCache;
 
     /********************** Member Functions **************************/
 
@@ -35,12 +33,13 @@ public class SkippedStopsManager {
 
     /**
      * Returns the singleton SkippedStopsManager
+     *
      * @return
      */
     public static SkippedStopsManager getInstance() {
-        if(singleton == null){
-            synchronized (SkippedStopsManager.class){
-                if(singleton == null){
+        if (singleton == null) {
+            synchronized (SkippedStopsManager.class) {
+                if (singleton == null) {
                     singleton = new SkippedStopsManager();
                 }
             }
@@ -48,11 +47,11 @@ public class SkippedStopsManager {
         return singleton;
     }
 
-    public void putAll(Map<String, HashSet<IpcSkippedStop>> skippedStopByTripMap){
+    public void putAll(Map<String, HashSet<IpcSkippedStop>> skippedStopByTripMap) {
         skippedStopsCache.putAll(skippedStopByTripMap);
     }
 
-    public HashMap<String, HashSet<IpcSkippedStop>> getAll(){
+    public HashMap<String, HashSet<IpcSkippedStop>> getAll() {
         HashMap<String, HashSet<IpcSkippedStop>> skippedStopMap = new HashMap(skippedStopsCache.asMap());
         return skippedStopMap;
     }

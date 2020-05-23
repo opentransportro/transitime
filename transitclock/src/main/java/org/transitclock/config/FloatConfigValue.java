@@ -1,6 +1,6 @@
 /*
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPL) as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -25,30 +25,30 @@ import java.util.List;
  * @author SkiBu Smith
  */
 public class FloatConfigValue extends ConfigValue<Float> {
-	
-	/**
-	 * Constructor for when there is no default value.
-	 * 
-	 * @param id
-	 * @param description
-	 */
-	public FloatConfigValue(String id, String description) {
-		super(id, description);
-	}
-	
-	/**
-	 * Constructor.
-	 * 
-	 * @param id
-	 * @param defaultValue
-	 * @param description
-	 */
-	public FloatConfigValue(String id, Float defaultValue, String description) {
-		super(id, defaultValue, description);
-	}
-	
-	@Override 
-	protected Float convertFromString(List<String> dataList) {
-		return Float.valueOf(dataList.get(0).trim());
-	}	
+
+    /**
+     * Constructor for when there is no default value.
+     *
+     * @param id
+     * @param description
+     */
+    public FloatConfigValue(String id, String description) {
+        super(id, description);
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param id
+     * @param defaultValue
+     * @param description
+     */
+    public FloatConfigValue(String id, Float defaultValue, String description) {
+        super(id, defaultValue, description);
+    }
+
+    @Override
+    protected Float convertFromString(List<String> dataList) {
+        return Float.valueOf(dataList.get(0).trim());
+    }
 }

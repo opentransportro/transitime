@@ -1,25 +1,24 @@
 package org.transitclock.core.dataCache;
 
-import java.util.Date;
-import java.util.List;
-
 import org.hibernate.Session;
-import org.slf4j.Logger;
 import org.transitclock.db.structs.ArrivalDeparture;
 import org.transitclock.ipc.data.IpcArrivalDeparture;
+
+import java.util.Date;
+import java.util.List;
 
 public interface TripDataHistoryCacheInterface {
 
 
-	List<IpcArrivalDeparture> getTripHistory(TripKey tripKey);
+    List<IpcArrivalDeparture> getTripHistory(TripKey tripKey);
 
-	TripKey putArrivalDeparture(ArrivalDeparture arrivalDeparture);
-		
-	void populateCacheFromDb(Session session, Date startDate, Date endDate);
+    TripKey putArrivalDeparture(ArrivalDeparture arrivalDeparture);
 
-	IpcArrivalDeparture findPreviousArrivalEvent(List<IpcArrivalDeparture> arrivalDepartures, IpcArrivalDeparture current);
+    void populateCacheFromDb(Session session, Date startDate, Date endDate);
 
-	IpcArrivalDeparture findPreviousDepartureEvent(List<IpcArrivalDeparture> arrivalDepartures, IpcArrivalDeparture current);
+    IpcArrivalDeparture findPreviousArrivalEvent(List<IpcArrivalDeparture> arrivalDepartures, IpcArrivalDeparture current);
 
-	List<TripKey> getKeys();
+    IpcArrivalDeparture findPreviousDepartureEvent(List<IpcArrivalDeparture> arrivalDepartures, IpcArrivalDeparture current);
+
+    List<TripKey> getKeys();
 }

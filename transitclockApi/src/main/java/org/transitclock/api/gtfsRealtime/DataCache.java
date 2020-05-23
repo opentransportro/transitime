@@ -1,6 +1,6 @@
 /*
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPL) as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -17,12 +17,11 @@
 
 package org.transitclock.api.gtfsRealtime;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import com.google.transit.realtime.GtfsRealtime.FeedMessage;
 import org.transitclock.utils.Time;
 
-import com.google.transit.realtime.GtfsRealtime.FeedMessage;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * For caching GTFS-realtime messages. Useful because the messages are huge and
@@ -30,35 +29,34 @@ import com.google.transit.realtime.GtfsRealtime.FeedMessage;
  * makes sense to return a cached version.
  *
  * @author SkiBu Smith
- *
  */
 public class DataCache {
 
     private Map<String, CacheEntry> cacheMap = new HashMap<String, CacheEntry>();
 
+    public FeedMessage get(String agencyId, int maxCacheSeconds) {
+        CacheEntry cacheEntry = cacheMap.get(agencyId);
+        if (cacheEntry == null)
+            return null;
+        if (cacheEntry.timeCreated < System.currentTimeMillis() - maxCacheSeconds * Time.MS_PER_SEC) {
+            cacheMap.remove(agencyId);
+            return null;
+        }
+        return cacheEntry.cachedFeedMessage;
+    }
+
+    public void put(String agencyId, FeedMessage feedMessage) {
+        CacheEntry cacheEntry = new CacheEntry();
+        cacheEntry.timeCreated = System.currentTimeMillis();
+        cacheEntry.cachedFeedMessage = feedMessage;
+        cacheMap.put(agencyId, cacheEntry);
+    }
+
     /********************** Member Functions **************************/
 
     private static class CacheEntry {
-	private long timeCreated;
-	private FeedMessage cachedFeedMessage;
-    }
-
-    public FeedMessage get(String agencyId, int maxCacheSeconds) {
-	CacheEntry cacheEntry = cacheMap.get(agencyId);
-	if (cacheEntry == null)
-	    return null;
-	if (cacheEntry.timeCreated < System.currentTimeMillis() - maxCacheSeconds * Time.MS_PER_SEC) {
-	    cacheMap.remove(agencyId);
-	    return null;
-	}
-	return cacheEntry.cachedFeedMessage;
-    }
-    
-    public void put(String agencyId, FeedMessage feedMessage) {
-	CacheEntry cacheEntry = new CacheEntry();
-	cacheEntry.timeCreated = System.currentTimeMillis();
-	cacheEntry.cachedFeedMessage = feedMessage;
-	cacheMap.put(agencyId, cacheEntry);
+        private long timeCreated;
+        private FeedMessage cachedFeedMessage;
     }
 }
 

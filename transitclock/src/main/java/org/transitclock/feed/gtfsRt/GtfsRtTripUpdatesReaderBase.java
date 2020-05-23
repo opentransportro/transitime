@@ -30,7 +30,15 @@ public abstract class GtfsRtTripUpdatesReaderBase {
 
     /********************** Member Functions **************************/
 
-    public GtfsRtTripUpdatesReaderBase() { }
+    public GtfsRtTripUpdatesReaderBase() {
+    }
+
+    private static TripDescriptor getTrip(TripUpdate tripUpdate) {
+        if (!tripUpdate.hasTrip()) {
+            return null;
+        }
+        return tripUpdate.getTrip();
+    }
 
     /**
      * Actually processes the GTFS-realtime file and calls handleAvlReport()
@@ -75,12 +83,10 @@ public abstract class GtfsRtTripUpdatesReaderBase {
         }
     }
 
-
     /**
      * Goes through each entity and passes TripDescriptor to
      *
-     * @param message
-     *            Contains all of the VehiclePosition objects
+     * @param message Contains all of the VehiclePosition objects
      * @return List of AvlReports
      */
     private void processMessage(FeedMessage message) {
@@ -103,12 +109,12 @@ public abstract class GtfsRtTripUpdatesReaderBase {
             TripDescriptor tripDescriptor = getTrip(tripUpdate);
             VehicleDescriptor vehicleDescriptor = tripUpdate.getVehicle();
 
-            if(tripDescriptor == null)
+            if (tripDescriptor == null)
                 continue;
 
             if (tripDescriptor.hasTripId() &&
-                tripDescriptor.hasScheduleRelationship() &&
-                tripDescriptor.getScheduleRelationship() == TripDescriptor.ScheduleRelationship.CANCELED) {
+                    tripDescriptor.hasScheduleRelationship() &&
+                    tripDescriptor.getScheduleRelationship() == TripDescriptor.ScheduleRelationship.CANCELED) {
 
                 String tripId = getTripId(tripDescriptor);
                 if (tripId == null)
@@ -124,10 +130,10 @@ public abstract class GtfsRtTripUpdatesReaderBase {
             HashSet<IpcSkippedStop> skippedStops = new HashSet<>();
             String skippedTripId = null;
             boolean skippedTripAlreadyChecked = false;
-            for(TripUpdate.StopTimeUpdate stopTimeUpdate : tripUpdate.getStopTimeUpdateList()){
-                if(stopTimeUpdate.hasScheduleRelationship() &&
-                        stopTimeUpdate.getScheduleRelationship() == TripUpdate.StopTimeUpdate.ScheduleRelationship.SKIPPED){
-                    if(skippedTripId == null && !skippedTripAlreadyChecked){
+            for (TripUpdate.StopTimeUpdate stopTimeUpdate : tripUpdate.getStopTimeUpdateList()) {
+                if (stopTimeUpdate.hasScheduleRelationship() &&
+                        stopTimeUpdate.getScheduleRelationship() == TripUpdate.StopTimeUpdate.ScheduleRelationship.SKIPPED) {
+                    if (skippedTripId == null && !skippedTripAlreadyChecked) {
                         skippedTripId = getTripId(tripDescriptor);
                         skippedTripAlreadyChecked = true;
                     }
@@ -160,8 +166,8 @@ public abstract class GtfsRtTripUpdatesReaderBase {
         DbConfig config = Core.getInstance().getDbConfig();
         String tripId = tripDescriptor.getTripId();
 
-        if(config.getServiceIdSuffix()){
-            Trip trip = BlockAssigner.getInstance().getTripWithServiceIdSuffix(config,tripId);
+        if (config.getServiceIdSuffix()) {
+            Trip trip = BlockAssigner.getInstance().getTripWithServiceIdSuffix(config, tripId);
             if (trip == null) {
                 logger.info("missing trip {}", tripId);
                 return null;
@@ -171,8 +177,8 @@ public abstract class GtfsRtTripUpdatesReaderBase {
         return tripId;
     }
 
-    private CanceledTripKey getCanceledTripKey(VehicleDescriptor vehicleDescriptor, String tripId){
-        if(vehicleDescriptor.hasId()){
+    private CanceledTripKey getCanceledTripKey(VehicleDescriptor vehicleDescriptor, String tripId) {
+        if (vehicleDescriptor.hasId()) {
             return new CanceledTripKey(vehicleDescriptor.getId(), tripId);
         }
         return new CanceledTripKey(null, tripId);
@@ -185,11 +191,4 @@ public abstract class GtfsRtTripUpdatesReaderBase {
      * @param tripDescriptor
      */
     protected abstract void handleTrip(TripDescriptor tripDescriptor);
-
-    private static TripDescriptor getTrip(TripUpdate tripUpdate){
-        if (!tripUpdate.hasTrip()) {
-            return null;
-        }
-        return   tripUpdate.getTrip();
-    }
 }

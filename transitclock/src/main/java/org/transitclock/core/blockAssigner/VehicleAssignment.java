@@ -4,8 +4,8 @@ package org.transitclock.core.blockAssigner;
  * model class representing an external vehicle block assignment.
  */
 public class VehicleAssignment {
-    private String _vehicleId;
-    private String _blockId;
+    private final String _vehicleId;
+    private final String _blockId;
 
     public VehicleAssignment(String vehicleId, String blockId) {
         this._vehicleId = vehicleId;

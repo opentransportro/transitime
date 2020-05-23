@@ -1,6 +1,6 @@
-/* 
+/*
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPL) as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -16,29 +16,28 @@
  */
 package org.transitclock.gtfs.readers;
 
-import java.text.ParseException;
-
 import org.apache.commons.csv.CSVRecord;
 import org.transitclock.gtfs.gtfsStructs.GtfsRoute;
 import org.transitclock.utils.csv.CsvBaseReader;
 
+import java.text.ParseException;
+
 /**
  * GTFS reader for the routeSupplement.txt file
- * 
- * @author SkiBu Smith
  *
+ * @author SkiBu Smith
  */
 public class GtfsRoutesSupplementReader extends CsvBaseReader<GtfsRoute> {
 
-	public GtfsRoutesSupplementReader(String dirName) {
-		super(dirName, "routes.txt", false, true);
-	}
-	
-	@Override
-	public GtfsRoute handleRecord(CSVRecord record, boolean supplemental) 
-			throws ParseException {
-		return new GtfsRoute(record, supplemental, getFileName());
-	}
-	
+    public GtfsRoutesSupplementReader(String dirName) {
+        super(dirName, "routes.txt", false, true);
+    }
+
+    @Override
+    public GtfsRoute handleRecord(CSVRecord record, boolean supplemental)
+            throws ParseException {
+        return new GtfsRoute(record, supplemental, getFileName());
+    }
+
 }
 

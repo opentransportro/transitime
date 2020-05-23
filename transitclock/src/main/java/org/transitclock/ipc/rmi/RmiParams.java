@@ -1,6 +1,6 @@
-/* 
+/*
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPL) as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -20,33 +20,32 @@ import org.transitclock.configData.RmiConfig;
 
 /**
  * For defining port numbers to be used for RMI
- * 
- * @author SkiBu Smith
  *
+ * @author SkiBu Smith
  */
 public class RmiParams {
-	// Usually will use special port 2099 in case another app is using 
-	// standard RMI port 1099
-	public static int rmiPort = RmiConfig.rmiPort();
-	
-	// For secondary communication. Usually RMI uses port 0, which means any old
-	// random port, but to deal with firewalls it is better to use a fixed port.
-	public static int secondaryRmiPort = RmiConfig.secondaryRmiPort();
-	
-	public static int getRmiPort() { 
-		return rmiPort;
-	}
+    // Usually will use special port 2099 in case another app is using
+    // standard RMI port 1099
+    public static int rmiPort = RmiConfig.rmiPort();
 
-	public static void setRmiPort(int newRmiPort) {
-		rmiPort = newRmiPort;
-	}
+    // For secondary communication. Usually RMI uses port 0, which means any old
+    // random port, but to deal with firewalls it is better to use a fixed port.
+    public static int secondaryRmiPort = RmiConfig.secondaryRmiPort();
 
-	public static int getSecondaryRmiPort() {
-		return secondaryRmiPort;
-	}
-	
-	public static void setSecondaryRmiPort(int newSecondaryRmiPort) {
-		secondaryRmiPort = newSecondaryRmiPort;
-	}
-	
+    public static int getRmiPort() {
+        return rmiPort;
+    }
+
+    public static void setRmiPort(int newRmiPort) {
+        rmiPort = newRmiPort;
+    }
+
+    public static int getSecondaryRmiPort() {
+        return secondaryRmiPort;
+    }
+
+    public static void setSecondaryRmiPort(int newSecondaryRmiPort) {
+        secondaryRmiPort = newSecondaryRmiPort;
+    }
+
 }

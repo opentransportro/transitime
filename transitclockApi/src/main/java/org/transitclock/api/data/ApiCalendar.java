@@ -1,6 +1,6 @@
 /*
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPL) as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -17,66 +17,65 @@
 
 package org.transitclock.api.data;
 
-import javax.xml.bind.annotation.XmlAttribute;
-
 import org.transitclock.ipc.data.IpcCalendar;
+
+import javax.xml.bind.annotation.XmlAttribute;
 
 /**
  * A GTFS calendar
- * 
- * @author SkiBu Smith
  *
+ * @author SkiBu Smith
  */
 public class ApiCalendar {
 
-	@XmlAttribute
-	private String serviceId;
-	
-	@XmlAttribute
-	private boolean monday;
-	
-	@XmlAttribute
-	private boolean tuesday;
-	
-	@XmlAttribute
-	private boolean wednesday;
-	
-	@XmlAttribute
-	private boolean thursday;
-	
-	@XmlAttribute
-	private boolean friday;
-	
-	@XmlAttribute
-	private boolean saturday;
-	
-	@XmlAttribute
-	private boolean sunday;
-	
-	@XmlAttribute
-	private String startDate;
-	
-	@XmlAttribute
-	private String endDate;
-	
-	/**
-	 * Need a no-arg constructor for Jersey. Otherwise get really obtuse
-	 * "MessageBodyWriter not found for media type=application/json" exception.
-	 */
-	protected ApiCalendar() {
-	}
+    @XmlAttribute
+    private String serviceId;
 
-	public ApiCalendar(IpcCalendar ipcCalendar) {
-		this.serviceId = ipcCalendar.getServiceId();
-		this.monday = ipcCalendar.isMonday();
-		this.tuesday = ipcCalendar.isTuesday();
-		this.wednesday = ipcCalendar.isWednesday();
-		this.thursday = ipcCalendar.isThursday();
-		this.friday = ipcCalendar.isFriday();
-		this.saturday = ipcCalendar.isSaturday();
-		this.sunday = ipcCalendar.isSunday();
-		this.startDate = ipcCalendar.getStartDate();
-		this.endDate = ipcCalendar.getEndDate();
-	}
+    @XmlAttribute
+    private boolean monday;
+
+    @XmlAttribute
+    private boolean tuesday;
+
+    @XmlAttribute
+    private boolean wednesday;
+
+    @XmlAttribute
+    private boolean thursday;
+
+    @XmlAttribute
+    private boolean friday;
+
+    @XmlAttribute
+    private boolean saturday;
+
+    @XmlAttribute
+    private boolean sunday;
+
+    @XmlAttribute
+    private String startDate;
+
+    @XmlAttribute
+    private String endDate;
+
+    /**
+     * Need a no-arg constructor for Jersey. Otherwise get really obtuse
+     * "MessageBodyWriter not found for media type=application/json" exception.
+     */
+    protected ApiCalendar() {
+    }
+
+    public ApiCalendar(IpcCalendar ipcCalendar) {
+        this.serviceId = ipcCalendar.getServiceId();
+        this.monday = ipcCalendar.isMonday();
+        this.tuesday = ipcCalendar.isTuesday();
+        this.wednesday = ipcCalendar.isWednesday();
+        this.thursday = ipcCalendar.isThursday();
+        this.friday = ipcCalendar.isFriday();
+        this.saturday = ipcCalendar.isSaturday();
+        this.sunday = ipcCalendar.isSunday();
+        this.startDate = ipcCalendar.getStartDate();
+        this.endDate = ipcCalendar.getEndDate();
+    }
 
 }

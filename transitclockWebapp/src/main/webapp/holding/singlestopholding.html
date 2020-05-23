@@ -1,7 +1,7 @@
 <html>
-<link rel="stylesheet" href="css/general.css">
+<link href="css/general.css" rel="stylesheet">
 <head>
-<style>
+    <style>
 
 body {
    margin:0;
@@ -33,113 +33,119 @@ body {
   font-size:1em; <font color='red'>/* Never set font sizes in pixels! */</font>
   color:#00f;
 }
-</style>
-<script
-	src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-<script src="js/ion.sound.js"></script>
-<script src="js/transiTimeHolding.js"></script>
-<script src="js/transiTimeVehicles.js"></script>
-<script src="js/transiTimeRoutes.js"></script>
-<script src="js/transiTimeTrips.js"></script>
-<script src="js/transiTimeEvents.js"></script>
-<script src="js/transiTimeUtils.js"></script>
-<title>Vehicle Holding Times</title>
+
+    </style>
+    <script
+            src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="js/ion.sound.js"></script>
+    <script src="js/transiTimeHolding.js"></script>
+    <script src="js/transiTimeVehicles.js"></script>
+    <script src="js/transiTimeRoutes.js"></script>
+    <script src="js/transiTimeTrips.js"></script>
+    <script src="js/transiTimeEvents.js"></script>
+    <script src="js/transiTimeUtils.js"></script>
+    <title>Vehicle Holding Times</title>
 </head>
 
 <body>
-	<div id="header">
-	<img class="gt-logo-svg" alt="Georgia Tech" src="http://www.gatech.edu/sites/all/themes/gt/images/logos/logo-gt.png"/>
-		<a href="http://www.transitime.org" id="heading">transitimeExtension: Holding
-			Times for ATLANTA STREETCAR</a>		       
-	</div>
+<div id="header">
+    <img alt="Georgia Tech" class="gt-logo-svg"
+         src="http://www.gatech.edu/sites/all/themes/gt/images/logos/logo-gt.png"/>
+    <a href="http://www.transitime.org" id="heading">transitimeExtension: Holding
+        Times for ATLANTA STREETCAR</a>
+</div>
 
-	<div id="holding_div">
-		<table width="100%"  border="0" class="holdinginfo">
+<div id="holding_div">
+    <table border="0" class="holdinginfo" width="100%">
 
-			<tr>
-				<td width="10%">
-					
-				<td>
-				<td width="40%">Remaining Holding Time
-					<div id="counter"></div>
-					<table  class="holdinginfo">						
-						<tr>
-							<td>Vehicle ID</td>
-							<td>
-								<div id="vehicleid"></div>
-							</td>
-						</tr>
-						<tr>
-							<td>Time of Arrival</td>
-							<td>
-								<div id="timeofarrival"></div>
-							</td>
-						</tr>
-						<tr>
-							<td>Time of Departure</td>
-							<td>
-								<div id="timeofdeparture"></div>
-							</td>
-						</tr>
-						<tr>
-							<td>Next departure</td>
-							<td>
-								<div id="nextdeparturevehicleid"></div>
-							</td>
-						</tr>
-                        <tr>
-							<td>Next arrival</td>
-							<td>
-								<div id="nextarrival"></div>
-							</td>
-						</tr>
-						<tr>
-							<td>Predicted arrival</td>
-							<td>
-								<div id="nextarrivaltime"></div>
-							</td>
-						</tr>
-						<tr>
-							<td colspan="2">
-								<br/>
-							</td>
-						</tr>
-						<tr>
-							<td colspan="2">
-								<div id="byline">Developed by Sean &Oacute;g Crudden (og.crudden@gmail.com) and Simon Berrebi (simon@berrebi.net)</div>
-							</td>
-						</tr>
-					</table>
- 				
-				</td>
-				
-				<td width="40%">
-					<table>
-					<tr align="justify">
-						Real-Time Vehicle Location
-					</tr>
-					<tr>
-						<div class="container">				
-							<iframe id="mapframe"  src="/web/maps/map.jsp?a=ASC&r=r0&verbose=true&showUnassignedVehicles=true" frameborder="0" allowfullscreen class="mapframe">
-							</iframe>
-						</div>
-					</tr>
-					<tr> 
-					
-					 <div id="lastevent"></div>
-					</tr>
-					</table>
-				</td>
-				<td width="10%">
-					
-				<td>
-			</tr>
-            
+        <tr>
+            <td width="10%">
 
-		</table>
-        
+            <td>
+            <td width="40%">Remaining Holding Time
+                <div id="counter"></div>
+                <table class="holdinginfo">
+                    <tr>
+                        <td>Vehicle ID</td>
+                        <td>
+                            <div id="vehicleid"></div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Time of Arrival</td>
+                        <td>
+                            <div id="timeofarrival"></div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Time of Departure</td>
+                        <td>
+                            <div id="timeofdeparture"></div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Next departure</td>
+                        <td>
+                            <div id="nextdeparturevehicleid"></div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Next arrival</td>
+                        <td>
+                            <div id="nextarrival"></div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Predicted arrival</td>
+                        <td>
+                            <div id="nextarrivaltime"></div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <br/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <div id="byline">Developed by Sean &Oacute;g Crudden (og.crudden@gmail.com) and Simon
+                                Berrebi (simon@berrebi.net)
+                            </div>
+                        </td>
+                    </tr>
+                </table>
 
-	</div>
+            </td>
+
+            <td width="40%">
+                <table>
+                    <tr align="justify">
+                        Real-Time Vehicle Location
+                    </tr>
+                    <tr>
+                        <div class="container">
+                            <iframe allowfullscreen
+                                    class="mapframe"
+                                    frameborder="0" id="mapframe" src="/web/maps/map.jsp?a=ASC&r=r0&verbose=true&showUnassignedVehicles=true">
+                            </iframe>
+                        </div>
+                    </tr>
+                    <tr>
+
+                        <div id="lastevent"></div>
+                    </tr>
+                </table>
+            </td>
+            <td width="10%">
+
+            <td>
+        </tr>
+
+
+    </table>
+
+
+</div>
 </body>
 
 <script>
@@ -512,6 +518,7 @@ body {
         //host = "127.0.0.1:8080";
 		myTimer = setInterval(updateDashBoard, 5000);		
 	});
+
 </script>
 
 </html>

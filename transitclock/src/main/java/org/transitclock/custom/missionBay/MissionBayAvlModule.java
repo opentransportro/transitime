@@ -1,6 +1,6 @@
 /*
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPL) as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -23,36 +23,33 @@ import org.transitclock.avl.NextBusAvlModule;
 import org.transitclock.db.structs.AvlReport;
 
 /**
- *
- *
  * @author SkiBu Smith
- *
  */
 public class MissionBayAvlModule extends NextBusAvlModule {
 
-	private static final Logger logger = LoggerFactory
-			.getLogger(MissionBayAvlModule.class);
+    private static final Logger logger = LoggerFactory
+            .getLogger(MissionBayAvlModule.class);
 
-	/********************** Member Functions **************************/
+    /********************** Member Functions **************************/
 
-	/**
-	 * @param agencyId
-	 */
-	public MissionBayAvlModule(String agencyId) {
-		super(agencyId);
-	}
+    /**
+     * @param agencyId
+     */
+    public MissionBayAvlModule(String agencyId) {
+        super(agencyId);
+    }
 
-	/**
-	 * Does normal handling of AVL report but also sends data to the
-	 * SFMTA API.
-	 */
-	protected void processAvlReport(AvlReport avlReport) {
-		// Do the normal handling of the AVL report
-		super.processAvlReport(avlReport);
-		
-		// Send the data to the SFMTA API
-		logger.info("Batching avlReport to send to SFMTA API when have "
-				+ "enough reports. {}", avlReport);
-		SfmtaApiCaller.postAvlReportWhenAppropriate(avlReport);
-	}
+    /**
+     * Does normal handling of AVL report but also sends data to the
+     * SFMTA API.
+     */
+    protected void processAvlReport(AvlReport avlReport) {
+        // Do the normal handling of the AVL report
+        super.processAvlReport(avlReport);
+
+        // Send the data to the SFMTA API
+        logger.info("Batching avlReport to send to SFMTA API when have "
+                + "enough reports. {}", avlReport);
+        SfmtaApiCaller.postAvlReportWhenAppropriate(avlReport);
+    }
 }

@@ -1,6 +1,6 @@
 /*
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPL) as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -21,34 +21,33 @@ import javax.jms.MessageConsumer;
 import javax.naming.NamingException;
 
 /**
- *
  * @author SkiBu Smith
- *
  */
 public class JMSTest {
 
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		try {
-			System.err.println("Starting up JMSTest");
-			JMSWrapper tester = JMSWrapper.getJMSWrapper();
-			
-			MessageConsumer msgConsumer = tester.createTopicConsumer("TopicTest");
-			while (true) {
-				System.err.println("About to read message");
-				System.err.println("Received message from msgConsumer: " + 
-						JMSWrapper.receiveTextMessage(msgConsumer));
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {}
-			}
-		} catch (NamingException e2) {
-			e2.printStackTrace();
-		} catch (JMSException e2) {
-			e2.printStackTrace();
-		}				
-	}
+    /**
+     * @param args
+     */
+    public static void main(String[] args) {
+        try {
+            System.err.println("Starting up JMSTest");
+            JMSWrapper tester = JMSWrapper.getJMSWrapper();
+
+            MessageConsumer msgConsumer = tester.createTopicConsumer("TopicTest");
+            while (true) {
+                System.err.println("About to read message");
+                System.err.println("Received message from msgConsumer: " +
+                        JMSWrapper.receiveTextMessage(msgConsumer));
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                }
+            }
+        } catch (NamingException e2) {
+            e2.printStackTrace();
+        } catch (JMSException e2) {
+            e2.printStackTrace();
+        }
+    }
 
 }

@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>TheTransitClock</groupId>
     <artifactId>transitclock</artifactId>
@@ -12,8 +13,8 @@
         <module>transitclockWebapp</module>
         <module>transitclockTraccarClient</module>
         <module>transitclockBarefootClient</module>
-         <!-- <module>transitclockQuickStart</module>
-        <module>transitclockIntegration</module>-->
+        <!-- <module>transitclockQuickStart</module>
+       <module>transitclockIntegration</module>-->
 
     </modules>
     <profiles>
@@ -43,16 +44,16 @@
         <tag>HEAD</tag>
     </scm>
     <distributionManagement>
-     <repository>
-        <id>releases-camsys-public-repo</id>
-        <name>Camsys Public Release Repo</name>
-        <url>s3://repo.camsys-apps.com/releases/</url>
-      </repository>
-      <snapshotRepository>
-        <id>snapshots-camsys-public-repo</id>
-        <name>Camsys Public Snapshot Repo</name>
-        <url>s3://repo.camsys-apps.com/snapshots/</url>
-      </snapshotRepository>
+        <repository>
+            <id>releases-camsys-public-repo</id>
+            <name>Camsys Public Release Repo</name>
+            <url>s3://repo.camsys-apps.com/releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>snapshots-camsys-public-repo</id>
+            <name>Camsys Public Snapshot Repo</name>
+            <url>s3://repo.camsys-apps.com/snapshots/</url>
+        </snapshotRepository>
     </distributionManagement>
     <build>
         <plugins>

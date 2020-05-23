@@ -1,6 +1,6 @@
-/* 
+/*
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPL) as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -16,44 +16,43 @@
  */
 package org.transitclock.ipc.clients;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.transitclock.ipc.interfaces.PredictionsInterface;
 import org.transitclock.ipc.rmi.ClientFactory;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
- * Provides a PredictionsInterface client that can be queried for 
+ * Provides a PredictionsInterface client that can be queried for
  * predictions.
- * 
+ *
  * @author SkiBu Smith
- * 
  */
 public class PredictionsInterfaceFactory {
 
-	// Keyed by agencyId
-	private static Map<String, PredictionsInterface> predictionsInterfaceMap =
-			new HashMap<String, PredictionsInterface>();
+    // Keyed by agencyId
+    private static final Map<String, PredictionsInterface> predictionsInterfaceMap =
+            new HashMap<String, PredictionsInterface>();
 
-	/********************** Member Functions **************************/
+    /********************** Member Functions **************************/
 
-	/**
-	 * Gets the PredictionsInterface for the specified projectId. There is one
-	 * interface per agencyId.
-	 * 
-	 * @param agencyId
-	 * @return
-	 */
-	public static PredictionsInterface get(String agencyId) {
-		PredictionsInterface predictionsInterface =
-				predictionsInterfaceMap.get(agencyId);
-		if (predictionsInterface == null) {
-			predictionsInterface = 
-					ClientFactory.getInstance(agencyId, PredictionsInterface.class);
-			predictionsInterfaceMap.put(agencyId, predictionsInterface);
-		}
+    /**
+     * Gets the PredictionsInterface for the specified projectId. There is one
+     * interface per agencyId.
+     *
+     * @param agencyId
+     * @return
+     */
+    public static PredictionsInterface get(String agencyId) {
+        PredictionsInterface predictionsInterface =
+                predictionsInterfaceMap.get(agencyId);
+        if (predictionsInterface == null) {
+            predictionsInterface =
+                    ClientFactory.getInstance(agencyId, PredictionsInterface.class);
+            predictionsInterfaceMap.put(agencyId, predictionsInterface);
+        }
 
-		return predictionsInterface;
-	}
+        return predictionsInterface;
+    }
 
 }

@@ -1,6 +1,6 @@
 /*
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPL) as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -29,46 +29,46 @@ import java.util.List;
 
 public class CascadingPredictionGenerator extends PredictionGeneratorDefaultImpl implements PredictionComponentElementsGenerator {
 
-	private static StringConfigValue classNames = 
-			new StringConfigValue("transitclock.core.predictionGeneratorClasses",
-					"org.transitclock.core.predictiongenerator.kalman.KalmanPredictionGeneratorImpl,"
-					+ "org.transitclock.core.predictiongenerator.average.HistoricalAveragePredictionGeneratorImpl,"
-					+ "org.transitclock.core.predictiongenerator.lastvehicle.LastVehiclePredictionGeneratorImpl",
-					"Specifies, in order, the names of the classes used for generating " +
-					"prediction data.");
-	
-	private PredictionComponentElementsGenerator defaultGenerator = new PredictionGeneratorDefaultImpl();
-	
-	private List<PredictionComponentElementsGenerator> generators;
-	
-	public CascadingPredictionGenerator() {
-		generators = new ArrayList<PredictionComponentElementsGenerator>();
-		for (String name : classNames.getValue().split(",")) {
-			generators.add(getInstance(name));
-		}
-	}
-	
-	@Override
-	public long getTravelTimeForPath(Indices indices, AvlReport avlReport, VehicleState vehicleState) {
-		for (PredictionComponentElementsGenerator generator : generators) {
-			if (generator.hasDataForPath(indices, avlReport)) {
-				return generator.getTravelTimeForPath(indices, avlReport, vehicleState);
-			}
-		}
-		return defaultGenerator.getTravelTimeForPath(indices, avlReport,vehicleState);
-	}	
+    private static final StringConfigValue classNames =
+            new StringConfigValue("transitclock.core.predictionGeneratorClasses",
+                    "org.transitclock.core.predictiongenerator.kalman.KalmanPredictionGeneratorImpl,"
+                            + "org.transitclock.core.predictiongenerator.average.HistoricalAveragePredictionGeneratorImpl,"
+                            + "org.transitclock.core.predictiongenerator.lastvehicle.LastVehiclePredictionGeneratorImpl",
+                    "Specifies, in order, the names of the classes used for generating " +
+                            "prediction data.");
 
-	@Override
-	public long getStopTimeForPath(Indices indices, AvlReport avlReport, VehicleState vehicleState) {
-		for (PredictionComponentElementsGenerator generator : generators) {
-			if (generator.hasDataForPath(indices, avlReport)) {
-				return generator.getStopTimeForPath(indices, avlReport, vehicleState);
-			}
-		}
-		return defaultGenerator.getStopTimeForPath(indices, avlReport, vehicleState);
-	}
-	
-	private static PredictionComponentElementsGenerator getInstance(String name) {
-		 return ClassInstantiator.instantiate(name, PredictionComponentElementsGenerator.class);
-	}
+    private final PredictionComponentElementsGenerator defaultGenerator = new PredictionGeneratorDefaultImpl();
+
+    private final List<PredictionComponentElementsGenerator> generators;
+
+    public CascadingPredictionGenerator() {
+        generators = new ArrayList<PredictionComponentElementsGenerator>();
+        for (String name : classNames.getValue().split(",")) {
+            generators.add(getInstance(name));
+        }
+    }
+
+    private static PredictionComponentElementsGenerator getInstance(String name) {
+        return ClassInstantiator.instantiate(name, PredictionComponentElementsGenerator.class);
+    }
+
+    @Override
+    public long getTravelTimeForPath(Indices indices, AvlReport avlReport, VehicleState vehicleState) {
+        for (PredictionComponentElementsGenerator generator : generators) {
+            if (generator.hasDataForPath(indices, avlReport)) {
+                return generator.getTravelTimeForPath(indices, avlReport, vehicleState);
+            }
+        }
+        return defaultGenerator.getTravelTimeForPath(indices, avlReport, vehicleState);
+    }
+
+    @Override
+    public long getStopTimeForPath(Indices indices, AvlReport avlReport, VehicleState vehicleState) {
+        for (PredictionComponentElementsGenerator generator : generators) {
+            if (generator.hasDataForPath(indices, avlReport)) {
+                return generator.getStopTimeForPath(indices, avlReport, vehicleState);
+            }
+        }
+        return defaultGenerator.getStopTimeForPath(indices, avlReport, vehicleState);
+    }
 }

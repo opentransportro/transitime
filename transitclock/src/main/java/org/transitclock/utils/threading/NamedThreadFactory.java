@@ -1,6 +1,6 @@
 /*
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPL) as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -22,18 +22,17 @@ import java.util.concurrent.ThreadFactory;
  * A thread factory that names the threads. Eases debugging.
  * <p>
  * Based on code from the book "Java Concurrency in Practice" by Brian Goetz
- * 
- * @author SkiBu Smith
  *
+ * @author SkiBu Smith
  */
 public class NamedThreadFactory implements ThreadFactory {
-	private final String poolName;
-	
-	public NamedThreadFactory(String poolName) {
-		this.poolName = poolName;
-	}
-	
-	public Thread newThread(Runnable runnable) {
-		return new NamedThread(runnable, poolName);
-	}
+    private final String poolName;
+
+    public NamedThreadFactory(String poolName) {
+        this.poolName = poolName;
+    }
+
+    public Thread newThread(Runnable runnable) {
+        return new NamedThread(runnable, poolName);
+    }
 }

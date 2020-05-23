@@ -1,6 +1,6 @@
-/* 
+/*
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPL) as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -16,29 +16,28 @@
  */
 package org.transitclock.gtfs.readers;
 
-import java.text.ParseException;
-
 import org.apache.commons.csv.CSVRecord;
 import org.transitclock.gtfs.gtfsStructs.GtfsShape;
 import org.transitclock.utils.csv.CsvBaseReader;
 
+import java.text.ParseException;
+
 /**
  * GTFS reader for supplemental shapes.txt file. Useful for moving or deleting
  * shape points.
- * 
- * @author Michael Smith
  *
+ * @author Michael Smith
  */
 public class GtfsShapesSupplementReader extends CsvBaseReader<GtfsShape> {
 
-	public GtfsShapesSupplementReader(String dirName) {
-		super(dirName, "shapes.txt", false, true);
-	}
-	
-	@Override
-	public GtfsShape handleRecord(CSVRecord record, boolean supplemental) 
-			throws ParseException {
-		return new GtfsShape(record, supplemental, getFileName());
-	}
+    public GtfsShapesSupplementReader(String dirName) {
+        super(dirName, "shapes.txt", false, true);
+    }
+
+    @Override
+    public GtfsShape handleRecord(CSVRecord record, boolean supplemental)
+            throws ParseException {
+        return new GtfsShape(record, supplemental, getFileName());
+    }
 
 }

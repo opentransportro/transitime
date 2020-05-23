@@ -1,6 +1,6 @@
-/* 
+/*
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPL) as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -16,28 +16,28 @@
  */
 package org.transitclock.gtfs.readers;
 
-import java.text.ParseException;
-
 import org.apache.commons.csv.CSVRecord;
 import org.transitclock.gtfs.gtfsStructs.GtfsFareAttribute;
 import org.transitclock.utils.csv.CsvBaseReader;
 
+import java.text.ParseException;
+
 
 /**
  * GTFS reader for the fare_attributes.txt file
- * @author SkiBu Smith
  *
+ * @author SkiBu Smith
  */
 public class GtfsFareAttributesReader extends CsvBaseReader<GtfsFareAttribute> {
 
-	public GtfsFareAttributesReader(String dirName) {
-		super(dirName, "fare_attributes.txt", false, false);
-	}
-	
-	@Override
-	public GtfsFareAttribute handleRecord(CSVRecord record, boolean supplemental) 
-			throws ParseException, NumberFormatException {
-		return new GtfsFareAttribute(record, supplemental, getFileName());
-	}
+    public GtfsFareAttributesReader(String dirName) {
+        super(dirName, "fare_attributes.txt", false, false);
+    }
+
+    @Override
+    public GtfsFareAttribute handleRecord(CSVRecord record, boolean supplemental)
+            throws ParseException, NumberFormatException {
+        return new GtfsFareAttribute(record, supplemental, getFileName());
+    }
 
 }

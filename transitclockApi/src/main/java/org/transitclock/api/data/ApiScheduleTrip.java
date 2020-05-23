@@ -1,6 +1,6 @@
 /*
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPL) as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -17,43 +17,42 @@
 
 package org.transitclock.api.data;
 
-import javax.xml.bind.annotation.XmlAttribute;
-
 import org.transitclock.ipc.data.IpcSchedTrip;
+
+import javax.xml.bind.annotation.XmlAttribute;
 
 /**
  * Represents a single trip for an ApiSchedule
  *
  * @author SkiBu Smith
- *
  */
 public class ApiScheduleTrip {
 
-	@XmlAttribute
-	private String tripShortName;
+    @XmlAttribute
+    private String tripShortName;
 
-	@XmlAttribute
-	private String tripId;
+    @XmlAttribute
+    private String tripId;
 
-	@XmlAttribute
-	private String tripHeadsign;
-	
-	@XmlAttribute
-	private String blockId;
-	
-	/********************** Member Functions **************************/
+    @XmlAttribute
+    private String tripHeadsign;
 
-	/**
-	 * Need a no-arg constructor for Jersey. Otherwise get really obtuse
-	 * "MessageBodyWriter not found for media type=application/json" exception.
-	 */
-	protected ApiScheduleTrip() {
-	}
+    @XmlAttribute
+    private String blockId;
 
-	public ApiScheduleTrip(IpcSchedTrip ipcScheduleTrip) {
-		this.tripShortName = ipcScheduleTrip.getTripShortName();
-		this.tripId = ipcScheduleTrip.getTripId();
-		this.tripHeadsign = ipcScheduleTrip.getTripHeadsign();
-		this.blockId = ipcScheduleTrip.getBlockId();
-	}
+    /********************** Member Functions **************************/
+
+    /**
+     * Need a no-arg constructor for Jersey. Otherwise get really obtuse
+     * "MessageBodyWriter not found for media type=application/json" exception.
+     */
+    protected ApiScheduleTrip() {
+    }
+
+    public ApiScheduleTrip(IpcSchedTrip ipcScheduleTrip) {
+        this.tripShortName = ipcScheduleTrip.getTripShortName();
+        this.tripId = ipcScheduleTrip.getTripId();
+        this.tripHeadsign = ipcScheduleTrip.getTripHeadsign();
+        this.blockId = ipcScheduleTrip.getBlockId();
+    }
 }
