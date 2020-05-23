@@ -8,7 +8,7 @@
     <name>transitclock</name>
     <url>http://www.transitclock.org//</url>
     <modules>
-        <module>transitclock</module>
+        <module>core</module>
         <module>transitclockApi</module>
         <module>transitclockWebapp</module>
         <module>transitclockTraccarClient</module>
@@ -28,7 +28,7 @@
             <id>include-integration-tests</id>
             <modules>
                 <module>transitclockIntegration</module>
-                <module>transitclock</module>
+                <module>core</module>
                 <module>transitclockApi</module>
                 <module>transitclockWebapp</module>
                 <module>transitclockQuickStart</module>
