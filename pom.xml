@@ -9,7 +9,7 @@
     <url>http://www.transitclock.org//</url>
     <modules>
         <module>core</module>
-        <module>transitclockApi</module>
+        <module>api</module>
         <module>transitclockWebapp</module>
         <module>transitclockTraccarClient</module>
         <module>transitclockBarefootClient</module>
@@ -29,7 +29,7 @@
             <modules>
                 <module>transitclockIntegration</module>
                 <module>core</module>
-                <module>transitclockApi</module>
+                <module>api</module>
                 <module>transitclockWebapp</module>
                 <module>transitclockQuickStart</module>
                 <module>transitclockTraccarClient</module>
