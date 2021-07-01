@@ -22,7 +22,7 @@
 $.getJSON(apiUrlPrefix + "/command/vehicleIds", 
  		function(vehicles) {
 	        // Generate list of routes for the selector
-	 		var selectorData = [{id: '', text: 'All Vehicles'}];
+	 		var selectorData = [{id: '', text: '<fmt:message key="AllVehicles" />'}];
 	 		for (var i in vehicles.ids) {
 	 			var id = vehicles.ids[i];
 	 			selectorData.push({id: id, text: id})

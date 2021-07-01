@@ -56,7 +56,7 @@ $( document ).ready(function() {
 <%@include file="/template/header.jsp" %>
 <div id="title"><fmt:message key="div.lgpsr" /></div>
 <table id="dataTable">
-  <tr><th><fmt:message key="div.Vehicle" /></th><th><fmt:message key="div.lgps" /></th></tr>
+  <tr><th><fmt:message key="div.Vehicle" /></th><th><fmt:message key="div.lgps" /></th><th><fmt:message key="div.lat" /></th><th><fmt:message key="div.lon" /></th></tr>
   </table>
 </body>
 </html>
