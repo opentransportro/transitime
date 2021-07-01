@@ -67,11 +67,18 @@ public class AvlJsonQuery {
 				+ beginTime + "' AND '" + endTime + "' ";
 		}
 
+		/*String sql = "SELECT vehicleId, time, assignmentId, lat, lon, speed, "
+				+ "heading, timeProcessed, source "
+				+ "FROM avlreports "
+				+ "WHERE time BETWEEN " + " cast(? as datetime)"
+				+ " AND " + "cast(? as datetime)"  + " + INTERVAL '" + numdays + " day' "
+				+ timeSql;*/
+		
 		String sql = "SELECT vehicleId, time, assignmentId, lat, lon, speed, "
 				+ "heading, timeProcessed, source "
 				+ "FROM avlreports "
-				+ "WHERE time BETWEEN " + " cast(? as timestamp)"
-				+ " AND " + "cast(? as timestamp)"  + " + INTERVAL '" + numdays + " day' "
+				+ "WHERE time BETWEEN " + " cast(? as datetime)"
+				+ " AND " + "date_add(cast(? as datetime), INTERVAL " + numdays + " day) "
 				+ timeSql;
 
 
@@ -86,6 +93,7 @@ public class AvlJsonQuery {
 		// to view too much data at once.
 
 		sql += "ORDER BY vehicleId, time LIMIT " + MAX_ROWS;
+		
 		String json=null;
 		try {
 			java.util.Date startdate = Time.parseDate(beginDate);						
