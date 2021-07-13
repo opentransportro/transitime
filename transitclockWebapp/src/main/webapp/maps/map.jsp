@@ -23,6 +23,8 @@
   <%@include file="/template/includes.jsp" %>
   <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
   <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+  <script type="text/javascript" src="//leaflet.github.io/Leaflet.label/leaflet.label.js"></script>
+  <link rel="stylesheet" href="//leaflet.github.io/Leaflet.label/leaflet.label.css" />
   <script src="javascript/leafletRotatedMarker.js"></script>
   <script src="javascript/mapUiOptions.js"></script>
   <script src="<%= request.getContextPath() %>/javascript/jquery-dateFormat.min.js"></script>
@@ -398,9 +400,9 @@ function getVehiclePopupContent(vehicleData) {
     	nextStopNameStr += "<br/><b><fmt:message key="div.dnextstop" /> Id:</b> " + vehicleData.nextStopId;
     var driver = vehicleData.driver ? 
     		"<br/><b><fmt:message key="div.ddriver" />:</b> " + vehicleData.driver : "";
-    var latLonHeadingStr = verbose ? "<br/><b>Lat:</b> " + vehicleData.loc.lat
+    var latLonHeadingStr = verbose ? "<br/><b><fmt:message key="div.dlat" />:</b> " + vehicleData.loc.lat
     			+ "<br/><b><fmt:message key="div.dlon" />:</b> " + vehicleData.loc.lon 
-    			+ "<br/><b><fmt:message key="div.Heading" />:</b> " + vehicleData.loc.heading 
+    			+ "<br/><b><fmt:message key="div.dheading" />:</b> " + vehicleData.loc.heading 
     			+ "<br/><b><fmt:message key="div.dspeed" />:</b> " + formatSpeed(vehicleData.loc.speed)
     			: "";
 	var gpsTimeStr = dateFormat(vehicleData.loc.time);
@@ -561,7 +563,9 @@ function createVehicleMarker(vehicleData) {
 	var vehicleMarker = L.marker(vehicleLoc,
 			getVehicleMarkerOptions(vehicleData))
 			.setIcon(getIconForVehicle(vehicleData))
+			.bindLabel(vehicleData.id, {noHide: true, className: "my-label", offset: [12, -14] })
 			.addTo(map);
+
 
 	// Add the background and the heading arrow markers to 
 	// vehicleIcon so they can all be updated when the vehicle moves.
@@ -857,8 +861,8 @@ L.control.zoom({position: 'bottomleft'}).addTo(map);
 var mapTileUrl = '<%= WebConfigParams.getMapTileUrl() %>'; 
 L.tileLayer(mapTileUrl, {
 	// Specifying a shorter version of attribution. Original really too long.
-    //attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
-    attribution: '&copy; <a href="http://openstreetmap.org">OpenStreetMap</a> &amp; <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery ©<%= WebConfigParams.getMapTileCopyright() %>',
+    //attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery ï¿½ <a href="http://mapbox.com">Mapbox</a>',
+    attribution: '&copy; <a href="http://openstreetmap.org">OpenStreetMap</a> &amp; <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery ï¿½<%= WebConfigParams.getMapTileCopyright() %>',
     maxZoom: 19
 }).addTo(map);
 

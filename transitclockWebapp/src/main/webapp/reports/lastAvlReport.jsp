@@ -30,7 +30,7 @@ function dataReadCallback(jsonData) {
 
 		// Insert row (after the header)
 		var row = table.insertRow(i+1);
-		row.insertCell(0).innerHTML = vehicleInfo.vehicleId;
+		row.insertCell(0).innerHTML = (vehicleInfo.name === undefined || vehicleInfo.name == '') ? vehicleInfo.vehicleId : vehicleInfo.name;
 		row.insertCell(1).innerHTML = vehicleInfo.maxTime;
 		row.insertCell(2).innerHTML = vehicleInfo.lat;
 		row.insertCell(3).innerHTML = vehicleInfo.lon;

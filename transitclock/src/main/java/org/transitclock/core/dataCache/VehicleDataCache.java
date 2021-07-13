@@ -27,6 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.applications.Core;
@@ -180,7 +181,8 @@ public class VehicleDataCache {
 		
 		// If new vehicle...
 		String vehicleId = avlReport.getVehicleId();
-		VehicleConfig vehicleConfig = new VehicleConfig(vehicleId);
+		String vehicleName = avlReport.getVehicleName();
+		VehicleConfig vehicleConfig = new VehicleConfig(vehicleId, vehicleName);
 		VehicleConfig absent = vehicleConfigsMap.putIfAbsent(vehicleId, vehicleConfig);
 		if (absent == null) {
 			logger.info("Encountered new vehicle where vehicleId={} so "
@@ -188,6 +190,13 @@ public class VehicleDataCache {
 					+ "VehicleConfig to database.", vehicleId);
 			// Write the vehicle to the database
 			Core.getInstance().getDbLogger().add(vehicleConfig);
+		} else if(!vehicleName.equals(absent.getName())){
+			Session session = 
+					HibernateUtils.getSession(AgencyConfig.getAgencyId());
+			Transaction tx = session.beginTransaction();
+			absent.setName(vehicleName);
+			VehicleConfig.updateVehicleConfig(absent, session);
+			tx.commit();
 		}
 	}
     
