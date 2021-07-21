@@ -185,9 +185,13 @@ public class VehicleDataCache {
 				if (!vehicleName.equals(absent.getName())) {
 					Session session = HibernateUtils.getSession(AgencyConfig.getAgencyId());
 					Transaction tx = session.beginTransaction();
-					absent.setName(vehicleName);
-					VehicleConfig.updateVehicleConfig(absent, session);
-					tx.commit();
+					try {
+						absent.setName(vehicleName);
+						VehicleConfig.updateVehicleConfig(absent, session);
+						tx.commit();
+					} catch(Exception ex) {
+						tx.rollback();
+					}
 				}
 			}
 		}
