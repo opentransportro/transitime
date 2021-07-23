@@ -47,7 +47,8 @@ var vehicleLayer;
  * schedule adherence.
  */
 function getVehiclePopupContent(vehicle) {
-	var vehicleName = (vehicle.vehicleName == '' || vehicle.vehicleName == 'undefined') ? vehicle.id : vehicle.vehicleName;
+	var vehicleName = (vehicle.vehicleName == '' || vehicle.vehicleName == 'undefined' || 
+			vehicle.vehicleName === undefined) ? vehicle.id : vehicle.vehicleName;
 	var content =
 		"<b><fmt:message key="div.Vehicle" />:</b> " + vehicle.id 
 		+ "<br/><b><fmt:message key="div.droute" />:</b> " + vehicle.routeName;
@@ -134,7 +135,9 @@ function getAndProcessSchAdhData() {
 					    fillOpacity: fillOpacity,
 					};
 					
-					var vehicleName = (vehicle.vehicleName == '' || vehicle.vehicleName == 'undefined') ? vehicle.id : vehicle.vehicleName;
+					var vehicleName = (vehicle.vehicleName == '' 
+							|| vehicle.vehicleName == 'undefined' 
+							|| vehicle.vehicleName === undefined) ? vehicle.id : vehicle.vehicleName;
 					if (vehicle.schAdhStr)
 						vehicleName += " " + vehicle.schAdhStr;
 					
@@ -147,7 +150,8 @@ function getAndProcessSchAdhData() {
 					// Store vehicle data obtained via AJAX with stopMarker so it can be used in popup
 					vehicleMarker.vehicle = vehicle;
 					
-					vehicleName = (vehicle.vehicleName == '' || vehicle.vehicleName == 'undefined') ? vehicle.id : vehicle.vehicleName;
+					vehicleName = (vehicle.vehicleName == '' || vehicle.vehicleName == 'undefined' || 
+							vehicle.vehicleName === undefined) ? vehicle.id : vehicle.vehicleName;
 					// Create popup window for vehicle when clicked on
 					vehicleMarker.on('click', function(e) {
 						var content = getVehiclePopupContent(this.vehicle);

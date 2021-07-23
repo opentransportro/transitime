@@ -410,7 +410,8 @@ function getVehiclePopupContent(vehicleData) {
     var tripPatternStr = verbose ? "<br/><b><fmt:message key="div.dtrippattern" />:</b> " + vehicleData.tripPattern : "";
     var startTimeStr = vehicleData.isScheduledService ? "" : "<br/><b><fmt:message key="div.dstarttime" />:</b> "+dateFormat(vehicleData.freqStartTime/1000);
     var schAdhStr = vehicleData.isScheduledService ? "<br/><b><fmt:message key="div.dschadh" />:</b> " + vehicleData.schAdhStr : "";
-    var vehicleName = (vehicleData.vehicleName == '' || vehicleData.vehicleName == 'undefined') ? vehicleData.id : vehicleData.vehicleName;
+    var vehicleName = (vehicleData.vehicleName == '' || vehicleData.vehicleName == 'undefined'  || 
+			vehicleData.vehicleName === undefined) ? vehicleData.id : vehicleData.vehicleName;
     var content = "<b><fmt:message key="div.Vehicle" />:</b> " + vehicleName
     	+ "<br/><b><fmt:message key="div.droute" />: </b> " + vehicleData.routeShortName
 		+ latLonHeadingStr
@@ -561,7 +562,11 @@ function createVehicleMarker(vehicleData) {
 	// Create the actual vehicle marker. This needs to be created
 	// last and on top since the popup callback for the vehicle is
 	// attached to this marker. Otherwise won't get click events.
-	var vehicleName = (vehicleData.vehicleName == '' || vehicleData.vehicleName == 'undefined') ? vehicleData.id : vehicleData.vehicleName;
+	var vehicleName = (vehicleData.vehicleName == '' || 
+			vehicleData.vehicleName == 'undefined' || 
+			vehicleData.vehicleName === undefined) ? vehicleData.id : vehicleData.vehicleName;
+	if (vehicleData.schAdhStr)
+		vehicleName += " " + vehicleData.schAdhStr;
 	var vehicleMarker = L.marker(vehicleLoc,
 			getVehicleMarkerOptions(vehicleData))
 			.setIcon(getIconForVehicle(vehicleData))
