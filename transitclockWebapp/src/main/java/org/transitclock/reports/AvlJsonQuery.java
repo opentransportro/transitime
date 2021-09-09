@@ -54,6 +54,7 @@ public class AvlJsonQuery {
 			String beginDate, String numdays, String beginTime, String endTime) {
 		//Determine the time portion of the SQL
 		String timeSql = "";
+		WebAgency agency = WebAgency.getCachedWebAgency(agencyId);
 		// If beginTime or endTime set but not both then use default values
 		if ((beginTime != null && !beginTime.isEmpty())
 				|| (endTime != null && !endTime.isEmpty())) {
@@ -64,12 +65,16 @@ public class AvlJsonQuery {
 		}
 		if (beginTime != null && !beginTime.isEmpty() 
 				&& endTime != null && !endTime.isEmpty()) {
-			timeSql = " AND time(time) BETWEEN '" 
-				+ beginTime + "' AND '" + endTime + "' ";
+			if ("mysql".equals(agency.getDbType())) {
+				timeSql = " AND time(time) BETWEEN '" 
+						+ beginTime + "' AND '" + endTime + "' ";
+			} else {
+				timeSql = " AND cast('2000-01-01 01:12:00'::timestamp as time) BETWEEN '" 
+						+ beginTime + "' AND '" + endTime + "' ";
+			}
 		}
 		
 		String sql = "";		
-		WebAgency agency = WebAgency.getCachedWebAgency(agencyId);
 		
 		if ("mysql".equals(agency.getDbType())) {
 			sql = "SELECT vehicleId, name, time, assignmentId, lat, lon, speed, "
