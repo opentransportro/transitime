@@ -24,16 +24,17 @@ if (agencyId == null || agencyId.isEmpty()) {
 /* Programatically create contents of table */
 function dataReadCallback(jsonData) {
 	var table = document.getElementById("dataTable");
-	
+		
 	for (var i=0; i<jsonData.data.length; ++i) {
 		var vehicleInfo = jsonData.data[i];
 
 		// Insert row (after the header)
-		var row = table.insertRow(i+1);
+		row = table.insertRow(i+1);
 		row.insertCell(0).innerHTML = (vehicleInfo.name === undefined || vehicleInfo.name == '') ? vehicleInfo.vehicleId : vehicleInfo.name;
 		row.insertCell(1).innerHTML = vehicleInfo.maxTime;
 		row.insertCell(2).innerHTML = vehicleInfo.lat;
 		row.insertCell(3).innerHTML = vehicleInfo.lon;
+		row.insertCell(4).innerHTML = '<a href="https://www.openstreetmap.org/?mlat=' + vehicleInfo.lat + '&mlon=' + vehicleInfo.lon + '&zoom=12">Otwórz mapę</a>';
 	}
 }
 
@@ -56,7 +57,7 @@ $( document ).ready(function() {
 <%@include file="/template/header.jsp" %>
 <div id="title"><fmt:message key="div.lgpsr" /></div>
 <table id="dataTable">
-  <tr><th><fmt:message key="div.Vehicle" /></th><th><fmt:message key="div.lgps" /></th><th><fmt:message key="div.lat" /></th><th><fmt:message key="div.lon" /></th></tr>
+  <tr><th><fmt:message key="div.Vehicle" /></th><th><fmt:message key="div.lgps" /></th><th><fmt:message key="div.lat" /></th><th><fmt:message key="div.lon" /><th><fmt:message key="PositionOnMap" /></th></tr>
   </table>
 </body>
 </html>

@@ -58,7 +58,7 @@ finding specific issues with predictions.">
      <fmt:message key="div.AVLDataInMapParametersPage" /></a></li>
   <li><a href="lastAvlReport.jsp?a=<%= agencyId %>"
     title="Displays the last time each vehicle reported its GPS position over the last 24 hours.">
-      <fmt:message key="div.csv" /></a></li>
+      <fmt:message key="div.lgpsr" /></a></li>
 </ul>
 
 <div id="subtitle"><fmt:message key="div.EventReports" /></div>
