@@ -222,17 +222,13 @@ public class StopPathProcessor {
 		double stopToShapeDistance;
 		double distanceAlongShape;
 		Location matchLocation;
+		double distanceAlongPattern;
 		
 		@Override
 		public String toString() {
-			return "BestMatch [" 
-					+ "shapeIndex=" + shapeIndex
-					+ ", stopToShapeDistance=" 
-						+ Geo.distanceFormat(stopToShapeDistance)
-					+ ", distanceAlongShape=" 
-						+ Geo.distanceFormat(distanceAlongShape)
-					+ ", matchLocation=" + matchLocation
-					+ "]";
+			eturn "BestMatch [shapeIndex=" + shapeIndex + ", stopToShapeDistance=" + stopToShapeDistance
+					+ ", distanceAlongShape=" + distanceAlongShape + ", matchLocation=" + matchLocation
+					+ ", distanceAlongPattern=" + distanceAlongPattern + "]";
 		}
 	}
 	/**
@@ -247,7 +243,7 @@ public class StopPathProcessor {
 	 */
 	private BestMatch determineBestMatch(TripPattern tripPattern,
 			int stopIndex, int previousShapeIndex,
-			double previousDistanceAlongShape, List<Location> shapeLocs) {
+			double previousDistanceAlongShape, List<Location> shapeLocs,double previousDistanceAlongPattern) {
 		// Value to be returned
 		BestMatch bestMatch = null;
 		
@@ -256,6 +252,7 @@ public class StopPathProcessor {
 		Stop stop = stopsMap.get(stopId);
 		
 		// Determine the previous stop for the trip pattern (can be null)
+		StopPath stopPath= tripPattern.getStopPath(stopIndex);
 		Stop previousStop = null;
 		if (stopIndex > 0) {
 			String previousStopId = tripPattern.getStopId(stopIndex-1);
@@ -282,6 +279,7 @@ public class StopPathProcessor {
 		// when add in length of current vector it indeed shows how
 		// far along shapes been looking to match current stop.
 		double distanceAlongShapesExamined = -previousDistanceAlongShape;
+		double dististanceOverPattern = previousDistanceAlongPattern;
 		for (int shapeIndex = previousShapeIndex; 
 			 shapeIndex < shapeLocs.size()-1; 
 			 ++shapeIndex) {
@@ -289,6 +287,14 @@ public class StopPathProcessor {
 			Location loc0 = shapeLocs.get(shapeIndex);	
 			Location loc1 = shapeLocs.get(shapeIndex+1);
 			Vector shapeVector = new Vector(loc0, loc1);
+			
+			dististanceOverPattern+=shapeVector.length();
+			//This is the same segment than the previous one
+			//so we should only add the part form the last part
+			if(previousShapeIndex==shapeIndex)
+			{
+				dististanceOverPattern-=previousDistanceAlongShape;
+			}
 			
 			// Determine distance of stop to the current shape
 			double stopToShapeDistance = stop.getLoc().distance(shapeVector);
@@ -322,7 +328,16 @@ public class StopPathProcessor {
 					bestMatch.matchLocation =
 							shapeVector
 									.locAlongVector(bestMatch.distanceAlongShape);
+									
+					bestMatch.distanceAlongPattern=dististanceOverPattern-(shapeVector.length()-bestMatch.distanceAlongShape);
 				}
+			}
+			
+			if(stopPath.getShapeDistanceTraveled()!=null && bestMatch!=null)
+			{
+
+				if(Math.abs(bestMatch.distanceAlongPattern-stopPath.getShapeDistanceTraveled())<10)
+					break;
 			}
 			
 			// Keep track of how far along the shapes have examined. If
@@ -403,6 +418,9 @@ public class StopPathProcessor {
 			}
 		}
 		
+		logger.debug(" bestMatch {} expected distanceAlongPattern {}",bestMatch,stopPath.getShapeDistanceTraveled());
+		System.out.println("bestMatch "  +bestMatch+" "+stopPath.getShapeDistanceTraveled());
+		
 		// Return results
 		return bestMatch;
 	}
@@ -428,6 +446,7 @@ public class StopPathProcessor {
 		double previousDistanceAlongShape = 0.0; 
 		Location previousLocation = null;
 		int numberOfStopsTooFarAway = 0;
+		double previousDistanceAlongPattern=0.0;
 		
 		// For each stop for the trip pattern...
 		for (int stopIndex = 0; 
@@ -435,7 +454,7 @@ public class StopPathProcessor {
 				++stopIndex) {
 			// Determine which shape the stop matches to
 			BestMatch bestMatch = determineBestMatch(tripPattern, stopIndex,
-					previousShapeIndex, previousDistanceAlongShape, shapeLocs);
+					previousShapeIndex, previousDistanceAlongShape, shapeLocs,previousDistanceAlongPattern);
 			// Keep track of how many stops too far away from path so can log
 			// the number for the entire system
 			if (bestMatch.stopToShapeDistance > maxStopToPathDistance) {
@@ -510,6 +529,7 @@ public class StopPathProcessor {
 			// Prepare for looking at next stop
 			previousShapeIndex = bestMatch.shapeIndex;
 			previousDistanceAlongShape = bestMatch.distanceAlongShape;
+			previousDistanceAlongPattern= bestMatch.distanceAlongPattern;
 		} // End of for each stop for the trip pattern		
 		
 		// If there errors with stops being too far away from the stopPaths then
