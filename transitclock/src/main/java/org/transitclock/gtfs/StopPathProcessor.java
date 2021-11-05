@@ -226,7 +226,7 @@ public class StopPathProcessor {
 		
 		@Override
 		public String toString() {
-			eturn "BestMatch [shapeIndex=" + shapeIndex + ", stopToShapeDistance=" + stopToShapeDistance
+			return "BestMatch [shapeIndex=" + shapeIndex + ", stopToShapeDistance=" + stopToShapeDistance
 					+ ", distanceAlongShape=" + distanceAlongShape + ", matchLocation=" + matchLocation
 					+ ", distanceAlongPattern=" + distanceAlongPattern + "]";
 		}
