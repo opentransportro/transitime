@@ -138,8 +138,8 @@ function getAndProcessSchAdhData() {
 					var vehicleName = (vehicle.vehicleName == '' 
 							|| vehicle.vehicleName == 'undefined' 
 							|| vehicle.vehicleName === undefined) ? vehicle.id : vehicle.vehicleName;
-					if (vehicle.schAdhStr)
-						vehicleName += " " + vehicle.schAdhStr;
+					//if (vehicle.schAdhStr)
+						//vehicleName += " " + vehicle.schAdhStr;
 					
 					// Create circle for vehicle showing schedule adherence
 					var vehicleMarker = 

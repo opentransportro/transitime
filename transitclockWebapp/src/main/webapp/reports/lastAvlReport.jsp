@@ -34,7 +34,7 @@ function dataReadCallback(jsonData) {
 		row.insertCell(1).innerHTML = vehicleInfo.maxTime;
 		row.insertCell(2).innerHTML = vehicleInfo.lat;
 		row.insertCell(3).innerHTML = vehicleInfo.lon;
-		row.insertCell(4).innerHTML = '<a href="https://www.openstreetmap.org/?mlat=' + vehicleInfo.lat + '&mlon=' + vehicleInfo.lon + '&zoom=12">Otwórz mapę</a>';
+		row.insertCell(4).innerHTML = '<a href="https://www.openstreetmap.org/?mlat=' + vehicleInfo.lat + '&mlon=' + vehicleInfo.lon + '&zoom=12" target="_blank">Otwórz mapę</a>';
 	}
 }
 

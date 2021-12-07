@@ -63,18 +63,21 @@ public class AvlJsonQuery {
 			if (endTime == null || endTime.isEmpty())
 				endTime = "24:00";
 		}
+		//cast('2000-01-01 01:12:00'::timestamp as time);
 		if (beginTime != null && !beginTime.isEmpty() 
 				&& endTime != null && !endTime.isEmpty()) {
 			if ("mysql".equals(agency.getDbType())) {
 				timeSql = " AND time(time) BETWEEN '" 
 						+ beginTime + "' AND '" + endTime + "' ";
 			} else {
-				timeSql = " AND cast('2000-01-01 01:12:00'::timestamp as time) BETWEEN '" 
+				timeSql = " AND cast(time::timestamp as time) BETWEEN '" 
 						+ beginTime + "' AND '" + endTime + "' ";
 			}
+				
 		}
 		
 		String sql = "";		
+		
 		
 		if ("mysql".equals(agency.getDbType())) {
 			sql = "SELECT vehicleId, name, time, assignmentId, lat, lon, speed, "
@@ -83,15 +86,15 @@ public class AvlJsonQuery {
 				+ "INNER JOIN vehicleconfigs ON vehicleconfigs.id = avlreports.vehicleId "
 				+ "WHERE time BETWEEN " + " cast(? as datetime)"
 				+ " AND " + "date_add(cast(? as datetime), INTERVAL " + numdays + " day) "
-				+ timeSql;
+				+ timeSql;;
 		} else {
 			sql = "SELECT vehicleId, name, time, assignmentId, lat, lon, speed, "
-					+ "heading, timeProcessed, source "
-					+ "FROM avlreports "
-					+ "INNER JOIN vehicleconfigs ON vehicleconfigs.id = avlreports.vehicleId "
-					+ "WHERE time BETWEEN " + " cast(? as timestamp)"
-					+ " AND " + "cast(? as timestamp)"  + " + INTERVAL '" + numdays + " day' "
-					+ timeSql;
+				+ "heading, timeProcessed, source "
+				+ "FROM avlreports "
+				+ "INNER JOIN vehicleconfigs ON vehicleconfigs.id = avlreports.vehicleId "
+				+ "WHERE time BETWEEN " + " cast(? as timestamp)"
+				+ " AND " + "cast(? as timestamp)"  + " + INTERVAL '" + numdays + " day' "
+				+ timeSql;
 		}
 
 		// If only want data for single vehicle then specify so in SQL
