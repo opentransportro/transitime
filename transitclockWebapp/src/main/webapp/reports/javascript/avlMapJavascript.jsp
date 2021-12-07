@@ -59,7 +59,10 @@ function drawAvlMarker(avl) {
 	
 	for (var i = 0; i < labels.length; i++) {
 		var label = $("<td />").attr("class", "popupTableLabel").text(labels[i] + ": ");
-		var value = $("<td />").text(avl[keys[i]]);
+		//var value = $("<td />").text(avl[keys[i]]);
+		var value = $("<td />").text(
+				(keys[i] == 'vehicleId') ? ((avl["name"] === undefined || avl["name"] == '') ? avl["vehicleId"] : avl["name"]): avl[keys[i]]);
+		
 		content.append( $("<tr />").append(label, value) )
 	}
 		
@@ -96,7 +99,7 @@ function processAvlCallback(jsonData) {
 	    	if (latLngsForVehicle.length >= 2)
 	    		L.polyline(latLngsForVehicle, routePolylineOptions).addTo(map); //.bringToBack();
 	    	latLngsForVehicle = [];
-	    	vehicle = {id: avl.vehicleId, data: []}
+	    	vehicle = {id: avl.vehicleId, name: avl.name, data: []}
 	    	vehicles.push(vehicle);
 		} 
 		
