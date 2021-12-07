@@ -50,7 +50,7 @@ function getVehiclePopupContent(vehicle) {
 	var vehicleName = (vehicle.vehicleName == '' || vehicle.vehicleName == 'undefined' || 
 			vehicle.vehicleName === undefined) ? vehicle.id : vehicle.vehicleName;
 	var content =
-		"<b><fmt:message key="div.Vehicle" />:</b> " + vehicle.id 
+		"<b><fmt:message key="div.Vehicle" />:</b> " + vehicleName
 		+ "<br/><b><fmt:message key="div.droute" />:</b> " + vehicle.routeName;
 	if (vehicle.headsign)
 		content += "<br/><b><fmt:message key="div.dto" />:</b> " + vehicle.headsign;

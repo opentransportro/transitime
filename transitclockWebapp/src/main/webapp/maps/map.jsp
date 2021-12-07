@@ -565,8 +565,8 @@ function createVehicleMarker(vehicleData) {
 	var vehicleName = (vehicleData.vehicleName == '' || 
 			vehicleData.vehicleName == 'undefined' || 
 			vehicleData.vehicleName === undefined) ? vehicleData.id : vehicleData.vehicleName;
-	if (vehicleData.schAdhStr)
-		vehicleName += " " + vehicleData.schAdhStr;
+	//if (vehicleData.schAdhStr)
+	//	vehicleName += " " + vehicleData.schAdhStr;
 	var vehicleMarker = L.marker(vehicleLoc,
 			getVehicleMarkerOptions(vehicleData))
 			.setIcon(getIconForVehicle(vehicleData))
