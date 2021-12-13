@@ -334,7 +334,11 @@ function baseHandleAjaxData(routes, removeAll) {
 			var tripValueElement = $("#" + routeElementId + " #" + blockElementId + " #trip");
 			var tripId = blockData.trip.shortName != null ? 
 					blockData.trip.shortName : blockData.trip.id;
-			tripValueElement.text(tripId);
+			var tripLink = "<a href='<%= request.getContextPath() %>";
+			tripLink += "/maps/map.jsp?a=";
+			tripLink += <%= agencyId %>;
+			tripLink += "&r=" + routeData.id + "' target='_blank'>" + tripId + '</a>';
+			tripValueElement.html(tripLink);
 			
 			var tripStartValueElement = $("#" + routeElementId + " #" + blockElementId + " #tripStart");
 			tripStartValueElement.text(blockData.trip.startTime);
