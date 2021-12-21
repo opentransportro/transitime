@@ -146,16 +146,16 @@
 		             stop.stop_name + ' ', 
 		             latePercent, 
 		             	'opacity: 1.0', 
-		             	'<fmt:message key="div.clate" />' + ': ' + stop.late + ' ' + '<fmt:message key="div.coutof" />' + ' ' + stop.total + ' ' + '<fmt:message key="div.ctimes" />' + ", " + '<fmt:message key="trips" />' + ": " + stop.trips_late, 
-		             	stop.late > 0 ? latePercent.toFixed(1) + '%' : '',
+		             	'<fmt:message key="div.clate" />' + ': ' + stop.late + ' ' + '<fmt:message key="div.coutof" />' + ' ' + stop.total + ' ' + '<fmt:message key="div.ctimes" />', 
+		             	stop.late > 0 ? latePercent.toFixed(1) + '%'  + ", " + '<fmt:message key="Trips" />' + ": " + stop.trips_late : '',
 		             ontimePercent, 
 		             	'opacity: 1.0', 
 		             	'<fmt:message key="div.contime" />' + ': ' + stop.ontime + ' ' + '<fmt:message key="div.coutof" />' + ' ' + stop.total + ' ' + '<fmt:message key="div.ctimes" />', 
 		             	stop.ontime > 0 ? ontimePercent.toFixed(1) + '%' : '',
 			         earlyPercent, 
 		             	'opacity: 1.0', 
-		             	'<fmt:message key="div.cearly" />' + ': ' + stop.early + ' ' + '<fmt:message key="div.coutof" />' + ' ' + stop.total + ' ' + '<fmt:message key="div.ctimes" />' + ", " + '<fmt:message key="trips" />' + ": " + stop.trips_early, 
-		             	(stop.early > 0) ? earlyPercent.toFixed(1) + '%' : ''
+		             	'<fmt:message key="div.cearly" />' + ': ' + stop.early + ' ' + '<fmt:message key="div.coutof" />' + ' ' + stop.total + ' ' + '<fmt:message key="div.ctimes" />', 
+		             	(stop.early > 0) ? earlyPercent.toFixed(1) + '%'  + ", " + '<fmt:message key="Trips" />' + ": " + stop.trips_early : ''
 		             ];
 		  dataArray.push(dataArrayForStop);
 		  
