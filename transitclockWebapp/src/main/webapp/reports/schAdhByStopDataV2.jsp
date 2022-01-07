@@ -32,7 +32,8 @@ String allowableLateMinutesStr = "'" + SqlUtils.convertMinutesToSecs(allowableLa
 String sql =
 	"WITH trips_early_query AS ( SELECT "
 	+ "	 array_to_string(array_agg(distinct tripid::text order by tripid::text), '; ') AS trips_early, \n"
-	+ "	 s.id AS stop_id \n"
+	+ "	 s.id AS stop_id, \n"
+	+ "	 ad.stopOrder AS stop_order \n"
 	+ " 	FROM ArrivalsDepartures ad, Stops s  \n"
 			+ "WHERE "
 		    // To get stop name
@@ -50,7 +51,8 @@ String sql =
 	
 	+ "trips_late_query AS ( SELECT "
 	+ "	 array_to_string(array_agg(distinct tripid::text order by tripid::text), '; ') AS trips_late, \n"
-	+ "	 s.id AS stop_id \n"
+	+ "	 s.id AS stop_id, \n"
+	+ "	 ad.stopOrder AS stop_order \n"
 	+ "	FROM ArrivalsDepartures ad, Stops s  \n"
 			+ "WHERE "
 		    // To get stop name
@@ -75,9 +77,10 @@ String sql =
     + "     ad.directionid AS direction_id, \n"
     + " 	trips_early_query.trips_early as trips_early, \n"
     + " 	trips_late_query.trips_late as trips_late \n"
-    + "FROM ArrivalsDepartures ad, Stops s \n"
-    + "	LEFT JOIN trips_early_query ON s.id = trips_early_query.stop_id \n"
-    + "	LEFT JOIN trips_late_query ON s.id = trips_late_query.stop_id \n"
+    + "FROM ArrivalsDepartures ad"
+    + "	INNER JOIN Stops s ON ad.stopId = s.id \n"
+    + "	LEFT JOIN trips_early_query ON s.id = trips_early_query.stop_id AND ad.stopOrder = trips_early_query.stop_order \n"
+    + "	LEFT JOIN trips_late_query ON s.id = trips_late_query.stop_id AND ad.stopOrder = trips_late_query.stop_order \n"
     + "WHERE "
     // To get stop name
     + " ad.configRev = s.configRev \n"
