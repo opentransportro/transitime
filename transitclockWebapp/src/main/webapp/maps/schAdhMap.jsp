@@ -22,9 +22,23 @@
 html, body, #map { 
 	height: 100%; width: 100%; padding: 0px; margin: 0px;
 }
+.modal {
+    position: absolute; /* Stay in place */
+    z-index: 100000; /* Sit on top */
+    padding-top: 10px; /* Location of the box */
+    padding-left: 10px; /* Location of the box */
+    left: 50px;
+    top: 25px;
+    width: 250px; /* Full width */
+    height: 200px; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background: white;
+}
 </style>
 
 <script>
+var earlyTime = 60000;  // 30 seconds
+var lateTime = -180000; // 3 minutes
 var routeOptions = {
 		color: '#0080FF',
 		weight: 1,
@@ -41,6 +55,11 @@ var map;
 
 // Global so can keep track and delete all vehicles at once
 var vehicleLayer;
+
+function setEarlyAndLateTime() {
+	earlyTime = document.getElementById("earlyTimeInput").value * 1000;
+	lateTime = document.getElementById("lateTimeInput").value * -1000;
+}
 
 /** 
  * Returns content for vehicle popup window. For showing vehicle ID and 
@@ -92,10 +111,9 @@ function getAndProcessSchAdhData() {
 						directionColor = '#00f';
 					
 					// For determining gradiation of how early/late a vehicle is
-					var earlyTime = 30000;  // 30 seconds
-					var maxEarly = 180000;  // 3 minutes
-					var lateTime = -120000; // 2 minutes
-				    var maxLate = -960000;  // 16 minutes
+					
+					var maxEarly = 360000;  // 6 minutes
+				    var maxLate = -1800000;  // 30 minutes
 				    var msecPerRadiusPixels = 33000;
 				    
 					// Determine radius and color for vehicle depending on how early/late it is
@@ -104,20 +122,26 @@ function getAndProcessSchAdhData() {
 					var fillOpacity;
 					if (vehicle.schAdh < lateTime) {
 						// Vehicle is late
-						radius = 5 - (Math.max(maxLate, vehicle.schAdh) - lateTime)/msecPerRadiusPixels;
-						fillColor = '#E6D83E';
-						fillOpacity = 0.5;
+						radius = 10 - (Math.max(maxLate, vehicle.schAdh) - lateTime)/msecPerRadiusPixels;
+						fillColor = '#ffff00';
+						fillOpacity = 1.0;
+						//fillColor = '#E6D83E';
+						//fillOpacity = 0.5;
 					} else if (vehicle.schAdh > earlyTime) { 
 						// Vehicle is early. Since early is worse make radius 
 						// of larger by using msecPerRadiusPixels/2
-						radius = 5 + (Math.min(maxEarly, vehicle.schAdh) - earlyTime)/(msecPerRadiusPixels/2);
-						fillColor = '#E34B71';
-						fillOpacity = 0.5;
+						radius = 10 + (Math.min(maxEarly, vehicle.schAdh) - earlyTime)/(msecPerRadiusPixels/2);
+						fillColor = '#ff0000';
+						fillOpacity = 1.0;
+						//fillColor = '#E34B71';
+						//fillOpacity = 0.5;
 					} else {
 						// Vehicle is ontime
-						radius = 5;
-						fillColor = '#37E627'; 
-						fillOpacity = 0.5;
+						radius = 10;
+						fillColor = '#000000';
+						fillOpacity = 1.0;
+						//fillColor = '#37E627'; 
+						//fillOpacity = 0.5;
 					}
 					
 					// Specify options on how circle is be drawn. Depends
@@ -265,6 +289,15 @@ $( document ).ready(function() {
 
 </head>
 <body>
-<div id="map"></div>
+<div id="map">
+<div class="modal">
+<label for="earlyTimeInput">Tolerancja wcześniej(w sekundach):</label>
+<input name="earlyTimeInput" id="earlyTimeInput" value="30">
+<label for="lateTimeInput">Tolerancja później(w sekundach):</label>
+<input name="lateTimeInput" id="lateTimeInput" value="120">
+<button onclick="setEarlyAndLateTime()" style="margin-top: 10px;">Odśwież</button>
+</div>
+</div>
+
 </body>
 </html>
