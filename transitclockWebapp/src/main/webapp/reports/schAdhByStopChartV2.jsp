@@ -220,6 +220,53 @@
 	  }
 	  
 	  drawCharts();
+	  
+	  
+	  
+	  
+	  /*******************/
+	  var table = $("<table id='dataTable'></table>").appendTo('body')[0];
+    		  
+    		  // Create the columns for the header. First column is stop name. And then there
+    		  // is one column per trip.
+    		  var headerRow = table.insertRow(0);
+    		  var headerCell = headerRow.insertCell(0);
+    		  headerCell.id = 'headerCell';
+    		  headerCell.innerHTML = 'Nazwa przystanku';
+    		  headerCell = headerRow.insertCell(1);
+    		  headerCell.id = 'headerCell';
+    		  headerCell.innerHTML = 'Wcześniej';
+    		  headerCell = headerRow.insertCell(2);
+    		  headerCell.id = 'headerCell';
+    		  headerCell.innerHTML = 'Na czas';
+    		  headerCell = headerRow.insertCell(3);
+    		  headerCell.id = 'headerCell';
+    		  headerCell.innerHTML = 'Później';
+	  
+	  for (var i=0; i<jsonData.data.length; ++i) {
+		  var stop = jsonData.data[i];
+		  headerRow = table.insertRow(i+1);
+		  headerCell = headerRow.insertCell(0);
+		  headerCell.id = 'headerCell';
+		  headerCell.innerHTML = stop.stop_name;
+		  headerCell = headerRow.insertCell(1);
+		  headerCell.id = 'headerCell';
+		  if(stop.trips_early === undefined)
+		  	headerCell.innerHTML = "[" + stop.early + "]";
+		  else
+			  headerCell.innerHTML = "[" + stop.early + "] " + stop.trips_early;
+		  headerCell = headerRow.insertCell(2);
+		  headerCell.id = 'headerCell';
+		  headerCell.innerHTML = "[" + stop.ontime + "] ";
+		  headerCell = headerRow.insertCell(3);
+		  headerCell.id = 'headerCell';
+		  if(stop.trips_late === undefined)
+		  	headerCell.innerHTML = "[" + stop.late + "]";
+		  else
+			  headerCell.innerHTML = "[" + stop.late + "] " + stop.trips_late;
+    }
+	  
+	  /*******************/
   }
   
   /**
