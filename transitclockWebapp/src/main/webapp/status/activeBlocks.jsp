@@ -284,6 +284,11 @@ function baseHandleAjaxData(routes, removeAll) {
 			// If block element doesn't yet exist then create it
 			var blockData = routeData.block[i];
 			var blockElementId = "blockId-" + idForQuery(blockData.id);
+			
+			/* this is to escape . and :  characters */			
+			routeElementId=jq(routeElementId);
+			blockElementId=jq(blockElementId);
+			
 			var blockElement = $("#" + routeElementId + " #" + blockElementId);
 			if (blockElement.length == 0) {
 				blocksTable.append(
@@ -304,15 +309,6 @@ function baseHandleAjaxData(routes, removeAll) {
 						" <td class='blockLabel'>"+'<fmt:message key="div.Adh" />' +"</td><td id='vehicleSchedAdh'></td>" +
 						"</tr>");
 			}
-			/* this is to escape . and :  characters */			
-			routeElementId=jq(routeElementId);
-			blockElementId=jq(blockElementId);
-			
-			// Update the information for the block 
-			
-			/* this is to escape . and :  characters */			
-			routeElementId=jq(routeElementId);
-			blockElementId=jq(blockElementId);
 			
 			var blockValueElement = $("#" + routeElementId + " #" + blockElementId + " #block");
 			blockValueElement.text(blockData.id);
@@ -361,7 +357,7 @@ function baseHandleAjaxData(routes, removeAll) {
 					var vehicleData = blockData.vehicle[v];
 					if (v > 0)
 						vehiclesValue += ", ";
-					if (vehicleData.vehicleName == '' || vehicleData.vehicleName == 'undefined')
+					if (vehicleInfo.name === undefined || vehicleInfo.name == '')
 						vehiclesValue += vehicleData.id;
 					else
 						vehiclesValue += vehicleData.vehicleName;
