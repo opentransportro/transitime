@@ -289,6 +289,7 @@ function baseHandleAjaxData(routes, removeAll) {
 			routeElementId=jq(routeElementId);
 			blockElementId=jq(blockElementId);
 			blockElementId=blockElementId.replace('/', '');
+			blockElementId=blockElementId.replace('^', '');
 			
 			var blockElement = $("#" + routeElementId + " #" + blockElementId);
 			if (blockElement.length == 0) {
