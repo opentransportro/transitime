@@ -288,6 +288,7 @@ function baseHandleAjaxData(routes, removeAll) {
 			/* this is to escape . and :  characters */			
 			routeElementId=jq(routeElementId);
 			blockElementId=jq(blockElementId);
+			blockElementId=blockElementId.replace('/', '');
 			
 			var blockElement = $("#" + routeElementId + " #" + blockElementId);
 			if (blockElement.length == 0) {
