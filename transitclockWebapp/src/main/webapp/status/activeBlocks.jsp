@@ -290,6 +290,14 @@ function baseHandleAjaxData(routes, removeAll) {
 			blockElementId=jq(blockElementId);
 			blockElementId=blockElementId.replace('/', '');
 			blockElementId=blockElementId.replace('^', '');
+			blockElementId=blockElementId.replace('*', '');
+			blockElementId=blockElementId.replace(',', '');
+			blockElementId=blockElementId.replace('-', '');
+			blockElementId=blockElementId.replaceAll('/', '');
+			blockElementId=blockElementId.replaceAll('^', '');
+			blockElementId=blockElementId.replaceAll('*', '');
+			blockElementId=blockElementId.replaceAll(',', '');
+			blockElementId=blockElementId.replaceAll('-', '');
 			
 			var blockElement = $("#" + routeElementId + " #" + blockElementId);
 			if (blockElement.length == 0) {
