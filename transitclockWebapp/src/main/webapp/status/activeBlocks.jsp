@@ -367,7 +367,7 @@ function baseHandleAjaxData(routes, removeAll) {
 					var vehicleData = blockData.vehicle[v];
 					if (v > 0)
 						vehiclesValue += ", ";
-					if (vehicleData.name)
+					if (typeof vehicleData.name === 'undefined')
 						vehiclesValue += vehicleData.vehicleName;
 					else
 						vehiclesValue += vehicleData.id;
