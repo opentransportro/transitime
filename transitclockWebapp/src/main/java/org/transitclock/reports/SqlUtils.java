@@ -209,6 +209,9 @@ public class SqlUtils {
 			String numDaysStr = request.getParameter("numDays");
 			throwOnSqlInjection(numDaysStr);
 			
+			if(numDaysStr == null) {
+				numDaysStr = "1";
+			}
 			// Limit number of days to maxNumDays to prevent queries that are 
 			// too big
 			int numDays = Integer.parseInt(numDaysStr);
@@ -228,6 +231,14 @@ public class SqlUtils {
 	          + "' " + " AND DATE_ADD(STR_TO_DATE('" + reformattedBeginDate + "', '%Y-%m-%d'), INTERVAL "
 	          + numDays + " day) " + timeSql + ' ';
 			} else {
+				//FRAGMENT KODU TYLKO NA DEV!!!!
+				SimpleDateFormat currentFormat = new SimpleDateFormat("MM-dd-yyyy");
+				SimpleDateFormat requiredFormat = new SimpleDateFormat("yyyy-MM-dd");
+				try {
+				    beginDate = requiredFormat.format(currentFormat.parse(beginDate));
+				} catch (ParseException e) {
+				    e.printStackTrace();
+				}
 			sql =" AND " + timeColumnName + " BETWEEN '" + beginDate
 					+ "' " + " AND TIMESTAMP '" + beginDate + "' + INTERVAL '"
 					+ numDays + " day' " + timeSql + ' ';
