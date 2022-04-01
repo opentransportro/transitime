@@ -65,7 +65,7 @@
 
   function drawChart(directionId, divId, dataTable, numberOfStops) {
       // Need to set height of the chart div 
-	  var vertSpaceForTitleAndHAxis = 100;
+	  /*var vertSpaceForTitleAndHAxis = 100;
 	  var vertSpaceForChart = (numberOfStops + 1) * 22;
 	  var chartDivHeight = vertSpaceForTitleAndHAxis + vertSpaceForChart;
       $("#" + divId).height(chartDivHeight);
@@ -111,7 +111,7 @@
         // Use old style charts instead of the Material ones because animation
         // only seems to work with old style ones.
         var chart = new google.visualization.BarChart(document.getElementById(divId));
-        chart.draw(dataTable, options);        
+        chart.draw(dataTable, options);        */
   }
   
   // Each chartInfo has numberOfStops and dataTable members
