@@ -274,6 +274,10 @@ public class TripPattern implements Serializable, Lifecycle {
 						+ "WHERE TripPatterns_configRev=" + configRev).
 				executeUpdate();
 		rowsUpdated += session.
+				createSQLQuery("DELETE FROM StopPath_Locations WHERE StopPath_configRev=" 
+						+ configRev).
+				executeUpdate();
+		rowsUpdated += session.
 				createSQLQuery("DELETE FROM StopPaths WHERE configRev=" 
 						+ configRev).
 				executeUpdate();

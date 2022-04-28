@@ -277,6 +277,15 @@ public final class Block implements Serializable {
 		logger.info("Deleted {} rows from Block_to_Trip_joinTable for "
 				+ "configRev={}", rowsUpdated, configRev);
 		totalRowsUpdated += rowsUpdated;
+		
+		// Delete configRev data from Trip_ScheduledTimeslist
+		rowsUpdated = session.
+				createSQLQuery("DELETE FROM Trip_ScheduledTimeslist WHERE Trip_configRev=" 
+						+ configRev).
+				executeUpdate();
+		logger.info("Deleted {} rows from Trip_ScheduledTimeslist for configRev={}",
+				rowsUpdated, configRev);
+		totalRowsUpdated += rowsUpdated;
 
 		// Delete configRev data from Trips
 		rowsUpdated = session.

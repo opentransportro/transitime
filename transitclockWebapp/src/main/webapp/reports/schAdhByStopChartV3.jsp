@@ -37,6 +37,10 @@
 	  z-index: 9999;
 	  background: white;
 	}
+	
+	#directionRow {
+		border-bottom: 5px solid;
+	}
 
   </style>
   
@@ -242,9 +246,19 @@
     		  headerCell = headerRow.insertCell(3);
     		  headerCell.id = 'headerCell';
     		  headerCell.innerHTML = 'Później';
-	  
+	  var newDirection = false;
+	  var oldDirection = 2;
+	  var newDirection = 2;
 	  for (var i=0; i<jsonData.data.length; ++i) {
 		  var stop = jsonData.data[i];
+		  newDirection = stop.direction_id;
+		  if(oldDirection == 2) {
+			  oldDirection = newDirection;
+		  }
+		  if(newDirection != oldDirection) {
+			  headerRow.id = 'directionRow'
+		  }
+		  newDirection = oldDirection;
 		  headerRow = table.insertRow(i+1);
 		  headerCell = headerRow.insertCell(0);
 		  headerCell.id = 'headerCell';
@@ -264,6 +278,8 @@
 		  	headerCell.innerHTML = "[" + stop.late + "]";
 		  else
 			  headerCell.innerHTML = "[" + stop.late + "] " + stop.trips_late;
+		  
+		  oldDirection = stop.direction_id;
     }
 	  
 	  /*******************/

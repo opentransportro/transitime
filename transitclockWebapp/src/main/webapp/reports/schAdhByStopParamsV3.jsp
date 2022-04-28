@@ -45,7 +45,7 @@
     	and still be acceptable. Must be a positive number to indicate
     	late." 
     	size="1" 
-        value="4.0"/> <span class="note"><fmt:message key="div.minutes" /></span>
+        value="3.0"/> <span class="note"><fmt:message key="div.minutes" /></span>
   </div>
     
     <jsp:include page="params/submitReport.jsp" />

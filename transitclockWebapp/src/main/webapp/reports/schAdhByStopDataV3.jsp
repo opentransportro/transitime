@@ -27,13 +27,14 @@ String allowableEarlyMinutesStr = "'" + SqlUtils.convertMinutesToSecs(allowableE
 
 String allowableLateStr = request.getParameter("allowableLate");
 if (allowableLateStr == null || allowableLateStr.isEmpty())
-	allowableLateStr = "4.0";
+	allowableLateStr = "3.0";
 String allowableLateMinutesStr = "'" + SqlUtils.convertMinutesToSecs(allowableLateStr) + " seconds'";
 
 
 String sql =
 	"WITH trips_early_query_with_time AS ( SELECT tripid AS trips_early, "
-	+ "	 round(EXTRACT(EPOCH FROM (ad.scheduledTime - ad.time))::numeric, 2) AS difference_in_seconds, \n"
+	+ "	 round(EXTRACT(EPOCH FROM (ad.scheduledTime - ad.time))::numeric / 60, 2) AS difference_in_seconds, \n"
+	//+ "	 abs(((ad.time / 1000) - (ad.scheduledTime / 1000))) AS difference_in_seconds,  \n"
 	+ "	 s.id AS stop_id, \n"
 	+ "	 ad.stopOrder AS stop_order \n"
 	+ " 	FROM ArrivalsDepartures ad, Stops s  \n"
@@ -51,7 +52,8 @@ String sql =
 	+ "), \n"
 	
 	+ "trips_late_query_with_time AS ( SELECT tripid AS trips_late,  "
-	+ "	 round(EXTRACT(EPOCH FROM (ad.time - ad.scheduledTime))::numeric, 2) AS difference_in_seconds,  \n"
+	+ "	 round(EXTRACT(EPOCH FROM (ad.time - ad.scheduledTime))::numeric / 60, 2) AS difference_in_seconds,  \n"
+	//+ "	 ((ad.time / 1000) - (ad.scheduledTime / 1000)) AS difference_in_seconds,  \n"
 	+ "	 s.id AS stop_id, \n"
 	+ "	 ad.stopOrder AS stop_order \n"
 	+ "	FROM ArrivalsDepartures ad, Stops s  \n"
@@ -68,14 +70,14 @@ String sql =
 	+ "	 ORDER BY directionid, ad.stopOrder, s.name \n"
 	+ "), \n"
 	+ "trips_late_query_v2 AS ( "
-	+ "		SELECT array_to_string(array_agg(trips_late::text || ' (' || difference_in_seconds::text || 's)' order by trips_late::text), '; ') AS trips_late,   \n"
+	+ "		SELECT array_to_string(array_agg(trips_late::text || ' (' || difference_in_seconds::text || ')' order by trips_late::text), '; ') AS trips_late,   \n"
 	+ "		 stop_id,  \n"
 	+ "		 stop_order  \n"
 	+ "	 	FROM trips_late_query_with_time \n"
 	+ "		 GROUP BY stop_id, stop_order \n"
 	+ "	), \n"
 	+ "	trips_early_query_v2 AS (  \n"
-	+ "		SELECT array_to_string(array_agg(trips_early::text || ' (' || difference_in_seconds::text || 's)' order by trips_early::text), '; ') AS trips_early,  \n"
+	+ "		SELECT array_to_string(array_agg(trips_early::text || ' (' || difference_in_seconds::text || ')' order by trips_early::text), '; ') AS trips_early,  \n"
 	+ "		 stop_id,  \n"
 	+ "		 stop_order  \n"
 	+ "	 	FROM trips_early_query_with_time \n"
