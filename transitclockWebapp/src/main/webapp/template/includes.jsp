@@ -12,6 +12,8 @@
 <link rel="stylesheet" href="<%= request.getContextPath() %>/css/general.css">
 <script src="<%= request.getContextPath() %>/javascript/transitime.js"></script>
 
+<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+
 <script>
 
 // This needs to match the API key in the database
