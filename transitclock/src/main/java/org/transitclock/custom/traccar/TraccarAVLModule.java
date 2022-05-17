@@ -17,6 +17,7 @@
 package org.transitclock.custom.traccar;
 
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
