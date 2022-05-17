@@ -96,15 +96,16 @@ public class TraccarAVLModule extends PollUrlAvlModule {
 				// If have device details use name.
 				if(device!=null && device.getUniqueId()!=null && !device.getUniqueId().isEmpty())
 				{
+					 //Traccar return speed in kt
 					 avlReport = new AvlReport(device.getUniqueId().toString(), device.getName(),
 							result.getDeviceTime().toDate().getTime(), result.getLatitude().doubleValue(),
-							result.getLongitude().doubleValue(), result.getSpeed().floatValue(), result.getCourse().floatValue(), traccarSource.toString());
+							result.getLongitude().doubleValue(), result.getSpeed().multiply(BigDecimal.valueOf(0.5144444)).floatValue()), result.getCourse().floatValue(), traccarSource.toString());
 				}
 				else
 				{
 					 avlReport = new AvlReport(result.getDeviceId().toString(),
 						result.getDeviceTime().toDate().getTime(), result.getLatitude().doubleValue(),
-						result.getLongitude().doubleValue(), result.getSpeed().floatValue(), result.getCourse().floatValue(), traccarSource.toString());
+						result.getLongitude().doubleValue(), result.getSpeed().multiply(BigDecimal.valueOf(0.5144444)).floatValue(), result.getCourse().floatValue(), traccarSource.toString());
 				}
 				if(avlReport!=null)
 					avlReportsReadIn.add(avlReport);

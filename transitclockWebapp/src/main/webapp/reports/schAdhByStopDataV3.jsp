@@ -33,7 +33,7 @@ String allowableLateMinutesStr = "'" + SqlUtils.convertMinutesToSecs(allowableLa
 
 String sql =
 	"WITH trips_early_query_with_time AS ( SELECT tripid AS trips_early, "
-	+ "	 round(EXTRACT(EPOCH FROM (ad.scheduledTime - ad.time))::numeric / 60, 2) AS difference_in_seconds, \n"
+	+ "	 regexp_replace(CAST(DATE_TRUNC('second', ad.scheduledTime::timestamp) - DATE_TRUNC('second', ad.time::timestamp) AS VARCHAR), '^00:', '') difference_in_seconds, \n"
 	//+ "	 abs(((ad.time / 1000) - (ad.scheduledTime / 1000))) AS difference_in_seconds,  \n"
 	+ "	 s.id AS stop_id, \n"
 	+ "	 ad.stopOrder AS stop_order \n"
@@ -52,7 +52,7 @@ String sql =
 	+ "), \n"
 	
 	+ "trips_late_query_with_time AS ( SELECT tripid AS trips_late,  "
-	+ "	 round(EXTRACT(EPOCH FROM (ad.time - ad.scheduledTime))::numeric / 60, 2) AS difference_in_seconds,  \n"
+	+ "	 regexp_replace(CAST(DATE_TRUNC('second', ad.time::timestamp) - DATE_TRUNC('second', ad.scheduledTime::timestamp) AS VARCHAR), '^00:', '') difference_in_seconds, \n"
 	//+ "	 ((ad.time / 1000) - (ad.scheduledTime / 1000)) AS difference_in_seconds,  \n"
 	+ "	 s.id AS stop_id, \n"
 	+ "	 ad.stopOrder AS stop_order \n"
