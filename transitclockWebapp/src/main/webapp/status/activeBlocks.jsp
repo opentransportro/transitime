@@ -112,6 +112,8 @@ function jq( myid ) {
     return myid.replace( /(:|\.|\[|\]|,)/g, "\\\\$1" );
 }
 
+
+
 function removeUnneededBlockAndRouteElements(routes) {
 	// First get rid of route elements that are not needed anymore because they
 	// are not in the ajax data.
@@ -315,10 +317,11 @@ function baseHandleAjaxData(routes, removeAll) {
 						" <td class='blockLabel'>"+'<fmt:message key="div.Headsign" />' +":</td><td id='tripHeadsign'></td>" + 
 						"</tr>" +
 						"<tr id='" + blockElementId + "'>" +
-						" <td class='blockLabel'>"+'<fmt:message key="div.Vehicle" />' +":</td><td id='vehiclesForBlock'></td>" +
+						" <td class='blockLabel'>"+'<fmt:message key="div.Vehicle" />' +":</td><td id='vehiclesForBlock'></td><td id='tripCancel'></td>" +
 						" <td class='blockLabel'>"+'<fmt:message key="div.Adh" />' +"</td><td id='vehicleSchedAdh'></td>" +
 						"</tr>");
 			}
+			
 			
 			var blockValueElement = $("#" + routeElementId + " #" + blockElementId + " #block");
 			blockValueElement.text(blockData.id);
@@ -343,8 +346,15 @@ function baseHandleAjaxData(routes, removeAll) {
 			var tripLink = "<a href='<%= request.getContextPath() %>";
 			tripLink += "/maps/map.jsp?a=";
 			tripLink += <%= agencyId %>;
-			tripLink += "&r=" + routeData.id + "' target='_blank'>" + tripId + '</a>';
+			tripLink += "&r=" + routeData.id + "&verbose=true' target='_blank'>" + tripId + '</a>';
 			tripValueElement.html(tripLink);
+			
+			/*var tripCancelValueElement = $("#" + routeElementId + " #" + blockElementId + " #tripCancel");
+			var tripLinkCancel = "<a href=\"#\"";
+			tripLinkCancel += " onclick=\"cancelTrip(" + blockData.trip.id + ");\"";
+			tripLinkCancel += ">Anuluj przejazd pojazdu</a>";
+			tripCancelValueElement.html(tripLinkCancel);*/
+			
 			
 			var tripStartValueElement = $("#" + routeElementId + " #" + blockElementId + " #tripStart");
 			tripStartValueElement.text(blockData.trip.startTime);
@@ -367,10 +377,14 @@ function baseHandleAjaxData(routes, removeAll) {
 					var vehicleData = blockData.vehicle[v];
 					if (v > 0)
 						vehiclesValue += ", ";
-					if (typeof vehicleData.vehicleName === 'undefined')
-						vehiclesValue += vehicleData.id;
-					else
+					if (typeof vehicleData.vehicleName === 'undefined') {
+						vehiclesValue += vehicleData.id
+						console.log('vehicle name');
+					}
+					else {
 						vehiclesValue += vehicleData.vehicleName;
+						console.log('no vehicle name');
+					}
 					
 					vehicleAssigned = true;
 					if (vehicleData.scheduleBased)
@@ -378,6 +392,15 @@ function baseHandleAjaxData(routes, removeAll) {
 				}
 			}		
 			vehiclesValueElement.text(vehiclesValue);
+			
+			console.log(vehicleAssigned == true);
+			if(vehicleAssigned == true) {
+				var tripCancelValueElement = $("#" + routeElementId + " #" + blockElementId + " #tripCancel");
+				var tripLinkCancel = "<a href=\"#\"";
+				tripLinkCancel += " onclick=\"resetVehicle(" + blockData.trip.id + ", " + blockData.vehicle[0].id + ");\"";
+				tripLinkCancel += ">Anuluj przejazd pojazdu</a>";
+				tripCancelValueElement.html(tripLinkCancel);
+			}
 			
 			if (vehiclesValue.length > 10) {
 				vehiclesValueElement.addClass("blockValueSmallerFont");
@@ -411,6 +434,8 @@ function baseHandleAjaxData(routes, removeAll) {
 	
 	// Since route widgets might have changed need to call refresh
 	$( "#accordion" ).accordion("refresh");	
+	//console.log("refresh");
+	//$( "#accordion" ).collapsibleset( "refresh" );
 }
 
 
@@ -500,6 +525,35 @@ function initializeLoadAllData(routes) {
 	})
 }
 
+function cancelTrip(tripId) {	
+		$.getJSON(apiUrlPrefix + "/command/cancelTrip/" + tripId)
+        	.fail(function() {
+            	console.log( "Could not access /command/cancelTrip/" + tripId);
+        	})
+        	.done(function() {
+        		console.log( "access and reload /command/cancelTrip/" + tripId);
+        		//window.location.reload();
+        	})
+	}
+
+function resetVehicle(tripId, vehicleId) {	
+	$.getJSON(apiUrlPrefix + "/command/resetVehicle?v=" + vehicleId)
+    	.fail(function() {
+        	console.log( "Could not access /command/resetVehicle?v=" + vehicleId);
+    	})
+    	.done(function() {
+    		console.log( "access and reload /command/resetVehicle?v=" + vehicleId);
+    		$.getJSON(apiUrlPrefix + "/command/resetVehicle?v=" + vehicleId)
+        	.fail(function() {
+            	console.log( "Could not access /command/resetVehicle?v=" + vehicleId);
+        	})
+        	.done(function() {
+        		console.log( "access and reload /command/resetVehicle?v=" + vehicleId);
+        		//window.location.reload();
+        	})
+    		window.location.reload();
+    	})
+}
 // Called when page is ready
 $(function() {
 
@@ -537,7 +591,7 @@ $(function() {
 // 	Update every 2 minutes.
 	getAndProcessData();
 	// do not update automatically -- until performance issues solved
-// 	setInterval(getAndProcessData, 120000);
+    //setInterval(getAndProcessData, 60000);
 	
 	// update summary every minute
 	getSummaryData()

@@ -33,7 +33,7 @@ html, body, #map {
     left: 50px;
     top: 25px;
     width: 250px; /* Full width */
-    height: 275px; /* Full height */
+    height: 310px; /* Full height */
     overflow: auto; /* Enable scroll if needed */
     background: white;
 }
@@ -42,21 +42,21 @@ html, body, #map {
   width:20px;
   height: 20px;
   border-radius: 50%;
-  background-color: #ff0000;
+  background-color: #E84D5F;
 }
 
 .circle_ontime {
   width:20px;
   height: 20px;
   border-radius: 50%;
-  background-color: #000000;
+  background-color: #6FD656;
 }
 
 .circle_late {
   width:20px;
   height: 20px;
   border-radius: 50%;
-  background-color: #ffff00;
+  background-color: #F0DB56;
 }
 
 .bus {
@@ -71,6 +71,7 @@ html, body, #map {
 <script>
 var earlyTime = 60000;  // 30 seconds
 var lateTime = -180000; // 3 minutes
+var showOnlyPredictedVehicles = false;
 var routeOptions = {
 		color: '#0080FF',
 		weight: 1,
@@ -92,6 +93,17 @@ function setEarlyAndLateTime() {
 	earlyTime = document.getElementById("earlyTimeInput").value * 1000;
 	lateTime = document.getElementById("lateTimeInput").value * -1000;
 }
+
+function onClickShowOnlyPredictedVehicles() {
+	  var checkBox = document.getElementById("showOnlyPredictedVehicles");
+	  if (checkBox.checked == true){
+		  showOnlyPredictedVehicles = true;
+		  getAndProcessSchAdhData();
+	  } else {
+		  showOnlyPredictedVehicles = false;
+		  getAndProcessSchAdhData();
+	  }
+	}
 
 /** 
  * Returns content for vehicle popup window. For showing vehicle ID and 
@@ -129,6 +141,12 @@ function getAndProcessSchAdhData() {
 				var len = jsonData.vehicles.length;
 				while (len--) {
 					var vehicle = jsonData.vehicles[len];
+					if(showOnlyPredictedVehicles) {
+						if(!vehicle.schAdh) {
+							continue;
+						}
+					}
+					
 					
 					// If no schedule adherence info for vehicle skip it
 					//if (!vehicle.schAdh)
@@ -155,7 +173,7 @@ function getAndProcessSchAdhData() {
 					if (vehicle.schAdh < lateTime) {
 						// Vehicle is late
 						radius = 10 - (Math.max(maxLate, vehicle.schAdh) - lateTime)/msecPerRadiusPixels;
-						fillColor = '#ffff00';
+						fillColor = '#F0DB56';
 						fillOpacity = 1.0;
 						//fillColor = '#E6D83E';
 						//fillOpacity = 0.5;
@@ -163,7 +181,7 @@ function getAndProcessSchAdhData() {
 						// Vehicle is early. Since early is worse make radius 
 						// of larger by using msecPerRadiusPixels/2
 						radius = 10 + (Math.min(maxEarly, vehicle.schAdh) - earlyTime)/(msecPerRadiusPixels/2);
-						fillColor = '#ff0000';
+						fillColor = '#E84D5F';
 						fillOpacity = 1.0;
 						//fillColor = '#E34B71';
 						//fillOpacity = 0.5;
@@ -172,7 +190,7 @@ function getAndProcessSchAdhData() {
 					} else {
 						// Vehicle is ontime
 						radius = 10;
-						fillColor = '#000000';
+						fillColor = '#6FD656';
 						fillOpacity = 1.0;
 						//fillColor = '#37E627'; 
 						//fillOpacity = 0.5;
@@ -200,13 +218,12 @@ function getAndProcessSchAdhData() {
 						//vehicleName += " " + vehicle.schAdhStr;
 					
 					// Create circle for vehicle showing schedule adherence
-					
 					if(!vehicle.schAdh) {
 						var vehicleMarker = L.marker([vehicle.loc.lat, vehicle.loc.lon],
 								"")
 								.setIcon(getIconForVehicle(vehicle))
-								.bindLabel(vehicleName, {noHide: true, className: "my-label", offset: [12, -14] })
-								.addTo(map);
+								.bindLabel(vehicleName, {noHide: true, className: "my-label", offset: [12, -14] });
+								//.addTo(map);
 						newVehicleLayer.addLayer(vehicleMarker);
 					} else {
 						var vehicleMarker = 
@@ -214,8 +231,6 @@ function getAndProcessSchAdhData() {
 									vehicleMarkerOptions).bindLabel(vehicleName, {noHide: true, className: "my-label", offset: [12, -14] });
 						newVehicleLayer.addLayer(vehicleMarker);
 					}
-					
-					
 					
 					// Store vehicle data obtained via AJAX with stopMarker so it can be used in popup
 					vehicleMarker.vehicle = vehicle;
@@ -237,8 +252,9 @@ function getAndProcessSchAdhData() {
 				} // End of while loop
 				
 				// Remove old vehicles
-				if (vehicleLayer)
+				if (vehicleLayer) {
 					map.removeLayer(vehicleLayer);
+				}
 				
 				// Add all the vehicles at once
 				newVehicleLayer.addTo(map);
@@ -375,6 +391,9 @@ LEGENDA:
 <div style="display: flex; margin-top: 10px;"><div class="circle_ontime"></div> - na czas</div>
 <div style="display: flex; margin-top: 10px;"><div class="circle_late"></div> - później</div>
 <div style="display: flex; margin-top: 10px;"><div class="bus"></div> - brak informacji</div>
+<div style="margin-top: 10px;"></div>
+<input type="checkbox" id="showOnlyPredictedVehicles" name="showOnlyPredictedVehicles" value="showOnlyPredictedVehicles" onclick="onClickShowOnlyPredictedVehicles()">
+<label for="showOnlyPredictedVehicles"> Ukryj nieprzypisane</label>
 </div>
 </div>
 

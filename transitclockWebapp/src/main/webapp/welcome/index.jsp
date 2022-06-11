@@ -58,12 +58,12 @@ for (WebAgency webAgency : webAgencies) {
 	%>
 	<tr>
 	  <td><div id=agencyName><%= webAgency.getAgencyName() %></div></td>
-	  <td><a href="<%= request.getContextPath() %>/maps/index.jsp?a=<%= webAgency.getAgencyId() %>" title="Real-time maps"><fmt:message key="div.maps" /></a></td>
-	  <td><a href="<%= request.getContextPath() %>/reports/index.jsp?a=<%= webAgency.getAgencyId() %>" title="Reports on historic information"><fmt:message key="div.reports" /></a></td>
-	  <!--<td><a href="<%= request.getContextPath() %>/reports/apiCalls/index.jsp?a=<%= webAgency.getAgencyId() %>" title="API calls"><fmt:message key="div.api" /></a></td>-->
-	  <td><a href="<%= request.getContextPath() %>/status/index.jsp?a=<%= webAgency.getAgencyId() %>" title="Pages showing current status of system"><fmt:message key="div.status" /></a></td>
-	  <td><a href="<%= request.getContextPath() %>/synoptic/index.jsp?a=<%= webAgency.getAgencyId() %>" title="Real-time synoptic"><fmt:message key="div.synoptic" /></a></td>
-	  <td><a href="<%= request.getContextPath() %>/extensions/index.jsp?a=<%= webAgency.getAgencyId() %>" title="Page of links to extension to the system"><fmt:message key="div.extensions" /></a></td>
+	  <td><a href="<%= request.getContextPath() %>/maps/index.jsp?a=<%= webAgency.getAgencyId() %>"><fmt:message key="div.maps" /></a></td><!-- title="Real-time maps" -->
+	  <td><a href="<%= request.getContextPath() %>/reports/index.jsp?a=<%= webAgency.getAgencyId() %>"><fmt:message key="div.reports" /></a></td><!-- title="Reports on historic information" -->
+	  <!-- <td><a href="<%= request.getContextPath() %>/reports/apiCalls/index.jsp?a=<%= webAgency.getAgencyId() %>" title="API calls"><fmt:message key="div.api" /></a></td>-->
+	  <td><a href="<%= request.getContextPath() %>/status/index.jsp?a=<%= webAgency.getAgencyId() %>"><fmt:message key="div.status" /></a></td><!-- title="Pages showing current status of system" -->
+	  <td><a href="<%= request.getContextPath() %>/synoptic/index.jsp?a=<%= webAgency.getAgencyId() %>"><fmt:message key="div.synoptic" /></a></td><!-- title="Real-time synoptic" -->
+	  <td><a href="<%= request.getContextPath() %>/extensions/index.jsp?a=<%= webAgency.getAgencyId() %>"><fmt:message key="div.extensions" /></a></td><!-- title="Page of links to extension to the system" -->
 	</tr>
 	<%
 }
