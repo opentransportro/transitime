@@ -14,11 +14,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   
   <link rel="stylesheet" href="css/mapUi.css" />
-  <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
-  <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
-    <script type="text/javascript" src="//leaflet.github.io/Leaflet.label/leaflet.label.js"></script>
+  <link rel="stylesheet" href="//cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
+  <script src="//cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+  <script type="text/javascript" src="//leaflet.github.io/Leaflet.label/leaflet.label.js"></script>
   <link rel="stylesheet" href="//leaflet.github.io/Leaflet.label/leaflet.label.css" />
-    <script src="javascript/leafletRotatedMarker.js"></script>
+  <script src="javascript/leafletRotatedMarker.js"></script>
   <script src="javascript/mapUiOptions.js"></script>
 
 <style>
@@ -380,20 +380,20 @@ $( document ).ready(function() {
 <body>
 <div id="map">
 <div class="modal">
-<label for="earlyTimeInput">Tolerancja wcześniej(w sekundach):</label>
+<label for="earlyTimeInput"><fmt:message key="SecsEarlyTolerance" />:</label>
 <input name="earlyTimeInput" id="earlyTimeInput" value="60">
-<label for="lateTimeInput">Tolerancja później(w sekundach):</label>
+<label for="lateTimeInput"><fmt:message key="SecsLaterTolerance" />:</label>
 <input name="lateTimeInput" id="lateTimeInput" value="180">
-<button onclick="setEarlyAndLateTime()" style="margin-top: 10px;">Odśwież</button>
+<button onclick="setEarlyAndLateTime()" style="margin-top: 10px;"><fmt:message key="Refresh" /></button>
 <div style="margin-top: 10px;"></div>
-LEGENDA:
-<div style="display: flex; margin-top: 10px;"><div class="circle_early"></div>- wcześniej</div>
-<div style="display: flex; margin-top: 10px;"><div class="circle_ontime"></div> - na czas</div>
-<div style="display: flex; margin-top: 10px;"><div class="circle_late"></div> - później</div>
-<div style="display: flex; margin-top: 10px;"><div class="bus"></div> - brak informacji</div>
+<fmt:message key="Legend" />:
+<div style="display: flex; margin-top: 10px;"><div class="circle_early"></div>- <fmt:message key="Early" /></div>
+<div style="display: flex; margin-top: 10px;"><div class="circle_ontime"></div> - <fmt:message key="OnTime" /></div>
+<div style="display: flex; margin-top: 10px;"><div class="circle_late"></div> - <fmt:message key="Later" /></div>
+<div style="display: flex; margin-top: 10px;"><div class="bus"></div> - <fmt:message key="NoInformation" /></div>
 <div style="margin-top: 10px;"></div>
 <input type="checkbox" id="showOnlyPredictedVehicles" name="showOnlyPredictedVehicles" value="showOnlyPredictedVehicles" onclick="onClickShowOnlyPredictedVehicles()">
-<label for="showOnlyPredictedVehicles"> Ukryj nieprzypisane</label>
+<label for="showOnlyPredictedVehicles"> <fmt:message key="HideUnassigned" /></label>
 </div>
 </div>
 
