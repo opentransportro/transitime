@@ -21,10 +21,8 @@
  
   <!-- Load javascript and css files -->
   <%@include file="/template/includes.jsp" %>
-  <link rel="stylesheet" href="//cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
-  <script src="//cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
-  <script type="text/javascript" src="//leaflet.github.io/Leaflet.label/leaflet.label.js"></script>
-  <link rel="stylesheet" href="//leaflet.github.io/Leaflet.label/leaflet.label.css" />
+  <link rel="stylesheet" href="css/leaflet.css" />
+  <script src="javascript/leaflet.js"></script>
   <script src="javascript/leafletRotatedMarker.js"></script>
   <script src="javascript/mapUiOptions.js"></script>
   <script src="<%= request.getContextPath() %>/javascript/jquery-dateFormat.min.js"></script>

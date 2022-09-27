@@ -14,8 +14,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   
   <link rel="stylesheet" href="css/mapUi.css" />
-  <link rel="stylesheet" href="//cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
-  <script src="//cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+  <link rel="stylesheet" href="css/leaflet.css" />
+  <script src="javascript/leaflet.js"></script>
   <script type="text/javascript" src="//leaflet.github.io/Leaflet.label/leaflet.label.js"></script>
   <link rel="stylesheet" href="//leaflet.github.io/Leaflet.label/leaflet.label.css" />
   <script src="javascript/leafletRotatedMarker.js"></script>

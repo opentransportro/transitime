@@ -13,8 +13,8 @@
   <!-- Load javascript and css files -->
   <%@include file="/template/includes.jsp" %>
   
-  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css" />
-  <script src="//cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.js"></script>
+  <link rel="stylesheet" href="css/leaflet.css" />
+  <script src="javascript/leaflet.js"></script>
   
   <script src="<%= request.getContextPath() %>/maps/javascript/leafletRotatedMarker.js"></script>
   <script src="<%= request.getContextPath() %>/maps/javascript/mapUiOptions.js"></script>

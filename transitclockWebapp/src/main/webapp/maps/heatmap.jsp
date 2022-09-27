@@ -17,8 +17,8 @@
   <%@include file="/template/includes.jsp" %>
   
   
-  <link rel="stylesheet" href="//cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
-  <script src="//cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+    <link rel="stylesheet" href="css/leaflet.css" />
+  <script src="javascript/leaflet.js"></script>
 
   <script src="heatmap/heatmap.js"></script>
   <script src="heatmap/leaflet-heatmap.js"></script>
