@@ -24,6 +24,8 @@
   <link rel="stylesheet" href="css/leaflet.css" />
   <script src="javascript/leaflet.js"></script>
   <script src="javascript/leafletRotatedMarker.js"></script>
+  <script type="text/javascript" src="//leaflet.github.io/Leaflet.label/leaflet.label.js"></script>
+  <link rel="stylesheet" href="//leaflet.github.io/Leaflet.label/leaflet.label.css" />
   <script src="javascript/mapUiOptions.js"></script>
   <script src="<%= request.getContextPath() %>/javascript/jquery-dateFormat.min.js"></script>
 
