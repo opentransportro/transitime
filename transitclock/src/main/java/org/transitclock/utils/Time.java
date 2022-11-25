@@ -450,13 +450,17 @@ public class Time {
 	 * @throws ParseException
 	 */
 	public static Date parseDate(String dateStr) throws ParseException {
+		System.out.println("dateStr: " + dateStr);
 		try {
 			return defaultDateFormat.parse(dateStr);
-		} catch (ParseException e) {}
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
 
 		// Try using "-" instead of "/" as separator. Having the date formatter
 		// specify only two digits for the year means it also works when 4
 		// digits are used, making it pretty versatile.
+		System.out.println("dateStr2: " + dateFormatDashesShortYear.parse(dateStr));
 		return dateFormatDashesShortYear.parse(dateStr);		
 	}
 	
