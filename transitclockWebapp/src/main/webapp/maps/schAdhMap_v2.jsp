@@ -381,7 +381,7 @@ $( document ).ready(function() {
 <div id="map">
 <div class="modal">
 <label for="earlyTimeInput"><fmt:message key="SecsEarlyTolerance" />:</label>
-<input name="earlyTimeInput" id="earlyTimeInput" value="60">
+<input name="earlyTimeInput" id="earlyTimeInput" value="120">
 <label for="lateTimeInput"><fmt:message key="SecsLaterTolerance" />:</label>
 <input name="lateTimeInput" id="lateTimeInput" value="180">
 <button onclick="setEarlyAndLateTime()" style="margin-top: 10px;"><fmt:message key="Refresh" /></button>
