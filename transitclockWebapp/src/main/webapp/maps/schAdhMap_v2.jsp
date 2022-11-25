@@ -69,7 +69,7 @@ html, body, #map {
 </style>
 
 <script>
-var earlyTime = 60000;  // 30 seconds
+var earlyTime = 120000;  // 2 minutes
 var lateTime = -180000; // 3 minutes
 var showOnlyPredictedVehicles = false;
 var routeOptions = {

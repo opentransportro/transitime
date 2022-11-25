@@ -35,7 +35,7 @@
     	and still be acceptable. Must be a negative number to indicate
     	early." 
     	size="1"
-        value="1.0" /> <span class="note"><fmt:message key="div.minutes" /></span>
+        value="2.0" /> <span class="note"><fmt:message key="div.minutes" /></span>
   </div>
  
    <div class="param">
