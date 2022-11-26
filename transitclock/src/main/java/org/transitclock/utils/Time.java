@@ -131,6 +131,10 @@ public class Time {
 	// Have a shared calendar so don't have to keep creating one
 	private Calendar calendar;
 	
+	/********************** Logging ***********************************/
+	
+	private static final Logger logger = LoggerFactory.getLogger(Time.class);
+	
 	/******************* Methods ******************/
 	
 	public Time(DbConfig dbConfig) {
@@ -450,19 +454,26 @@ public class Time {
 	 * @throws ParseException
 	 */
 	public static Date parseDate(String dateStr) throws ParseException {
-		System.out.println("dateStr: " + dateStr);
+		logger.info("DateStr", dateStr);
 		try {
 			return defaultDateFormat.parse(dateStr);
 		} catch (ParseException e) {
+			logger.info("DefaultDateFormat parse exception");
 			e.printStackTrace();
 		}
 
+		try {
+			return dateFormatDashesShortYear.parse(dateStr);
+		} catch (ParseException e) {
+			logger.info("dateFormatDashesShortYear parse exception");
+			e.printStackTrace();
+		}
 		// Try using "-" instead of "/" as separator. Having the date formatter
 		// specify only two digits for the year means it also works when 4
 		// digits are used, making it pretty versatile.
-		System.out.println("dateStr2: " + dateFormatDashesShortYear.parse(dateStr));
 		return dateFormatDashesShortYear.parse(dateStr);		
 	}
+	
 	
 	/**
 	 * Parses a time such as HH:MM:SS or HH:MM into seconds into the day.

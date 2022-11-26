@@ -38,7 +38,7 @@ html, body, #map {
 </style>
 
 <script>
-var earlyTime = 60000;  // 30 seconds
+var earlyTime = 120000;  // 30 seconds
 var lateTime = -180000; // 3 minutes
 var routeOptions = {
 		color: '#0080FF',
@@ -293,9 +293,9 @@ $( document ).ready(function() {
 <div id="map">
 <div class="modal">
 <label for="earlyTimeInput"><fmt:message key="SecsEarlyTolerance" />:</label>
-<input name="earlyTimeInput" id="earlyTimeInput" value="30">
+<input name="earlyTimeInput" id="earlyTimeInput" value="120">
 <label for="lateTimeInput"><fmt:message key="SecsLaterTolerance" />:</label>
-<input name="lateTimeInput" id="lateTimeInput" value="120">
+<input name="lateTimeInput" id="lateTimeInput" value="180">
 <button onclick="setEarlyAndLateTime()" style="margin-top: 10px;"><fmt:message key="Refresh" /></button>
 </div>
 </div>
