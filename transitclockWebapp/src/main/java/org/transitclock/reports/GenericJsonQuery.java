@@ -117,6 +117,7 @@ public class GenericJsonQuery extends GenericQuery {
 	public static String getJsonString(String agencyId, String sql, Object...parameters) {
 		// Add the rows from the query to the JSON string
 		try {
+			logger.error("sql=" + sql);
 			GenericJsonQuery query = new GenericJsonQuery(agencyId);
 			
 			// Start the JSON
@@ -128,7 +129,7 @@ public class GenericJsonQuery extends GenericQuery {
 			query.strBuilder.append("]}");
 						
 			return query.strBuilder.toString();
-		} catch (SQLException e) {
+		} catch (Exception e) {
 			return e.getMessage();
 		}
 	}
