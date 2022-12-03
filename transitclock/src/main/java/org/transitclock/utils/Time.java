@@ -29,10 +29,6 @@ import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * Contains convenience methods for dealing with time issues.
  * <p>
@@ -134,10 +130,6 @@ public class Time {
 
 	// Have a shared calendar so don't have to keep creating one
 	private Calendar calendar;
-	
-	/********************** Logging ***********************************/
-	
-	private static final Logger logger = LoggerFactory.getLogger(Time.class);
 	
 	/******************* Methods ******************/
 	
@@ -458,18 +450,9 @@ public class Time {
 	 * @throws ParseException
 	 */
 	public static Date parseDate(String dateStr) throws ParseException {
-		logger.info("DateStr", dateStr);
 		try {
 			return defaultDateFormat.parse(dateStr);
 		} catch (ParseException e) {
-			logger.info("DefaultDateFormat parse exception");
-			e.printStackTrace();
-		}
-
-		try {
-			return dateFormatDashesShortYear.parse(dateStr);
-		} catch (ParseException e) {
-			logger.info("dateFormatDashesShortYear parse exception");
 			e.printStackTrace();
 		}
 		// Try using "-" instead of "/" as separator. Having the date formatter
