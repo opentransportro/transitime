@@ -182,7 +182,8 @@ public class GenericQuery {
 			
 			logger.debug("GenericQuery query took {}msec rows={}",
 					timer.elapsedMsec(), rows);
-		} catch (SQLException e) {
+		} catch (Exception e) {
+			logger.error("error generic query: "+ e.getMessage());
 			throw e;
 		} finally {
 			if (statement != null)

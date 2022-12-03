@@ -86,7 +86,7 @@ public class AvlJsonQuery {
 				+ "INNER JOIN vehicleconfigs ON vehicleconfigs.id = avlreports.vehicleId "
 				+ "WHERE time BETWEEN " + " cast(? as datetime)"
 				+ " AND " + "date_add(cast(? as datetime), INTERVAL " + numdays + " day) "
-				+ timeSql;;
+				+ timeSql;
 		} else {
 			sql = "SELECT vehicleId, name, time, assignmentId, lat, lon, speed, "
 				+ "heading, timeProcessed, source "

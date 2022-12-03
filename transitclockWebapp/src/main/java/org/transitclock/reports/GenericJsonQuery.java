@@ -130,6 +130,7 @@ public class GenericJsonQuery extends GenericQuery {
 						
 			return query.strBuilder.toString();
 		} catch (Exception e) {
+			logger.error("sql exception=" + e.getMessage());
 			return e.getMessage();
 		}
 	}
