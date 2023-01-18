@@ -65,6 +65,7 @@ import org.transitclock.api.predsByLoc.PredsByLoc;
 import org.transitclock.api.utils.StandardParameters;
 import org.transitclock.api.utils.WebUtils;
 import org.transitclock.core.TemporalDifference;
+import org.transitclock.core.reports.Reports;
 import org.transitclock.db.structs.Agency;
 import org.transitclock.db.structs.Location;
 import org.transitclock.db.structs.VehicleConfig;
@@ -199,6 +200,29 @@ public class TransitimeApi {
 
 			// return ApiVehicles response
 			return stdParameters.createResponse(apiVehicles);
+		} catch (Exception e) {
+			// If problem getting data then return a Bad Request
+			throw WebUtils.badRequestException(e);
+		}
+	}
+	
+	@Operation(summary="Returns avl report.",
+			description="Returns avl report.",tags= {"report","vehicle"})
+	@Path("/reports/avlReport")
+	
+	@GET
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	public Response getAvlReport(
+			@BeanParam StandardParameters stdParameters,
+			@Parameter(description="Vehicle id") @QueryParam(value = "v") String vehicleId,
+			@Parameter(description="Begin date(MM-DD-YYYY.") @QueryParam(value = "beginDate") String beginDate,
+			@Parameter(description="Num days.",required=false) @QueryParam(value = "numDays") int numDays, 
+			@Parameter(description="Begin time(HH:MM)") @QueryParam(value = "beginTime") String beginTime,
+			@Parameter(description="End time(HH:MM)") @QueryParam(value = "endTime") String endTime) throws WebApplicationException {
+		    stdParameters.validate();
+		try {
+			String response = Reports.getAvlJson(stdParameters.getAgencyId(), vehicleId, beginDate, String.valueOf(numDays), beginTime, endTime);
+			return stdParameters.createResponse(response);
 		} catch (Exception e) {
 			// If problem getting data then return a Bad Request
 			throw WebUtils.badRequestException(e);
