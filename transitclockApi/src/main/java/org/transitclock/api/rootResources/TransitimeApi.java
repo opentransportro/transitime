@@ -228,6 +228,32 @@ public class TransitimeApi {
 			throw WebUtils.badRequestException(e);
 		}
 	}
+	
+	@Operation(summary="Returns schedule adherence report.",
+			description="Returns avl report.",tags= {"report","route", "schedule adherence"})
+	@Path("/reports/scheduleAdh")
+	
+	@GET
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	public Response scheduleAdhReport(
+			@BeanParam StandardParameters stdParameters,
+			@Parameter(description="Route id") @QueryParam(value = "r") String routeId,
+			@Parameter(description="Begin date(MM-DD-YYYY.") @QueryParam(value = "beginDate") String beginDate,
+			@Parameter(description="Num days.",required=false) @QueryParam(value = "numDays") int numDays, 
+			@Parameter(description="Begin time(HH:MM)") @QueryParam(value = "beginTime") String beginTime,
+			@Parameter(description="End time(HH:MM)") @QueryParam(value = "endTime") String endTime,
+			@Parameter(description="Allowable early in mins(default 1.0)") @QueryParam(value = "allowableEarly") String allowableEarly,
+			@Parameter(description="Allowable late in mins(default 4.0") @QueryParam(value = "allowableLate") String allowableLate) throws WebApplicationException {
+		    stdParameters.validate();
+		try {
+			String response = Reports.getScheduleAdhByStops(stdParameters.getAgencyId(), routeId, beginDate, 
+					allowableEarly, allowableLate, beginTime, endTime, String.valueOf(numDays));
+			return stdParameters.createResponse(response);
+		} catch (Exception e) {
+			// If problem getting data then return a Bad Request
+			throw WebUtils.badRequestException(e);
+		}
+	}
 
 	/**
 	 * Handles the vehicleIds command. Returns list of vehicle IDs.
