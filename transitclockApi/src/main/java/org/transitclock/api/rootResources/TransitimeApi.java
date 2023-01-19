@@ -230,7 +230,7 @@ public class TransitimeApi {
 	}
 	
 	@Operation(summary="Returns schedule adherence report.",
-			description="Returns avl report.",tags= {"report","route", "schedule adherence"})
+			description="Returns schedule adherence report.",tags= {"report","route", "schedule adherence"})
 	@Path("/reports/scheduleAdh")
 	
 	@GET
@@ -247,7 +247,7 @@ public class TransitimeApi {
 		    stdParameters.validate();
 		try {
 			String response = Reports.getScheduleAdhByStops(stdParameters.getAgencyId(), routeId, beginDate, 
-					allowableEarly, allowableLate, beginTime, endTime, String.valueOf(numDays));
+					allowableEarly, allowableLate, beginTime, endTime, numDays);
 			return stdParameters.createResponse(response);
 		} catch (Exception e) {
 			// If problem getting data then return a Bad Request
