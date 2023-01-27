@@ -17,6 +17,7 @@
 
 package org.transitclock.db.structs;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
@@ -45,7 +46,12 @@ import org.transitclock.db.hibernate.HibernateUtils;
  *
  */
 @Entity @DynamicUpdate @Table(name="VehicleToBlockConfigs")
-public class VehicleToBlockConfig {
+public class VehicleToBlockConfig implements Serializable{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	// ID of vehicle
 	@Id 
@@ -75,8 +81,7 @@ public class VehicleToBlockConfig {
 	private Date validTo;
 	
 	
-	// Hibernate requires class to be Serializable
-	private static final long serialVersionUID = -763545348557811925L;
+	
 	
 	private static final Logger logger = 
 			LoggerFactory.getLogger(VehicleEvent.class);
