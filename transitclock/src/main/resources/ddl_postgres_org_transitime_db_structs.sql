@@ -477,6 +477,17 @@
         tripShortName varchar(60),
         primary key (vehicleId, avlTime)
     );
+    
+    create table VehicleToBlockConfig (
+		id int4 not null,
+        vehicleId varchar(60) not null,
+        tripId varchar(60),
+        blockId varchar(60) not null,
+		assignmentDate timestamp not null,
+		validFrom timestamp not null,
+		validTo timestamp not null,
+        primary key (id)
+    );
 
     create index ArrivalsDeparturesTimeIndex on ArrivalsDepartures (time);
 

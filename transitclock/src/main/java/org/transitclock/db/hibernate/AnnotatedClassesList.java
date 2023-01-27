@@ -50,6 +50,7 @@ import org.transitclock.db.structs.TripPattern;
 import org.transitclock.db.structs.VehicleConfig;
 import org.transitclock.db.structs.VehicleEvent;
 import org.transitclock.db.structs.VehicleState;
+import org.transitclock.db.structs.VehicleToBlockConfig;
 import org.transitclock.db.webstructs.ApiKey;
 import org.transitclock.db.webstructs.WebAgency;
 
@@ -105,6 +106,7 @@ public class AnnotatedClassesList {
 		PredictionEvent.class,
 		VehicleConfig.class,
 		VehicleState.class,
+		VehicleToBlockConfig.class,
 		HoldingTime.class,
 		Headway.class,
 		// For website

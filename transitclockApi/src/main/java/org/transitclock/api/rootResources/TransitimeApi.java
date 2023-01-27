@@ -26,8 +26,10 @@ import java.util.List;
 import java.util.Map;
 
 import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
@@ -69,6 +71,7 @@ import org.transitclock.core.reports.Reports;
 import org.transitclock.db.structs.Agency;
 import org.transitclock.db.structs.Location;
 import org.transitclock.db.structs.VehicleConfig;
+import org.transitclock.db.structs.VehicleToBlockConfig;
 import org.transitclock.ipc.data.IpcActiveBlock;
 import org.transitclock.ipc.data.IpcBlock;
 import org.transitclock.ipc.data.IpcCalendar;
@@ -205,6 +208,8 @@ public class TransitimeApi {
 			throw WebUtils.badRequestException(e);
 		}
 	}
+	
+	
 	
 	@Operation(summary="Returns avl report.",
 			description="Returns avl report.",tags= {"report","vehicle"})

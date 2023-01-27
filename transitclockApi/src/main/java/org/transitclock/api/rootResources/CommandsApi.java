@@ -25,8 +25,10 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Date;
 import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -42,21 +44,27 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.transitclock.api.data.ApiCommandAck;
+import org.transitclock.api.data.ApiVehicles;
+import org.transitclock.api.rootResources.TransitimeApi.UiMode;
 import org.transitclock.api.utils.StandardParameters;
 import org.transitclock.api.utils.WebUtils;
 import org.transitclock.db.GenericQuery;
 import org.transitclock.db.structs.AvlReport;
 import org.transitclock.db.structs.MeasuredArrivalTime;
+import org.transitclock.db.structs.VehicleToBlockConfig;
 import org.transitclock.db.structs.AvlReport.AssignmentType;
 import org.transitclock.ipc.data.IpcAvl;
 import org.transitclock.ipc.data.IpcTrip;
+import org.transitclock.ipc.data.IpcVehicle;
 import org.transitclock.ipc.interfaces.CommandsInterface;
 import org.transitclock.ipc.interfaces.ConfigInterface;
+import org.transitclock.ipc.interfaces.VehiclesInterface;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.servers.Server;
 import io.swagger.v3.oas.annotations.servers.Servers;
 
@@ -396,6 +404,38 @@ public class CommandsApi {
 			result=inter.reenableTrip(tripId,at==null?null:at.getDate());
 		}
 		catch (RemoteException e) {
+			e.printStackTrace();
+			throw WebUtils.badRequestException("Could not send request to Core server. "+e.getMessage());
+		}
+		if(result==null)
+			return stdParameters.createResponse(new ApiCommandAck(true,"Processed"));
+		else
+			return stdParameters.createResponse(new ApiCommandAck(true,result));
+	}
+	
+	
+	@Operation(summary="Add vehicles to block",
+			description="Add vehicles to block",tags= {"vehicle","block"})
+	@Path("/command/vehicleToBlock")
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response addVehicleToBlock(
+			@BeanParam StandardParameters stdParameters,
+			@RequestBody VehicleToBlockConfig vehicleToBlockConfig) throws WebApplicationException {
+		// Make sure request is valid
+		stdParameters.validate();
+		String result = null;
+		try {
+			CommandsInterface inter = stdParameters.getCommandsInterface();
+
+			result=inter.addVehicleToBlock(vehicleToBlockConfig.getVehicleId(), 
+					vehicleToBlockConfig.getBlockId(),
+					vehicleToBlockConfig.getTripId(),
+					vehicleToBlockConfig.getAssignmentDate(),
+					vehicleToBlockConfig.getValidFrom(),
+					vehicleToBlockConfig.getValidTo());
+		} catch (RemoteException e) {
 			e.printStackTrace();
 			throw WebUtils.badRequestException("Could not send request to Core server. "+e.getMessage());
 		}

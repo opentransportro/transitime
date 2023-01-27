@@ -17,6 +17,7 @@ import org.transitclock.core.dataCache.VehicleDataCache;
 import org.transitclock.core.dataCache.VehicleStateManager;
 import org.transitclock.db.structs.AvlReport;
 import org.transitclock.db.structs.VehicleEvent;
+import org.transitclock.db.structs.VehicleToBlockConfig;
 import org.transitclock.ipc.data.IpcAvl;
 import org.transitclock.ipc.data.IpcVehicleComplete;
 import org.transitclock.ipc.interfaces.CommandsInterface;
@@ -211,6 +212,12 @@ public class CommandsServer extends AbstractServer
 		}
 		else
 			return "vehicle with this trip id does not have avl report";
+	}
+	
+	@Override
+	public String addVehicleToBlock(String vehicleId, String blockId, String tripId, Date assignmentDate, Date validFrom, Date validTo) {
+		VehicleToBlockConfig.create(vehicleId, blockId, tripId, assignmentDate, validFrom, validTo);
+		return null;
 	}
 
 }

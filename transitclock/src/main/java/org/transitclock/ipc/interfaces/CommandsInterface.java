@@ -20,6 +20,7 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.Date;
 
 import org.transitclock.ipc.data.IpcAvl;
 
@@ -66,4 +67,11 @@ public interface CommandsInterface extends Remote {
 	 * Retruns null on success
 	 */
 	String reenableTrip(String tripId, LocalDateTime startTripTime)  throws RemoteException;
+	
+	
+	/*
+	 * Add vehicle to Block to predictions.
+	 * Returns null on success
+	 */
+	public String addVehicleToBlock(String vehicleId, String blockId, String tripId, Date assignmentDate, Date validFrom, Date validTo) throws RemoteException;
 }
