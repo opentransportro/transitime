@@ -62,7 +62,7 @@ public class VehicleToBlockConfig implements Serializable{
 	@Column(length=HibernateUtils.DEFAULT_ID_SIZE)
 	private final String vehicleId;
 	
-	@Column	
+	@Column(nullable=false)
 	@Temporal(TemporalType.TIMESTAMP)
 	private final Date assignmentDate;
 	
@@ -163,6 +163,22 @@ public class VehicleToBlockConfig implements Serializable{
 	public static void updateVehicleToBlockConfig(VehicleToBlockConfig vehicleToBlockConfig, Session session) 
 			throws HibernateException {
 		session.update(vehicleToBlockConfig);
+	}
+	
+	
+	public static void deleteVehicleToBlockConfig(long id, Session session) 
+			throws HibernateException {
+		String hql = "delete VehicleToBlockConfig where id = :id";
+	    Query q = session.createQuery(hql).setParameter("id", id);
+	    q.executeUpdate();
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static List<VehicleToBlockConfig> getVehicleToBlockConfigsByBlockId(Session session, String blockId) 
+			throws HibernateException {
+		String hql = "FROM VehicleToBlockConfig WHERE blockid = '" + blockId + "' ORDER BY assignmentDate DESC";
+		Query query = session.createQuery(hql);
+		return query.list();
 	}
 	
 	

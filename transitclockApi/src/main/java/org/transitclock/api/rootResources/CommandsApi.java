@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.rmi.RemoteException;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -422,26 +423,54 @@ public class CommandsApi {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response addVehicleToBlock(
 			@BeanParam StandardParameters stdParameters,
-			@RequestBody VehicleToBlockConfig vehicleToBlockConfig) throws WebApplicationException {
+			@Parameter(description="Json of vehicle to block.",required=true)InputStream requestBody) throws WebApplicationException {
 		// Make sure request is valid
 		stdParameters.validate();
 		String result = null;
+		
 		try {
+			JSONObject jsonObj = getJsonObject(requestBody);
+			String vehicleId = jsonObj.getString("vehicleId");
+			long validFrom = jsonObj.getLong("validFrom");
+			long validTo = jsonObj.getLong("validFrom");
+			String blockId = jsonObj.getString("blockId");
 			CommandsInterface inter = stdParameters.getCommandsInterface();
 
-			result=inter.addVehicleToBlock(vehicleToBlockConfig.getVehicleId(), 
-					vehicleToBlockConfig.getBlockId(),
-					vehicleToBlockConfig.getTripId(),
-					vehicleToBlockConfig.getAssignmentDate(),
-					vehicleToBlockConfig.getValidFrom(),
-					vehicleToBlockConfig.getValidTo());
-		} catch (RemoteException e) {
-			e.printStackTrace();
-			throw WebUtils.badRequestException("Could not send request to Core server. "+e.getMessage());
+			result= inter.addVehicleToBlock(vehicleId, 
+					blockId,
+					"",
+					new Date(),
+					new Date(validFrom * 1000),
+					new Date(validTo* 1000));
+		} catch (JSONException | IOException e) {
+			// If problem getting data then return a Bad Request
+			throw WebUtils.badRequestException(e);
 		}
 		if(result==null)
 			return stdParameters.createResponse(new ApiCommandAck(true,"Processed"));
 		else
 			return stdParameters.createResponse(new ApiCommandAck(true,result));
+	}
+	
+	@Operation(summary="Add vehicles to block",
+			description="Add vehicles to block",tags= {"vehicle","block"})
+	@Path("/command/removeVehicleToBlock/{id}")
+	@GET
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response removeVehicleToBlock(
+			@BeanParam StandardParameters stdParameters,
+			@Parameter(description="vehicle to block id to remove.",required=true)@PathParam("id") long id) throws WebApplicationException {
+		// Make sure request is valid
+		stdParameters.validate();
+		try {
+			CommandsInterface inter = stdParameters.getCommandsInterface();
+
+			inter.removeVehicleToBlock(id);
+		} catch (Exception e) {
+			// If problem getting data then return a Bad Request
+			throw WebUtils.badRequestException(e);
+		}
+		return stdParameters.createResponse(new ApiCommandAck(true,"Processed"));
 	}
 }

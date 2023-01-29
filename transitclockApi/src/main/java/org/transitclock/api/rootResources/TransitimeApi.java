@@ -59,8 +59,10 @@ import org.transitclock.api.data.ApiServerStatus;
 import org.transitclock.api.data.ApiTrip;
 import org.transitclock.api.data.ApiTripPatterns;
 import org.transitclock.api.data.ApiTripWithTravelTimes;
+import org.transitclock.api.data.ApiVehicle;
 import org.transitclock.api.data.ApiVehicleConfigs;
 import org.transitclock.api.data.ApiVehicleDetails;
+import org.transitclock.api.data.ApiVehicleToBlockConfigs;
 import org.transitclock.api.data.ApiVehicles;
 import org.transitclock.api.data.ApiVehiclesDetails;
 import org.transitclock.api.predsByLoc.PredsByLoc;
@@ -87,6 +89,7 @@ import org.transitclock.ipc.data.IpcTripPattern;
 import org.transitclock.ipc.data.IpcVehicle;
 import org.transitclock.ipc.data.IpcVehicleComplete;
 import org.transitclock.ipc.data.IpcVehicleConfig;
+import org.transitclock.ipc.data.IpcVehicleToBlockConfig;
 import org.transitclock.ipc.interfaces.ConfigInterface;
 import org.transitclock.ipc.interfaces.PredictionsInterface;
 import org.transitclock.ipc.interfaces.ServerStatusInterface;
@@ -203,6 +206,36 @@ public class TransitimeApi {
 
 			// return ApiVehicles response
 			return stdParameters.createResponse(apiVehicles);
+		} catch (Exception e) {
+			// If problem getting data then return a Bad Request
+			throw WebUtils.badRequestException(e);
+		}
+	}
+	
+	@Operation(summary="Returns data for vehicles assignment for specific block in current day",
+			description="Returns data for vehicles assignment for specific block in current day")
+	@Path("/command/vehiclesToBlock")
+	
+	@GET
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	public Response getVehiclesToBlock(
+			@BeanParam StandardParameters stdParameters,
+			@Parameter(description="Block id") @QueryParam(value = "blockId") String blockId) throws WebApplicationException {
+		
+		stdParameters.validate();
+		Collection<IpcVehicleToBlockConfig> result = null;
+		
+		
+		try {
+			// Get Vehicle data from server
+			VehiclesInterface inter = stdParameters.getVehiclesInterface();
+			
+			result = inter.getVehicleToBlockConfig(blockId);
+			
+			ApiVehicleToBlockConfigs apiVTBC = new ApiVehicleToBlockConfigs(result);
+
+			// return ApiVehicles response
+			return stdParameters.createResponse(apiVTBC);
 		} catch (Exception e) {
 			// If problem getting data then return a Bad Request
 			throw WebUtils.badRequestException(e);

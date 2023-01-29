@@ -6,6 +6,7 @@ import java.time.ZoneId;
 import java.util.Collection;
 import java.util.Date;
 
+import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.avl.AvlExecutor;
@@ -15,6 +16,7 @@ import org.transitclock.core.VehicleState;
 import org.transitclock.core.dataCache.PredictionDataCache;
 import org.transitclock.core.dataCache.VehicleDataCache;
 import org.transitclock.core.dataCache.VehicleStateManager;
+import org.transitclock.db.hibernate.HibernateUtils;
 import org.transitclock.db.structs.AvlReport;
 import org.transitclock.db.structs.VehicleEvent;
 import org.transitclock.db.structs.VehicleToBlockConfig;
@@ -217,6 +219,13 @@ public class CommandsServer extends AbstractServer
 	@Override
 	public String addVehicleToBlock(String vehicleId, String blockId, String tripId, Date assignmentDate, Date validFrom, Date validTo) {
 		VehicleToBlockConfig.create(vehicleId, blockId, tripId, assignmentDate, validFrom, validTo);
+		return null;
+	}
+	
+	@Override
+	public String removeVehicleToBlock(long id) {
+		Session session = HibernateUtils.getSession();
+		VehicleToBlockConfig.deleteVehicleToBlockConfig(id, session);
 		return null;
 	}
 

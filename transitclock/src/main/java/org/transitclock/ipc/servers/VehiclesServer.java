@@ -37,12 +37,14 @@ import org.transitclock.db.structs.Block;
 import org.transitclock.db.structs.Route;
 import org.transitclock.db.structs.Trip;
 import org.transitclock.db.structs.VehicleConfig;
+import org.transitclock.db.structs.VehicleToBlockConfig;
 import org.transitclock.ipc.data.IpcActiveBlock;
 import org.transitclock.ipc.data.IpcBlock;
 import org.transitclock.ipc.data.IpcVehicle;
 import org.transitclock.ipc.data.IpcVehicleComplete;
 import org.transitclock.ipc.data.IpcVehicleConfig;
 import org.transitclock.ipc.data.IpcVehicleGtfsRealtime;
+import org.transitclock.ipc.data.IpcVehicleToBlockConfig;
 import org.transitclock.ipc.interfaces.VehiclesInterface;
 import org.transitclock.ipc.rmi.AbstractServer;
 
@@ -314,6 +316,8 @@ public class VehiclesServer extends AbstractServer
 		// Return results
 		return results;
 	}
+	
+	
 
 	/* (non-Javadoc)
    * @see org.transitclock.ipc.interfaces.VehiclesInterface#getActiveBlocks()
@@ -476,5 +480,16 @@ public class VehiclesServer extends AbstractServer
 	    vehicleIds.addAll(vehicleIdsForBlock);
 	  }
 	  return get(vehicleIds);
+	}
+
+	@Override
+	public Collection<IpcVehicleToBlockConfig> getVehicleToBlockConfig(String blockId) throws RemoteException {
+		List<IpcVehicleToBlockConfig> result = new ArrayList<IpcVehicleToBlockConfig>();
+		Session session = HibernateUtils.getSession();
+		for (VehicleToBlockConfig vTBC : 
+			VehicleToBlockConfig.getVehicleToBlockConfigsByBlockId(session, blockId)) {
+			result.add(new IpcVehicleToBlockConfig(vTBC));		}
+        session.close();
+		return result;
 	}
 }
