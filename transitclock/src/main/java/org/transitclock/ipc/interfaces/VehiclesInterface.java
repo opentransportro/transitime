@@ -26,6 +26,7 @@ import org.transitclock.ipc.data.IpcVehicle;
 import org.transitclock.ipc.data.IpcVehicleComplete;
 import org.transitclock.ipc.data.IpcVehicleConfig;
 import org.transitclock.ipc.data.IpcVehicleGtfsRealtime;
+import org.transitclock.ipc.data.IpcVehicleToBlockConfig;
 
 /**
  * Defines the RMI interface used for obtaining vehicle information.
@@ -252,5 +253,9 @@ public interface VehiclesInterface extends Remote {
       Collection<String> routeIds, int allowableBeforeTimeSecs) 
           throws RemoteException;
 
+  
+  public Collection<IpcVehicleToBlockConfig> getVehicleToBlockConfig(
+			String blockId) 
+					throws RemoteException;
   
 }

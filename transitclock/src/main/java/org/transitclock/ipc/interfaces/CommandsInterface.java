@@ -74,4 +74,10 @@ public interface CommandsInterface extends Remote {
 	 * Returns null on success
 	 */
 	public String addVehicleToBlock(String vehicleId, String blockId, String tripId, Date assignmentDate, Date validFrom, Date validTo) throws RemoteException;
+	
+	/*
+	 * Add remove vehicle to block.
+	 * Returns null on success
+	 */
+	public String removeVehicleToBlock(long id) throws RemoteException;
 }
