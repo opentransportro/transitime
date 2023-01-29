@@ -181,6 +181,14 @@ public class VehicleToBlockConfig implements Serializable{
 		return query.list();
 	}
 	
+	@SuppressWarnings("unchecked")
+	public static List<VehicleToBlockConfig> getVehicleToBlockConfigsByVehicleId(Session session, String vehicleId) 
+			throws HibernateException {
+		String hql = "FROM VehicleToBlockConfig WHERE vehicleid = '" + vehicleId + "' ORDER BY assignmentDate DESC";
+		Query query = session.createQuery(hql);
+		return query.list();
+	}
+	
 	
 
 	/************* Getter Methods ****************************/
