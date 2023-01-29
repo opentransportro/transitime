@@ -33,6 +33,7 @@ import javax.persistence.TemporalType;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.hibernate.annotations.DynamicUpdate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -168,9 +169,18 @@ public class VehicleToBlockConfig implements Serializable{
 	
 	public static void deleteVehicleToBlockConfig(long id, Session session) 
 			throws HibernateException {
-		String hql = "delete VehicleToBlockConfig where id = :id";
-	    Query q = session.createQuery(hql).setParameter("id", id);
-	    q.executeUpdate();
+		Transaction transaction = session.beginTransaction();
+		try {
+		  String hql = "delete from VehicleToBlockConfig where id = :id";
+		  Query q = session.createQuery(hql).setParameter("id", id);
+		  q.executeUpdate();
+
+		  transaction.commit();
+		} catch (Throwable t) {
+		  transaction.rollback();
+		  throw t;
+		}
+		
 	}
 	
 	@SuppressWarnings("unchecked")
