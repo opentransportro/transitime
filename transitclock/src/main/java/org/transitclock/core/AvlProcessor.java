@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.applications.Core;
@@ -37,6 +38,7 @@ import org.transitclock.core.autoAssigner.AutoBlockAssigner;
 import org.transitclock.core.dataCache.PredictionDataCache;
 import org.transitclock.core.dataCache.VehicleDataCache;
 import org.transitclock.core.dataCache.VehicleStateManager;
+import org.transitclock.db.hibernate.HibernateUtils;
 import org.transitclock.db.structs.AvlReport;
 import org.transitclock.db.structs.Block;
 import org.transitclock.db.structs.Location;
@@ -45,6 +47,7 @@ import org.transitclock.db.structs.Stop;
 import org.transitclock.db.structs.Trip;
 import org.transitclock.db.structs.VectorWithHeading;
 import org.transitclock.db.structs.VehicleEvent;
+import org.transitclock.db.structs.VehicleToBlockConfig;
 import org.transitclock.db.structs.AvlReport.AssignmentType;
 import org.transitclock.logging.Markers;
 import org.transitclock.monitoring.CloudwatchService;
@@ -1579,6 +1582,23 @@ public class AvlProcessor {
 					avlReport);
 			avlReport.setAssignment(null, AssignmentType.UNSET);
 		}
+		
+		Session session = HibernateUtils.getSession();
+		String blockId = null;
+		if(avlReport.getVehicleId().equals("4045")) {
+			System.out.println("stop");
+		}
+		for (VehicleToBlockConfig vTBC : 
+			VehicleToBlockConfig.getVehicleToBlockConfigsByVehicleId(session, avlReport.getVehicleId())) {
+			Date d = new Date();
+
+			if(d.after(vTBC.getValidFrom()) && d.before(vTBC.getValidTo()))
+				blockId = vTBC.getBlockId();
+		}
+		if(blockId != null) {
+			avlReport.setAssignment(blockId, AssignmentType.BLOCK_ID);
+		}
+        session.close();
 
 		// The beginning of processing AVL data is an important milestone
 		// in processing data so log it as info.

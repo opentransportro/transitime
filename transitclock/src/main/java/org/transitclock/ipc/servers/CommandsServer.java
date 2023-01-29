@@ -226,6 +226,7 @@ public class CommandsServer extends AbstractServer
 	public String removeVehicleToBlock(long id) {
 		Session session = HibernateUtils.getSession();
 		VehicleToBlockConfig.deleteVehicleToBlockConfig(id, session);
+		session.close();
 		return null;
 	}
 

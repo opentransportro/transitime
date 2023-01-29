@@ -432,7 +432,7 @@ public class CommandsApi {
 			JSONObject jsonObj = getJsonObject(requestBody);
 			String vehicleId = jsonObj.getString("vehicleId");
 			long validFrom = jsonObj.getLong("validFrom");
-			long validTo = jsonObj.getLong("validFrom");
+			long validTo = jsonObj.getLong("validTo");
 			String blockId = jsonObj.getString("blockId");
 			CommandsInterface inter = stdParameters.getCommandsInterface();
 

@@ -488,7 +488,20 @@ public class VehiclesServer extends AbstractServer
 		Session session = HibernateUtils.getSession();
 		for (VehicleToBlockConfig vTBC : 
 			VehicleToBlockConfig.getVehicleToBlockConfigsByBlockId(session, blockId)) {
-			result.add(new IpcVehicleToBlockConfig(vTBC));		}
+			result.add(new IpcVehicleToBlockConfig(vTBC));		
+		}
+        session.close();
+		return result;
+	}
+	
+	@Override
+	public Collection<IpcVehicleToBlockConfig> getVehicleToBlockConfigByVehicleId(String vehicleId) throws RemoteException {
+		List<IpcVehicleToBlockConfig> result = new ArrayList<IpcVehicleToBlockConfig>();
+		Session session = HibernateUtils.getSession();
+		for (VehicleToBlockConfig vTBC : 
+			VehicleToBlockConfig.getVehicleToBlockConfigsByVehicleId(session, vehicleId)) {
+			result.add(new IpcVehicleToBlockConfig(vTBC));		
+		}
         session.close();
 		return result;
 	}

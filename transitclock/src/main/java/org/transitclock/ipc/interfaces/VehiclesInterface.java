@@ -258,4 +258,8 @@ public interface VehiclesInterface extends Remote {
 			String blockId) 
 					throws RemoteException;
   
+  public Collection<IpcVehicleToBlockConfig> getVehicleToBlockConfigByVehicleId(
+			String vehicleId) 
+					throws RemoteException;
+  
 }
