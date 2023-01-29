@@ -1582,23 +1582,27 @@ public class AvlProcessor {
 					avlReport);
 			avlReport.setAssignment(null, AssignmentType.UNSET);
 		}
-		
-		Session session = HibernateUtils.getSession();
-		String blockId = null;
-		if(avlReport.getVehicleId().equals("4045")) {
-			System.out.println("stop");
+		Session session = null;
+		try {
+			session = HibernateUtils.getSession();
+			String blockId = null;
+			if(avlReport.getVehicleId().equals("4045")) {
+				System.out.println("stop");
+			}
+			for (VehicleToBlockConfig vTBC : 
+				VehicleToBlockConfig.getVehicleToBlockConfigsByVehicleId(session, avlReport.getVehicleId())) {
+				Date d = new Date();
+	
+				if(d.after(vTBC.getValidFrom()) && d.before(vTBC.getValidTo()))
+					blockId = vTBC.getBlockId();
+			}
+			if(blockId != null) {
+				avlReport.setAssignment(blockId, AssignmentType.BLOCK_ID);
+			}
+	        session.close();
+		} catch (Exception ex) {
+			session.close();
 		}
-		for (VehicleToBlockConfig vTBC : 
-			VehicleToBlockConfig.getVehicleToBlockConfigsByVehicleId(session, avlReport.getVehicleId())) {
-			Date d = new Date();
-
-			if(d.after(vTBC.getValidFrom()) && d.before(vTBC.getValidTo()))
-				blockId = vTBC.getBlockId();
-		}
-		if(blockId != null) {
-			avlReport.setAssignment(blockId, AssignmentType.BLOCK_ID);
-		}
-        session.close();
 
 		// The beginning of processing AVL data is an important milestone
 		// in processing data so log it as info.
