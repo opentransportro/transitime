@@ -225,8 +225,12 @@ public class CommandsServer extends AbstractServer
 	@Override
 	public String removeVehicleToBlock(long id) {
 		Session session = HibernateUtils.getSession();
+		try {
 		VehicleToBlockConfig.deleteVehicleToBlockConfig(id, session);
-		session.close();
+			session.close();
+		} catch (Exception ex) {
+			session.close();
+		}
 		return null;
 	}
 

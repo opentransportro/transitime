@@ -486,11 +486,16 @@ public class VehiclesServer extends AbstractServer
 	public Collection<IpcVehicleToBlockConfig> getVehicleToBlockConfig(String blockId) throws RemoteException {
 		List<IpcVehicleToBlockConfig> result = new ArrayList<IpcVehicleToBlockConfig>();
 		Session session = HibernateUtils.getSession();
-		for (VehicleToBlockConfig vTBC : 
-			VehicleToBlockConfig.getVehicleToBlockConfigsByBlockId(session, blockId)) {
-			result.add(new IpcVehicleToBlockConfig(vTBC));		
+		try {
+			for (VehicleToBlockConfig vTBC : 
+				VehicleToBlockConfig.getVehicleToBlockConfigsByBlockId(session, blockId)) {
+				result.add(new IpcVehicleToBlockConfig(vTBC));		
+			}
+			session.close();
 		}
-        session.close();
+		catch(Exception ex) {
+			session.close();
+		}
 		return result;
 	}
 	
@@ -498,11 +503,16 @@ public class VehiclesServer extends AbstractServer
 	public Collection<IpcVehicleToBlockConfig> getVehicleToBlockConfigByVehicleId(String vehicleId) throws RemoteException {
 		List<IpcVehicleToBlockConfig> result = new ArrayList<IpcVehicleToBlockConfig>();
 		Session session = HibernateUtils.getSession();
-		for (VehicleToBlockConfig vTBC : 
-			VehicleToBlockConfig.getVehicleToBlockConfigsByVehicleId(session, vehicleId)) {
-			result.add(new IpcVehicleToBlockConfig(vTBC));		
+		try {
+			for (VehicleToBlockConfig vTBC : 
+				VehicleToBlockConfig.getVehicleToBlockConfigsByVehicleId(session, vehicleId)) {
+				result.add(new IpcVehicleToBlockConfig(vTBC));		
+			}
+			session.close();
 		}
-        session.close();
+		catch(Exception ex) {
+			session.close();
+		}
 		return result;
 	}
 }
