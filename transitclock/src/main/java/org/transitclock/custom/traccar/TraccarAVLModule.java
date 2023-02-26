@@ -118,7 +118,7 @@ public class TraccarAVLModule extends PollUrlAvlModule {
 	{
 		for(Device device:devices)
 		{
-			if(device.getId()==id)
+			if(device.getId().equals(id))
 				return device;
 		}
 		return null;
