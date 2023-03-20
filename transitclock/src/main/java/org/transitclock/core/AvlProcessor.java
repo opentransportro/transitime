@@ -1593,8 +1593,10 @@ public class AvlProcessor {
 				VehicleToBlockConfig.getVehicleToBlockConfigsByVehicleId(session, avlReport.getVehicleId())) {
 				Date d = new Date();
 	
-				if(d.after(vTBC.getValidFrom()) && d.before(vTBC.getValidTo()))
+				if(d.after(vTBC.getValidFrom()) && d.before(vTBC.getValidTo())) {
 					blockId = vTBC.getBlockId();
+					break;
+				}
 			}
 			if(blockId != null) {
 				avlReport.setAssignment(blockId, AssignmentType.BLOCK_ID);
