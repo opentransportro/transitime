@@ -22,12 +22,19 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Iterator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.api.utils.AgencyTimezoneCache;
+import org.transitclock.core.BlockAssignmentMethod;
+import org.transitclock.core.TemporalDifference;
 import org.transitclock.ipc.clients.VehiclesInterfaceFactory;
 import org.transitclock.ipc.data.IpcVehicleGtfsRealtime;
+import org.transitclock.ipc.data.IpcVehicle;
+import org.transitclock.ipc.data.IpcAvl;
+import org.transitclock.ipc.data.IpcHoldingTime;
+import org.transitclock.ipc.data.IpcVehicleConfig;
 import org.transitclock.ipc.interfaces.VehiclesInterface;
 import org.transitclock.utils.Time;
 
@@ -189,12 +196,37 @@ public class GtfsRtVehicleFeed {
 		message.setHeader(feedheader);
 
 		for (IpcVehicleGtfsRealtime vehicle : vehicles) {
-			FeedEntity.Builder vehiclePositionEntity =
-					FeedEntity.newBuilder().setId(vehicle.getId());
+			
+			IpcAvl newAvl = new IpcAvl(vehicle.getVehicleName(),
+					vehicle.getAvl().getTime(),
+					vehicle.getAvl().getLatitude(),
+					vehicle.getAvl().getLongitude(),
+					vehicle.getAvl().getSpeed(),
+					vehicle.getAvl().getHeading(),
+					vehicle.getAvl().getSource(),
+					vehicle.getAvl().getAssignmentId(),
+					vehicle.getAvl().getAssignmentType(),
+					vehicle.getAvl().getDriverId(),
+					vehicle.getAvl().getLicensePlate(),
+					vehicle.getAvl().getPassengerCount());
 
+			IpcVehicleGtfsRealtime newVehicle = new IpcVehicleGtfsRealtime(vehicle.getBlockId(),vehicle.getBlockAssignmentMethod(), newAvl,
+					vehicle.getHeading(), vehicle.getRouteId(), vehicle.getRouteShortName(),
+					vehicle.getRouteName(), vehicle.getTripId(), vehicle.getTripPatternId(),
+					vehicle.isTripUnscheduled(), vehicle.getDirectionId(), vehicle.getHeadsign(),
+					vehicle.isPredictable(), vehicle.isForSchedBasedPred(), vehicle.getRealTimeSchedAdh(),
+					vehicle.isDelayed(), vehicle.isLayover(), vehicle.getLayoverDepartureTime(),
+					vehicle.getNextStopId(), vehicle.getNextStopName(), vehicle.getVehicleType(),
+					vehicle.getTripStartEpochTime(), vehicle.isAtStop(), vehicle.getAtOrNextStopId(),
+					vehicle.getAtOrNextGtfsStopSeq(), vehicle.getFreqStartTime(), vehicle.getHoldingTime(),
+					vehicle.getPredictedLatitude(), vehicle.getPredictedLongitude(), vehicle.isCanceled());
+			FeedEntity.Builder vehiclePositionEntity =
+					FeedEntity.newBuilder().setId(vehicle.getVehicleName() == null? vehicle.getId():vehicle.getVehicleName());
+			
 			try {
+				//vehicle
 				VehiclePosition vehiclePosition =
-						createVehiclePosition(vehicle);
+						createVehiclePosition(newVehicle);
 				vehiclePositionEntity.setVehicle(vehiclePosition);
 				message.addEntity(vehiclePositionEntity);
 			} catch (Exception e) {
@@ -218,6 +250,26 @@ public class GtfsRtVehicleFeed {
 		Collection<IpcVehicleGtfsRealtime> vehicles = null;
 		try {
 			vehicles = vehiclesInterface.getGtfsRealtime();
+			
+			
+			/**********/
+			//for(int i = 0; i < vehicles.size(); i++) {
+			//	vehiclesInterface.get(vehicles.)t
+			//}
+			Iterator<IpcVehicleGtfsRealtime> iterator = vehicles.iterator();
+			while(iterator.hasNext()) {         
+				IpcVehicleGtfsRealtime ipc = iterator.next();
+				Collection<IpcVehicleConfig> vehConfigs = vehiclesInterface.getVehicleConfigs();
+				Iterator<IpcVehicleConfig> iteratorConfigs = vehConfigs.iterator();
+				while(iteratorConfigs.hasNext()) {
+					IpcVehicleConfig ipcVehicleConfig = iteratorConfigs.next();
+					if(ipcVehicleConfig.getId().equals(ipc.getId())) {
+						ipc.setVehicleName(ipcVehicleConfig.getName());
+						break;
+					}
+				}
+			}
+			/****************/
 		} catch (RemoteException e) {
 			logger.error("Exception when getting vehicles from RMI", e);
 		}

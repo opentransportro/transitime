@@ -148,7 +148,7 @@ public class IpcVehicleGtfsRealtime extends IpcVehicle {
 	 * @param holdingTime 
 	 * @param isCanceled
 	 */
-	protected IpcVehicleGtfsRealtime(String blockId,
+	public IpcVehicleGtfsRealtime(String blockId,
 			BlockAssignmentMethod blockAssignmentMethod, IpcAvl avl,
 			float pathHeading, String routeId, String routeShortName,
 			String routeName, String tripId, String tripPatternId, boolean isTripUnscheduled,

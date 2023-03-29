@@ -20,10 +20,12 @@ package org.transitclock.api.gtfsRealtime;
 import java.rmi.RemoteException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -35,8 +37,11 @@ import org.transitclock.config.BooleanConfigValue;
 import org.transitclock.config.IntegerConfigValue;
 import org.transitclock.core.holdingmethod.PredictionTimeComparator;
 import org.transitclock.ipc.clients.PredictionsInterfaceFactory;
+import org.transitclock.ipc.clients.VehiclesInterfaceFactory;
 import org.transitclock.ipc.data.IpcPrediction;
 import org.transitclock.ipc.data.IpcPredictionsForRouteStopDest;
+import org.transitclock.ipc.data.IpcVehicleConfig;
+import org.transitclock.ipc.interfaces.VehiclesInterface;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.Time;
 
@@ -126,6 +131,9 @@ public class GtfsRtTripFeed {
 	private TripUpdate createTripUpdate(List<IpcPrediction> predsForTrip) {
 		// Create the parent TripUpdate object that is returned.
 		TripUpdate.Builder tripUpdate = TripUpdate.newBuilder();
+		
+		VehiclesInterface vehiclesInterface =
+				VehiclesInterfaceFactory.get(agencyId);
 
 		// Add the trip descriptor information
 		IpcPrediction firstPred = predsForTrip.get(0);
@@ -172,8 +180,27 @@ public class GtfsRtTripFeed {
 		  tripUpdate.setDelay(firstPred.getDelay()); // set schedule deviation
 
 		// Add the VehicleDescriptor information
-		VehicleDescriptor.Builder vehicleDescriptor =
-				VehicleDescriptor.newBuilder().setId(firstPred.getVehicleId());
+		VehicleDescriptor.Builder vehicleDescriptor = null;
+		
+		Collection<IpcVehicleConfig> vehConfigs;
+		try {
+			vehConfigs = vehiclesInterface.getVehicleConfigs();
+			Iterator<IpcVehicleConfig> iteratorConfigs = vehConfigs.iterator();
+			while(iteratorConfigs.hasNext()) {
+				IpcVehicleConfig ipcVehicleConfig = iteratorConfigs.next();
+				if(ipcVehicleConfig.getId().equals(firstPred.getVehicleId())) {
+					vehicleDescriptor =
+							VehicleDescriptor.newBuilder().setId(ipcVehicleConfig.getName());
+					break;
+				}
+			}
+		} catch (RemoteException e) {
+			
+		}
+		if(vehicleDescriptor == null)
+			vehicleDescriptor =
+			VehicleDescriptor.newBuilder().setId(firstPred.getVehicleId());
+		
 		tripUpdate.setVehicle(vehicleDescriptor);
 
 		// Add the StopTimeUpdate information for each prediction
