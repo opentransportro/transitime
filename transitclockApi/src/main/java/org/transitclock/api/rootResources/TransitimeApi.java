@@ -267,6 +267,66 @@ public class TransitimeApi {
 		}
 	}
 	
+	/**
+	 * Handles the "tripWithTravelTimes" command which outputs
+	 * arrival and departures data for the specified trip by date.
+	 * 
+	 * @param stdParameters
+	 * @param tripId
+	 * @param date
+	 * @return
+	 * @throws WebApplicationException
+	 */
+	@Path("/reports/tripWithTravelTimes")
+	@GET
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	 @Operation(summary="Gets the arrivals and departures data of a trip.",
+		description="Gets the arrivals and departures data of a trip.",tags= {"base data","trip"})
+	public Response getTripWithTravelTimes(@BeanParam StandardParameters stdParameters,
+			@Parameter(description="Trip id",required=true) @QueryParam(value = "tripId") String tripId,
+			@Parameter(description="Begin date(YYYY-MM-DD).") @QueryParam(value = "date") String date) throws WebApplicationException {
+
+		// Make sure request is valid
+		stdParameters.validate();
+
+		try {
+			
+			String response = Reports.getTripWithTravelTimes(stdParameters.getAgencyId(), tripId, date);
+			return stdParameters.createResponse(response);
+		} catch (Exception e) {
+			throw WebUtils.badRequestException(e);
+		}
+	}
+	
+	/**
+	 * Handles the "trips" report which outputs
+	 * trips by date which contains arrival and departures data.
+	 * 
+	 * @param stdParameters
+	 * @param date
+	 * @return
+	 * @throws WebApplicationException
+	 */
+	@Path("/reports/tripsByDate")
+	@GET
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	 @Operation(summary="Gets the trips by date.",
+		description="Gets the trips by date.",tags= {"base data","trip"})
+	public Response getTrips(@BeanParam StandardParameters stdParameters,
+			@Parameter(description="Date(YYYY-MM-DD).") @QueryParam(value = "date") String date) throws WebApplicationException {
+
+		// Make sure request is valid
+		stdParameters.validate();
+
+		try {
+			
+			String response = Reports.getTripsFromArrivalAndDeparturesByDate(stdParameters.getAgencyId(), date);
+			return stdParameters.createResponse(response);
+		} catch (Exception e) {
+			throw WebUtils.badRequestException(e);
+		}
+	}
+	
 	@Operation(summary="Returns schedule adherence report.",
 			description="Returns schedule adherence report.",tags= {"report","route", "schedule adherence"})
 	@Path("/reports/scheduleAdh")
