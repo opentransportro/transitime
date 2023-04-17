@@ -1411,7 +1411,7 @@ public class TransitimeApi {
 	        	 }
 	          }
           }
-	       catch(Exception ex) {}
+	      catch(Exception ex) {throw WebUtils.badRequestException(ex);}
 
           // Create and return ApiBlock response
           ApiActiveBlocksRoutes apiActiveBlocksRoutes = new ApiActiveBlocksRoutes(
