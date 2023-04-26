@@ -1421,8 +1421,7 @@ public class TransitimeApi {
           
           return stdParameters.createResponse(apiActiveBlocksRoutes);
       } catch (Exception e) {
-		  e.printStackTrace();
-          logger.error(e.toString());
+          logger.error("activeBlockByRouteNameWithVehicles Error", e.toString());
           // If problem getting data then return a Bad Request
           throw WebUtils.badRequestException(e);
       }
