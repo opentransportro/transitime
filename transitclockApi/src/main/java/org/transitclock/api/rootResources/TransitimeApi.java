@@ -131,6 +131,9 @@ description = "TheTransitClock is an open source transit information system."
 ),servers= {@Server(url="/api/v1")})
 @Path("/key/{key}/agency/{agency}")
 public class TransitimeApi {
+	
+	private static final Logger logger = LoggerFactory
+			.getLogger(TransitimeApi.class);
 
 	/**
 	 * Handles the "vehicles" command. Returns data for all vehicles or for the
@@ -1398,7 +1401,6 @@ public class TransitimeApi {
           VehiclesInterface inter = stdParameters.getVehiclesInterface();
 			
           
-          try {
 	          for(IpcActiveBlock ipcActiveBlocks : activeBlocks) {
 	        	 for(IpcVehicle ipcVehicle : ipcActiveBlocks.getVehicles()) {
 	        		 for(IpcVehicleConfig iVC : vehiclesInterface.getVehicleConfigs()) {
@@ -1410,8 +1412,6 @@ public class TransitimeApi {
 	        		 }        		 
 	        	 }
 	          }
-          }
-	      catch(Exception ex) {throw WebUtils.badRequestException(ex);}
 
           // Create and return ApiBlock response
           ApiActiveBlocksRoutes apiActiveBlocksRoutes = new ApiActiveBlocksRoutes(
@@ -1419,6 +1419,8 @@ public class TransitimeApi {
           
           return stdParameters.createResponse(apiActiveBlocksRoutes);
       } catch (Exception e) {
+		  e.printStackTrace();
+          logger.error(e.toString());
           // If problem getting data then return a Bad Request
           throw WebUtils.badRequestException(e);
       }
