@@ -528,5 +528,41 @@ private static final int MAX_NUM_DAYS = 7;
 			jsonString = GenericJsonQuery.getJsonString(agencyId, sql);
 			return jsonString;
 	}
+	
+	/**
+	 * Queries agency for AVL data and returns result as a JSON string. Limited
+	 * to returning MAX_ROWS (50,000) data points.
+	 * @return Last AVL reports in JSON format. Can be empty JSON array if no data
+	 *         meets criteria.
+	 */
+	public static String getLastAvlJson(String agencyId) {
+		WebAgency agency = WebAgency.getCachedWebAgency(agencyId);
+		String sql = "";
+		if(agency.getDbType().equals("mysql")){
+			sql = 
+			"SELECT a.vehicleId, vC.name, maxTime, lat, lon "
+			+ "FROM " 
+			+ "(SELECT vehicleId, max(time) AS maxTime " 
+			+ "FROM AvlReports WHERE time > date_sub(now(), interval 1 day) "
+			+ "GROUP BY vehicleId) a "
+			+ "JOIN AvlReports b ON a.vehicleId=b.vehicleId AND a.maxTime = b.time "
+			+ "JOIN VehicleConfigs vC ON a.vehicleId=vC.id";
+		}
+		if(agency.getDbType().equals("postgresql"))
+		{
+			sql =
+							"select a.vehicleId as \"vehicleId\", vC.name as \"name\", a.maxTime as \"maxTime\", lat, lon from ( "
+							+ "SELECT vehicleId, max(time) AS maxTime " 
+							+ "FROM avlreports WHERE time > now() + '-24 hours' " 
+							+ "GROUP BY vehicleId) a "
+							+ "JOIN AvlReports b ON a.vehicleId=b.vehicleId AND a.maxTime = b.time "
+							+ "JOIN VehicleConfigs vC ON a.vehicleId=vC.id";
+		}
+
+		
+		String json=null;				
+		json = GenericJsonQuery.getJsonString(agencyId, sql);				
+		return json;
+	}
 		
 }

@@ -352,6 +352,27 @@ public class TransitimeApi {
 			throw WebUtils.badRequestException(e);
 		}
 	}
+	
+	
+	@Path("/reports/lastAvlJsonData")
+	@GET
+	@Operation(summary="Returns AVL Json data for last 24 hours.",
+		description="Returns AVL Json data for last 24 hours.",tags= {"report","avl", "vehicle"})
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	public Response getLastAvlJsonData(@BeanParam StandardParameters stdParameters			
+			) throws WebApplicationException {
+		// Make sure request is valid
+		stdParameters.validate();
+
+		try {
+			String response = Reports.getLastAvlJson(stdParameters.getAgencyId());
+			return stdParameters.createResponse(response);
+		} catch (Exception e) {
+			// If problem getting data then return a Bad Request
+			throw WebUtils.badRequestException(e);
+
+		}
+	}
 
 	/**
 	 * Handles the vehicleIds command. Returns list of vehicle IDs.
@@ -484,9 +505,10 @@ public class TransitimeApi {
 			if (vehicles == null)
 				throw WebUtils.badRequestException("Invalid specifier for " + "vehicles");
 
+			Collection<IpcVehicleConfig> vehicleConfigs = inter.getVehicleConfigs();
 			
 			 for(IpcVehicle ipcVehicle : vehicles) {
-        		 for(IpcVehicleConfig iVC : inter.getVehicleConfigs()) {
+        		 for(IpcVehicleConfig iVC : vehicleConfigs) {
         			 if(iVC.getId().equals(ipcVehicle.getId())) {
         				 ipcVehicle.setVehicleName(iVC.getName());
          				 System.out.println(ipcVehicle.getVehicleName() + " " + iVC.getName());
