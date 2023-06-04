@@ -171,6 +171,54 @@ private static final int MAX_NUM_DAYS = 7;
 		return json;
 	}
 	
+	public static String getTripsWithTravelTimes(String agencyId, String date) {
+		String sql = "SELECT"
+				+ "	arrivalsdepartures.tripid as tripId"
+				+ "	,arrivalsdepartures.directionid as directionId"
+				+ "	,arrivalsdepartures.stopid as stopId"
+				+ "	,stops.code as stopCode"
+				+ "	,stops.name as stopName"
+				+ "	,stops.lat as lat"
+				+ "	,stops.lon as lon"
+				+ "	,arrivalsdepartures.stoporder as stopOrder"
+				+ "	,arrivalsdepartures.vehicleid as vehicleId"
+				+ "	,vehicleconfigs.name as vehicleName"
+				+ "	,arrivalsdepartures.time as arrivalTime"
+				+ "	,ADDeparture.time as departureTime"
+				+ "	,CASE WHEN ADDeparture.scheduledTime ISNULL"
+				+ "	 THEN DATE('" + date + "') + trip_scheduledtimeslist.arrivaltime"
+				+ "	 ELSE ADDeparture.scheduledTime"
+				+ "	 END AS scheduledTime"
+				+ "	,CASE WHEN ADDeparture.scheduledTime ISNULL"
+				+ "	 THEN regexp_replace(CAST(DATE_TRUNC('second', DATE('" + date + "') + trip_scheduledtimeslist.arrivaltime) - DATE_TRUNC('second', arrivalsdepartures.time::timestamp) AS VARCHAR), '^00:', '') "
+				+ "     ELSE regexp_replace(CAST(DATE_TRUNC('second', ADDeparture.scheduledTime::timestamp) - DATE_TRUNC('second', ADDeparture.time::timestamp) AS VARCHAR), '^00:', '') "
+				+ "	 END AS difference_in_seconds"
+				+ "	"
+				+ "FROM arrivalsdepartures "
+				+ "LEFT JOIN stops ON stops.id = arrivalsdepartures.stopid "
+				+ "	and stops.configrev = arrivalsdepartures.configrev "
+				+ "LEFT JOIN vehicleconfigs on vehicleconfigs.id = arrivalsdepartures.vehicleid "
+				+ "LEFT JOIN LATERAL(SELECT * from arrivalsdepartures ad where ad.tripid = arrivalsdepartures.tripid "
+				+ "	AND ad.directionid = arrivalsdepartures.directionid "
+				+ "	AND ad.stopid = arrivalsdepartures.stopid "
+				+ "	AND ad.dtype = 'Departure' "
+				+ "	AND DATE(ad.avltime) = DATE(arrivalsdepartures.avltime) "
+				+ "	AND ad.time >= arrivalsdepartures.time "
+				+ "	ORDER BY ad.time ASC LIMIT 1) ADDeparture ON True "
+				+ "LEFT JOIN trip_scheduledtimeslist ON trip_scheduledtimeslist.trip_tripid = arrivalsdepartures.tripid "
+				+ "	AND trip_scheduledtimeslist.trip_configrev = arrivalsdepartures.configrev "
+				+ "	AND trip_scheduledtimeslist.scheduledtimeslist_order = arrivalsdepartures.stoporder "
+				+ "WHERE arrivalsdepartures.isarrival = 'True' and Date(arrivalsdepartures.time) = DATE('" + date + "')"
+				+ "ORDER BY arrivalsdepartures.tripid asc, arrivalsdepartures.gtfsstopseq asc, arrivalsdepartures.time asc";		
+		
+		
+		
+		String json=null;
+		json = GenericJsonQuery.getJsonString(agencyId, sql, date, date, date);						
+
+		return json;
+	}
+	
 	/* Provides schedule adherence data in JSON format. Provides for
     the specified route the number arrivals/departures that
     are early, number late, number on time, and number total for each

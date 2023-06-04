@@ -1572,6 +1572,35 @@ public class TransitimeApi {
 			throw WebUtils.badRequestException(e);
 		}
 	}
+	
+	/**
+	 * Handles the "tripsWithTravelTimes" command which outputs
+	 * arrival and departures data for the specified trip by date.
+	 * 
+	 * @param stdParameters
+	 * @param date
+	 * @return
+	 * @throws WebApplicationException
+	 */
+	@Path("/reports/tripsWithTravelTimes")
+	@GET
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	 @Operation(summary="Gets the arrivals and departures data of a trips.",
+		description="Gets the arrivals and departures data of a trips.",tags= {"base data","trips"})
+	public Response getTripsWithTravelTimes(@BeanParam StandardParameters stdParameters,
+			@Parameter(description="Begin date(YYYY-MM-DD).") @QueryParam(value = "date") String date) throws WebApplicationException {
+
+		// Make sure request is valid
+		stdParameters.validate();
+
+		try {
+			
+			String response = Reports.getTripsWithTravelTimes(stdParameters.getAgencyId(), date);
+			return stdParameters.createResponse(response);
+		} catch (Exception e) {
+			throw WebUtils.badRequestException(e);
+		}
+	}
 
 	/**
 	 * Handles the tripIds command. Returns list of trip IDs.
