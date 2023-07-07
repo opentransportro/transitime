@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
@@ -48,6 +49,7 @@ import org.transitclock.api.data.ApiBlocksTerse;
 import org.transitclock.api.data.ApiCalendars;
 import org.transitclock.api.data.ApiCurrentServerDate;
 import org.transitclock.api.data.ApiDirections;
+import org.transitclock.api.data.ApiExportsData;
 import org.transitclock.api.data.ApiIds;
 import org.transitclock.api.data.ApiPredictions;
 import org.transitclock.api.data.ApiRmiServerStatus;
@@ -71,6 +73,7 @@ import org.transitclock.api.utils.WebUtils;
 import org.transitclock.core.TemporalDifference;
 import org.transitclock.core.reports.Reports;
 import org.transitclock.db.structs.Agency;
+import org.transitclock.db.structs.ExportTable;
 import org.transitclock.db.structs.Location;
 import org.transitclock.db.structs.VehicleConfig;
 import org.transitclock.db.structs.VehicleToBlockConfig;
@@ -1974,6 +1977,29 @@ public class TransitimeApi {
 		Date currentTime=inter.getCurrentServerTime();
 		
 		return stdParameters.createResponse(new ApiCurrentServerDate(currentTime));
+	}
+	
+	@Operation(summary="Returns exports list",
+			description="Returns exports list")
+	@Path("/command/exports")
+	
+	@GET
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	public Response getExports(
+			@BeanParam StandardParameters stdParameters) throws WebApplicationException {
+		stdParameters.validate();
+		ApiExportsData result = null;
+		Session session = HibernateUtils.getSession();
+		try {
+			result = new ApiExportsData(ExportTable.getExportTable(session));
+			
+			session.close();
+			return stdParameters.createResponse(result);
+		} catch (Exception e) {
+			// If problem getting data then return a Bad Request
+			session.close();
+			throw WebUtils.badRequestException(e);
+		}
 	}
 	// /**
 	// * For creating response of list of vehicles. Would like to make this a

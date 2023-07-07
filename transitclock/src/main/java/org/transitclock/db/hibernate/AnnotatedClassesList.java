@@ -27,6 +27,7 @@ import org.transitclock.db.structs.CalendarDate;
 import org.transitclock.db.structs.ConfigRevision;
 import org.transitclock.db.structs.DbTest;
 import org.transitclock.db.structs.Departure;
+import org.transitclock.db.structs.ExportTable;
 import org.transitclock.db.structs.FareAttribute;
 import org.transitclock.db.structs.FareRule;
 import org.transitclock.db.structs.Frequency;
@@ -84,6 +85,7 @@ public class AnnotatedClassesList {
 		CalendarDate.class,
 		ConfigRevision.class,
 		DbTest.class,
+		ExportTable.class,
 		Prediction.class,
 		Departure.class,
 		FareAttribute.class,

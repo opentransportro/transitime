@@ -51,6 +51,7 @@ import org.transitclock.api.utils.StandardParameters;
 import org.transitclock.api.utils.WebUtils;
 import org.transitclock.db.GenericQuery;
 import org.transitclock.db.structs.AvlReport;
+import org.transitclock.db.structs.ExportTable;
 import org.transitclock.db.structs.MeasuredArrivalTime;
 import org.transitclock.db.structs.VehicleToBlockConfig;
 import org.transitclock.db.structs.AvlReport.AssignmentType;
@@ -470,6 +471,28 @@ public class CommandsApi {
 		} catch (Exception e) {
 			// If problem getting data then return a Bad Request
 			throw WebUtils.badRequestException(e);
+		}
+		return stdParameters.createResponse(new ApiCommandAck(true,"Processed"));
+	}
+	
+	@Operation(summary="Add AVL export",
+			description="Add AVL export",tags= {"report","avl"})
+	@Path("/command/addAVLExport")
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response addAVLReport(
+			@BeanParam StandardParameters stdParameters,
+			@Parameter(description="AVL date(MM-DD-YYYY).") @QueryParam(value = "avlDate") String avlDate) throws WebApplicationException {
+		// Make sure request is valid
+		stdParameters.validate();
+		
+		try {
+			ExportTable.create(new SimpleDateFormat("MM-dd-yyyy").parse(avlDate), 1, "avl_" + avlDate + ".csv");
+
+		} catch (Exception ex) {
+			// If problem getting data then return a Bad Request
+			throw WebUtils.badRequestException(ex);
 		}
 		return stdParameters.createResponse(new ApiCommandAck(true,"Processed"));
 	}

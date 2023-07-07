@@ -488,6 +488,18 @@
 		validTo timestamp not null,
         primary key (id)
     );
+	
+	CREATE SEQUENCE exporttable_id_seq INCREMENT 1 START 1;
+    create table ExportTable (
+    	id int4 not null DEFAULT nextval('exporttable_id_seq'),
+        exportType int4 not null,
+        exportStatus int4 not null,
+        exportDate timestamp not null,
+        dataDate date,
+		filename varchar(50),
+        file bytea,
+        primary key (id)
+    );
 
     create index ArrivalsDeparturesTimeIndex on ArrivalsDepartures (time);
 
