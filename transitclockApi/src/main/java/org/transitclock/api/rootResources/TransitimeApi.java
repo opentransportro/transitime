@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.hibernate.Session;
+import org.transitclock.db.hibernate.HibernateUtils;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
