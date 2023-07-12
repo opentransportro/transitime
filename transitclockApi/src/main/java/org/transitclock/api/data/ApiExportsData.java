@@ -76,7 +76,7 @@ public class ApiExportsData implements Serializable{
 			// Determine UI type for vehicle
 			exportsData.add(new ApiExportData(oneExportData));
 		}*/
-		DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.S");
+		DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
 		Iterator itr = exportData.iterator();
 		while(itr.hasNext()){
 		   Object[] obj = (Object[]) itr.next();
