@@ -2002,6 +2002,32 @@ public class TransitimeApi {
 			throw WebUtils.badRequestException(e);
 		}
 	}
+	
+	@Operation(summary="Return export file",
+			description="Return export file")
+	@Path("/command/getExportFile")
+	@GET
+	@Produces(MediaType.APPLICATION_OCTET_STREAM)
+	public Response getExportById(
+			@BeanParam StandardParameters stdParameters,
+			@Parameter(description="Id eksportu") @QueryParam(value = "id") long id) throws WebApplicationException {
+		stdParameters.validate();
+		Session session = HibernateUtils.getSession();
+		try {
+			ExportTable result = ExportTable.getExportFile(session, id).get(0);
+			
+			session.close();
+			// return ApiVehicles response
+			//return stdParameters.createResponse(result);
+			return Response.ok(result.getFile(), MediaType.APPLICATION_OCTET_STREAM)
+	        .header("Content-Disposition", "attachment; filename=\"" + result.getFileName() + "\"")
+	        .build();
+		} catch (Exception e) {
+			// If problem getting data then return a Bad Request
+			session.close();
+			throw WebUtils.badRequestException(e);
+		}
+	}
 	// /**
 	// * For creating response of list of vehicles. Would like to make this a
 	// * generic type but due to type erasure cannot do so since GenericEntity
