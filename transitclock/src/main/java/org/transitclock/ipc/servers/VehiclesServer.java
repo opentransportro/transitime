@@ -288,7 +288,12 @@ public class VehiclesServer extends AbstractServer
 						allowableBeforeTimeSecs, -1);
 		// For each active block determine associated vehicle
 		for (Block block : blocks) {
-			IpcBlock ipcBlock = new IpcBlock(block);
+			IpcBlock ipcBlock;
+			try {
+				ipcBlock = new IpcBlock(block);
+			} catch(Exception ex) {
+			  continue;
+			}
 			
 			// If a block doesn't have a vehicle associated with it need
 			// to determine which route a block is currently associated with
