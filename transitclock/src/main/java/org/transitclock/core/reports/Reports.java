@@ -630,7 +630,7 @@ private static final int MAX_NUM_DAYS = 7;
 
 		String json=null;				
 		json = GenericJsonQuery.getJsonString(agencyId, sql);				
-		return json.length() > 100 ? true : false;
+		return json.length() > 50 ? true : false;
 	}
 		
 }
