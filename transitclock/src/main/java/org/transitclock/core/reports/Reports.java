@@ -612,5 +612,25 @@ private static final int MAX_NUM_DAYS = 7;
 		json = GenericJsonQuery.getJsonString(agencyId, sql);				
 		return json;
 	}
+	
+	public static boolean hasLastAvlJsonInHours(String agencyId, String vehicleId, int hours) {
+		WebAgency agency = WebAgency.getCachedWebAgency(agencyId);
+		String sql = "";
+		if(agency.getDbType().equals("postgresql"))
+		{
+			//sql query should be better
+			sql =
+							"select a.vehicleId as \"vehicleId\", vC.name as \"name\", a.maxTime as \"maxTime\", lat, lon from ( "
+							+ "SELECT vehicleId, max(time) AS maxTime " 
+							+ "FROM avlreports WHERE time > now() + '-" + hours + " hours' AND vehicleId = '" + vehicleId + "' " 
+							+ "GROUP BY vehicleId) a "
+							+ "JOIN AvlReports b ON a.vehicleId=b.vehicleId AND a.maxTime = b.time "
+							+ "JOIN VehicleConfigs vC ON a.vehicleId=vC.id";
+		}
+
+		String json=null;				
+		json = GenericJsonQuery.getJsonString(agencyId, sql);				
+		return json.length() > 100 ? true : false;
+	}
 		
 }

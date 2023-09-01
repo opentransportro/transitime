@@ -495,12 +495,20 @@ public class TransitimeApi {
 			VehiclesInterface inter = stdParameters.getVehiclesInterface();
 
 			Collection<IpcVehicle> vehicles;
+			Collection<IpcVehicle> vehicles_temp;
 			if (!routesIdOrShortNames.isEmpty() && !routesIdOrShortNames.get(0).trim().isEmpty()) {
 				vehicles = inter.getForRoute(routesIdOrShortNames);
 			} else if (!vehicleIds.isEmpty() && !vehicleIds.get(0).trim().isEmpty()) {
 				vehicles = inter.get(vehicleIds);
 			} else {
+				vehicles_temp = inter.get();
 				vehicles = inter.get();
+				vehicles.clear();
+				for(IpcVehicle ipcVehicle : vehicles_temp) {
+					if(Reports.hasLastAvlJsonInHours(stdParameters.getAgencyId(), ipcVehicle.getId(), 72))
+						vehicles.add(ipcVehicle);
+				}
+				vehicles_temp.clear();
 			}
 
 			
