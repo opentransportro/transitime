@@ -11,4 +11,6 @@
 /bin/
 /.settings/
 .DS_Store
-
+.flattened-pom.xml
+dependency-reduced-pom.xml
+target

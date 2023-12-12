@@ -4,24 +4,28 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-	   <groupId>TheTransitClock</groupId>
 
-	    <version>2.0.0-SNAPSHOT</version>
+    <version>${revision}</version>
     <artifactId>transitclockIntegration</artifactId>
 
+    <parent>
+        <groupId>TheTransitClock</groupId>
+        <artifactId>transitclock</artifactId>
+        <version>${revision}</version>
+    </parent>
     <dependencies>
 
-     	<dependency>
-			<groupId>TheTransitClock</groupId>
-			<artifactId>transitclockCore</artifactId>
-			<version>2.0.0-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>org.hsqldb</groupId>
-			<artifactId>hsqldb</artifactId>
-			<version>2.2.4</version>
-			<scope>test</scope>
-		</dependency>
+        <dependency>
+            <groupId>TheTransitClock</groupId>
+            <artifactId>transitclockCore</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hsqldb</groupId>
+            <artifactId>hsqldb</artifactId>
+            <version>2.2.4</version>
+            <scope>test</scope>
+        </dependency>
 
         <!-- For logging -->
         <dependency>
@@ -68,8 +72,8 @@
                 <version>2.19.1</version>
 
                 <configuration>
-                	<argLine>-Dtransitclock.logging.dir="/tmp"</argLine>
-                	<reuseForks>false</reuseForks>
+                    <argLine>-Dtransitclock.logging.dir="/tmp"</argLine>
+                    <reuseForks>false</reuseForks>
                 </configuration>
             </plugin>
             <plugin>

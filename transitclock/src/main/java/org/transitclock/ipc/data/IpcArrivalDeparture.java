@@ -1,14 +1,14 @@
 package org.transitclock.ipc.data;
 
 import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Date;
+
+
+import org.transitclock.core.TemporalDifference;
+import org.transitclock.db.structs.ArrivalDeparture;
 
 import javax.xml.bind.annotation.XmlAttribute;
 
-import org.apache.commons.beanutils.BeanUtils;
-import org.transitclock.core.TemporalDifference;
-import org.transitclock.db.structs.ArrivalDeparture;
 /**
  * For IPC for obtaining arrival and departure events for a stop that are in the cache.
  *
@@ -16,11 +16,6 @@ import org.transitclock.db.structs.ArrivalDeparture;
  *
  */
 public class IpcArrivalDeparture implements Serializable {
-
-	
-	
-
-
 
 
 	/**
