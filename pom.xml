@@ -22,13 +22,15 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
+
+        <jetty.version>9.4.15.v20190215</jetty.version>
     </properties>
 
     <modules>
         <module>transitclock</module>
         <module>transitclockApi</module>
         <module>transitclockWebapp</module>
-        <!--    <module>transitclockQuickStart</module>-->
+        <module>transitclockQuickStart</module>
         <module>transitclockTraccarClient</module>
         <module>transitclockBarefootClient</module>
     </modules>

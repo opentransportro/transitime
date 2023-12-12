@@ -5,7 +5,6 @@
     <artifactId>transitclockCore</artifactId>
     <version>${revision}</version>
 
-    <name>transitclockCore</name>
     <parent>
         <groupId>TheTransitClock</groupId>
         <artifactId>transitclock</artifactId>

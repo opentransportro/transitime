@@ -5,7 +5,6 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>transitclockQuickStart</artifactId>
     <version>${revision}</version>
-    <name>transitclockQuickStart</name>
 
     <parent>
         <groupId>TheTransitClock</groupId>
@@ -13,39 +12,36 @@
         <version>${revision}</version>
     </parent>
 
-    <properties>
-        <jettyVersion>9.4.15.v20190215</jettyVersion>
-    </properties>
     <dependencies>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-servlet</artifactId>
-            <version>${jettyVersion}</version>
+            <version>${jetty.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-server</artifactId>
-            <version>${jettyVersion}</version>
+            <version>${jetty.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-webapp</artifactId>
-            <version>${jettyVersion}</version>
+            <version>${jetty.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>apache-jsp</artifactId>
-            <version>${jettyVersion}</version>
+            <version>${jetty.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-annotations</artifactId>
-            <version>${jettyVersion}</version>
+            <version>${jetty.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>apache-jstl</artifactId>
-            <version>${jettyVersion}</version>
+            <version>${jetty.version}</version>
         </dependency>
         <!--<dependency>
             <groupId>javax.servlet</groupId>
@@ -93,12 +89,12 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>2.4.3</version>
                 <executions>
                     <execution>
                         <id>shade-WelcomePanel</id>
@@ -123,7 +119,6 @@
                 <!-- Build an executable JAR -->
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
-                <version>2.10</version>
                 <executions>
                     <execution>
                         <id>copy</id>
@@ -167,17 +162,17 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>TheTransitClock</groupId>
-                <artifactId>jetty-maven-plugin</artifactId>
-                <version>${revision}</version>
-                <configuration>
-                    <webAppConfig>
-                        <overrideDescriptor>../transitclockQuickStart/src/main/resources/transitime.properties
-                        </overrideDescriptor>
-                    </webAppConfig>
-                </configuration>
-            </plugin>
+<!--            <plugin>-->
+<!--                <groupId>org.eclipse.jetty</groupId>-->
+<!--                <artifactId>jetty-maven-plugin</artifactId>-->
+<!--                <version>11.0.18</version>-->
+<!--                <configuration>-->
+<!--                    <webAppConfig>-->
+<!--                        <overrideDescriptor>../transitclockQuickStart/src/main/resources/transitime.properties-->
+<!--                        </overrideDescriptor>-->
+<!--                    </webAppConfig>-->
+<!--                </configuration>-->
+<!--            </plugin>-->
         </plugins>
         <pluginManagement>
             <plugins>
@@ -205,7 +200,7 @@
                                         </goals>
                                     </pluginExecutionFilter>
                                     <action>
-                                        <ignore></ignore>
+                                        <ignore/>
                                     </action>
                                 </pluginExecution>
                             </pluginExecutions>
