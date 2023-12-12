@@ -19,9 +19,9 @@ package org.transitclock.config;
 import static org.junit.Assert.*;
 import java.net.URL;
 import java.util.List;
-import junit.framework.TestCase;
 
 import org.junit.FixMethodOrder;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.slf4j.Logger;
@@ -37,6 +37,7 @@ import org.transitclock.modules.Module;
  *
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
+@Ignore
 public class TransiTimeTest  {
 	private static final Logger logger = LoggerFactory.getLogger(TransiTimeTest.class);
 

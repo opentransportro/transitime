@@ -8,7 +8,7 @@
 *.war
 *.ear
 *.log
-/bin/
+/docker/
 /.settings/
 .DS_Store
 .flattened-pom.xml

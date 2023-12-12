@@ -6,8 +6,6 @@
     <version>${revision}</version>
     <packaging>jar</packaging>
 
-    <name>transitclockBarefootClient</name>
-
     <parent>
         <groupId>TheTransitClock</groupId>
         <artifactId>transitclock</artifactId>
