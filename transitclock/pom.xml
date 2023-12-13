@@ -13,16 +13,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>TheTransitClock</groupId>
-            <artifactId>transitclockBarefootClient</artifactId>
-            <version>${revision}</version>
-        </dependency>
-        <dependency>
-            <groupId>TheTransitClock</groupId>
-            <artifactId>transitclockTraccarClient</artifactId>
-            <version>${revision}</version>
-        </dependency>
-        <dependency>
             <groupId>com.esri.geometry</groupId>
             <artifactId>esri-geometry-api</artifactId>
             <version>1.1</version>
@@ -39,11 +29,6 @@
             have found that can have problems if don't use similar versions. Can have
             trouble finding the c3p0 connection pooler for example if use old hibernate-core
             but new c3p0. -->
-        <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>5.1.35</version>
-        </dependency>
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
@@ -79,7 +64,6 @@
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-core</artifactId>
             <version>1.1.2</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
@@ -87,16 +71,9 @@
             <version>1.1.3</version>
         </dependency>
         <dependency>
-            <groupId>org.hsqldb</groupId>
-            <artifactId>hsqldb</artifactId>
-            <version>2.2.4</version>
-        </dependency>
-
-        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>1.7.2</version>
-            <scope>compile</scope>
         </dependency>
 
         <!-- So can use Amazon API for archiving files and such -->
@@ -248,13 +225,6 @@
             <scope>provided</scope>
         </dependency>
 
-        <!--  OLS regression algorithm -->
-        <dependency>
-            <groupId>com.github.haifengl</groupId>
-            <artifactId>smile-core</artifactId>
-            <version>1.5.1</version>
-        </dependency>
-
         <!-- Logback log appender for AWS CloudWatch -->
         <dependency>
             <groupId>com.j256.cloudwatchlogbackappender</groupId>
@@ -275,14 +245,6 @@
             <artifactId>spymemcached</artifactId>
             <version>2.12.3</version>
         </dependency>
-        <dependency>
-            <groupId>javax.xml.bind</groupId>
-            <artifactId>jaxb-api</artifactId>
-            <version>2.4.0-b180830.0359</version>
-            <scope>compile</scope>
-        </dependency>
-
-
     </dependencies>
 
     <build>

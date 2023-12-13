@@ -1,8 +1,8 @@
 FROM maven:3-eclipse-temurin-8
 
-ARG AGENCYID="ro.stpt"
+ARG AGENCYID="stpt"
 ARG AGENCYNAME="STPT"
-ARG GTFS_URL="https://data.opentransport.ro/routing/gtfs/gtfs-stpt.zip"
+ARG GTFS_URL="https://data.opentransport.ro/routing/gtfs/gtfs-stpt-test.zip"
 ARG GTFSRTVEHICLEPOSITIONS="https://api.opentransport.ro/realtime/vehicle-positions/tm"
 ARG TRANSITCLOCK_PROPERTIES="docker/config/transitclock.properties"
 

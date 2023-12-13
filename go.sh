@@ -10,9 +10,9 @@ docker rmi transitclock-server
 
 docker build --no-cache -t transitclock-server:latest \
 --build-arg TRANSITCLOCK_PROPERTIES="docker/config/transitclock.properties" \
---build-arg AGENCYID="ro.stpt" \
+--build-arg AGENCYID="stpt" \
 --build-arg AGENCYNAME="STPT" \
---build-arg GTFS_URL="https://data.opentransport.ro/routing/gtfs/gtfs-stpt.zip" \
+--build-arg GTFS_URL="https://data.opentransport.ro/routing/gtfs/gtfs-stpt-test.zip" \
 --build-arg GTFSRTVEHICLEPOSITIONS="https://api.opentransport.ro/realtime/vehicle-positions/tm" .
 
 docker run --name transitclock-db -p 5432:5432 -e POSTGRES_PASSWORD=$PGPASSWORD -d postgres:9.6.3
