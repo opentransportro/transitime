@@ -39,9 +39,9 @@ RUN mkdir /usr/local/transitclock && mkdir /usr/local/transitclock/db && mkdir /
 
 WORKDIR /usr/local/transitclock
 
-ADD transitclockWebapp/target/web.war /usr/local/transitclock/
-ADD transitclockApi/target/api.war /usr/local/transitclock/
-ADD transitclock/target/Core.jar /usr/local/transitclock/
+ADD webapp/target/web.war /usr/local/transitclock/
+ADD api/target/api.war /usr/local/transitclock/
+ADD core/target/Core.jar /usr/local/transitclock/
 
 # Deploy API which talks to core using RMI calls.
 RUN mv api.war  /usr/local/tomcat/webapps
