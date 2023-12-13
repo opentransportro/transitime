@@ -1,6 +1,6 @@
 /*
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPL) as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -16,8 +16,7 @@
  */
 
 /**
- * Contains utilities for the API such as for handling standard parameters,
- * and validating usage to make sure key is proper and that not exceeding
- * access limits.
+ * Contains utilities for the API such as for handling standard parameters, and validating usage to
+ * make sure key is proper and that not exceeding access limits.
  */
 package org.transitclock.api.utils;

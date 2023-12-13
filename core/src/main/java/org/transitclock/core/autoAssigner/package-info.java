@@ -1,6 +1,6 @@
 /*
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPL) as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -16,11 +16,9 @@
  */
 
 /**
- * For automatically assigning vehicles to a block assignment by looking at
- * what blocks are available and how a vehicle matches a block spatially
- * and temporally.
+ * For automatically assigning vehicles to a block assignment by looking at what blocks are
+ * available and how a vehicle matches a block spatially and temporally.
  *
  * @author SkiBu Smith
- *
  */
 package org.transitclock.core.autoAssigner;

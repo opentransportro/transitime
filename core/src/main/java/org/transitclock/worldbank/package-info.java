@@ -1,6 +1,6 @@
-/* 
+/*
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPL) as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -16,12 +16,10 @@
  */
 
 /**
- * Contains classes specifically for World Bank projects. There is also other
- * code that was created for the World Bank that doesn't reside in this 
- * package because it has been generalized and can be used for any
- * agency. 
- * 
- * @author SkiBu Smith
+ * Contains classes specifically for World Bank projects. There is also other code that was created
+ * for the World Bank that doesn't reside in this package because it has been generalized and can be
+ * used for any agency.
  *
+ * @author SkiBu Smith
  */
 package org.transitclock.worldbank;

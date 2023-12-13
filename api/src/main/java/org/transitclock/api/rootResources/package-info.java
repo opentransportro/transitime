@@ -1,6 +1,6 @@
 /*
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPL) as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -15,8 +15,5 @@
  * along with Transitime.org .  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/**
- * Contains descriptions of all of all of the API calls
- * and specifies their syntax.
- */
+/** Contains descriptions of all of all of the API calls and specifies their syntax. */
 package org.transitclock.api.rootResources;

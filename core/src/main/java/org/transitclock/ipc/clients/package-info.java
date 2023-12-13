@@ -1,6 +1,6 @@
-/* 
+/*
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPL) as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -16,10 +16,9 @@
  */
 
 /**
- * Contains the client side code for connecting to an RMI interface in order
- * to read configuration, predictions, or vehicle data from the server.
- * 
- * @author SkiBu Smith
+ * Contains the client side code for connecting to an RMI interface in order to read configuration,
+ * predictions, or vehicle data from the server.
  *
+ * @author SkiBu Smith
  */
 package org.transitclock.ipc.clients;

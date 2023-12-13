@@ -1,6 +1,6 @@
 /*
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPL) as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -16,10 +16,9 @@
  */
 
 /**
- * For determining how long delays are when a bus has to stop at
- * a 4-way stop instead of having a green traffic signal.
+ * For determining how long delays are when a bus has to stop at a 4-way stop instead of having a
+ * green traffic signal.
  *
  * @author SkiBu Smith
- *
  */
 package org.transitclock.custom.sfmta.delayTimes;

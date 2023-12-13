@@ -1,6 +1,6 @@
 /*
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPL) as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -16,10 +16,8 @@
  */
 
 /**
- * Classes for maintaining production system, such as offloading log files
- * and such.
+ * Classes for maintaining production system, such as offloading log files and such.
  *
  * @author SkiBu Smith
- *
  */
 package org.transitclock.maintenance;

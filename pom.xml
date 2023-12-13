@@ -1,11 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>TheTransitClock</groupId>
     <artifactId>transitclock</artifactId>
     <version>${revision}</version>
     <packaging>pom</packaging>
+
+    <modules>
+        <module>core</module>
+        <module>api</module>
+        <module>webapp</module>
+        <module>quick-start</module>
+    </modules>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+
+        <jetty.version>9.4.15.v20190215</jetty.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.30</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 
     <pluginRepositories>
         <pluginRepository>
@@ -17,30 +40,6 @@
             <url>https://repo.camsys-apps.com/third-party</url>
         </pluginRepository>
     </pluginRepositories>
-
-    <dependencies>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>1.18.30</version>
-            <scope>provided</scope>
-        </dependency>
-    </dependencies>
-
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
-
-        <jetty.version>9.4.15.v20190215</jetty.version>
-    </properties>
-
-    <modules>
-        <module>core</module>
-        <module>api</module>
-        <module>webapp</module>
-        <module>quick-start</module>
-    </modules>
     <build>
         <pluginManagement>
             <plugins>
@@ -83,17 +82,17 @@
                     <executions>
                         <execution>
                             <id>flatten</id>
-                            <phase>process-resources</phase>
                             <goals>
                                 <goal>flatten</goal>
                             </goals>
+                            <phase>process-resources</phase>
                         </execution>
                         <execution>
                             <id>flatten.clean</id>
-                            <phase>clean</phase>
                             <goals>
                                 <goal>clean</goal>
                             </goals>
+                            <phase>clean</phase>
                         </execution>
                     </executions>
                 </plugin>
@@ -101,13 +100,6 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>3.2.2</version>
-                    <dependencies>
-                        <dependency>
-                            <groupId>me.fabriciorby</groupId>
-                            <artifactId>maven-surefire-junit5-tree-reporter</artifactId>
-                            <version>1.1.0</version>
-                        </dependency>
-                    </dependencies>
                     <configuration>
                         <runOrder>alphabetical</runOrder>
                         <forkCount>1</forkCount>
@@ -117,8 +109,15 @@
                         <consoleOutputReporter>
                             <disable>true</disable>
                         </consoleOutputReporter>
-                        <statelessTestsetInfoReporter implementation="org.apache.maven.plugin.surefire.extensions.junit5.JUnit5StatelessTestsetInfoTreeReporter"/>
+                        <statelessTestsetInfoReporter implementation="org.apache.maven.plugin.surefire.extensions.junit5.JUnit5StatelessTestsetInfoTreeReporter"></statelessTestsetInfoReporter>
                     </configuration>
+                    <dependencies>
+                        <dependency>
+                            <groupId>me.fabriciorby</groupId>
+                            <artifactId>maven-surefire-junit5-tree-reporter</artifactId>
+                            <version>1.1.0</version>
+                        </dependency>
+                    </dependencies>
                 </plugin>
                 <!-- Code coverage -->
                 <plugin>
@@ -136,6 +135,130 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+                <version>2.41.1</version>
+                <configuration>
+                    <!-- optional: limit format enforcement to just the files changed by this feature branch -->
+                    <!--                    <ratchetFrom>origin/main</ratchetFrom>-->
+                    <formats>
+                        <!-- you can define as many formats as you want, each is independent -->
+                        <format>
+                            <!-- define the files to apply to -->
+                            <includes>
+                                <include>.gitattributes</include>
+                                <include>.gitignore</include>
+                            </includes>
+                            <!-- define the steps to apply to those files -->
+                            <trimTrailingWhitespace></trimTrailingWhitespace>
+                            <endWithNewline></endWithNewline>
+                            <indent>
+                                <tabs>true</tabs>
+                                <spacesPerTab>4</spacesPerTab>
+                            </indent>
+                        </format>
+                    </formats>
+                    <!-- define a language-specific format -->
+                    <pom>
+                        <!-- These are the defaults, you can override if you want -->
+                        <includes>
+                            <include>pom.xml</include>
+                        </includes>
+
+                        <sortPom>
+                            <encoding>UTF-8</encoding>
+                            <!-- The encoding of the pom files -->
+
+                            <lineSeparator>${line.separator}</lineSeparator>
+                            <!-- line separator to use -->
+
+                            <expandEmptyElements>true</expandEmptyElements>
+                            <!-- Should empty elements be expanded-->
+
+                            <spaceBeforeCloseEmptyElement>false</spaceBeforeCloseEmptyElement>
+                            <!-- Should a space be added inside self-closing elements-->
+
+                            <keepBlankLines>true</keepBlankLines>
+                            <!-- Keep empty lines -->
+
+                            <nrOfIndentSpace>4</nrOfIndentSpace>
+                            <!-- Indentation -->
+
+                            <indentBlankLines>false</indentBlankLines>
+                            <!-- Should empty lines be indented -->
+
+                            <indentSchemaLocation>false</indentSchemaLocation>
+                            <!-- Should schema locations be indended -->
+
+                            <predefinedSortOrder>recommended_2008_06</predefinedSortOrder>
+                            <!-- Sort order of elements: https://github.com/Ekryd/sortpom/wiki/PredefinedSortOrderProfiles-->
+
+                            <sortOrderFile></sortOrderFile>
+                            <!-- Custom sort order of elements: https://raw.githubusercontent.com/Ekryd/sortpom/master/sorter/src/main/resources/custom_1.xml -->
+
+                            <sortDependencies></sortDependencies>
+                            <!-- Sort dependencies: https://github.com/Ekryd/sortpom/wiki/SortDependencies-->
+
+                            <sortDependencyExclusions></sortDependencyExclusions>
+                            <!-- Sort dependency exclusions: https://github.com/Ekryd/sortpom/wiki/SortDependencies-->
+
+                            <sortPlugins></sortPlugins>
+                            <!-- Sort plugins: https://github.com/Ekryd/sortpom/wiki/SortPlugins -->
+
+                            <sortProperties>false</sortProperties>
+                            <!-- Sort properties -->
+
+                            <sortModules>false</sortModules>
+                            <!-- Sort modules -->
+
+                            <sortExecutions>false</sortExecutions>
+                            <!-- Sort plugin executions -->
+                        </sortPom>
+
+                    </pom>
+                    <java>
+                        <importOrder>
+                            <!-- or a custom ordering -->
+                            <wildcardsLast>false</wildcardsLast>
+                            <!-- Optional, default false. Sort wildcard import after specific imports -->
+                            <order>java|javax,org,com,com.diffplug,,\#com.diffplug,\#</order>
+                            <!-- or use <file>${project.basedir}/eclipse.importorder</file> -->
+                            <!-- you can use an empty string for all the imports you didn't specify explicitly, '|' to join group without blank line, and '\#` prefix for static imports. -->
+                            <semanticSort>false</semanticSort>
+                            <!-- Optional, default false. Sort by package, then class, then member (for static imports). Splitting is based on common conventions (packages are lower case, classes start with upper case). Use <treatAsPackage> and <treatAsClass> for exceptions. -->
+                            <treatAsPackage>
+                                <!-- Packages starting with upper case letters. -->
+                                <package>com.example.MyPackage</package>
+                            </treatAsPackage>
+                            <treatAsClass>
+                                <!-- Classes starting with lower case letters. -->
+                                <class>com.example.myClass</class>
+                            </treatAsClass>
+                        </importOrder>
+
+                        <removeUnusedImports>
+                            <engine>google-java-format</engine>
+                        </removeUnusedImports>
+
+                        <!-- apply a specific flavor of google-java-format and reflow long strings -->
+                        <palantirJavaFormat>
+                            <version>2.39.0</version>
+                            <!-- optional -->
+                            <style>PALANTIR</style>
+                            <!-- or AOSP/GOOGLE (optional) -->
+                        </palantirJavaFormat>
+
+                        <!-- make sure every file has the following copyright header.
+                          optionally, Spotless can set copyright years by digging
+                          through git history (see "license" section below) -->
+                        <licenseHeader>
+                            <content>/* (C)$YEAR */</content>
+                            <!-- or <file>${project.basedir}/license-header</file> -->
+                        </licenseHeader>
+                    </java>
+                </configuration>
             </plugin>
         </plugins>
     </build>

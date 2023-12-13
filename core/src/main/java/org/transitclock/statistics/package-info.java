@@ -1,6 +1,6 @@
-/* 
+/*
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPL) as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -16,10 +16,9 @@
  */
 
 /**
- * Contains statistics classes such as for generating more accurate schedule
- * times by using GPS information on when the vehicles really do depart.
- *   
- * @author SkiBu Smith
+ * Contains statistics classes such as for generating more accurate schedule times by using GPS
+ * information on when the vehicles really do depart.
  *
+ * @author SkiBu Smith
  */
 package org.transitclock.statistics;

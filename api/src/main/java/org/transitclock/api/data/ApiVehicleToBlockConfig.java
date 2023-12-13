@@ -1,58 +1,35 @@
-/*
- * This file is part of Transitime.org
- * 
- * Transitime.org is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License (GPL) as published by
- * the Free Software Foundation, either version 3 of the License, or
- * any later version.
- *
- * Transitime.org is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with Transitime.org .  If not, see <http://www.gnu.org/licenses/>.
- */
-
+/* (C)2023 */
 package org.transitclock.api.data;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-
-import org.transitclock.api.rootResources.TransitimeApi.UiMode;
-import org.transitclock.ipc.data.IpcVehicle;
 import org.transitclock.ipc.data.IpcVehicleToBlockConfig;
 
 /**
  * Contains the data for a single vehicle.
- * <p>
- * Note: @XmlType(propOrder=""...) is used to get the elements to be output in
- * desired order instead of the default of alphabetical. This makes the
- * resulting JSON/XML more readable.
- * 
+ *
+ * <p>Note: @XmlType(propOrder=""...) is used to get the elements to be output in desired order
+ * instead of the default of alphabetical. This makes the resulting JSON/XML more readable.
+ *
  * @author SkiBu Smith
- * 
  */
 @XmlRootElement
-@XmlType(propOrder = { "id", "vehicleId", "blockId", "tripId",
-		"validFrom", "validTo", "assignmentDate"})
+@XmlType(propOrder = {"id", "vehicleId", "blockId", "tripId", "validFrom", "validTo", "assignmentDate"})
 public class ApiVehicleToBlockConfig extends ApiVehicleToBlockConfigAbstract {
 
-	/**
-	 * Need a no-arg constructor for Jersey. Otherwise get really obtuse
-	 * "MessageBodyWriter not found for media type=application/json" exception.
-	 */
-	protected ApiVehicleToBlockConfig() {
-	}
+    /**
+     * Need a no-arg constructor for Jersey. Otherwise get really obtuse "MessageBodyWriter not
+     * found for media type=application/json" exception.
+     */
+    protected ApiVehicleToBlockConfig() {}
 
-	/**
-	 * Takes a Vehicle object for client/server communication and constructs a
-	 * ApiVehicle object for the API. Sets UiMode to UiMode.NORMAL.
-	 * 
-	 * @param vTBC
-	 */
-	public ApiVehicleToBlockConfig(IpcVehicleToBlockConfig vTBC) {
-		super(vTBC);
-	}
+    /**
+     * Takes a Vehicle object for client/server communication and constructs a ApiVehicle object for
+     * the API. Sets UiMode to UiMode.NORMAL.
+     *
+     * @param vTBC
+     */
+    public ApiVehicleToBlockConfig(IpcVehicleToBlockConfig vTBC) {
+        super(vTBC);
+    }
 }

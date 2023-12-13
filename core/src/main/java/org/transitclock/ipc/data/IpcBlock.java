@@ -1,26 +1,9 @@
-/*
- * This file is part of Transitime.org
- * 
- * Transitime.org is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License (GPL) as published by
- * the Free Software Foundation, either version 3 of the License, or
- * any later version.
- *
- * Transitime.org is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with Transitime.org .  If not, see <http://www.gnu.org/licenses/>.
- */
-
+/* (C)2023 */
 package org.transitclock.ipc.data;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.transitclock.applications.Core;
 import org.transitclock.db.structs.Block;
 import org.transitclock.db.structs.Route;
@@ -31,81 +14,85 @@ import org.transitclock.utils.Time;
  * Configuration information for a Block for IPC.
  *
  * @author SkiBu Smith
- *
  */
 public class IpcBlock implements Serializable {
 
-	private final int configRev;
-	private final String id;
-	private final String serviceId;
-	private final int startTime; // In seconds from midnight
-	private final int endTime;   // In seconds from midnight
+    private final int configRev;
+    private final String id;
+    private final String serviceId;
+    private final int startTime; // In seconds from midnight
+    private final int endTime; // In seconds from midnight
 
-	private final List<IpcTrip> trips;
-	private final List<IpcRouteSummary> routeSummaries;
+    private final List<IpcTrip> trips;
+    private final List<IpcRouteSummary> routeSummaries;
 
-	private static final long serialVersionUID = 5707936828040534137L;
+    private static final long serialVersionUID = 5707936828040534137L;
 
-	/********************** Member Functions **************************/
+    /********************** Member Functions **************************/
+    public IpcBlock(Block dbBlock) {
+        configRev = dbBlock.getConfigRev();
+        id = dbBlock.getId();
+        serviceId = dbBlock.getServiceId();
+        startTime = dbBlock.getStartTime();
+        endTime = dbBlock.getEndTime();
 
-	public IpcBlock(Block dbBlock) {
-		configRev = dbBlock.getConfigRev();
-		id = dbBlock.getId();
-		serviceId = dbBlock.getServiceId();
-		startTime = dbBlock.getStartTime();
-		endTime = dbBlock.getEndTime();
-		
-		trips = new ArrayList<IpcTrip>();
-		for (Trip dbTrip : dbBlock.getTrips()) {
-			trips.add(new IpcTrip(dbTrip));
-		}
-		
-		routeSummaries = new ArrayList<IpcRouteSummary>();
-		for (String routeId : dbBlock.getRouteIds()) {
-			Route dbRoute = 
-					Core.getInstance().getDbConfig().getRouteById(routeId);
-			routeSummaries.add(new IpcRouteSummary(dbRoute));
-		}
-	}
+        trips = new ArrayList<IpcTrip>();
+        for (Trip dbTrip : dbBlock.getTrips()) {
+            trips.add(new IpcTrip(dbTrip));
+        }
 
-	@Override
-	public String toString() {
-		return "IpcBlock [" 
-				+ "configRev=" + configRev 
-				+ ", id=" + id
-				+ ", serviceId=" + serviceId 
-				+ ", startTime=" + Time.timeOfDayStr(startTime)
-				+ ", endTime=" + Time.timeOfDayStr(endTime) 
-				+ ", trips=" + trips 
-				+ ", routeSummaries=" + routeSummaries
-				+ "]";
-	}
+        routeSummaries = new ArrayList<IpcRouteSummary>();
+        for (String routeId : dbBlock.getRouteIds()) {
+            Route dbRoute = Core.getInstance().getDbConfig().getRouteById(routeId);
+            routeSummaries.add(new IpcRouteSummary(dbRoute));
+        }
+    }
 
-	public int getConfigRev() {
-		return configRev;
-	}
+    @Override
+    public String toString() {
+        return "IpcBlock ["
+                + "configRev="
+                + configRev
+                + ", id="
+                + id
+                + ", serviceId="
+                + serviceId
+                + ", startTime="
+                + Time.timeOfDayStr(startTime)
+                + ", endTime="
+                + Time.timeOfDayStr(endTime)
+                + ", trips="
+                + trips
+                + ", routeSummaries="
+                + routeSummaries
+                + "]";
+    }
 
-	public String getId() {
-		return id;
-	}
+    public int getConfigRev() {
+        return configRev;
+    }
 
-	public String getServiceId() {
-		return serviceId;
-	}
+    public String getId() {
+        return id;
+    }
 
-	public int getStartTime() {
-		return startTime;
-	}
+    public String getServiceId() {
+        return serviceId;
+    }
 
-	public int getEndTime() {
-		return endTime;
-	}
+    public int getStartTime() {
+        return startTime;
+    }
 
-	public List<IpcTrip> getTrips() {
-		return trips;
-	}
+    public int getEndTime() {
+        return endTime;
+    }
 
-	public List<IpcRouteSummary> getRouteSummaries() {
-		return routeSummaries;
-	}
+    public List<IpcTrip> getTrips() {
+        return trips;
+    }
+
+    public List<IpcRouteSummary> getRouteSummaries() {
+        return routeSummaries;
+    }
 }

@@ -1,15 +1,15 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
-    <artifactId>core</artifactId>
-    <version>${revision}</version>
 
     <parent>
         <groupId>TheTransitClock</groupId>
         <artifactId>transitclock</artifactId>
         <version>${revision}</version>
     </parent>
+
+    <artifactId>core</artifactId>
+    <version>${revision}</version>
 
     <dependencies>
         <dependency>
@@ -178,7 +178,6 @@
             <version>1.9.2</version>
         </dependency>
 
-
         <!-- JUnit testing of course -->
         <dependency>
             <groupId>junit</groupId>
@@ -245,6 +244,11 @@
             <artifactId>spymemcached</artifactId>
             <version>2.12.3</version>
         </dependency>
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>2.4.0-b180830.0359</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -259,15 +263,14 @@
                 <executions>
                     <execution>
                         <id>shade-UpdateTravelTimes</id>
-                        <phase>package</phase>
                         <goals>
                             <goal>shade</goal>
                         </goals>
+                        <phase>package</phase>
                         <configuration>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
                             <transformers>
-                                <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <mainClass>org.transitclock.applications.UpdateTravelTimes</mainClass>
                                 </transformer>
                             </transformers>
@@ -276,15 +279,14 @@
                     </execution>
                     <execution>
                         <id>shade-Core</id>
-                        <phase>package</phase>
                         <goals>
                             <goal>shade</goal>
                         </goals>
+                        <phase>package</phase>
                         <configuration>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
                             <transformers>
-                                <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <mainClass>org.transitclock.applications.Core</mainClass>
                                 </transformer>
                             </transformers>
@@ -293,15 +295,14 @@
                     </execution>
                     <execution>
                         <id>shade-SchemaGenerator</id>
-                        <phase>package</phase>
                         <goals>
                             <goal>shade</goal>
                         </goals>
+                        <phase>package</phase>
                         <configuration>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
                             <transformers>
-                                <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <mainClass>org.transitclock.applications.SchemaGenerator</mainClass>
                                 </transformer>
                             </transformers>
@@ -310,15 +311,14 @@
                     </execution>
                     <execution>
                         <id>shade-ScheduleGenerator</id>
-                        <phase>package</phase>
                         <goals>
                             <goal>shade</goal>
                         </goals>
+                        <phase>package</phase>
                         <configuration>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
                             <transformers>
-                                <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <mainClass>org.transitclock.applications.ScheduleGenerator</mainClass>
                                 </transformer>
                             </transformers>
@@ -327,15 +327,14 @@
                     </execution>
                     <execution>
                         <id>shade-GtfsFileProcessor</id>
-                        <phase>package</phase>
                         <goals>
                             <goal>shade</goal>
                         </goals>
+                        <phase>package</phase>
                         <configuration>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
                             <transformers>
-                                <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <mainClass>org.transitclock.applications.GtfsFileProcessor</mainClass>
                                 </transformer>
                             </transformers>
@@ -344,15 +343,14 @@
                     </execution>
                     <execution>
                         <id>shade-RmiQuery</id>
-                        <phase>package</phase>
                         <goals>
                             <goal>shade</goal>
                         </goals>
+                        <phase>package</phase>
                         <configuration>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
                             <transformers>
-                                <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <mainClass>org.transitclock.applications.RmiQuery</mainClass>
                                 </transformer>
                             </transformers>
@@ -361,15 +359,14 @@
                     </execution>
                     <execution>
                         <id>shade-CreateAPIKey</id>
-                        <phase>package</phase>
                         <goals>
                             <goal>shade</goal>
                         </goals>
+                        <phase>package</phase>
                         <configuration>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
                             <transformers>
-                                <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <mainClass>org.transitclock.applications.CreateAPIKey</mainClass>
                                 </transformer>
                             </transformers>
@@ -378,15 +375,14 @@
                     </execution>
                     <execution>
                         <id>shade-CreateWebAgency</id>
-                        <phase>package</phase>
                         <goals>
                             <goal>shade</goal>
                         </goals>
+                        <phase>package</phase>
                         <configuration>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
                             <transformers>
-                                <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <mainClass>org.transitclock.applications.CreateWebAgency</mainClass>
                                 </transformer>
                             </transformers>
@@ -416,10 +412,8 @@
                                 <configuration>
                                     <verbose>true</verbose>
                                     <fileset>
-                                        <directory>${project.basedir}/src/test/resources/database/transitime_test.zip
-                                        </directory>
-                                        <outputDirectory>${project.basedir}/src/test/resources/database/data
-                                        </outputDirectory>
+                                        <directory>${project.basedir}/src/test/resources/database/transitime_test.zip</directory>
+                                        <outputDirectory>${project.basedir}/src/test/resources/database/data</outputDirectory>
                                     </fileset>
                                 </configuration>
                             </execution>
@@ -433,10 +427,10 @@
                         <executions>
                             <execution>
                                 <id>user-database-start</id>
-                                <phase>test</phase>
                                 <goals>
                                     <goal>run</goal>
                                 </goals>
+                                <phase>test</phase>
                                 <configuration>
                                     <deleteOnEntry>true</deleteOnEntry>
                                     <dbName>${project.basedir}/src/test/resources/database/data/transitime_test</dbName>
@@ -451,19 +445,17 @@
                         <version>1.1.1</version>
                         <executions>
                             <execution>
-                                <phase>test</phase>
                                 <id>test-case-execution</id>
                                 <goals>
                                     <goal>java</goal>
                                 </goals>
+                                <phase>test</phase>
                                 <configuration>
-                                    <mainClass>org.transitclock.applications.PredictionsAccuracyIntegrationTest
-                                    </mainClass>
+                                    <mainClass>org.transitclock.applications.PredictionsAccuracyIntegrationTest</mainClass>
                                     <commandlineArgs>-c
                                         transitime/src/test/resources/transiTimeConfigIntegrationTest.xml
                                         -gtfsDirectoryName transitime/src/test/resources/wmata_gtfs -storeNewRevs
-                                        -maxTravelTimeSegmentLength 1000
-                                    </commandlineArgs>
+                                        -maxTravelTimeSegmentLength 1000</commandlineArgs>
                                 </configuration>
                             </execution>
                         </executions>

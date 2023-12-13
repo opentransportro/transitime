@@ -1,7 +1,7 @@
 /*
- * 
+ *
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPL) as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -16,12 +16,10 @@
  * along with Transitime.org .  If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * Contains the core classes that process the AVL data and create predictions,
- * arrival/departure times, headway, etc. Contains all the key algorithms that
- * are part of generating the data. This is the core package of the prediction
- * system.
- * 
- * @author SkiBu Smith
+ * Contains the core classes that process the AVL data and create predictions, arrival/departure
+ * times, headway, etc. Contains all the key algorithms that are part of generating the data. This
+ * is the core package of the prediction system.
  *
+ * @author SkiBu Smith
  */
 package org.transitclock.core;

@@ -1,22 +1,18 @@
+/* (C)2023 */
 package org.transitclock.core.dataCache;
 
 import java.util.List;
-
-import org.slf4j.Logger;
 import org.transitclock.core.Indices;
 
 public interface ErrorCache {
-	
-	KalmanError getErrorValue(Indices indices);
 
-	KalmanError getErrorValue(KalmanErrorCacheKey key);
+    KalmanError getErrorValue(Indices indices);
 
-	void putErrorValue(Indices indices, Double value);
-		
-	void putErrorValue(KalmanErrorCacheKey key, Double value);
+    KalmanError getErrorValue(KalmanErrorCacheKey key);
 
-	List<KalmanErrorCacheKey> getKeys();
+    void putErrorValue(Indices indices, Double value);
 
+    void putErrorValue(KalmanErrorCacheKey key, Double value);
 
-
+    List<KalmanErrorCacheKey> getKeys();
 }

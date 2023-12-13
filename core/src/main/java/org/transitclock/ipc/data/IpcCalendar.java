@@ -1,114 +1,106 @@
-/*
- * This file is part of Transitime.org
- * 
- * Transitime.org is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License (GPL) as published by
- * the Free Software Foundation, either version 3 of the License, or
- * any later version.
- *
- * Transitime.org is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with Transitime.org .  If not, see <http://www.gnu.org/licenses/>.
- */
+/* (C)2023 */
 package org.transitclock.ipc.data;
 
 import java.io.Serializable;
-
 import org.transitclock.db.structs.Calendar;
 
 /**
  * A calendar object for IPC via RMI
- * 
- * @author SkiBu Smith
  *
+ * @author SkiBu Smith
  */
 public class IpcCalendar implements Serializable {
 
-	private final String serviceId;
-	private final boolean monday;
-	private final boolean tuesday;
-	private final boolean wednesday;
-	private final boolean thursday;
-	private final boolean friday;
-	private final boolean saturday;
-	private final boolean sunday;
-	private final String startDate;
-	private final String endDate;
-	
-	private static final long serialVersionUID = 7248540190574905163L;
-	
-	public IpcCalendar(Calendar calendar) {
-		super();
-		this.serviceId = calendar.getServiceId();
-		this.monday = calendar.getMonday();
-		this.tuesday = calendar.getTuesday();
-		this.wednesday = calendar.getWednesday();
-		this.thursday = calendar.getThursday();
-		this.friday = calendar.getFriday();
-		this.saturday = calendar.getSaturday();
-		this.sunday = calendar.getSunday();
-		this.startDate = calendar.getStartDateStr();
-		this.endDate = calendar.getEndDateStr();
-	}
+    private final String serviceId;
+    private final boolean monday;
+    private final boolean tuesday;
+    private final boolean wednesday;
+    private final boolean thursday;
+    private final boolean friday;
+    private final boolean saturday;
+    private final boolean sunday;
+    private final String startDate;
+    private final String endDate;
 
-	@Override
-	public String toString() {
-		return "IpcCalendar [" 
-				+ "serviceId=" + serviceId 
-				+ ", monday=" + monday
-				+ ", tuesday=" + tuesday 
-				+ ", wednesday=" + wednesday
-				+ ", thursday=" + thursday 
-				+ ", friday=" + friday
-				+ ", saturday=" + saturday 
-				+ ", sunday=" + sunday
-				+ ", startDate=" + startDate 
-				+ ", endDate=" + endDate 
-				+ "]";
-	}
+    private static final long serialVersionUID = 7248540190574905163L;
 
-	public String getServiceId() {
-		return serviceId;
-	}
+    public IpcCalendar(Calendar calendar) {
+        super();
+        this.serviceId = calendar.getServiceId();
+        this.monday = calendar.getMonday();
+        this.tuesday = calendar.getTuesday();
+        this.wednesday = calendar.getWednesday();
+        this.thursday = calendar.getThursday();
+        this.friday = calendar.getFriday();
+        this.saturday = calendar.getSaturday();
+        this.sunday = calendar.getSunday();
+        this.startDate = calendar.getStartDateStr();
+        this.endDate = calendar.getEndDateStr();
+    }
 
-	public boolean isMonday() {
-		return monday;
-	}
+    @Override
+    public String toString() {
+        return "IpcCalendar ["
+                + "serviceId="
+                + serviceId
+                + ", monday="
+                + monday
+                + ", tuesday="
+                + tuesday
+                + ", wednesday="
+                + wednesday
+                + ", thursday="
+                + thursday
+                + ", friday="
+                + friday
+                + ", saturday="
+                + saturday
+                + ", sunday="
+                + sunday
+                + ", startDate="
+                + startDate
+                + ", endDate="
+                + endDate
+                + "]";
+    }
 
-	public boolean isTuesday() {
-		return tuesday;
-	}
+    public String getServiceId() {
+        return serviceId;
+    }
 
-	public boolean isWednesday() {
-		return wednesday;
-	}
+    public boolean isMonday() {
+        return monday;
+    }
 
-	public boolean isThursday() {
-		return thursday;
-	}
+    public boolean isTuesday() {
+        return tuesday;
+    }
 
-	public boolean isFriday() {
-		return friday;
-	}
+    public boolean isWednesday() {
+        return wednesday;
+    }
 
-	public boolean isSaturday() {
-		return saturday;
-	}
+    public boolean isThursday() {
+        return thursday;
+    }
 
-	public boolean isSunday() {
-		return sunday;
-	}
+    public boolean isFriday() {
+        return friday;
+    }
 
-	public String getStartDate() {
-		return startDate;
-	}
+    public boolean isSaturday() {
+        return saturday;
+    }
 
-	public String getEndDate() {
-		return endDate;
-	}
+    public boolean isSunday() {
+        return sunday;
+    }
 
+    public String getStartDate() {
+        return startDate;
+    }
+
+    public String getEndDate() {
+        return endDate;
+    }
 }

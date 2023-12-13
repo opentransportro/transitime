@@ -1,26 +1,9 @@
-/*
- * This file is part of Transitime.org
- * 
- * Transitime.org is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License (GPL) as published by
- * the Free Software Foundation, either version 3 of the License, or
- * any later version.
- *
- * Transitime.org is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with Transitime.org .  If not, see <http://www.gnu.org/licenses/>.
- */
-
+/* (C)2023 */
 package org.transitclock.db.structs;
 
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -29,7 +12,6 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -43,207 +25,186 @@ import org.transitclock.applications.Core;
  * For storing static configuration for vehicle in block.
  *
  * @author Hubert GoEuropa
- *
  */
-@Entity @DynamicUpdate @Table(name="ExportTable")
-public class ExportTable implements Serializable{
+@Entity
+@DynamicUpdate
+@Table(name = "ExportTable")
+public class ExportTable implements Serializable {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+    /** */
+    private static final long serialVersionUID = 1L;
 
-	// ID of vehicle
-	@Id 
-	@GeneratedValue(strategy=GenerationType.AUTO)
-	private long id;
-	
-	@Column	
-	@Temporal(TemporalType.DATE)
-	private Date dataDate;
-	
-	@Column	
-	@Temporal(TemporalType.TIMESTAMP)
-	private Date exportDate;
-	
-	@Column
-	private int exportType;
-	
-	@Column
-	private int exportStatus;
-	
-	@Column
-	private String fileName;
-	
-	@Column
-	private byte[] file;
-	
-	
-	private static final Logger logger = 
-			LoggerFactory.getLogger(ExportTable.class);
-	/********************** Member Functions **************************/
+    // ID of vehicle
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private long id;
 
-	
-	
-	/**
-	 * 
-	 * @param vehicleId vehicle ID
-	 * * @param blockId block ID
-	 * * @param tripId trip ID
-	 * * @param assignmentDate time
-	 * 	 * * @param validFrom time
-	 * 	 * * @param validTo time
-	 */
-	public static ExportTable create(Date dataDate, int exportType, String fileName) {
-		ExportTable exportElement =
-				new ExportTable(dataDate, exportType, fileName);
+    @Column
+    @Temporal(TemporalType.DATE)
+    private Date dataDate;
 
-		// Log VehicleToBlockConfig in log file
-		logger.info(exportElement.toString());
+    @Column
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date exportDate;
 
-		// Queue to write object to database
-		Core.getInstance().getDbLogger().add(exportElement);
+    @Column
+    private int exportType;
 
-		// Return new VehicleToBlockConfig
-		return exportElement;
-	}
+    @Column
+    private int exportStatus;
 
-	public ExportTable(Date dataDate, int exportType, String fileName) {
-		this.dataDate = dataDate;
-		this.exportType = exportType;
-		this.fileName = fileName;
-		this.exportDate = new Date();
-		this.exportStatus = 1;
-	}
-	
-	
+    @Column
+    private String fileName;
 
-	public ExportTable(long id, Date dataDate, Date exportDate, int exportType, int exportStatus, String fileName) {
-		this.id = id;
-		this.dataDate = dataDate;
-		this.exportDate = exportDate;
-		this.exportType = exportType;
-		this.exportStatus = exportStatus;
-		this.fileName = fileName;
-	}
+    @Column
+    private byte[] file;
 
-	/**
-	 * Needed because Hibernate requires no-arg constructor
-	 */
-	@SuppressWarnings("unused")
-	private ExportTable() {
-		dataDate = null;
-		exportDate = null;
-		exportType = 0;
-		fileName = null;
-		file = null;
-	}
+    private static final Logger logger = LoggerFactory.getLogger(ExportTable.class);
 
-	/**
-	 * Reads List of VehicleConfig objects from database
-	 * 
-	 * @param session
-	 * @return List of VehicleConfig objects
-	 * @throws HibernateException
-	 */
-	@SuppressWarnings("unchecked")
-	public static List<ExportTable> getExportTable(Session session) 
-			throws HibernateException {
-		String hql = "SELECT id, dataDate, exportDate, exportType, exportStatus, fileName FROM ExportTable order by exportDate desc";
-		//String hql = "FROM ExportTable";
-		Query query = session.createQuery(hql);
-		return query.list();
-	}
-	
-	
-	public static void deleteExportTableRecord(long id, Session session) 
-			throws HibernateException {
-		Transaction transaction = session.beginTransaction();
-		try {
-		  String hql = "delete from ExportTable where id = :id";
-		  Query q = session.createQuery(hql).setParameter("id", id);
-		  q.executeUpdate();
+    /********************** Member Functions **************************/
 
-		  transaction.commit();
-		} catch (Throwable t) {
-		  transaction.rollback();
-		  throw t;
-		}
-		
-	}
-	
-	@SuppressWarnings("unchecked")
-	public static List<ExportTable> getExportFile(Session session, long id) 
-			throws HibernateException {
-		String hql = "FROM ExportTable WHERE id = " + id;
-		Query query = session.createQuery(hql);
-		return query.list();
-	}
+    /**
+     * @param vehicleId vehicle ID * @param blockId block ID * @param tripId trip ID * @param
+     *     assignmentDate time * * @param validFrom time * * @param validTo time
+     */
+    public static ExportTable create(Date dataDate, int exportType, String fileName) {
+        ExportTable exportElement = new ExportTable(dataDate, exportType, fileName);
 
-	public long getId() {
-		return id;
-	}
+        // Log VehicleToBlockConfig in log file
+        logger.info(exportElement.toString());
 
-	public void setId(long id) {
-		this.id = id;
-	}
+        // Queue to write object to database
+        Core.getInstance().getDbLogger().add(exportElement);
 
-	public Date getDataDate() {
-		return dataDate;
-	}
+        // Return new VehicleToBlockConfig
+        return exportElement;
+    }
 
-	public void setDataDate(Date dataDate) {
-		this.dataDate = dataDate;
-	}
+    public ExportTable(Date dataDate, int exportType, String fileName) {
+        this.dataDate = dataDate;
+        this.exportType = exportType;
+        this.fileName = fileName;
+        this.exportDate = new Date();
+        this.exportStatus = 1;
+    }
 
-	public Date getExportDate() {
-		return exportDate;
-	}
+    public ExportTable(long id, Date dataDate, Date exportDate, int exportType, int exportStatus, String fileName) {
+        this.id = id;
+        this.dataDate = dataDate;
+        this.exportDate = exportDate;
+        this.exportType = exportType;
+        this.exportStatus = exportStatus;
+        this.fileName = fileName;
+    }
 
-	public void setExportDate(Date exportDate) {
-		this.exportDate = exportDate;
-	}
+    /** Needed because Hibernate requires no-arg constructor */
+    @SuppressWarnings("unused")
+    private ExportTable() {
+        dataDate = null;
+        exportDate = null;
+        exportType = 0;
+        fileName = null;
+        file = null;
+    }
 
-	public int getExportType() {
-		return exportType;
-	}
+    /**
+     * Reads List of VehicleConfig objects from database
+     *
+     * @param session
+     * @return List of VehicleConfig objects
+     * @throws HibernateException
+     */
+    @SuppressWarnings("unchecked")
+    public static List<ExportTable> getExportTable(Session session) throws HibernateException {
+        String hql = "SELECT id, dataDate, exportDate, exportType, exportStatus, fileName FROM"
+                + " ExportTable order by exportDate desc";
+        // String hql = "FROM ExportTable";
+        Query query = session.createQuery(hql);
+        return query.list();
+    }
 
-	public void setExportType(int exportType) {
-		this.exportType = exportType;
-	}
+    public static void deleteExportTableRecord(long id, Session session) throws HibernateException {
+        Transaction transaction = session.beginTransaction();
+        try {
+            String hql = "delete from ExportTable where id = :id";
+            Query q = session.createQuery(hql).setParameter("id", id);
+            q.executeUpdate();
 
-	public String getFileName() {
-		return fileName;
-	}
+            transaction.commit();
+        } catch (Throwable t) {
+            transaction.rollback();
+            throw t;
+        }
+    }
 
-	public void setFileName(String fileName) {
-		this.fileName = fileName;
-	}
+    @SuppressWarnings("unchecked")
+    public static List<ExportTable> getExportFile(Session session, long id) throws HibernateException {
+        String hql = "FROM ExportTable WHERE id = " + id;
+        Query query = session.createQuery(hql);
+        return query.list();
+    }
 
-	public byte[] getFile() {
-		return file;
-	}
+    public long getId() {
+        return id;
+    }
 
-	public void setFile(byte[] file) {
-		this.file = file;
-	}
-	
-	
+    public void setId(long id) {
+        this.id = id;
+    }
 
-	public int getExportStatus() {
-		return exportStatus;
-	}
+    public Date getDataDate() {
+        return dataDate;
+    }
 
-	public void setExportStatus(int exportStatus) {
-		this.exportStatus = exportStatus;
-	}
+    public void setDataDate(Date dataDate) {
+        this.dataDate = dataDate;
+    }
 
-	public static long getSerialversionuid() {
-		return serialVersionUID;
-	}
+    public Date getExportDate() {
+        return exportDate;
+    }
 
-	public static Logger getLogger() {
-		return logger;
-	}
-	
+    public void setExportDate(Date exportDate) {
+        this.exportDate = exportDate;
+    }
+
+    public int getExportType() {
+        return exportType;
+    }
+
+    public void setExportType(int exportType) {
+        this.exportType = exportType;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+
+    public byte[] getFile() {
+        return file;
+    }
+
+    public void setFile(byte[] file) {
+        this.file = file;
+    }
+
+    public int getExportStatus() {
+        return exportStatus;
+    }
+
+    public void setExportStatus(int exportStatus) {
+        this.exportStatus = exportStatus;
+    }
+
+    public static long getSerialversionuid() {
+        return serialVersionUID;
+    }
+
+    public static Logger getLogger() {
+        return logger;
+    }
 }

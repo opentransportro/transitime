@@ -1,11 +1,11 @@
+/* (C)2023 */
 package org.transitclock.core.predAccuracy.gtfsrt;
 
+import com.google.transit.realtime.GtfsRealtime.FeedHeader;
 import java.util.Date;
 
-import com.google.transit.realtime.GtfsRealtime.FeedHeader;
-
 public interface GTFSRealtimeTranslator {
-  String parseStopId(String inputStopId);
+    String parseStopId(String inputStopId);
 
-  Date parseFeedHeaderTimestamp(FeedHeader header);
+    Date parseFeedHeaderTimestamp(FeedHeader header);
 }

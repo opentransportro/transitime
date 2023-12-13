@@ -1,8 +1,8 @@
+/* (C)2023 */
 package org.transitclock.db.structs;
 
 import java.io.Serializable;
 import java.util.Date;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -12,281 +12,291 @@ import javax.persistence.Index;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-
 import org.hibernate.annotations.DynamicUpdate;
 import org.transitclock.applications.Core;
 import org.transitclock.db.hibernate.HibernateUtils;
-@Entity @DynamicUpdate 
-@Table(name="Headway",
-       indexes = { @Index(name="HeadwayIndex", 
-                   columnList="creationTime" ) } )
+
+@Entity
+@DynamicUpdate
+@Table(
+        name = "Headway",
+        indexes = {@Index(name = "HeadwayIndex", columnList = "creationTime")})
 public class Headway implements Serializable {
-	public Headway() {		
-	}
+    public Headway() {}
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -4561111910398287801L;
+    /** */
+    private static final long serialVersionUID = -4561111910398287801L;
 
-	@Id 
-	@GeneratedValue(strategy=GenerationType.AUTO)
-	private long id;
-	
-	// The revision of the configuration data that was being used
-	@Column 
-	private  int configRev;
-	
-	@Column		
-	private  double headway;
-	
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private long id;
 
-	@Column		
-	private double average;
-	
-	@Column 
-	private double variance;
-	
-	@Column 
-	private double coefficientOfVariation;
-	
-	@Column
-	private int numVehicles;
+    // The revision of the configuration data that was being used
+    @Column
+    private int configRev;
 
-	// The time the AVL data was processed and the headway was created.
-	@Column	
-	@Temporal(TemporalType.TIMESTAMP)
-	private  Date creationTime;
-	
-	@Column(length=HibernateUtils.DEFAULT_ID_SIZE)
-	private  String vehicleId;
-	
-	@Column(length=HibernateUtils.DEFAULT_ID_SIZE)
-	private  String otherVehicleId;
-	
-	@Column(length=HibernateUtils.DEFAULT_ID_SIZE)
-	private  String stopId;
-	
-	@Column(length=HibernateUtils.DEFAULT_ID_SIZE)
-	private  String tripId;
-	
-	@Column(length=HibernateUtils.DEFAULT_ID_SIZE)
-	private  String routeId;
-	
-	
-	@Column	
-	@Temporal(TemporalType.TIMESTAMP)
-	private  Date firstDeparture;
-	
-	@Column	
-	@Temporal(TemporalType.TIMESTAMP)
-	private  Date secondDeparture;
-	
-	
-	public Headway(long headway, Date creationTime, String vehicleId, String otherVehicleId, String stopId, String tripId,
-			String routeId, Date firstDeparture, Date secondDeparture) {
-		
-		this.configRev = Core.getInstance().getDbConfig().getConfigRev();
-		this.headway = headway;
-		this.creationTime = creationTime;
-		this.vehicleId = vehicleId;
-		this.stopId = stopId;
-		this.tripId = tripId;
-		this.routeId = routeId;
-		this.average=0;
-		this.variance=0;
-		this.coefficientOfVariation=0;
-		this.numVehicles = 0;
-		this.otherVehicleId=otherVehicleId;
-		this.firstDeparture=firstDeparture;
-		this.secondDeparture=secondDeparture;
-	}
+    @Column
+    private double headway;
 
-	public String getOtherVehicleId() {
-		return otherVehicleId;
-	}
+    @Column
+    private double average;
 
-	public Date getFirstDeparture() {
-		return firstDeparture;
-	}
+    @Column
+    private double variance;
 
-	public Date getSecondDeparture() {
-		return secondDeparture;
-	}
+    @Column
+    private double coefficientOfVariation;
 
-	public static long getSerialversionuid() {
-		return serialVersionUID;
-	}
+    @Column
+    private int numVehicles;
 
-	public long getId() {
-		return id;
-	}
+    // The time the AVL data was processed and the headway was created.
+    @Column
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date creationTime;
 
-	public int getConfigRev() {
-		return configRev;
-	}
+    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
+    private String vehicleId;
 
+    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
+    private String otherVehicleId;
 
+    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
+    private String stopId;
 
-	public Date getCreationTime() {
-		return creationTime;
-	}
+    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
+    private String tripId;
 
-	public String getVehicleId() {
-		return vehicleId;
-	}
+    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
+    private String routeId;
 
-	public String getStopId() {
-		return stopId;
-	}
+    @Column
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date firstDeparture;
 
-	public String getTripId() {
-		return tripId;
-	}
+    @Column
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date secondDeparture;
 
-	public String getRouteId() {
-		return routeId;
-	}
+    public Headway(
+            long headway,
+            Date creationTime,
+            String vehicleId,
+            String otherVehicleId,
+            String stopId,
+            String tripId,
+            String routeId,
+            Date firstDeparture,
+            Date secondDeparture) {
 
-	public int getNumVehicles() {
-		return numVehicles;
-	}
+        this.configRev = Core.getInstance().getDbConfig().getConfigRev();
+        this.headway = headway;
+        this.creationTime = creationTime;
+        this.vehicleId = vehicleId;
+        this.stopId = stopId;
+        this.tripId = tripId;
+        this.routeId = routeId;
+        this.average = 0;
+        this.variance = 0;
+        this.coefficientOfVariation = 0;
+        this.numVehicles = 0;
+        this.otherVehicleId = otherVehicleId;
+        this.firstDeparture = firstDeparture;
+        this.secondDeparture = secondDeparture;
+    }
 
-	public void setNumVehicles(int numVehicles) {
-		this.numVehicles = numVehicles;
-	}
-	public double getAverage() {
-		return average;
-	}
+    public String getOtherVehicleId() {
+        return otherVehicleId;
+    }
 
-	public void setAverage(double average) {
-		this.average = average;
-	}
+    public Date getFirstDeparture() {
+        return firstDeparture;
+    }
 
-	public double getVariance() {
-		return variance;
-	}
+    public Date getSecondDeparture() {
+        return secondDeparture;
+    }
 
-	public void setVariance(double variance) {
-		this.variance = variance;
-	}
+    public static long getSerialversionuid() {
+        return serialVersionUID;
+    }
 
-	public double getCoefficientOfVariation() {
-		return coefficientOfVariation;
-	}
+    public long getId() {
+        return id;
+    }
 
-	public void setCoefficientOfVariation(double coefficientOfVariation) {
-		this.coefficientOfVariation = coefficientOfVariation;
-	}
+    public int getConfigRev() {
+        return configRev;
+    }
 
-	public double getHeadway() {
-		return headway;
-	}
-	public void setConfigRev(int configRev) {
-		this.configRev = configRev;
-	}
+    public Date getCreationTime() {
+        return creationTime;
+    }
 
-	public void setHeadway(double headway) {
-		this.headway = headway;
-	}
+    public String getVehicleId() {
+        return vehicleId;
+    }
 
-	public void setCreationTime(Date creationTime) {
-		this.creationTime = creationTime;
-	}
+    public String getStopId() {
+        return stopId;
+    }
 
-	public void setVehicleId(String vehicleId) {
-		this.vehicleId = vehicleId;
-	}
+    public String getTripId() {
+        return tripId;
+    }
 
-	public void setOtherVehicleId(String otherVehicleId) {
-		this.otherVehicleId = otherVehicleId;
-	}
+    public String getRouteId() {
+        return routeId;
+    }
 
-	public void setStopId(String stopId) {
-		this.stopId = stopId;
-	}
+    public int getNumVehicles() {
+        return numVehicles;
+    }
 
-	public void setTripId(String tripId) {
-		this.tripId = tripId;
-	}
+    public void setNumVehicles(int numVehicles) {
+        this.numVehicles = numVehicles;
+    }
 
-	public void setRouteId(String routeId) {
-		this.routeId = routeId;
-	}
+    public double getAverage() {
+        return average;
+    }
 
-	public void setFirstDeparture(Date firstDeparture) {
-		this.firstDeparture = firstDeparture;
-	}
+    public void setAverage(double average) {
+        this.average = average;
+    }
 
-	public void setSecondDeparture(Date secondDeparture) {
-		this.secondDeparture = secondDeparture;
-	}
+    public double getVariance() {
+        return variance;
+    }
 
-	
+    public void setVariance(double variance) {
+        this.variance = variance;
+    }
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		long temp;
-		temp = Double.doubleToLongBits(headway);
-		result = prime * result + (int) (temp ^ (temp >>> 32));		
-		result = prime * result + ((otherVehicleId == null) ? 0 : otherVehicleId.hashCode());
-		result = prime * result + ((routeId == null) ? 0 : routeId.hashCode());
-		result = prime * result + ((stopId == null) ? 0 : stopId.hashCode());
-		result = prime * result + ((tripId == null) ? 0 : tripId.hashCode());
-		result = prime * result + ((vehicleId == null) ? 0 : vehicleId.hashCode());
-		return result;
-	}
+    public double getCoefficientOfVariation() {
+        return coefficientOfVariation;
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Headway other = (Headway) obj;
-		if (Double.doubleToLongBits(headway) != Double.doubleToLongBits(other.headway))
-			return false;	
-		if (otherVehicleId == null) {
-			if (other.otherVehicleId != null)
-				return false;
-		} else if (!otherVehicleId.equals(other.otherVehicleId))
-			return false;
-		if (routeId == null) {
-			if (other.routeId != null)
-				return false;
-		} else if (!routeId.equals(other.routeId))
-			return false;
-		if (stopId == null) {
-			if (other.stopId != null)
-				return false;
-		} else if (!stopId.equals(other.stopId))
-			return false;
-		if (tripId == null) {
-			if (other.tripId != null)
-				return false;
-		} else if (!tripId.equals(other.tripId))
-			return false;
-		if (vehicleId == null) {
-			if (other.vehicleId != null)
-				return false;
-		} else if (!vehicleId.equals(other.vehicleId))
-			return false;
-		return true;
-	}
+    public void setCoefficientOfVariation(double coefficientOfVariation) {
+        this.coefficientOfVariation = coefficientOfVariation;
+    }
 
-	@Override
-	public String toString() {
-		return "Headway [id=" + id + ", configRev=" + configRev + ", headway=" + headway + ", average=" + average
-				+ ", variance=" + variance + ", coefficientOfVariation=" + coefficientOfVariation + ", numVehicles="
-				+ numVehicles + ", creationTime=" + creationTime + ", vehicleId=" + vehicleId + ", otherVehicleId="
-				+ otherVehicleId + ", stopId=" + stopId + ", tripId=" + tripId + ", routeId=" + routeId
-				+ ", firstDeparture=" + firstDeparture + ", secondDeparture=" + secondDeparture + "]";
-	}
+    public double getHeadway() {
+        return headway;
+    }
 
-	
+    public void setConfigRev(int configRev) {
+        this.configRev = configRev;
+    }
 
+    public void setHeadway(double headway) {
+        this.headway = headway;
+    }
+
+    public void setCreationTime(Date creationTime) {
+        this.creationTime = creationTime;
+    }
+
+    public void setVehicleId(String vehicleId) {
+        this.vehicleId = vehicleId;
+    }
+
+    public void setOtherVehicleId(String otherVehicleId) {
+        this.otherVehicleId = otherVehicleId;
+    }
+
+    public void setStopId(String stopId) {
+        this.stopId = stopId;
+    }
+
+    public void setTripId(String tripId) {
+        this.tripId = tripId;
+    }
+
+    public void setRouteId(String routeId) {
+        this.routeId = routeId;
+    }
+
+    public void setFirstDeparture(Date firstDeparture) {
+        this.firstDeparture = firstDeparture;
+    }
+
+    public void setSecondDeparture(Date secondDeparture) {
+        this.secondDeparture = secondDeparture;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        long temp;
+        temp = Double.doubleToLongBits(headway);
+        result = prime * result + (int) (temp ^ (temp >>> 32));
+        result = prime * result + ((otherVehicleId == null) ? 0 : otherVehicleId.hashCode());
+        result = prime * result + ((routeId == null) ? 0 : routeId.hashCode());
+        result = prime * result + ((stopId == null) ? 0 : stopId.hashCode());
+        result = prime * result + ((tripId == null) ? 0 : tripId.hashCode());
+        result = prime * result + ((vehicleId == null) ? 0 : vehicleId.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
+        Headway other = (Headway) obj;
+        if (Double.doubleToLongBits(headway) != Double.doubleToLongBits(other.headway)) return false;
+        if (otherVehicleId == null) {
+            if (other.otherVehicleId != null) return false;
+        } else if (!otherVehicleId.equals(other.otherVehicleId)) return false;
+        if (routeId == null) {
+            if (other.routeId != null) return false;
+        } else if (!routeId.equals(other.routeId)) return false;
+        if (stopId == null) {
+            if (other.stopId != null) return false;
+        } else if (!stopId.equals(other.stopId)) return false;
+        if (tripId == null) {
+            if (other.tripId != null) return false;
+        } else if (!tripId.equals(other.tripId)) return false;
+        if (vehicleId == null) {
+            if (other.vehicleId != null) return false;
+        } else if (!vehicleId.equals(other.vehicleId)) return false;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "Headway [id="
+                + id
+                + ", configRev="
+                + configRev
+                + ", headway="
+                + headway
+                + ", average="
+                + average
+                + ", variance="
+                + variance
+                + ", coefficientOfVariation="
+                + coefficientOfVariation
+                + ", numVehicles="
+                + numVehicles
+                + ", creationTime="
+                + creationTime
+                + ", vehicleId="
+                + vehicleId
+                + ", otherVehicleId="
+                + otherVehicleId
+                + ", stopId="
+                + stopId
+                + ", tripId="
+                + tripId
+                + ", routeId="
+                + routeId
+                + ", firstDeparture="
+                + firstDeparture
+                + ", secondDeparture="
+                + secondDeparture
+                + "]";
+    }
 }

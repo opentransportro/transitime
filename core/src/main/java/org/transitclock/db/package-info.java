@@ -1,6 +1,6 @@
-/* 
+/*
  * This file is part of Transitime.org
- * 
+ *
  * Transitime.org is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License (GPL) as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -16,11 +16,9 @@
  */
 
 /**
- * Contains the classes for accessing the database via Hibernate and the
- * the classes that describe the objects that are store and retrieved to
- * and from the database.
- * 
- * @author SkiBu Smith
+ * Contains the classes for accessing the database via Hibernate and the the classes that describe
+ * the objects that are store and retrieved to and from the database.
  *
+ * @author SkiBu Smith
  */
 package org.transitclock.db;
