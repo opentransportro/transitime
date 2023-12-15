@@ -171,7 +171,7 @@ public class TripPattern implements Serializable, Lifecycle {
 
     /** Hibernate requires a not-arg constructor */
     @SuppressWarnings("unused")
-    private TripPattern() {
+    protected TripPattern() {
         super();
 
         configRev = -1;

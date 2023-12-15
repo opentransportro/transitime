@@ -14,7 +14,7 @@ import org.transitclock.avl.PollUrlAvlModule;
 import org.transitclock.config.StringConfigValue;
 import org.transitclock.db.structs.AvlReport;
 import org.transitclock.db.structs.AvlReport.AssignmentType;
-import org.transitclock.modules.Module;
+import org.transitclock.Module;
 
 /**
  * AVL module for reading AVL data from MBTA BusLoc feed.

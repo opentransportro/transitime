@@ -15,7 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.config.StringConfigValue;
 import org.transitclock.db.structs.AvlReport;
-import org.transitclock.modules.Module;
+import org.transitclock.Module;
 import org.transitclock.utils.Geo;
 
 /**

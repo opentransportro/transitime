@@ -57,7 +57,7 @@ public class Departure extends ArrivalDeparture {
      * used.
      */
     @SuppressWarnings("unused")
-    private Departure() {
+    protected Departure() {
         super();
     }
 }

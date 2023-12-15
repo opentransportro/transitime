@@ -100,7 +100,7 @@ public class Agency implements Serializable {
 
     /** Needed because Hibernate requires no-arg constructor for reading in data */
     @SuppressWarnings("unused")
-    private Agency() {
+    protected Agency() {
         configRev = -1;
         agencyId = null;
         agencyName = null;

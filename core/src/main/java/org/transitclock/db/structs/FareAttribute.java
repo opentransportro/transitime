@@ -71,7 +71,7 @@ public class FareAttribute implements Serializable {
 
     /** Needed because Hibernate requires no-arg constructor */
     @SuppressWarnings("unused")
-    private FareAttribute() {
+    protected FareAttribute() {
         configRev = 0;
         fareId = null;
         price = Float.NaN;

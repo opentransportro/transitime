@@ -98,9 +98,9 @@
 
         <!-- For GTFS-realtime feed -->
         <dependency>
-            <groupId>com.google.transit</groupId>
+            <groupId>org.mobilitydata</groupId>
             <artifactId>gtfs-realtime-bindings</artifactId>
-            <version>0.0.4</version>
+            <version>0.0.8</version>
         </dependency>
 
         <!-- For more easily handling command line options -->
@@ -109,9 +109,6 @@
             <artifactId>commons-cli</artifactId>
             <version>1.2</version>
         </dependency>
-
-        <!-- I believe not needed <dependency> <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-core</artifactId> <version>3.6.2</version> </dependency> -->
 
         <!-- For JMS for fancy handling of AVL feeds -->
         <dependency>
@@ -140,7 +137,7 @@
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
-            <version>20140107</version>
+            <version>20230618</version>
         </dependency>
 
         <!-- For parsing CSV files, such as GTFS ones -->
@@ -185,11 +182,11 @@
             <version>4.11</version>
             <scope>test</scope>
         </dependency>
+
         <!-- Used for reflection to find classes in package -->
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>18.0</version>
         </dependency>
         <dependency>
             <groupId>org.ehcache</groupId>

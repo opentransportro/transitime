@@ -22,7 +22,7 @@ import org.transitclock.db.structs.Location;
 import org.transitclock.ipc.data.IpcVehicle;
 import org.transitclock.ipc.data.IpcVehicleComplete;
 import org.transitclock.logging.Markers;
-import org.transitclock.modules.Module;
+import org.transitclock.Module;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.Time;
 

@@ -80,7 +80,7 @@ public class FareRule implements Serializable {
 
     /** Needed because Hibernate requires no-arg constructor */
     @SuppressWarnings("unused")
-    private FareRule() {
+    protected FareRule() {
         configRev = -1;
         fareId = null;
         routeId = null;

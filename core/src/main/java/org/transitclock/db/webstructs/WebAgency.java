@@ -13,6 +13,8 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+
+import lombok.Getter;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -38,6 +40,7 @@ import org.transitclock.utils.Time;
 @Entity
 @DynamicUpdate
 @Table(name = "WebAgencies")
+@Getter
 public class WebAgency {
 
     @Id
@@ -413,43 +416,6 @@ public class WebAgency {
                 + ", dbEncryptedPassword="
                 + dbEncryptedPassword
                 + "]";
-    }
-
-    public String getAgencyId() {
-        return agencyId;
-    }
-
-    public String getHostName() {
-        return hostName;
-    }
-
-    public boolean isActive() {
-        return active;
-    }
-
-    /**
-     * Returns name of the db for the agency
-     *
-     * @return
-     */
-    public String getDbName() {
-        return dbName;
-    }
-
-    public String getDbType() {
-        return dbType;
-    }
-
-    public String getDbHost() {
-        return dbHost;
-    }
-
-    public String getDbUserName() {
-        return dbUserName;
-    }
-
-    public String getDbEncryptedPassword() {
-        return dbEncryptedPassword;
     }
 
     public String getDbPassword() {

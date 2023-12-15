@@ -302,7 +302,7 @@ public class Trip implements Lifecycle, Serializable {
 
     /** Hibernate requires no-arg constructor */
     @SuppressWarnings("unused")
-    private Trip() {
+    protected Trip() {
         configRev = -1;
         tripId = null;
         tripShortName = null;

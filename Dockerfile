@@ -1,8 +1,8 @@
 FROM maven:3-eclipse-temurin-17
 
-ARG AGENCYID="stpt"
+ARG AGENCYID="ro.stpt"
 ARG AGENCYNAME="STPT"
-ARG GTFS_URL="https://data.opentransport.ro/routing/gtfs/gtfs-stpt-test.zip"
+ARG GTFS_URL="https://data.opentransport.ro/routing/gtfs/gtfs-stpt.zip"
 ARG GTFSRTVEHICLEPOSITIONS="https://api.opentransport.ro/realtime/vehicle-positions/tm"
 ARG TRANSITCLOCK_PROPERTIES="docker/config/transitclock.properties"
 
@@ -21,8 +21,8 @@ RUN mkdir -p "$CATALINA_HOME"
 WORKDIR $CATALINA_HOME
 
 ENV TOMCAT_MAJOR 8
-ENV TOMCAT_VERSION 8.0.43
-ENV TOMCAT_TGZ_URL https://archive.apache.org/dist/tomcat/tomcat-$TOMCAT_MAJOR/v$TOMCAT_VERSION/bin/apache-tomcat-$TOMCAT_VERSION.tar.gz
+ENV TOMCAT_VERSION 8.5.97
+ENV TOMCAT_TGZ_URL https://dlcdn.apache.org/tomcat/tomcat-$TOMCAT_MAJOR/v$TOMCAT_VERSION/bin/apache-tomcat-$TOMCAT_VERSION.tar.gz
 
 RUN set -x \
 	&& curl -fSL "$TOMCAT_TGZ_URL" -o tomcat.tar.gz \

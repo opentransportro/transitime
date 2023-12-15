@@ -21,7 +21,7 @@ import org.transitclock.config.StringConfigValue;
 import org.transitclock.db.structs.Route;
 import org.transitclock.db.structs.Trip;
 import org.transitclock.gtfs.DbConfig;
-import org.transitclock.modules.Module;
+import org.transitclock.Module;
 
 /**
  * Reads in external prediction data from NextBus feed and internal Transitime predictions (since

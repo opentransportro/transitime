@@ -9,7 +9,7 @@ import java.util.Date;
 import org.json.JSONArray;
 import org.transitclock.avl.PollUrlAvlModule;
 import org.transitclock.db.structs.AvlReport;
-import org.transitclock.modules.Module;
+import org.transitclock.Module;
 
 public class SwordsExpressAvlModule extends PollUrlAvlModule {
 

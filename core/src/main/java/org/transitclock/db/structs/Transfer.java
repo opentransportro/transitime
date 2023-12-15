@@ -64,7 +64,7 @@ public class Transfer implements Serializable {
 
     /** Needed because no-arg constructor required by Hibernate */
     @SuppressWarnings("unused")
-    private Transfer() {
+    protected Transfer() {
         configRev = -1;
         fromStopId = null;
         toStopId = null;

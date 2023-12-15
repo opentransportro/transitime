@@ -25,7 +25,7 @@ import org.transitclock.config.ClassConfigValue;
 import org.transitclock.config.IntegerConfigValue;
 import org.transitclock.config.StringConfigValue;
 import org.transitclock.core.AvlProcessor;
-import org.transitclock.modules.Module;
+import org.transitclock.Module;
 import org.transitclock.monitoring.CloudwatchService;
 import org.transitclock.utils.threading.BoundedExecutor;
 import org.transitclock.utils.threading.NamedThreadFactory;

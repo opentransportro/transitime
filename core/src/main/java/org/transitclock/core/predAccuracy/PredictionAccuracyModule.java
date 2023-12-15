@@ -22,7 +22,7 @@ import org.transitclock.db.structs.Route;
 import org.transitclock.db.structs.TripPattern;
 import org.transitclock.ipc.data.IpcPrediction;
 import org.transitclock.ipc.data.IpcPredictionsForRouteStopDest;
-import org.transitclock.modules.Module;
+import org.transitclock.Module;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.MapKey;
 import org.transitclock.utils.Time;

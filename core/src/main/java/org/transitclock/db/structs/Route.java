@@ -193,7 +193,7 @@ public class Route implements Serializable {
 
     /** Needed because Hibernate requires no-arg constructor */
     @SuppressWarnings("unused")
-    private Route() {
+    protected Route() {
         configRev = -1;
         id = null;
         color = null;

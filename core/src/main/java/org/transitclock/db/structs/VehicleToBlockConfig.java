@@ -101,7 +101,7 @@ public class VehicleToBlockConfig implements Serializable {
 
     /** Needed because Hibernate requires no-arg constructor */
     @SuppressWarnings("unused")
-    private VehicleToBlockConfig() {
+    protected VehicleToBlockConfig() {
         vehicleId = null;
         blockId = null;
         tripId = null;

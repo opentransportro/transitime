@@ -86,7 +86,7 @@ public class CalendarDate implements Serializable {
 
     /** Needed because Hibernate requires no-arg constructor */
     @SuppressWarnings("unused")
-    private CalendarDate() {
+    protected CalendarDate() {
         configRev = -1;
         serviceId = null;
         date = null;

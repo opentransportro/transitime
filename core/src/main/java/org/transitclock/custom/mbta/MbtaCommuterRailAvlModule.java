@@ -18,7 +18,7 @@ import org.transitclock.avl.TaipGpsLocation;
 import org.transitclock.config.StringConfigValue;
 import org.transitclock.db.structs.AvlReport;
 import org.transitclock.db.structs.AvlReport.AssignmentType;
-import org.transitclock.modules.Module;
+import org.transitclock.Module;
 
 /**
  * Gets GPS data from the MBTA Commuter Rail AVL feed. The data comes from a URL and is in TAIP

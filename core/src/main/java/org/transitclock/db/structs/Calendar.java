@@ -97,7 +97,7 @@ public class Calendar implements Serializable {
 
     /** Needed because Hibernate requires no-arg constructor */
     @SuppressWarnings("unused")
-    private Calendar() {
+    protected Calendar() {
         configRev = -1;
         serviceId = null;
         monday = false;

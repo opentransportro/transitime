@@ -22,7 +22,7 @@ import org.transitclock.core.predAccuracy.PredAccuracyPrediction;
 import org.transitclock.core.predAccuracy.PredictionAccuracyModule;
 import org.transitclock.db.structs.StopPath;
 import org.transitclock.db.structs.Trip;
-import org.transitclock.modules.Module;
+import org.transitclock.Module;
 
 /**
  * Reads in external prediction data from MBTA feed and stores the data in memory. Then when

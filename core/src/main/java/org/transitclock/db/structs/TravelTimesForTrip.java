@@ -113,7 +113,7 @@ public class TravelTimesForTrip implements Serializable {
 
     /** Hibernate requires no-arg constructor */
     @SuppressWarnings("unused")
-    private TravelTimesForTrip() {
+    protected TravelTimesForTrip() {
         this.configRev = -1;
         this.travelTimesRev = -1;
         this.tripPatternId = null;

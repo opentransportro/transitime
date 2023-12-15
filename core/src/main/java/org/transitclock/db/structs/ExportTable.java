@@ -99,7 +99,7 @@ public class ExportTable implements Serializable {
 
     /** Needed because Hibernate requires no-arg constructor */
     @SuppressWarnings("unused")
-    private ExportTable() {
+    protected ExportTable() {
         dataDate = null;
         exportDate = null;
         exportType = 0;

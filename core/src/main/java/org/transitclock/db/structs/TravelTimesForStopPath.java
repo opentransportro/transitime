@@ -234,7 +234,7 @@ public class TravelTimesForStopPath implements Serializable {
 
     /** Hibernate requires no-arg constructor */
     @SuppressWarnings("unused")
-    private TravelTimesForStopPath() {
+    protected TravelTimesForStopPath() {
         this.configRev = -1;
         this.travelTimesRev = -1;
         this.stopPathId = null;

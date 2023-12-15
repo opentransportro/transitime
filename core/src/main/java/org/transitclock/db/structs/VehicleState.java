@@ -124,7 +124,7 @@ public class VehicleState implements Serializable {
 
     /** Needed because Hibernate requires no-arg constructor */
     @SuppressWarnings("unused")
-    private VehicleState() {
+    protected VehicleState() {
         this.vehicleId = null;
         this.avlTime = null;
         this.blockId = null;

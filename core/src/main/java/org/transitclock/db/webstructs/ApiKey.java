@@ -7,6 +7,8 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+
+import lombok.Getter;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -22,6 +24,7 @@ import org.transitclock.db.hibernate.HibernateUtils;
  * @author SkiBu Smith
  */
 @Entity
+@Getter
 @DynamicUpdate
 @Table(name = "ApiKeys")
 public class ApiKey implements Serializable {
@@ -45,11 +48,6 @@ public class ApiKey implements Serializable {
     @Column(length = 1000)
     private final String description;
 
-    // Because Hibernate requires objects with composite IDs to be Serializable
-    private static final long serialVersionUID = 903194461306815545L;
-
-    public static final Logger logger = LoggerFactory.getLogger(ApiKey.class);
-
     /********************** Member Functions **************************/
 
     /**
@@ -68,8 +66,7 @@ public class ApiKey implements Serializable {
     }
 
     /** Needed because Hibernate requires no-arg constructor for reading in data */
-    @SuppressWarnings("unused")
-    private ApiKey() {
+    protected ApiKey() {
         this.applicationName = null;
         this.applicationKey = null;
         this.applicationUrl = null;
@@ -148,29 +145,5 @@ public class ApiKey implements Serializable {
                 + ", description="
                 + description
                 + "]";
-    }
-
-    public String getApplicationName() {
-        return applicationName;
-    }
-
-    public String getKey() {
-        return applicationKey;
-    }
-
-    public String getApplicationUrl() {
-        return applicationUrl;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public String getPhone() {
-        return phone;
-    }
-
-    public String getDescription() {
-        return description;
     }
 }

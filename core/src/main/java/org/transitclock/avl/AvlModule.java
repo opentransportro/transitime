@@ -9,7 +9,7 @@ import org.transitclock.configData.AvlConfig;
 import org.transitclock.db.structs.AvlReport;
 import org.transitclock.ipc.jms.JMSWrapper;
 import org.transitclock.ipc.jms.RestartableMessageProducer;
-import org.transitclock.modules.Module;
+import org.transitclock.Module;
 
 /**
  * Low-level abstract AVL module class that handles the processing of the data. Uses JMS to queue

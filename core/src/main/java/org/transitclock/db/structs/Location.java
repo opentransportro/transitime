@@ -4,6 +4,8 @@ package org.transitclock.db.structs;
 import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
+
+import lombok.Getter;
 import net.jcip.annotations.Immutable;
 import org.transitclock.utils.Geo;
 
@@ -12,6 +14,7 @@ import org.transitclock.utils.Geo;
  *
  * @author SkiBu Smith
  */
+@Getter
 @Immutable
 @Embeddable
 public class Location implements Serializable {
@@ -34,7 +37,7 @@ public class Location implements Serializable {
 
     /** Hibernate requires a no-arg constructor */
     @SuppressWarnings("unused")
-    private Location() {
+    protected Location() {
         lat = 0.0;
         lon = 0.0;
     }
@@ -68,14 +71,6 @@ public class Location implements Serializable {
         if (Double.doubleToLongBits(lat) != Double.doubleToLongBits(other.lat)) return false;
         if (Double.doubleToLongBits(lon) != Double.doubleToLongBits(other.lon)) return false;
         return true;
-    }
-
-    public double getLat() {
-        return lat;
-    }
-
-    public double getLon() {
-        return lon;
     }
 
     /**

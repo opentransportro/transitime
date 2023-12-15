@@ -14,7 +14,7 @@ import org.transitclock.core.schedBasedPreds.SchedBasedPredsModule;
 import org.transitclock.db.structs.AvlReport;
 import org.transitclock.db.structs.VehicleEvent;
 import org.transitclock.logging.Markers;
-import org.transitclock.modules.Module;
+import org.transitclock.Module;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.Time;
 

@@ -94,7 +94,7 @@ public class VehicleConfig {
 
     /** Needed because Hibernate requires no-arg constructor */
     @SuppressWarnings("unused")
-    private VehicleConfig() {
+    protected VehicleConfig() {
         id = null;
         type = null;
         description = null;

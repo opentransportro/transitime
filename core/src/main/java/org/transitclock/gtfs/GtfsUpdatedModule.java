@@ -17,7 +17,7 @@ import org.transitclock.config.LongConfigValue;
 import org.transitclock.config.StringConfigValue;
 import org.transitclock.configData.AgencyConfig;
 import org.transitclock.logging.Markers;
-import org.transitclock.modules.Module;
+import org.transitclock.Module;
 import org.transitclock.monitoring.MonitorBase;
 import org.transitclock.utils.EmailSender;
 import org.transitclock.utils.HttpGetFile;

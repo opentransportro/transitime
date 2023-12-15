@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.transitclock.config.StringConfigValue;
 import org.transitclock.configData.AvlConfig;
 import org.transitclock.db.structs.AvlReport;
-import org.transitclock.modules.Module;
+import org.transitclock.Module;
 
 /**
  * AVL module for Workwave AVL feed. Polls JSON feed. First gets a valid session ID to pass to the

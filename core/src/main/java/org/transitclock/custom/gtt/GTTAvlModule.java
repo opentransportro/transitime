@@ -14,7 +14,7 @@ import org.json.JSONObject;
 import org.transitclock.avl.PollUrlAvlModule;
 import org.transitclock.config.StringListConfigValue;
 import org.transitclock.db.structs.AvlReport;
-import org.transitclock.modules.Module;
+import org.transitclock.Module;
 
 public class GTTAvlModule extends PollUrlAvlModule {
 

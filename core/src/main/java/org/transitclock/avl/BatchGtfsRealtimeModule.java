@@ -15,7 +15,7 @@ import org.transitclock.core.AvlProcessor;
 import org.transitclock.db.structs.AvlReport;
 import org.transitclock.db.structs.Location;
 import org.transitclock.feed.gtfsRt.GtfsRtVehiclePositionsReader;
-import org.transitclock.modules.Module;
+import org.transitclock.Module;
 import org.transitclock.utils.Time;
 
 /**

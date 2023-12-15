@@ -22,7 +22,7 @@ import org.transitclock.avl.AvlClient;
 import org.transitclock.custom.aws.AvlSqsClientModule;
 import org.transitclock.db.structs.AvlReport;
 import org.transitclock.db.structs.AvlReport.AssignmentType;
-import org.transitclock.modules.Module;
+import org.transitclock.Module;
 import org.transitclock.utils.threading.BoundedExecutor;
 import org.transitclock.utils.threading.NamedThreadFactory;
 import org.w3c.dom.Document;

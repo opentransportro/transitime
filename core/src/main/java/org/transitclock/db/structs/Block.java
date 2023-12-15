@@ -166,7 +166,7 @@ public final class Block implements Serializable {
 
     /** Hibernate requires no-arg constructor */
     @SuppressWarnings("unused")
-    private Block() {
+    protected Block() {
         this.configRev = -1;
         this.blockId = null;
         this.serviceId = null;

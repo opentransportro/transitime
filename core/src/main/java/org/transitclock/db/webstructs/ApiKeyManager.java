@@ -89,7 +89,7 @@ public class ApiKeyManager {
             // Key wasn't in cache so update the cache in case it was added
             apiKeyCache.clear();
             for (ApiKey apiKey : getApiKeys()) {
-                apiKeyCache.put(apiKey.getKey(), apiKey);
+                apiKeyCache.put(apiKey.getApplicationKey(), apiKey);
             }
 
             return apiKeyCache.get(key) != null;
@@ -175,7 +175,7 @@ public class ApiKeyManager {
     public void deleteKey(String key) {
         List<ApiKey> apiKeys = getApiKeys();
         for (ApiKey apiKey : apiKeys) {
-            if (apiKey.getKey().equals(key)) {
+            if (apiKey.getApplicationKey().equals(key)) {
                 // Found the right key. Delete from database
                 apiKey.deleteApiKey(dbName);
 

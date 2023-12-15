@@ -60,7 +60,7 @@ public class ConfigRevision {
 
     /** Needed because Hibernate requires no-arg constructor */
     @SuppressWarnings("unused")
-    private ConfigRevision() {
+    protected ConfigRevision() {
         this.configRev = -1;
         this.processedTime = null;
         this.zipFileLastModifiedTime = null;

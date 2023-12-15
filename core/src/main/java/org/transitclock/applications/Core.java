@@ -43,7 +43,7 @@ import org.transitclock.ipc.servers.PredictionAnalysisServer;
 import org.transitclock.ipc.servers.PredictionsServer;
 import org.transitclock.ipc.servers.ServerStatusServer;
 import org.transitclock.ipc.servers.VehiclesServer;
-import org.transitclock.modules.Module;
+import org.transitclock.Module;
 import org.transitclock.monitoring.PidFile;
 import org.transitclock.utils.SettableSystemTime;
 import org.transitclock.utils.SystemCurrentTime;

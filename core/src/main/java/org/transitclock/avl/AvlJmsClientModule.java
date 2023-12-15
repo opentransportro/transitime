@@ -13,7 +13,7 @@ import org.transitclock.configData.AgencyConfig;
 import org.transitclock.db.structs.AvlReport;
 import org.transitclock.ipc.jms.JMSWrapper;
 import org.transitclock.logging.Markers;
-import org.transitclock.modules.Module;
+import org.transitclock.Module;
 import org.transitclock.utils.Time;
 import org.transitclock.utils.threading.BoundedExecutor;
 import org.transitclock.utils.threading.NamedThreadFactory;

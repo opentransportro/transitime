@@ -68,7 +68,7 @@ public class Frequency implements Serializable {
 
     /** Needed because Hibernate requires no-arg constructor */
     @SuppressWarnings("unused")
-    private Frequency() {
+    protected Frequency() {
         configRev = -1;
         tripId = null;
         startTime = -1;
