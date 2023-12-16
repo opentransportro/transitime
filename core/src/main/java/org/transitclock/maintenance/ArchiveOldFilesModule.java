@@ -8,7 +8,6 @@ import org.transitclock.applications.Core;
 import org.transitclock.config.IntegerConfigValue;
 import org.transitclock.config.StringConfigValue;
 import org.transitclock.configData.AgencyConfig;
-import org.transitclock.logging.Markers;
 import org.transitclock.Module;
 import org.transitclock.utils.Time;
 
@@ -164,7 +163,6 @@ public class ArchiveOldFilesModule extends Module {
                 // continue to run and send an e-mail once a day as a
                 // reminder that there is a problem.
                 logger.error(
-                        Markers.email(),
                         "Error when archiving old files for agencyId={}.",
                         AgencyConfig.getAgencyId(),
                         t);

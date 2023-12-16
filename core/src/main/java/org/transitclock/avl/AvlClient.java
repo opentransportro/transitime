@@ -8,7 +8,6 @@ import org.transitclock.configData.AgencyConfig;
 import org.transitclock.configData.AvlConfig;
 import org.transitclock.core.AvlProcessor;
 import org.transitclock.db.structs.AvlReport;
-import org.transitclock.logging.Markers;
 import org.transitclock.utils.Time;
 
 /**
@@ -150,7 +149,6 @@ public class AvlClient implements Runnable {
             // AVL thread even if there is an unexpected problem. Only let
             // Errors, such as OutOfMemory errors, through.
             logger.error(
-                    Markers.email(),
                     "For agencyId={} Exception {} for avlReport={}.",
                     AgencyConfig.getAgencyId(),
                     e.getMessage(),

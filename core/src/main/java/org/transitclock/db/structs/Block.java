@@ -19,7 +19,6 @@ import org.transitclock.configData.CoreConfig;
 import org.transitclock.core.SpatialMatch;
 import org.transitclock.db.hibernate.HibernateUtils;
 import org.transitclock.gtfs.DbConfig;
-import org.transitclock.logging.Markers;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.Time;
 
@@ -776,7 +775,6 @@ public final class Block implements Serializable {
                             || rootCause instanceof SocketTimeoutException
                             || rootCause instanceof PSQLException)) {
                         logger.error(
-                                Markers.email(),
                                 "For agencyId={} in Blocks.getTrips() for "
                                         + "blockId={} encountered exception whose root "
                                         + "cause was not a SocketException, "

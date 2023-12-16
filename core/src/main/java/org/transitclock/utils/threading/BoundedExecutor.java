@@ -7,7 +7,6 @@ import java.util.concurrent.Semaphore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.configData.AgencyConfig;
-import org.transitclock.logging.Markers;
 
 /**
  * An Executor but limits how many tasks can be queued. If queue is full and attempt to execute an
@@ -80,10 +79,8 @@ public class BoundedExecutor {
                         // an OutOfMemoryError and need to exit even if get another
                         // OutOfMemoryError when logging.
                         try {
-                            t.printStackTrace();
                             if (t instanceof OutOfMemoryError) {
                                 logger.error(
-                                        Markers.email(),
                                         "For {} OutOfMemoryError occurred in "
                                                 + "BoundedExecutor so "
                                                 + "terminating application",
@@ -91,7 +88,6 @@ public class BoundedExecutor {
                                         t);
                             } else {
                                 logger.error(
-                                        Markers.email(),
                                         "For {} unexpected Throwable occurred " + "in BoundedExecutor",
                                         AgencyConfig.getAgencyId(),
                                         t);

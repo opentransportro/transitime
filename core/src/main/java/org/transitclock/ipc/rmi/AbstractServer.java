@@ -11,7 +11,6 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.configData.AgencyConfig;
-import org.transitclock.logging.Markers;
 import org.transitclock.utils.Timer;
 
 /**
@@ -154,7 +153,6 @@ public abstract class AbstractServer {
             // Log the error. Since RMI is critical send out e-mail as well so
             // that the issue is taken care of.
             logger.error(
-                    Markers.email(),
                     "For agencyId={} error occurred when constructing a RMI {}",
                     AgencyConfig.getAgencyId(),
                     getClass().getSimpleName(),
@@ -204,7 +202,6 @@ public abstract class AbstractServer {
                 } catch (UnknownHostException e1) {
                 }
                 logger.error(
-                        Markers.email(),
                         "For agencyId={} problem with rmiregistry on host {} " + "has been resolved.",
                         AgencyConfig.getAgencyId(),
                         hostname);
@@ -220,7 +217,7 @@ public abstract class AbstractServer {
                 // start up the rmiregistry for the host. Therefore send out
                 // an e-mail alerting appropriate people.
                 String msg = rebindErrorMessage(e);
-                logger.error(Markers.email(), msg, e);
+                logger.error(msg, e);
 
                 errorEmailedSoAlsoNotifyWhenSuccessful = true;
             } else {

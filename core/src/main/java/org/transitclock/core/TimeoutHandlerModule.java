@@ -13,7 +13,6 @@ import org.transitclock.core.dataCache.VehicleStateManager;
 import org.transitclock.core.schedBasedPreds.SchedBasedPredsModule;
 import org.transitclock.db.structs.AvlReport;
 import org.transitclock.db.structs.VehicleEvent;
-import org.transitclock.logging.Markers;
 import org.transitclock.Module;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.Time;
@@ -346,7 +345,6 @@ public class TimeoutHandlerModule extends Module {
                 if (sleepTime > 0) Time.sleep(sleepTime);
             } catch (Exception e) {
                 logger.error(
-                        Markers.email(),
                         "Error with TimeoutHandlerModule for agencyId={}",
                         AgencyConfig.getAgencyId(),
                         e);

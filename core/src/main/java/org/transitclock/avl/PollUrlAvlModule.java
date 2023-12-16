@@ -19,7 +19,6 @@ import org.transitclock.config.StringConfigValue;
 import org.transitclock.configData.AgencyConfig;
 import org.transitclock.configData.AvlConfig;
 import org.transitclock.db.structs.AvlReport;
-import org.transitclock.logging.Markers;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.Time;
 
@@ -205,7 +204,6 @@ public abstract class PollUrlAvlModule extends AvlModule {
                 getAndProcessData();
             } catch (SocketTimeoutException e) {
                 logger.error(
-                        Markers.email(),
                         "Error for agencyId={} accessing AVL feed using URL={} " + "with a timeout of {} msec.",
                         AgencyConfig.getAgencyId(),
                         getUrl(),

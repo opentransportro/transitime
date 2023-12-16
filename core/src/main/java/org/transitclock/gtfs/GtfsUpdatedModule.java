@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 import org.transitclock.config.LongConfigValue;
 import org.transitclock.config.StringConfigValue;
 import org.transitclock.configData.AgencyConfig;
-import org.transitclock.logging.Markers;
 import org.transitclock.Module;
 import org.transitclock.monitoring.MonitorBase;
 import org.transitclock.utils.EmailSender;
@@ -208,7 +207,6 @@ public class GtfsUpdatedModule extends Module {
                 get();
             } catch (Exception e) {
                 logger.error(
-                        Markers.email(),
                         "Exception in GtfsUpdatedModule for agencyId={}",
                         AgencyConfig.getAgencyId(),
                         e);

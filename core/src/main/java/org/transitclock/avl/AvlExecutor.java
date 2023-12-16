@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import org.transitclock.config.IntegerConfigValue;
 import org.transitclock.configData.AgencyConfig;
 import org.transitclock.db.structs.AvlReport;
-import org.transitclock.logging.Markers;
 import org.transitclock.utils.Time;
 import org.transitclock.utils.threading.NamedThreadFactory;
 
@@ -63,9 +62,6 @@ public class AvlExecutor {
 
     private static final Logger logger = LoggerFactory.getLogger(AvlExecutor.class);
 
-    private static boolean emailSentDueToQueueFull = false;
-
-    /********************** Member Functions **************************/
 
     /** Constructor declared private because singleton class */
     private AvlExecutor() {
@@ -117,12 +113,7 @@ public class AvlExecutor {
                 // be a serious issue indicating that system is locked up. This
                 // actually happened once when couldn't read from db due to a
                 // strange locking condition.
-                if (!emailSentDueToQueueFull) {
-                    emailSentDueToQueueFull = true;
-                    logger.error(Markers.email(), message);
-                } else {
-                    logger.error(message);
-                }
+                logger.error(message);
             }
         };
 

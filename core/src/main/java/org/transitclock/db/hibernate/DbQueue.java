@@ -21,7 +21,6 @@ import org.hibernate.exception.SQLGrammarException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.configData.DbSetupConfig;
-import org.transitclock.logging.Markers;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.Time;
 import org.transitclock.utils.threading.NamedThreadFactory;
@@ -126,7 +125,7 @@ public class DbQueue<T> {
                             + queue.size()
                             + " elements already in the queue."
                     : "DataDbLogger queue is now completely full for projectId=" + projectId + ". LOSING DATA!!!";
-            logger.error(Markers.email(), message);
+            logger.error(message);
         }
 
         // If losing data then log such
@@ -185,7 +184,6 @@ public class DbQueue<T> {
         int levelIndexIncludingMargin = indexOfLevel(level + 0.10);
         if (levelIndexIncludingMargin < indexOfLevelWhenMessageLogged) {
             logger.error(
-                    Markers.email(),
                     "DataDbLogger queue emptying out somewhat "
                             + " for projectId="
                             + projectId
@@ -277,7 +275,6 @@ public class DbQueue<T> {
                     || (rootCause instanceof SQLException
                             && rootCause.getMessage().contains("statement closed"))) {
                 logger.error(
-                        Markers.email(),
                         "Had a connection problem to the database. Likely "
                                 + "means that the db was rebooted or that the "
                                 + "connection to it was lost. Therefore creating a new "

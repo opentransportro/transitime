@@ -29,7 +29,6 @@ import org.transitclock.db.structs.Stop;
 import org.transitclock.db.structs.Trip;
 import org.transitclock.db.structs.VehicleEvent;
 import org.transitclock.ipc.data.IpcArrivalDeparture;
-import org.transitclock.logging.Markers;
 import org.transitclock.utils.Time;
 
 /**
@@ -410,7 +409,6 @@ public class ArrivalDepartureGeneratorDefaultImpl implements ArrivalDepartureGen
         if (delta < allowableDifferenceBetweenAvlTimeSecs.getValue() * Time.MS_PER_SEC) return true;
         else {
             logger.error(
-                    Markers.email(),
                     "For {} arrival or departure time of {} is more than "
                             + "{} secs away from the AVL time of {}. Therefore not "
                             + "storing this time. {}",

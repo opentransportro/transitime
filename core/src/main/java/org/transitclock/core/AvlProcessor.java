@@ -33,7 +33,6 @@ import org.transitclock.db.structs.Trip;
 import org.transitclock.db.structs.VectorWithHeading;
 import org.transitclock.db.structs.VehicleEvent;
 import org.transitclock.db.structs.VehicleToBlockConfig;
-import org.transitclock.logging.Markers;
 import org.transitclock.monitoring.CloudwatchService;
 import org.transitclock.utils.Geo;
 import org.transitclock.utils.IntervalTimer;
@@ -854,7 +853,6 @@ public class AvlProcessor {
             // Only send e-mail error rarely
             if (shouldSendMessage(vehicleState.getVehicleId(), vehicleState.getAvlReport())) {
                 logger.error(
-                        Markers.email(),
                         "For agencyId={} got a match for vehicleId={} but that "
                                 + "assignment is already taken by vehicleId={} and the new "
                                 + "match doesn't appear to be valid because it is more "

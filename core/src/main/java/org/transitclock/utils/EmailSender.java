@@ -19,7 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.config.StringConfigValue;
 import org.transitclock.configData.AgencyConfig;
-import org.transitclock.logging.Markers;
 
 /**
  * For programmatically sending out an e-mail. Uses a file specified by Java property
@@ -111,7 +110,6 @@ public class EmailSender {
             // Since this is a serious issue log the error and send an e-mail
             // via logback
             logger.error(
-                    Markers.email(),
                     "Failed sending e-mail for agencyId={}. The e-mail config "
                             + "file {} specified by the Java property {} contains the "
                             + "login info to the SMTP server. Exception message: {}. "

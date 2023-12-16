@@ -12,7 +12,6 @@ import org.transitclock.config.IntegerConfigValue;
 import org.transitclock.configData.AgencyConfig;
 import org.transitclock.db.structs.AvlReport;
 import org.transitclock.ipc.jms.JMSWrapper;
-import org.transitclock.logging.Markers;
 import org.transitclock.Module;
 import org.transitclock.utils.Time;
 import org.transitclock.utils.threading.BoundedExecutor;
@@ -158,7 +157,6 @@ public class AvlJmsClientModule extends Module {
                 processAVLDataFromJMSTopic();
             } catch (Exception e) {
                 logger.error(
-                        Markers.email(),
                         "Unexpected exception occurred in AvlClient for " + "agencyId={}",
                         AgencyConfig.getAgencyId(),
                         e);

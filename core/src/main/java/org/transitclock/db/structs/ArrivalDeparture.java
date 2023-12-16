@@ -16,7 +16,6 @@ import org.transitclock.configData.AgencyConfig;
 import org.transitclock.configData.DbSetupConfig;
 import org.transitclock.core.TemporalDifference;
 import org.transitclock.db.hibernate.HibernateUtils;
-import org.transitclock.logging.Markers;
 import org.transitclock.utils.Geo;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.Time;
@@ -729,7 +728,6 @@ public class ArrivalDeparture implements Lifecycle, Serializable {
     public String getTripShortName() {
         if (!Core.isCoreApplication()) {
             logger.error(
-                    Markers.email(),
                     "For agencyId={} alling ArrivalDeparture.getTripShortName() "
                             + "but it is not part of core application",
                     AgencyConfig.getAgencyId());

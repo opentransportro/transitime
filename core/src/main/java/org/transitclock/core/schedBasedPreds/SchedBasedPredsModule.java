@@ -21,7 +21,6 @@ import org.transitclock.db.structs.Block;
 import org.transitclock.db.structs.Location;
 import org.transitclock.ipc.data.IpcVehicle;
 import org.transitclock.ipc.data.IpcVehicleComplete;
-import org.transitclock.logging.Markers;
 import org.transitclock.Module;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.Time;
@@ -263,7 +262,6 @@ public class SchedBasedPredsModule extends Module {
                 createSchedBasedPredsAsNecessary();
             } catch (Exception e) {
                 logger.error(
-                        Markers.email(),
                         "Error with SchedBasedPredsModule for agencyId={}",
                         AgencyConfig.getAgencyId(),
                         e);

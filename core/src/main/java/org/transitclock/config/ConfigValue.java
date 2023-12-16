@@ -6,7 +6,6 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.configData.AgencyConfig;
-import org.transitclock.logging.Markers;
 
 /**
  * Abstract class for storing a single param. These params are read from the command line as Java
@@ -216,7 +215,6 @@ public abstract class ConfigValue<T> {
         // out e-mail since this is a serious problem.
         if (defaultValue == null && !defaultValueConfigured) {
             logger.error(
-                    Markers.email(),
                     "When reading parameter \"{}\" for agencyId={} no valid "
                             + "value was configured and no default was "
                             + "specified so resulting value is null.",
