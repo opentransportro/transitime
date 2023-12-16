@@ -1,17 +1,10 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
-import java.io.Serializable;
-import java.util.Date;
-import java.util.List;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -20,7 +13,11 @@ import org.hibernate.annotations.DynamicUpdate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.applications.Core;
-import org.transitclock.db.hibernate.HibernateUtils;
+
+import javax.persistence.*;
+import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
 
 /**
  * For storing static configuration for vehicle in block.
@@ -28,12 +25,12 @@ import org.transitclock.db.hibernate.HibernateUtils;
  * @author Hubert GoEuropa
  */
 @Entity
+@Getter @Setter
+@EqualsAndHashCode
+@ToString
 @DynamicUpdate
 @Table(name = "VehicleToBlockConfigs")
 public class VehicleToBlockConfig implements Serializable {
-
-    /** */
-    private static final long serialVersionUID = 1L;
 
     // ID of vehicle
     @Id
@@ -41,17 +38,17 @@ public class VehicleToBlockConfig implements Serializable {
     private long id;
 
     @Id
-    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
+    @Column(length = 60)
     private final String vehicleId;
 
     @Column(nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private final Date assignmentDate;
 
-    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
+    @Column(length = 60)
     private String blockId;
 
-    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
+    @Column(length = 60)
     private String tripId;
 
     @Column
@@ -163,54 +160,5 @@ public class VehicleToBlockConfig implements Serializable {
         String hql = "FROM VehicleToBlockConfig WHERE vehicleid = '" + vehicleId + "' ORDER BY assignmentDate DESC";
         Query query = session.createQuery(hql);
         return query.list();
-    }
-
-    /************* Getter Methods ****************************/
-    public long getId() {
-        return id;
-    }
-
-    public String getBlockId() {
-        return blockId;
-    }
-
-    public void setBlockId(String blockId) {
-        this.blockId = blockId;
-    }
-
-    public String getTripId() {
-        return tripId;
-    }
-
-    public void setTripId(String tripId) {
-        this.tripId = tripId;
-    }
-
-    public String getVehicleId() {
-        return vehicleId;
-    }
-
-    public Date getAssignmentDate() {
-        return assignmentDate;
-    }
-
-    public Date getValidFrom() {
-        return validFrom;
-    }
-
-    public void setValidFrom(Date validFrom) {
-        this.validFrom = validFrom;
-    }
-
-    public Date getValidTo() {
-        return validTo;
-    }
-
-    public void setValidTo(Date validTo) {
-        this.validTo = validTo;
-    }
-
-    public void setId(long id) {
-        this.id = id;
     }
 }

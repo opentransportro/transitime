@@ -1,21 +1,16 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
-import java.io.Serializable;
-import java.util.Date;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Index;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
 import org.hibernate.annotations.DynamicUpdate;
 import org.transitclock.applications.Core;
-import org.transitclock.db.hibernate.HibernateUtils;
 import org.transitclock.ipc.data.IpcPrediction;
+
+import javax.persistence.*;
+import java.io.Serializable;
+import java.util.Date;
 
 /**
  * For persisting a prediction.
@@ -24,6 +19,9 @@ import org.transitclock.ipc.data.IpcPrediction;
  */
 @Entity
 @DynamicUpdate
+@ToString
+@Getter
+@EqualsAndHashCode
 @Table(
         name = "Predictions",
         indexes = {@Index(name = "PredictionTimeIndex", columnList = "creationTime")})
@@ -54,16 +52,16 @@ public class Prediction implements Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     private final Date creationTime;
 
-    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
+    @Column(length = 60)
     private final String vehicleId;
 
-    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
+    @Column(length = 60)
     private final String stopId;
 
-    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
+    @Column(length = 60)
     private final String tripId;
 
-    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
+    @Column(length = 60)
     private final String routeId;
 
     @Column
@@ -78,23 +76,6 @@ public class Prediction implements Serializable {
     @Column
     private final int gtfsStopSeq;
 
-    // Needed because Hibernate objects must be serializable
-    private static final long serialVersionUID = 3966430062434375435L;
-
-    /********************** Member Functions **************************/
-
-    /**
-     * Constructor called when creating a DbPrediction object to be stored in database.
-     *
-     * @param predictionTime
-     * @param creationTime
-     * @param vehicleId
-     * @param stopId
-     * @param tripId
-     * @param routeId
-     * @param affectedByWaitStop
-     * @param isArrival
-     */
     public Prediction(
             long predictionTime,
             long avlTime,
@@ -150,131 +131,5 @@ public class Prediction implements Serializable {
         this.isArrival = false;
         this.schedBasedPred = false;
         this.gtfsStopSeq = -1;
-    }
-
-    /** Because using a composite Id Hibernate wants this member. */
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + (affectedByWaitStop ? 1231 : 1237);
-        result = prime * result + ((avlTime == null) ? 0 : avlTime.hashCode());
-        result = prime * result + configRev;
-        result = prime * result + ((creationTime == null) ? 0 : creationTime.hashCode());
-        result = prime * result + (int) (id ^ (id >>> 32));
-        result = prime * result + (isArrival ? 1231 : 1237);
-        result = prime * result + ((predictionTime == null) ? 0 : predictionTime.hashCode());
-        result = prime * result + ((routeId == null) ? 0 : routeId.hashCode());
-        result = prime * result + (schedBasedPred ? 1231 : 1237);
-        result = prime * result + ((stopId == null) ? 0 : stopId.hashCode());
-        result = prime * result + ((tripId == null) ? 0 : tripId.hashCode());
-        result = prime * result + ((vehicleId == null) ? 0 : vehicleId.hashCode());
-        return result;
-    }
-
-    /** Because using a composite Id Hibernate wants this member. */
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null) return false;
-        if (getClass() != obj.getClass()) return false;
-        Prediction other = (Prediction) obj;
-        if (affectedByWaitStop != other.affectedByWaitStop) return false;
-        if (avlTime == null) {
-            if (other.avlTime != null) return false;
-        } else if (!avlTime.equals(other.avlTime)) return false;
-        if (configRev != other.configRev) return false;
-        if (creationTime == null) {
-            if (other.creationTime != null) return false;
-        } else if (!creationTime.equals(other.creationTime)) return false;
-        if (id != other.id) return false;
-        if (isArrival != other.isArrival) return false;
-        if (predictionTime == null) {
-            if (other.predictionTime != null) return false;
-        } else if (!predictionTime.equals(other.predictionTime)) return false;
-        if (routeId == null) {
-            if (other.routeId != null) return false;
-        } else if (!routeId.equals(other.routeId)) return false;
-        if (schedBasedPred != other.schedBasedPred) return false;
-        if (stopId == null) {
-            if (other.stopId != null) return false;
-        } else if (!stopId.equals(other.stopId)) return false;
-        if (tripId == null) {
-            if (other.tripId != null) return false;
-        } else if (!tripId.equals(other.tripId)) return false;
-        if (vehicleId == null) {
-            if (other.vehicleId != null) return false;
-        } else if (!vehicleId.equals(other.vehicleId)) return false;
-        return true;
-    }
-
-    @Override
-    public String toString() {
-        return "Prediction ["
-                + "predictionTime="
-                + predictionTime
-                + ", avlTime="
-                + avlTime
-                + ", creationTime="
-                + creationTime
-                + ", vehicleId="
-                + vehicleId
-                + ", stopId="
-                + stopId
-                + ", tripId="
-                + tripId
-                + ", routeId="
-                + routeId
-                + ", affectedByWaitStop="
-                + affectedByWaitStop
-                + ", isArrival="
-                + isArrival
-                + ", schedBasedPred="
-                + schedBasedPred
-                + "]";
-    }
-
-    public Date getPredictionTime() {
-        return predictionTime;
-    }
-
-    public Date getAvlTime() {
-        return avlTime;
-    }
-
-    public Date getCreationTime() {
-        return creationTime;
-    }
-
-    public String getVehicleId() {
-        return vehicleId;
-    }
-
-    public String getStopId() {
-        return stopId;
-    }
-
-    public String getTripId() {
-        return tripId;
-    }
-
-    public String getRouteId() {
-        return routeId;
-    }
-
-    public boolean isAffectedByWaitStop() {
-        return affectedByWaitStop;
-    }
-
-    public boolean isArrival() {
-        return isArrival;
-    }
-
-    public boolean isSchedBasedPred() {
-        return schedBasedPred;
-    }
-
-    public int getGtfsStopSeq() {
-        return gtfsStopSeq;
     }
 }

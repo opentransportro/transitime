@@ -25,14 +25,6 @@ import org.transitclock.configData.DbSetupConfig;
  */
 public class HibernateUtils {
 
-    // Should be set to what is used in hibernate.cfg.xml where the
-    // batch_size is set, e.g. <property name="hibernate.jdbc.batch_size">25</property>
-    public static final int BATCH_SIZE = 100;
-
-    // When Using @Column for route, stop, etc IDs don't need the default of
-    // 255 characters. Therefore can use shorter fields.
-    public static final int DEFAULT_ID_SIZE = 60;
-
     // Cache. Keyed on database name
     private static HashMap<String, SessionFactory> sessionFactoryCache = new HashMap<String, SessionFactory>();
 

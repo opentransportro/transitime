@@ -1,25 +1,20 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
-import java.io.Serializable;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.util.Date;
-import java.util.List;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.transitclock.db.hibernate.HibernateUtils;
 import org.transitclock.gtfs.gtfsStructs.GtfsCalendarDate;
+
+import javax.persistence.*;
+import java.io.Serializable;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Contains data from the calendardates.txt GTFS file. This class is for reading/writing that data
@@ -36,7 +31,7 @@ public class CalendarDate implements Serializable {
     @Id
     private final int configRev;
 
-    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
+    @Column(length = 60)
     @Id
     private final String serviceId;
 
@@ -50,11 +45,6 @@ public class CalendarDate implements Serializable {
 
     // Logging
     public static final Logger logger = LoggerFactory.getLogger(CalendarDate.class);
-
-    // Because Hibernate requires objects with composite IDs to be Serializable
-    private static final long serialVersionUID = -4825360997804688749L;
-
-    /********************** Member Functions **************************/
 
     /**
      * Constructor

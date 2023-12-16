@@ -1,16 +1,20 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
-import java.util.List;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
-import org.transitclock.db.hibernate.HibernateUtils;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import java.util.List;
 
 /**
  * For storing static configuration information for a vehicle.
@@ -19,11 +23,15 @@ import org.transitclock.db.hibernate.HibernateUtils;
  */
 @Entity
 @DynamicUpdate
+@Getter
+@Setter
+@ToString
+@EqualsAndHashCode
 @Table(name = "VehicleConfigs")
 public class VehicleConfig {
 
     // ID of vehicle
-    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
+    @Column(length = 60)
     @Id
     private final String id;
 
@@ -41,7 +49,7 @@ public class VehicleConfig {
     // Useful for when getting a GPS feed that has a tracker ID, like an IMEI
     // or phone #, instead of a vehicle ID. Allows the corresponding vehicleId
     // to be determined from the VehicleConfig object.
-    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
+    @Column(length = 60)
     private final String trackerId;
 
     // Typical capacity of vehicle
@@ -129,98 +137,5 @@ public class VehicleConfig {
         // Transaction tx = session.beginTransaction();
         session.update(vehicleConfig);
         // tx.commit();
-    }
-
-    @Override
-    public String toString() {
-        return "VehicleConfig ["
-                + "id="
-                + id
-                + "name="
-                + name
-                + ", type="
-                + type
-                + ", description="
-                + description
-                + ", trackerId="
-                + trackerId
-                + ", capacity="
-                + capacity
-                + ", crushCapacity="
-                + crushCapacity
-                + ", nonPassengerVehicle="
-                + nonPassengerVehicle
-                + "]";
-    }
-
-    /************* Getter Methods ****************************/
-
-    /**
-     * @return the vehicle ID
-     */
-    public String getId() {
-        return id;
-    }
-
-    /**
-     * @return The type of the vehicle. Should be same as GTFS route type: 0 - Tram, Streetcar,
-     *     Light rail. Any light rail or street level system within a metropolitan area. 1 - Subway,
-     *     Metro. Any underground rail system within a metropolitan area. 2 - Rail. Used for
-     *     intercity or long-distance travel. 3 - Bus. Used for short- and long-distance bus routes.
-     *     4 - Ferry. Used for short- and long-distance boat service. 5 - Cable car. Used for
-     *     street-level cable cars where the cable runs beneath the car. 6 - Gondola, Suspended
-     *     cable car. Typically used for aerial cable cars where the car is suspended from the
-     *     cable. 7 - Funicular. Any rail system designed for steep inclines.
-     */
-    public Integer getType() {
-        return type;
-    }
-
-    /**
-     * @return A description of the vehicle such as "New Flyer"
-     */
-    public String getDescription() {
-        return description;
-    }
-
-    /**
-     * @return The tracker ID used for when getting a direct GPS report that doesn't include
-     *     vehicleID.
-     */
-    public String getTrackerId() {
-        return trackerId;
-    }
-
-    /**
-     * @return Passenger capacity of vehicle. Typically number of seats.
-     */
-    public Integer getCapacity() {
-        return capacity;
-    }
-
-    /**
-     * @return Passenger capacity of vehicle including standees. For when cannot pick up any more
-     *     passengers.
-     */
-    public Integer getCrushCapacity() {
-        return crushCapacity;
-    }
-
-    /**
-     * @return True if a revenue passenger vehicle as opposed to some type of service vehicle.
-     */
-    public Boolean isNonPassengerVehicle() {
-        return nonPassengerVehicle;
-    }
-
-    /**
-     * @return the vehicle name
-     */
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 }

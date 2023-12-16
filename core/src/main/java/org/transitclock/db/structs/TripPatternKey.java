@@ -1,6 +1,8 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
+import lombok.Getter;
+
 import java.util.List;
 
 /**
@@ -9,13 +11,12 @@ import java.util.List;
  *
  * @author SkiBu Smith
  */
+@Getter
 public class TripPatternKey {
 
     private final String shapeId;
 
     private final List<StopPath> stopPaths;
-
-    /********************** Member Functions **************************/
 
     /**
      * Construct TripPatternBase. Can then be used as key to map to see of the TripPattern already
@@ -25,24 +26,14 @@ public class TripPatternKey {
      * @param stopPaths Specifies the stops for the trip pattern. Must not be null.
      */
     public TripPatternKey(String shapeId, List<StopPath> paths) {
-        if (paths == null)
+        if (paths == null) {
             throw new RuntimeException("stopPaths param must be " + "non-null for TripPatternBase() constructor");
+        }
 
         this.shapeId = shapeId;
         this.stopPaths = paths;
     }
 
-    /**
-     * Construct TripPatternBase by using an existing one. This is used by TripPattern when need to
-     * construct a TripPattern but can use existing TripPatternBase so don't need to create stop
-     * list and such.
-     *
-     * @param alreadyExistingBase
-     */
-    protected TripPatternKey(TripPatternKey alreadyExistingBase) {
-        shapeId = alreadyExistingBase.shapeId;
-        stopPaths = alreadyExistingBase.stopPaths;
-    }
 
     /** Hibernate requires a no-arg constructor */
     protected TripPatternKey() {
@@ -100,13 +91,5 @@ public class TripPatternKey {
             }
         }
         return true;
-    }
-
-    public String getShapeId() {
-        return shapeId;
-    }
-
-    public List<StopPath> getStopPaths() {
-        return stopPaths;
     }
 }

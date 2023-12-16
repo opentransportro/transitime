@@ -1,18 +1,21 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
-import java.io.Serializable;
-import java.util.List;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
-import org.transitclock.db.hibernate.HibernateUtils;
 import org.transitclock.gtfs.gtfsStructs.GtfsFareRule;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import java.io.Serializable;
+import java.util.List;
 
 /**
  * Contains data from the fare_rules.txt GTFS file. This class is for reading/writing that data to
@@ -22,6 +25,9 @@ import org.transitclock.gtfs.gtfsStructs.GtfsFareRule;
  */
 @Entity
 @DynamicUpdate
+@EqualsAndHashCode
+@ToString
+@Getter
 @Table(name = "FareRules")
 public class FareRule implements Serializable {
 
@@ -29,30 +35,25 @@ public class FareRule implements Serializable {
     @Id
     private final int configRev;
 
-    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
+    @Column(length = 60)
     @Id
     private final String fareId;
 
-    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
+    @Column(length = 60)
     @Id
     private final String routeId;
 
-    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
+    @Column(length = 60)
     @Id
     private final String originId;
 
-    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
+    @Column(length = 60)
     @Id
     private final String destinationId;
 
-    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
+    @Column(length = 60)
     @Id
     private final String containsId;
-
-    // Because Hibernate requires objects with composite Ids to be Serializable
-    private static final long serialVersionUID = 6017523577565033167L;
-
-    /********************** Member Functions **************************/
 
     /**
      * For constructing FareRule object using GTFS data.
@@ -100,8 +101,7 @@ public class FareRule implements Serializable {
     public static int deleteFromRev(Session session, int configRev) throws HibernateException {
         // Note that hql uses class name, not the table name
         String hql = "DELETE FareRule WHERE configRev=" + configRev;
-        int numUpdates = session.createQuery(hql).executeUpdate();
-        return numUpdates;
+        return session.createQuery(hql).executeUpdate();
     }
 
     /**
@@ -120,77 +120,6 @@ public class FareRule implements Serializable {
         return query.list();
     }
 
-    /* (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
-    @Override
-    public String toString() {
-        return "FareRule ["
-                + "configRev="
-                + configRev
-                + ", fareId="
-                + fareId
-                + ", routeId="
-                + routeId
-                + ", originId="
-                + originId
-                + ", destinationId="
-                + destinationId
-                + ", containsId="
-                + containsId
-                + "]";
-    }
-
-    /** Needed because have a composite ID for Hibernate storage */
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((containsId == null) ? 0 : containsId.hashCode());
-        result = prime * result + configRev;
-        result = prime * result + destinationId.hashCode();
-        result = prime * result + ((fareId == null) ? 0 : fareId.hashCode());
-        result = prime * result + originId.hashCode();
-        result = prime * result + routeId.hashCode();
-        return result;
-    }
-
-    /** Needed because have a composite ID for Hibernate storage */
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null) return false;
-        if (getClass() != obj.getClass()) return false;
-        FareRule other = (FareRule) obj;
-        if (containsId == null) {
-            if (other.containsId != null) return false;
-        } else if (!containsId.equals(other.containsId)) return false;
-        if (configRev != other.configRev) return false;
-        if (!destinationId.equals(other.destinationId)) return false;
-        if (fareId == null) {
-            if (other.fareId != null) return false;
-        } else if (!fareId.equals(other.fareId)) return false;
-        if (!originId.equals(other.originId)) return false;
-        if (!routeId.equals(other.routeId)) return false;
-        return true;
-    }
-
-    /**************************** Getter Methods ************************/
-
-    /**
-     * @return the configRev
-     */
-    public int getConfigRev() {
-        return configRev;
-    }
-
-    /**
-     * @return the fareId
-     */
-    public String getFareId() {
-        return fareId;
-    }
-
     /**
      * @return the routeId
      */
@@ -198,7 +127,7 @@ public class FareRule implements Serializable {
         // With respect to the database, routeId cannot be null since
         // it is a primary key. But sometimes it won't be set. For this case
         // should return null instead of empty string for consistency.
-        return routeId.length() == 0 ? null : routeId;
+        return routeId.isEmpty() ? null : routeId;
     }
 
     /**
@@ -208,7 +137,7 @@ public class FareRule implements Serializable {
         // With respect to the database, originId cannot be null since
         // it is a primary key. But sometimes it won't be set. For this case
         // should return null instead of empty string for consistency.
-        return originId.length() == 0 ? null : originId;
+        return originId.isEmpty() ? null : originId;
     }
 
     /**
@@ -218,7 +147,7 @@ public class FareRule implements Serializable {
         // With respect to the database, destinationId cannot be null since
         // it is a primary key. But sometimes it won't be set. For this case
         // should return null instead of empty string for consistency.
-        return destinationId.length() == 0 ? null : destinationId;
+        return destinationId.isEmpty() ? null : destinationId;
     }
 
     /**
@@ -228,6 +157,6 @@ public class FareRule implements Serializable {
         // With respect to the database, containsId cannot be null since
         // it is a primary key. But sometimes it won't be set. For this case
         // should return null instead of empty string for consistency.
-        return containsId.length() == 0 ? null : containsId;
+        return containsId.isEmpty() ? null : containsId;
     }
 }

@@ -1,16 +1,9 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -20,6 +13,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.db.hibernate.HibernateUtils;
 import org.transitclock.utils.Geo;
+
+import javax.persistence.*;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Contains the expected time it takes to travel along the specified path, which is for one stop to
@@ -31,6 +29,9 @@ import org.transitclock.utils.Geo;
  */
 @Entity
 @DynamicUpdate
+@ToString
+@EqualsAndHashCode
+@Getter
 @Table(name = "TravelTimesForStopPaths")
 public class TravelTimesForStopPath implements Serializable {
 
@@ -60,7 +61,7 @@ public class TravelTimesForStopPath implements Serializable {
     // 2 * DEFAULT_ID_SIZE since stop path names are stop1_to_stop2 so can
     // be twice as long as other IDs. And when using GTFS Editor the IDs
     // are quite long, a bit longer than 40 characters.
-    @Column(length = 2 * HibernateUtils.DEFAULT_ID_SIZE)
+    @Column(length = 2 * 60)
     private final String stopPathId;
 
     // The distance for each travel time segment for this path. Doesn't
@@ -116,9 +117,6 @@ public class TravelTimesForStopPath implements Serializable {
     @Column(length = 5)
     @Enumerated(EnumType.STRING)
     private final HowSet howSet;
-
-    // Needed because class is serializable
-    private static final long serialVersionUID = -5136757109373446841L;
 
     private static final Logger logger = LoggerFactory.getLogger(TravelTimesForStopPath.class);
 
@@ -266,34 +264,6 @@ public class TravelTimesForStopPath implements Serializable {
                 null);
     }
 
-    /* (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
-    @Override
-    public String toString() {
-        return "TravelTimesForStopPath ["
-                + "id="
-                + id
-                + ", configRev="
-                + configRev
-                + ", travelTimesRev="
-                + travelTimesRev
-                + ", stopPathId="
-                + stopPathId
-                + ", travelTimeSegmentLength="
-                + travelTimeSegmentLength
-                + ", travelTimesMsec="
-                + travelTimesMsec
-                + ", stopTimeMsec="
-                + stopTimeMsec
-                + ", travelTimeMsec="
-                + getStopPathTravelTimeMsec()
-                + ", daysOfWeekOverride="
-                + daysOfWeekOverride
-                + ", howSet="
-                + howSet
-                + "]";
-    }
 
     /**
      * For when the travelTimesMsec are most important element. Lists the travelTimesMsec first.
@@ -319,39 +289,6 @@ public class TravelTimesForStopPath implements Serializable {
                 + "]";
     }
 
-    /************************ Getter Methods *************************/
-    public int getConfigRev() {
-        return configRev;
-    }
-
-    public int getTravelTimesRev() {
-        return travelTimesRev;
-    }
-
-    /**
-     * @return the stopPathId
-     */
-    public String getStopPathId() {
-        return stopPathId;
-    }
-
-    /**
-     * The travel time segment distance specifies how the stop path is divided up with respect to
-     * travel times. The travel times for a stop path are uniformly divided. This means that each
-     * travel time segment for a stop path has the same length.
-     *
-     * @return the travelTimeSegmentLength
-     */
-    public double getTravelTimeSegmentLength() {
-        return travelTimeSegmentLength;
-    }
-
-    /**
-     * @return the travelTimeMsec
-     */
-    public List<Integer> getTravelTimesMsec() {
-        return travelTimesMsec;
-    }
 
     /**
      * @return How many travel time segments there are for the stop path
@@ -367,7 +304,9 @@ public class TravelTimesForStopPath implements Serializable {
      */
     public int getStopPathTravelTimeMsec() {
         int totalTravelTimeMsec = 0;
-        for (Integer timeMsec : travelTimesMsec) totalTravelTimeMsec += timeMsec;
+        for (Integer timeMsec : travelTimesMsec) {
+            totalTravelTimeMsec += timeMsec;
+        }
         return totalTravelTimeMsec;
     }
 
@@ -381,31 +320,6 @@ public class TravelTimesForStopPath implements Serializable {
         return travelTimesMsec.get(segmentIndex);
     }
 
-    /**
-     * How long the vehicle is expected to dwell at stop. Doesn't include layover times and such.
-     * Based on historic AVL data.
-     *
-     * @return the stopTimeMsec
-     */
-    public int getStopTimeMsec() {
-        return stopTimeMsec;
-    }
-
-    /**
-     * @return the daysOfWeekOverride
-     */
-    public int getDaysOfWeekOverride() {
-        return daysOfWeekOverride;
-    }
-
-    /**
-     * @return the howSet
-     */
-    public HowSet getHowSet() {
-        return howSet;
-    }
-
-    /************************* Database Methods *************************/
 
     /**
      * Reads in all the travel times for the specified rev
@@ -449,49 +363,6 @@ public class TravelTimesForStopPath implements Serializable {
             }
         }
         if (stopTimeMsec < 0) return false;
-        return true;
-    }
-
-    /** Defined so can use as key in map */
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + configRev;
-        result = prime * result + daysOfWeekOverride;
-        result = prime * result + ((howSet == null) ? 0 : howSet.hashCode());
-        result = prime * result + ((id == null) ? 0 : id.hashCode());
-        result = prime * result + ((stopPathId == null) ? 0 : stopPathId.hashCode());
-        result = prime * result + stopTimeMsec;
-        result = prime * result + Float.floatToIntBits(travelTimeSegmentLength);
-        result = prime * result + ((travelTimesMsec == null) ? 0 : travelTimesMsec.hashCode());
-        result = prime * result + travelTimesRev;
-        return result;
-    }
-
-    /** Defined so can use as key in map */
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null) return false;
-        if (getClass() != obj.getClass()) return false;
-        TravelTimesForStopPath other = (TravelTimesForStopPath) obj;
-        if (configRev != other.configRev) return false;
-        if (daysOfWeekOverride != other.daysOfWeekOverride) return false;
-        if (howSet != other.howSet) return false;
-        if (id == null) {
-            if (other.id != null) return false;
-        } else if (!id.equals(other.id)) return false;
-        if (stopPathId == null) {
-            if (other.stopPathId != null) return false;
-        } else if (!stopPathId.equals(other.stopPathId)) return false;
-        if (stopTimeMsec != other.stopTimeMsec) return false;
-        if (Float.floatToIntBits(travelTimeSegmentLength) != Float.floatToIntBits(other.travelTimeSegmentLength))
-            return false;
-        if (travelTimesMsec == null) {
-            if (other.travelTimesMsec != null) return false;
-        } else if (!travelTimesMsec.equals(other.travelTimesMsec)) return false;
-        if (travelTimesRev != other.travelTimesRev) return false;
         return true;
     }
 }

@@ -1,10 +1,9 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -13,6 +12,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.db.hibernate.HibernateUtils;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+
 /**
  * For keeping track of current revisions. This table should only have a single row, one that
  * specified the configRev and the travelTimesRev currently being used.
@@ -20,6 +24,9 @@ import org.transitclock.db.hibernate.HibernateUtils;
  * @author SkiBu Smith
  */
 @Entity
+@Getter
+@Setter
+@ToString
 @DynamicUpdate
 public class ActiveRevisions {
 
@@ -135,42 +142,9 @@ public class ActiveRevisions {
     }
 
     /**
-     * Sets the travel time rev. Doesn't write it to db though. To write to db should flush the
-     * session that the object was read in by.
-     *
-     * @param travelTimeRev
-     */
-    public void setTravelTimesRev(int travelTimeRev) {
-        this.travelTimesRev = travelTimeRev;
-    }
-
-    /**
-     * Sets the config rev. Doesn't write it to db though. To write to db should flush the session
-     * that the object was read in by.
-     *
-     * @param configRev
-     */
-    public void setConfigRev(int configRev) {
-        this.configRev = configRev;
-    }
-
-    public int getConfigRev() {
-        return configRev;
-    }
-
-    public int getTravelTimesRev() {
-        return travelTimesRev;
-    }
-
-    /**
      * @return True if both the configRev and travelTimesRev are both valid.
      */
     public boolean isValid() {
         return configRev >= 0 && travelTimesRev >= 0;
-    }
-
-    @Override
-    public String toString() {
-        return "ActiveRevisions [" + "configRev=" + configRev + ", travelTimesRev=" + travelTimesRev + "]";
     }
 }

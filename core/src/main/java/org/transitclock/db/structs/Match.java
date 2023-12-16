@@ -1,16 +1,9 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
-import java.io.Serializable;
-import java.util.Date;
-import java.util.List;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Index;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
 import net.jcip.annotations.Immutable;
 import org.hibernate.CallbackException;
 import org.hibernate.HibernateException;
@@ -26,6 +19,11 @@ import org.transitclock.core.VehicleState;
 import org.transitclock.db.hibernate.HibernateUtils;
 import org.transitclock.utils.Geo;
 import org.transitclock.utils.IntervalTimer;
+
+import javax.persistence.*;
+import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
 
 /**
  * For persisting the match for the vehicle. This data is later used for determining expected travel
@@ -43,6 +41,9 @@ import org.transitclock.utils.IntervalTimer;
 @Immutable // From jcip.annoations
 @Entity
 @DynamicUpdate
+@EqualsAndHashCode
+@ToString
+@Getter
 @Table(
         name = "Matches",
         indexes = {@Index(name = "AvlTimeIndex", columnList = "avlTime")})
@@ -51,7 +52,7 @@ public class Match implements Lifecycle, Serializable {
     // vehicleId is an @Id since might get multiple AVL reports
     // for different vehicles with the same avlTime but need a unique
     // primary key.
-    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
+    @Column(length = 60)
     @Id
     private String vehicleId;
 
@@ -74,12 +75,12 @@ public class Match implements Lifecycle, Serializable {
 
     // Not truly needed because currently using only trip info for generating
     // travel times, which is the main use of Match data from the db.
-    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
+    @Column(length = 60)
     private String blockId;
 
     // Creating travel times on a trip by trip basis so this element is
     // important.
-    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
+    @Column(length = 60)
     private String tripId;
 
     // Important because generating travel times on a per stop path basis
@@ -105,9 +106,6 @@ public class Match implements Lifecycle, Serializable {
     // instead using arrival/departure times for that situation.
     @Column
     private final boolean atStop;
-
-    // Needed because serializable due to Hibernate requirement
-    private static final long serialVersionUID = -7582135605912244678L;
 
     private static final Logger logger = LoggerFactory.getLogger(Match.class);
 
@@ -158,86 +156,6 @@ public class Match implements Lifecycle, Serializable {
         this.distanceAlongSegment = Float.NaN;
         this.distanceAlongStopPath = Float.NaN;
         this.atStop = false;
-    }
-
-    /** Because using a composite Id Hibernate wants this member. */
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + (atStop ? 1231 : 1237);
-        result = prime * result + ((avlTime == null) ? 0 : avlTime.hashCode());
-        result = prime * result + ((blockId == null) ? 0 : blockId.hashCode());
-        result = prime * result + configRev;
-        result = prime * result + Float.floatToIntBits(distanceAlongSegment);
-        result = prime * result + Float.floatToIntBits(distanceAlongStopPath);
-        result = prime * result + segmentIndex;
-        result = prime * result + ((serviceId == null) ? 0 : serviceId.hashCode());
-        result = prime * result + stopPathIndex;
-        result = prime * result + ((tripId == null) ? 0 : tripId.hashCode());
-        result = prime * result + ((vehicleId == null) ? 0 : vehicleId.hashCode());
-        return result;
-    }
-
-    /** Because using a composite Id Hibernate wants this member. */
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null) return false;
-        if (getClass() != obj.getClass()) return false;
-        Match other = (Match) obj;
-        if (atStop != other.atStop) return false;
-        if (avlTime == null) {
-            if (other.avlTime != null) return false;
-        } else if (!avlTime.equals(other.avlTime)) return false;
-        if (blockId == null) {
-            if (other.blockId != null) return false;
-        } else if (!blockId.equals(other.blockId)) return false;
-        if (configRev != other.configRev) return false;
-        if (Float.floatToIntBits(distanceAlongSegment) != Float.floatToIntBits(other.distanceAlongSegment))
-            return false;
-        if (Float.floatToIntBits(distanceAlongStopPath) != Float.floatToIntBits(other.distanceAlongStopPath))
-            return false;
-        if (segmentIndex != other.segmentIndex) return false;
-        if (serviceId == null) {
-            if (other.serviceId != null) return false;
-        } else if (!serviceId.equals(other.serviceId)) return false;
-        if (stopPathIndex != other.stopPathIndex) return false;
-        if (tripId == null) {
-            if (other.tripId != null) return false;
-        } else if (!tripId.equals(other.tripId)) return false;
-        if (vehicleId == null) {
-            if (other.vehicleId != null) return false;
-        } else if (!vehicleId.equals(other.vehicleId)) return false;
-        return true;
-    }
-
-    @Override
-    public String toString() {
-        return "Match ["
-                + "vehicleId="
-                + vehicleId
-                + ", avlTime="
-                + avlTime
-                + ", configRev="
-                + configRev
-                + ", serviceId="
-                + serviceId
-                + ", blockId="
-                + blockId
-                + ", tripId="
-                + tripId
-                + ", stopPathIndex="
-                + stopPathIndex
-                + ", segmentIndex="
-                + segmentIndex
-                + ", distanceAlongSegment="
-                + Geo.distanceFormat(distanceAlongSegment)
-                + ", distanceAlongStopPath="
-                + Geo.distanceFormat(distanceAlongStopPath)
-                + ", atStop="
-                + atStop
-                + "]";
     }
 
     /**
@@ -333,53 +251,12 @@ public class Match implements Lifecycle, Serializable {
         }
     }
 
-    public String getVehicleId() {
-        return vehicleId;
-    }
-
     public Date getDate() {
         return avlTime;
     }
 
     public long getTime() {
         return avlTime.getTime();
-    }
-
-    public int getConfigRev() {
-        return configRev;
-    }
-
-    public String getServiceId() {
-        return serviceId;
-    }
-
-    public String getBlockId() {
-        return blockId;
-    }
-
-    public String getTripId() {
-        return tripId;
-    }
-
-    public int getStopPathIndex() {
-        return stopPathIndex;
-    }
-
-    public int getSegmentIndex() {
-        return segmentIndex;
-    }
-
-    public float getDistanceAlongSegment() {
-        return distanceAlongSegment;
-    }
-
-    public float getDistanceAlongStopPath() {
-        return distanceAlongStopPath;
-    }
-
-    /** Returns true if vehicle is at or near a stop. */
-    public boolean isAtStop() {
-        return atStop;
     }
 
     /**

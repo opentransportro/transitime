@@ -1,23 +1,11 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
-import java.io.Serializable;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Index;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.Transient;
-import org.hibernate.CallbackException;
-import org.hibernate.Criteria;
-import org.hibernate.HibernateException;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.Query;
-import org.hibernate.Session;
+import org.hibernate.*;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.classic.Lifecycle;
 import org.hibernate.criterion.Restrictions;
@@ -33,6 +21,12 @@ import org.transitclock.utils.Geo;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.Time;
 
+import javax.persistence.*;
+import java.io.Serializable;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+
 /**
  * For persisting an Arrival or a Departure time. Should use Arrival or Departure subclasses.
  *
@@ -45,7 +39,9 @@ import org.transitclock.utils.Time;
  * @author SkiBu Smith
  */
 @Entity
+@Getter @Setter
 @DynamicUpdate
+@EqualsAndHashCode
 @Table(
         name = "ArrivalsDepartures",
         indexes = {
@@ -55,7 +51,7 @@ import org.transitclock.utils.Time;
 public class ArrivalDeparture implements Lifecycle, Serializable {
 
     @Id
-    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
+    @Column(length = 60)
     private String vehicleId;
 
     // Originally did not use msec precision (datetime(3)) specification
@@ -76,7 +72,7 @@ public class ArrivalDeparture implements Lifecycle, Serializable {
     private final Date time;
 
     @Id
-    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
+    @Column(length = 60)
     private String stopId;
 
     // From the GTFS stop_times.txt file for the trip. The gtfsStopSeq can
@@ -94,7 +90,7 @@ public class ArrivalDeparture implements Lifecycle, Serializable {
     private final boolean isArrival;
 
     @Id
-    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
+    @Column(length = 60)
     private String tripId;
 
     // The revision of the configuration data that was being used
@@ -117,10 +113,10 @@ public class ArrivalDeparture implements Lifecycle, Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     private final Date scheduledTime;
 
-    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
+    @Column(length = 60)
     private String blockId;
 
-    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
+    @Column(length = 60)
     private String routeId;
 
     // routeShortName is included because for some agencies the
@@ -128,13 +124,13 @@ public class ArrivalDeparture implements Lifecycle, Serializable {
     // routeShortName is more likely to stay consistent. Therefore
     // it is better for when querying for arrival/departure data
     // over a timespan.
-    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
+    @Column(length = 60)
     private String routeShortName;
 
-    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
+    @Column(length = 60)
     private String serviceId;
 
-    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
+    @Column(length = 60)
     private String directionId;
 
     // The index of which trip this is within the block.
@@ -186,10 +182,6 @@ public class ArrivalDeparture implements Lifecycle, Serializable {
 
     private static final Logger logger = LoggerFactory.getLogger(ArrivalDeparture.class);
 
-    // Needed because Hibernate objects must be serializable
-    private static final long serialVersionUID = 6511713704337986699L;
-
-    /********************** Member Functions **************************/
 
     /**
      * Constructor called when creating an ArrivalDeparture object to be stored in db.
@@ -295,11 +287,6 @@ public class ArrivalDeparture implements Lifecycle, Serializable {
                 freqStartTime);
     }
 
-    public Date getFreqStartTime() {
-        return freqStartTime;
-    }
-
-    /** Hibernate requires a no-arg constructor for reading objects from database. */
     protected ArrivalDeparture() {
         this.vehicleId = null;
         this.time = null;
@@ -364,87 +351,6 @@ public class ArrivalDeparture implements Lifecycle, Serializable {
         logger.info(this.toString());
     }
 
-    /** Because using a composite Id Hibernate wants this member. */
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((avlTime == null) ? 0 : avlTime.hashCode());
-        result = prime * result + ((block == null) ? 0 : block.hashCode());
-        result = prime * result + ((blockId == null) ? 0 : blockId.hashCode());
-        result = prime * result + configRev;
-        result = prime * result + ((directionId == null) ? 0 : directionId.hashCode());
-        result = prime * result + gtfsStopSeq;
-        result = prime * result + (isArrival ? 1231 : 1237);
-        result = prime * result + ((routeId == null) ? 0 : routeId.hashCode());
-        result = prime * result + ((routeShortName == null) ? 0 : routeShortName.hashCode());
-        result = prime * result + ((scheduledTime == null) ? 0 : scheduledTime.hashCode());
-        result = prime * result + ((serviceId == null) ? 0 : serviceId.hashCode());
-        result = prime * result + ((stopId == null) ? 0 : stopId.hashCode());
-        result = prime * result + ((stopOrder == null) ? 0 : stopOrder.hashCode());
-        result = prime * result + stopPathIndex;
-        result = prime * result + Float.floatToIntBits(stopPathLength);
-        result = prime * result + ((time == null) ? 0 : time.hashCode());
-        result = prime * result + ((tripId == null) ? 0 : tripId.hashCode());
-        result = prime * result + tripIndex;
-        result = prime * result + ((vehicleId == null) ? 0 : vehicleId.hashCode());
-        return result;
-    }
-
-    /** Because using a composite Id Hibernate wants this member. */
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null) return false;
-        if (getClass() != obj.getClass()) return false;
-        ArrivalDeparture other = (ArrivalDeparture) obj;
-        if (avlTime == null) {
-            if (other.avlTime != null) return false;
-        } else if (!avlTime.equals(other.avlTime)) return false;
-        if (block == null) {
-            if (other.block != null) return false;
-        } else if (!block.equals(other.block)) return false;
-        if (blockId == null) {
-            if (other.blockId != null) return false;
-        } else if (!blockId.equals(other.blockId)) return false;
-        if (configRev != other.configRev) return false;
-        if (directionId == null) {
-            if (other.directionId != null) return false;
-        } else if (!directionId.equals(other.directionId)) return false;
-        if (gtfsStopSeq != other.gtfsStopSeq) return false;
-        if (isArrival != other.isArrival) return false;
-        if (routeId == null) {
-            if (other.routeId != null) return false;
-        } else if (!routeId.equals(other.routeId)) return false;
-        if (routeShortName == null) {
-            if (other.routeShortName != null) return false;
-        } else if (!routeShortName.equals(other.routeShortName)) return false;
-        if (scheduledTime == null) {
-            if (other.scheduledTime != null) return false;
-        } else if (!scheduledTime.equals(other.scheduledTime)) return false;
-        if (serviceId == null) {
-            if (other.serviceId != null) return false;
-        } else if (!serviceId.equals(other.serviceId)) return false;
-        if (stopId == null) {
-            if (other.stopId != null) return false;
-        } else if (!stopId.equals(other.stopId)) return false;
-        if (stopOrder == null) {
-            if (other.stopOrder != null) return false;
-        } else if (!stopOrder.equals(other.stopOrder)) return false;
-        if (stopPathIndex != other.stopPathIndex) return false;
-        if (Float.floatToIntBits(stopPathLength) != Float.floatToIntBits(other.stopPathLength)) return false;
-        if (time == null) {
-            if (other.time != null) return false;
-        } else if (!time.equals(other.time)) return false;
-        if (tripId == null) {
-            if (other.tripId != null) return false;
-        } else if (!tripId.equals(other.tripId)) return false;
-        if (tripIndex != other.tripIndex) return false;
-        if (vehicleId == null) {
-            if (other.vehicleId != null) return false;
-        } else if (!vehicleId.equals(other.vehicleId)) return false;
-        return true;
-    }
 
     @Override
     public String toString() {
@@ -793,24 +699,12 @@ public class ArrivalDeparture implements Lifecycle, Serializable {
                 DbSetupConfig.getDbName(), beginTime, endTime, sqlClause, firstResult, maxResults, arrivalOrDeparture);
     }
 
-    public String getVehicleId() {
-        return vehicleId;
-    }
-
     public Date getDate() {
         return time;
     }
 
-    public Date getAvlTime() {
-        return avlTime;
-    }
-
     public long getTime() {
         return time.getTime();
-    }
-
-    public String getStopId() {
-        return stopId;
     }
 
     public boolean isArrival() {
@@ -824,10 +718,6 @@ public class ArrivalDeparture implements Lifecycle, Serializable {
      */
     public boolean isDeparture() {
         return !isArrival;
-    }
-
-    public String getTripId() {
-        return tripId;
     }
 
     /**
@@ -849,52 +739,6 @@ public class ArrivalDeparture implements Lifecycle, Serializable {
         Trip trip = Core.getInstance().getDbConfig().getTrip(tripId);
         if (trip != null) return trip.getShortName();
         else return null;
-    }
-
-    public String getBlockId() {
-        return blockId;
-    }
-
-    public String getRouteId() {
-        return routeId;
-    }
-
-    public String getServiceId() {
-        return serviceId;
-    }
-
-    public String getDirectionId() {
-        return directionId;
-    }
-
-    public int getConfigRev() {
-        return configRev;
-    }
-
-    public int getTripIndex() {
-        return tripIndex;
-    }
-
-    public int getStopPathIndex() {
-        return stopPathIndex;
-    }
-
-    public float getStopPathLength() {
-        return stopPathLength;
-    }
-
-    public Integer getStopOrder() {
-        return stopOrder;
-    }
-
-    /**
-     * Note that the block is a transient element so will not be available if this object was read
-     * from the database. In that case it will be null.
-     *
-     * @return
-     */
-    public Block getBlock() {
-        return block;
     }
 
     /**
@@ -928,7 +772,9 @@ public class ArrivalDeparture implements Lifecycle, Serializable {
     public TemporalDifference getScheduleAdherence() {
         // If there is no schedule time for this stop then there
         // is no schedule adherence information.
-        if (scheduledTime == null) return null;
+        if (scheduledTime == null) {
+            return null;
+        }
 
         // Return the schedule adherence
         return new TemporalDifference(scheduledTime.getTime() - time.getTime());

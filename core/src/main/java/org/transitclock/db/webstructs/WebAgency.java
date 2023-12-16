@@ -44,7 +44,7 @@ import org.transitclock.utils.Time;
 public class WebAgency {
 
     @Id
-    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
+    @Column(length = 60)
     private final String agencyId;
 
     @Column(length = 120)

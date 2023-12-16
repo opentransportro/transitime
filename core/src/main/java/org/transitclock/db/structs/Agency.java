@@ -1,15 +1,8 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
-import java.io.Serializable;
-import java.util.List;
-import java.util.TimeZone;
-import javax.persistence.Column;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.Transient;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -18,6 +11,11 @@ import org.transitclock.db.hibernate.HibernateUtils;
 import org.transitclock.gtfs.gtfsStructs.GtfsAgency;
 import org.transitclock.utils.Time;
 
+import javax.persistence.*;
+import java.io.Serializable;
+import java.util.List;
+import java.util.TimeZone;
+
 /**
  * Contains data from the agency.txt GTFS file. This class is for reading/writing that data to the
  * db.
@@ -25,6 +23,8 @@ import org.transitclock.utils.Time;
  * @author SkiBu Smith
  */
 @Entity
+@ToString
+@EqualsAndHashCode
 @DynamicUpdate
 @Table(name = "Agencies")
 public class Agency implements Serializable {
@@ -33,13 +33,13 @@ public class Agency implements Serializable {
     @Id
     private final int configRev;
 
-    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
+    @Column(length = 60)
     @Id
     private final String agencyName;
 
     // Note: this is the GTFS agency_id, not the usual
     // Transitime agencyId.
-    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
+    @Column(length = 60)
     private final String agencyId;
 
     @Column
@@ -123,8 +123,7 @@ public class Agency implements Serializable {
     public static int deleteFromRev(Session session, int configRev) throws HibernateException {
         // Note that hql uses class name, not the table name
         String hql = "DELETE Agency WHERE configRev=" + configRev;
-        int numUpdates = session.createQuery(hql).executeUpdate();
-        return numUpdates;
+        return session.createQuery(hql).executeUpdate();
     }
 
     /**
@@ -170,7 +169,7 @@ public class Agency implements Serializable {
         int configRev = ActiveRevisions.get(agencyId).getConfigRev();
 
         List<Agency> agencies = getAgencies(agencyId, configRev);
-        if (agencies.size() != 0) return agencies.get(0).getTimeZone();
+        if (!agencies.isEmpty()) return agencies.get(0).getTimeZone();
         else return null;
     }
 
@@ -195,84 +194,6 @@ public class Agency implements Serializable {
         return time;
     }
 
-    /* (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
-    @Override
-    public String toString() {
-        return "Agency ["
-                + "configRev="
-                + configRev
-                + ", agencyId="
-                + agencyId
-                + ", agencyName="
-                + agencyName
-                + ", agencyUrl="
-                + agencyUrl
-                + ", agencyTimezone="
-                + agencyTimezone
-                + ", agencyLang="
-                + agencyLang
-                + ", agencyPhone="
-                + agencyPhone
-                + ", agencyFareUrl="
-                + agencyFareUrl
-                + ", extent="
-                + extent
-                + "]";
-    }
-
-    /** Needed because have a composite ID for Hibernate storage */
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((agencyFareUrl == null) ? 0 : agencyFareUrl.hashCode());
-        result = prime * result + ((agencyId == null) ? 0 : agencyId.hashCode());
-        result = prime * result + ((agencyLang == null) ? 0 : agencyLang.hashCode());
-        result = prime * result + ((agencyName == null) ? 0 : agencyName.hashCode());
-        result = prime * result + ((agencyPhone == null) ? 0 : agencyPhone.hashCode());
-        result = prime * result + ((agencyTimezone == null) ? 0 : agencyTimezone.hashCode());
-        result = prime * result + ((agencyUrl == null) ? 0 : agencyUrl.hashCode());
-        result = prime * result + ((extent == null) ? 0 : extent.hashCode());
-        result = prime * result + configRev;
-        return result;
-    }
-
-    /** Needed because have a composite ID for Hibernate storage */
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null) return false;
-        if (getClass() != obj.getClass()) return false;
-        Agency other = (Agency) obj;
-        if (agencyFareUrl == null) {
-            if (other.agencyFareUrl != null) return false;
-        } else if (!agencyFareUrl.equals(other.agencyFareUrl)) return false;
-        if (agencyId == null) {
-            if (other.agencyId != null) return false;
-        } else if (!agencyId.equals(other.agencyId)) return false;
-        if (agencyLang == null) {
-            if (other.agencyLang != null) return false;
-        } else if (!agencyLang.equals(other.agencyLang)) return false;
-        if (agencyName == null) {
-            if (other.agencyName != null) return false;
-        } else if (!agencyName.equals(other.agencyName)) return false;
-        if (agencyPhone == null) {
-            if (other.agencyPhone != null) return false;
-        } else if (!agencyPhone.equals(other.agencyPhone)) return false;
-        if (agencyTimezone == null) {
-            if (other.agencyTimezone != null) return false;
-        } else if (!agencyTimezone.equals(other.agencyTimezone)) return false;
-        if (agencyUrl == null) {
-            if (other.agencyUrl != null) return false;
-        } else if (!agencyUrl.equals(other.agencyUrl)) return false;
-        if (extent == null) {
-            if (other.extent != null) return false;
-        } else if (!extent.equals(other.extent)) return false;
-        if (configRev != other.configRev) return false;
-        return true;
-    }
 
     /************************** Getter Methods ******************************/
 

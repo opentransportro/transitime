@@ -26,7 +26,7 @@ public class DwellAverage implements DwellModel, Serializable {
             "For when determining stop times. Throws out outliers if they are less than 0.7"
                     + " or greater than 1/0.7 of the average.");
 
-    private List<Integer> values = new ArrayList<Integer>();
+    private List<Integer> values = new ArrayList<>();
 
     // For this model headway or demand is not taken into account.
     @Override

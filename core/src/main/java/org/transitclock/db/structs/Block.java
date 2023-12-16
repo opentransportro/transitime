@@ -1,32 +1,8 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
-import java.io.Serializable;
-import java.net.SocketException;
-import java.net.SocketTimeoutException;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.OrderColumn;
-import javax.persistence.Table;
-import org.hibernate.Hibernate;
-import org.hibernate.HibernateException;
-import org.hibernate.JDBCException;
 import org.hibernate.Query;
-import org.hibernate.Session;
+import org.hibernate.*;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.DynamicUpdate;
@@ -46,6 +22,13 @@ import org.transitclock.gtfs.DbConfig;
 import org.transitclock.logging.Markers;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.Time;
+
+import javax.persistence.*;
+import java.io.Serializable;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
+import java.text.ParseException;
+import java.util.*;
 
 /**
  * Represents assignment for a vehicle for a day. Obtained by combining data from multiple GTFS
@@ -67,11 +50,11 @@ public final class Block implements Serializable {
     @Id
     private final int configRev;
 
-    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
+    @Column(length = 60)
     @Id
     private final String blockId;
 
-    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
+    @Column(length = 60)
     @Id
     private final String serviceId;
 
@@ -123,9 +106,6 @@ public final class Block implements Serializable {
     // For making sure only lazy load trips collection via one thread
     // at a time.
     private static final Object lazyLoadingSyncObject = new Object();
-
-    // Hibernate requires class to be serializable because has composite Id
-    private static final long serialVersionUID = 6511242755235485004L;
 
     private static BooleanConfigValue blockLoading = new BooleanConfigValue(
             "transitclock.blockLoading.agressive",

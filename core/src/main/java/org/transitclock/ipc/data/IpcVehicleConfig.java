@@ -28,7 +28,7 @@ public class IpcVehicleConfig implements Serializable {
         this.description = vc.getDescription();
         this.capacity = vc.getCapacity();
         this.crushCapacity = vc.getCrushCapacity();
-        this.nonPassengerVehicle = vc.isNonPassengerVehicle();
+        this.nonPassengerVehicle = vc.getNonPassengerVehicle();
         this.name = vc.getName();
     }
 

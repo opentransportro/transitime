@@ -1,21 +1,9 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
-import java.io.Serializable;
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.OrderColumn;
-import javax.persistence.Table;
-import javax.persistence.Transient;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.CallbackException;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
@@ -35,6 +23,14 @@ import org.transitclock.gtfs.TitleFormatter;
 import org.transitclock.gtfs.gtfsStructs.GtfsTrip;
 import org.transitclock.utils.Time;
 
+import javax.persistence.*;
+import java.io.Serializable;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
  * Describes a GTFS trip but also includes travel time information.
  *
@@ -47,6 +43,9 @@ import org.transitclock.utils.Time;
  * @author SkiBu Smith
  */
 @Entity
+@Getter
+@Setter
+@EqualsAndHashCode
 @DynamicUpdate
 @Table(name = "Trips")
 public class Trip implements Lifecycle, Serializable {
@@ -55,7 +54,7 @@ public class Trip implements Lifecycle, Serializable {
     @Id
     private final int configRev;
 
-    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
+    @Column(length = 60)
     @Id
     private String tripId;
 
@@ -68,7 +67,7 @@ public class Trip implements Lifecycle, Serializable {
     private Integer startTime;
 
     // Used by some agencies to identify the trip in the AVL feed
-    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
+    @Column(length = 60)
     private String tripShortName;
 
     // Number of seconds into the day.
@@ -76,10 +75,10 @@ public class Trip implements Lifecycle, Serializable {
     @Column
     private Integer endTime;
 
-    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
+    @Column(length = 60)
     private String directionId;
 
-    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
+    @Column(length = 60)
     private String routeId;
 
     // Route short name is also needed because some agencies such as SFMTA
@@ -88,7 +87,7 @@ public class Trip implements Lifecycle, Serializable {
     // prediction pages or for running schedule adherence reports over
     // time. For where need a route identifier that is consistent over time
     // it can be best to use the routeShortName.
-    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
+    @Column(length = 60)
     private String routeShortName;
 
     // So can determine all the stops and stopPaths associated with trip
@@ -125,7 +124,7 @@ public class Trip implements Lifecycle, Serializable {
     private final boolean exactTimesHeadway;
 
     // Service ID for the trip
-    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
+    @Column(length = 60)
     private String serviceId;
 
     // The GTFS trips.txt trip_headsign if set. Otherwise will get from the
@@ -134,11 +133,11 @@ public class Trip implements Lifecycle, Serializable {
     private String headsign;
 
     // From GTFS trips.txt block_id if set. Otherwise the trip_id.
-    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
+    @Column(length = 60)
     private String blockId;
 
     // The GTFS trips.txt shape_id
-    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
+    @Column(length = 60)
     private String shapeId;
 
     @Transient
@@ -633,120 +632,6 @@ public class Trip implements Lifecycle, Serializable {
                 + "]";
     }
 
-    /** Required by Hibernate */
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((blockId == null) ? 0 : blockId.hashCode());
-        result = prime * result + configRev;
-        result = prime * result + ((directionId == null) ? 0 : directionId.hashCode());
-        result = prime * result + ((endTime == null) ? 0 : endTime.hashCode());
-        result = prime * result + (exactTimesHeadway ? 1231 : 1237);
-        result = prime * result + ((headsign == null) ? 0 : headsign.hashCode());
-        result = prime * result + (noSchedule ? 1231 : 1237);
-        result = prime * result + ((route == null) ? 0 : route.hashCode());
-        result = prime * result + ((routeId == null) ? 0 : routeId.hashCode());
-        result = prime * result + ((routeShortName == null) ? 0 : routeShortName.hashCode());
-        result = prime * result + ((scheduledTimesList == null) ? 0 : scheduledTimesList.hashCode());
-        result = prime * result + ((serviceId == null) ? 0 : serviceId.hashCode());
-        result = prime * result + ((shapeId == null) ? 0 : shapeId.hashCode());
-        result = prime * result + ((startTime == null) ? 0 : startTime.hashCode());
-        result = prime * result + ((travelTimes == null) ? 0 : travelTimes.hashCode());
-        result = prime * result + ((tripId == null) ? 0 : tripId.hashCode());
-        result = prime * result + ((tripPattern == null) ? 0 : tripPattern.hashCode());
-        result = prime * result + ((tripShortName == null) ? 0 : tripShortName.hashCode());
-        return result;
-    }
-
-    /** Required by Hibernate */
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null) return false;
-        if (getClass() != obj.getClass()) return false;
-        Trip other = (Trip) obj;
-        if (blockId == null) {
-            if (other.blockId != null) return false;
-        } else if (!blockId.equals(other.blockId)) return false;
-        if (configRev != other.configRev) return false;
-        if (directionId == null) {
-            if (other.directionId != null) return false;
-        } else if (!directionId.equals(other.directionId)) return false;
-        if (endTime == null) {
-            if (other.endTime != null) return false;
-        } else if (!endTime.equals(other.endTime)) return false;
-        if (exactTimesHeadway != other.exactTimesHeadway) return false;
-        if (headsign == null) {
-            if (other.headsign != null) return false;
-        } else if (!headsign.equals(other.headsign)) return false;
-        if (noSchedule != other.noSchedule) return false;
-        if (route == null) {
-            if (other.route != null) return false;
-        } else if (!route.equals(other.route)) return false;
-        if (routeId == null) {
-            if (other.routeId != null) return false;
-        } else if (!routeId.equals(other.routeId)) return false;
-        if (routeShortName == null) {
-            if (other.routeShortName != null) return false;
-        } else if (!routeShortName.equals(other.routeShortName)) return false;
-        if (scheduledTimesList == null) {
-            if (other.scheduledTimesList != null) return false;
-        } else if (!scheduledTimesList.equals(other.scheduledTimesList)) return false;
-        if (serviceId == null) {
-            if (other.serviceId != null) return false;
-        } else if (!serviceId.equals(other.serviceId)) return false;
-        if (shapeId == null) {
-            if (other.shapeId != null) return false;
-        } else if (!shapeId.equals(other.shapeId)) return false;
-        if (startTime == null) {
-            if (other.startTime != null) return false;
-        } else if (!startTime.equals(other.startTime)) return false;
-        if (travelTimes == null) {
-            if (other.travelTimes != null) return false;
-        } else if (!travelTimes.equals(other.travelTimes)) return false;
-        if (tripId == null) {
-            if (other.tripId != null) return false;
-        } else if (!tripId.equals(other.tripId)) return false;
-        if (tripPattern == null) {
-            if (other.tripPattern != null) return false;
-        } else if (!tripPattern.equals(other.tripPattern)) return false;
-        if (tripShortName == null) {
-            if (other.tripShortName != null) return false;
-        } else if (!tripShortName.equals(other.tripShortName)) return false;
-        return true;
-    }
-
-    /********************** Getter Methods **************************/
-
-    /**
-     * Returns departure time of first stop of trip. Gtfs requires departure time of first stop of
-     * trip and arrival time of last stop of trip to be set, even for unscheduled blocks. That way
-     * they can determine running time of trip.
-     *
-     * @return departure time of first stop of trip. Time is seconds into the day. Can be null.
-     */
-    public Integer getStartTime() {
-        return startTime;
-    }
-
-    /**
-     * Returns arrival time of last stop of trip. Gtfs requires departure time of first stop of trip
-     * and arrival time of last stop of trip to be set, even for unscheduled blocks. That way they
-     * can determine running time of trip.
-     *
-     * @return arrival time of last stop of trip. Time is seconds into the day. Can be null.
-     */
-    public Integer getEndTime() {
-        return endTime;
-    }
-
-    /**
-     * @return the configRev
-     */
-    public int getConfigRev() {
-        return configRev;
-    }
 
     /**
      * @return the tripId
@@ -762,12 +647,6 @@ public class Trip implements Lifecycle, Serializable {
         return tripShortName;
     }
 
-    /**
-     * @return the routeId
-     */
-    public String getRouteId() {
-        return routeId;
-    }
 
     /**
      * Returns the routeShortName. If it is null then returns the full route name. Causes exception
@@ -809,46 +688,11 @@ public class Trip implements Lifecycle, Serializable {
      */
     public String getRouteName() {
         Route route = getRoute();
-        if (route == null) return null;
+        if (route == null) {
+            return null;
+        }
+
         return route.getName();
-    }
-
-    /**
-     * @return the directionId
-     */
-    public String getDirectionId() {
-        return directionId;
-    }
-
-    /**
-     * @return noSchedule
-     */
-    public boolean isNoSchedule() {
-        return noSchedule;
-    }
-
-    /**
-     * @return exactTimesHeadway
-     */
-    public boolean isExactTimesHeadway() {
-        return exactTimesHeadway;
-    }
-
-    /**
-     * @return the serviceId
-     */
-    public String getServiceId() {
-        return serviceId;
-    }
-
-    /**
-     * The trip_headsign value from the trips.txt file. But it has been processed by the
-     * TitleFormatter to correct capitalization and such.
-     *
-     * @return the name
-     */
-    public String getHeadsign() {
-        return headsign;
     }
 
     /**
@@ -861,16 +705,6 @@ public class Trip implements Lifecycle, Serializable {
         this.headsign = headsign.length() <= TripPattern.HEADSIGN_LENGTH
                 ? headsign
                 : headsign.substring(0, TripPattern.HEADSIGN_LENGTH);
-    }
-
-    /**
-     * The block_id is an optional element in GTFS trips.txt file. If it is available it is used.
-     * But if it is not then the trip_id is used as next best thing.
-     *
-     * @return blockId
-     */
-    public String getBlockId() {
-        return blockId;
     }
 
     /**
@@ -908,20 +742,6 @@ public class Trip implements Lifecycle, Serializable {
     }
 
     /**
-     * @return the shapeId
-     */
-    public String getShapeId() {
-        return shapeId;
-    }
-
-    /**
-     * @return the tripPattern
-     */
-    public TripPattern getTripPattern() {
-        return tripPattern;
-    }
-
-    /**
      * Returns the ScheduleTime object for the stopPathIndex. Will return null if there are no
      * schedule times associated with that stop for this trip. Useful for determining schedule
      * adherence.
@@ -948,13 +768,6 @@ public class Trip implements Lifecycle, Serializable {
      */
     public List<ScheduleTime> getScheduleTimes() {
         return scheduledTimesList;
-    }
-
-    /**
-     * @return the travelTimes
-     */
-    public TravelTimesForTrip getTravelTimes() {
-        return travelTimes;
     }
 
     /**

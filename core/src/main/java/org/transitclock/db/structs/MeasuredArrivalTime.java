@@ -1,17 +1,14 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
+import org.hibernate.annotations.DynamicUpdate;
+
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Index;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import org.hibernate.annotations.DynamicUpdate;
-import org.transitclock.db.hibernate.HibernateUtils;
 
 /**
  * For storing a measured arrival time so that can see if measured arrival time via GPS is accurate.
@@ -20,6 +17,9 @@ import org.transitclock.db.hibernate.HibernateUtils;
  */
 @Entity
 @DynamicUpdate
+@ToString
+@EqualsAndHashCode
+@Getter
 @Table(
         name = "MeasuredArrivalTimes",
         indexes = {@Index(name = "MeasuredArrivalTimesIndex", columnList = "time")})
@@ -30,22 +30,20 @@ public class MeasuredArrivalTime implements Serializable {
     private final Date time;
 
     @Id
-    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
+    @Column(length = 60)
     private String stopId;
 
-    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
+    @Column(length = 60)
     private String routeId;
 
-    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
+    @Column(length = 60)
     private String routeShortName;
 
-    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
+    @Column(length = 60)
     private String directionId;
 
-    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
+    @Column(length = 60)
     private String headsign;
-
-    private static final long serialVersionUID = 8311644168019398357L;
 
     /**
      * Constructor called when creating an MeasuredArrivalTime object to be stored in db.
@@ -101,65 +99,5 @@ public class MeasuredArrivalTime implements Serializable {
                 + headsign
                 + "'"
                 + ");";
-    }
-
-    /** Because using a composite Id Hibernate wants this member. */
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((directionId == null) ? 0 : directionId.hashCode());
-        result = prime * result + ((headsign == null) ? 0 : headsign.hashCode());
-        result = prime * result + ((routeId == null) ? 0 : routeId.hashCode());
-        result = prime * result + ((routeShortName == null) ? 0 : routeShortName.hashCode());
-        result = prime * result + ((stopId == null) ? 0 : stopId.hashCode());
-        result = prime * result + ((time == null) ? 0 : time.hashCode());
-        return result;
-    }
-
-    /** Because using a composite Id Hibernate wants this member. */
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null) return false;
-        if (getClass() != obj.getClass()) return false;
-        MeasuredArrivalTime other = (MeasuredArrivalTime) obj;
-        if (directionId == null) {
-            if (other.directionId != null) return false;
-        } else if (!directionId.equals(other.directionId)) return false;
-        if (headsign == null) {
-            if (other.headsign != null) return false;
-        } else if (!headsign.equals(other.headsign)) return false;
-        if (routeId == null) {
-            if (other.routeId != null) return false;
-        } else if (!routeId.equals(other.routeId)) return false;
-        if (routeShortName == null) {
-            if (other.routeShortName != null) return false;
-        } else if (!routeShortName.equals(other.routeShortName)) return false;
-        if (stopId == null) {
-            if (other.stopId != null) return false;
-        } else if (!stopId.equals(other.stopId)) return false;
-        if (time == null) {
-            if (other.time != null) return false;
-        } else if (!time.equals(other.time)) return false;
-        return true;
-    }
-
-    @Override
-    public String toString() {
-        return "MeasuredArrivalTime ["
-                + "time="
-                + time
-                + ", stopId="
-                + stopId
-                + ", routeId="
-                + routeId
-                + ", routeShortName="
-                + routeShortName
-                + ", directionId="
-                + directionId
-                + ", headsign="
-                + headsign
-                + "]";
     }
 }

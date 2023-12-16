@@ -1,16 +1,6 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
-import java.io.Serializable;
-import java.util.Date;
-import java.util.List;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Index;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import net.jcip.annotations.Immutable;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
@@ -21,6 +11,11 @@ import org.slf4j.LoggerFactory;
 import org.transitclock.applications.Core;
 import org.transitclock.db.hibernate.HibernateUtils;
 import org.transitclock.utils.IntervalTimer;
+
+import javax.persistence.*;
+import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
 
 /**
  * For storing monitoring events into database. By storing the monitoring events one can look back

@@ -1,8 +1,8 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
-import java.util.Date;
 import javax.persistence.Entity;
+import java.util.Date;
 
 /**
  * For persisting an Arrival time.
@@ -12,21 +12,6 @@ import javax.persistence.Entity;
 @Entity
 public class Arrival extends ArrivalDeparture {
 
-    // Needed because Hibernate requires objects to be serializable
-    private static final long serialVersionUID = 5438246244164457207L;
-
-    /********************** Member Functions **************************/
-
-    /**
-     * Simple constructor
-     *
-     * @param vehicleId
-     * @param time
-     * @param avlTime So can match arrival to the AVL report that generated it
-     * @param block
-     * @param tripIndex
-     * @param stopPathIndex
-     */
     public Arrival(
             String vehicleId, Date time, Date avlTime, Block block, int tripIndex, int pathIndex, Date freqStartTime) {
         super(vehicleId, time, avlTime, block, tripIndex, pathIndex, true, freqStartTime); // isArrival

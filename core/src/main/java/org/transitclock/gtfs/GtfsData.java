@@ -1183,10 +1183,10 @@ public class GtfsData {
 
             if (!isTripFrequencyBasedWithoutExactTimes(trip.getId())) {
                 if (depTime != null && !trip.isNoSchedule()) {
-                    if (stop.isLayoverStop() == null) {
+                    if (stop.getLayoverStop() == null) {
                         layoverStop = firstStopInTrip;
                     } else {
-                        layoverStop = stop.isLayoverStop();
+                        layoverStop = stop.getLayoverStop();
                     }
                 }
             }
@@ -1197,10 +1197,10 @@ public class GtfsData {
 
             if (!isTripFrequencyBasedWithoutExactTimes(trip.getId())) {
                 if (depTime != null && !trip.isNoSchedule()) {
-                    if (stop.isWaitStop() == null) {
+                    if (stop.getWaitStop() == null) {
                         waitStop = firstStopInTrip || gtfsStopTime.isWaitStop();
                     } else {
-                        waitStop = stop.isWaitStop();
+                        waitStop = stop.getWaitStop();
                     }
                 }
             }
@@ -1334,7 +1334,7 @@ public class GtfsData {
         // return true.
         return frequencyList != null
                 && frequencyList.size() > 0
-                && frequencyList.get(0).getExactTimes();
+                && frequencyList.get(0).isExactTimes();
     }
 
     /**
@@ -1354,7 +1354,7 @@ public class GtfsData {
         // return true.
         return frequencyList != null
                 && frequencyList.size() > 0
-                && !frequencyList.get(0).getExactTimes();
+                && !frequencyList.get(0).isExactTimes();
     }
 
     /**
@@ -2343,7 +2343,7 @@ public class GtfsData {
      */
     public boolean isTripFrequencyBased(String tripId) {
         List<Frequency> frequencyListForTrip = getFrequencyList(tripId);
-        return frequencyListForTrip != null && !frequencyListForTrip.get(0).getExactTimes();
+        return frequencyListForTrip != null && !frequencyListForTrip.get(0).isExactTimes();
     }
 
     /**

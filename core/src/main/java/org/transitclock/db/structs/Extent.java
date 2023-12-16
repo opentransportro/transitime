@@ -1,11 +1,16 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
-import java.io.Serializable;
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 import net.jcip.annotations.Immutable;
 import org.transitclock.utils.Geo;
+
+import javax.persistence.Column;
+import javax.persistence.Embeddable;
+import java.io.Serializable;
 
 /**
  * A rectangle specified by min and max latitudes and longitudes.
@@ -14,6 +19,10 @@ import org.transitclock.utils.Geo;
  */
 @Immutable
 @Embeddable
+@EqualsAndHashCode
+@ToString
+@Getter
+@NoArgsConstructor
 public class Extent implements Serializable {
 
     @Column
@@ -35,13 +44,6 @@ public class Extent implements Serializable {
     // is a bit less than 0.3%, so pretty small for when doing quick
     // calculations.
     private static final double METERS_PER_DEGREE = 110996.45;
-
-    private static final long serialVersionUID = 6173873318480438032L;
-
-    /********************** Member Functions **************************/
-
-    /** Hibernate requires a no-arg constructor so might as well be explicit about it. */
-    public Extent() {}
 
     /**
      * Once an Extent has been constructed need to simply add associated Locations (or Extents).
@@ -72,56 +74,6 @@ public class Extent implements Serializable {
     }
 
     /**
-     * If don't have hashCode() and equals() then the objects that include this object will generate
-     * a warning when these methods are implemented.
-     */
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        long temp;
-        temp = Double.doubleToLongBits(maxLat);
-        result = prime * result + (int) (temp ^ (temp >>> 32));
-        temp = Double.doubleToLongBits(maxLon);
-        result = prime * result + (int) (temp ^ (temp >>> 32));
-        temp = Double.doubleToLongBits(minLat);
-        result = prime * result + (int) (temp ^ (temp >>> 32));
-        temp = Double.doubleToLongBits(minLon);
-        result = prime * result + (int) (temp ^ (temp >>> 32));
-        return result;
-    }
-
-    /**
-     * If don't have hashCode() and equals() then the objects that include this object will generate
-     * a warning when these methods are implemented.
-     */
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null) return false;
-        if (getClass() != obj.getClass()) return false;
-        Extent other = (Extent) obj;
-        if (Double.doubleToLongBits(maxLat) != Double.doubleToLongBits(other.maxLat)) return false;
-        if (Double.doubleToLongBits(maxLon) != Double.doubleToLongBits(other.maxLon)) return false;
-        if (Double.doubleToLongBits(minLat) != Double.doubleToLongBits(other.minLat)) return false;
-        if (Double.doubleToLongBits(minLon) != Double.doubleToLongBits(other.minLon)) return false;
-        return true;
-    }
-
-    public String toString() {
-        return "["
-                + "minLat="
-                + Geo.format(minLat)
-                + ", maxLat="
-                + Geo.format(maxLat)
-                + ", minLon="
-                + Geo.format(minLon)
-                + ", maxLon="
-                + Geo.format(maxLon)
-                + "]";
-    }
-
-    /**
      * Returns true if the location is with the specified distance of this extent. This is not a
      * perfectly accurate calculation due to METERS_PER_DEGREE being a constant and not taking into
      * account changes in diameter of the earth depending on latitude. Also, looks at latitude and
@@ -142,26 +94,6 @@ public class Extent implements Serializable {
         // Latitude was OK so check longitude
         double distanceInDegreesLongitude =
                 distance / (METERS_PER_DEGREE * Math.cos(Math.toRadians((minLat + maxLat) / 2)));
-        if (minLon > loc.getLon() + distanceInDegreesLongitude || maxLon < loc.getLon() - distanceInDegreesLongitude)
-            return false;
-
-        // Latitude and longitude are OK so return true;
-        return true;
-    }
-
-    public double getMinLat() {
-        return minLat;
-    }
-
-    public double getMaxLat() {
-        return maxLat;
-    }
-
-    public double getMinLon() {
-        return minLon;
-    }
-
-    public double getMaxLon() {
-        return maxLon;
+        return !(minLon > loc.getLon() + distanceInDegreesLongitude) && !(maxLon < loc.getLon() - distanceInDegreesLongitude);
     }
 }

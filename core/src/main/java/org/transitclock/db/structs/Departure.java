@@ -1,8 +1,8 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
-import java.util.Date;
 import javax.persistence.Entity;
+import java.util.Date;
 
 /**
  * For persisting a Departure time.

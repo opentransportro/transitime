@@ -43,7 +43,7 @@ public class ApiTravelTimes {
      */
     public ApiTravelTimes(TravelTimesForTrip travelTimes) {
         this.configRev = travelTimes.getConfigRev();
-        this.travelTimeRev = travelTimes.getTravelTimeRev();
+        this.travelTimeRev = travelTimes.getTravelTimesRev();
         this.tripPatternId = travelTimes.getTripPatternId();
         this.tripCreatedForId = travelTimes.getTripCreatedForId();
 

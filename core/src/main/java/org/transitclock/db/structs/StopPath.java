@@ -1,10 +1,10 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import javax.persistence.*;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.CallbackException;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
@@ -15,8 +15,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.applications.Core;
 import org.transitclock.configData.CoreConfig;
-import org.transitclock.db.hibernate.HibernateUtils;
 import org.transitclock.utils.Geo;
+
+import javax.persistence.*;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A StopPath is a set of points that defines how a vehicle gets from one stop to another. The stops
@@ -26,6 +30,9 @@ import org.transitclock.utils.Geo;
  * @author SkiBu Smith
  */
 @Entity
+@ToString
+@EqualsAndHashCode
+@Getter @Setter
 @DynamicUpdate
 @Table(name = "StopPaths")
 public class StopPath implements Serializable, Lifecycle {
@@ -38,7 +45,7 @@ public class StopPath implements Serializable, Lifecycle {
     // 2 * DEFAULT_ID_SIZE since stop path names are stop1_to_stop2 so can
     // be twice as long as other IDs. And when using GTFS Editor the IDs
     // are quite long, a bit longer than 40 characters.
-    @Column(length = 2 * HibernateUtils.DEFAULT_ID_SIZE)
+    @Column(length = 2 * 60)
     @Id
     private final String stopPathId;
 
@@ -46,7 +53,7 @@ public class StopPath implements Serializable, Lifecycle {
     @Id
     private String tripPatternId;
 
-    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
+    @Column(length = 60)
     private final String stopId;
 
     // The stop_sequence for the trip from the GTFS stop_times.txt file
@@ -60,7 +67,7 @@ public class StopPath implements Serializable, Lifecycle {
     private final boolean lastStopInTrip;
 
     // route ID from GTFS data
-    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
+    @Column(length = 60)
     private final String routeId;
 
     // Indicates that vehicle can leave route path before departing this stop
@@ -109,12 +116,8 @@ public class StopPath implements Serializable, Lifecycle {
     @Transient
     private Double shapeDistanceTraveled;
 
-    // Because Hibernate requires objects with composite IDs to be Serializable
-    private static final long serialVersionUID = 8170734640228933095L;
-
     private static final Logger logger = LoggerFactory.getLogger(StopPath.class);
 
-    /********************** Member Functions **************************/
 
     /**
      * Simple constructor
@@ -215,14 +218,6 @@ public class StopPath implements Serializable, Lifecycle {
         }
     }
 
-    public Double getShapeDistanceTraveled() {
-        return shapeDistanceTraveled;
-    }
-
-    public void setShapeDistanceTraveled(Double shapeDistanceTraveled) {
-        this.shapeDistanceTraveled = shapeDistanceTraveled;
-    }
-
     /**
      * Returns the distance to travel along the path. Summation of all of the path segments.
      *
@@ -242,83 +237,6 @@ public class StopPath implements Serializable, Lifecycle {
         return totalLength;
     }
 
-    /* (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
-    @Override
-    public String toString() {
-        return "StopPath ["
-                + "configRev="
-                + configRev
-                + ", stopPathId="
-                + stopPathId
-                + ", stopId="
-                + stopId
-                + ", gtfsStopSeq="
-                + gtfsStopSeq
-                + ", lastStopInTrip="
-                + lastStopInTrip
-                + ", routeId="
-                + routeId
-                + ", tripPatternId="
-                + tripPatternId
-                + ", locations="
-                + locations
-                + ", pathLength="
-                + Geo.distanceFormat(pathLength)
-                + ", layoverStop="
-                + layoverStop
-                + ", waitStop="
-                + waitStop
-                + ", scheduleAdherenceStop="
-                + scheduleAdherenceStop
-                + ", maxDistance="
-                + maxDistance
-                + ", maxSpeed="
-                + maxSpeed
-                + (breakTime == null ? "" : ", breakTime=" + breakTime)
-                + "]";
-    }
-
-    public Double getMaxSpeed() {
-        return maxSpeed;
-    }
-
-    public void setMaxSpeed(Double maxSpeed) {
-        this.maxSpeed = maxSpeed;
-    }
-
-    public Double getMaxDistance() {
-        return maxDistance;
-    }
-
-    public void setMaxDistance(Double maxDistance) {
-        this.maxDistance = maxDistance;
-    }
-
-    /** Needed because have a composite ID for Hibernate storage */
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + configRev;
-        result = prime * result + (layoverStop ? 1231 : 1237);
-        result = prime * result + ((locations == null) ? 0 : locations.hashCode());
-        result = prime * result + ((stopPathId == null) ? 0 : stopPathId.hashCode());
-        long temp;
-        temp = Double.doubleToLongBits(pathLength);
-        result = prime * result + (int) (temp ^ (temp >>> 32));
-        result = prime * result + ((routeId == null) ? 0 : routeId.hashCode());
-        result = prime * result + (scheduleAdherenceStop ? 1231 : 1237);
-        result = prime * result + (lastStopInTrip ? 1231 : 1237);
-        result = prime * result + ((breakTime == null) ? 0 : breakTime.hashCode());
-        result = prime * result + ((stopId == null) ? 0 : stopId.hashCode());
-        result = prime * result + ((tripPatternId == null) ? 0 : tripPatternId.hashCode());
-        result = prime * result + ((vectors == null) ? 0 : vectors.hashCode());
-        result = prime * result + (waitStop ? 1231 : 1237);
-        return result;
-    }
-
     /**
      * For when seeing if TripPatternBase is unique in a collection. When this is done the StopPath
      * isn't yet fully complete so only compare the key members that signify if a StopPath is
@@ -334,43 +252,6 @@ public class StopPath implements Serializable, Lifecycle {
         return result;
     }
 
-    /** Needed because have a composite ID for Hibernate storage */
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null) return false;
-        if (getClass() != obj.getClass()) return false;
-        StopPath other = (StopPath) obj;
-        if (configRev != other.configRev) return false;
-        if (layoverStop != other.layoverStop) return false;
-        if (locations == null) {
-            if (other.locations != null) return false;
-        } else if (!locations.equals(other.locations)) return false;
-        if (stopPathId == null) {
-            if (other.stopPathId != null) return false;
-        } else if (!stopPathId.equals(other.stopPathId)) return false;
-        if (Double.doubleToLongBits(pathLength) != Double.doubleToLongBits(other.pathLength)) return false;
-        if (routeId == null) {
-            if (other.routeId != null) return false;
-        } else if (!routeId.equals(other.routeId)) return false;
-        if (scheduleAdherenceStop != other.scheduleAdherenceStop) return false;
-        if (stopId == null) {
-            if (other.stopId != null) return false;
-        } else if (!stopId.equals(other.stopId)) return false;
-        if (gtfsStopSeq != other.gtfsStopSeq) return false;
-        if (lastStopInTrip != other.lastStopInTrip) return false;
-        if (breakTime == null) {
-            if (other.breakTime != null) return false;
-        } else if (!breakTime.equals(other.breakTime)) return false;
-        if (tripPatternId == null) {
-            if (other.tripPatternId != null) return false;
-        } else if (!tripPatternId.equals(other.tripPatternId)) return false;
-        if (vectors == null) {
-            if (other.vectors != null) return false;
-        } else if (!vectors.equals(other.vectors)) return false;
-        if (waitStop != other.waitStop) return false;
-        return true;
-    }
 
     /**
      * For when seeing if TripPatternBase is unique in a collection. When this is done the StopPath
@@ -396,49 +277,10 @@ public class StopPath implements Serializable, Lifecycle {
         return true;
     }
 
-    /***************************** Setter/Getter Methods *********************/
-
-    /**
-     * @return the configRev
-     */
-    public int getConfigRev() {
-        return configRev;
-    }
-
     /**
      * @return the stopPathId
      */
     public String getId() {
-        return stopPathId;
-    }
-
-    /**
-     * @return the stopId
-     */
-    public String getStopId() {
-        return stopId;
-    }
-
-    /**
-     * The stop_sequence for the trip from the GTFS stop_times.txt file
-     *
-     * @return the gtfsStopSeq
-     */
-    public int getGtfsStopSeq() {
-        return gtfsStopSeq;
-    }
-
-    /**
-     * @return the lastStopInTrip
-     */
-    public boolean isLastStopInTrip() {
-        return lastStopInTrip;
-    }
-
-    /**
-     * @return the stopPathId
-     */
-    public String getStopPathId() {
         return stopPathId;
     }
 
@@ -450,20 +292,6 @@ public class StopPath implements Serializable, Lifecycle {
      */
     public String getStopName() {
         return Core.getInstance().getDbConfig().getStop(stopId).getName();
-    }
-
-    /**
-     * @return the tripPatternId
-     */
-    public String getTripPatternId() {
-        return tripPatternId;
-    }
-
-    /**
-     * @return the routeId
-     */
-    public String getRouteId() {
-        return routeId;
     }
 
     /**
@@ -492,22 +320,6 @@ public class StopPath implements Serializable, Lifecycle {
         // Simply return the last location of the path, since it
         // corresponds to the stop associated with the path.
         return locations.get(locations.size() - 1);
-    }
-
-    /**
-     * So can set the tripPatternId once it is known (which happens after StopPath is constructed).
-     *
-     * @param tripPatternId
-     */
-    public void setTripPatternId(String tripPatternId) {
-        this.tripPatternId = tripPatternId;
-    }
-
-    /**
-     * @return List of Locations of the segments that make up the path
-     */
-    public List<Location> getLocations() {
-        return locations;
     }
 
     /**
@@ -565,16 +377,6 @@ public class StopPath implements Serializable, Lifecycle {
     }
 
     /**
-     * Indicates that vehicle can leave route path before departing this stop since the driver is
-     * taking a break.
-     *
-     * @return true if a layover stop
-     */
-    public boolean isLayoverStop() {
-        return layoverStop;
-    }
-
-    /**
      * Returns how long driver is expected to have a break for at this stop.
      *
      * @return Layover time in seconds if layover stop, otherwise, 0.
@@ -586,19 +388,6 @@ public class StopPath implements Serializable, Lifecycle {
         } else {
             return 0;
         }
-    }
-
-    /**
-     * Indicates that vehicle is not supposed to depart the stop until the scheduled departure time.
-     *
-     * @return true if a wait stop
-     */
-    public boolean isWaitStop() {
-        return waitStop;
-    }
-
-    public boolean isScheduleAdherenceStop() {
-        return scheduleAdherenceStop;
     }
 
     /**
