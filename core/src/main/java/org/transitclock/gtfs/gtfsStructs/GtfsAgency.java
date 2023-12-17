@@ -1,17 +1,27 @@
 /* (C)2023 */
 package org.transitclock.gtfs.gtfsStructs;
 
+import lombok.Getter;
+import lombok.ToString;
 import org.apache.commons.csv.CSVRecord;
 import org.transitclock.utils.csv.CsvBase;
 
 /**
  * @author SkiBu Smith
  */
+@ToString
+@Getter
 public class GtfsAgency extends CsvBase {
 
     private final String agencyId;
     private final String agencyName;
     private final String agencyUrl;
+    /**
+     * -- GETTER --
+     *  Valid timezone format is at http://en.wikipedia.org/wiki/List_of_tz_zones
+     *
+     * @return
+     */
     // Valid timezone format is at http://en.wikipedia.org/wiki/List_of_tz_zones
     private final String agencyTimezone;
     private final String agencyLang;
@@ -60,57 +70,4 @@ public class GtfsAgency extends CsvBase {
         agencyFareUrl = s.agencyFareUrl == null ? o.agencyFareUrl : s.agencyFareUrl;
     }
 
-    public String getAgencyId() {
-        return agencyId;
-    }
-
-    public String getAgencyName() {
-        return agencyName;
-    }
-
-    public String getAgencyUrl() {
-        return agencyUrl;
-    }
-
-    /**
-     * Valid timezone format is at http://en.wikipedia.org/wiki/List_of_tz_zones
-     *
-     * @return
-     */
-    public String getAgencyTimezone() {
-        return agencyTimezone;
-    }
-
-    public String getAgencyLang() {
-        return agencyLang;
-    }
-
-    public String getAgencyPhone() {
-        return agencyPhone;
-    }
-
-    public String getAgencyFareUrl() {
-        return agencyFareUrl;
-    }
-
-    @Override
-    public String toString() {
-        return "GtfsAgency [lineNumber="
-                + lineNumber
-                + ", agencyId="
-                + agencyId
-                + ", agencyName="
-                + agencyName
-                + ", agencyUrl="
-                + agencyUrl
-                + ", agencyTimezone="
-                + agencyTimezone
-                + ", agencyLang="
-                + agencyLang
-                + ", agencyPhone="
-                + agencyPhone
-                + ", agencyFareUrl="
-                + agencyFareUrl
-                + "]";
-    }
 }

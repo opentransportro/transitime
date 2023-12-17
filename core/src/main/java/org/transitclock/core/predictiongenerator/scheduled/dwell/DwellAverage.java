@@ -46,37 +46,4 @@ public class DwellAverage implements DwellModel, Serializable {
 
         return Statistics.filteredMean(values, fractionLimitForStopTimes.getValue());
     }
-
-    public static void main(String[] args) {
-        DwellAverage average = new DwellAverage();
-        average.putSample(new Integer(1), null, null);
-        average.putSample(new Integer(2), null, null);
-        average.putSample(new Integer(3), null, null);
-        average.putSample(new Integer(4), null, null);
-        average.putSample(new Integer(5), null, null);
-        average.putSample(new Integer(6), null, null);
-        average.putSample(new Integer(7), null, null);
-        average.putSample(new Integer(8), null, null);
-        average.putSample(new Integer(9), null, null);
-        average.putSample(new Integer(10), null, null);
-        average.putSample(new Integer(11), null, null);
-        average.putSample(new Integer(12), null, null);
-
-        System.out.println(average.predict(null, null));
-
-        average.putSample(new Integer(2), null, null);
-        average.putSample(new Integer(2), null, null);
-        average.putSample(new Integer(2), null, null);
-        average.putSample(new Integer(2), null, null);
-        average.putSample(new Integer(2), null, null);
-        average.putSample(new Integer(9), null, null);
-        average.putSample(new Integer(2), null, null);
-        average.putSample(new Integer(2), null, null);
-        average.putSample(new Integer(11), null, null);
-        average.putSample(new Integer(2), null, null);
-        average.putSample(new Integer(2), null, null);
-        average.putSample(new Integer(2), null, null);
-
-        System.out.println(average.predict(null, null));
-    }
 }

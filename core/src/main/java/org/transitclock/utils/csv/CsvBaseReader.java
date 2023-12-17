@@ -11,6 +11,9 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;
@@ -24,6 +27,8 @@ import org.transitclock.utils.Time;
  *
  * @author SkiBu Smith
  */
+@Getter
+@Slf4j
 public abstract class CsvBaseReader<T> {
 
     // Full file name of CSV file to be read
@@ -34,7 +39,7 @@ public abstract class CsvBaseReader<T> {
     private final boolean required;
 
     // Whether file is a supplemental one or not. For supplemental
-    // files some of elements specified as required in the CSV
+    // files some of the elements specified as required in the CSV
     // spec can actually be missing since the data from supplemental
     // file is going to be combined with the main file.
     private final boolean supplemental;
@@ -42,18 +47,6 @@ public abstract class CsvBaseReader<T> {
     // The CSV objects read from the file
     protected List<T> gtfsObjects;
 
-    protected static final Logger logger = LoggerFactory.getLogger(CsvBaseReader.class);
-
-    /********************** Member Functions **************************/
-
-    /**
-     * Constructor. Stores the file name to be used.
-     *
-     * @param dirName
-     * @param fileName
-     * @param required
-     * @param supplemental
-     */
     protected CsvBaseReader(String dirName, String fileName, boolean required, boolean supplemental) {
         this.fileName = dirName + "/" + fileName;
         this.required = required;
@@ -235,10 +228,4 @@ public abstract class CsvBaseReader<T> {
         return gtfsObjects;
     }
 
-    /**
-     * @return the file name of the file being processed
-     */
-    public String getFileName() {
-        return fileName;
-    }
 }

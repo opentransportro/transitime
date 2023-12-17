@@ -1,6 +1,9 @@
 /* (C)2023 */
 package org.transitclock.gtfs.gtfsStructs;
 
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
 import org.apache.commons.csv.CSVRecord;
 import org.transitclock.utils.csv.CsvBase;
 
@@ -9,6 +12,9 @@ import org.transitclock.utils.csv.CsvBase;
  *
  * @author SkiBu Smith
  */
+@EqualsAndHashCode
+@ToString
+@Getter
 public class GtfsFareRule extends CsvBase {
 
     private final String fareId;
@@ -36,62 +42,4 @@ public class GtfsFareRule extends CsvBase {
         containsId = getOptionalValue(record, "contains_id");
     }
 
-    public String getFareId() {
-        return fareId;
-    }
-
-    public String getRouteId() {
-        return routeId;
-    }
-
-    public String getOriginId() {
-        return originId;
-    }
-
-    public String getDestinationId() {
-        return destinationId;
-    }
-
-    public String getContainsId() {
-        return containsId;
-    }
-
-    @Override
-    public String toString() {
-        return "GtfsFareRule ["
-                + "lineNumber="
-                + lineNumber
-                + ", "
-                + (fareId != null ? "_fareId=" + fareId + ", " : "")
-                + (routeId != null ? "routeId=" + routeId + ", " : "")
-                + (originId != null ? "_originId=" + originId + ", " : "")
-                + (destinationId != null ? "_destinationId=" + destinationId + ", " : "")
-                + (containsId != null ? "_containsId=" + containsId : "")
-                + "]";
-    }
-
-    /** So that can put GtfsFareRules into a set to get rid of duplicates */
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null) return false;
-        if (getClass() != obj.getClass()) return false;
-        GtfsFareRule other = (GtfsFareRule) obj;
-        if (containsId == null) {
-            if (other.containsId != null) return false;
-        } else if (!containsId.equals(other.containsId)) return false;
-        if (destinationId == null) {
-            if (other.destinationId != null) return false;
-        } else if (!destinationId.equals(other.destinationId)) return false;
-        if (fareId == null) {
-            if (other.fareId != null) return false;
-        } else if (!fareId.equals(other.fareId)) return false;
-        if (originId == null) {
-            if (other.originId != null) return false;
-        } else if (!originId.equals(other.originId)) return false;
-        if (routeId == null) {
-            if (other.routeId != null) return false;
-        } else if (!routeId.equals(other.routeId)) return false;
-        return true;
-    }
 }

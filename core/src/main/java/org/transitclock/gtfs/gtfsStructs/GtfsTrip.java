@@ -3,6 +3,9 @@ package org.transitclock.gtfs.gtfsStructs;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import lombok.Getter;
+import lombok.ToString;
 import org.apache.commons.csv.CSVRecord;
 import org.transitclock.config.StringConfigValue;
 import org.transitclock.utils.csv.CsvBase;
@@ -12,11 +15,18 @@ import org.transitclock.utils.csv.CsvBase;
  *
  * @author SkiBu Smith
  */
+@Getter
+@ToString
 public class GtfsTrip extends CsvBase {
 
     private final String routeId;
     private final String serviceId;
     private final String tripId;
+    /**
+     * -- GETTER --
+     *
+     * @return trip_headsign from trips.txt. This element is optional so can return null.
+     */
     private final String tripHeadsign;
     private final String tripShortName;
     private final String directionId;
@@ -49,9 +59,6 @@ public class GtfsTrip extends CsvBase {
                     + "a \"xx-\" would use something like \"xx-(.*)\"");
     private static Pattern blockIdRegExPattern = null;
 
-    /********************** Member Functions **************************/
-
-    /** Creates a GtfsTrip object from scratch */
     public GtfsTrip(
             String routeId,
             String serviceId,
@@ -74,13 +81,6 @@ public class GtfsTrip extends CsvBase {
         this.bikesAllowed = null;
     }
 
-    /**
-     * Creates a GtfsTrip object by reading the data from the CSVRecord.
-     *
-     * @param record
-     * @param supplemental
-     * @param fileName for logging errors
-     */
     public GtfsTrip(CSVRecord record, boolean supplemental, String fileName) {
         super(record, supplemental, fileName);
 
@@ -112,18 +112,6 @@ public class GtfsTrip extends CsvBase {
         bikesAllowed = bikesAllowedStr == null ? null : Integer.parseInt(bikesAllowedStr);
     }
 
-    /**
-     * @param routeId
-     * @param serviceId
-     * @param tripId
-     * @param tripHeadsign
-     * @param tripShortName
-     * @param directionId
-     * @param blockId
-     * @param shapeId
-     * @param wheelchairAccessible
-     * @param bikesAllowed
-     */
     public GtfsTrip(
             String routeId,
             String serviceId,
@@ -159,19 +147,17 @@ public class GtfsTrip extends CsvBase {
         super(originalTrip);
 
         // Use short variable names
-        GtfsTrip o = originalTrip;
-        GtfsTrip s = supplementTrip;
 
-        tripId = s.tripId == null ? o.tripId : s.tripId;
-        routeId = s.routeId == null ? o.routeId : s.routeId;
-        serviceId = s.serviceId == null ? o.serviceId : s.serviceId;
-        tripHeadsign = s.tripHeadsign == null ? o.tripHeadsign : s.tripHeadsign;
-        tripShortName = s.tripShortName == null ? o.tripShortName : s.tripShortName;
-        directionId = s.directionId == null ? o.directionId : s.directionId;
-        blockId = s.blockId == null ? o.blockId : s.blockId;
-        shapeId = s.shapeId == null ? o.shapeId : s.shapeId;
-        wheelchairAccessible = s.wheelchairAccessible == null ? o.wheelchairAccessible : s.wheelchairAccessible;
-        bikesAllowed = s.bikesAllowed == null ? o.bikesAllowed : s.bikesAllowed;
+        tripId = supplementTrip.tripId == null ? originalTrip.tripId : supplementTrip.tripId;
+        routeId = supplementTrip.routeId == null ? originalTrip.routeId : supplementTrip.routeId;
+        serviceId = supplementTrip.serviceId == null ? originalTrip.serviceId : supplementTrip.serviceId;
+        tripHeadsign = supplementTrip.tripHeadsign == null ? originalTrip.tripHeadsign : supplementTrip.tripHeadsign;
+        tripShortName = supplementTrip.tripShortName == null ? originalTrip.tripShortName : supplementTrip.tripShortName;
+        directionId = supplementTrip.directionId == null ? originalTrip.directionId : supplementTrip.directionId;
+        blockId = supplementTrip.blockId == null ? originalTrip.blockId : supplementTrip.blockId;
+        shapeId = supplementTrip.shapeId == null ? originalTrip.shapeId : supplementTrip.shapeId;
+        wheelchairAccessible = supplementTrip.wheelchairAccessible == null ? originalTrip.wheelchairAccessible : supplementTrip.wheelchairAccessible;
+        bikesAllowed = supplementTrip.bikesAllowed == null ? originalTrip.bikesAllowed : supplementTrip.bikesAllowed;
     }
 
     /**
@@ -257,67 +243,5 @@ public class GtfsTrip extends CsvBase {
         // Return the first group. Note: group #0 is the entire string. Need to
         // use group #1 for the group match.
         return m.group(1);
-    }
-
-    public String getRouteId() {
-        return routeId;
-    }
-
-    public String getServiceId() {
-        return serviceId;
-    }
-
-    public String getTripId() {
-        return tripId;
-    }
-
-    /**
-     * @return trip_headsign from trips.txt. This element is optional so can return null.
-     */
-    public String getTripHeadsign() {
-        return tripHeadsign;
-    }
-
-    public String getTripShortName() {
-        return tripShortName;
-    }
-
-    public String getDirectionId() {
-        return directionId;
-    }
-
-    public String getBlockId() {
-        return blockId;
-    }
-
-    public String getShapeId() {
-        return shapeId;
-    }
-
-    public Integer getWheelchairAccessible() {
-        return wheelchairAccessible;
-    }
-
-    public Integer getBikesAllowed() {
-        return bikesAllowed;
-    }
-
-    @Override
-    public String toString() {
-        return "GtfsTrip ["
-                + "lineNumber="
-                + lineNumber
-                + ", "
-                + (routeId != null ? "routeId=" + routeId + ", " : "")
-                + (serviceId != null ? "serviceId=" + serviceId + ", " : "")
-                + (tripId != null ? "tripId=" + tripId + ", " : "")
-                + (tripHeadsign != null ? "tripHeadsign=" + tripHeadsign + ", " : "")
-                + (tripShortName != null ? "tripShortName=" + tripShortName + ", " : "")
-                + (directionId != null ? "directionId=" + directionId + ", " : "")
-                + (blockId != null ? "blockId=" + blockId + ", " : "")
-                + (shapeId != null ? "shapeId=" + shapeId + ", " : "")
-                + (wheelchairAccessible != null ? "wheelchairAccessible=" + wheelchairAccessible : "")
-                + (bikesAllowed != null ? "bikesAllowed=" + bikesAllowed : "")
-                + "]";
     }
 }

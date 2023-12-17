@@ -105,7 +105,7 @@ public class Stop implements Serializable {
         // If adherence_stop not set then the default is false
         this.timepointStop = (gtfsStop.getTimepointStop() != null ? gtfsStop.getTimepointStop() : false);
         // If layover_stop not set then the default is false
-        this.layoverStop = gtfsStop.getlayoverStop();
+        this.layoverStop = gtfsStop.getLayoverStop();
         // If wait_stop not set then the default is false
         this.waitStop = gtfsStop.getWaitStop();
         // If hidden not set then the default is false

@@ -1,6 +1,8 @@
 /* (C)2023 */
 package org.transitclock.gtfs.gtfsStructs;
 
+import lombok.Getter;
+import lombok.ToString;
 import org.apache.commons.csv.CSVRecord;
 import org.transitclock.utils.csv.CsvBase;
 
@@ -12,6 +14,8 @@ import org.transitclock.utils.csv.CsvBase;
  *
  * @author SkiBu Smith
  */
+@Getter
+@ToString
 public class GtfsStop extends CsvBase {
 
     private final String stopId;
@@ -29,18 +33,60 @@ public class GtfsStop extends CsvBase {
 
     // Extensions to GTFS spec:
 
+    /**
+     * -- GETTER --
+     *  Specifies if system should determine schedule adherence times for this stop. Some agencies
+     *  configure all stops to have times but determining schedule adherence for every single stop
+     *  would clutter things up. Only want to show adherence for a subset of stops.
+     *
+     * @return null if not set in config files
+     */
     // If should generate special ScheduleAdherence data for this stop
     private final Boolean timepointStop;
+    /**
+     * -- GETTER --
+     *  Indicates that vehicle can leave route path before departing this stop since the driver is
+     *  taking a break.
+     *
+     * @return null if not set in config files
+     */
     // Indicates that vehicle can leave route path before departing this stop
     // since the driver is taking a break.
     private final Boolean layoverStop;
+    /**
+     * -- GETTER --
+     *  Specifies if stop is a wait stop where driver is not supposed to continue until the scheduled
+     *  departure time.
+     *
+     * @return null if not set in config files
+     */
     // Indicates that vehicle is not supposed to depart the stop until the
     // scheduled departure time.
     private final Boolean waitStop;
+    /**
+     * -- GETTER --
+     *  Specifies if stop should be hidden from the public user interface.
+     *
+     * @return null if not set in config files
+     */
     // Indicates if stop should be hidden from public
     private final Boolean hidden;
+    /**
+     * -- GETTER --
+     *  Returns ":" separated string indicate route short names where this stop should not be
+     *  included in the trips. Returns null if not defined.
+     *
+     * @return
+     */
     // Indicates ":" separated list of routes that stop should not be used for
     private final String deleteFromRoutesStr;
+    /**
+     * -- GETTER --
+     *  Returns ":" separated string indicate route short names where this stop should not be
+     *  included in the trips if it is the first stop of a trip. Returns null if not defined.
+     *
+     * @return
+     */
     // Indicates ":" separated list of routes that stop should not be used for
     // if it is first stop for the trip
     private final String deleteFirstStopFromRoutesStr;
@@ -205,114 +251,6 @@ public class GtfsStop extends CsvBase {
                 : s.deleteFirstStopFromRoutesStr;
     }
 
-    public String getStopId() {
-        return stopId;
-    }
-
-    public Integer getStopCode() {
-        return stopCode;
-    }
-
-    public String getStopName() {
-        return stopName;
-    }
-
-    public String getStopDesc() {
-        return stopDesc;
-    }
-
-    public double getStopLat() {
-        return stopLat;
-    }
-
-    public double getStopLon() {
-        return stopLon;
-    }
-
-    public String getZoneId() {
-        return zoneId;
-    }
-
-    public String getStopUrl() {
-        return stopUrl;
-    }
-
-    public String getLocationType() {
-        return locationType;
-    }
-
-    public String getParentStation() {
-        return parentStation;
-    }
-
-    public String getStopTimezone() {
-        return stopTimezone;
-    }
-
-    public String getWheelchairBoarding() {
-        return wheelchairBoarding;
-    }
-
-    /**
-     * Specifies if system should determine schedule adherence times for this stop. Some agencies
-     * configure all stops to have times but determining schedule adherence for every single stop
-     * would clutter things up. Only want to show adherence for a subset of stops.
-     *
-     * @return null if not set in config files
-     */
-    public Boolean getTimepointStop() {
-        return timepointStop;
-    }
-
-    /**
-     * Indicates that vehicle can leave route path before departing this stop since the driver is
-     * taking a break.
-     *
-     * @return null if not set in config files
-     */
-    public Boolean getlayoverStop() {
-        return layoverStop;
-    }
-
-    /**
-     * Specifies if stop is a wait stop where driver is not supposed to continue until the scheduled
-     * departure time.
-     *
-     * @return null if not set in config files
-     */
-    public Boolean getWaitStop() {
-        return waitStop;
-    }
-
-    /**
-     * Specifies if stop should be hidden from the public user interface.
-     *
-     * @return null if not set in config files
-     */
-    public Boolean getHidden() {
-        return hidden;
-    }
-
-    /**
-     * Returns ":" separated string indicate route short names where this stop should not be
-     * included in the trips. Returns null if not defined.
-     *
-     * @return
-     */
-    public String getDeleteFromRoutesStr() {
-        return deleteFromRoutesStr;
-    }
-
-    /**
-     * Returns ":" separated string indicate route short names where this stop should not be
-     * included in the trips if it is the first stop of a trip. Returns null if not defined.
-     *
-     * @return
-     */
-    public String getDeleteFirstStopFromRoutesStr() {
-        return deleteFirstStopFromRoutesStr;
-    }
-
     /**
      * Returns true if the routeShortNameToDeleteFrom specified is defined in deleteFromRoutes.
      *
@@ -332,39 +270,4 @@ public class GtfsStop extends CsvBase {
         return false;
     }
 
-    @Override
-    public String toString() {
-        return "GtfsStop ["
-                + "lineNumber="
-                + lineNumber
-                + ", stopId="
-                + stopId
-                + (stopCode != null ? ", stopCode=" + stopCode : "")
-                + ", stopName="
-                + stopName
-                + (stopDesc != null ? ", stopDesc=" + stopDesc : "")
-                + ", stopLat="
-                + stopLat
-                + ", stopLon="
-                + stopLon
-                + (zoneId != null ? ", zoneId=" + zoneId : "")
-                + (stopUrl != null ? ", stopUrl=" + stopUrl : "")
-                + (locationType != null ? ", locationType=" + locationType : "")
-                + (parentStation != null ? ", parentStation=" + parentStation : "")
-                + (stopTimezone != null ? ", stopTimezone=" + stopTimezone : "")
-                + (wheelchairBoarding != null ? ", wheelchairBoarding=" + wheelchairBoarding : "")
-                + ", timepointStop="
-                + timepointStop
-                + ", layoverStop="
-                + layoverStop
-                + ", waitStop="
-                + waitStop
-                + ", hidden="
-                + hidden
-                + ", deleteFromRoutes="
-                + deleteFromRoutesStr
-                + ", deleteFirstStopFromRoutesStr="
-                + deleteFirstStopFromRoutesStr
-                + "]";
-    }
 }

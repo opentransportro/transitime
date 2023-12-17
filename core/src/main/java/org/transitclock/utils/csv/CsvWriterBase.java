@@ -18,8 +18,6 @@ public abstract class CsvWriterBase {
 
     protected Writer writer;
 
-    /********************** Member Functions **************************/
-
     /**
      * Creates file writer and writes the header.
      *
