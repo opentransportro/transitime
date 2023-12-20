@@ -17,7 +17,7 @@
         <module>core</module>
         <module>api</module>
         <module>webapp</module>
-        <module>spring</module>
+<!--        <module>spring</module>-->
     </modules>
 
     <properties>
