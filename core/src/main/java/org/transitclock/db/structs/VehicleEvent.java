@@ -1,6 +1,10 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
+import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
+import javax.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,12 +20,6 @@ import org.transitclock.applications.Core;
 import org.transitclock.core.TemporalMatch;
 import org.transitclock.db.hibernate.HibernateUtils;
 import org.transitclock.utils.IntervalTimer;
-import org.transitclock.utils.Time;
-
-import javax.persistence.*;
-import java.io.Serializable;
-import java.util.Date;
-import java.util.List;
 
 /**
  * For storing events associated with vehicles into log file and into database. Used for situations
@@ -35,7 +33,8 @@ import java.util.List;
 @DynamicUpdate
 @EqualsAndHashCode
 @ToString
-@Getter @Setter
+@Getter
+@Setter
 @Table(
         name = "VehicleEvents",
         indexes = {@Index(name = "VehicleEventsTimeIndex", columnList = "time")})
@@ -144,7 +143,6 @@ public class VehicleEvent implements Serializable {
     public static final String ASSIGNMENT_CHANGED = "Assignment Changed";
     public static final String AVL_CONFLICT = "AVL Conflict";
     public static final String PREDICTION_VARIATION = "Prediction variation";
-
 
     private static final Logger logger = LoggerFactory.getLogger(VehicleEvent.class);
 

@@ -2,7 +2,6 @@
 package org.transitclock.gtfs.gtfsStructs;
 
 import java.text.ParseException;
-
 import lombok.Getter;
 import lombok.ToString;
 import org.apache.commons.csv.CSVRecord;
@@ -82,5 +81,4 @@ public class GtfsCalendar extends CsvBase {
         this.startDate = startDate;
         this.endDate = endDate;
     }
-
 }

@@ -75,7 +75,7 @@ public class GtfsRoute extends CsvBase {
      * Creates a GtfsRoute object by reading the data from the CSVRecord.
      *
      * @param record
-     * @param supplemental
+     * @param supplementalFile
      * @param fileName for logging errors
      */
     public GtfsRoute(CSVRecord record, boolean supplementalFile, String fileName) {
@@ -157,6 +157,18 @@ public class GtfsRoute extends CsvBase {
     }
 
     /**
+     * Returns if route should be hidden from user interface for the public.
+     *
+     * @return
+     */
+    public boolean getHidden() {
+        // hidden is optional so can be null. Therefore need
+        // to handle specially
+        return hidden != null ? hidden : false;
+    }
+
+
+    /**
      * Returns true if should create unscheduled block assignments for this route.
      *
      * @return
@@ -164,5 +176,4 @@ public class GtfsRoute extends CsvBase {
     public boolean shouldCreateUnscheduledBlock() {
         return unscheduledBlockSuffix != null;
     }
-
 }

@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 import org.transitclock.config.IntegerConfigValue;
 import org.transitclock.config.StringConfigValue;
 import org.transitclock.db.structs.MonitoringEvent;
-import org.transitclock.utils.EmailSender;
 import org.transitclock.utils.Time;
 
 /**
@@ -17,8 +16,6 @@ import org.transitclock.utils.Time;
  * @author SkiBu Smith
  */
 public abstract class MonitorBase {
-
-    private final EmailSender emailSender;
 
     protected final String agencyId;
 
@@ -51,16 +48,13 @@ public abstract class MonitorBase {
 
     private static final Logger logger = LoggerFactory.getLogger(MonitorBase.class);
 
-    /********************** Member Functions **************************/
 
     /**
      * Constructor.
      *
-     * @param emailSender For sending out e-mails when monitor triggered or untriggered
      * @param agencyId Identifies agency
      */
-    public MonitorBase(EmailSender emailSender, String agencyId) {
-        this.emailSender = emailSender;
+    public MonitorBase(String agencyId) {
         this.agencyId = agencyId;
     }
 
@@ -130,13 +124,10 @@ public abstract class MonitorBase {
             // Notify recipients
             String subject = "ERROR - " + type() + " - " + agencyId;
             logger.info("Sending ERROR e-mail \"{}\" to {}", message, recipients());
-            if (emailRecipients.getValue() != null) {
-                emailSender.send(recipients(), subject, message);
-            } else {
-                logger.error("Could not send ERROR e-mail because "
-                        + "transitclock.monitoring.emailRecipients Java property "
-                        + "not set");
-            }
+            logger.error("Could not send ERROR e-mail because "
+                    + "transitclock.monitoring.emailRecipients Java property "
+                    + "not set");
+
         } else if (wasTriggered && !isTriggered) {
             // Changed from being triggered to not being triggered.
             wasTriggered = false;
@@ -144,13 +135,9 @@ public abstract class MonitorBase {
             // Notify recipients
             String subject = "OK - " + type() + " - " + agencyId;
             logger.info("Sending OK e-mail \"{}\" to {}", message, recipients());
-            if (emailRecipients.getValue() != null) {
-                emailSender.send(recipients(), subject, message);
-            } else {
-                logger.error("Could not send ERROR e-mail because "
-                        + "transitclock.monitoring.emailRecipients Java property "
-                        + "not set");
-            }
+            logger.error("Could not send ERROR e-mail because "
+                    + "transitclock.monitoring.emailRecipients Java property "
+                    + "not set");
         }
 
         // Return true if monitor currently triggered

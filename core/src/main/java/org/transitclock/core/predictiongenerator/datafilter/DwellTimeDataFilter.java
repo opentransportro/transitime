@@ -8,5 +8,5 @@ import org.transitclock.ipc.data.IpcArrivalDeparture;
  */
 public interface DwellTimeDataFilter {
 
-    public boolean filter(IpcArrivalDeparture arrival, IpcArrivalDeparture departure);
+    boolean filter(IpcArrivalDeparture arrival, IpcArrivalDeparture departure);
 }

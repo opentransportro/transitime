@@ -20,8 +20,8 @@ ENV PATH $CATALINA_HOME/bin:$PATH
 RUN mkdir -p "$CATALINA_HOME"
 WORKDIR $CATALINA_HOME
 
-ENV TOMCAT_MAJOR 8
-ENV TOMCAT_VERSION 8.5.97
+ENV TOMCAT_MAJOR 9
+ENV TOMCAT_VERSION 9.0.84
 ENV TOMCAT_TGZ_URL https://dlcdn.apache.org/tomcat/tomcat-$TOMCAT_MAJOR/v$TOMCAT_VERSION/bin/apache-tomcat-$TOMCAT_VERSION.tar.gz
 
 RUN set -x \
@@ -80,7 +80,7 @@ ADD docker/config/postgres_hibernate.cfg.xml /usr/local/transitclock/config/hibe
 ADD ${TRANSITCLOCK_PROPERTIES} /usr/local/transitclock/config/transitclock.properties
 
 # This adds the transitime configs to test.
-ADD docker/config/test/* /usr/local/transitclock/config/test/
+#ADD docker/config/test/* /usr/local/transitclock/config/test/
 
 EXPOSE 8080
 

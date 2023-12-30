@@ -62,7 +62,6 @@ public class AvlExecutor {
 
     private static final Logger logger = LoggerFactory.getLogger(AvlExecutor.class);
 
-
     /** Constructor declared private because singleton class */
     private AvlExecutor() {
         int numberThreads = numAvlThreads.getValue();

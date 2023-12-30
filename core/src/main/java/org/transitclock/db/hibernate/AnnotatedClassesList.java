@@ -1,6 +1,7 @@
 /* (C)2023 */
 package org.transitclock.db.hibernate;
 
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.cfg.Configuration;
 import org.transitclock.db.structs.ActiveRevisions;
 import org.transitclock.db.structs.Agency;
@@ -53,10 +54,11 @@ import org.transitclock.db.webstructs.WebAgency;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class AnnotatedClassesList {
 
     // List here all the annotated classes that can be stored in the db
-    private static Class<?>[] classList = new Class[] {
+    private static final Class<?>[] classList = new Class[] {
         ActiveRevisions.class,
         Agency.class,
         Arrival.class,
@@ -97,8 +99,6 @@ public class AnnotatedClassesList {
         WebAgency.class,
     };
 
-    /********************** Member Functions **************************/
-
     /**
      * Adds the classes listed within this method to the Hibernate configuration. Needed so that the
      * class can be used with Hibernate.
@@ -107,8 +107,8 @@ public class AnnotatedClassesList {
      */
     public static void addAnnotatedClasses(Configuration config) {
         // Add all the annotated classes to the config
-        for (@SuppressWarnings("rawtypes") Class c : classList) {
-            HibernateUtils.logger.debug("Adding to Hibernate config the annotated class {}", c.getName());
+        for (var c : classList) {
+            logger.trace("Adding to Hibernate config the annotated class {}", c.getName());
             config.addAnnotatedClass(c);
         }
     }

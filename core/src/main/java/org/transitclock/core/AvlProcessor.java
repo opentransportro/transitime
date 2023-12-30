@@ -33,7 +33,6 @@ import org.transitclock.db.structs.Trip;
 import org.transitclock.db.structs.VectorWithHeading;
 import org.transitclock.db.structs.VehicleEvent;
 import org.transitclock.db.structs.VehicleToBlockConfig;
-import org.transitclock.monitoring.CloudwatchService;
 import org.transitclock.utils.Geo;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.StringUtils;
@@ -1525,21 +1524,5 @@ public class AvlProcessor {
         // Do the low level work of matching vehicle and then generating results
         lowLevelProcessAvlReport(avlReport, false);
         logger.debug("Processing AVL report took {}msec", timer);
-        CloudwatchService.getInstance()
-                .saveMetric(
-                        "PredictionProcessingTimeInMillis",
-                        Double.valueOf(timer.elapsedMsec()),
-                        1,
-                        CloudwatchService.MetricType.AVERAGE,
-                        CloudwatchService.ReportingIntervalTimeUnit.MINUTE,
-                        false);
-        CloudwatchService.getInstance()
-                .saveMetric(
-                        "PredictionTotalLatencyInMillis",
-                        Double.valueOf((System.currentTimeMillis() - avlReport.getTime())),
-                        1,
-                        CloudwatchService.MetricType.AVERAGE,
-                        CloudwatchService.ReportingIntervalTimeUnit.MINUTE,
-                        false);
     }
 }

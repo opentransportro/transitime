@@ -54,11 +54,10 @@ public class VectorWithHeading extends Vector {
 
     @Override
     public String toString() {
-        return "VectorWithHeading [" +
-                "l1=" + l1 + ", " +
-                "l2=" + l2 + ", " +
-                "headingInDegrees=" + headingInDegrees + ", " +
-                "length=" + length() +
-            "]";
+        return "VectorWithHeading [" + "l1="
+                + l1 + ", " + "l2="
+                + l2 + ", " + "headingInDegrees="
+                + headingInDegrees + ", " + "length="
+                + length() + "]";
     }
 }

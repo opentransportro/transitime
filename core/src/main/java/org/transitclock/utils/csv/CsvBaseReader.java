@@ -11,13 +11,10 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.Time;
 
@@ -227,5 +224,4 @@ public abstract class CsvBaseReader<T> {
 
         return gtfsObjects;
     }
-
 }

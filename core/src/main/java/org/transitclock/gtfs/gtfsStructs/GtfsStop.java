@@ -269,5 +269,4 @@ public class GtfsStop extends CsvBase {
 
         return false;
     }
-
 }

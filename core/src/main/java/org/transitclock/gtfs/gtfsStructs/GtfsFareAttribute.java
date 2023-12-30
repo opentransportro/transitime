@@ -46,5 +46,4 @@ public class GtfsFareAttribute extends CsvBase {
         if (transferDurationStr != null) transferDuration = Integer.parseInt(transferDurationStr);
         else transferDuration = null;
     }
-
 }

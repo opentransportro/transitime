@@ -79,10 +79,10 @@ public class DbConfig {
     // For when reading in all trips from db. Keyed on tripId
     private Map<String, Trip> tripsMap;
     // For trips that have been read in individually. Keyed on tripId.
-    private Map<String, Trip> individualTripsMap = new HashMap<String, Trip>();
+    private Map<String, Trip> individualTripsMap = new HashMap<>();
     // For trips that have been read in individually. Keyed on trip short name.
     // Contains
-    private Map<String, List<Trip>> individualTripsByShortNameMap = new HashMap<String, List<Trip>>();
+    private Map<String, List<Trip>> individualTripsByShortNameMap = new HashMap<>();
 
     private List<Agency> agencies;
     private List<Calendar> calendars;
@@ -196,15 +196,10 @@ public class DbConfig {
      * @return Map keyed on service ID of map keyed on block ID of blocks
      */
     private static Map<String, Map<String, Block>> putBlocksIntoMap(List<Block> blocks) {
-        Map<String, Map<String, Block>> blocksByServiceMap = new HashMap<String, Map<String, Block>>();
+        Map<String, Map<String, Block>> blocksByServiceMap = new HashMap<>();
 
         for (Block block : blocks) {
-            Map<String, Block> blocksByBlockIdMap = blocksByServiceMap.get(block.getServiceId());
-            if (blocksByBlockIdMap == null) {
-                blocksByBlockIdMap = new HashMap<String, Block>();
-                blocksByServiceMap.put(block.getServiceId(), blocksByBlockIdMap);
-            }
-
+            Map<String, Block> blocksByBlockIdMap = blocksByServiceMap.computeIfAbsent(block.getServiceId(), k -> new HashMap<>());
             blocksByBlockIdMap.put(block.getId(), block);
         }
 
@@ -232,11 +227,7 @@ public class DbConfig {
     private static void addBlockToMapByRouteMap(
             Map<RouteServiceMapKey, List<Block>> blocksByRouteMap, String serviceId, String routeId, Block block) {
         RouteServiceMapKey key = new RouteServiceMapKey(serviceId, routeId);
-        List<Block> blocksList = blocksByRouteMap.get(key);
-        if (blocksList == null) {
-            blocksList = new ArrayList<Block>();
-            blocksByRouteMap.put(key, blocksList);
-        }
+        List<Block> blocksList = blocksByRouteMap.computeIfAbsent(key, k -> new ArrayList<>());
         blocksList.add(block);
     }
 
@@ -279,8 +270,7 @@ public class DbConfig {
      */
     public List<Block> getBlocksForRoute(String serviceId, String routeId) {
         RouteServiceMapKey key = new RouteServiceMapKey(serviceId, routeId);
-        List<Block> blocksList = blocksByRouteMap.get(key);
-        return blocksList;
+        return blocksByRouteMap.get(key);
     }
 
     /**
@@ -300,7 +290,7 @@ public class DbConfig {
      * @return The map, keyed on stop_id
      */
     private static Map<String, Stop> putStopsIntoMap(List<Stop> stopsList) {
-        Map<String, Stop> map = new HashMap<String, Stop>();
+        Map<String, Stop> map = new HashMap<>();
         for (Stop stop : stopsList) {
             map.put(stop.getId(), stop);
         }
@@ -314,10 +304,12 @@ public class DbConfig {
      * @return The map, keyed on stop_code
      */
     private static Map<Integer, Stop> putStopsIntoMapByStopCode(List<Stop> stopsList) {
-        Map<Integer, Stop> map = new HashMap<Integer, Stop>();
+        Map<Integer, Stop> map = new HashMap<>();
         for (Stop stop : stopsList) {
             Integer stopCode = stop.getCode();
-            if (stopCode != null) map.put(stopCode, stop);
+            if (stopCode != null) {
+                map.put(stopCode, stop);
+            }
         }
         return map;
     }
@@ -333,9 +325,7 @@ public class DbConfig {
 
         List<TripPattern> tripPatternsForRoute = tripPatternsByRouteMap.get(routeId);
         for (TripPattern tripPattern : tripPatternsForRoute) {
-            for (String stopId : tripPattern.getStopIds()) {
-                stopIds.add(stopId);
-            }
+            stopIds.addAll(tripPattern.getStopIds());
         }
 
         return stopIds;
@@ -349,14 +339,10 @@ public class DbConfig {
      * @return map, keyed on stopId, or collection of routes
      */
     private Map<String, Collection<Route>> putRoutesIntoMapByStopId(List<Route> routes) {
-        Map<String, Collection<Route>> map = new HashMap<String, Collection<Route>>();
+        Map<String, Collection<Route>> map = new HashMap<>();
         for (Route route : routes) {
             for (String stopId : getStopIdsForRoute(route.getId())) {
-                Collection<Route> routesForStop = map.get(stopId);
-                if (routesForStop == null) {
-                    routesForStop = new HashSet<Route>();
-                    map.put(stopId, routesForStop);
-                }
+                var routesForStop = map.computeIfAbsent(stopId, k -> new HashSet<>());
                 routesForStop.add(route);
             }
         }
@@ -372,14 +358,10 @@ public class DbConfig {
      * @return
      */
     private static Map<String, List<TripPattern>> putTripPatternsIntoMap(List<TripPattern> tripPatterns) {
-        Map<String, List<TripPattern>> map = new HashMap<String, List<TripPattern>>();
+        Map<String, List<TripPattern>> map = new HashMap<>();
         for (TripPattern tripPattern : tripPatterns) {
             String routeId = tripPattern.getRouteId();
-            List<TripPattern> tripPatternsForRoute = map.get(routeId);
-            if (tripPatternsForRoute == null) {
-                tripPatternsForRoute = new ArrayList<TripPattern>();
-                map.put(routeId, tripPatternsForRoute);
-            }
+            List<TripPattern> tripPatternsForRoute = map.computeIfAbsent(routeId, k -> new ArrayList<>());
             tripPatternsForRoute.add(tripPattern);
         }
 
@@ -577,7 +559,7 @@ public class DbConfig {
      */
     private static Map<String, Route> putRoutesIntoMapByRouteId(List<Route> routes) {
         // Convert list of routes to a map keyed on routeId
-        Map<String, Route> routesMap = new HashMap<String, Route>();
+        Map<String, Route> routesMap = new HashMap<>();
         for (Route route : routes) {
             routesMap.put(route.getId(), route);
         }
@@ -592,7 +574,7 @@ public class DbConfig {
      */
     private static Map<String, Route> putRoutesIntoMapByRouteShortName(List<Route> routes) {
         // Convert list of routes to a map keyed on routeId
-        Map<String, Route> routesMap = new HashMap<String, Route>();
+        Map<String, Route> routesMap = new HashMap<>();
         for (Route route : routes) {
             routesMap.put(route.getShortName(), route);
         }
@@ -669,11 +651,7 @@ public class DbConfig {
         calendarDatesMap = new HashMap<Long, List<CalendarDate>>();
         for (CalendarDate calendarDate : calendarDates) {
             Long time = calendarDate.getTime();
-            List<CalendarDate> calendarDatesForDate = calendarDatesMap.get(time);
-            if (calendarDatesForDate == null) {
-                calendarDatesForDate = new ArrayList<CalendarDate>(1);
-                calendarDatesMap.put(time, calendarDatesForDate);
-            }
+            List<CalendarDate> calendarDatesForDate = calendarDatesMap.computeIfAbsent(time, k -> new ArrayList<>(1));
             calendarDatesForDate.add(calendarDate);
         }
 
@@ -684,8 +662,6 @@ public class DbConfig {
 
         logger.debug("Reading everything else took {} msec", timer.elapsedMsec());
     }
-
-    /************************** Getter Methods ***************************/
 
     /**
      * Returns the block specified by the service and block ID parameters.
@@ -742,7 +718,7 @@ public class DbConfig {
      * @return Collection of blocks
      */
     public Collection<Block> getBlocksForAllServiceIds(String blockId) {
-        Collection<Block> blocks = new ArrayList<Block>();
+        Collection<Block> blocks = new ArrayList<>();
 
         Collection<String> serviceIds = blocksByServiceMap.keySet();
         for (String serviceId : serviceIds) {
@@ -766,7 +742,7 @@ public class DbConfig {
             Collection<Block> blocksForService = blocksForServiceMap.values();
             return Collections.unmodifiableCollection(blocksForService);
         } else {
-            return new ArrayList<Block>(0);
+            return new ArrayList<>(0);
         }
     }
 
@@ -864,9 +840,7 @@ public class DbConfig {
     public List<Calendar> getCurrentCalendars() {
         // Get list of currently active calendars
         ServiceUtils serviceUtils = Core.getInstance().getServiceUtils();
-        List<Calendar> calendarList =
-                serviceUtils.getCurrentCalendars(Core.getInstance().getSystemTime());
-        return calendarList;
+        return serviceUtils.getCurrentCalendars(Core.getInstance().getSystemTime());
     }
 
     /**
@@ -907,7 +881,7 @@ public class DbConfig {
      * @return service IDs
      */
     public List<String> getServiceIds() {
-        List<String> serviceIds = new ArrayList<String>();
+        List<String> serviceIds = new ArrayList<>();
         for (Calendar calendar : getCalendars()) {
             serviceIds.add(calendar.getServiceId());
         }
@@ -981,7 +955,7 @@ public class DbConfig {
             while (!Thread.interrupted()) {
                 Time.sleep(60 * 1000);
                 try {
-                    SQLQuery query = service.getGlobalSession().createSQLQuery(dbConfig.getValidateTestQuery());
+                    var query = service.getGlobalSession().createSQLQuery(dbConfig.getValidateTestQuery());
                     query.list();
                     logger.debug("session test success");
                 } catch (Throwable t) {

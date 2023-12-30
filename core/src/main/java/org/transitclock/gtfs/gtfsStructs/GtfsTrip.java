@@ -3,7 +3,6 @@ package org.transitclock.gtfs.gtfsStructs;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import lombok.Getter;
 import lombok.ToString;
 import org.apache.commons.csv.CSVRecord;
@@ -28,6 +27,7 @@ public class GtfsTrip extends CsvBase {
      * @return trip_headsign from trips.txt. This element is optional so can return null.
      */
     private final String tripHeadsign;
+
     private final String tripShortName;
     private final String directionId;
     private final String blockId;
@@ -152,11 +152,14 @@ public class GtfsTrip extends CsvBase {
         routeId = supplementTrip.routeId == null ? originalTrip.routeId : supplementTrip.routeId;
         serviceId = supplementTrip.serviceId == null ? originalTrip.serviceId : supplementTrip.serviceId;
         tripHeadsign = supplementTrip.tripHeadsign == null ? originalTrip.tripHeadsign : supplementTrip.tripHeadsign;
-        tripShortName = supplementTrip.tripShortName == null ? originalTrip.tripShortName : supplementTrip.tripShortName;
+        tripShortName =
+                supplementTrip.tripShortName == null ? originalTrip.tripShortName : supplementTrip.tripShortName;
         directionId = supplementTrip.directionId == null ? originalTrip.directionId : supplementTrip.directionId;
         blockId = supplementTrip.blockId == null ? originalTrip.blockId : supplementTrip.blockId;
         shapeId = supplementTrip.shapeId == null ? originalTrip.shapeId : supplementTrip.shapeId;
-        wheelchairAccessible = supplementTrip.wheelchairAccessible == null ? originalTrip.wheelchairAccessible : supplementTrip.wheelchairAccessible;
+        wheelchairAccessible = supplementTrip.wheelchairAccessible == null
+                ? originalTrip.wheelchairAccessible
+                : supplementTrip.wheelchairAccessible;
         bikesAllowed = supplementTrip.bikesAllowed == null ? originalTrip.bikesAllowed : supplementTrip.bikesAllowed;
     }
 

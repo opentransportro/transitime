@@ -1,12 +1,11 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
+import java.io.Serializable;
+import javax.persistence.Embeddable;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.transitclock.utils.Time;
-
-import javax.persistence.Embeddable;
-import java.io.Serializable;
 
 /**
  * For keeping track of schedule times from GTFS data. Either arrival time or departure could be
@@ -51,8 +50,7 @@ public class ScheduleTime implements Serializable {
      * @return
      */
     public Integer getTime() {
-        if (departureTime != null)
-            return departureTime;
+        if (departureTime != null) return departureTime;
         return arrivalTime;
     }
 

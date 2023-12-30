@@ -7,7 +7,10 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
+
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -23,12 +26,11 @@ import org.transitclock.configData.DbSetupConfig;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class HibernateUtils {
 
     // Cache. Keyed on database name
-    private static HashMap<String, SessionFactory> sessionFactoryCache = new HashMap<String, SessionFactory>();
-
-    public static final Logger logger = LoggerFactory.getLogger(HibernateUtils.class);
+    private static Map<String, SessionFactory> sessionFactoryCache = new HashMap<>();
 
     /********************** Member Functions **************************/
 

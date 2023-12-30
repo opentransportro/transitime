@@ -17,6 +17,7 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.transitclock.Module;
 import org.transitclock.config.ConfigFileReader;
 import org.transitclock.config.StringConfigValue;
 import org.transitclock.configData.AgencyConfig;
@@ -43,7 +44,6 @@ import org.transitclock.ipc.servers.PredictionAnalysisServer;
 import org.transitclock.ipc.servers.PredictionsServer;
 import org.transitclock.ipc.servers.ServerStatusServer;
 import org.transitclock.ipc.servers.VehiclesServer;
-import org.transitclock.Module;
 import org.transitclock.monitoring.PidFile;
 import org.transitclock.utils.SettableSystemTime;
 import org.transitclock.utils.SystemCurrentTime;
@@ -291,7 +291,7 @@ public class Core {
      *
      * @return
      */
-    public static final Logger getLogger() {
+    public static Logger getLogger() {
         return logger;
     }
 

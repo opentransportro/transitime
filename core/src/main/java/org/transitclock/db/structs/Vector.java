@@ -1,9 +1,8 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
-import org.transitclock.utils.Geo;
-
 import java.io.Serializable;
+import org.transitclock.utils.Geo;
 
 /**
  * Simple vector that contains two locations.

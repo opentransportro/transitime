@@ -1,11 +1,16 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
+import java.io.Serializable;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import javax.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.Query;
 import org.hibernate.*;
+import org.hibernate.Query;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.classic.Lifecycle;
 import org.hibernate.criterion.Restrictions;
@@ -20,12 +25,6 @@ import org.transitclock.utils.Geo;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.Time;
 
-import javax.persistence.*;
-import java.io.Serializable;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-
 /**
  * For persisting an Arrival or a Departure time. Should use Arrival or Departure subclasses.
  *
@@ -38,7 +37,8 @@ import java.util.List;
  * @author SkiBu Smith
  */
 @Entity
-@Getter @Setter
+@Getter
+@Setter
 @DynamicUpdate
 @EqualsAndHashCode
 @Table(
@@ -180,7 +180,6 @@ public class ArrivalDeparture implements Lifecycle, Serializable {
     };
 
     private static final Logger logger = LoggerFactory.getLogger(ArrivalDeparture.class);
-
 
     /**
      * Constructor called when creating an ArrivalDeparture object to be stored in db.
@@ -349,7 +348,6 @@ public class ArrivalDeparture implements Lifecycle, Serializable {
     public void logCreation() {
         logger.info(this.toString());
     }
-
 
     @Override
     public String toString() {

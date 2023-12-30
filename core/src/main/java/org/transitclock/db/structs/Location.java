@@ -1,15 +1,14 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
+import java.io.Serializable;
+import javax.persistence.Column;
+import javax.persistence.Embeddable;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import net.jcip.annotations.Immutable;
 import org.transitclock.utils.Geo;
-
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import java.io.Serializable;
 
 /**
  * Defines a latitude longitude pair that together specify a location.

@@ -1,25 +1,23 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
+import java.io.Serializable;
+import java.util.*;
+import javax.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.transitclock.applications.Core;
 import org.transitclock.gtfs.TitleFormatter;
 import org.transitclock.gtfs.gtfsStructs.GtfsRoute;
 import org.transitclock.utils.OrderedCollection;
 import org.transitclock.utils.StringUtils;
-
-import javax.persistence.*;
-import java.io.Serializable;
-import java.util.*;
 
 /**
  * For storing in db information for a route. Based on GTFS information from routes.txt and other
@@ -34,6 +32,7 @@ import java.util.*;
 @Getter
 @Setter
 @Table(name = "Routes")
+@Slf4j
 public class Route implements Serializable {
 
     @Column
@@ -87,18 +86,22 @@ public class Route implements Serializable {
 
     @Transient // Later will probably want to store this in database,
     // but not yet sure. This means it is not available to application!
+    @EqualsAndHashCode.Exclude
     private final List<TripPattern> tripPatternsForRoute;
 
     // For getStops()
     @Transient
+    @EqualsAndHashCode.Exclude
     private Collection<Stop> stops = null;
 
     // For getPathSegments()
     @Transient
+    @EqualsAndHashCode.Exclude
     private Collection<Vector> stopPaths = null;
 
     // For getOrderedStopsByDirection()
     @Transient
+    @EqualsAndHashCode.Exclude
     private Map<String, List<String>> orderedStopsPerDirectionMap = null;
 
     // For getStopOrder().
@@ -106,9 +109,8 @@ public class Route implements Serializable {
     // The submap is keyed on stop id and contains list of stop orders.
     // Need a list since a stop can be in a trip multiple times.
     @Transient
+    @EqualsAndHashCode.Exclude
     private Map<String, Map<String, List<Integer>>> stopOrderByDirectionMap = null;
-
-    private static final Logger logger = LoggerFactory.getLogger(Route.class);
 
     /********************** Member Functions **************************/
 

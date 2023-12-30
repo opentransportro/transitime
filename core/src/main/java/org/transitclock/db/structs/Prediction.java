@@ -1,16 +1,15 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
+import java.io.Serializable;
+import java.util.Date;
+import javax.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import org.hibernate.annotations.DynamicUpdate;
 import org.transitclock.applications.Core;
 import org.transitclock.ipc.data.IpcPrediction;
-
-import javax.persistence.*;
-import java.io.Serializable;
-import java.util.Date;
 
 /**
  * For persisting a prediction.

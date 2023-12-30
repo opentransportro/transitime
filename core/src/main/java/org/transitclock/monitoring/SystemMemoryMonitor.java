@@ -7,7 +7,6 @@ import java.lang.reflect.Method;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.config.LongConfigValue;
-import org.transitclock.utils.EmailSender;
 import org.transitclock.utils.StringUtils;
 
 /**
@@ -43,16 +42,8 @@ public class SystemMemoryMonitor extends MonitorBase {
 
     private static final Logger logger = LoggerFactory.getLogger(SystemMemoryMonitor.class);
 
-    /********************** Member Functions **************************/
-
-    /**
-     * Simple constructor
-     *
-     * @param emailSender
-     * @param agencyId
-     */
-    public SystemMemoryMonitor(EmailSender emailSender, String agencyId) {
-        super(emailSender, agencyId);
+    public SystemMemoryMonitor(String agencyId) {
+        super(agencyId);
     }
 
     /**

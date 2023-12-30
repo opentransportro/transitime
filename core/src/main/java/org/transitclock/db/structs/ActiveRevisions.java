@@ -1,6 +1,10 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -11,11 +15,6 @@ import org.hibernate.annotations.DynamicUpdate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.db.hibernate.HibernateUtils;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
 
 /**
  * For keeping track of current revisions. This table should only have a single row, one that

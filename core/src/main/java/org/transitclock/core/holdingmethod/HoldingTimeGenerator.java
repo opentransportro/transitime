@@ -12,11 +12,11 @@ import org.transitclock.ipc.data.IpcPrediction;
  * @author Sean Óg Crudden
  */
 public interface HoldingTimeGenerator {
-    public List<ControlStop> getControlPointStops();
+    List<ControlStop> getControlPointStops();
 
-    public HoldingTime generateHoldingTime(VehicleState vehicleState, IpcArrivalDeparture event);
+    HoldingTime generateHoldingTime(VehicleState vehicleState, IpcArrivalDeparture event);
 
-    public HoldingTime generateHoldingTime(VehicleState vehicleState, IpcPrediction arrivalPrediction);
+    HoldingTime generateHoldingTime(VehicleState vehicleState, IpcPrediction arrivalPrediction);
 
-    public void handleDeparture(VehicleState vehicleState, ArrivalDeparture arrivalDeparture);
+    void handleDeparture(VehicleState vehicleState, ArrivalDeparture arrivalDeparture);
 }

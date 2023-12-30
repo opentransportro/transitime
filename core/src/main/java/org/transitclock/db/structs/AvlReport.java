@@ -1,6 +1,11 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
+import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
+import java.util.regex.Pattern;
+import javax.persistence.*;
 import lombok.EqualsAndHashCode;
 import net.jcip.annotations.Immutable;
 import org.hibernate.HibernateException;
@@ -15,12 +20,6 @@ import org.transitclock.db.hibernate.HibernateUtils;
 import org.transitclock.ipc.data.IpcAvl;
 import org.transitclock.utils.Geo;
 import org.transitclock.utils.Time;
-
-import javax.persistence.*;
-import java.io.Serializable;
-import java.util.Date;
-import java.util.List;
-import java.util.regex.Pattern;
 
 /**
  * An AvlReport is a GPS report with some additional information, such as vehicleId.
@@ -151,7 +150,6 @@ public class AvlReport implements Serializable {
     private static final int SOURCE_LENGTH = 10;
 
     private static final Logger logger = LoggerFactory.getLogger(AvlReport.class);
-
 
     /**
      * Hibernate requires a no-args constructor for reading data. So this is an experiment to see
@@ -595,7 +593,6 @@ public class AvlReport implements Serializable {
         if (!errorMsg.isEmpty()) return errorMsg;
         else return null;
     }
-
 
     public String getVehicleId() {
         return vehicleId;

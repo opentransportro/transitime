@@ -352,17 +352,6 @@ public class UpdateTravelTimes {
         logger.info("Done processing travel times. Changes successfully "
                 + "committed to database.  Querying for metrics....");
         HibernateUtils.clearSessionFactory();
-        Session statsSession = HibernateUtils.getSession(agencyId);
-        try {
-            TravelTimesProcessor processor = new TravelTimesProcessor();
-            Long inserts = processor.updateMetrics(statsSession, newTravelTimesRev);
-            logger.info("{} succesfully inserted for travelTimesRev={}", inserts, newTravelTimesRev);
-        } catch (Exception e) {
-            logger.error(
-                    "exception querying for statistics for tavelTimesRev={}.  Update most likely" + " failed!",
-                    newTravelTimesRev,
-                    e);
-        }
     }
 
     /**

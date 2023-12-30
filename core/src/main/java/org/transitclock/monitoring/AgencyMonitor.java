@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.transitclock.utils.EmailSender;
 
 /**
  * For monitoring whether the core system is working properly. For calling all of the specific
@@ -16,11 +15,6 @@ import org.transitclock.utils.EmailSender;
  * @author SkiBu Smith
  */
 public class AgencyMonitor {
-
-    private final CloudwatchService cloudwatchService;
-
-    // So can send out notification email if monitor triggered
-    private final EmailSender emailSender;
 
     // List of all the monitoring to do
     private final List<MonitorBase> monitors;
@@ -43,20 +37,17 @@ public class AgencyMonitor {
      * @param agencyId
      */
     private AgencyMonitor(String agencyId) {
-        emailSender = new EmailSender();
-        cloudwatchService = CloudwatchService.getInstance();
-
         // Create all the monitors and add them to the monitors list
         monitors = new ArrayList<MonitorBase>();
-        monitors.add(new AvlFeedMonitor(cloudwatchService, emailSender, agencyId));
-        monitors.add(new PredictabilityMonitor(cloudwatchService, emailSender, agencyId));
-        monitors.add(new DatabaseQueueMonitor(cloudwatchService, emailSender, agencyId));
-        monitors.add(new ActiveBlocksMonitor(cloudwatchService, emailSender, agencyId));
+        monitors.add(new AvlFeedMonitor(agencyId));
+        monitors.add(new PredictabilityMonitor(agencyId));
+        monitors.add(new DatabaseQueueMonitor(agencyId));
+        monitors.add(new ActiveBlocksMonitor(agencyId));
         if (enableSystemMonitoring != null && enableSystemMonitoring.equalsIgnoreCase("true")) {
-            monitors.add(new SystemMemoryMonitor(emailSender, agencyId));
-            monitors.add(new SystemCpuMonitor(emailSender, agencyId));
-            monitors.add(new SystemDiskSpaceMonitor(emailSender, agencyId));
-            monitors.add(new DatabaseMonitor(emailSender, agencyId));
+            monitors.add(new SystemMemoryMonitor(agencyId));
+            monitors.add(new SystemCpuMonitor(agencyId));
+            monitors.add(new SystemDiskSpaceMonitor(agencyId));
+            monitors.add(new DatabaseMonitor(agencyId));
         }
     }
 

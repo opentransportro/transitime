@@ -9,7 +9,6 @@ import org.transitclock.config.StringConfigValue;
 import org.transitclock.core.AvlProcessor;
 import org.transitclock.core.BlocksInfo;
 import org.transitclock.db.structs.Block;
-import org.transitclock.utils.EmailSender;
 import org.transitclock.utils.Time;
 
 /**
@@ -20,8 +19,6 @@ import org.transitclock.utils.Time;
  * @author SkiBu Smith
  */
 public class AvlFeedMonitor extends MonitorBase {
-
-    private CloudwatchService cloudwatchService;
 
     private static IntegerConfigValue allowableNoAvlSecs = new IntegerConfigValue(
             "transitclock.monitoring.allowableNoAvlSecs",
@@ -38,16 +35,8 @@ public class AvlFeedMonitor extends MonitorBase {
     private static final Logger logger = LoggerFactory.getLogger(AvlFeedMonitor.class);
 
     /********************** Member Functions **************************/
-
-    /**
-     * Simple constructor
-     *
-     * @param emailSender
-     * @param agencyId
-     */
-    public AvlFeedMonitor(CloudwatchService cloudwatchService, EmailSender emailSender, String agencyId) {
-        super(emailSender, agencyId);
-        this.cloudwatchService = cloudwatchService;
+    public AvlFeedMonitor(String agencyId) {
+        super(agencyId);
     }
 
     /**
@@ -61,14 +50,7 @@ public class AvlFeedMonitor extends MonitorBase {
         // Determine age of AVL report
         long lastAvlReportTime = AvlProcessor.getInstance().lastAvlReportTime();
         long ageOfAvlReport = System.currentTimeMillis() - lastAvlReportTime;
-        Double ageOfAvlReportInSecs = new Double(ageOfAvlReport / Time.MS_PER_SEC);
-        cloudwatchService.saveMetric(
-                "PredictionLatestAvlReportAgeInSeconds",
-                ageOfAvlReportInSecs,
-                1,
-                CloudwatchService.MetricType.AVERAGE,
-                CloudwatchService.ReportingIntervalTimeUnit.MINUTE,
-                false);
+        Double ageOfAvlReportInSecs = (double) (ageOfAvlReport / Time.MS_PER_SEC);
 
         logger.debug(
                 "When monitoring AVL feed last AVL report={}",

@@ -1,6 +1,10 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
+import java.util.List;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -9,11 +13,6 @@ import org.hibernate.annotations.DynamicUpdate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.db.hibernate.HibernateUtils;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import java.util.List;
 
 /**
  * For testing ability to read and write to and from the db. Doesn't actually store any useful

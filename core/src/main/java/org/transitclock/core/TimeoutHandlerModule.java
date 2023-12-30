@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.transitclock.Module;
 import org.transitclock.applications.Core;
 import org.transitclock.config.BooleanConfigValue;
 import org.transitclock.config.IntegerConfigValue;
@@ -13,7 +14,6 @@ import org.transitclock.core.dataCache.VehicleStateManager;
 import org.transitclock.core.schedBasedPreds.SchedBasedPredsModule;
 import org.transitclock.db.structs.AvlReport;
 import org.transitclock.db.structs.VehicleEvent;
-import org.transitclock.Module;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.Time;
 
@@ -344,10 +344,7 @@ public class TimeoutHandlerModule extends Module {
                 long sleepTime = pollingRateSecs.getValue() * Time.MS_PER_SEC - timer.elapsedMsec();
                 if (sleepTime > 0) Time.sleep(sleepTime);
             } catch (Exception e) {
-                logger.error(
-                        "Error with TimeoutHandlerModule for agencyId={}",
-                        AgencyConfig.getAgencyId(),
-                        e);
+                logger.error("Error with TimeoutHandlerModule for agencyId={}", AgencyConfig.getAgencyId(), e);
             }
         }
     }

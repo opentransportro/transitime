@@ -1,15 +1,19 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
-import org.hibernate.Query;
+import java.io.Serializable;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
+import java.text.ParseException;
+import java.util.*;
+import javax.persistence.*;
 import org.hibernate.*;
+import org.hibernate.Query;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.collection.internal.PersistentList;
-import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.internal.SessionImpl;
-import org.postgresql.util.PSQLException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.applications.Core;
@@ -21,13 +25,6 @@ import org.transitclock.db.hibernate.HibernateUtils;
 import org.transitclock.gtfs.DbConfig;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.Time;
-
-import javax.persistence.*;
-import java.io.Serializable;
-import java.net.SocketException;
-import java.net.SocketTimeoutException;
-import java.text.ParseException;
-import java.util.*;
 
 /**
  * Represents assignment for a vehicle for a day. Obtained by combining data from multiple GTFS
@@ -727,7 +724,7 @@ public final class Block implements Serializable {
                     // Get the current session associated with the trips.
                     // Can be null.
                     PersistentList persistentListTrips = (PersistentList) trips;
-                    SessionImplementor session = persistentListTrips.getSession();
+                    var session = persistentListTrips.getSession();
 
                     // If the session is different from the global
                     // session then need to attach the new session to the
@@ -771,9 +768,9 @@ public final class Block implements Serializable {
                             this.getId(),
                             e);
 
-                    if (!(rootCause instanceof SocketException
-                            || rootCause instanceof SocketTimeoutException
-                            || rootCause instanceof PSQLException)) {
+                    if (!(rootCause instanceof SocketException || rootCause instanceof SocketTimeoutException
+                    //                            || rootCause instanceof PSQLException
+                    )) {
                         logger.error(
                                 "For agencyId={} in Blocks.getTrips() for "
                                         + "blockId={} encountered exception whose root "
@@ -797,7 +794,7 @@ public final class Block implements Serializable {
                     // but still got exception "Illegal attempt to associate
                     // a collection with two open sessions"
                     PersistentList persistentListTrips = (PersistentList) trips;
-                    SessionImplementor sessionImpl = persistentListTrips.getSession();
+                    var sessionImpl = persistentListTrips.getSession();
                     SessionImpl session = (SessionImpl) sessionImpl;
                     if (!session.isClosed()) {
                         try {

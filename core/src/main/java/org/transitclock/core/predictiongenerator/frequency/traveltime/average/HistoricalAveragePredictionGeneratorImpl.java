@@ -26,11 +26,11 @@ import org.transitclock.db.structs.PredictionForStopPath;
  */
 public class HistoricalAveragePredictionGeneratorImpl extends LastVehiclePredictionGeneratorImpl
         implements PredictionComponentElementsGenerator {
-    private String alternative = "LastVehiclePredictionGeneratorImpl";
+    private final String alternative = "LastVehiclePredictionGeneratorImpl";
 
     private static final IntegerConfigValue minDays = new IntegerConfigValue(
             "transitclock.prediction.data.average.mindays",
-            new Integer(1),
+            1,
             "Min number of days trip data that needs to be available before historical"
                     + " average prediciton is used instead of default transiTime prediction.");
 
@@ -77,9 +77,9 @@ public class HistoricalAveragePredictionGeneratorImpl extends LastVehiclePredict
                 }
 
                 logger.debug("Using historical average algorithm for prediction : "
-                        + average.toString()
+                        + average
                         + " for : "
-                        + indices.toString());
+                        + indices);
                 // logger.debug("Instead of transitime value : " +
                 // super.getTravelTimeForPath(indices, avlReport));
                 return (long) average.getAverage();
@@ -110,7 +110,7 @@ public class HistoricalAveragePredictionGeneratorImpl extends LastVehiclePredict
         if (average != null && average.getCount() >= minDays.getValue()) {
             double fractionofstoppathlefttotravel = (match.getStopPath().getLength() - match.getDistanceAlongStopPath())
                     / match.getStopPath().getLength();
-            double value = (double) (average.getAverage() * fractionofstoppathlefttotravel);
+            double value = average.getAverage() * fractionofstoppathlefttotravel;
             if (storeTravelTimeStopPathPredictions.getValue()) {
                 PredictionForStopPath predictionForStopPath = new PredictionForStopPath(
                         avlReport.getVehicleId(),
@@ -162,9 +162,9 @@ public class HistoricalAveragePredictionGeneratorImpl extends LastVehiclePredict
                 }
 
                 logger.debug("Using historical average alogrithm for dwell time : "
-                        + average.toString()
+                        + average
                         + " for : "
-                        + indices.toString());
+                        + indices);
                 return (long) average.getAverage();
             }
         }

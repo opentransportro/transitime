@@ -2,7 +2,6 @@
 package org.transitclock.gtfs.gtfsStructs;
 
 import java.text.ParseException;
-
 import lombok.Getter;
 import lombok.ToString;
 import org.apache.commons.csv.CSVRecord;
@@ -41,5 +40,4 @@ public class GtfsFeedInfo extends CsvBase {
         feedEndDate = getOptionalValue(record, "feed_end_date");
         feedVersion = getOptionalValue(record, "feed_version");
     }
-
 }

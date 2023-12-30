@@ -1,14 +1,13 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
+import java.io.Serializable;
+import java.util.Date;
+import javax.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import org.hibernate.annotations.DynamicUpdate;
-
-import javax.persistence.*;
-import java.io.Serializable;
-import java.util.Date;
 
 /**
  * For storing a measured arrival time so that can see if measured arrival time via GPS is accurate.

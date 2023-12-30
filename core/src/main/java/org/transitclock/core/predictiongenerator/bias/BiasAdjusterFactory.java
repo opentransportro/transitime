@@ -16,7 +16,7 @@ public class BiasAdjusterFactory {
     public static BiasAdjuster getInstance() {
         if (className != null
                 && className.getValue() != null
-                && className.getValue().length() > 0) {
+                && !className.getValue().isEmpty()) {
             if (singleton == null) singleton = ClassInstantiator.instantiate(className.getValue(), BiasAdjuster.class);
             return singleton;
 

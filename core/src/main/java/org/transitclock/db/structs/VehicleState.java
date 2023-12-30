@@ -1,15 +1,14 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
+import java.io.Serializable;
+import java.util.Date;
+import javax.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import net.jcip.annotations.Immutable;
 import org.hibernate.annotations.DynamicUpdate;
-
-import javax.persistence.*;
-import java.io.Serializable;
-import java.util.Date;
 
 /**
  * For persisting the vehicle state for the vehicle. Can be joined with AvlReport table in order to
@@ -92,8 +91,7 @@ public class VehicleState implements Serializable {
         this.avlTime = vs.getAvlReport() == null ? null : vs.getAvlReport().getDate();
         this.blockId = vs.getBlock() == null ? null : vs.getBlock().getId();
         this.tripId = vs.getTrip() == null ? null : truncate(vs.getTrip().getId(), 60);
-        this.tripShortName =
-                vs.getTrip() == null ? null : truncate(vs.getTrip().getShortName(), 60);
+        this.tripShortName = vs.getTrip() == null ? null : truncate(vs.getTrip().getShortName(), 60);
         this.routeId = vs.getRouteId();
         this.routeShortName = truncate(vs.getRouteShortName(), ROUTE_SHORT_NAME_MAX_LENGTH);
         this.schedAdhMsec = vs.getRealTimeSchedAdh() == null
@@ -141,8 +139,7 @@ public class VehicleState implements Serializable {
      * @return possibly truncated version of the original string
      */
     private String truncate(String original, int maxLength) {
-        if (original == null || original.length() <= maxLength)
-            return original;
+        if (original == null || original.length() <= maxLength) return original;
 
         return original.substring(0, maxLength);
     }

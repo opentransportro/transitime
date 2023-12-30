@@ -9,13 +9,13 @@ import java.util.List;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.transitclock.Module;
 import org.transitclock.applications.Core;
 import org.transitclock.config.StringListConfigValue;
 import org.transitclock.core.AvlProcessor;
 import org.transitclock.db.structs.AvlReport;
 import org.transitclock.db.structs.Location;
 import org.transitclock.feed.gtfsRt.GtfsRtVehiclePositionsReader;
-import org.transitclock.Module;
 import org.transitclock.utils.Time;
 
 /**

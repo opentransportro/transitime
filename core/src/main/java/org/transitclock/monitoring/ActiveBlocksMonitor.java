@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import org.transitclock.applications.Core;
 import org.transitclock.core.BlocksInfo;
 import org.transitclock.db.structs.Block;
-import org.transitclock.utils.EmailSender;
 
 /**
  * For monitoring active blocks. Unlike the other monitors, this one never triggers an alarm, it
@@ -20,13 +19,8 @@ public class ActiveBlocksMonitor extends MonitorBase {
 
     private Date lastUpdate = new Date();
 
-    private CloudwatchService cloudwatchService;
-
-    private static final Logger logger = LoggerFactory.getLogger(ActiveBlocksMonitor.class);
-
-    public ActiveBlocksMonitor(CloudwatchService cloudwatchService, EmailSender emailSender, String agencyId) {
-        super(emailSender, agencyId);
-        this.cloudwatchService = cloudwatchService;
+    public ActiveBlocksMonitor(String agencyId) {
+        super(agencyId);
     }
 
     /* (non-Javadoc)
@@ -44,13 +38,6 @@ public class ActiveBlocksMonitor extends MonitorBase {
             if (activeBlockCount > 0) {
                 activeBlockCountPercentage = activeBlockCount / totalBlockCount;
             }
-            cloudwatchService.saveMetric(
-                    "PercentageActiveBlockCount",
-                    activeBlockCountPercentage,
-                    1,
-                    CloudwatchService.MetricType.SCALAR,
-                    CloudwatchService.ReportingIntervalTimeUnit.IMMEDIATE,
-                    true);
             lastUpdate = new Date();
         }
         return false;

@@ -8,6 +8,8 @@ import java.nio.file.Paths;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
+
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.cli.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +32,7 @@ import org.transitclock.utils.Zip;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class GtfsFileProcessor {
 
     // Optional command line info used within this class
@@ -63,11 +66,6 @@ public class GtfsFileProcessor {
     static {
         ConfigFileReader.processConfig();
     }
-
-    // Logging important in this class
-    private static final Logger logger = LoggerFactory.getLogger(GtfsFileProcessor.class);
-
-    /******************* Constructor ***********************/
 
     /**
      * Simple constructor. Stores the configurable parameters for this class. Declared private since
@@ -148,8 +146,6 @@ public class GtfsFileProcessor {
         this.disableSpecialLoopBackToBeginningCase = disableSpecialLoopBackToBeginningCase;
     }
 
-    /********************** Member Functions **************************/
-
     /**
      * Gets the GTFS files ready. Reads the zip file from the web if necessary. Then unpacks the zip
      * file if necessary. This method will make sure gtfsDirectoryName is set to where the unzipped
@@ -183,7 +179,6 @@ public class GtfsFileProcessor {
             gtfsZipFileName = HttpGetGtfsFile.getFile(AgencyConfig.getAgencyId(), gtfsUrl, unzipSubdirectory);
         }
 
-        // Uncompress the GTFS zip file if need to
         if (gtfsZipFileName != null) {
             gtfsDirectoryName = Zip.unzip(gtfsZipFileName, unzipSubdirectory);
 
@@ -201,7 +196,7 @@ public class GtfsFileProcessor {
 
         try {
             File f = new File(gtfsDirectoryName);
-            String fileNames[] = f.list();
+            String[] fileNames = f.list();
             for (String fileName : fileNames) {
                 if (fileName.endsWith(".txt")) {
                     Files.delete(Paths.get(gtfsDirectoryName, fileName));

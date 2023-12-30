@@ -1,16 +1,14 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
+import java.io.Serializable;
+import javax.persistence.Column;
+import javax.persistence.Embeddable;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import net.jcip.annotations.Immutable;
-import org.transitclock.utils.Geo;
-
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import java.io.Serializable;
 
 /**
  * A rectangle specified by min and max latitudes and longitudes.
@@ -94,6 +92,7 @@ public class Extent implements Serializable {
         // Latitude was OK so check longitude
         double distanceInDegreesLongitude =
                 distance / (METERS_PER_DEGREE * Math.cos(Math.toRadians((minLat + maxLat) / 2)));
-        return !(minLon > loc.getLon() + distanceInDegreesLongitude) && !(maxLon < loc.getLon() - distanceInDegreesLongitude);
+        return !(minLon > loc.getLon() + distanceInDegreesLongitude)
+                && !(maxLon < loc.getLon() - distanceInDegreesLongitude);
     }
 }

@@ -3,9 +3,9 @@ package org.transitclock.monitoring;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.transitclock.Module;
 import org.transitclock.config.IntegerConfigValue;
 import org.transitclock.configData.AgencyConfig;
-import org.transitclock.Module;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.Time;
 

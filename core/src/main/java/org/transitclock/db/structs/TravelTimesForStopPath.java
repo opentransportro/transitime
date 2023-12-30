@@ -1,6 +1,10 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import javax.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -13,11 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.db.hibernate.HibernateUtils;
 import org.transitclock.utils.Geo;
-
-import javax.persistence.*;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Contains the expected time it takes to travel along the specified path, which is for one stop to
@@ -155,23 +154,6 @@ public class TravelTimesForStopPath implements Serializable {
         }
     };
 
-    /********************** Member Functions **************************/
-
-    /**
-     * Constructs a new TravelTimesForStopPath object.
-     *
-     * @param configRev
-     * @param travelTimesRev
-     * @param stopPathId
-     * @param travelTimeSegmentDistance
-     * @param travelTimesMsec The travel times for the travel time segments.
-     * @param stopTimeMsec
-     * @param howSet
-     * @param daysOfWeekOverride
-     * @param trip for logging useful error message. OK if null.
-     * @throws ArrayIndexOutOfBoundsException Thrown if not enough memory allocated for column
-     *     travelTimesMsec for serializing the object.
-     */
     public TravelTimesForStopPath(
             int configRev,
             int travelTimesRev,
@@ -264,7 +246,6 @@ public class TravelTimesForStopPath implements Serializable {
                 null);
     }
 
-
     /**
      * For when the travelTimesMsec are most important element. Lists the travelTimesMsec first.
      *
@@ -288,7 +269,6 @@ public class TravelTimesForStopPath implements Serializable {
                 + travelTimesRev
                 + "]";
     }
-
 
     /**
      * @return How many travel time segments there are for the stop path
@@ -319,7 +299,6 @@ public class TravelTimesForStopPath implements Serializable {
     public int getTravelTimeSegmentMsec(int segmentIndex) {
         return travelTimesMsec.get(segmentIndex);
     }
-
 
     /**
      * Reads in all the travel times for the specified rev

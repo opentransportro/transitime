@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.transitclock.Module;
 import org.transitclock.applications.Core;
 import org.transitclock.config.BooleanConfigValue;
 import org.transitclock.config.IntegerConfigValue;
@@ -21,7 +22,6 @@ import org.transitclock.db.structs.Block;
 import org.transitclock.db.structs.Location;
 import org.transitclock.ipc.data.IpcVehicle;
 import org.transitclock.ipc.data.IpcVehicleComplete;
-import org.transitclock.Module;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.Time;
 
@@ -261,10 +261,7 @@ public class SchedBasedPredsModule extends Module {
                 // Do the actual work
                 createSchedBasedPredsAsNecessary();
             } catch (Exception e) {
-                logger.error(
-                        "Error with SchedBasedPredsModule for agencyId={}",
-                        AgencyConfig.getAgencyId(),
-                        e);
+                logger.error("Error with SchedBasedPredsModule for agencyId={}", AgencyConfig.getAgencyId(), e);
             }
 
             // Wait appropriate amount of time till poll again

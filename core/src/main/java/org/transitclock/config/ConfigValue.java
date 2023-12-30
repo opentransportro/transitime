@@ -3,6 +3,7 @@ package org.transitclock.config;
 
 import java.util.Arrays;
 import java.util.List;
+import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.configData.AgencyConfig;
@@ -25,10 +26,25 @@ public abstract class ConfigValue<T> {
 
     protected final boolean defaultValueConfigured;
 
+    /**
+     * -- GETTER --
+     *  Gets the value. Intended to be fast because might be used in loops. Therefore there is no
+     *  locking.
+     *
+     * @return the current value of the param.
+     */
     // The current value
+    @Getter
     protected volatile T value;
 
+    /**
+     * -- GETTER --
+     *  Returns the description of the parameter.
+     *
+     * @return
+     */
     // Description of the parameter that can be used in log files and such
+    @Getter
     protected final String description;
 
     // Don't want to log value if a password or such
@@ -47,10 +63,6 @@ public abstract class ConfigValue<T> {
      * @author SkiBu Smith
      */
     public static class ConfigParamException extends Exception {
-        // Needed since subclass Exception is serializable. Otherwise get
-        // warning.
-        private static final long serialVersionUID = 1L;
-
         private ConfigParamException(String msg) {
             super(msg);
         }
@@ -131,32 +143,23 @@ public abstract class ConfigValue<T> {
         // Log the information about the parameter so that users can see what
         // values are being used. But don't do so if configured to not log the
         // value, which could be important for passwords and such.
-        if (okToLogValue) {
-            if ((value == null && defaultValue == null) || value.equals(defaultValue)) {
-                logger.info(
-                        "Config param {}=\"{}\" (the default value). {}",
-                        id,
-                        value,
-                        description == null ? "" : description);
-            } else {
-                logger.info(
-                        "Config param {}=\"{}\" instead of the default " + "of \"{}\". {}",
-                        id,
-                        value,
-                        defaultValue,
-                        description == null ? "" : description);
-            }
-        }
-    }
-
-    /**
-     * Gets the value. Intended to be fast because might be used in loops. Therefore there is no
-     * locking.
-     *
-     * @return the current value of the param.
-     */
-    public T getValue() {
-        return value;
+        logger.info("{}={}", id, value != null ? value : defaultValue);
+        //        if (okToLogValue) {
+        //            if ((value == null && defaultValue == null) || value.equals(defaultValue)) {
+        //                logger.info(
+        //                        "Config param {}=\"{}\" (the default value). {}",
+        //                        id,
+        //                        value,
+        //                        description == null ? "" : description);
+        //            } else {
+        //                logger.info(
+        //                        "Config param {}=\"{}\" instead of the default " + "of \"{}\". {}",
+        //                        id,
+        //                        value,
+        //                        defaultValue,
+        //                        description == null ? "" : description);
+        //            }
+        //        }
     }
 
     /**
@@ -224,15 +227,6 @@ public abstract class ConfigValue<T> {
 
         // Use the default value.
         value = defaultValue;
-    }
-
-    /**
-     * Returns the description of the parameter.
-     *
-     * @return
-     */
-    public String getDescription() {
-        return description;
     }
 
     /**

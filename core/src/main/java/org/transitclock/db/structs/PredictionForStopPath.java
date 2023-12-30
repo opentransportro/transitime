@@ -1,6 +1,10 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
+import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
+import javax.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,17 +15,13 @@ import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.criterion.Restrictions;
 import org.transitclock.db.hibernate.HibernateUtils;
 
-import javax.persistence.*;
-import java.io.Serializable;
-import java.util.Date;
-import java.util.List;
-
 /**
  * @author Sean Og Crudden Store the travel time prediction for a stopPath.
  */
 @Entity
 @DynamicUpdate
-@Getter @Setter
+@Getter
+@Setter
 @EqualsAndHashCode
 @ToString
 @Table(

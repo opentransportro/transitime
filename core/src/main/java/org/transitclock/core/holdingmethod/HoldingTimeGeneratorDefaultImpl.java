@@ -91,7 +91,7 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
                     predictions.toString());
 
             // This is to remove a prediction for the current vehicle and stop. Belt and braces.
-            if (predictions.size() > 0 && predictions.get(0).getVehicleId().equals(event.getVehicleId())) {
+            if (!predictions.isEmpty() && predictions.get(0).getVehicleId().equals(event.getVehicleId())) {
                 predictions.remove(0);
             }
 
@@ -193,7 +193,7 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
                 logger.debug("Found last vehicle departure event: {}", lastVehicleDeparture);
 
                 if (predictions.size() > 1) {
-                    Long N[] = null;
+                    Long N[];
 
                     int counter = 0;
 

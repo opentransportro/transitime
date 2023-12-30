@@ -17,5 +17,5 @@ public interface ArrivalDepartureGenerator {
      * @param vehicleState
      * @return List of ArrivalDeparture objects generated
      */
-    public void generate(VehicleState vehicleState);
+    void generate(VehicleState vehicleState);
 }

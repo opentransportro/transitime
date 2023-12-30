@@ -2,15 +2,12 @@
 package org.transitclock.api.data;
 
 import java.io.Serializable;
-import java.sql.Date;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.transitclock.db.structs.ExportTable;
 
 /**
@@ -49,18 +46,18 @@ public class ApiExportsData implements Serializable {
         	// Determine UI type for vehicle
         	exportsData.add(new ApiExportData(oneExportData));
         }*/
-        DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
         Iterator itr = exportData.iterator();
         while (itr.hasNext()) {
             Object[] obj = (Object[]) itr.next();
             // now you have one array of Object for each row
-            exportsData.add(new ApiExportData(
-                    Long.valueOf(obj[0].toString()),
-                    Date.valueOf(obj[1].toString()),
-                    DateTime.parse(obj[2].toString(), formatter).toDate(),
-                    Integer.valueOf(obj[3].toString()),
-                    Integer.valueOf(obj[4].toString()),
-                    String.valueOf(obj[5])));
+            //            exportsData.add(new ApiExportData(
+            //                    Long.valueOf(obj[0].toString()),
+            //                    Date.valueOf(obj[1].toString()),
+            //                    formatter.parse(obj[2].toString()).toDate(),
+            //                    Integer.valueOf(obj[3].toString()),
+            //                    Integer.valueOf(obj[4].toString()),
+            //                    String.valueOf(obj[5])));
         }
     }
 

@@ -1,6 +1,9 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
+import java.io.Serializable;
+import java.util.Date;
+import javax.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -9,10 +12,6 @@ import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.classic.Lifecycle;
 import org.transitclock.applications.Core;
-
-import javax.persistence.*;
-import java.io.Serializable;
-import java.util.Date;
 
 /**
  * A database object for persisting information on how accurate a prediction was compared to the
@@ -152,7 +151,6 @@ public class PredictionAccuracy implements Lifecycle, Serializable {
         this.affectedByWaitStop = null;
         this.predictionAlgorithm = null;
     }
-
 
     public int getPredictionLengthMsecs() {
         return (int) (predictedTime.getTime() - predictionReadTime.getTime());

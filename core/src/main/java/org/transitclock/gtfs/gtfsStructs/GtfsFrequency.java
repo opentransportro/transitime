@@ -27,6 +27,7 @@ public class GtfsFrequency extends CsvBase {
      * @return
      */
     private final int headwaySecs;
+
     private final Boolean exactTimes;
 
     /********************** Member Functions **************************/
@@ -47,5 +48,4 @@ public class GtfsFrequency extends CsvBase {
         headwaySecs = Integer.parseInt(getRequiredValue(record, "headway_secs"));
         exactTimes = getOptionalBooleanValue(record, "exact_times");
     }
-
 }

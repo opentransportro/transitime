@@ -20,7 +20,6 @@ public class CsvBase {
 
     private final boolean supplementalFileSoSomeRequiredItemsCanBeMissing;
 
-
     /**
      * Main constructor for when creating CSV object from a CSV file.
      *

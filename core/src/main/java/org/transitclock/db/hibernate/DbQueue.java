@@ -183,19 +183,18 @@ public class DbQueue<T> {
         double level = queueLevel();
         int levelIndexIncludingMargin = indexOfLevel(level + 0.10);
         if (levelIndexIncludingMargin < indexOfLevelWhenMessageLogged) {
-            logger.error(
-                    "DataDbLogger queue emptying out somewhat "
-                            + " for projectId="
-                            + projectId
-                            + " and type "
-                            + shortType
-                            + ". It is now at "
-                            + String.format("%.1f", level * 100)
-                            + "% capacity with "
-                            + queue.size()
-                            + " elements already in the queue. The maximum capacity was "
-                            + String.format("%.1f", maxQueueLevel * 100)
-                            + "%.");
+            logger.error("DataDbLogger queue emptying out somewhat "
+                    + " for projectId="
+                    + projectId
+                    + " and type "
+                    + shortType
+                    + ". It is now at "
+                    + String.format("%.1f", level * 100)
+                    + "% capacity with "
+                    + queue.size()
+                    + " elements already in the queue. The maximum capacity was "
+                    + String.format("%.1f", maxQueueLevel * 100)
+                    + "%.");
             indexOfLevelWhenMessageLogged = levelIndexIncludingMargin;
 
             // Reset the maxQueueLevel so can determine what next peak is
@@ -274,11 +273,10 @@ public class DbQueue<T> {
                     || rootCause instanceof SocketException
                     || (rootCause instanceof SQLException
                             && rootCause.getMessage().contains("statement closed"))) {
-                logger.error(
-                        "Had a connection problem to the database. Likely "
-                                + "means that the db was rebooted or that the "
-                                + "connection to it was lost. Therefore creating a new "
-                                + "SessionFactory so get new connections.");
+                logger.error("Had a connection problem to the database. Likely "
+                        + "means that the db was rebooted or that the "
+                        + "connection to it was lost. Therefore creating a new "
+                        + "SessionFactory so get new connections.");
                 HibernateUtils.clearSessionFactory();
                 sessionFactory = HibernateUtils.getSessionFactory(projectId);
             } else {

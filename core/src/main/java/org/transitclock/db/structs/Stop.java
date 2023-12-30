@@ -1,6 +1,9 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
+import java.io.Serializable;
+import java.util.List;
+import javax.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -10,10 +13,6 @@ import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
 import org.transitclock.gtfs.TitleFormatter;
 import org.transitclock.gtfs.gtfsStructs.GtfsStop;
-
-import javax.persistence.*;
-import java.io.Serializable;
-import java.util.List;
 
 /**
  * For storing in db information on a stop. Based on GTFS info from stops.txt file.
@@ -67,7 +66,6 @@ public class Stop implements Serializable {
     @Column
     private final boolean hidden;
 
-    /********************** Member Functions **************************/
 
     /**
      * Constructor
@@ -137,8 +135,7 @@ public class Stop implements Serializable {
     public static int deleteFromRev(Session session, int configRev) throws HibernateException {
         // Note that hql uses class name, not the table name
         String hql = "DELETE Stop WHERE configRev=" + configRev;
-        int numUpdates = session.createQuery(hql).executeUpdate();
-        return numUpdates;
+        return session.createQuery(hql).executeUpdate();
     }
 
     /**
@@ -152,8 +149,8 @@ public class Stop implements Serializable {
     @SuppressWarnings("unchecked")
     public static List<Stop> getStops(Session session, int configRev) throws HibernateException {
         String hql = "FROM Stop " + "    WHERE configRev = :configRev";
-        Query query = session.createQuery(hql);
-        query.setInteger("configRev", configRev);
+        var query = session.createQuery(hql);
+        query.setParameter("configRev", configRev);
         return query.list();
     }
 }

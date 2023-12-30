@@ -1,6 +1,15 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
+import java.io.Serializable;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -15,16 +24,6 @@ import org.transitclock.db.hibernate.HibernateUtils;
 import org.transitclock.gtfs.gtfsStructs.GtfsCalendar;
 import org.transitclock.utils.Time;
 
-import javax.persistence.*;
-import java.io.Serializable;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 /**
  * Contains data from the calendar.txt GTFS file. This class is for reading/writing that data to the
  * db.
@@ -35,7 +34,8 @@ import java.util.Map;
 @Entity
 @DynamicUpdate
 @EqualsAndHashCode
-@ToString @Getter
+@ToString
+@Getter
 @Table(name = "Calendars")
 public class Calendar implements Serializable {
 
@@ -90,7 +90,6 @@ public class Calendar implements Serializable {
 
     // Logging
     public static final Logger logger = LoggerFactory.getLogger(Calendar.class);
-
 
     /********************** Member Functions **************************/
 
@@ -218,7 +217,6 @@ public class Calendar implements Serializable {
     private boolean isSetToTrue(String zeroOrOne) {
         return zeroOrOne != null && zeroOrOne.trim().equals("1");
     }
-
 
     public boolean getMonday() {
         return monday;

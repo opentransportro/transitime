@@ -7,15 +7,12 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-
 import lombok.Getter;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.annotations.DynamicUpdate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.transitclock.db.hibernate.HibernateUtils;
 
 /**

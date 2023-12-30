@@ -1,6 +1,10 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
+import java.io.Serializable;
+import java.util.List;
+import java.util.TimeZone;
+import javax.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.hibernate.HibernateException;
@@ -10,11 +14,6 @@ import org.hibernate.annotations.DynamicUpdate;
 import org.transitclock.db.hibernate.HibernateUtils;
 import org.transitclock.gtfs.gtfsStructs.GtfsAgency;
 import org.transitclock.utils.Time;
-
-import javax.persistence.*;
-import java.io.Serializable;
-import java.util.List;
-import java.util.TimeZone;
 
 /**
  * Contains data from the agency.txt GTFS file. This class is for reading/writing that data to the
@@ -193,7 +192,6 @@ public class Agency implements Serializable {
         if (time == null) time = new Time(agencyTimezone);
         return time;
     }
-
 
     /************************** Getter Methods ******************************/
 

@@ -46,8 +46,6 @@ import org.transitclock.utils.Time;
  */
 public class AutoBlockAssigner {
 
-    /*********************** members *****************************/
-
     // The vehicle state is repeatedly used so it is a member so it doesn't
     // have to be passed around to various methods.
     private VehicleState vehicleState;
@@ -110,8 +108,6 @@ public class AutoBlockAssigner {
 
     /*********************** Logging **********************************/
     private static final Logger logger = LoggerFactory.getLogger(AutoBlockAssigner.class);
-
-    /********************** Member Functions **************************/
 
     /**
      * Constructor

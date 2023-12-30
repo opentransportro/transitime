@@ -88,10 +88,10 @@ public class ClientFactory<T extends Remote> {
             return (T) proxiedStub;
         } catch (Exception e) {
             logger.error(
-                    "Exception occurred when creating the RMI client " + "object for class={} and agencyId={}. {}",
+                    "Exception occurred when creating the RMI client object for class={} and agencyId={}. {}",
                     clazz.getName(),
                     agencyId,
-                    e.getMessage());
+                    e.getMessage(),e);
             return null;
         }
     }

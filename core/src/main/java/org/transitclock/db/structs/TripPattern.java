@@ -1,6 +1,12 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.persistence.*;
 import lombok.Getter;
 import org.hibernate.CallbackException;
 import org.hibernate.HibernateException;
@@ -12,13 +18,6 @@ import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.classic.Lifecycle;
 import org.transitclock.gtfs.GtfsData;
 import org.transitclock.gtfs.gtfsStructs.GtfsRoute;
-
-import javax.persistence.*;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * A trip pattern, as obtained from stop_times.txt GTFS file. A trip pattern defines what stops are
@@ -222,7 +221,7 @@ public class TripPattern implements Serializable, Lifecycle {
         // key to the StopPath table,
         int rowsUpdated = 0;
         rowsUpdated += session.createSQLQuery(
-                        "DELETE FROM TripPattern_to_Path_joinTable " + "WHERE TripPatterns_configRev=" + configRev)
+                        "DELETE FROM TripPattern_to_Path_joinTable " + "WHERE TripPattern_configRev=" + configRev)
                 .executeUpdate();
         rowsUpdated += session.createSQLQuery("DELETE FROM StopPath_Locations WHERE StopPath_configRev=" + configRev)
                 .executeUpdate();

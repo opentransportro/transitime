@@ -1,9 +1,7 @@
 /* (C)2023 */
 package org.transitclock.core.predictiongenerator.kalman;
 
-import static org.junit.Assert.*;
-
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class TestKalman {
     static KalmanPredictionResult result;

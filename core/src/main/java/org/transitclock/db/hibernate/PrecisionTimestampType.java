@@ -8,7 +8,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Date;
 import org.hibernate.HibernateException;
-import org.hibernate.engine.spi.SessionImplementor;
+import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.type.TimestampType;
 import org.hibernate.usertype.UserType;
 
@@ -87,7 +87,7 @@ public class PrecisionTimestampType implements UserType {
      * @see org.hibernate.usertype.UserType#nullSafeGet(java.sql.ResultSet, java.lang.String[], org.hibernate.engine.spi.SessionImplementor, java.lang.Object)
      */
     @Override
-    public Object nullSafeGet(ResultSet rs, String[] names, SessionImplementor session, Object owner)
+    public Object nullSafeGet(ResultSet rs, String[] names, SharedSessionContractImplementor session, Object owner)
             throws HibernateException, SQLException {
         assert names.length == 1;
 
@@ -105,7 +105,7 @@ public class PrecisionTimestampType implements UserType {
      * @see org.hibernate.usertype.UserType#nullSafeSet(java.sql.PreparedStatement, java.lang.Object, int, org.hibernate.engine.spi.SessionImplementor)
      */
     @Override
-    public void nullSafeSet(PreparedStatement st, Object value, int index, SessionImplementor session)
+    public void nullSafeSet(PreparedStatement st, Object value, int index, SharedSessionContractImplementor session)
             throws HibernateException, SQLException {
         if (value != null) {
             //			System.out.println("value.class=" + value.getClass().getName());

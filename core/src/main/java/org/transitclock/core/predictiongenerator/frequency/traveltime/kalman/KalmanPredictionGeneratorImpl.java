@@ -56,29 +56,29 @@ public class KalmanPredictionGeneratorImpl extends HistoricalAveragePredictionGe
 
     private static final IntegerConfigValue maxKalmanDays = new IntegerConfigValue(
             "transitclock.prediction.data.kalman.maxdays",
-            new Integer(3),
+            3,
             "Max number of historical days trips to include in Kalman prediction" + " calculation.");
 
     private static final IntegerConfigValue maxKalmanDaysToSearch = new IntegerConfigValue(
             "transitclock.prediction.data.kalman.maxdaystoseach",
-            new Integer(30),
+            30,
             "Max number of days to look back for data. This will also be effected by how"
                     + " old the data in the cache is.");
 
     private static final DoubleConfigValue initialErrorValue = new DoubleConfigValue(
             "transitclock.prediction.data.kalman.initialerrorvalue",
-            new Double(100),
+            100d,
             "Initial Kalman error value to use to start filter.");
 
     /* May be better to use the default implementation as it splits things down into segments. */
     private static final BooleanConfigValue useKalmanForPartialStopPaths = new BooleanConfigValue(
             "transitclock.prediction.data.kalman.usekalmanforpartialstoppaths",
-            new Boolean(true),
+            true,
             "Will use Kalman prediction to get to first stop of prediction.");
 
     private static final IntegerConfigValue percentagePredictionMethodDifferenceneEventLog = new IntegerConfigValue(
             "transitclock.prediction.data.kalman.percentagePredictionMethodDifferencene",
-            new Integer(50),
+            50,
             "If the difference in prediction method estimates is greater than this"
                     + " percentage log a Vehicle Event");
 
@@ -135,7 +135,7 @@ public class KalmanPredictionGeneratorImpl extends HistoricalAveragePredictionGe
                         maxKalmanDaysToSearch.getValue(),
                         maxKalmanDays.getValue());
 
-                if (lastDaysTimes != null && lastDaysTimes.size() > 0) {
+                if (lastDaysTimes != null && !lastDaysTimes.isEmpty()) {
                     logger.debug(
                             "Kalman has " + lastDaysTimes.size() + " historical values for : " + indices.toString());
                 }
@@ -263,7 +263,7 @@ public class KalmanPredictionGeneratorImpl extends HistoricalAveragePredictionGe
     @Override
     public long expectedTravelTimeFromMatchToEndOfStopPath(AvlReport avlReport, SpatialMatch match) {
 
-        if (useKalmanForPartialStopPaths.getValue().booleanValue()) {
+        if (useKalmanForPartialStopPaths.getValue()) {
             VehicleStateManager vehicleStateManager = VehicleStateManager.getInstance();
 
             VehicleState currentVehicleState = vehicleStateManager.getVehicleState(avlReport.getVehicleId());
@@ -298,13 +298,6 @@ public class KalmanPredictionGeneratorImpl extends HistoricalAveragePredictionGe
                     + new KalmanErrorCacheKey(indices).toString());
             result = new KalmanError(initialErrorValue.getValue());
         }
-        return result;
-    }
-
-    @Override
-    public long getStopTimeForPath(Indices indices, AvlReport avlReport, VehicleState vehicleState) {
-        long result = super.getStopTimeForPath(indices, avlReport, vehicleState);
-
         return result;
     }
 }

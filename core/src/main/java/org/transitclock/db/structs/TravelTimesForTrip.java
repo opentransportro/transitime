@@ -1,9 +1,16 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -14,13 +21,6 @@ import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.persistence.*;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 /**
  * Keeps track of travel times for a trip. Can be shared amongst trips if the travel times are
  * similar. But need separate travel times for every trip pattern.
@@ -28,13 +28,14 @@ import java.util.Map;
  * @author SkiBu Smith
  */
 @Entity
+@Slf4j
 @DynamicUpdate
 @Getter
 @EqualsAndHashCode
 @ToString
-@Table(
-        name = "TravelTimesForTrips",
-        indexes = {@Index(name = "TravelTimesRevIndex", columnList = "travelTimesRev")})
+@Table(name = "TravelTimesForTrips", indexes = {
+        @Index(name = "TravelTimesRevIndex", columnList = "travelTimesRev")
+})
 public class TravelTimesForTrip implements Serializable {
 
     // Need a generated ID because trying to share TravelTimesForStopPath
@@ -82,16 +83,6 @@ public class TravelTimesForTrip implements Serializable {
     @OrderColumn(name = "listIndex")
     private final List<TravelTimesForStopPath> travelTimesForStopPaths = new ArrayList<>();
 
-
-    private static final Logger logger = LoggerFactory.getLogger(TravelTimesForTrip.class);
-
-    /**
-     * Simple constructor.
-     *
-     * @param configRev
-     * @param travelTimesRev
-     * @param trip So can determine trip pattern ID and set which trip this was created for.
-     */
     public TravelTimesForTrip(int configRev, int travelTimesRev, Trip trip) {
         this.configRev = configRev;
         this.travelTimesRev = travelTimesRev;
@@ -135,8 +126,8 @@ public class TravelTimesForTrip implements Serializable {
         // This means that cannot use an INNER JOIN as part of the delete since the
         // syntax for inner joins is different for the two databases. Therefore need to
         // use the IN statement with a SELECT clause.
-        int rowsUpdated = session.createSQLQuery("DELETE  FROM TravelTimesForTrip_to_TravelTimesForPath_joinTable"
-                        + " WHERE TravelTimesForTrips_id IN   (SELECT id      FROM"
+        int rowsUpdated = session.createNativeQuery("DELETE  FROM TravelTimesForTrip_to_TravelTimesForPath_joinTable"
+                        + " WHERE TravelTimesForTrip_id IN   (SELECT id      FROM"
                         + " TravelTimesForTrips     WHERE configRev="
                         + configRev
                         + "  )")
@@ -148,13 +139,14 @@ public class TravelTimesForTrip implements Serializable {
         totalRowsUpdated += rowsUpdated;
 
         // Delete configRev data from TravelTimesForStopPaths
-        rowsUpdated = session.createSQLQuery("DELETE FROM TravelTimesForStopPaths WHERE configRev=" + configRev)
+        rowsUpdated = session.createNativeQuery("DELETE FROM TravelTimesForStopPaths WHERE configRev=" + configRev)
                 .executeUpdate();
         logger.info("Deleted {} rows from TravelTimesForStopPaths for " + "configRev={}", rowsUpdated, configRev);
         totalRowsUpdated += rowsUpdated;
 
         // Delete configRev data from TravelTimesForTrips
-        rowsUpdated = session.createSQLQuery("DELETE FROM TravelTimesForTrips WHERE configRev=" + configRev)
+        rowsUpdated = session
+                .createNativeQuery("DELETE FROM TravelTimesForTrips WHERE configRev=" + configRev)
                 .executeUpdate();
         logger.info("Deleted {} rows from TravelTimesForTrips for configRev={}", rowsUpdated, configRev);
         totalRowsUpdated += rowsUpdated;
@@ -177,7 +169,8 @@ public class TravelTimesForTrip implements Serializable {
             throws HibernateException {
         logger.info("Reading TravelTimesForTrips for travelTimesRev={} ...", travelTimesRev);
 
-        List<TravelTimesForTrip> allTravelTimes = session.createCriteria(TravelTimesForTrip.class)
+        List<TravelTimesForTrip> allTravelTimes = session
+                .createCriteria(TravelTimesForTrip.class)
                 .add(Restrictions.eq("travelTimesRev", travelTimesRev))
                 .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
                 .list();

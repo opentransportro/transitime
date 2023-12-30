@@ -13,7 +13,6 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-
 import lombok.Getter;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
@@ -119,7 +118,7 @@ public class WebAgency {
 
     /** Needed because Hibernate requires no-arg constructor for reading in data */
     @SuppressWarnings("unused")
-    private WebAgency() {
+    protected WebAgency() {
         this.agencyId = null;
         this.hostName = null;
         this.active = false;

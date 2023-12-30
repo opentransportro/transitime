@@ -2,14 +2,10 @@
 package org.transitclock.avl;
 
 import java.util.Collection;
-import javax.jms.JMSException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.transitclock.configData.AvlConfig;
-import org.transitclock.db.structs.AvlReport;
-import org.transitclock.ipc.jms.JMSWrapper;
-import org.transitclock.ipc.jms.RestartableMessageProducer;
 import org.transitclock.Module;
+import org.transitclock.db.structs.AvlReport;
 
 /**
  * Low-level abstract AVL module class that handles the processing of the data. Uses JMS to queue
@@ -18,9 +14,6 @@ import org.transitclock.Module;
  * @author SkiBu Smith
  */
 public abstract class AvlModule extends Module {
-    // For writing the AVL data to the JMS topic
-    protected RestartableMessageProducer jmsMsgProducer = null;
-
     private static final Logger logger = LoggerFactory.getLogger(AvlModule.class);
 
     /********************** Member Functions **************************/
@@ -35,34 +28,11 @@ public abstract class AvlModule extends Module {
     }
 
     /**
-     * Initializes JMS if need be. Needs to be done from same thread that JMS is written to.
-     * Otherwise get concurrency error.
-     */
-    private void initializeJmsIfNeedTo() {
-        // If JMS already initialized then can return
-        if (jmsMsgProducer != null) return;
-
-        // JMS not already initialized so create the MessageProducer
-        // that the AVL data can be written to
-        try {
-            String jmsTopicName = AvlJmsClientModule.getTopicName(agencyId);
-            JMSWrapper jmsWrapper = JMSWrapper.getJMSWrapper();
-            jmsMsgProducer = jmsWrapper.createTopicProducer(jmsTopicName);
-        } catch (Exception e) {
-            logger.error("Problem when setting up JMSWrapper for the AVL feed", e);
-        }
-    }
-
-    /**
      * Processes AVL report read from feed. To be called from the subclass for each AVL report. Can
      * use JMS or bypass it, depending on how configured.
      */
     protected void processAvlReport(AvlReport avlReport) {
-        if (AvlConfig.shouldUseJms()) {
-            processAvlReportUsingJms(avlReport);
-        } else {
-            processAvlReportWithoutJms(avlReport);
-        }
+        processAvlReportWithoutJms(avlReport);
     }
 
     /**
@@ -74,27 +44,6 @@ public abstract class AvlModule extends Module {
     protected void processAvlReports(Collection<AvlReport> avlReports) {
         for (AvlReport avlReport : avlReports) {
             processAvlReport(avlReport);
-        }
-    }
-
-    /**
-     * Sends the AvlReport object to the JMS topic so that AVL clients can read it.
-     *
-     * @param avlReport
-     */
-    private void processAvlReportUsingJms(AvlReport avlReport) {
-        // Make sure the JMS stuff setup successfully
-        initializeJmsIfNeedTo();
-        if (jmsMsgProducer == null) {
-            logger.error("Cannot write AvlReport to JMS because JMS tools " + "were not initialized successfully.");
-            return;
-        }
-
-        // Send the AVL report to the JMS topic
-        try {
-            jmsMsgProducer.sendObjectMessage(avlReport);
-        } catch (JMSException e) {
-            logger.error("Problem sending AvlReport to the JMS topic", e);
         }
     }
 

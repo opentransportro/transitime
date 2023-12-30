@@ -6,7 +6,6 @@ import java.util.GregorianCalendar;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.config.DoubleConfigValue;
-import org.transitclock.utils.EmailSender;
 import org.transitclock.utils.StringUtils;
 import org.transitclock.utils.Time;
 
@@ -33,16 +32,8 @@ public class SystemCpuMonitor extends MonitorBase {
 
     private static final Logger logger = LoggerFactory.getLogger(SystemCpuMonitor.class);
 
-    /********************** Member Functions **************************/
-
-    /**
-     * Simple constructor
-     *
-     * @param emailSender
-     * @param agencyId
-     */
-    public SystemCpuMonitor(EmailSender emailSender, String agencyId) {
-        super(emailSender, agencyId);
+    public SystemCpuMonitor(String agencyId) {
+        super(agencyId);
     }
 
     /* (non-Javadoc)

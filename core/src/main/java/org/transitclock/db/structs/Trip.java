@@ -1,6 +1,13 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
+import java.io.Serializable;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,23 +20,13 @@ import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.classic.Lifecycle;
 import org.hibernate.collection.internal.PersistentList;
-import org.hibernate.engine.spi.SessionImplementor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.applications.Core;
-import org.transitclock.db.hibernate.HibernateUtils;
 import org.transitclock.gtfs.DbConfig;
 import org.transitclock.gtfs.TitleFormatter;
 import org.transitclock.gtfs.gtfsStructs.GtfsTrip;
 import org.transitclock.utils.Time;
-
-import javax.persistence.*;
-import java.io.Serializable;
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Describes a GTFS trip but also includes travel time information.
@@ -632,7 +629,6 @@ public class Trip implements Lifecycle, Serializable {
                 + "]";
     }
 
-
     /**
      * @return the tripId
      */
@@ -646,7 +642,6 @@ public class Trip implements Lifecycle, Serializable {
     public String getShortName() {
         return tripShortName;
     }
-
 
     /**
      * Returns the routeShortName. If it is null then returns the full route name. Causes exception
@@ -754,7 +749,7 @@ public class Trip implements Lifecycle, Serializable {
             // TODO this is an anti-pattern
             // instead find a way to manage sessions more consistently
             PersistentList persistentListTimes = (PersistentList) scheduledTimesList;
-            SessionImplementor session = persistentListTimes.getSession();
+            var session = persistentListTimes.getSession();
             if (session == null) {
                 Session globalLazyLoadSession = Core.getInstance().getDbConfig().getGlobalSession();
                 globalLazyLoadSession.update(this);

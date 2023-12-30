@@ -1,9 +1,8 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
-import lombok.Getter;
-
 import java.util.List;
+import lombok.Getter;
 
 /**
  * This class is to be used as a key for a TripPattern map. It contains just enough information, the
@@ -33,7 +32,6 @@ public class TripPatternKey {
         this.shapeId = shapeId;
         this.stopPaths = paths;
     }
-
 
     /** Hibernate requires a no-arg constructor */
     protected TripPatternKey() {

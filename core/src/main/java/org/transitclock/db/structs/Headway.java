@@ -1,6 +1,9 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
+import java.io.Serializable;
+import java.util.Date;
+import javax.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -8,13 +11,10 @@ import lombok.ToString;
 import org.hibernate.annotations.DynamicUpdate;
 import org.transitclock.applications.Core;
 
-import javax.persistence.*;
-import java.io.Serializable;
-import java.util.Date;
-
 @Entity
 @DynamicUpdate
-@Getter @Setter
+@Getter
+@Setter
 @EqualsAndHashCode
 @ToString
 @Table(

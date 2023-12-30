@@ -1,6 +1,10 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
+import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
+import javax.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -17,13 +21,7 @@ import org.transitclock.applications.Core;
 import org.transitclock.core.TemporalMatch;
 import org.transitclock.core.VehicleState;
 import org.transitclock.db.hibernate.HibernateUtils;
-import org.transitclock.utils.Geo;
 import org.transitclock.utils.IntervalTimer;
-
-import javax.persistence.*;
-import java.io.Serializable;
-import java.util.Date;
-import java.util.List;
 
 /**
  * For persisting the match for the vehicle. This data is later used for determining expected travel

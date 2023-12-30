@@ -41,5 +41,4 @@ public class GtfsFareRule extends CsvBase {
         destinationId = getOptionalValue(record, "destination_id");
         containsId = getOptionalValue(record, "contains_id");
     }
-
 }

@@ -129,5 +129,4 @@ public class GtfsShape extends CsvBase implements Comparable<GtfsShape> {
     public int compareTo(GtfsShape arg0) {
         return getShapePtSequence() - arg0.getShapePtSequence();
     }
-
 }

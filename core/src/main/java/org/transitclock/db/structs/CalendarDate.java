@@ -1,6 +1,12 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
+import java.io.Serializable;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.util.Date;
+import java.util.List;
+import javax.persistence.*;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -8,13 +14,6 @@ import org.hibernate.annotations.DynamicUpdate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.gtfs.gtfsStructs.GtfsCalendarDate;
-
-import javax.persistence.*;
-import java.io.Serializable;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.util.Date;
-import java.util.List;
 
 /**
  * Contains data from the calendardates.txt GTFS file. This class is for reading/writing that data

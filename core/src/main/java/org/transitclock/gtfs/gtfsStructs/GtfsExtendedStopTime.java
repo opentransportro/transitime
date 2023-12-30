@@ -88,5 +88,4 @@ public class GtfsExtendedStopTime extends GtfsStopTime {
     public double getDepartureStdDev() {
         return departureStandardDeviation;
     }
-
 }

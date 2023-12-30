@@ -24,6 +24,7 @@ public class GtfsAgency extends CsvBase {
      */
     // Valid timezone format is at http://en.wikipedia.org/wiki/List_of_tz_zones
     private final String agencyTimezone;
+
     private final String agencyLang;
     private final String agencyPhone;
     private final String agencyFareUrl;
@@ -69,5 +70,4 @@ public class GtfsAgency extends CsvBase {
         agencyPhone = s.agencyPhone == null ? o.agencyPhone : s.agencyPhone;
         agencyFareUrl = s.agencyFareUrl == null ? o.agencyFareUrl : s.agencyFareUrl;
     }
-
 }
