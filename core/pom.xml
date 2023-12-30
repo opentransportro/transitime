@@ -13,11 +13,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.esri.geometry</groupId>
-            <artifactId>esri-geometry-api</artifactId>
-            <version>1.2.1</version>
-        </dependency>
-        <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <scope>runtime</scope>
@@ -75,6 +70,17 @@
             <groupId>org.mobilitydata</groupId>
             <artifactId>gtfs-realtime-bindings</artifactId>
             <version>0.0.8</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.google.protobuf</groupId>
+                    <artifactId>protobuf-java</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
+            <version>3.22.2</version>
         </dependency>
 
         <!-- For more easily handling command line options -->
@@ -111,13 +117,6 @@
             <artifactId>jasypt</artifactId>
             <version>1.9.2</version>
         </dependency>
-
-        <dependency>
-            <groupId>commons-beanutils</groupId>
-            <artifactId>commons-beanutils</artifactId>
-            <version>1.9.4</version>
-        </dependency>
-
 
         <!-- Used for reflection to find classes in package -->
         <dependency>
