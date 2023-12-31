@@ -13,11 +13,11 @@ import org.transitclock.ipc.data.IpcPredictionForStopPath;
  * @author Sean Og Crudden
  */
 public interface PredictionAnalysisInterface extends Remote {
-    public List<IpcPredictionForStopPath> getRecordedTravelTimePredictions(
+    List<IpcPredictionForStopPath> getRecordedTravelTimePredictions(
             String tripId, Integer stopPathIndex, Date startdate, Date enddate, String algorithm)
             throws RemoteException;
 
-    public List<IpcPredictionForStopPath> getCachedTravelTimePredictions(
+    List<IpcPredictionForStopPath> getCachedTravelTimePredictions(
             String tripId, Integer stopPathIndex, Date startdate, Date enddate, String algorithm)
             throws RemoteException;
 }

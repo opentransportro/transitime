@@ -5,8 +5,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.transitclock.db.structs.AvlReport;
 
 /**
@@ -23,17 +22,12 @@ import org.transitclock.db.structs.AvlReport;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class AvlQueue extends ArrayBlockingQueue<Runnable> {
 
     // For keeping track of the last AVL report for each vehicle. Used to
     // determine if AVL report from queue is obsolete.
-    ConcurrentMap<String, AvlReport> avlDataPerVehicleMap = new ConcurrentHashMap<String, AvlReport>();
-
-    private static final long serialVersionUID = 6587642826604552096L;
-
-    private static final Logger logger = LoggerFactory.getLogger(AvlQueue.class);
-
-    /********************** Member Functions **************************/
+    ConcurrentMap<String, AvlReport> avlDataPerVehicleMap = new ConcurrentHashMap<>();
 
     /**
      * Constructs the queue to have specified size.

@@ -6,9 +6,6 @@ import org.transitclock.core.dataCache.HoldingTimeCacheKey;
 
 public class IpcHoldingTimeCacheKey implements Serializable {
 
-    /** */
-    private static final long serialVersionUID = -2625236742413645110L;
-
     private String stopid;
     private String vehicleId;
     private String tripId;

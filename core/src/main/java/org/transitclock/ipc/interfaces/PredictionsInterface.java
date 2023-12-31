@@ -16,7 +16,7 @@ import org.transitclock.ipc.data.IpcPredictionsForRouteStopDest;
 public interface PredictionsInterface extends Remote {
 
     /** This class is for use as key into hash maps that store prediction data. */
-    public static class RouteStop implements Serializable {
+    class RouteStop implements Serializable {
         private final String routeIdOrShortName;
         private final String stopIdOrCode;
 
@@ -50,7 +50,7 @@ public interface PredictionsInterface extends Remote {
      * @return List of PredictionsForRouteStop objects for the route/stop, one for each destination
      * @throws RemoteException
      */
-    public List<IpcPredictionsForRouteStopDest> get(String routeShortName, String stopId, int predictionsPerStop)
+    List<IpcPredictionsForRouteStopDest> get(String routeShortName, String stopId, int predictionsPerStop)
             throws RemoteException;
 
     /**
@@ -65,8 +65,7 @@ public interface PredictionsInterface extends Remote {
      *     for each destination for each route/stop.
      * @throws RemoteException
      */
-    public List<IpcPredictionsForRouteStopDest> get(List<RouteStop> routeStops, int predictionsPerStop)
-            throws RemoteException;
+    List<IpcPredictionsForRouteStopDest> get(List<RouteStop> routeStops, int predictionsPerStop) throws RemoteException;
 
     /**
      * Returns predictions based on the specified location.
@@ -78,7 +77,7 @@ public interface PredictionsInterface extends Remote {
      *     each destination for each route/stop.
      * @throws RemoteException
      */
-    public List<IpcPredictionsForRouteStopDest> get(Location loc, double maxDistance, int predictionsPerStop)
+    List<IpcPredictionsForRouteStopDest> get(Location loc, double maxDistance, int predictionsPerStop)
             throws RemoteException;
 
     /**
@@ -90,5 +89,5 @@ public interface PredictionsInterface extends Remote {
      *     every route/stop/destination.
      * @throws RemoteException
      */
-    public List<IpcPredictionsForRouteStopDest> getAllPredictions(int predictionMaxFutureSecs) throws RemoteException;
+    List<IpcPredictionsForRouteStopDest> getAllPredictions(int predictionMaxFutureSecs) throws RemoteException;
 }

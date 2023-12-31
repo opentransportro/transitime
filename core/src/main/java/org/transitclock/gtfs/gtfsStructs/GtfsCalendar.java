@@ -2,6 +2,8 @@
 package org.transitclock.gtfs.gtfsStructs;
 
 import java.text.ParseException;
+import lombok.Getter;
+import lombok.ToString;
 import org.apache.commons.csv.CSVRecord;
 import org.transitclock.utils.csv.CsvBase;
 
@@ -10,6 +12,8 @@ import org.transitclock.utils.csv.CsvBase;
  *
  * @author SkiBu Smith
  */
+@ToString
+@Getter
 public class GtfsCalendar extends CsvBase {
 
     private final String serviceId;
@@ -21,9 +25,15 @@ public class GtfsCalendar extends CsvBase {
     private final String saturday;
     private final String sunday;
     private final String startDate;
+    /**
+     * -- GETTER --
+     *  End of the last day of service. This means that when an end date is specified the service
+     *  runs for up to and including that day.
+     *
+     * @return
+     */
     private final String endDate;
 
-    /********************** Member Functions **************************/
 
     /**
      * Creates a GtfsCalendar object by reading the data from the CSVRecord.
@@ -69,79 +79,5 @@ public class GtfsCalendar extends CsvBase {
         this.sunday = sunday;
         this.startDate = startDate;
         this.endDate = endDate;
-    }
-
-    public String getServiceId() {
-        return serviceId;
-    }
-
-    public String getMonday() {
-        return monday;
-    }
-
-    public String getTuesday() {
-        return tuesday;
-    }
-
-    public String getWednesday() {
-        return wednesday;
-    }
-
-    public String getThursday() {
-        return thursday;
-    }
-
-    public String getFriday() {
-        return friday;
-    }
-
-    public String getSaturday() {
-        return saturday;
-    }
-
-    public String getSunday() {
-        return sunday;
-    }
-
-    public String getStartDate() {
-        return startDate;
-    }
-
-    /**
-     * End of the last day of service. This means that when an end date is specified the service
-     * runs for up to and including that day.
-     *
-     * @return
-     */
-    public String getEndDate() {
-        return endDate;
-    }
-
-    @Override
-    public String toString() {
-        return "GtfsCalendar ["
-                + "lineNumber="
-                + lineNumber
-                + ", serviceId="
-                + serviceId
-                + ", monday="
-                + monday
-                + ", tuesday="
-                + tuesday
-                + ", wednesday="
-                + wednesday
-                + ", thursday="
-                + thursday
-                + ", friday="
-                + friday
-                + ", saturday="
-                + saturday
-                + ", sunday="
-                + sunday
-                + ", startDate="
-                + startDate
-                + ", endDate="
-                + endDate
-                + "]";
     }
 }

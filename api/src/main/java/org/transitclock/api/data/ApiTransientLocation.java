@@ -25,8 +25,6 @@ public class ApiTransientLocation {
     @XmlAttribute
     private double lon;
 
-    /********************** Member Functions **************************/
-
     /**
      * Need a no-arg constructor for Jersey. Otherwise get really obtuse "MessageBodyWriter not
      * found for media type=application/json" exception.

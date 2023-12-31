@@ -14,9 +14,6 @@ public class Vector implements Serializable {
     protected Location l1;
     protected Location l2;
 
-    private static final long serialVersionUID = -3504110880635334536L;
-
-    /********************** Member Functions **************************/
     public Vector(Location l1, Location l2) {
         this.l1 = l1;
         this.l2 = l2;
@@ -166,8 +163,7 @@ public class Vector implements Serializable {
      */
     public Vector middle(double length1, double length2) {
         Vector beginningVector = beginning(length2);
-        Vector middleVector = beginningVector.end(length1);
-        return middleVector;
+        return beginningVector.end(length1);
     }
 
     public static void main(String[] args) {

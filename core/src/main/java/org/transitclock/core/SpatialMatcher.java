@@ -60,8 +60,6 @@ public class SpatialMatcher {
             false,
             "Allow auto assigner consider spatial matches to layovers. Experimental.");
 
-    /********************** Member Functions **************************/
-
     /**
      * Declared private because only the public static members should be creating a SpatialMatcher.
      * This is because need a new SpatialMatcher every time doing a match. Only the public static

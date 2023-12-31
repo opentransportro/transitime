@@ -12,7 +12,7 @@ import org.transitclock.ipc.data.IpcHoldingTime;
  */
 public interface HoldingTimeInterface extends Remote {
 
-    public IpcHoldingTime getHoldTime(String stopId, String vehicleId, String tripId) throws RemoteException;
+    IpcHoldingTime getHoldTime(String stopId, String vehicleId, String tripId) throws RemoteException;
 
-    public IpcHoldingTime getHoldTime(String stopId, String vehicleId) throws RemoteException;
+    IpcHoldingTime getHoldTime(String stopId, String vehicleId) throws RemoteException;
 }

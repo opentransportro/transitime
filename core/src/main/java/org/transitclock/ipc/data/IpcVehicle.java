@@ -1,6 +1,7 @@
 /* (C)2023 */
 package org.transitclock.ipc.data;
 
+import javax.annotation.concurrent.Immutable;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -10,7 +11,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Date;
-import net.jcip.annotations.Immutable;
 import org.transitclock.applications.Core;
 import org.transitclock.core.BlockAssignmentMethod;
 import org.transitclock.core.SpatialMatch;
@@ -68,10 +68,6 @@ public class IpcVehicle implements Serializable {
 
     private final double predictedLatitude;
     private final double predictedLongitude;
-
-    private static final long serialVersionUID = -1744566765456572041L;
-
-    /********************** Member Functions **************************/
 
     /**
      * Constructs a new Vehicle object from data in a VehicleState object.

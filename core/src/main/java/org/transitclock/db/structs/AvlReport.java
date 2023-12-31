@@ -5,22 +5,13 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
-import javax.persistence.Column;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.Id;
-import javax.persistence.Index;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.Transient;
-import net.jcip.annotations.Immutable;
+import javax.persistence.*;
+import lombok.EqualsAndHashCode;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.Immutable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.applications.Core;
@@ -37,18 +28,21 @@ import org.transitclock.utils.Time;
  *
  * @author SkiBu Smith
  */
-@Immutable // From jcip.annoations
+@Immutable
 @Entity
 @DynamicUpdate
+@EqualsAndHashCode
 @Table(
-        name = "AvlReports",
-        indexes = {@Index(name = "AvlReportsTimeIndex", columnList = "time")})
+    name = "AvlReports",
+    indexes = {
+        @Index(name = "AvlReportsTimeIndex", columnList = "time")
+    })
 public class AvlReport implements Serializable {
     // vehicleId is an @Id since might get multiple AVL reports
     // for different vehicles with the same time but need a unique
     // primary key.
     @Id
-    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
+    @Column(length = 60)
     private final String vehicleId;
 
     // Need to use columnDefinition to explicitly specify that should use
@@ -98,7 +92,7 @@ public class AvlReport implements Serializable {
     private String source;
 
     // Can be block, trip, or route ID
-    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
+    @Column(length = 60)
     private String assignmentId; // optional
 
     // The type of the assignment received in the AVL feed
@@ -126,7 +120,7 @@ public class AvlReport implements Serializable {
     private final String leadVehicleId;
 
     // Optional
-    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
+    @Column(length = 60)
     private final String driverId;
 
     // Optional
@@ -139,17 +133,17 @@ public class AvlReport implements Serializable {
 
     // Optional. How full a bus is as a fraction. 0.0=empty, 1.0=at capacity.
     // This parameter is optional. Set to null if data not available.
-    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
+    @Column(length = 60)
     private final Float passengerFullness;
 
     // Optional. For containing additional info for a particular feed.
     // Not declared final because setField1() is used to set values.
-    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
+    @Column(length = 60)
     private String field1Name;
 
     // Optional. For containing additional info for a particular feed.
     // Not declared final because setField1() is used to set values.
-    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
+    @Column(length = 60)
     String field1Value;
 
     private String vehicleName;
@@ -158,11 +152,6 @@ public class AvlReport implements Serializable {
     private static final int SOURCE_LENGTH = 10;
 
     private static final Logger logger = LoggerFactory.getLogger(AvlReport.class);
-
-    // Needed because serializable so can transmit using JMS or RMI
-    private static final long serialVersionUID = 92384928349823L;
-
-    /********************** Member Functions **************************/
 
     /**
      * Hibernate requires a no-args constructor for reading data. So this is an experiment to see
@@ -603,68 +592,8 @@ public class AvlReport implements Serializable {
         }
 
         // Return the error message if any
-        if (errorMsg.length() > 0) return errorMsg;
+        if (!errorMsg.isEmpty()) return errorMsg;
         else return null;
-    }
-
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((assignmentId == null) ? 0 : assignmentId.hashCode());
-        result = prime * result + ((assignmentType == null) ? 0 : assignmentType.hashCode());
-        result = prime * result + ((driverId == null) ? 0 : driverId.hashCode());
-        result = prime * result + ((heading == null) ? 0 : heading.hashCode());
-        result = prime * result + ((licensePlate == null) ? 0 : licensePlate.hashCode());
-        result = prime * result + ((location == null) ? 0 : location.hashCode());
-        result = prime * result + ((speed == null) ? 0 : speed.hashCode());
-        result = prime * result + ((time == null) ? 0 : time.hashCode());
-        result = prime * result + ((timeProcessed == null) ? 0 : timeProcessed.hashCode());
-        result = prime * result + ((vehicleId == null) ? 0 : vehicleId.hashCode());
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null) return false;
-        if (getClass() != obj.getClass()) return false;
-        AvlReport other = (AvlReport) obj;
-        if (assignmentId == null) {
-            if (other.assignmentId != null) return false;
-        } else if (!assignmentId.equals(other.assignmentId)) return false;
-        if (assignmentType != other.assignmentType) return false;
-        if (driverId == null) {
-            if (other.driverId != null) return false;
-        } else if (!driverId.equals(other.driverId)) return false;
-        if (heading == null) {
-            if (other.heading != null) return false;
-        } else if (!heading.equals(other.heading)) return false;
-        if (licensePlate == null) {
-            if (other.licensePlate != null) return false;
-        } else if (!licensePlate.equals(other.licensePlate)) return false;
-        if (location == null) {
-            if (other.location != null) return false;
-        } else if (!location.equals(other.location)) return false;
-        if (passengerCount == null) {
-            if (other.passengerCount != null) return false;
-        } else if (!passengerCount.equals(other.passengerCount)) return false;
-        if (passengerFullness == null) {
-            if (other.passengerFullness != null) return false;
-        } else if (!passengerFullness.equals(other.passengerFullness)) return false;
-        if (speed == null) {
-            if (other.speed != null) return false;
-        } else if (!speed.equals(other.speed)) return false;
-        if (time == null) {
-            if (other.time != null) return false;
-        } else if (!time.equals(other.time)) return false;
-        if (timeProcessed == null) {
-            if (other.timeProcessed != null) return false;
-        } else if (!timeProcessed.equals(other.timeProcessed)) return false;
-        if (vehicleId == null) {
-            if (other.vehicleId != null) return false;
-        } else if (!vehicleId.equals(other.vehicleId)) return false;
-        return true;
     }
 
     public String getVehicleId() {

@@ -4,9 +4,6 @@ package org.transitclock.core.dataCache;
 import java.io.Serializable;
 
 public class KalmanError implements Serializable {
-    /** */
-    private static final long serialVersionUID = 6732432800590510672L;
-
     // This is the error values itself.
     private Double error = Double.NaN;
 
@@ -14,12 +11,10 @@ public class KalmanError implements Serializable {
     private Integer updates = null;
 
     public KalmanError(Double error) {
-        super();
         setError(error);
     }
 
     public KalmanError() {
-        super();
         // TODO Auto-generated constructor stub
     }
 
@@ -39,8 +34,11 @@ public class KalmanError implements Serializable {
     }
 
     private void incrementUpdates() {
-        if (this.updates != null) this.updates = this.updates + 1;
-        else this.updates = new Integer(0);
+        if (this.updates != null) {
+            this.updates = this.updates + 1;
+        } else {
+            this.updates = 0;
+        }
     }
 
     @Override
@@ -62,9 +60,8 @@ public class KalmanError implements Serializable {
             if (other.error != null) return false;
         } else if (!error.equals(other.error)) return false;
         if (updates == null) {
-            if (other.updates != null) return false;
-        } else if (!updates.equals(other.updates)) return false;
-        return true;
+            return other.updates == null;
+        } else return updates.equals(other.updates);
     }
 
     @Override

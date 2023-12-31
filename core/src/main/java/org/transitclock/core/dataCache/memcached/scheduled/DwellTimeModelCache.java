@@ -175,16 +175,9 @@ public class DwellTimeModelCache implements org.transitclock.core.dataCache.Dwel
         if (model == null || headway == null) return null;
 
         if (model.predict((int) headway.getHeadway(), null) != null)
-            return new Long(model.predict((int) headway.getHeadway(), null));
+            return Long.valueOf(model.predict((int) headway.getHeadway(), null));
 
         return null;
-    }
-
-    public static void main(String[] args) {
-        double startvalue = 1000;
-        double result1 = Math.log10(startvalue);
-        double result2 = Math.pow(10, result1);
-        if (startvalue == result2) System.out.println("As expected they are the same.");
     }
 
     private String createKey(StopPathCacheKey key) {

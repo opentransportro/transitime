@@ -4,12 +4,12 @@ package org.transitclock.avl;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.transitclock.Module;
 import org.transitclock.applications.Core;
 import org.transitclock.config.BooleanConfigValue;
 import org.transitclock.config.StringConfigValue;
 import org.transitclock.core.AvlProcessor;
 import org.transitclock.db.structs.AvlReport;
-import org.transitclock.Module;
 import org.transitclock.utils.Time;
 
 /**

@@ -1,6 +1,7 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
+import javax.persistence.*;
 import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -9,17 +10,14 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import net.jcip.annotations.Immutable;
+
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
 import org.hibernate.HibernateException;
-import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.Immutable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.db.hibernate.HibernateUtils;
@@ -35,6 +33,9 @@ import org.transitclock.utils.Time;
 @Immutable
 @Entity
 @DynamicUpdate
+@EqualsAndHashCode
+@ToString
+@Getter
 @Table(name = "Calendars")
 public class Calendar implements Serializable {
 
@@ -42,7 +43,7 @@ public class Calendar implements Serializable {
     @Id
     private final int configRev;
 
-    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
+    @Column(length = 60)
     @Id
     private final String serviceId;
 
@@ -89,9 +90,6 @@ public class Calendar implements Serializable {
 
     // Logging
     public static final Logger logger = LoggerFactory.getLogger(Calendar.class);
-
-    // Because Hibernate requires objects with composite IDs to be Serializable
-    private static final long serialVersionUID = -7513544548678963561L;
 
     /********************** Member Functions **************************/
 
@@ -169,8 +167,7 @@ public class Calendar implements Serializable {
     public static int deleteFromRev(Session session, int configRev) throws HibernateException {
         // Note that hql uses class name, not the table name
         String hql = "DELETE Calendar WHERE configRev=" + configRev;
-        int numUpdates = session.createQuery(hql).executeUpdate();
-        return numUpdates;
+        return session.createQuery(hql).executeUpdate();
     }
 
     /**
@@ -183,9 +180,8 @@ public class Calendar implements Serializable {
      */
     @SuppressWarnings("unchecked")
     public static List<Calendar> getCalendars(Session session, int configRev) throws HibernateException {
-        String hql = "FROM Calendar " + "    WHERE configRev = :configRev" + " ORDER BY serviceId";
-        Query query = session.createQuery(hql);
-        query.setInteger("configRev", configRev);
+        var query = session.createQuery("FROM Calendar WHERE configRev = :configRev ORDER BY serviceId");
+        query.setParameter("configRev", configRev);
         return query.list();
     }
 
@@ -221,153 +217,32 @@ public class Calendar implements Serializable {
         return zeroOrOne != null && zeroOrOne.trim().equals("1");
     }
 
-    /* (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
-    @Override
-    public String toString() {
-        return "Calendar ["
-                + "configRev="
-                + configRev
-                + ", serviceId="
-                + serviceId
-                + ", monday="
-                + monday
-                + ", tuesday="
-                + tuesday
-                + ", wednesday="
-                + wednesday
-                + ", thursday="
-                + thursday
-                + ", friday="
-                + friday
-                + ", saturday="
-                + saturday
-                + ", sunday="
-                + sunday
-                + ", startDate="
-                + Time.dateTimeStr(startDate)
-                + ", endDate="
-                + Time.dateTimeStr(endDate)
-                + "]";
-    }
-
-    /** Needed because have a composite ID for Hibernate storage */
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + configRev;
-        result = prime * result + ((endDate == null) ? 0 : endDate.hashCode());
-        result = prime * result + (friday ? 1231 : 1237);
-        result = prime * result + (monday ? 1231 : 1237);
-        result = prime * result + (saturday ? 1231 : 1237);
-        result = prime * result + ((serviceId == null) ? 0 : serviceId.hashCode());
-        result = prime * result + ((startDate == null) ? 0 : startDate.hashCode());
-        result = prime * result + (sunday ? 1231 : 1237);
-        result = prime * result + (thursday ? 1231 : 1237);
-        result = prime * result + (tuesday ? 1231 : 1237);
-        result = prime * result + (wednesday ? 1231 : 1237);
-        return result;
-    }
-
-    /** Needed because have a composite ID for Hibernate storage */
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null) return false;
-        if (getClass() != obj.getClass()) return false;
-        Calendar other = (Calendar) obj;
-        if (configRev != other.configRev) return false;
-        if (endDate == null) {
-            if (other.endDate != null) return false;
-        } else if (!endDate.equals(other.endDate)) return false;
-        if (friday != other.friday) return false;
-        if (monday != other.monday) return false;
-        if (saturday != other.saturday) return false;
-        if (serviceId == null) {
-            if (other.serviceId != null) return false;
-        } else if (!serviceId.equals(other.serviceId)) return false;
-        if (startDate == null) {
-            if (other.startDate != null) return false;
-        } else if (!startDate.equals(other.startDate)) return false;
-        if (sunday != other.sunday) return false;
-        if (thursday != other.thursday) return false;
-        if (tuesday != other.tuesday) return false;
-        if (wednesday != other.wednesday) return false;
-        return true;
-    }
-
-    /**************** Getter Methods ********************/
-
-    /**
-     * @return the configRev
-     */
-    public int getConfigRev() {
-        return configRev;
-    }
-
-    /**
-     * @return the serviceId
-     */
-    public String getServiceId() {
-        return serviceId;
-    }
-
-    /**
-     * @return the monday
-     */
     public boolean getMonday() {
         return monday;
     }
 
-    /**
-     * @return the tuesday
-     */
     public boolean getTuesday() {
         return tuesday;
     }
 
-    /**
-     * @return the wednesday
-     */
     public boolean getWednesday() {
         return wednesday;
     }
 
-    /**
-     * @return the thursday
-     */
     public boolean getThursday() {
         return thursday;
     }
 
-    /**
-     * @return the friday
-     */
     public boolean getFriday() {
         return friday;
     }
 
-    /**
-     * @return the saturday
-     */
     public boolean getSaturday() {
         return saturday;
     }
 
-    /**
-     * @return the sunday
-     */
     public boolean getSunday() {
         return sunday;
-    }
-
-    /**
-     * @return the startDate
-     */
-    public Date getStartDate() {
-        return startDate;
     }
 
     /**
@@ -385,7 +260,7 @@ public class Calendar implements Serializable {
      * @return midnight at the end of the endDate
      */
     public Date getEndDate() {
-        return new Date(endDate.getTime() + 1 * Time.MS_PER_DAY);
+        return new Date(endDate.getTime() + Time.MS_PER_DAY);
     }
 
     /**

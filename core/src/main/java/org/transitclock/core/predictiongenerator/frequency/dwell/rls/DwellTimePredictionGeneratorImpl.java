@@ -37,14 +37,14 @@ public class DwellTimePredictionGeneratorImpl extends KalmanPredictionGeneratorI
                  */
                 if (super.getStopTimeForPath(indices, avlReport, vehicleState) > 0) {
                     // TODO Would be more correct to use the start time of the trip.
-                    Integer time =
+                    int time =
                             FrequencyBasedHistoricalAverageCache.secondsFromMidnight(new Date(avlReport.getTime()), 2);
 
                     time = FrequencyBasedHistoricalAverageCache.round(
                             time, FrequencyBasedHistoricalAverageCache.getCacheIncrementsForFrequencyService());
 
                     StopPathCacheKey cacheKey = new StopPathCacheKey(
-                            indices.getTrip().getId(), indices.getStopPathIndex(), false, new Long(time));
+                            indices.getTrip().getId(), indices.getStopPathIndex(), false, (long) time);
 
                     if (DwellTimeModelCacheFactory.getInstance() != null)
                         result = DwellTimeModelCacheFactory.getInstance().predictDwellTime(cacheKey, headway);

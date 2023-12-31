@@ -1,41 +1,22 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
+import javax.persistence.*;
 import java.io.Serializable;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.OrderColumn;
-import javax.persistence.Table;
+import java.util.*;
+
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.JDBCException;
-import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.collection.internal.PersistentList;
-import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.internal.SessionImpl;
-import org.postgresql.util.PSQLException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.transitclock.applications.Core;
 import org.transitclock.config.BooleanConfigValue;
 import org.transitclock.configData.AgencyConfig;
@@ -43,7 +24,6 @@ import org.transitclock.configData.CoreConfig;
 import org.transitclock.core.SpatialMatch;
 import org.transitclock.db.hibernate.HibernateUtils;
 import org.transitclock.gtfs.DbConfig;
-import org.transitclock.logging.Markers;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.Time;
 
@@ -61,17 +41,18 @@ import org.transitclock.utils.Time;
 @Entity(name = "Blocks")
 @DynamicUpdate
 @Table(name = "Blocks")
+@Slf4j
 public final class Block implements Serializable {
 
     @Column
     @Id
     private final int configRev;
 
-    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
+    @Column(length = 60)
     @Id
     private final String blockId;
 
-    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
+    @Column(length = 60)
     @Id
     private final String serviceId;
 
@@ -124,17 +105,10 @@ public final class Block implements Serializable {
     // at a time.
     private static final Object lazyLoadingSyncObject = new Object();
 
-    // Hibernate requires class to be serializable because has composite Id
-    private static final long serialVersionUID = 6511242755235485004L;
-
     private static BooleanConfigValue blockLoading = new BooleanConfigValue(
             "transitclock.blockLoading.agressive",
             false,
             "Set true to eagerly fetch all blocks into memory on startup");
-
-    private static final Logger logger = LoggerFactory.getLogger(Block.class);
-
-    /********************** Member Functions **************************/
 
     /**
      * This constructor called when processing GTFS data and creating a Block to be stored in the
@@ -142,12 +116,6 @@ public final class Block implements Serializable {
      * and last TripElements. But what if they haven't been set in GTFS? Want the calling function
      * to do this kind of error checking because it does other error checking and can log issues
      * appropriately.
-     *
-     * @param configRev
-     * @param blockId
-     * @param startTime
-     * @param endTime
-     * @param trips
      */
     public Block(int configRev, String blockId, String serviceId, int startTime, int endTime, List<Trip> trips) {
         this.configRev = configRev;
@@ -198,9 +166,8 @@ public final class Block implements Serializable {
     }
 
     private static List<Block> getBlocksPassive(Session session, int configRev) throws HibernateException {
-        String hql = "FROM Blocks b " + "WHERE b.configRev = :configRev";
-        Query query = session.createQuery(hql);
-        query.setInteger("configRev", configRev);
+        var query = session.createQuery("FROM Blocks b WHERE b.configRev = :configRev");
+        query.setParameter("configRev", configRev);
         return query.list();
     }
 
@@ -213,18 +180,13 @@ public final class Block implements Serializable {
                 /*+ "join fetch sp.locations "*/
                 // this makes the resultset REALLY big
                 + "WHERE b.configRev = :configRev";
-        Query query = session.createQuery(hql);
-        query.setInteger("configRev", configRev);
+        var query = session.createQuery(hql);
+        query.setParameter("configRev", configRev);
         return query.list();
     }
 
     /**
      * Deletes rev from the Blocks, Trips, and Block_to_Trip_joinTable
-     *
-     * @param session
-     * @param configRev
-     * @return Number of rows deleted
-     * @throws HibernateException
      */
     public static int deleteFromRev(Session session, int configRev) throws HibernateException {
         // In a perfect Hibernate world one would simply call on session.delete()
@@ -246,26 +208,29 @@ public final class Block implements Serializable {
         int totalRowsUpdated = 0;
 
         // Delete configRev data from Block_to_Trip_joinTable
-        int rowsUpdated = session.createSQLQuery(
-                        "DELETE FROM Block_to_Trip_joinTable " + "WHERE Blocks_configRev=" + configRev)
+        int rowsUpdated = session
+                .createSQLQuery("DELETE FROM Block_to_Trip_joinTable WHERE Blocks_configRev=" + configRev)
                 .executeUpdate();
         logger.info("Deleted {} rows from Block_to_Trip_joinTable for " + "configRev={}", rowsUpdated, configRev);
         totalRowsUpdated += rowsUpdated;
 
         // Delete configRev data from Trip_ScheduledTimeslist
-        rowsUpdated = session.createSQLQuery("DELETE FROM Trip_ScheduledTimeslist WHERE Trip_configRev=" + configRev)
+        rowsUpdated = session
+                .createSQLQuery("DELETE FROM Trip_ScheduledTimeslist WHERE Trip_configRev=" + configRev)
                 .executeUpdate();
         logger.info("Deleted {} rows from Trip_ScheduledTimeslist for configRev={}", rowsUpdated, configRev);
         totalRowsUpdated += rowsUpdated;
 
         // Delete configRev data from Trips
-        rowsUpdated = session.createSQLQuery("DELETE FROM Trips WHERE configRev=" + configRev)
+        rowsUpdated = session
+                .createSQLQuery("DELETE FROM Trips WHERE configRev=" + configRev)
                 .executeUpdate();
         logger.info("Deleted {} rows from Trips for configRev={}", rowsUpdated, configRev);
         totalRowsUpdated += rowsUpdated;
 
         // Delete configRev data from Blocks
-        rowsUpdated = session.createSQLQuery("DELETE FROM Blocks WHERE configRev=" + configRev)
+        rowsUpdated = session
+                .createSQLQuery("DELETE FROM Blocks WHERE configRev=" + configRev)
                 .executeUpdate();
         logger.info("Deleted {} rows from Blocks for configRev={}", rowsUpdated, configRev);
         totalRowsUpdated += rowsUpdated;
@@ -748,7 +713,7 @@ public final class Block implements Serializable {
                     // Get the current session associated with the trips.
                     // Can be null.
                     PersistentList persistentListTrips = (PersistentList) trips;
-                    SessionImplementor session = persistentListTrips.getSession();
+                    var session = persistentListTrips.getSession();
 
                     // If the session is different from the global
                     // session then need to attach the new session to the
@@ -792,11 +757,10 @@ public final class Block implements Serializable {
                             this.getId(),
                             e);
 
-                    if (!(rootCause instanceof SocketException
-                            || rootCause instanceof SocketTimeoutException
-                            || rootCause instanceof PSQLException)) {
+                    if (!(rootCause instanceof SocketException || rootCause instanceof SocketTimeoutException
+                    //                            || rootCause instanceof PSQLException
+                    )) {
                         logger.error(
-                                Markers.email(),
                                 "For agencyId={} in Blocks.getTrips() for "
                                         + "blockId={} encountered exception whose root "
                                         + "cause was not a SocketException, "
@@ -819,7 +783,7 @@ public final class Block implements Serializable {
                     // but still got exception "Illegal attempt to associate
                     // a collection with two open sessions"
                     PersistentList persistentListTrips = (PersistentList) trips;
-                    SessionImplementor sessionImpl = persistentListTrips.getSession();
+                    var sessionImpl = persistentListTrips.getSession();
                     SessionImpl session = (SessionImpl) sessionImpl;
                     if (!session.isClosed()) {
                         try {
@@ -1200,26 +1164,5 @@ public final class Block implements Serializable {
      */
     public boolean shouldBeExclusive() {
         return CoreConfig.exclusiveBlockAssignments();
-    }
-
-    /**
-     * For debugging
-     *
-     * @param args
-     */
-    @SuppressWarnings("unused")
-    public static void main(String[] args) {
-        DbConfig dbConfig = Core.getInstance().getDbConfig();
-        Block block1 = dbConfig.getBlock("1", "2105");
-        Block block2 = dbConfig.getBlock("2", "2105");
-        Block block3 = dbConfig.getBlock("3", "2105");
-        try {
-            boolean b1 = block1.isActive(Time.parse("5-10-2015 00:00:01"), 90 * Time.MIN_IN_SECS, -1);
-            boolean b2 = block2.isActive(Time.parse("5-10-2015 00:00:01"), 90 * Time.MIN_IN_SECS, -1);
-            boolean b3 = block3.isActive(Time.parse("5-10-2015 00:00:01"), 90 * Time.MIN_IN_SECS, -1);
-            int forSettingBreakpoint = 9;
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
     }
 }

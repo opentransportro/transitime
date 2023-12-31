@@ -1,30 +1,19 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import javax.persistence.*;
-import javax.persistence.Column;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.Transient;
+
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
-import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.transitclock.applications.Core;
-import org.transitclock.db.hibernate.HibernateUtils;
 import org.transitclock.gtfs.TitleFormatter;
 import org.transitclock.gtfs.gtfsStructs.GtfsRoute;
 import org.transitclock.utils.OrderedCollection;
@@ -38,15 +27,20 @@ import org.transitclock.utils.StringUtils;
  */
 @Entity
 @DynamicUpdate
+@EqualsAndHashCode
+@ToString
+@Getter
+@Setter
 @Table(name = "Routes")
+@Slf4j
 public class Route implements Serializable {
 
-    @Column
     @Id
+    @Column
     private final int configRev;
 
-    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
     @Id
+    @Column(length = 60)
     private final String id;
 
     @Column(length = 10)
@@ -71,15 +65,15 @@ public class Route implements Serializable {
     private final String description;
 
     // Directly from GTFS data
-    @Column(length = 255)
+    @Column
     private final String shortName;
 
     // Directly from GTFS data
-    @Column(length = 255)
+    @Column
     private final String longName;
 
     // Processed name combing the GTFS route_short_name and route_long_name
-    @Column(length = 255)
+    @Column
     private final String name;
 
     @Embedded
@@ -90,20 +84,24 @@ public class Route implements Serializable {
     @Column
     private final Double maxDistance;
 
-    @Transient // Later will probably want to store this in database,
+    // Later will probably want to store this in database,
     // but not yet sure. This means it is not available to application!
+    @Transient
     private final List<TripPattern> tripPatternsForRoute;
 
     // For getStops()
     @Transient
+    @EqualsAndHashCode.Exclude
     private Collection<Stop> stops = null;
 
     // For getPathSegments()
     @Transient
+    @EqualsAndHashCode.Exclude
     private Collection<Vector> stopPaths = null;
 
     // For getOrderedStopsByDirection()
     @Transient
+    @EqualsAndHashCode.Exclude
     private Map<String, List<String>> orderedStopsPerDirectionMap = null;
 
     // For getStopOrder().
@@ -111,24 +109,9 @@ public class Route implements Serializable {
     // The submap is keyed on stop id and contains list of stop orders.
     // Need a list since a stop can be in a trip multiple times.
     @Transient
+    @EqualsAndHashCode.Exclude
     private Map<String, Map<String, List<Integer>>> stopOrderByDirectionMap = null;
 
-    // Because Hibernate requires objects with composite Ids to be Serializable
-    private static final long serialVersionUID = 9037023420649883860L;
-
-    private static final Logger logger = LoggerFactory.getLogger(Route.class);
-
-    /********************** Member Functions **************************/
-
-    /**
-     * Constructor. Used for when processing GTFS data. Creates a Route object that can be written
-     * to database.
-     *
-     * @param configRev
-     * @param gtfsRoute
-     * @param tripPatternsForRoute
-     * @param titleFormatter
-     */
     public Route(
             int configRev, GtfsRoute gtfsRoute, List<TripPattern> tripPatternsForRoute, TitleFormatter titleFormatter) {
         // Because will be writing data to the sandbox in the db
@@ -184,7 +167,7 @@ public class Route implements Serializable {
         this.maxDistance = gtfsRoute.getMaxDistance();
 
         // Determine the extent of the route by looking at the extent
-        // of all of the trip patterns.
+        // of all the trip patterns.
         this.extent = new Extent();
         for (TripPattern tp : tripPatternsForRoute) {
             this.extent.add(tp.getExtent());
@@ -220,9 +203,9 @@ public class Route implements Serializable {
      */
     public static int deleteFromRev(Session session, int configRev) throws HibernateException {
         // Note that hql uses class name, not the table name
-        String hql = "DELETE Route WHERE configRev=" + configRev;
-        int numUpdates = session.createQuery(hql).executeUpdate();
-        return numUpdates;
+        return session.createQuery("DELETE Route WHERE configRev=:configRev")
+                .setParameter("configRev", configRev)
+                .executeUpdate();
     }
 
     // For dealing with route order
@@ -286,10 +269,9 @@ public class Route implements Serializable {
     @SuppressWarnings("unchecked")
     public static List<Route> getRoutes(Session session, int configRev) throws HibernateException {
         // Get list of routes from database
-        String hql = "FROM Route " + "    WHERE configRev = :configRev" + "    ORDER BY routeOrder, shortName";
-        Query query = session.createQuery(hql);
-        query.setInteger("configRev", configRev);
-        List<Route> routesList = query.list();
+        List<Route> routesList = session.createQuery("FROM Route WHERE configRev = :configRev ORDER BY routeOrder, shortName")
+                .setParameter("configRev", configRev)
+                .list();
 
         // Need to set the route order for each route so that can sort
         // predictions based on distance from stop and route order. For
@@ -315,11 +297,11 @@ public class Route implements Serializable {
         // each TripPattern.toString() result is pretty long (list of stops,
         // extent, etc). Therefore for tripPatternsForRoute just output
         // a short version of the object.
-        String tripPatternIds = "not set";
+        StringBuilder tripPatternIds = new StringBuilder("not set");
         if (tripPatternsForRoute != null) {
-            tripPatternIds = "[";
-            for (TripPattern tp : tripPatternsForRoute) tripPatternIds += tp.toShortString() + ", ";
-            tripPatternIds += "]";
+            tripPatternIds = new StringBuilder("[");
+            for (TripPattern tp : tripPatternsForRoute) tripPatternIds.append(tp.toShortString()).append(", ");
+            tripPatternIds.append("]");
         }
 
         return "Route ["
@@ -352,71 +334,6 @@ public class Route implements Serializable {
                 + "]";
     }
 
-    /** Needed because have a composite ID for Hibernate storage */
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((color == null) ? 0 : color.hashCode());
-        result = prime * result + configRev;
-        result = prime * result + ((description == null) ? 0 : description.hashCode());
-        result = prime * result + ((extent == null) ? 0 : extent.hashCode());
-        result = prime * result + (hidden ? 1231 : 1237);
-        result = prime * result + ((id == null) ? 0 : id.hashCode());
-        result = prime * result + ((name == null) ? 0 : name.hashCode());
-        result = prime * result + ((routeOrder == null) ? 0 : routeOrder);
-        ;
-        result = prime * result + ((shortName == null) ? 0 : shortName.hashCode());
-        result = prime * result + ((longName == null) ? 0 : longName.hashCode());
-        result = prime * result + ((textColor == null) ? 0 : textColor.hashCode());
-        result = prime * result + ((tripPatternsForRoute == null) ? 0 : tripPatternsForRoute.hashCode());
-        result = prime * result + ((type == null) ? 0 : type.hashCode());
-        return result;
-    }
-
-    /** Needed because have a composite ID for Hibernate storage */
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null) return false;
-        if (getClass() != obj.getClass()) return false;
-        Route other = (Route) obj;
-        if (color == null) {
-            if (other.color != null) return false;
-        } else if (!color.equals(other.color)) return false;
-        if (configRev != other.configRev) return false;
-        if (description == null) {
-            if (other.description != null) return false;
-        } else if (!description.equals(other.description)) return false;
-        if (extent == null) {
-            if (other.extent != null) return false;
-        } else if (!extent.equals(other.extent)) return false;
-        if (hidden != other.hidden) return false;
-        if (id == null) {
-            if (other.id != null) return false;
-        } else if (!id.equals(other.id)) return false;
-        if (name == null) {
-            if (other.name != null) return false;
-        } else if (!name.equals(other.name)) return false;
-        if (routeOrder != other.routeOrder) return false;
-        if (shortName == null) {
-            if (other.shortName != null) return false;
-        } else if (!shortName.equals(other.shortName)) return false;
-        if (longName == null) {
-            if (other.longName != null) return false;
-        } else if (!longName.equals(other.longName)) return false;
-        if (textColor == null) {
-            if (other.textColor != null) return false;
-        } else if (!textColor.equals(other.textColor)) return false;
-        if (tripPatternsForRoute == null) {
-            if (other.tripPatternsForRoute != null) return false;
-        } else if (!tripPatternsForRoute.equals(other.tripPatternsForRoute)) return false;
-        if (type == null) {
-            if (other.type != null) return false;
-        } else if (!type.equals(other.type)) return false;
-        return true;
-    }
-
     /**
      * Returns unordered collection of stops associated with route.
      *
@@ -434,12 +351,11 @@ public class Route implements Serializable {
         // is transient it is not stored in the db and therefore not
         // available to this client application. But it can be obtained
         // from the DbConfig.
-        List<TripPattern> tripPatternsForRoute =
-                Core.getInstance().getDbConfig().getTripPatternsForRoute(id);
+        List<TripPattern> tripPatternsForRoute = Core.getInstance().getDbConfig().getTripPatternsForRoute(id);
 
         // Stop list not yet determined so determine it now using
         // trip patterns.
-        Map<String, Stop> stopMap = new HashMap<String, Stop>();
+        Map<String, Stop> stopMap = new HashMap<>();
         for (TripPattern tripPattern : tripPatternsForRoute) {
             for (StopPath stopPath : tripPattern.getStopPaths()) {
                 String stopId = stopPath.getStopId();
@@ -487,8 +403,7 @@ public class Route implements Serializable {
         TripPattern longestTripPatternForDir = null;
         for (TripPattern tripPattern : tripPatternsForRoute) {
             if (Objects.equals(tripPattern.getDirectionId(), directionId)) {
-                if (longestTripPatternForDir == null
-                        || tripPattern.getNumberStopPaths() > longestTripPatternForDir.getNumberStopPaths())
+                if (longestTripPatternForDir == null || tripPattern.getNumberStopPaths() > longestTripPatternForDir.getNumberStopPaths())
                     longestTripPatternForDir = tripPattern;
             }
         }
@@ -503,10 +418,12 @@ public class Route implements Serializable {
      * @return
      */
     public List<TripPattern> getLongestTripPatternForEachDirection() {
-        List<TripPattern> tripPatterns = new ArrayList<TripPattern>();
+        List<TripPattern> tripPatterns = new ArrayList<>();
 
         List<String> directionIds = getDirectionIds();
-        for (String directionId : directionIds) tripPatterns.add(getLongestTripPatternForDirection(directionId));
+        for (String directionId : directionIds) {
+            tripPatterns.add(getLongestTripPatternForDirection(directionId));
+        }
 
         return tripPatterns;
     }
@@ -520,7 +437,7 @@ public class Route implements Serializable {
     public List<TripPattern> getTripPatterns(String directionId) {
         List<TripPattern> tripPatternsForRoute =
                 Core.getInstance().getDbConfig().getTripPatternsForRoute(getId());
-        List<TripPattern> tripPatternsForDir = new ArrayList<TripPattern>();
+        List<TripPattern> tripPatternsForDir = new ArrayList<>();
         for (TripPattern tripPattern : tripPatternsForRoute) {
             if (Objects.equals(tripPattern.getDirectionId(), directionId)) tripPatternsForDir.add(tripPattern);
         }
@@ -534,15 +451,16 @@ public class Route implements Serializable {
      * @return
      */
     public List<String> getDirectionIds() {
-        List<String> directionIds = new ArrayList<String>();
-        List<TripPattern> tripPatternsForRoute =
-                Core.getInstance().getDbConfig().getTripPatternsForRoute(getId());
-        if (tripPatternsForRoute == null) return directionIds;
-        for (TripPattern tripPattern : tripPatternsForRoute) {
-            String directionId = tripPattern.getDirectionId();
-            if (!directionIds.contains(directionId)) directionIds.add(directionId);
+        List<TripPattern> tripPatternsForRoute = Core.getInstance().getDbConfig().getTripPatternsForRoute(getId());
+        if (tripPatternsForRoute == null) {
+            return new ArrayList<>();
         }
-        return directionIds;
+
+        Set<String> directionIds = new HashSet<>();
+        for (TripPattern tripPattern : tripPatternsForRoute) {
+            directionIds.add(tripPattern.getDirectionId());
+        }
+        return directionIds.stream().toList();
     }
 
     /**
@@ -563,7 +481,7 @@ public class Route implements Serializable {
         List<TripPattern> tripPatternsForRoute =
                 Core.getInstance().getDbConfig().getTripPatternsForRoute(id);
 
-        Map<String, StopPath> stopPathMap = new HashMap<String, StopPath>();
+        Map<String, StopPath> stopPathMap = new HashMap<>();
         for (TripPattern tripPattern : tripPatternsForRoute) {
             for (StopPath stopPath : tripPattern.getStopPaths()) {
                 String stopPathId = stopPath.getId();
@@ -578,9 +496,7 @@ public class Route implements Serializable {
         // For each of the unique stop paths add the vectors to the collection
         stopPaths = new ArrayList<Vector>(stopPathMap.values().size());
         for (StopPath stopPath : stopPathMap.values()) {
-            for (Vector vector : stopPath.getSegmentVectors()) {
-                stopPaths.add(vector);
-            }
+            stopPaths.addAll(stopPath.getSegmentVectors());
         }
 
         // Return the newly created collection of stop paths
@@ -600,14 +516,14 @@ public class Route implements Serializable {
         if (orderedStopsPerDirectionMap != null) return orderedStopsPerDirectionMap;
 
         // Haven't yet determined ordered stops so do so now
-        orderedStopsPerDirectionMap = new HashMap<String, List<String>>();
+        orderedStopsPerDirectionMap = new HashMap<>();
 
         // For each direction
         for (String directionId : getDirectionIds()) {
             // Determine ordered collection of stops for direction
             OrderedCollection orderedCollection = new OrderedCollection();
             List<TripPattern> tripPatternsForDir = getTripPatterns(directionId);
-            List<List<String>> stopIdsForTripPatternList = new ArrayList<List<String>>();
+            List<List<String>> stopIdsForTripPatternList = new ArrayList<>();
             for (TripPattern tripPattern : tripPatternsForDir) {
                 List<String> stopIdsForTripPattern = tripPattern.getStopIds();
                 stopIdsForTripPatternList.add(stopIdsForTripPattern);
@@ -629,7 +545,7 @@ public class Route implements Serializable {
         if (stopOrderByDirectionMap != null) return;
 
         // Map not yet created so create it now
-        stopOrderByDirectionMap = new HashMap<String, Map<String, List<Integer>>>();
+        stopOrderByDirectionMap = new HashMap<>();
         Map<String, List<String>> orderedStopsByDirection = getOrderedStopsByDirection();
 
         // Create submap for each direction Id
@@ -637,7 +553,7 @@ public class Route implements Serializable {
             // Create the submap for the direction ID. Map is keyed on stop Id
             // and contains list of stop order for the stop. Need a list since
             // a stop can be in a trip multiple times.
-            Map<String, List<Integer>> stopOrderMap = new HashMap<String, List<Integer>>();
+            Map<String, List<Integer>> stopOrderMap = new HashMap<>();
             stopOrderByDirectionMap.put(directionId, stopOrderMap);
 
             // Add each stop for the direction Id
@@ -647,11 +563,7 @@ public class Route implements Serializable {
                 String stopId = orderedStopsForDirectionList.get(stopOrder);
 
                 // Get list of stop orders for the stop Id
-                List<Integer> stopOrderListForStopId = stopOrderMap.get(stopId);
-                if (stopOrderListForStopId == null) {
-                    stopOrderListForStopId = new ArrayList<Integer>(1);
-                    stopOrderMap.put(stopId, stopOrderListForStopId);
-                }
+                List<Integer> stopOrderListForStopId = stopOrderMap.computeIfAbsent(stopId, k -> new ArrayList<Integer>(1));
 
                 // For the stopId add the stop order to its list of stop orders
                 stopOrderListForStopId.add(stopOrder);
@@ -710,25 +622,6 @@ public class Route implements Serializable {
         return -1;
     }
 
-    /********************** Getter Methods **************************/
-
-    /**
-     * @return the configRev
-     */
-    public int getConfigRev() {
-        return configRev;
-    }
-
-    /**
-     * The processed name of the route consisting of the combination of the route_short_name plus
-     * the route_long_name. So get something like "38 - Geary".
-     *
-     * @return the processed name of the route
-     */
-    public String getName() {
-        return name;
-    }
-
     /**
      * The short name is either specified by route_short_name in the routes.txt GTFS file or if that
      * is null it will be the long name name.
@@ -750,92 +643,17 @@ public class Route implements Serializable {
     }
 
     /**
-     * @return the id
-     */
-    public String getId() {
-        return id;
-    }
-
-    /**
-     * @return the color
-     */
-    public String getColor() {
-        return color;
-    }
-
-    /**
-     * @return the textColor
-     */
-    public String getTextColor() {
-        return textColor;
-    }
-
-    /**
-     * @return the routeOrder or null if not set
-     */
-    public Integer getRouteOrder() {
-        return routeOrder;
-    }
-
-    /**
-     * For setting route order once all routes read in and sorted.
-     *
-     * @param routeOrder new route order to be set for the route
-     */
-    public void setRouteOrder(int routeOrder) {
-        this.routeOrder = routeOrder;
-    }
-
-    /**
-     * @return the hidden
-     */
-    public boolean isHidden() {
-        return hidden;
-    }
-
-    /**
-     * @return the type
-     */
-    public String getType() {
-        return type;
-    }
-
-    /**
-     * @return the description
-     */
-    public String getDescription() {
-        return description;
-    }
-
-    /**
-     * @return the extent of the stops for the route
-     */
-    public Extent getExtent() {
-        return extent;
-    }
-
-    /**
      * For specifying on a per route basis how far AVL report can be from segment and still have it
      * be considered a match.
      *
      * @return the max distance if set, otherwise NaN
      */
     public double getMaxAllowableDistanceFromSegment() {
-        if (maxDistance != null) return maxDistance;
-        else return Double.NaN;
+        if (maxDistance != null) {
+            return maxDistance;
+        }
+
+        return Double.NaN;
     }
 
-    /**
-     * Just for debugging
-     *
-     * @param args
-     */
-    public static void main(String args[]) {
-        System.out.println(StringUtils.paddedName("Y2"));
-        System.out.println(StringUtils.paddedName("Y101"));
-        System.out.println(StringUtils.paddedName("Y2xx"));
-        System.out.println(StringUtils.paddedName("123SKJFD"));
-        System.out.println(StringUtils.paddedName("123"));
-        System.out.println(StringUtils.paddedName("123.456"));
-    }
 }

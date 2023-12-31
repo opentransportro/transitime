@@ -55,7 +55,6 @@ public class TemporalMatch extends SpatialMatch {
                 + "]";
     }
 
-    /************************ Getter Methods ***************************/
     public TemporalDifference getTemporalDifference() {
         return temporalDifference;
     }

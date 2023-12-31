@@ -3,19 +3,10 @@ package org.transitclock.gtfs;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
+import lombok.Getter;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -25,60 +16,11 @@ import org.transitclock.config.DoubleConfigValue;
 import org.transitclock.config.IntegerConfigValue;
 import org.transitclock.config.StringConfigValue;
 import org.transitclock.db.hibernate.HibernateUtils;
-import org.transitclock.db.structs.ActiveRevisions;
-import org.transitclock.db.structs.Agency;
-import org.transitclock.db.structs.Block;
+import org.transitclock.db.structs.*;
 import org.transitclock.db.structs.Calendar;
-import org.transitclock.db.structs.CalendarDate;
-import org.transitclock.db.structs.ConfigRevision;
-import org.transitclock.db.structs.FareAttribute;
-import org.transitclock.db.structs.FareRule;
-import org.transitclock.db.structs.Frequency;
-import org.transitclock.db.structs.Location;
-import org.transitclock.db.structs.Route;
-import org.transitclock.db.structs.ScheduleTime;
-import org.transitclock.db.structs.Stop;
-import org.transitclock.db.structs.StopPath;
-import org.transitclock.db.structs.Transfer;
-import org.transitclock.db.structs.Trip;
-import org.transitclock.db.structs.TripPattern;
-import org.transitclock.db.structs.TripPatternKey;
-import org.transitclock.gtfs.gtfsStructs.GtfsAgency;
-import org.transitclock.gtfs.gtfsStructs.GtfsCalendar;
-import org.transitclock.gtfs.gtfsStructs.GtfsCalendarDate;
-import org.transitclock.gtfs.gtfsStructs.GtfsFareAttribute;
-import org.transitclock.gtfs.gtfsStructs.GtfsFareRule;
-import org.transitclock.gtfs.gtfsStructs.GtfsFrequency;
-import org.transitclock.gtfs.gtfsStructs.GtfsRoute;
-import org.transitclock.gtfs.gtfsStructs.GtfsShape;
-import org.transitclock.gtfs.gtfsStructs.GtfsStop;
-import org.transitclock.gtfs.gtfsStructs.GtfsStopTime;
-import org.transitclock.gtfs.gtfsStructs.GtfsTransfer;
-import org.transitclock.gtfs.gtfsStructs.GtfsTrip;
-import org.transitclock.gtfs.readers.GtfsAgenciesSupplementReader;
-import org.transitclock.gtfs.readers.GtfsAgencyReader;
-import org.transitclock.gtfs.readers.GtfsCalendarDatesReader;
-import org.transitclock.gtfs.readers.GtfsCalendarReader;
-import org.transitclock.gtfs.readers.GtfsFareAttributesReader;
-import org.transitclock.gtfs.readers.GtfsFareRulesReader;
-import org.transitclock.gtfs.readers.GtfsFrequenciesReader;
-import org.transitclock.gtfs.readers.GtfsRoutesReader;
-import org.transitclock.gtfs.readers.GtfsRoutesSupplementReader;
-import org.transitclock.gtfs.readers.GtfsShapesReader;
-import org.transitclock.gtfs.readers.GtfsShapesSupplementReader;
-import org.transitclock.gtfs.readers.GtfsStopTimesReader;
-import org.transitclock.gtfs.readers.GtfsStopTimesSupplementReader;
-import org.transitclock.gtfs.readers.GtfsStopsReader;
-import org.transitclock.gtfs.readers.GtfsStopsSupplementReader;
-import org.transitclock.gtfs.readers.GtfsTransfersReader;
-import org.transitclock.gtfs.readers.GtfsTripsReader;
-import org.transitclock.gtfs.readers.GtfsTripsSupplementReader;
-import org.transitclock.monitoring.CloudwatchService;
-import org.transitclock.utils.Geo;
-import org.transitclock.utils.IntervalTimer;
-import org.transitclock.utils.MapKey;
-import org.transitclock.utils.StringUtils;
-import org.transitclock.utils.Time;
+import org.transitclock.gtfs.gtfsStructs.*;
+import org.transitclock.gtfs.readers.*;
+import org.transitclock.utils.*;
 
 /**
  * Contains all the GTFS data processed into Java lists and such. Also combines in info from
@@ -95,16 +37,20 @@ public class GtfsData {
     // The session used throughout the class
     private final Session session;
 
-    // log metrics
-    private CloudwatchService cloudwatchService;
-
     // Various params set by constructor
     private final ActiveRevisions revs;
     private final String notes;
     // For when zip file used. Null otherwise
     private final Date zipFileLastModifiedTime;
     private final int originalTravelTimesRev;
+    /**
+     * -- GETTER --
+     *
+     * @return projectId
+     */
+    @Getter
     private final String agencyId;
+
     private final double pathOffsetDistance;
     private final double maxStopToPathDistance;
     private final double maxDistanceForEliminatingVertices;
@@ -119,13 +65,21 @@ public class GtfsData {
 
     // Where the data is stored.
     // From main and supplement routes.txt files. Key is route_id.
+    @Getter
     private Map<String, GtfsRoute> gtfsRoutesMap;
+    /**
+     * -- GETTER --
+     *
+     * @return List of routes that can be stored in db. The result is not ordered by route_order
+     *     since that isn't needed as part of processing GTFS data.
+     */
+    @Getter
     private List<Route> routes;
     // For keeping track of which routes are just sub-routes of a parent.
     // For these the route will not be configured separately and the
     // route IDs from trips.txt and fare_rules.txt will be set to the
     // parent ID.
-    private Map<String, String> properRouteIdMap = new HashMap<String, String>();
+    private Map<String, String> properRouteIdMap = new HashMap<>();
 
     // From main and supplement stops.txt files. Key is stop_id.
     private Map<String, GtfsStop> gtfsStopsMap;
@@ -147,6 +101,7 @@ public class GtfsData {
     // TripPatterns as the values so that can update
     // the trips list when another Trip is found to
     // use that TripPattern.
+    @Getter
     private Map<TripPatternKey, TripPattern> tripPatternMap;
 
     // Also need to be able to get trip patterns associated
@@ -168,13 +123,18 @@ public class GtfsData {
     private Set<String> serviceIdsWithTrips;
 
     // List of all the blocks, random order
+    @Getter
     private List<Block> blocks;
 
     // Keyed on tripPatternId and pathId using getPathMapKey(tripPatternId, pathId)
     private HashMap<String, StopPath> pathsMap;
 
+    @Getter
     private List<Calendar> calendars;
+
+    @Getter
     private List<CalendarDate> calendarDates;
+
     private Set<String> validServiceIds;
 
     // Data for the other GTFS files
@@ -182,9 +142,17 @@ public class GtfsData {
     // since each trip can be listed in frequencies.txt file multiple times in
     // order to define a different headway for different time ranges.
     private Map<String, List<Frequency>> frequencyMap;
+
+    @Getter
     private List<Agency> agencies;
+
+    @Getter
     private List<FareAttribute> fareAttributes;
+
+    @Getter
     private List<FareRule> fareRules;
+
+    @Getter
     private List<Transfer> transfers;
 
     // This is the format that dates are in for CSV. Should
@@ -250,29 +218,6 @@ public class GtfsData {
     // Logging
     public static final Logger logger = LoggerFactory.getLogger(GtfsData.class);
 
-    /********************** Member Functions **************************/
-
-    /**
-     * Constructor
-     *
-     * @param configRev
-     * @param notes
-     * @param zipFileLastModifiedTime
-     * @param shouldStoreNewRevs
-     * @param projectId
-     * @param gtfsDirectoryName
-     * @param supplementDir
-     * @param pathOffsetDistance
-     * @param maxStopToPathDistance
-     * @param maxDistanceForEliminatingVertices
-     * @param defaultWaitTimeAtStopMsec
-     * @param maxSpeedKph
-     * @param maxTravelTimeSegmentLength
-     * @param trimPathBeforeFirstStopOfTrip
-     * @param titleFormatter
-     * @param maxDistanceBetweenStops
-     * @param disableSpecialLoopBackToBeginningCase
-     */
     public GtfsData(
             int configRev,
             String notes,
@@ -311,7 +256,6 @@ public class GtfsData {
         SessionFactory sessionFactory = HibernateUtils.getSessionFactory(getAgencyId());
         session = sessionFactory.openSession();
 
-        cloudwatchService = CloudwatchService.getInstance();
         // Deal with the ActiveRevisions. First, store the original travel times
         // rev since need it to read in old travel time data.
         ActiveRevisions originalRevs = ActiveRevisions.get(session);
@@ -390,7 +334,7 @@ public class GtfsData {
 
         // Put GtfsRoute objects in Map so easy to find the right ones.
         // HashMap is keyed on the route_id.
-        gtfsRoutesMap = new HashMap<String, GtfsRoute>(gtfsRoutes.size());
+        gtfsRoutesMap = new HashMap<>(gtfsRoutes.size());
         for (GtfsRoute r : gtfsRoutes) {
             // If this route is just a subset of another route
             // then can ignore it. But put in the map so that
@@ -495,7 +439,7 @@ public class GtfsData {
 
         // Now that the GtfsRoute objects have been created, create
         // the corresponding map of Route objects
-        routes = new ArrayList<Route>();
+        routes = new ArrayList<>();
         Set<String> routeIds = gtfsRoutesMap.keySet();
         int numberOfRoutesWithoutTrips = 0;
         for (String routeId : routeIds) {
@@ -536,7 +480,7 @@ public class GtfsData {
 
         // Sort the routes so that can determine the route order for each one.
         // Uses GTFS route_order when available and uses route_name when not.
-        Collections.sort(routes, Route.routeComparator);
+        routes.sort(Route.routeComparator);
 
         // Determine and set route order for each route if it is not already set
         int routeOrderCounter = 0;
@@ -581,7 +525,7 @@ public class GtfsData {
         List<GtfsStop> gtfsStops = stopsReader.get();
 
         // Put GtfsStop objects in Map so easy to find the right ones
-        gtfsStopsMap = new HashMap<String, GtfsStop>(gtfsStops.size());
+        gtfsStopsMap = new HashMap<>(gtfsStops.size());
         for (GtfsStop gtfsStop : gtfsStops) gtfsStopsMap.put(gtfsStop.getStopId(), gtfsStop);
 
         // Read in supplemental stop data
@@ -615,7 +559,7 @@ public class GtfsData {
         // Create the map of the Stop objects. Use a ConcurrentHashMap instead
         // of a regular HashMap so that trimStops() can delete unused stops
         // while iterating across the hash map.
-        stopsMap = new ConcurrentHashMap<String, Stop>(gtfsStops.size());
+        stopsMap = new ConcurrentHashMap<>(gtfsStops.size());
         for (GtfsStop gtfsStop : gtfsStopsMap.values()) {
             Stop stop = new Stop(revs.getConfigRev(), gtfsStop, stopCodeBaseValue.getValue(), titleFormatter);
             stopsMap.put(stop.getId(), stop);
@@ -644,11 +588,9 @@ public class GtfsData {
         }
 
         // Determine all the stops used in the trip patterns
-        Set<String> stopIdsUsed = new HashSet<String>();
+        Set<String> stopIdsUsed = new HashSet<>();
         for (TripPattern tripPattern : tripPatternMap.values()) {
-            for (String stopIdInTripPattern : tripPattern.getStopIds()) {
-                stopIdsUsed.add(stopIdInTripPattern);
-            }
+            stopIdsUsed.addAll(tripPattern.getStopIds());
         }
 
         // Remove any stops not in trip patterns from the stopsMap
@@ -678,7 +620,7 @@ public class GtfsData {
         logger.info("Processing trips.txt data...");
 
         // Create the map where the data is going to go
-        gtfsTripsMap = new HashMap<String, GtfsTrip>();
+        gtfsTripsMap = new HashMap<>();
 
         // Read in the trips.txt GTFS data from file
         GtfsTripsReader tripsReader = new GtfsTripsReader(gtfsDirectoryName);
@@ -692,7 +634,6 @@ public class GtfsData {
             if (getGtfsRoute(gtfsTrip.getRouteId()) != null) {
                 // Refers to a valid route so we should process this trip
                 gtfsTripsMap.put(gtfsTrip.getTripId(), gtfsTrip);
-                ;
             } else {
                 logger.warn(
                         "The trip id={} in the trips.txt file at "
@@ -786,18 +727,17 @@ public class GtfsData {
      * arrival time from the first stop entry and the departure time for the second stop entry are
      * used. Any problems found are logged.
      *
-     * @param gtfsStopTimesForTrip
      * @return Processed/cleaned up list of GtfsStopTime for the trip
      */
     private List<GtfsStopTime> processStopTimesForTrip(List<GtfsStopTime> gtfsStopTimesForTrip) {
         // For returning results
-        List<GtfsStopTime> processedGtfsStopTimesForTrip = new ArrayList<GtfsStopTime>();
+        List<GtfsStopTime> processedGtfsStopTimesForTrip = new ArrayList<>();
 
         // Sort the list so that the stop times are in sequence order.
         // This way can treat first and last stop times for a trip
         // specially. Plus want them in order to determine trip patterns
         // and such.
-        Collections.sort(gtfsStopTimesForTrip);
+        gtfsStopTimesForTrip.sort(null);
 
         // Iterate over stop times for trip and remove inappropriate ones.
         // Also, log any warning or error messages.
@@ -907,10 +847,8 @@ public class GtfsData {
                     gtfsStopTime = new GtfsStopTime(gtfsStopTime, arrivalStopTime.getArrivalTimeSecs());
                     logger.warn(
                             "Encountered stopId={} twice in a row with "
-                                    + "different times for tripId={} "
-                                    + "in stop_times.txt at line {}. Assuming "
-                                    + "it is supposed to be a mid trip wait "
-                                    + "stop. {}",
+                                    + "different times for tripId={} in stop_times.txt at line {}. Assuming "
+                                    + "it is supposed to be a mid trip wait stop. {}",
                             gtfsStopTime.getStopId(),
                             gtfsStopTime.getTripId(),
                             gtfsStopTime.getLineNumber(),
@@ -922,8 +860,7 @@ public class GtfsData {
             // Of course either one can be null so bit more complicated.
             if (arr != null && dep != null && dep < arr) {
                 logger.error(
-                        "The departure time {} is before the arrival "
-                                + "time {} in the stop_times.txt file at line {}",
+                        "The departure time {} is before the arrival time {} in the stop_times.txt file at line {}",
                         Time.timeOfDayStr(dep),
                         Time.timeOfDayStr(arr),
                         gtfsStopTime.getLineNumber());
@@ -932,25 +869,25 @@ public class GtfsData {
             // Now make sure that arrival/departures times never go backwards in time
             if (arr != null && arr < previousTimeForTrip) {
                 logger.error(
-                        "The arrival time {} is before the time {} for "
-                                + "a previous stop for the trip. "
-                                + "See stop_times.txt file line {}",
+                        "The arrival time {} is before the time {} for a previous stop for the trip. See stop_times.txt file line {}",
                         Time.timeOfDayStr(arr),
                         Time.timeOfDayStr(previousTimeForTrip),
                         gtfsStopTime.getLineNumber());
             }
             if (dep != null && dep < previousTimeForTrip) {
                 logger.error(
-                        "The departure time {} is before the time {} for "
-                                + "a previous stop for the trip. "
-                                + "See stop_times.txt file line {}",
+                        "The departure time {} is before the time {} for a previous stop for the trip. See stop_times.txt file line {}",
                         Time.timeOfDayStr(dep),
                         Time.timeOfDayStr(previousTimeForTrip),
                         gtfsStopTime.getLineNumber());
             }
             // Update previous time so can check the next stop for the trip
-            if (arr != null) previousTimeForTrip = arr;
-            if (dep != null) previousTimeForTrip = dep;
+            if (arr != null) {
+                previousTimeForTrip = arr;
+            }
+            if (dep != null) {
+                previousTimeForTrip = dep;
+            }
 
             // The GtfsStopTime is acceptable so add it to list to be returned
             processedGtfsStopTimesForTrip.add(gtfsStopTime);
@@ -1011,9 +948,9 @@ public class GtfsData {
             GtfsStopTimesSupplementReader stopTimesSupplementReader = new GtfsStopTimesSupplementReader(supplementDir);
             List<GtfsStopTime> stopTimesSupplement = stopTimesSupplementReader.get();
 
-            if (stopTimesSupplement.size() > 0) {
+            if (!stopTimesSupplement.isEmpty()) {
                 // Put original shapes into map for quick searching
-                Map<MapKey, GtfsStopTime> map = new HashMap<MapKey, GtfsStopTime>();
+                Map<MapKey, GtfsStopTime> map = new HashMap<>();
                 for (GtfsStopTime gtfsStopTime : gtfsStopTimes) {
                     MapKey key = new MapKey(gtfsStopTime.getTripId(), gtfsStopTime.getStopId());
                     map.put(key, gtfsStopTime);
@@ -1056,19 +993,14 @@ public class GtfsData {
 
         // The GtfsStopTimes are put into this map and then can create Trips
         // and TripPatterns. Keyed by tripId
-        gtfsStopTimesForTripMap = new HashMap<String, List<GtfsStopTime>>();
+        gtfsStopTimesForTripMap = new HashMap<>();
 
         // Put the GtfsStopTimes into the map
         for (GtfsStopTime gtfsStopTime : gtfsStopTimes) {
-            // Add the GtfsStopTime to the map so later can create Trips and
-            // TripPatterns
             String tripId = gtfsStopTime.getTripId();
-            List<GtfsStopTime> gtfsStopTimesForTrip = gtfsStopTimesForTripMap.get(tripId);
-            if (gtfsStopTimesForTrip == null) {
-                gtfsStopTimesForTrip = new ArrayList<GtfsStopTime>();
-                gtfsStopTimesForTripMap.put(tripId, gtfsStopTimesForTrip);
-            }
-            gtfsStopTimesForTrip.add(gtfsStopTime);
+            gtfsStopTimesForTripMap
+                    .computeIfAbsent(tripId, k -> new ArrayList<>())
+                    .add(gtfsStopTime);
         }
 
         // Go through the stop times for each tripId. Sort them and look for
@@ -1133,17 +1065,17 @@ public class GtfsData {
         }
 
         // Create list of Paths for creating trip pattern
-        List<StopPath> paths = new ArrayList<StopPath>();
+        List<StopPath> paths = new ArrayList<>();
 
         // Create set of path IDs for this trip so can tell if looping
         // back on path such that need to create a unique path ID
-        Set<String> pathIdsForTrip = new HashSet<String>();
+        Set<String> pathIdsForTrip = new HashSet<>();
 
         // Determine the gtfs stop times for this trip
         List<GtfsStopTime> gtfsStopTimesForTrip = gtfsStopTimesForTripMap.get(trip.getId());
 
         // For each stop time for the trip...
-        List<ScheduleTime> newScheduleTimesList = new ArrayList<ScheduleTime>();
+        List<ScheduleTime> newScheduleTimesList = new ArrayList<>();
         String previousStopId = null;
         for (int i = 0; i < gtfsStopTimesForTrip.size(); ++i) {
             // The current gtfsStopTime
@@ -1163,7 +1095,7 @@ public class GtfsData {
             // arrival time.
             Integer filteredArr = arrTime;
             Integer filteredDep = depTime;
-            if (arrTime != null && depTime != null && arrTime.equals(depTime)) {
+            if (arrTime != null && arrTime.equals(depTime)) {
                 if (lastStopInTrip) filteredDep = null;
                 else filteredArr = null;
             }
@@ -1183,10 +1115,10 @@ public class GtfsData {
 
             if (!isTripFrequencyBasedWithoutExactTimes(trip.getId())) {
                 if (depTime != null && !trip.isNoSchedule()) {
-                    if (stop.isLayoverStop() == null) {
+                    if (stop.getLayoverStop() == null) {
                         layoverStop = firstStopInTrip;
                     } else {
-                        layoverStop = stop.isLayoverStop();
+                        layoverStop = stop.getLayoverStop();
                     }
                 }
             }
@@ -1197,10 +1129,10 @@ public class GtfsData {
 
             if (!isTripFrequencyBasedWithoutExactTimes(trip.getId())) {
                 if (depTime != null && !trip.isNoSchedule()) {
-                    if (stop.isWaitStop() == null) {
+                    if (stop.getWaitStop() == null) {
                         waitStop = firstStopInTrip || gtfsStopTime.isWaitStop();
                     } else {
-                        waitStop = stop.isWaitStop();
+                        waitStop = stop.getWaitStop();
                     }
                 }
             }
@@ -1213,7 +1145,7 @@ public class GtfsData {
 
             if (!isTripFrequencyBasedWithoutExactTimes(trip.getId())) {
                 scheduleAdherenceStop = (depTime != null
-                                && (firstStopInTrip || gtfsStopTime.isTimepointStop() || stop.isTimepointStop()))
+                                && (firstStopInTrip || gtfsStopTime.getTimepointStop() || stop.isTimepointStop()))
                         || (arrTime != null && lastStopInTrip);
             }
 
@@ -1314,9 +1246,8 @@ public class GtfsData {
         // Create the Trip and store the stop times into associated map
         GtfsRoute gtfsRoute = gtfsRoutesMap.get(gtfsTrip.getRouteId());
         String routeShortName = gtfsRoute.getRouteShortName();
-        Trip trip = new Trip(
+        return new Trip(
                 revs.getConfigRev(), gtfsTrip, properRouteId, routeShortName, unprocessedHeadsign, titleFormatter);
-        return trip;
     }
 
     /**
@@ -1333,8 +1264,8 @@ public class GtfsData {
         // If first frequency is specified for "exact times" in GTFS then
         // return true.
         return frequencyList != null
-                && frequencyList.size() > 0
-                && frequencyList.get(0).getExactTimes();
+                && !frequencyList.isEmpty()
+                && frequencyList.get(0).isExactTimes();
     }
 
     /**
@@ -1353,8 +1284,8 @@ public class GtfsData {
         // If first frequency is specified for "exact times" in GTFS then
         // return true.
         return frequencyList != null
-                && frequencyList.size() > 0
-                && !frequencyList.get(0).getExactTimes();
+                && !frequencyList.isEmpty()
+                && !frequencyList.get(0).isExactTimes();
     }
 
     /**
@@ -1388,13 +1319,13 @@ public class GtfsData {
 
         // Create the necessary collections for trips. These collections are
         // populated in the other methods that are called by this method.
-        tripsCollection = new ArrayList<Trip>();
-        tripPatternMap = new HashMap<TripPatternKey, TripPattern>();
-        tripPatternsByTripIdMap = new HashMap<String, TripPattern>();
-        tripPatternsByRouteIdMap = new HashMap<String, List<TripPattern>>();
-        tripPatternIdSet = new HashSet<String>();
-        serviceIdsWithTrips = new HashSet<String>();
-        pathsMap = new HashMap<String, StopPath>();
+        tripsCollection = new ArrayList<>();
+        tripPatternMap = new HashMap<>();
+        tripPatternsByTripIdMap = new HashMap<>();
+        tripPatternsByRouteIdMap = new HashMap<>();
+        tripPatternIdSet = new HashSet<>();
+        serviceIdsWithTrips = new HashSet<>();
+        pathsMap = new HashMap<>();
 
         // For each trip in the stop_times.txt file ...
         for (String tripId : gtfsStopTimesForTripMap.keySet()) {
@@ -1502,15 +1433,12 @@ public class GtfsData {
             }
 
             // Keyed on headsign
-            Map<String, List<TripPattern>> tripPatternsByHeadsign = new HashMap<String, List<TripPattern>>();
+            Map<String, List<TripPattern>> tripPatternsByHeadsign = new HashMap<>();
             for (TripPattern tripPattern : tripPatternsForRoute) {
                 // Add the trip pattern to tripPatternsByHeadsign map
                 String headsign = tripPattern.getHeadsign();
-                List<TripPattern> tripPatternsForHeadsign = tripPatternsByHeadsign.get(headsign);
-                if (tripPatternsForHeadsign == null) {
-                    tripPatternsForHeadsign = new ArrayList<TripPattern>();
-                    tripPatternsByHeadsign.put(headsign, tripPatternsForHeadsign);
-                }
+                List<TripPattern> tripPatternsForHeadsign =
+                        tripPatternsByHeadsign.computeIfAbsent(headsign, k -> new ArrayList<>());
                 tripPatternsForHeadsign.add(tripPattern);
             }
 
@@ -1621,12 +1549,9 @@ public class GtfsData {
             tripPatternIdSet.add(tripPattern.getId());
 
             // Also add the new TripPattern to tripPatternsByRouteIdMap
-            List<TripPattern> tripPatternsForRoute = tripPatternsByRouteIdMap.get(tripPattern.getRouteId());
+            List<TripPattern> tripPatternsForRoute =
+                    tripPatternsByRouteIdMap.computeIfAbsent(tripPattern.getRouteId(), k -> new ArrayList<>());
             // If haven't dealt with this route, create the List now
-            if (tripPatternsForRoute == null) {
-                tripPatternsForRoute = new ArrayList<TripPattern>();
-                tripPatternsByRouteIdMap.put(tripPattern.getRouteId(), tripPatternsForRoute);
-            }
             tripPatternsForRoute.add(tripPattern);
 
             // Update the Trip to indicate which TripPattern it is for
@@ -1680,7 +1605,7 @@ public class GtfsData {
         logger.info("Processing frequencies.txt data...");
 
         // Create the map where the data is going to go
-        frequencyMap = new HashMap<String, List<Frequency>>();
+        frequencyMap = new HashMap<>();
 
         // Read in the frequencies.txt GTFS data from file
         GtfsFrequenciesReader frequenciesReader = new GtfsFrequenciesReader(gtfsDirectoryName);
@@ -1703,11 +1628,7 @@ public class GtfsData {
             // Create the Frequency object and put it into the frequenctMap
             Frequency frequency = new Frequency(revs.getConfigRev(), gtfsFrequency);
             String tripId = frequency.getTripId();
-            List<Frequency> frequenciesForTripId = frequencyMap.get(tripId);
-            if (frequenciesForTripId == null) {
-                frequenciesForTripId = new ArrayList<Frequency>();
-                frequencyMap.put(tripId, frequenciesForTripId);
-            }
+            List<Frequency> frequenciesForTripId = frequencyMap.computeIfAbsent(tripId, k -> new ArrayList<>());
             frequenciesForTripId.add(frequency);
         }
 
@@ -1745,9 +1666,9 @@ public class GtfsData {
             GtfsShapesSupplementReader shapesSupplementReader = new GtfsShapesSupplementReader(supplementDir);
             List<GtfsShape> shapesSupplement = shapesSupplementReader.get();
 
-            if (shapesSupplement.size() > 0) {
+            if (!shapesSupplement.isEmpty()) {
                 // Put original shapes into map for quick searching
-                Map<MapKey, GtfsShape> map = new HashMap<MapKey, GtfsShape>();
+                Map<MapKey, GtfsShape> map = new HashMap<>();
                 for (GtfsShape gtfsShape : gtfsShapes) {
                     MapKey key = new MapKey(gtfsShape.getShapeId(), gtfsShape.getShapePtSequence());
                     map.put(key, gtfsShape);
@@ -1820,12 +1741,12 @@ public class GtfsData {
         logger.info("Processing agency.txt data...");
 
         // Create the array where the data is going to go
-        agencies = new ArrayList<Agency>();
+        agencies = new ArrayList<>();
 
         // Read in the agency.txt GTFS data from file
         GtfsAgencyReader agencyReader = new GtfsAgencyReader(gtfsDirectoryName);
         List<GtfsAgency> gtfsAgencies = agencyReader.get();
-        HashMap<String, GtfsAgency> gtfsAgenciesMap = new HashMap<String, GtfsAgency>(gtfsAgencies.size());
+        HashMap<String, GtfsAgency> gtfsAgenciesMap = new HashMap<>(gtfsAgencies.size());
         for (GtfsAgency gtfsAgency : gtfsAgencies) gtfsAgenciesMap.put(gtfsAgency.getAgencyId(), gtfsAgency);
 
         // Read in supplemental agency data
@@ -1874,10 +1795,6 @@ public class GtfsData {
     /**
      * Determines if the specified calendar is active in the future. It is active if the end date is
      * in the future or if it is added in the future via calendar_dates.txt
-     *
-     * @param calendar
-     * @param calendarDates
-     * @return
      */
     private static boolean isCalendarActiveInTheFuture(Calendar calendar, List<CalendarDate> calendarDates) {
         // If calendar end date is for sometime in the future then it is
@@ -1901,9 +1818,6 @@ public class GtfsData {
 
     /**
      * Returns true if the specified calendar date is in the future and is for adding service.
-     *
-     * @param calendarDate
-     * @return
      */
     private static boolean isCalendarDateActiveInTheFuture(CalendarDate calendarDate) {
         return calendarDate.getDate().getTime() > System.currentTimeMillis() && calendarDate.addService();
@@ -1915,13 +1829,13 @@ public class GtfsData {
         logger.info("Processing calendar.txt data...");
 
         // Create the map where the data is going to go
-        calendars = new ArrayList<Calendar>();
+        calendars = new ArrayList<>();
 
         // Read in the calendar.txt GTFS data from file
         GtfsCalendarReader calendarReader = new GtfsCalendarReader(gtfsDirectoryName);
         List<GtfsCalendar> gtfsCalendars = calendarReader.get();
 
-        if (gtfsCalendars.size() < 1) {
+        if (gtfsCalendars.isEmpty()) {
             logger.info("calendar.txt not found, will generate calendars and assume all services are"
                     + " always available...");
             SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
@@ -1957,7 +1871,7 @@ public class GtfsData {
         logger.info("Processing calendar_dates.txt data...");
 
         // Create the map where the data is going to go
-        calendarDates = new ArrayList<CalendarDate>();
+        calendarDates = new ArrayList<>();
 
         // Read in the calendar_dates.txt GTFS data from file
         GtfsCalendarDatesReader calendarDatesReader = new GtfsCalendarDatesReader(gtfsDirectoryName);
@@ -1971,7 +1885,7 @@ public class GtfsData {
             // it and not store it. This can be useful because an agency might
             // not clean out old dates from the calendar_dates.txt file even
             // if they are no longer useful.
-            if (calendarDate.getDate().getTime() + 1 * Time.DAY_IN_MSECS < System.currentTimeMillis()) continue;
+            if (calendarDate.getDate().getTime() + Time.DAY_IN_MSECS < System.currentTimeMillis()) continue;
 
             // The calendar date is for in the future so store it
             calendarDates.add(calendarDate);
@@ -1996,7 +1910,7 @@ public class GtfsData {
         }
 
         // Create set of service IDs from the calendar.txt data
-        validServiceIds = new HashSet<String>();
+        validServiceIds = new HashSet<>();
         for (Calendar calendar : calendars) {
             if (isCalendarActiveInTheFuture(calendar, calendarDates)) {
                 validServiceIds.add(calendar.getServiceId());
@@ -2032,25 +1946,13 @@ public class GtfsData {
         }
 
         // Trim calendar list
-        Iterator<Calendar> calendarIter = calendars.iterator();
-        while (calendarIter.hasNext()) {
-            Calendar calendar = calendarIter.next();
-            if (!serviceIdsWithTrips.contains(calendar.getServiceId())) calendarIter.remove();
-        }
+        calendars.removeIf(calendar -> !serviceIdsWithTrips.contains(calendar.getServiceId()));
 
         // Trim calendar date list
-        Iterator<CalendarDate> calendarDateIter = calendarDates.iterator();
-        while (calendarDateIter.hasNext()) {
-            CalendarDate calendarDate = calendarDateIter.next();
-            if (!serviceIdsWithTrips.contains(calendarDate.getServiceId())) calendarDateIter.remove();
-        }
+        calendarDates.removeIf(calendarDate -> !serviceIdsWithTrips.contains(calendarDate.getServiceId()));
 
         // Trim serviceIds list
-        Iterator<String> serviceIdIter = validServiceIds.iterator();
-        while (serviceIdIter.hasNext()) {
-            String serviceId = serviceIdIter.next();
-            if (!serviceIdsWithTrips.contains(serviceId)) serviceIdIter.remove();
-        }
+        validServiceIds.removeIf(serviceId -> !serviceIdsWithTrips.contains(serviceId));
     }
 
     /** Reads fare_attributes.txt file and puts data into fareAttributes list. */
@@ -2059,7 +1961,7 @@ public class GtfsData {
         logger.info("Processing fare_attributes.txt data...");
 
         // Create the map where the data is going to go
-        fareAttributes = new ArrayList<FareAttribute>();
+        fareAttributes = new ArrayList<>();
 
         // Read in the fare_attributes.txt GTFS data from file
         GtfsFareAttributesReader fareAttributesReader = new GtfsFareAttributesReader(gtfsDirectoryName);
@@ -2081,17 +1983,14 @@ public class GtfsData {
         logger.info("Processing fare_rules.txt data...");
 
         // Create the map where the data is going to go
-        fareRules = new ArrayList<FareRule>();
+        fareRules = new ArrayList<>();
 
         // Read in the fare_rules.txt GTFS data from file
         GtfsFareRulesReader fareRulesReader = new GtfsFareRulesReader(gtfsDirectoryName);
         List<GtfsFareRule> gtfsFareRules = fareRulesReader.get();
 
         // Get rid of duplicates
-        Set<GtfsFareRule> gtfsFareRulesSet = new HashSet<GtfsFareRule>();
-        for (GtfsFareRule gtfsFareRule : gtfsFareRules) {
-            gtfsFareRulesSet.add(gtfsFareRule);
-        }
+        Set<GtfsFareRule> gtfsFareRulesSet = new HashSet<>(gtfsFareRules);
 
         for (GtfsFareRule gtfsFareRule : gtfsFareRulesSet) {
             // If this route is actually a sub-route of a parent then use the
@@ -2113,7 +2012,7 @@ public class GtfsData {
         logger.info("Processing transfers.txt data...");
 
         // Create the map where the data is going to go
-        transfers = new ArrayList<Transfer>();
+        transfers = new ArrayList<>();
 
         // Read in the transfers.txt GTFS data from file
         GtfsTransfersReader transfersReader = new GtfsTransfersReader(gtfsDirectoryName);
@@ -2129,27 +2028,13 @@ public class GtfsData {
         logger.info("Finished processing transfers.txt data. ");
     }
 
-    /******************** Getter Methods ****************************/
-
-    /**
-     * @return projectId
-     */
-    public String getAgencyId() {
-        return agencyId;
-    }
-
-    public Map<String, GtfsRoute> getGtfsRoutesMap() {
-        return gtfsRoutesMap;
-    }
-
     /**
      * @param routeId
      * @return the GtfsRoute from the trips.txt file for the specified routeId, null if that route
      *     Id not defined in the file.
      */
     public GtfsRoute getGtfsRoute(String routeId) {
-        GtfsRoute gtfsRoute = gtfsRoutesMap.get(routeId);
-        return gtfsRoute;
+        return gtfsRoutesMap.get(routeId);
     }
 
     /**
@@ -2158,14 +2043,11 @@ public class GtfsData {
      *     not defined in the file.
      */
     public GtfsTrip getGtfsTrip(String tripId) {
-        GtfsTrip gtfsTrip = gtfsTripsMap.get(tripId);
-        return gtfsTrip;
+        return gtfsTripsMap.get(tripId);
     }
 
     /**
      * Returns true if GTFS stop times read in and are available
-     *
-     * @return
      */
     public boolean isStopTimesReadIn() {
         return gtfsStopTimesForTripMap != null && !gtfsStopTimesForTripMap.isEmpty();
@@ -2173,9 +2055,6 @@ public class GtfsData {
 
     /**
      * Returns list of GtfsStopTimes for the trip specified
-     *
-     * @param tripId
-     * @return
      */
     public List<GtfsStopTime> getGtfsStopTimesForTrip(String tripId) {
         return gtfsStopTimesForTripMap.get(tripId);
@@ -2240,10 +2119,6 @@ public class GtfsData {
         return tripPatternIdSet.contains(tripPatternId);
     }
 
-    public Map<TripPatternKey, TripPattern> getTripPatternMap() {
-        return tripPatternMap;
-    }
-
     /**
      * Returns the specified trip pattern. Not very efficient because does a linear search through
      * the set of trip patterns but works well enough for debugging.
@@ -2262,10 +2137,6 @@ public class GtfsData {
 
     /**
      * For use with pathsMap member.
-     *
-     * @param tripPatternId
-     * @param pathId
-     * @return
      */
     public static String getPathMapKey(String tripPatternId, String pathId) {
         return tripPatternId + "|" + pathId;
@@ -2276,10 +2147,6 @@ public class GtfsData {
      * lots of trip patterns will traverse the same stops, resulting in identical pathIds. And don't
      * want to make the pathIds themselves unique because then wouldn't be able to reuse travel time
      * data as much.
-     *
-     * @param tripPatternId
-     * @param pathId
-     * @return
      */
     public StopPath getPath(String tripPatternId, String pathId) {
         String key = getPathMapKey(tripPatternId, pathId);
@@ -2295,22 +2162,10 @@ public class GtfsData {
 
     /**
      * Adds the StopPath object to the pathMap.
-     *
-     * @param tripPatternId
-     * @param pathId
-     * @param path
      */
     public void putPath(String tripPatternId, String pathId, StopPath path) {
         String key = getPathMapKey(tripPatternId, pathId);
         pathsMap.put(key, path);
-    }
-
-    /**
-     * @return List of routes that can be stored in db. The result is not ordered by route_order
-     *     since that isn't needed as part of processing GTFS data.
-     */
-    public List<Route> getRoutes() {
-        return routes;
     }
 
     /**
@@ -2325,14 +2180,6 @@ public class GtfsData {
         return properRouteIdMap.get(routeId);
     }
 
-    public List<Block> getBlocks() {
-        return blocks;
-    }
-
-    public List<Agency> getAgencies() {
-        return agencies;
-    }
-
     /**
      * Returns true if according to frequency.txt GTFS file that specified trip is frequencies based
      * and doesn't have exact_times set. Note that if exact_times is set then a schedule is used. It
@@ -2343,7 +2190,7 @@ public class GtfsData {
      */
     public boolean isTripFrequencyBased(String tripId) {
         List<Frequency> frequencyListForTrip = getFrequencyList(tripId);
-        return frequencyListForTrip != null && !frequencyListForTrip.get(0).getExactTimes();
+        return frequencyListForTrip != null && !frequencyListForTrip.get(0).isExactTimes();
     }
 
     /**
@@ -2361,33 +2208,11 @@ public class GtfsData {
      * @return
      */
     public Collection<Frequency> getFrequencies() {
-        Collection<Frequency> collection = new ArrayList<Frequency>();
+        Collection<Frequency> collection = new ArrayList<>();
         for (List<Frequency> frequencyListForTripId : frequencyMap.values()) {
-            for (Frequency frequency : frequencyListForTripId) {
-                collection.add(frequency);
-            }
+            collection.addAll(frequencyListForTripId);
         }
         return collection;
-    }
-
-    public List<Calendar> getCalendars() {
-        return calendars;
-    }
-
-    public List<CalendarDate> getCalendarDates() {
-        return calendarDates;
-    }
-
-    public List<FareAttribute> getFareAttributes() {
-        return fareAttributes;
-    }
-
-    public List<FareRule> getFareRules() {
-        return fareRules;
-    }
-
-    public List<Transfer> getTransfers() {
-        return transfers;
     }
 
     /**
@@ -2399,7 +2224,6 @@ public class GtfsData {
         return new ConfigRevision(revs.getConfigRev(), new Date(), zipFileLastModifiedTime, notes);
     }
 
-    /*************************** Main Public Methods **********************/
     public void outputRoutesForGraphing() {
         if (outputPathsAndStopsForGraphingRouteIds.getValue() == null) return;
 
@@ -2528,8 +2352,7 @@ public class GtfsData {
         // Create pattern if haven't done so yet, but only do so once.
         if (tripIdFilterRegExPattern == null) tripIdFilterRegExPattern = Pattern.compile(tripIdFilterRegEx.getValue());
 
-        boolean matches = tripIdFilterRegExPattern.matcher(tripId.trim()).matches();
-        return matches;
+        return tripIdFilterRegExPattern.matcher(tripId.trim()).matches();
     }
 
     /**
@@ -2546,8 +2369,7 @@ public class GtfsData {
         if (routeIdFilterRegExPattern == null)
             routeIdFilterRegExPattern = Pattern.compile(routeIdFilterRegEx.getValue());
 
-        boolean matches = routeIdFilterRegExPattern.matcher(routeId.trim()).matches();
-        return matches;
+        return routeIdFilterRegExPattern.matcher(routeId.trim()).matches();
     }
 
     /** Does all the work. Processes the data and store it in internal structures */
@@ -2598,17 +2420,17 @@ public class GtfsData {
         outputRoutesForGraphing();
 
         // Now process travel times and update the Trip objects.
-        TravelTimesProcessorForGtfsUpdates travelTimesProcesssor = new TravelTimesProcessorForGtfsUpdates(
+        TravelTimesProcessorForGtfsUpdates travelTimesProcessor = new TravelTimesProcessorForGtfsUpdates(
                 revs, originalTravelTimesRev, maxTravelTimeSegmentLength, defaultWaitTimeAtStopMsec, maxSpeedKph);
-        travelTimesProcesssor.process(session, this);
+        travelTimesProcessor.process(session, this);
 
         // Try allowing garbage collector to free up some memory since
         // don't need the GTFS structures anymore.
         gtfsRoutesMap = null;
         gtfsTripsMap = null;
         gtfsStopTimesForTripMap = null;
-        int originalNumberOfTravelTimes = travelTimesProcesssor.getOriginalNumberOfTravelTimes();
-        int numberOfTravelTimes = travelTimesProcesssor.getNumberOfTravelTimes();
+        int originalNumberOfTravelTimes = travelTimesProcessor.getOriginalNumberOfTravelTimes();
+        int numberOfTravelTimes = travelTimesProcessor.getNumberOfTravelTimes();
         int configRev = revs.getConfigRev();
         int travelTimesRev = revs.getTravelTimesRev();
         try {
@@ -2624,101 +2446,5 @@ public class GtfsData {
             logger.error("Exception when writing data to db", e);
             throw e;
         }
-        updateMetrics(originalNumberOfTravelTimes, numberOfTravelTimes, configRev, travelTimesRev);
-
-        // just for debugging
-        //		GtfsLoggingAppender.outputMessagesToSysErr();
-        //
-        //		//outputShapesForGraphing("102589" /*"102829"*/);
-        //
-        //		outputPathsAndStopsForGraphing("8701");
-        //
-        //		System.err.println("\nPaths:");
-        //		for (StopPath p : getPathsMap().values()) {
-        //			TripPattern tp = getTripPattern(p.getTripPatternId());
-        //			System.err.println("\npathId=" + p.getPathId() +
-        //					" routeId=" + p.getRouteId() +
-        //					" tripPattern=" + tp.toStringListingTripIds());
-        //			for (Location l : p.getLocations()) {
-        //				System.err.println("" + Geo.format(l.getLat()) + ", " + Geo.format(l.getLon()));
-        //			}
-        //		}
-        //
-        //		System.err.println("\nPaths:");
-        //		for (StopPath p : getPathsMap().values()) {
-        //			System.err.println("  " + p);
-        //		}
-        //
-        //		System.err.println("\nBlocks:");
-        //		for (Block b : getBlocks()) {
-        //			System.err.println("  " + b.toShortString());
-        //		}
-        //
-        //		System.err.println("\nRoutes:");
-        //		for (Route r : getRoutes()) {
-        //			System.err.println("  " + r);
-        //		}
-    }
-
-    public Long updateMetrics(
-            int originalTravelTimesCount, int expectedTravelTimesCount, int configRev, int travelTimesRev) {
-        HibernateUtils.clearSessionFactory();
-        SessionFactory sessionFactory = HibernateUtils.getSessionFactory(getAgencyId());
-        Session statsSession = sessionFactory.openSession();
-        cloudwatchService.saveMetric(
-                "PredictionLatestConfigRev",
-                configRev * 1.0,
-                1,
-                CloudwatchService.MetricType.SCALAR,
-                CloudwatchService.ReportingIntervalTimeUnit.IMMEDIATE,
-                false);
-        cloudwatchService.saveMetric(
-                "PredictionLatestTravelTimesRev",
-                travelTimesRev * 1.0,
-                1,
-                CloudwatchService.MetricType.SCALAR,
-                CloudwatchService.ReportingIntervalTimeUnit.IMMEDIATE,
-                false);
-        Long count = Trip.countTravelTimesForTrips(statsSession, travelTimesRev);
-        if (count != null) {
-            cloudwatchService.saveMetric(
-                    "PredictionTravelTimesForTripsCount",
-                    count * 1.0,
-                    1,
-                    CloudwatchService.MetricType.SCALAR,
-                    CloudwatchService.ReportingIntervalTimeUnit.IMMEDIATE,
-                    false);
-        } else {
-            cloudwatchService.saveMetric(
-                    "PredictionTravelTimesForTripsCount",
-                    -1.0,
-                    1,
-                    CloudwatchService.MetricType.SCALAR,
-                    CloudwatchService.ReportingIntervalTimeUnit.IMMEDIATE,
-                    false);
-        }
-        cloudwatchService.saveMetric(
-                "PredictionTravelTimesForTripsExpectedCount",
-                expectedTravelTimesCount * 1.0,
-                1,
-                CloudwatchService.MetricType.SCALAR,
-                CloudwatchService.ReportingIntervalTimeUnit.IMMEDIATE,
-                false);
-        cloudwatchService.saveMetric(
-                "PredictionTravelTimesForTripsOriginalCount",
-                originalTravelTimesCount * 1.0,
-                1,
-                CloudwatchService.MetricType.SCALAR,
-                CloudwatchService.ReportingIntervalTimeUnit.IMMEDIATE,
-                false);
-
-        logger.info(
-                "Found {} TravelTimesForTrips for {}:{} with expected={}, orginal={}",
-                count,
-                configRev,
-                travelTimesRev,
-                expectedTravelTimesCount,
-                originalTravelTimesCount);
-        return count;
     }
 }

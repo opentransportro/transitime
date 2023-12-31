@@ -19,7 +19,6 @@ import org.transitclock.utils.csv.CsvBase;
  */
 public class AvlCsvRecord extends CsvBase {
 
-    /********************** Member Functions **************************/
     private AvlCsvRecord(CSVRecord record, String fileName) {
         super(record, false, fileName);
     }

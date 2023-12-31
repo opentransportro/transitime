@@ -21,8 +21,7 @@ public class ArrivalDepartureGeneratorFactory {
 
     private static ArrivalDepartureGenerator singleton = null;
 
-    /********************** Member Functions **************************/
-    public static ArrivalDepartureGenerator getInstance() {
+    public static synchronized ArrivalDepartureGenerator getInstance() {
         // If the PredictionGenerator hasn't been created yet then do so now
         if (singleton == null) {
             singleton = ClassInstantiator.instantiate(className.getValue(), ArrivalDepartureGenerator.class);

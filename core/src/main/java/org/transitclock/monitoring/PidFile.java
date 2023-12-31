@@ -8,6 +8,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,9 +19,8 @@ import org.slf4j.LoggerFactory;
  *
  * @author Michael
  */
+@Slf4j
 public class PidFile {
-
-    private static final Logger logger = LoggerFactory.getLogger(PidFile.class);
 
     /**
      * Returns the PID of the process. Not guaranteed to be fully portable.
@@ -29,7 +30,9 @@ public class PidFile {
     public static String getPid() {
         final String jvmName = ManagementFactory.getRuntimeMXBean().getName();
         final int ampersand = jvmName.indexOf('@');
-        if (ampersand < 1) return null;
+        if (ampersand < 1) {
+            return null;
+        }
 
         return jvmName.substring(0, ampersand);
     }

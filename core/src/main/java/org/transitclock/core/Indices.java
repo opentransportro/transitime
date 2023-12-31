@@ -26,17 +26,6 @@ public class Indices implements Serializable {
     private int stopPathIndex;
     private int segmentIndex;
 
-    /********************** Member Functions **************************/
-
-    /**
-     * Simple constructor
-     *
-     * @param block
-     * @param tripIndex
-     * @param stopPathIndex
-     * @param segmentIndex
-     * @throws IndexOutOfBoundsException If any of the parameters are not valid for the block
-     */
     public Indices(Block block, int tripIndex, int stopPathIndex, int segmentIndex) throws IndexOutOfBoundsException {
         this.block = block;
         this.tripIndex = tripIndex;
@@ -70,11 +59,6 @@ public class Indices implements Serializable {
         }
     }
 
-    /**
-     * For constructing Indices object using a SpatialMatch
-     *
-     * @param spatialMatch
-     */
     public Indices(SpatialMatch spatialMatch) {
         this.block = spatialMatch.getBlock();
         this.tripIndex = spatialMatch.getTripIndex();
@@ -83,20 +67,16 @@ public class Indices implements Serializable {
     }
 
     public Indices(IpcArrivalDeparture event) {
-
-        Block block = null;
-
         DbConfig dbConfig = Core.getInstance().getDbConfig();
-        block = dbConfig.getBlock(event.getServiceId(), event.getBlockId());
 
-        this.block = block;
+        this.block = dbConfig.getBlock(event.getServiceId(), event.getBlockId());
         this.tripIndex = event.getTripIndex();
         this.stopPathIndex = event.getStopPathIndex();
     }
 
     public Indices(ArrivalDeparture event) {
 
-        Block block = null;
+        Block block;
         if (event.getBlock() == null) {
             DbConfig dbConfig = Core.getInstance().getDbConfig();
             block = dbConfig.getBlock(event.getServiceId(), event.getBlockId());
@@ -225,7 +205,7 @@ public class Indices implements Serializable {
      * will use the proper trip depending on the time of day. Assumes that there is only single trip
      * defined for a route/loop.
      *
-     * @param time The current time so can determine time of day and return the proper trip index.
+     * @param epochTime The current time so can determine time of day and return the proper trip index.
      *     Only needed for no schedule assignments.
      * @return Indices for the next StopPath for the assignment
      */

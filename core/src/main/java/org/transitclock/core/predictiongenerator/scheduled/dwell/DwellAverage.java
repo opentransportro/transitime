@@ -26,7 +26,7 @@ public class DwellAverage implements DwellModel, Serializable {
             "For when determining stop times. Throws out outliers if they are less than 0.7"
                     + " or greater than 1/0.7 of the average.");
 
-    private List<Integer> values = new ArrayList<Integer>();
+    private List<Integer> values = new ArrayList<>();
 
     // For this model headway or demand is not taken into account.
     @Override
@@ -45,38 +45,5 @@ public class DwellAverage implements DwellModel, Serializable {
     public Integer predict(Integer headway, Integer demand) {
 
         return Statistics.filteredMean(values, fractionLimitForStopTimes.getValue());
-    }
-
-    public static void main(String[] args) {
-        DwellAverage average = new DwellAverage();
-        average.putSample(new Integer(1), null, null);
-        average.putSample(new Integer(2), null, null);
-        average.putSample(new Integer(3), null, null);
-        average.putSample(new Integer(4), null, null);
-        average.putSample(new Integer(5), null, null);
-        average.putSample(new Integer(6), null, null);
-        average.putSample(new Integer(7), null, null);
-        average.putSample(new Integer(8), null, null);
-        average.putSample(new Integer(9), null, null);
-        average.putSample(new Integer(10), null, null);
-        average.putSample(new Integer(11), null, null);
-        average.putSample(new Integer(12), null, null);
-
-        System.out.println(average.predict(null, null));
-
-        average.putSample(new Integer(2), null, null);
-        average.putSample(new Integer(2), null, null);
-        average.putSample(new Integer(2), null, null);
-        average.putSample(new Integer(2), null, null);
-        average.putSample(new Integer(2), null, null);
-        average.putSample(new Integer(9), null, null);
-        average.putSample(new Integer(2), null, null);
-        average.putSample(new Integer(2), null, null);
-        average.putSample(new Integer(11), null, null);
-        average.putSample(new Integer(2), null, null);
-        average.putSample(new Integer(2), null, null);
-        average.putSample(new Integer(2), null, null);
-
-        System.out.println(average.predict(null, null));
     }
 }

@@ -12,7 +12,7 @@ public class HeadwayDetails {
 
     private IpcPrediction vehicleAheadPrediction = null;
     private ArrivalDeparture vehicleAheadArrival = null;
-    private IpcPrediction vehicleBehindPrediction = null;
+    private final IpcPrediction vehicleBehindPrediction = null;
     Long arrivalPrediction = null;
 
     public IpcPrediction getVehicleAheadPrediction() {
@@ -47,7 +47,6 @@ public class HeadwayDetails {
     }
 
     public Long getHeadway() {
-
         if (vehicleBehindPrediction != null && vehicleAheadPrediction != null)
             return vehicleBehindPrediction.getPredictionTime() - vehicleAheadPrediction.getPredictionTime();
         if (vehicleBehindPrediction != null && vehicleAheadArrival != null)
@@ -67,7 +66,6 @@ public class HeadwayDetails {
     }
 
     public boolean basedOnPrediction() {
-        if (vehicleAheadPrediction != null) return true;
-        else return false;
+        return vehicleAheadPrediction != null;
     }
 }

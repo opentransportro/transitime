@@ -1,24 +1,18 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
+import javax.persistence.*;
 import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+
 import org.hibernate.HibernateException;
-import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.transitclock.db.hibernate.HibernateUtils;
 import org.transitclock.gtfs.gtfsStructs.GtfsCalendarDate;
 
 /**
@@ -36,7 +30,7 @@ public class CalendarDate implements Serializable {
     @Id
     private final int configRev;
 
-    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
+    @Column(length = 60)
     @Id
     private final String serviceId;
 
@@ -50,11 +44,6 @@ public class CalendarDate implements Serializable {
 
     // Logging
     public static final Logger logger = LoggerFactory.getLogger(CalendarDate.class);
-
-    // Because Hibernate requires objects with composite IDs to be Serializable
-    private static final long serialVersionUID = -4825360997804688749L;
-
-    /********************** Member Functions **************************/
 
     /**
      * Constructor
@@ -102,10 +91,9 @@ public class CalendarDate implements Serializable {
      * @throws HibernateException
      */
     public static int deleteFromRev(Session session, int configRev) throws HibernateException {
-        // Note that hql uses class name, not the table name
-        String hql = "DELETE CalendarDate WHERE configRev=" + configRev;
-        int numUpdates = session.createQuery(hql).executeUpdate();
-        return numUpdates;
+        return session.createQuery("DELETE CalendarDate WHERE configRev= :configRev")
+                .setParameter("configRev", configRev)
+                .executeUpdate();
     }
 
     /**
@@ -118,10 +106,9 @@ public class CalendarDate implements Serializable {
      */
     @SuppressWarnings("unchecked")
     public static List<CalendarDate> getCalendarDates(Session session, int configRev) throws HibernateException {
-        String hql = "FROM CalendarDate " + "    WHERE configRev = :configRev";
-        Query query = session.createQuery(hql);
-        query.setInteger("configRev", configRev);
-        return query.list();
+        return session.createQuery("FROM CalendarDate WHERE configRev = :configRev")
+                .setParameter("configRev", configRev)
+                .list();
     }
 
     /* (non-Javadoc)

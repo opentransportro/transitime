@@ -10,6 +10,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.applications.Core;
@@ -28,23 +30,13 @@ import org.transitclock.gtfs.DbConfig;
  *
  * @author Sean Og Crudden
  */
+@Slf4j
 public class GTFSRealtimePredictionAccuracyModule extends PredictionAccuracyModule {
 
-    private static final Logger logger = LoggerFactory.getLogger(GTFSRealtimePredictionAccuracyModule.class);
-
-    /********************** Config Params **************************/
     private static final StringConfigValue gtfsTripUpdateUrl = new StringConfigValue(
             "transitclock.predAccuracy.gtfsTripUpdateUrl",
             "http://127.0.0.1:8091/trip-updates",
             "URL to access gtfs-rt trip updates.");
-
-    private static ClassConfigValue translatorConfig = new ClassConfigValue(
-            "transitclock.predAccuracy.RtTranslator",
-            null,
-            "Implementation of GTFSRealtimeTranslator to perform " + "the translation of stopIds and other rt quirks");
-
-    // if stopIds needs optional parsing/translation
-    private GTFSRealtimeTranslator translator = null;
 
     /**
      * @return the gtfstripupdateurl
@@ -53,7 +45,6 @@ public class GTFSRealtimePredictionAccuracyModule extends PredictionAccuracyModu
         return gtfsTripUpdateUrl;
     }
 
-    /********************** Member Functions **************************/
 
     /**
      * @param agencyId
@@ -61,10 +52,6 @@ public class GTFSRealtimePredictionAccuracyModule extends PredictionAccuracyModu
      */
     public GTFSRealtimePredictionAccuracyModule(String agencyId) throws Exception {
         super(agencyId);
-        if (translatorConfig.getValue() != null) {
-            logger.info("instantiating translator {}", translatorConfig.getValue());
-            translator = (GTFSRealtimeTranslator) translatorConfig.getValue().newInstance();
-        }
     }
 
     /**
@@ -73,21 +60,15 @@ public class GTFSRealtimePredictionAccuracyModule extends PredictionAccuracyModu
      * @return the FeedMessage to be processed
      */
     private FeedMessage getExternalPredictions() {
-
         // Will just read all data from gtfs-rt url
         URL url = null;
-        logger.info(
-                "Getting predictions from API using URL={}",
-                getGtfstripupdateurl().getValue());
+        logger.info("Getting predictions from API using URL={}", getGtfstripupdateurl().getValue());
 
         try {
-            // Create the connection
             url = new URL(getGtfstripupdateurl().getValue());
 
             FeedMessage feed = FeedMessage.parseFrom(url.openStream());
-            logger.info(
-                    "Prediction read successfully from URL={}",
-                    getGtfstripupdateurl().getValue());
+            logger.info("Prediction read successfully from URL={}", getGtfstripupdateurl().getValue());
 
             return feed;
         } catch (Exception e) {
@@ -195,14 +176,8 @@ public class GTFSRealtimePredictionAccuracyModule extends PredictionAccuracyModu
 
                                 if (i + 1 < stopTimes.size()) nextStopTime = stopTimes.get(i + 1);
 
-                                while ((nextStopTime != null
-                                                && !stopTimeMatchesStopPath(
-                                                        nextStopTime,
-                                                        gtfsTrip.getStopPath(stopPathIndex + nextStopIndexIncrement)))
-                                        || (nextStopTime == null
-                                                && (stopPathIndex + nextStopIndexIncrement)
-                                                        < gtfsTrip.getStopPaths()
-                                                                .size())) {
+                                while ((nextStopTime != null && !stopTimeMatchesStopPath(nextStopTime, gtfsTrip.getStopPath(stopPathIndex + nextStopIndexIncrement)))
+                                        || (nextStopTime == null && (stopPathIndex + nextStopIndexIncrement) < gtfsTrip.getStopPaths().size())) {
                                     ScheduleTime scheduledTime = null;
 
                                     scheduledTime = gtfsTrip.getScheduleTime(stopPathIndex + nextStopIndexIncrement);
@@ -220,21 +195,15 @@ public class GTFSRealtimePredictionAccuracyModule extends PredictionAccuracyModu
                                         eventTime = null;
                                         if (stopTime.hasArrival()) {
                                             if (stopTime.getArrival().hasTime()) {
-                                                eventTime = new Date(
-                                                        stopTime.getArrival().getTime() * 1000);
-
-                                                // logger.debug("Event Time : "
-                                                // +
-                                                // eventTime);
+                                                eventTime = new Date(stopTime.getArrival().getTime() * 1000);
                                             } else if (stopTime.getArrival().hasDelay()) {
+                                                int timeInSeconds = stopTime.getArrival().getDelay();
 
-                                                int timeInSeconds =
-                                                        stopTime.getArrival().getDelay();
-
-                                                if (scheduledTime.getDepartureTime() != null)
+                                                if (scheduledTime.getDepartureTime() != null) {
                                                     timeInSeconds = timeInSeconds + scheduledTime.getDepartureTime();
-                                                else if (scheduledTime.getArrivalTime() != null)
+                                                } else if (scheduledTime.getArrivalTime() != null) {
                                                     timeInSeconds = timeInSeconds + scheduledTime.getArrivalTime();
+                                                }
 
                                                 Calendar calendar = Calendar.getInstance();
                                                 calendar.set(Calendar.HOUR_OF_DAY, 0);
@@ -304,8 +273,8 @@ public class GTFSRealtimePredictionAccuracyModule extends PredictionAccuracyModu
                                                             stopId,
                                                             eventTime,
                                                             true,
-                                                            scheduledTime.toString(),
-                                                            eventReadTime.toString());
+                                                            scheduledTime,
+                                                            eventReadTime);
 
                                                     logger.info(
                                                             "Prediction in milliseconds is {} and" + " converted is {}",
@@ -321,7 +290,7 @@ public class GTFSRealtimePredictionAccuracyModule extends PredictionAccuracyModu
                                                             eventTime,
                                                             eventReadTime,
                                                             true,
-                                                            new Boolean(false),
+                                                            false,
                                                             "GTFS-rt",
                                                             null,
                                                             scheduledTime.toString());
@@ -342,8 +311,8 @@ public class GTFSRealtimePredictionAccuracyModule extends PredictionAccuracyModu
                                                             stopId,
                                                             eventTime,
                                                             true,
-                                                            scheduledTime.toString(),
-                                                            eventReadTime.toString());
+                                                            scheduledTime,
+                                                            eventReadTime);
                                                 }
                                             }
                                         }
@@ -430,8 +399,8 @@ public class GTFSRealtimePredictionAccuracyModule extends PredictionAccuracyModu
                                                             stopId,
                                                             eventTime,
                                                             false,
-                                                            scheduledTime.toString(),
-                                                            eventReadTime.toString());
+                                                            scheduledTime,
+                                                            eventReadTime);
 
                                                     logger.info(
                                                             "Prediction in milliseonds is {} and" + " converted is {}",
@@ -447,7 +416,7 @@ public class GTFSRealtimePredictionAccuracyModule extends PredictionAccuracyModu
                                                             eventTime,
                                                             eventReadTime,
                                                             false,
-                                                            new Boolean(false),
+                                                            false,
                                                             "GTFS-rt",
                                                             null,
                                                             scheduledTime.toString());
@@ -468,8 +437,8 @@ public class GTFSRealtimePredictionAccuracyModule extends PredictionAccuracyModu
                                                             stopId,
                                                             eventTime,
                                                             false,
-                                                            scheduledTime.toString(),
-                                                            eventReadTime.toString());
+                                                            scheduledTime,
+                                                            eventReadTime);
                                                 }
                                             }
                                         }
@@ -588,18 +557,5 @@ public class GTFSRealtimePredictionAccuracyModule extends PredictionAccuracyModu
         private GTFSRealtimePredictionAccuracyModule getOuterType() {
             return GTFSRealtimePredictionAccuracyModule.this;
         }
-    }
-
-    static HashMap<PredictionReadTimeKey, Long> readTimesMap = new HashMap<PredictionReadTimeKey, Long>();
-
-    Date getDate(int secondsFromMidnight) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
-
-        calendar.add(Calendar.SECOND, secondsFromMidnight);
-
-        return calendar.getTime();
     }
 }

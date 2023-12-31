@@ -3,10 +3,9 @@ package org.transitclock.monitoring;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.transitclock.Module;
 import org.transitclock.config.IntegerConfigValue;
 import org.transitclock.configData.AgencyConfig;
-import org.transitclock.logging.Markers;
-import org.transitclock.Module;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.Time;
 
@@ -75,8 +74,7 @@ public class MonitoringModule extends Module {
                     logger.error("MonitoringModule detected problem. {}", resultStr);
                 }
             } catch (Exception e) {
-                logger.error(
-                        Markers.email(), "Errror in MonitoringModule for agencyId={}", AgencyConfig.getAgencyId(), e);
+                logger.error("Errror in MonitoringModule for agencyId={}", AgencyConfig.getAgencyId(), e);
             }
         }
     }

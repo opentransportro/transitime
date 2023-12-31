@@ -26,9 +26,6 @@ public class IpcBlock implements Serializable {
     private final List<IpcTrip> trips;
     private final List<IpcRouteSummary> routeSummaries;
 
-    private static final long serialVersionUID = 5707936828040534137L;
-
-    /********************** Member Functions **************************/
     public IpcBlock(Block dbBlock) {
         configRev = dbBlock.getConfigRev();
         id = dbBlock.getId();

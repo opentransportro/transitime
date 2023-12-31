@@ -3,8 +3,9 @@ package org.transitclock.core;
 
 import java.util.HashMap;
 import java.util.Iterator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
+import org.transitclock.Module;
 import org.transitclock.applications.Core;
 import org.transitclock.config.BooleanConfigValue;
 import org.transitclock.config.IntegerConfigValue;
@@ -13,8 +14,6 @@ import org.transitclock.core.dataCache.VehicleStateManager;
 import org.transitclock.core.schedBasedPreds.SchedBasedPredsModule;
 import org.transitclock.db.structs.AvlReport;
 import org.transitclock.db.structs.VehicleEvent;
-import org.transitclock.logging.Markers;
-import org.transitclock.Module;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.Time;
 
@@ -29,12 +28,13 @@ import org.transitclock.utils.Time;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class TimeoutHandlerModule extends Module {
 
     // For keeping track of the last AVL report for each vehicle. Keyed on
     // vehicle ID. Synchronize map modifications since elsewhere the elements
     // can be removed from the map.
-    private HashMap<String, AvlReport> avlReportsMap = new HashMap<String, AvlReport>();
+    private final Map<String, AvlReport> avlReportsMap = new HashMap<>();
 
     /********************* Parameters *********************************/
     private static IntegerConfigValue pollingRateSecs = new IntegerConfigValue(
@@ -76,11 +76,6 @@ public class TimeoutHandlerModule extends Module {
                     + "be useful in situations where it is not desirable to "
                     + "include timed out vehicles in data feeds, e.g. the GTFS "
                     + "Realtime vehicle positions feed.");
-
-    /********************* Logging ************************************/
-    private static final Logger logger = LoggerFactory.getLogger(TimeoutHandlerModule.class);
-
-    /********************** Member Functions **************************/
 
     /** Constructor */
     public TimeoutHandlerModule(String agencyId) {
@@ -345,11 +340,7 @@ public class TimeoutHandlerModule extends Module {
                 long sleepTime = pollingRateSecs.getValue() * Time.MS_PER_SEC - timer.elapsedMsec();
                 if (sleepTime > 0) Time.sleep(sleepTime);
             } catch (Exception e) {
-                logger.error(
-                        Markers.email(),
-                        "Error with TimeoutHandlerModule for agencyId={}",
-                        AgencyConfig.getAgencyId(),
-                        e);
+                logger.error("Error with TimeoutHandlerModule for agencyId={}", AgencyConfig.getAgencyId(), e);
             }
         }
     }

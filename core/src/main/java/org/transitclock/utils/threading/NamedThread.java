@@ -7,7 +7,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.configData.AgencyConfig;
-import org.transitclock.logging.Markers;
 
 /**
  * Creates a Thread but sets the name of it and sets the UncaughtExceptionHandler so that uncaught
@@ -107,7 +106,6 @@ public class NamedThread extends Thread {
                 } else {
                     // Log and send out e-mail since this is an unexpected problem
                     logger.error(
-                            Markers.email(),
                             "Unexpected Throwable occurred which will cause "
                                     + "thread {} to terminate for agencyId={}",
                             getName(),

@@ -13,87 +13,67 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.esri.geometry</groupId>
-            <artifactId>esri-geometry-api</artifactId>
-            <version>1.1</version>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <version>3.24.2</version>
+            <scope>test</scope>
         </dependency>
-        <!-- Needed to fix problem with one-jar not working with AWS SDK. Was getting
-            error message "Fatal: Failed to load the internal config for AWS" -->
-        <dependency>
-            <groupId>io.kevinlee</groupId>
-            <artifactId>one-jar-boot</artifactId>
-            <version>0.97.4</version>
-        </dependency>
-
-        <!-- Database related, including c3p0 production quality connector. Note:
-            have found that can have problems if don't use similar versions. Can have
-            trouble finding the c3p0 connection pooler for example if use old hibernate-core
-            but new c3p0. -->
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>9.3-1103-jdbc41</version>
+            <version>42.6.0</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hsqldb</groupId>
+            <artifactId>hsqldb</artifactId>
+            <version>2.7.2</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>2.2.224</version>
+            <scope>runtime</scope>
         </dependency>
 
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
-            <version>4.3.9.Final</version>
+            <version>5.6.15.Final</version>
         </dependency>
-        <dependency>
-            <groupId>org.hibernate.common</groupId>
-            <artifactId>hibernate-commons-annotations</artifactId>
-            <version>4.0.5.Final</version>
-        </dependency>
+
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-c3p0</artifactId>
-            <version>4.3.9.Final</version>
-        </dependency>
-
-        <!-- hibernate-core loads in really old version of xml-apis so load in
-            newer version explicitly. Otherwise get problems with the Node class. -->
-        <dependency>
-            <groupId>xml-apis</groupId>
-            <artifactId>xml-apis</artifactId>
-            <version>1.4.01</version>
+            <version>5.6.15.Final</version>
         </dependency>
 
         <!-- For logging -->
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-core</artifactId>
-            <version>1.1.2</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.1.3</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.7.2</version>
         </dependency>
 
-        <!-- So can use Amazon API for archiving files and such -->
-        <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk</artifactId>
-            <version>1.10.16</version>
-        </dependency>
         <!-- For many java utilities, such as StringEscapeUtils -->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>3.3.2</version>
+            <version>3.13.0</version>
         </dependency>
-
-        <!-- For processing XML files, such as for AVL feeds -->
         <dependency>
-            <groupId>org.jdom</groupId>
-            <artifactId>jdom</artifactId>
-            <version>2.0.2</version>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-text</artifactId>
+            <version>1.3</version>
         </dependency>
 
         <!-- For GTFS-realtime feed -->
@@ -101,6 +81,17 @@
             <groupId>org.mobilitydata</groupId>
             <artifactId>gtfs-realtime-bindings</artifactId>
             <version>0.0.8</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.google.protobuf</groupId>
+                    <artifactId>protobuf-java</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
+            <version>3.22.2</version>
         </dependency>
 
         <!-- For more easily handling command line options -->
@@ -110,49 +101,17 @@
             <version>1.2</version>
         </dependency>
 
-        <!-- For JMS for fancy handling of AVL feeds -->
-        <dependency>
-            <groupId>org.hornetq</groupId>
-            <artifactId>hornetq-core-client</artifactId>
-            <version>2.3.25.Final</version>
-        </dependency>
-        <dependency>
-            <groupId>org.hornetq</groupId>
-            <artifactId>hornetq-jms-client</artifactId>
-            <version>2.3.25.Final</version>
-        </dependency>
-
-        <!-- For Amigocloud web sockets AVL feed -->
-        <dependency>
-            <groupId>org.java-websocket</groupId>
-            <artifactId>Java-WebSocket</artifactId>
-            <version>1.3.0</version>
-        </dependency>
-
-        <!-- For processing JSON. Needed for Amigocloud and other JSON based AVL
-            feeds. NOTE: the version 20141113 does not work with Java 1.7, which is what
-            is still the normal version of Java for AWS, at least as of June 2015. Need
-            to use old version 20140107 which was compiled with Java 1.7 instead of Java
-            1.8 -->
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
-            <version>20230618</version>
+            <version>20231013</version>
         </dependency>
 
         <!-- For parsing CSV files, such as GTFS ones -->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-csv</artifactId>
-            <version>1.1</version>
-        </dependency>
-
-        <!-- For concurrency annotations like @Immutable and @ThreadSave from the
-            "Concurrency in Practice" book need library -->
-        <dependency>
-            <groupId>net.jcip</groupId>
-            <artifactId>jcip-annotations</artifactId>
-            <version>1.0</version>
+            <version>1.10.0</version>
         </dependency>
 
         <!-- For encryption/decryption -->
@@ -160,27 +119,6 @@
             <groupId>org.jasypt</groupId>
             <artifactId>jasypt</artifactId>
             <version>1.9.2</version>
-        </dependency>
-
-        <!-- So can send out monitoring related e-mails -->
-        <dependency>
-            <groupId>javax.mail</groupId>
-            <artifactId>mail</artifactId>
-            <version>1.4.7</version>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-beanutils</groupId>
-            <artifactId>commons-beanutils</artifactId>
-            <version>1.9.2</version>
-        </dependency>
-
-        <!-- JUnit testing of course -->
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.11</version>
-            <scope>test</scope>
         </dependency>
 
         <!-- Used for reflection to find classes in package -->
@@ -191,6 +129,7 @@
         <dependency>
             <groupId>org.ehcache</groupId>
             <artifactId>ehcache</artifactId>
+<!--            <version>3.9.11</version>-->
             <version>3.4.0</version>
             <exclusions>
                 <exclusion>
@@ -221,13 +160,6 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- Logback log appender for AWS CloudWatch -->
-        <dependency>
-            <groupId>com.j256.cloudwatchlogbackappender</groupId>
-            <artifactId>cloudwatchlogbackappender</artifactId>
-            <version>1.11</version>
-        </dependency>
-
         <!--  OLS regression algorithm -->
         <dependency>
             <groupId>com.github.haifengl</groupId>
@@ -242,9 +174,19 @@
             <version>2.12.3</version>
         </dependency>
         <dependency>
-            <groupId>javax.xml.bind</groupId>
-            <artifactId>jaxb-api</artifactId>
-            <version>2.4.0-b180830.0359</version>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpcore</artifactId>
+            <version>4.4.16</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.16.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -258,22 +200,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
                 <executions>
-                    <execution>
-                        <id>shade-UpdateTravelTimes</id>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                        <phase>package</phase>
-                        <configuration>
-                            <createDependencyReducedPom>false</createDependencyReducedPom>
-                            <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>org.transitclock.applications.UpdateTravelTimes</mainClass>
-                                </transformer>
-                            </transformers>
-                            <outputFile>target/UpdateTravelTimes.jar</outputFile>
-                        </configuration>
-                    </execution>
                     <execution>
                         <id>shade-Core</id>
                         <goals>
@@ -290,175 +216,8 @@
                             <outputFile>target/Core.jar</outputFile>
                         </configuration>
                     </execution>
-                    <execution>
-                        <id>shade-SchemaGenerator</id>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                        <phase>package</phase>
-                        <configuration>
-                            <createDependencyReducedPom>false</createDependencyReducedPom>
-                            <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>org.transitclock.applications.SchemaGenerator</mainClass>
-                                </transformer>
-                            </transformers>
-                            <outputFile>target/SchemaGenerator.jar</outputFile>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>shade-ScheduleGenerator</id>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                        <phase>package</phase>
-                        <configuration>
-                            <createDependencyReducedPom>false</createDependencyReducedPom>
-                            <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>org.transitclock.applications.ScheduleGenerator</mainClass>
-                                </transformer>
-                            </transformers>
-                            <outputFile>target/ScheduleGenerator.jar</outputFile>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>shade-GtfsFileProcessor</id>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                        <phase>package</phase>
-                        <configuration>
-                            <createDependencyReducedPom>false</createDependencyReducedPom>
-                            <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>org.transitclock.applications.GtfsFileProcessor</mainClass>
-                                </transformer>
-                            </transformers>
-                            <outputFile>target/GtfsFileProcessor.jar</outputFile>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>shade-RmiQuery</id>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                        <phase>package</phase>
-                        <configuration>
-                            <createDependencyReducedPom>false</createDependencyReducedPom>
-                            <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>org.transitclock.applications.RmiQuery</mainClass>
-                                </transformer>
-                            </transformers>
-                            <outputFile>target/RmiQuery.jar</outputFile>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>shade-CreateAPIKey</id>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                        <phase>package</phase>
-                        <configuration>
-                            <createDependencyReducedPom>false</createDependencyReducedPom>
-                            <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>org.transitclock.applications.CreateAPIKey</mainClass>
-                                </transformer>
-                            </transformers>
-                            <outputFile>target/CreateAPIKey.jar</outputFile>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>shade-CreateWebAgency</id>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                        <phase>package</phase>
-                        <configuration>
-                            <createDependencyReducedPom>false</createDependencyReducedPom>
-                            <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>org.transitclock.applications.CreateWebAgency</mainClass>
-                                </transformer>
-                            </transformers>
-                            <outputFile>target/CreateWebAgency.jar</outputFile>
-                        </configuration>
-                    </execution>
                 </executions>
             </plugin>
         </plugins>
     </build>
-    <profiles>
-        <profile>
-            <id>PredictionsAccuracyIntegrationTest</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>truezip-maven-plugin</artifactId>
-                        <version>1.2</version>
-                        <executions>
-                            <execution>
-                                <id>unzip-database</id>
-                                <goals>
-                                    <goal>copy</goal>
-                                </goals>
-                                <phase>test</phase>
-                                <configuration>
-                                    <verbose>true</verbose>
-                                    <fileset>
-                                        <directory>${project.basedir}/src/test/resources/database/transitime_test.zip</directory>
-                                        <outputDirectory>${project.basedir}/src/test/resources/database/data</outputDirectory>
-                                    </fileset>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.onebusaway.plugins</groupId>
-                        <artifactId>maven-hsqldb-plugin</artifactId>
-                        <!-- version 1.0.1 supports hsqldb 2.3.2 -->
-                        <version>1.0.1</version>
-                        <executions>
-                            <execution>
-                                <id>user-database-start</id>
-                                <goals>
-                                    <goal>run</goal>
-                                </goals>
-                                <phase>test</phase>
-                                <configuration>
-                                    <deleteOnEntry>true</deleteOnEntry>
-                                    <dbName>${project.basedir}/src/test/resources/database/data/transitime_test</dbName>
-                                    <port>9001</port>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>exec-maven-plugin</artifactId>
-                        <version>1.1.1</version>
-                        <executions>
-                            <execution>
-                                <id>test-case-execution</id>
-                                <goals>
-                                    <goal>java</goal>
-                                </goals>
-                                <phase>test</phase>
-                                <configuration>
-                                    <mainClass>org.transitclock.applications.PredictionsAccuracyIntegrationTest</mainClass>
-                                    <commandlineArgs>-c
-                                        transitime/src/test/resources/transiTimeConfigIntegrationTest.xml
-                                        -gtfsDirectoryName transitime/src/test/resources/wmata_gtfs -storeNewRevs
-                                        -maxTravelTimeSegmentLength 1000</commandlineArgs>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 </project>

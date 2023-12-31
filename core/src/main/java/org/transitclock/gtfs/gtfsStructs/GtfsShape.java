@@ -1,6 +1,8 @@
 /* (C)2023 */
 package org.transitclock.gtfs.gtfsStructs;
 
+import lombok.Getter;
+import lombok.ToString;
 import org.apache.commons.csv.CSVRecord;
 import org.transitclock.db.structs.Location;
 import org.transitclock.utils.csv.CsvBase;
@@ -10,6 +12,8 @@ import org.transitclock.utils.csv.CsvBase;
  *
  * @author SkiBu Smith
  */
+@ToString
+@Getter
 public class GtfsShape extends CsvBase implements Comparable<GtfsShape> {
 
     private final String shapeId;
@@ -20,8 +24,6 @@ public class GtfsShape extends CsvBase implements Comparable<GtfsShape> {
 
     // For deleting a point via a supplemental shapes.txt file
     private final Boolean delete;
-
-    /********************** Member Functions **************************/
 
     /** Creates a GtfsShape object from scratch */
     public GtfsShape(
@@ -107,28 +109,8 @@ public class GtfsShape extends CsvBase implements Comparable<GtfsShape> {
         this.delete = s.delete == null ? o.delete : s.delete;
     }
 
-    public String getShapeId() {
-        return shapeId;
-    }
-
-    public double getShapePtLat() {
-        return shapePtLat;
-    }
-
-    public double getShapePtLon() {
-        return shapePtLon;
-    }
-
     public Location getLocation() {
         return new Location(shapePtLat, shapePtLon);
-    }
-
-    public int getShapePtSequence() {
-        return shapePtSequence;
-    }
-
-    public Double getShapeDistTraveled() {
-        return shapeDistTraveled;
     }
 
     public boolean shouldDelete() {
@@ -144,25 +126,5 @@ public class GtfsShape extends CsvBase implements Comparable<GtfsShape> {
     @Override
     public int compareTo(GtfsShape arg0) {
         return getShapePtSequence() - arg0.getShapePtSequence();
-    }
-
-    @Override
-    public String toString() {
-        return "GtfsShape ["
-                + "lineNumber="
-                + lineNumber
-                + ", shapeId="
-                + shapeId
-                + ", shapePtLat="
-                + shapePtLat
-                + ", shapePtLon="
-                + shapePtLon
-                + ", shapePtSequence="
-                + shapePtSequence
-                + ", shapeDistTraveled="
-                + shapeDistTraveled
-                + ", delete="
-                + delete
-                + "]";
     }
 }

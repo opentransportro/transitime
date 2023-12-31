@@ -29,8 +29,6 @@ public class Timer {
         // thread is used for what purpose.
         NamedThreadFactory threadFactory = new NamedThreadFactory(Timer.class.getName());
 
-        ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(coreNumberThreads, threadFactory);
-
-        return executor;
+        return new ScheduledThreadPoolExecutor(coreNumberThreads, threadFactory);
     }
 }

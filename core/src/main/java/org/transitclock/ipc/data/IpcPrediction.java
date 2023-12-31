@@ -6,10 +6,10 @@ import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.Date;
+
 import org.transitclock.applications.Core;
 import org.transitclock.db.structs.AvlReport;
 import org.transitclock.db.structs.Trip;
-import org.transitclock.ipc.data.IpcPrediction.ArrivalOrDeparture;
 import org.transitclock.utils.StringUtils;
 import org.transitclock.utils.Time;
 
@@ -65,24 +65,16 @@ public class IpcPrediction implements Serializable {
     private final Integer delay;
     private boolean isCanceled;
 
-    public boolean isCanceled() {
-        return isCanceled;
-    }
-
     private final long freqStartTime;
     private final int tripCounter;
     // Want to store trip on server side so that can determine route info
     // when creating PredictionsForRouteStop object.
     private final Trip trip;
 
-    private static final long serialVersionUID = 7264507678733060173L;
-
     public enum ArrivalOrDeparture {
         ARRIVAL,
         DEPARTURE
-    };
-
-    /********************** Member Functions **************************/
+    }
 
     /**
      * Constructs a Prediction object. For use on server side.
@@ -222,6 +214,9 @@ public class IpcPrediction implements Serializable {
         this.isCanceled = isCanceled;
     }
 
+    public boolean isCanceled() {
+        return isCanceled;
+    }
     /**
      * SerializationProxy is used so that this class can be immutable and so that can do versioning
      * of objects.
@@ -256,7 +251,6 @@ public class IpcPrediction implements Serializable {
         private Integer delay;
         private boolean isCanceled;
 
-        private static final long serialVersionUID = -8585283691951746719L;
         private static final short currentSerializationVersion = 0;
 
         /*
@@ -609,7 +603,8 @@ public class IpcPrediction implements Serializable {
      * @return
      */
     public String getRouteShortName() {
-        if (trip == null) return null;
+        if (trip == null)
+            return null;
         return trip.getRouteShortName();
     }
 

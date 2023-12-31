@@ -7,9 +7,6 @@ import org.transitclock.db.structs.PredictionForStopPath;
 
 public class IpcPredictionForStopPath implements Serializable {
 
-    /** */
-    private static final long serialVersionUID = 4379439564376344615L;
-
     private final Date creationTime;
 
     private final Double predictionTime;

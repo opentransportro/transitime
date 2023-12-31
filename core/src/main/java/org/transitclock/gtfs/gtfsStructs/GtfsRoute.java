@@ -1,7 +1,10 @@
 /* (C)2023 */
 package org.transitclock.gtfs.gtfsStructs;
 
-import net.jcip.annotations.Immutable;
+import javax.annotation.concurrent.Immutable;
+
+import lombok.Getter;
+import lombok.ToString;
 import org.apache.commons.csv.CSVRecord;
 import org.transitclock.utils.csv.CsvBase;
 
@@ -13,6 +16,8 @@ import org.transitclock.utils.csv.CsvBase;
  *
  * @author SkiBu Smith
  */
+@ToString
+@Getter
 @Immutable
 public class GtfsRoute extends CsvBase {
 
@@ -37,8 +42,6 @@ public class GtfsRoute extends CsvBase {
     private final String parentRouteId;
     private final Integer breakTime;
     private final Double maxDistance;
-
-    /********************** Member Functions **************************/
 
     /** For creating a GtfsStop object from scratch. */
     public GtfsRoute(
@@ -73,7 +76,7 @@ public class GtfsRoute extends CsvBase {
      * Creates a GtfsRoute object by reading the data from the CSVRecord.
      *
      * @param record
-     * @param supplemental
+     * @param supplementalFile
      * @param fileName for logging errors
      */
     public GtfsRoute(CSVRecord record, boolean supplementalFile, String fileName) {
@@ -143,65 +146,15 @@ public class GtfsRoute extends CsvBase {
         maxDistance = s.maxDistance == null ? o.maxDistance : s.maxDistance;
     }
 
-    public String getRouteId() {
-        return routeId;
-    }
-
-    public String getAgencyId() {
-        return agencyId;
-    }
-
     /**
-     * Returns the route short name. Can be null.
+     * Returns if route should be removed from configuration so it doesn't show up at all
      *
      * @return
      */
-    public String getRouteShortName() {
-        return routeShortName;
-    }
-
-    public String getRouteLongName() {
-        return routeLongName;
-    }
-
-    public String getRouteDesc() {
-        return routeDesc;
-    }
-
-    public String getRouteType() {
-        return routeType;
-    }
-
-    public String getRouteURL() {
-        return routeURL;
-    }
-
-    public String getRouteColor() {
-        return routeColor;
-    }
-
-    public String getRouteTextColor() {
-        return routeTextColor;
-    }
-
-    /**
-     * Returns optional route_order or null if not set.
-     *
-     * @return
-     */
-    public Integer getRouteOrder() {
-        return routeOrder;
-    }
-
-    /**
-     * Some agencies create several entries for a single route. For example, they might have a 3
-     * different trip patterns so they use 3 separate routes, but they have the same title. In this
-     * case the routes should be combined.
-     *
-     * @return route_id of the parent route
-     */
-    public String getParentRouteId() {
-        return parentRouteId;
+    public boolean shouldRemove() {
+        // remove is optional so can be null. Therefore need
+        // to handle specially
+        return remove != null ? remove : false;
     }
 
     /**
@@ -216,87 +169,11 @@ public class GtfsRoute extends CsvBase {
     }
 
     /**
-     * Returns if route should be removed from configuration so it doesn't show up at all
-     *
-     * @return
-     */
-    public boolean shouldRemove() {
-        // remove is optional so can be null. Therefore need
-        // to handle specially
-        return remove != null ? remove : false;
-    }
-
-    /**
      * Returns true if should create unscheduled block assignments for this route.
      *
      * @return
      */
     public boolean shouldCreateUnscheduledBlock() {
         return unscheduledBlockSuffix != null;
-    }
-
-    /**
-     * Returns suffix to use if should create unscheduled block assignments for this route.
-     *
-     * @return The suffix to use for the block assignments
-     */
-    public String getUnscheduledBlockSuffix() {
-        return unscheduledBlockSuffix;
-    }
-
-    /**
-     * Returns the minimum time that drivers get as a break time for layovers for the route. Affects
-     * predictions.
-     *
-     * @return The break time, or null if not set for route
-     */
-    public Integer getBreakTime() {
-        return breakTime;
-    }
-
-    /**
-     * For specifying on a per route basis how far AVL report can be from segment and still have it
-     * be considered a match.
-     *
-     * @return
-     */
-    public Double getMaxDistance() {
-        return maxDistance;
-    }
-
-    @Override
-    public String toString() {
-        return "GtfsRoute ["
-                + "lineNumber="
-                + lineNumber
-                + ", routeId="
-                + routeId
-                + ", agencyId="
-                + agencyId
-                + ", routeShortName="
-                + routeShortName
-                + ", routeLongName="
-                + routeLongName
-                + ", routeDesc="
-                + routeDesc
-                + ", routeType="
-                + routeType
-                + ", routeURL="
-                + routeURL
-                + ", routeColor="
-                + routeColor
-                + ", routeTextColor="
-                + routeTextColor
-                + ", routeOrder="
-                + routeOrder
-                + ", hidden="
-                + hidden
-                + ", unscheduledBlockSuffix="
-                + unscheduledBlockSuffix
-                + ", breakTime="
-                + breakTime
-                + ", maxDistance="
-                + maxDistance
-                + "]";
     }
 }

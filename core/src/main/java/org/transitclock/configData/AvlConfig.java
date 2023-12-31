@@ -13,22 +13,6 @@ import org.transitclock.config.StringConfigValue;
  * @author SkiBu Smith
  */
 public class AvlConfig {
-    /**
-     * Specifies whether should use JMS to queue AVL data or if should process directly using single
-     * thread.
-     *
-     * @return
-     */
-    public static boolean shouldUseJms() {
-        return shouldUseJms.getValue();
-    }
-
-    private static BooleanConfigValue shouldUseJms = new BooleanConfigValue(
-            "transitclock.avl.shouldUseJms",
-            false,
-            "Specifies whether should use JMS queue for handling "
-                    + "AVL reports. Useful for if feed is read on one machine "
-                    + "but processed on another.");
 
     /**
      * How frequently an AVL feed should be polled for new data.

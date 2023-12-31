@@ -1,6 +1,8 @@
 /* (C)2023 */
 package org.transitclock.gtfs.gtfsStructs;
 
+import lombok.Getter;
+import lombok.ToString;
 import org.apache.commons.csv.CSVRecord;
 import org.transitclock.utils.Time;
 import org.transitclock.utils.csv.CsvBase;
@@ -10,6 +12,8 @@ import org.transitclock.utils.csv.CsvBase;
  *
  * @author SkiBu Smith
  */
+@ToString
+@Getter
 public class GtfsStopTime extends CsvBase implements Comparable<GtfsStopTime> {
 
     private final String tripId;
@@ -38,8 +42,6 @@ public class GtfsStopTime extends CsvBase implements Comparable<GtfsStopTime> {
     /* This is the max speed for using in calculating how far the spatial matcher
      * is to look along the route when the vehicle is at this point. */
     private final Double maxSpeed;
-
-    /********************** Member Functions **************************/
 
     /**
      * For creating a GtfsStopTime object from scratch
@@ -234,102 +236,12 @@ public class GtfsStopTime extends CsvBase implements Comparable<GtfsStopTime> {
         this.isWaitStop = s.isWaitStop == null ? o.isWaitStop : s.isWaitStop;
     }
 
-    public Double getMaxDistance() {
-        return maxDistance;
-    }
-
-    public String getTripId() {
-        return tripId;
-    }
-
-    /**
-     * @return arrival time in seconds into day
-     */
-    public Integer getArrivalTimeSecs() {
-        return arrivalTimeSecs;
-    }
-
-    /**
-     * @return departure time in seconds into day
-     */
-    public Integer getDepartureTimeSecs() {
-        return departureTimeSecs;
-    }
-
-    public String getStopId() {
-        return stopId;
-    }
-
-    public int getStopSequence() {
-        return stopSequence;
-    }
-
-    public String getStopHeadsign() {
-        return stopHeadsign;
-    }
-
-    public String getPickupType() {
-        return pickupType;
-    }
-
-    public String getDropOffType() {
-        return dropOffType;
-    }
-
-    /**
-     * Returns true if the stop_time is configured as a timepoint stop that should be included with
-     * schedule adherence reports.
-     *
-     * @return
-     */
-    public boolean isTimepointStop() {
-        return timepointStop != null && timepointStop;
-    }
-
-    /**
-     * @return shape_dist_traveled or null if not set
-     */
-    public Double getShapeDistTraveled() {
-        return shapeDistTraveled;
-    }
-
     public boolean shouldDelete() {
         return delete != null && delete;
     }
 
     public boolean isWaitStop() {
         return isWaitStop != null && isWaitStop;
-    }
-
-    @Override
-    public String toString() {
-        return "GtfsStopTime ["
-                + "lineNumber="
-                + lineNumber
-                + ", "
-                + (tripId != null ? "tripId=" + tripId + ", " : "")
-                + (arrivalTimeSecs != null ? "arrivalTime=" + Time.timeOfDayStr(arrivalTimeSecs) + ", " : "")
-                + (departureTimeSecs != null ? "departureTime=" + Time.timeOfDayStr(departureTimeSecs) + ", " : "")
-                + (stopId != null ? "stopId=" + stopId + ", " : "")
-                + "stopSequence="
-                + stopSequence
-                + ", "
-                + (stopHeadsign != null ? "stopHeadsign=" + stopHeadsign + ", " : "")
-                + (pickupType != null ? "pickupType=" + pickupType + ", " : "")
-                + (dropOffType != null ? "dropOffType=" + dropOffType + ", " : "")
-                + (shapeDistTraveled != null ? "shapeDistTraveled=" + shapeDistTraveled + ", " : "")
-                + (timepointStop != null ? "timepointStop=" + timepointStop + ", " : "")
-                + "delete="
-                + delete
-                + ", "
-                + (isWaitStop != null ? "isWaitStop=" + isWaitStop : "")
-                + (maxDistance != null ? "maxDistance=" + maxDistance : "")
-                + (maxSpeed != null ? "maxSpeed=" + maxSpeed : "")
-                + "]";
-    }
-
-    public Double getMaxSpeed() {
-        return maxSpeed;
     }
 
     /**

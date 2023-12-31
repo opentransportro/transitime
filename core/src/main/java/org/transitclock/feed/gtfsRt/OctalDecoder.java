@@ -4,7 +4,7 @@ package org.transitclock.feed.gtfsRt;
 /**
  * GTFS-RT doesn't handle UTF-8 characters well when outputing human readable format. Each UTF-8
  * character is output as a set of octal characters and the octal characters are output as strings.
- * Therefore a Chinese character will be output as something like "\304\201\147". The
+ * Therefore, a Chinese character will be output as something like "\304\201\147". The
  * convertOctalEscapedStringToUtf() method in this class converts the octal strings into readable
  * UTF-8 characters.
  *
@@ -106,7 +106,6 @@ public class OctalDecoder {
         }
         // Now that have proper byte stream, convert it to a string
         // and change to proper UTF-8 string.
-        String decodedMessage = decode(convertedBytes);
-        return decodedMessage;
+        return decode(convertedBytes);
     }
 }

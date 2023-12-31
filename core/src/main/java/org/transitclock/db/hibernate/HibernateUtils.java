@@ -7,15 +7,15 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.service.ServiceRegistry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.transitclock.configData.DbSetupConfig;
 
 /**
@@ -23,22 +23,11 @@ import org.transitclock.configData.DbSetupConfig;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class HibernateUtils {
 
-    // Should be set to what is used in hibernate.cfg.xml where the
-    // batch_size is set, e.g. <property name="hibernate.jdbc.batch_size">25</property>
-    public static final int BATCH_SIZE = 100;
-
-    // When Using @Column for route, stop, etc IDs don't need the default of
-    // 255 characters. Therefore can use shorter fields.
-    public static final int DEFAULT_ID_SIZE = 60;
-
     // Cache. Keyed on database name
-    private static HashMap<String, SessionFactory> sessionFactoryCache = new HashMap<String, SessionFactory>();
-
-    public static final Logger logger = LoggerFactory.getLogger(HibernateUtils.class);
-
-    /********************** Member Functions **************************/
+    private static final Map<String, SessionFactory> sessionFactoryCache = new HashMap<>();
 
     /**
      * Creates a new session factory. This is to be cached and only access internally since creating
@@ -75,10 +64,13 @@ public class HibernateUtils {
             // Couldn't find file directly so look in classpath for it
             ClassLoader classLoader = HibernateUtils.class.getClassLoader();
             URL url = classLoader.getResource(fileName);
-            if (url != null) f = new File(url.getFile());
+            if (url != null) {
+                f = new File(url.getFile());
+            }
         }
-        if (f.exists()) config.configure(f);
-        else {
+        if (f.exists()) {
+            config.configure(f);
+        } else {
             logger.error("Could not load in hibernate config file {}", fileName);
         }
 
@@ -133,10 +125,9 @@ public class HibernateUtils {
         Properties properties = config.getProperties();
         ServiceRegistry serviceRegistry =
                 new StandardServiceRegistryBuilder().applySettings(properties).build();
-        SessionFactory sessionFactory = config.buildSessionFactory(serviceRegistry);
 
         // Return the factory
-        return sessionFactory;
+        return config.buildSessionFactory(serviceRegistry);
     }
 
     /**
@@ -211,8 +202,7 @@ public class HibernateUtils {
 
     public static Session getSession(String agencyId, boolean readOnly) throws HibernateException {
         SessionFactory sessionFactory = HibernateUtils.getSessionFactory(agencyId, readOnly);
-        Session session = sessionFactory.openSession();
-        return session;
+        return sessionFactory.openSession();
     }
 
     /**
@@ -232,8 +222,7 @@ public class HibernateUtils {
 
     public static Session getSession(boolean readOnly) {
         SessionFactory sessionFactory = HibernateUtils.getSessionFactory(DbSetupConfig.getDbName(), readOnly);
-        Session session = sessionFactory.openSession();
-        return session;
+        return sessionFactory.openSession();
     }
 
     /**

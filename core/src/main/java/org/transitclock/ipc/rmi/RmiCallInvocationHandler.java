@@ -314,8 +314,7 @@ public class RmiCallInvocationHandler implements InvocationHandler {
                 accessCounter.current.incrementAndGet();
 
                 // Actually make the RMI call
-                Object result = lowLevelInvoke(method, args);
-                return result;
+                return lowLevelInvoke(method, args);
             } finally {
                 // Make sure that access counter decrement no matter what
                 accessCounter.current.decrementAndGet();
@@ -335,8 +334,7 @@ public class RmiCallInvocationHandler implements InvocationHandler {
         // Actually invoke the method on the RMI object
         try {
             // Invoke it
-            Object result = method.invoke(delegate, args);
-            return result;
+            return method.invoke(delegate, args);
         } catch (InvocationTargetException e) {
             // If there is an exception on the server side then
             // we get a InvocationTargetException here. Convert
@@ -371,11 +369,11 @@ public class RmiCallInvocationHandler implements InvocationHandler {
                 // Just debug log this since it will be logged in full on
                 // the server side. Then pass the cause exception to the
                 // caller.
-                logger.debug(
-                        "When calling remote method {}.{}() for agency {} " + "encountered exception {}.",
+                logger.debug("When calling remote method {}.{}() for agency {} encountered exception {}.",
                         info.getClassName(),
                         method.getName(),
                         info.getAgencyId(),
+                        causeException.getClass(),
                         causeException);
                 throw causeException;
             }

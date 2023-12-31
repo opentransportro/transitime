@@ -38,7 +38,7 @@ public class AvlJsonQuery {
             if (endTime == null || endTime.isEmpty()) endTime = "24:00";
         }
         // cast('2000-01-01 01:12:00'::timestamp as time);
-        if (beginTime != null && !beginTime.isEmpty() && endTime != null && !endTime.isEmpty()) {
+        if (beginTime != null && !beginTime.isEmpty()) {
             if ("mysql".equals(agency.getDbType())) {
                 timeSql = " AND time(time) BETWEEN '" + beginTime + "' AND '" + endTime + "' ";
             } else {
@@ -161,7 +161,6 @@ public class AvlJsonQuery {
         // to view too much data at once.
         sql += "ORDER BY a.vehicleId, time LIMIT " + MAX_ROWS;
 
-        String json = GenericJsonQuery.getJsonString(agencyId, sql);
-        return json;
+        return GenericJsonQuery.getJsonString(agencyId, sql);
     }
 }

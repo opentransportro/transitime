@@ -9,7 +9,6 @@ package org.transitclock.utils;
 public class SettableSystemTime implements SystemTime {
     private long time;
 
-    /********************** Member Functions **************************/
     public SettableSystemTime(long time) {
         this.time = time;
     }

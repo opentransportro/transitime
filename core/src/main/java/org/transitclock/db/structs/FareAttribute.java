@@ -1,17 +1,19 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
-import java.io.Serializable;
-import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.io.Serializable;
+import java.util.List;
+
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
 import org.hibernate.HibernateException;
-import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
-import org.transitclock.db.hibernate.HibernateUtils;
 import org.transitclock.gtfs.gtfsStructs.GtfsFareAttribute;
 
 /**
@@ -22,6 +24,9 @@ import org.transitclock.gtfs.gtfsStructs.GtfsFareAttribute;
  */
 @Entity
 @DynamicUpdate
+@EqualsAndHashCode
+@ToString
+@Getter
 @Table(name = "FareAttributes")
 public class FareAttribute implements Serializable {
 
@@ -29,7 +34,7 @@ public class FareAttribute implements Serializable {
     @Id
     private final int configRev;
 
-    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
+    @Column(length = 60)
     @Id
     private final String fareId;
 
@@ -47,11 +52,6 @@ public class FareAttribute implements Serializable {
 
     @Column
     private final Integer transferDuration;
-
-    // Because Hibernate requires objects with composite Ids to be Serializable
-    private static final long serialVersionUID = -7167133655095348572L;
-
-    /********************** Member Functions **************************/
 
     /**
      * Constructor
@@ -92,8 +92,7 @@ public class FareAttribute implements Serializable {
     public static int deleteFromRev(Session session, int configRev) throws HibernateException {
         // Note that hql uses class name, not the table name
         String hql = "DELETE FareAttribute WHERE configRev=" + configRev;
-        int numUpdates = session.createQuery(hql).executeUpdate();
-        return numUpdates;
+        return session.createQuery(hql).executeUpdate();
     }
 
     /**
@@ -106,125 +105,8 @@ public class FareAttribute implements Serializable {
      */
     @SuppressWarnings("unchecked")
     public static List<FareAttribute> getFareAttributes(Session session, int configRev) throws HibernateException {
-        String hql = "FROM FareAttribute " + "    WHERE configRev = :configRev";
-        Query query = session.createQuery(hql);
-        query.setInteger("configRev", configRev);
-        return query.list();
-    }
-
-    /** Needed because have a composite ID for Hibernate storage */
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((currencyType == null) ? 0 : currencyType.hashCode());
-        result = prime * result + configRev;
-        result = prime * result + ((fareId == null) ? 0 : fareId.hashCode());
-        result = prime * result + ((paymentMethod == null) ? 0 : paymentMethod.hashCode());
-        result = prime * result + Float.floatToIntBits(price);
-        result = prime * result + ((transferDuration == null) ? 0 : transferDuration.hashCode());
-        result = prime * result + ((transfers == null) ? 0 : transfers.hashCode());
-        return result;
-    }
-
-    /** Needed because have a composite ID for Hibernate storage */
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null) return false;
-        if (getClass() != obj.getClass()) return false;
-        FareAttribute other = (FareAttribute) obj;
-        if (currencyType == null) {
-            if (other.currencyType != null) return false;
-        } else if (!currencyType.equals(other.currencyType)) return false;
-        if (configRev != other.configRev) return false;
-        if (fareId == null) {
-            if (other.fareId != null) return false;
-        } else if (!fareId.equals(other.fareId)) return false;
-        if (paymentMethod == null) {
-            if (other.paymentMethod != null) return false;
-        } else if (!paymentMethod.equals(other.paymentMethod)) return false;
-        if (Float.floatToIntBits(price) != Float.floatToIntBits(other.price)) return false;
-        if (transferDuration == null) {
-            if (other.transferDuration != null) return false;
-        } else if (!transferDuration.equals(other.transferDuration)) return false;
-        if (transfers == null) {
-            if (other.transfers != null) return false;
-        } else if (!transfers.equals(other.transfers)) return false;
-        return true;
-    }
-
-    /* (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
-    @Override
-    public String toString() {
-        return "FareAttribute ["
-                + "configRev="
-                + configRev
-                + ", fareId="
-                + fareId
-                + ", price="
-                + price
-                + ", currencyType="
-                + currencyType
-                + ", paymentMethod="
-                + paymentMethod
-                + ", transfers="
-                + transfers
-                + ", transferDuration="
-                + transferDuration
-                + "]";
-    }
-
-    /************************* Getter Methods **************************/
-
-    /**
-     * @return the configRev
-     */
-    public int getConfigRev() {
-        return configRev;
-    }
-
-    /**
-     * @return the fareId
-     */
-    public String getFareId() {
-        return fareId;
-    }
-
-    /**
-     * @return the price
-     */
-    public float getPrice() {
-        return price;
-    }
-
-    /**
-     * @return the currencyType
-     */
-    public String getCurrencyType() {
-        return currencyType;
-    }
-
-    /**
-     * @return the paymentMethod
-     */
-    public String getPaymentMethod() {
-        return paymentMethod;
-    }
-
-    /**
-     * @return the transfers
-     */
-    public String getTransfers() {
-        return transfers;
-    }
-
-    /**
-     * @return the transferDuration
-     */
-    public Integer getTransferDuration() {
-        return transferDuration;
+        return session.createQuery("FROM FareAttribute WHERE configRev = :configRev")
+                .setParameter("configRev", configRev)
+                .list();
     }
 }

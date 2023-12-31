@@ -201,8 +201,7 @@ public class Time {
         calendar.set(Calendar.HOUR_OF_DAY, 0);
 
         // Get the epoch time
-        long epochTime = calendar.getTimeInMillis();
-        return epochTime;
+        return calendar.getTimeInMillis();
     }
 
     /**
@@ -223,8 +222,7 @@ public class Time {
         calendar.set(Calendar.HOUR_OF_DAY, 0);
 
         // Get the epoch time
-        long epochTime = calendar.getTimeInMillis();
-        return epochTime;
+        return calendar.getTimeInMillis();
     }
 
     /**

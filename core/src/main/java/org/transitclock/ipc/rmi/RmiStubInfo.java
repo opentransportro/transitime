@@ -19,7 +19,6 @@ public class RmiStubInfo {
     final String agencyId;
     final String className;
 
-    /********************** Member Functions **************************/
     public RmiStubInfo(String agencyId, String className) {
         this.agencyId = agencyId;
         this.className = className;

@@ -46,9 +46,9 @@ public class RmiQuery {
 
     private static String agencyId;
     private static Command command;
-    private static String routeShortNames[];
-    private static String stopIds[];
-    private static String vehicleIds[];
+    private static String[] routeShortNames;
+    private static String[] stopIds;
+    private static String[] vehicleIds;
     private static double latitude = Double.NaN;
     private static double longitude = Double.NaN;
     // For the config command for getting block, trip, & trip pattern info:
@@ -68,9 +68,7 @@ public class RmiQuery {
         GET_CONFIG,
         GET_ACTIVE_BLOCKS,
         RESET_VEHICLE
-    };
-
-    /********************** Member Functions **************************/
+    }
 
     /**
      * Processes all command line options using Apache CLI. Further info at
@@ -322,7 +320,7 @@ public class RmiQuery {
             vehicles = vehiclesInterface.getComplete();
         }
 
-        if (vehicles.size() > 0) {
+        if (!vehicles.isEmpty()) {
             System.out.println("Vehicles are:");
             for (IpcVehicle vehicle : vehicles) {
                 System.out.println("  " + vehicle);

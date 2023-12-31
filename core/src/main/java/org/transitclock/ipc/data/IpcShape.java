@@ -42,9 +42,6 @@ public class IpcShape implements Serializable {
     // combined with segment from new stop path.
     private static final double MAX_VERTEX_DISTANCE = 3.0;
 
-    private static final long serialVersionUID = 4035471462057953970L;
-
-    /********************** Member Functions **************************/
     IpcShape(TripPattern tripPattern, boolean isUiShape) {
         this.tripPatternId = tripPattern.getId();
         this.length = tripPattern.getLength();

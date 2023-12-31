@@ -157,7 +157,7 @@ public class FrequencyBasedHistoricalAverageCache {
         Trip trip = dbConfig.getTrip(arrivalDeparture.getTripId());
 
         if (trip != null && trip.isNoSchedule()) {
-            Integer time = secondsFromMidnight(arrivalDeparture.getDate(), 2);
+            int time = secondsFromMidnight(arrivalDeparture.getDate(), 2);
 
             /* this is what puts the trip into the buckets (time slots) */
             time = round(time, getCacheIncrementsForFrequencyService());
@@ -169,7 +169,7 @@ public class FrequencyBasedHistoricalAverageCache {
                     && pathDuration.getDuration() < maxTravelTimeFilterValue.getValue()) {
                 if (trip.isNoSchedule()) {
                     StopPathCacheKey historicalAverageCacheKey = new StopPathCacheKey(
-                            trip.getId(), pathDuration.getArrival().getStopPathIndex(), true, new Long(time));
+                            trip.getId(), pathDuration.getArrival().getStopPathIndex(), true, (long) time);
 
                     HistoricalAverage average =
                             FrequencyBasedHistoricalAverageCache.getInstance().getAverage(historicalAverageCacheKey);
@@ -193,7 +193,7 @@ public class FrequencyBasedHistoricalAverageCache {
                     && stopDuration.getDuration() > minDwellTimeFilterValue.getValue()
                     && stopDuration.getDuration() < maxDwellTimeFilterValue.getValue()) {
                 StopPathCacheKey historicalAverageCacheKey = new StopPathCacheKey(
-                        trip.getId(), stopDuration.getDeparture().getStopPathIndex(), false, new Long(time));
+                        trip.getId(), stopDuration.getDeparture().getStopPathIndex(), false, (long) time);
 
                 HistoricalAverage average =
                         FrequencyBasedHistoricalAverageCache.getInstance().getAverage(historicalAverageCacheKey);

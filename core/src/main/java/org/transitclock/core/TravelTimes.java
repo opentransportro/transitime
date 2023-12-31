@@ -2,8 +2,7 @@
 package org.transitclock.core;
 
 import java.util.Date;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.transitclock.applications.Core;
 import org.transitclock.configData.CoreConfig;
 import org.transitclock.db.structs.Location;
@@ -18,14 +17,11 @@ import org.transitclock.utils.Time;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class TravelTimes {
 
     // Singleton class
-    private static TravelTimes singleton = new TravelTimes();
-
-    private static final Logger logger = LoggerFactory.getLogger(TravelTimes.class);
-
-    /********************** Member Functions **************************/
+    private static final TravelTimes singleton = new TravelTimes();
 
     /** Constructor declared private because singleton class */
     private TravelTimes() {}
@@ -58,8 +54,8 @@ public class TravelTimes {
         float SHORT_DISTANCE_SPEED = CoreConfig.getShortDistanceDeadheadingSpeed();
         float LONG_DISTANCE_SPEED = CoreConfig.getLongDistanceDeadheadingSpeed();
 
-        double shortDistanceTravel = 0.0;
-        double longDistanceTravel = 0.0;
+        double shortDistanceTravel;
+        double longDistanceTravel;
         if (distance > SHORT_DISTANCE) {
             shortDistanceTravel = SHORT_DISTANCE;
             longDistanceTravel = distance - SHORT_DISTANCE;
@@ -77,7 +73,7 @@ public class TravelTimes {
     }
 
     /**
-     * Determines how long it should take as the crow flies from the the end of the previous trip to
+     * Determines how long it should take as the crow flies from the end of the previous trip to
      * the new location.
      *
      * @param spatialMatch
@@ -120,8 +116,7 @@ public class TravelTimes {
                 // If affected by waitStop...
                 if (timeOfDaySecs * 1000 + travelTimeMsec < scheduledDepartureTime * 1000) {
                     // Take waitStop time into account
-                    int updatedTravelTimeMsec = (scheduledDepartureTime - timeOfDaySecs) * 1000;
-                    return updatedTravelTimeMsec;
+                    return (scheduledDepartureTime - timeOfDaySecs) * 1000;
                 }
             }
         }
@@ -141,8 +136,7 @@ public class TravelTimes {
     public static long scheduledDepartureTime(Indices indices, long referenceTime) {
         // Make sure method called appropriately
         if (!indices.isWaitStop()) {
-            logger.error(
-                    "Called scheduledDepartureTimePlusWaitTime() for stop " + "that is not a wait stop. {}", indices);
+            logger.error("Called scheduledDepartureTimePlusWaitTime() for stop that is not a wait stop. {}", indices);
             return -1;
         }
 
@@ -165,23 +159,14 @@ public class TravelTimes {
 
         // Get and return the scheduled departure time as an epoch time
         Time timeUtil = Core.getInstance().getTime();
-        long scheduleEpochTime = timeUtil.getEpochTime(scheduledDepartureTimeSecs, new Date(referenceTime));
-        return scheduleEpochTime;
+        return timeUtil.getEpochTime(scheduledDepartureTimeSecs, new Date(referenceTime));
     }
 
     /**
      * This class is so that travelTimeIndexForPartialPath() can return more than a single piece of
      * information.
      */
-    private static class TimeTravelInfo {
-        private TimeTravelInfo(int indexOfPartialSegment, double fractionCompleted) {
-            this.indexOfPartialSegment = indexOfPartialSegment;
-            this.fractionCompleted = fractionCompleted;
-        }
-
-        private int indexOfPartialSegment;
-        private double fractionCompleted;
-    }
+    private record TimeTravelInfo(int indexOfPartialSegment, double fractionCompleted) {}
 
     /**
      * Returns information on the travel time segment that the match corresponds to.
@@ -217,9 +202,7 @@ public class TravelTimes {
         double fractionOfTravelSegmentCompleted = distanceCompletedOfTimeTravelSegment / travelTimeSegmentLength;
 
         // Return results
-        TimeTravelInfo timeTravelInfo =
-                new TimeTravelInfo(indexOfPartialTimeTravelSegment, fractionOfTravelSegmentCompleted);
-        return timeTravelInfo;
+        return new TimeTravelInfo(indexOfPartialTimeTravelSegment, fractionOfTravelSegmentCompleted);
     }
 
     /**
@@ -231,7 +214,7 @@ public class TravelTimes {
      * @return Expected travel time in msec
      */
     public int expectedTravelTimeFromMatchToEndOfStopPath(SpatialMatch match) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         // Get the travel times for this stop path
         TravelTimesForStopPath travelTimesForStopPath =
                 match.getTrip().getTravelTimesForStopPath(match.getStopPathIndex());
@@ -245,14 +228,14 @@ public class TravelTimes {
                 travelTimesForStopPath.getTravelTimeSegmentMsec(timeTravelInfo.indexOfPartialSegment);
         int travelTimeRemainingInPartialSegment =
                 (int) (travelTimeForPartialSegment * (1 - timeTravelInfo.fractionCompleted));
-        sb.append("partial=" + travelTimeRemainingInPartialSegment);
+        sb.append("partial=").append(travelTimeRemainingInPartialSegment);
         // Sum up the travel times for the remaining full travel time segments
         // in the path.
         int travelTimeMsec = travelTimeRemainingInPartialSegment;
         for (int i = timeTravelInfo.indexOfPartialSegment + 1;
                 i < travelTimesForStopPath.getNumberTravelTimeSegments();
                 ++i) {
-            sb.append(" seg+=" + travelTimesForStopPath.getTravelTimeSegmentMsec(i));
+            sb.append(" seg+=").append(travelTimesForStopPath.getTravelTimeSegmentMsec(i));
             travelTimeMsec += travelTimesForStopPath.getTravelTimeSegmentMsec(i);
         }
         logger.debug("travelTime={}:{}", Time.elapsedTimeStr(travelTimeMsec), sb.toString());
@@ -405,7 +388,7 @@ public class TravelTimes {
         // time will then be the scheduled departure time minus the start time.
         if (!indices.equals(endIndices) && indices.isWaitStop()) {
             travelTimeMsec = adjustTravelTimeForWaitStop(timeOfDaySecs, travelTimeMsec, indices);
-            logger.debug("For vehicleId={} adding layover times of {}", travelTimeMsec);
+            logger.debug("For vehicleId={} adding layover times of {}", vehicleId, travelTimeMsec);
         }
 
         // Already dealt with first partial stop path so increment indices and

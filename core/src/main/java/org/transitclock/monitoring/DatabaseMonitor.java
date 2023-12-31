@@ -4,7 +4,6 @@ package org.transitclock.monitoring;
 import java.util.List;
 import org.hibernate.HibernateException;
 import org.transitclock.db.structs.DbTest;
-import org.transitclock.utils.EmailSender;
 
 /**
  * For monitoring access to database. Makes sure can read and write to database.
@@ -14,15 +13,8 @@ import org.transitclock.utils.EmailSender;
 public class DatabaseMonitor extends MonitorBase {
 
     /********************** Member Functions **************************/
-
-    /**
-     * Simple constructor
-     *
-     * @param emailSender
-     * @param agencyId
-     */
-    public DatabaseMonitor(EmailSender emailSender, String agencyId) {
-        super(emailSender, agencyId);
+    public DatabaseMonitor(String agencyId) {
+        super(agencyId);
     }
 
     /* (non-Javadoc)

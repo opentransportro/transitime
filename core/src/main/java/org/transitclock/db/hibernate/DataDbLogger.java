@@ -3,11 +3,7 @@ package org.transitclock.db.hibernate;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.transitclock.configData.DbSetupConfig;
+
 import org.transitclock.db.structs.ArrivalDeparture;
 import org.transitclock.db.structs.AvlReport;
 import org.transitclock.db.structs.Match;
@@ -47,55 +43,18 @@ import org.transitclock.db.structs.VehicleState;
 public class DataDbLogger {
 
     // This is a singleton class that only returns a single object per agencyId.
-    private static Map<String, DataDbLogger> dataDbLoggerMap = new HashMap<String, DataDbLogger>(1);
+    private static final Map<String, DataDbLogger> dataDbLoggerMap = new HashMap<>(1);
 
-    private DbQueue<ArrivalDeparture> arrivalDepartureQueue;
-    private DbQueue<AvlReport> avlReportQueue;
-    private DbQueue<VehicleConfig> vehicleConfigQueue;
-    private DbQueue<Prediction> predictionQueue;
-    private DbQueue<Match> matchQueue;
-    private DbQueue<PredictionAccuracy> predictionAccuracyQueue;
-    private DbQueue<MonitoringEvent> monitoringEventQueue;
-    private DbQueue<VehicleEvent> vehicleEventQueue;
-    private DbQueue<VehicleState> vehicleStateQueue;
-    private DbQueue<Object> genericQueue;
-
-    private static final int QUEUE_CAPACITY = 5000000;
-
-    // The queue capacity levels when an error message should be e-mailed out.
-    // The max value should be 1.0.
-    private final double levels[] = {0.5, 0.8, 1.00};
-
-    // The queue that objects to be stored are placed in
-    private BlockingQueue<Object> queue = new LinkedBlockingQueue<Object>(QUEUE_CAPACITY);
-
-    // When running in playback mode where getting AVLReports from database
-    // instead of from an AVL feed, then debugging and don't want to store
-    // derived data into the database because that would interfere with the
-    // derived data that was already stored in real time. For that situation
-    // shouldStoreToDb should be set to false.
-    private final boolean shouldStoreToDb;
-
-    // Used by add(). If queue filling up to 25% and shouldPauseToReduceQueue is
-    // true then will pause the calling thread for a few seconds so that more
-    // objects can be written out and not have the queue fill up.
-    private final boolean shouldPauseToReduceQueue;
-
-    // For keeping track of index into levels, which level of capacity of
-    // queue being used. When level changes then an e-mail is sent out warning
-    // the operators.
-    private double indexOfLevelWhenMessageLogged = 0;
-
-    // For keeping track of maximum capacity of queue that was used.
-    // Used for logging when queue use is going down.
-    private double maxQueueLevel = 0.0;
-
-    // So can access agencyId for logging messages
-    private String agencyId;
-
-    private static final Logger logger = LoggerFactory.getLogger(DataDbLogger.class);
-
-    /********************** Member Functions **************************/
+    private final DbQueue<ArrivalDeparture> arrivalDepartureQueue;
+    private final DbQueue<AvlReport> avlReportQueue;
+    private final DbQueue<VehicleConfig> vehicleConfigQueue;
+    private final DbQueue<Prediction> predictionQueue;
+    private final DbQueue<Match> matchQueue;
+    private final DbQueue<PredictionAccuracy> predictionAccuracyQueue;
+    private final DbQueue<MonitoringEvent> monitoringEventQueue;
+    private final DbQueue<VehicleEvent> vehicleEventQueue;
+    private final DbQueue<VehicleState> vehicleStateQueue;
+    private final DbQueue<Object> genericQueue;
 
     /**
      * Factory method. Returns the singleton db logger for the specified agencyId.
@@ -108,15 +67,9 @@ public class DataDbLogger {
      *     the db really quickly.
      * @return The DataDbLogger for the specified agencyId
      */
-    public static DataDbLogger getDataDbLogger(
-            String agencyId, boolean shouldStoreToDb, boolean shouldPauseToReduceQueue) {
+    public static DataDbLogger getDataDbLogger(String agencyId, boolean shouldStoreToDb, boolean shouldPauseToReduceQueue) {
         synchronized (dataDbLoggerMap) {
-            DataDbLogger logger = dataDbLoggerMap.get(agencyId);
-            if (logger == null) {
-                logger = new DataDbLogger(agencyId, shouldStoreToDb, shouldPauseToReduceQueue);
-                dataDbLoggerMap.put(agencyId, logger);
-            }
-            return logger;
+            return dataDbLoggerMap.computeIfAbsent(agencyId, i -> new DataDbLogger(i, shouldStoreToDb, shouldPauseToReduceQueue));
         }
     }
 
@@ -132,29 +85,25 @@ public class DataDbLogger {
      *     the db really quickly.
      */
     private DataDbLogger(String agencyId, boolean shouldStoreToDb, boolean shouldPauseToReduceQueue) {
-        this.agencyId = agencyId;
-        this.shouldStoreToDb = shouldStoreToDb;
-        this.shouldPauseToReduceQueue = shouldPauseToReduceQueue;
-        arrivalDepartureQueue = new DbQueue<ArrivalDeparture>(
-                agencyId, shouldStoreToDb, shouldPauseToReduceQueue, ArrivalDeparture.class.getSimpleName());
-        avlReportQueue = new DbQueue<AvlReport>(
-                agencyId, shouldStoreToDb, shouldPauseToReduceQueue, AvlReport.class.getSimpleName());
-        vehicleConfigQueue = new DbQueue<VehicleConfig>(
-                agencyId, shouldStoreToDb, shouldPauseToReduceQueue, VehicleConfig.class.getSimpleName());
-        predictionQueue = new DbQueue<Prediction>(
-                agencyId, shouldStoreToDb, shouldPauseToReduceQueue, Prediction.class.getSimpleName());
-        matchQueue =
-                new DbQueue<Match>(agencyId, shouldStoreToDb, shouldPauseToReduceQueue, Match.class.getSimpleName());
-        predictionAccuracyQueue = new DbQueue<PredictionAccuracy>(
-                agencyId, shouldStoreToDb, shouldPauseToReduceQueue, PredictionAccuracy.class.getSimpleName());
-        monitoringEventQueue = new DbQueue<MonitoringEvent>(
-                agencyId, shouldStoreToDb, shouldPauseToReduceQueue, MonitoringEvent.class.getSimpleName());
-        vehicleEventQueue = new DbQueue<VehicleEvent>(
-                agencyId, shouldStoreToDb, shouldPauseToReduceQueue, VehicleEvent.class.getSimpleName());
-        vehicleStateQueue = new DbQueue<VehicleState>(
-                agencyId, shouldStoreToDb, shouldPauseToReduceQueue, VehicleState.class.getSimpleName());
-        genericQueue =
-                new DbQueue<Object>(agencyId, shouldStoreToDb, shouldPauseToReduceQueue, Object.class.getSimpleName());
+        // So can access agencyId for logging messages
+        // When running in playback mode where getting AVLReports from database
+        // instead of from an AVL feed, then debugging and don't want to store
+        // derived data into the database because that would interfere with the
+        // derived data that was already stored in real time. For that situation
+        // shouldStoreToDb should be set to false.
+        // Used by add(). If queue filling up to 25% and shouldPauseToReduceQueue is
+        // true then will pause the calling thread for a few seconds so that more
+        // objects can be written out and not have the queue fill up.
+        arrivalDepartureQueue = new DbQueue<>(agencyId, shouldStoreToDb, shouldPauseToReduceQueue, ArrivalDeparture.class);
+        avlReportQueue = new DbQueue<>(agencyId, shouldStoreToDb, shouldPauseToReduceQueue, AvlReport.class);
+        vehicleConfigQueue = new DbQueue<>(agencyId, shouldStoreToDb, shouldPauseToReduceQueue, VehicleConfig.class);
+        predictionQueue = new DbQueue<>(agencyId, shouldStoreToDb, shouldPauseToReduceQueue, Prediction.class);
+        matchQueue = new DbQueue<>(agencyId, shouldStoreToDb, shouldPauseToReduceQueue, Match.class);
+        predictionAccuracyQueue = new DbQueue<>(agencyId, shouldStoreToDb, shouldPauseToReduceQueue, PredictionAccuracy.class);
+        monitoringEventQueue = new DbQueue<>(agencyId, shouldStoreToDb, shouldPauseToReduceQueue, MonitoringEvent.class);
+        vehicleEventQueue = new DbQueue<>(agencyId, shouldStoreToDb, shouldPauseToReduceQueue, VehicleEvent.class);
+        vehicleStateQueue = new DbQueue<>(agencyId, shouldStoreToDb, shouldPauseToReduceQueue, VehicleState.class);
+        genericQueue = new DbQueue<>(agencyId, shouldStoreToDb, shouldPauseToReduceQueue, Object.class);
     }
 
     public boolean add(ArrivalDeparture ad) {
@@ -194,26 +143,6 @@ public class DataDbLogger {
     }
 
     /**
-     * Determines set of class names in the queue. Useful for logging error message when queue
-     * getting filled up so know what kind of objects are backing the system up.
-     *
-     * @return Map of class names and their count of the objects in the queue
-     */
-    private Map<String, Integer> getClassNamesInQueue() {
-        Map<String, Integer> classNamesMap = new HashMap<String, Integer>();
-        for (Object o : queue) {
-            String className = o.getClass().getName();
-            Integer count = classNamesMap.get(className);
-            if (count == null) {
-                count = new Integer(0);
-                classNamesMap.put(className, count);
-            }
-            ++count;
-        }
-        return classNamesMap;
-    }
-
-    /**
      * Adds an object to be saved in the database to the queue. If queue is getting filled up then
      * an e-mail will be sent out indicating there is a problem. The queue levels at which an e-mail
      * is sent out is specified by levels. If queue has reached capacity then an error message is
@@ -235,25 +164,5 @@ public class DataDbLogger {
 
     public int queueSize() {
         return predictionQueue.queueSize();
-    }
-
-    /**
-     * Just for doing some testing
-     *
-     * @param args
-     */
-    public static void main(String[] args) {
-        DataDbLogger logger = getDataDbLogger("test", false, false);
-
-        long initialTime = (System.currentTimeMillis() / 1000) * 1000;
-
-        for (int i = 0; i < 25; ++i) logger.add(new AvlReport("test", initialTime + i, 1.23, 4.56, null));
-
-        // This one should cause constraint problem with the second batch.
-        // Need to not retry for such an exception
-        logger.add(new AvlReport("test", initialTime, 1.23, 4.56, null));
-
-        for (int i = DbSetupConfig.getBatchSize(); i < 2 * DbSetupConfig.getBatchSize(); ++i)
-            logger.add(new AvlReport("test", initialTime + i, 1.23, 4.56, null));
     }
 }

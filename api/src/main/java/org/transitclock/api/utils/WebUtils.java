@@ -34,7 +34,7 @@ public class WebUtils {
      */
     public static WebApplicationException badRequestException(Throwable ex) {
         logger.error("Bad Request", ex);
-        return badRequestException(Status.BAD_REQUEST.getStatusCode(), ex.getMessage());
+        return badRequestException(ex, Status.BAD_REQUEST.getStatusCode(), ex.getMessage());
     }
 
     /**
@@ -45,6 +45,16 @@ public class WebUtils {
      */
     public static WebApplicationException badRequestException(String s) {
         return badRequestException(Status.BAD_REQUEST.getStatusCode(), s);
+    }
+
+    public static WebApplicationException badRequestException(Throwable cause, int response, String s) {
+        return new WebApplicationException(
+                cause,
+                Response.status(response)
+                        .entity(s)
+                        .type(MediaType.TEXT_PLAIN)
+                        .header("Access-Control-Allow-Origin", "*")
+                        .build());
     }
 
     /**

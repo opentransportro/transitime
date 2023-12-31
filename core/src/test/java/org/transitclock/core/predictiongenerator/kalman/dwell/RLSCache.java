@@ -1,18 +1,17 @@
 /* (C)2023 */
 package org.transitclock.core.predictiongenerator.kalman.dwell;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.fail;
 
-import junit.framework.TestCase;
 import org.apache.commons.jcs.JCS;
 import org.apache.commons.jcs.access.CacheAccess;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import smile.regression.RLS;
 
-public class RLSCache extends TestCase {
-    @Override
+public class RLSCache {
+    @BeforeEach
     protected void setUp() throws Exception {
-        super.setUp();
         cache = JCS.getInstance(cacheName);
     }
 

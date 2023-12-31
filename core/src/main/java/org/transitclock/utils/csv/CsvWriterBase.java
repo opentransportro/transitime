@@ -1,12 +1,8 @@
 /* (C)2023 */
 package org.transitclock.utils.csv;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import org.transitclock.utils.StringUtils;
 
 /**
@@ -17,8 +13,6 @@ import org.transitclock.utils.StringUtils;
 public abstract class CsvWriterBase {
 
     protected Writer writer;
-
-    /********************** Member Functions **************************/
 
     /**
      * Creates file writer and writes the header.
@@ -51,7 +45,8 @@ public abstract class CsvWriterBase {
 
             // Create the writer. Need to use UTF-8 since sometimes will be
             // writing Chinese or other characters for route names and such.
-            writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileName, append), "UTF-8"));
+            writer = new BufferedWriter(
+                    new OutputStreamWriter(new FileOutputStream(fileName, append), StandardCharsets.UTF_8));
 
             // Write the header if it is a new file or not appending
             if (!fileAlreadyExists || !append) writeHeader();
@@ -86,19 +81,23 @@ public abstract class CsvWriterBase {
      * @throws IOException
      */
     protected Writer append(Integer i) throws IOException {
-        if (i != null) writer.append(i.toString());
+        if (i != null) {
+            writer.append(i.toString());
+        }
         return writer;
     }
 
     /**
      * Writes a single Double to the file
      *
-     * @param i
+     * @param d
      * @return
      * @throws IOException
      */
     protected Writer append(Double d) throws IOException {
-        if (d != null) writer.append(StringUtils.twoDigitFormat(d));
+        if (d != null) {
+            writer.append(StringUtils.twoDigitFormat(d));
+        }
         return writer;
     }
 
@@ -110,7 +109,9 @@ public abstract class CsvWriterBase {
      * @throws IOException
      */
     protected Writer append(Object o) throws IOException {
-        if (o != null) writer.append(o.toString());
+        if (o != null) {
+            writer.append(o.toString());
+        }
         return writer;
     }
 }

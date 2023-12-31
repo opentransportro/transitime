@@ -13,10 +13,6 @@ import org.transitclock.db.structs.ArrivalDeparture;
  * @author Sean Og Crudden
  */
 public class IpcArrivalDeparture implements Serializable {
-
-    /** */
-    private static final long serialVersionUID = 8916143683528781201L;
-
     @XmlAttribute
     private String vehicleId;
 

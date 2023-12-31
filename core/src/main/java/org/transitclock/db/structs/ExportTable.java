@@ -1,17 +1,11 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -30,9 +24,6 @@ import org.transitclock.applications.Core;
 @DynamicUpdate
 @Table(name = "ExportTable")
 public class ExportTable implements Serializable {
-
-    /** */
-    private static final long serialVersionUID = 1L;
 
     // ID of vehicle
     @Id
@@ -60,8 +51,6 @@ public class ExportTable implements Serializable {
     private byte[] file;
 
     private static final Logger logger = LoggerFactory.getLogger(ExportTable.class);
-
-    /********************** Member Functions **************************/
 
     /**
      * @param vehicleId vehicle ID * @param blockId block ID * @param tripId trip ID * @param
@@ -127,7 +116,7 @@ public class ExportTable implements Serializable {
         Transaction transaction = session.beginTransaction();
         try {
             String hql = "delete from ExportTable where id = :id";
-            Query q = session.createQuery(hql).setParameter("id", id);
+            var q = session.createQuery(hql).setParameter("id", id);
             q.executeUpdate();
 
             transaction.commit();
@@ -139,9 +128,9 @@ public class ExportTable implements Serializable {
 
     @SuppressWarnings("unchecked")
     public static List<ExportTable> getExportFile(Session session, long id) throws HibernateException {
-        String hql = "FROM ExportTable WHERE id = " + id;
-        Query query = session.createQuery(hql);
-        return query.list();
+        return session.createQuery("FROM ExportTable WHERE id = :id")
+                .setParameter("id", id)
+                .list();
     }
 
     public long getId() {
@@ -198,13 +187,5 @@ public class ExportTable implements Serializable {
 
     public void setExportStatus(int exportStatus) {
         this.exportStatus = exportStatus;
-    }
-
-    public static long getSerialversionuid() {
-        return serialVersionUID;
-    }
-
-    public static Logger getLogger() {
-        return logger;
     }
 }

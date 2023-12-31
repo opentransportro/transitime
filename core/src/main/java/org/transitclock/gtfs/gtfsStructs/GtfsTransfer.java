@@ -1,12 +1,16 @@
 /* (C)2023 */
 package org.transitclock.gtfs.gtfsStructs;
 
+import lombok.Getter;
+import lombok.ToString;
 import org.apache.commons.csv.CSVRecord;
 import org.transitclock.utils.csv.CsvBase;
 
 /**
  * @author SkiBu Smith
  */
+@Getter
+@ToString
 public class GtfsTransfer extends CsvBase {
 
     private final String fromStopId;
@@ -14,13 +18,6 @@ public class GtfsTransfer extends CsvBase {
     private final String transferType;
     private final Integer minTransferTime;
 
-    /********************** Member Functions **************************/
-
-    /**
-     * @param record
-     * @param supplemental
-     * @param fileName for logging errors
-     */
     public GtfsTransfer(CSVRecord record, boolean supplemental, String fileName) throws NumberFormatException {
         super(record, supplemental, fileName);
 
@@ -31,37 +28,5 @@ public class GtfsTransfer extends CsvBase {
         String timeStr = getOptionalValue(record, "min_transfer_time");
         if (timeStr != null) minTransferTime = Integer.parseInt(timeStr);
         else minTransferTime = null;
-    }
-
-    public String getFromStopId() {
-        return fromStopId;
-    }
-
-    public String getToStopId() {
-        return toStopId;
-    }
-
-    public String getTransferType() {
-        return transferType;
-    }
-
-    public Integer getMinTransferTime() {
-        return minTransferTime;
-    }
-
-    @Override
-    public String toString() {
-        return "GtfsTransfer ["
-                + "lineNumber="
-                + lineNumber
-                + ", fromStopId="
-                + fromStopId
-                + ", toStopId="
-                + toStopId
-                + ", transferType="
-                + transferType
-                + ", minTransferTime="
-                + minTransferTime
-                + "]";
     }
 }

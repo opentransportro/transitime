@@ -3,7 +3,6 @@ package org.transitclock.monitoring;
 
 import java.io.File;
 import org.transitclock.config.LongConfigValue;
-import org.transitclock.utils.EmailSender;
 import org.transitclock.utils.StringUtils;
 
 /**
@@ -27,16 +26,8 @@ public class SystemDiskSpaceMonitor extends MonitorBase {
                     + "value is now above usableDiskSpaceThreshold + "
                     + "usableDiskSpaceThresholdGap ");
 
-    /********************** Member Functions **************************/
-
-    /**
-     * Simple constructor
-     *
-     * @param emailSender
-     * @param agencyId
-     */
-    public SystemDiskSpaceMonitor(EmailSender emailSender, String agencyId) {
-        super(emailSender, agencyId);
+    public SystemDiskSpaceMonitor(String agencyId) {
+        super(agencyId);
     }
 
     /* (non-Javadoc)

@@ -10,5 +10,5 @@ import java.rmi.RemoteException;
  * @author SkiBu Smith
  */
 public interface Hello extends Remote {
-    public String concat(String s1, String s2) throws RemoteException;
+    String concat(String s1, String s2) throws RemoteException;
 }

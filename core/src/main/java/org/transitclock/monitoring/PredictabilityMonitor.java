@@ -9,7 +9,6 @@ import org.transitclock.config.IntegerConfigValue;
 import org.transitclock.core.BlocksInfo;
 import org.transitclock.core.dataCache.VehicleDataCache;
 import org.transitclock.db.structs.Block;
-import org.transitclock.utils.EmailSender;
 import org.transitclock.utils.StringUtils;
 
 /**
@@ -19,8 +18,6 @@ import org.transitclock.utils.StringUtils;
  * @author SkiBu Smith
  */
 public class PredictabilityMonitor extends MonitorBase {
-
-    private CloudwatchService cloudwatchService;
 
     private static DoubleConfigValue minPredictableBlocks = new DoubleConfigValue(
             "transitclock.monitoring.minPredictableBlocks",
@@ -44,17 +41,8 @@ public class PredictabilityMonitor extends MonitorBase {
                     + "predictable vehicles is increased to this amount if "
                     + "below when determining the fraction.");
 
-    /********************** Member Functions **************************/
-
-    /**
-     * Simple constructor
-     *
-     * @param emailSender
-     * @param agencyId
-     */
-    public PredictabilityMonitor(CloudwatchService cloudwatchService, EmailSender emailSender, String agencyId) {
-        super(emailSender, agencyId);
-        this.cloudwatchService = cloudwatchService;
+    public PredictabilityMonitor(String agencyId) {
+        super(agencyId);
     }
 
     /**
@@ -73,13 +61,6 @@ public class PredictabilityMonitor extends MonitorBase {
         List<Block> activeBlocks = BlocksInfo.getCurrentlyActiveBlocks();
         if (activeBlocks.size() == 0) {
             setMessage("No currently active blocks so predictability " + "considered to be OK.");
-            cloudwatchService.saveMetric(
-                    "PredictionPredictablePercentageOfBlocks",
-                    1d,
-                    1,
-                    CloudwatchService.MetricType.AVERAGE,
-                    CloudwatchService.ReportingIntervalTimeUnit.MINUTE,
-                    false);
             return 1.0;
         }
 
@@ -92,33 +73,14 @@ public class PredictabilityMonitor extends MonitorBase {
             predictableVehicleCount += vehicleIdsForBlock.size();
 
             // Keep track of active blocks without vehicles
-            if (vehicleIdsForBlock.size() == 0) activeBlocksWithoutVehicle.add(block);
+            if (vehicleIdsForBlock.isEmpty()) {
+                activeBlocksWithoutVehicle.add(block);
+            }
         }
 
         // Determine fraction of active blocks that have a predictable vehicle
         double fraction = ((double) Math.max(predictableVehicleCount, minimumPredictableVehicles.getValue()))
                 / activeBlocks.size();
-        cloudwatchService.saveMetric(
-                "PredictionActiveBlockCount",
-                (double) Math.max(predictableVehicleCount, minimumPredictableVehicles.getValue()),
-                1,
-                CloudwatchService.MetricType.SCALAR,
-                CloudwatchService.ReportingIntervalTimeUnit.IMMEDIATE,
-                false);
-        cloudwatchService.saveMetric(
-                "PredictionTotalBlockCount",
-                (double) activeBlocks.size(),
-                1,
-                CloudwatchService.MetricType.SCALAR,
-                CloudwatchService.ReportingIntervalTimeUnit.IMMEDIATE,
-                false);
-        cloudwatchService.saveMetric(
-                "PredictablePercentageOfBlocks",
-                fraction,
-                1,
-                CloudwatchService.MetricType.AVERAGE,
-                CloudwatchService.ReportingIntervalTimeUnit.MINUTE,
-                false);
 
         // Provide simple message explaining the situation
         String message = "Predictable blocks fraction="

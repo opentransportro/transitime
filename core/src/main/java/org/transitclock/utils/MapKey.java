@@ -1,7 +1,7 @@
 /* (C)2023 */
 package org.transitclock.utils;
 
-import net.jcip.annotations.Immutable;
+import javax.annotation.concurrent.Immutable;
 
 /**
  * This class is for having a key for a map that is made up of two or three objects. Often for such

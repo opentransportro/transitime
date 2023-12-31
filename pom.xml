@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-<!--    <parent>-->
-<!--        <groupId>org.springframework.boot</groupId>-->
-<!--        <artifactId>spring-boot-starter-parent</artifactId>-->
-<!--        <version>3.2.0</version>-->
-<!--        <relativePath/> &lt;!&ndash; lookup parent from repository &ndash;&gt;-->
-<!--    </parent>-->
+    <!--    <parent>-->
+    <!--        <groupId>org.springframework.boot</groupId>-->
+    <!--        <artifactId>spring-boot-starter-parent</artifactId>-->
+    <!--        <version>3.2.0</version>-->
+    <!--        <relativePath></relativePath>-->
+    <!--    </parent>-->
 
     <groupId>TheTransitClock</groupId>
     <artifactId>transitclock</artifactId>
@@ -17,16 +17,43 @@
         <module>core</module>
         <module>api</module>
         <module>webapp</module>
-<!--        <module>spring</module>-->
     </modules>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>17</java.version>
+        <javax.activation.version>1.2.0</javax.activation.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
+
+            <dependency>
+                <groupId>org.junit</groupId>
+                <artifactId>junit-bom</artifactId>
+                <version>5.10.1</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.jersey</groupId>
+                <artifactId>jersey-bom</artifactId>
+                <version>2.40</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-parent</artifactId>
+                <version>1.4.14</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.sun.activation</groupId>
+                <artifactId>javax.activation</artifactId>
+                <version>${javax.activation.version}</version>
+            </dependency>
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
@@ -43,16 +70,16 @@
         </dependency>
     </dependencies>
 
-<!--    <pluginRepositories>-->
-<!--        <pluginRepository>-->
-<!--            <id>central</id>-->
-<!--            <url>https://repo1.maven.org/maven2/</url>-->
-<!--        </pluginRepository>-->
-<!--        <pluginRepository>-->
-<!--            <id>repo.camsys-apps.com</id>-->
-<!--            <url>https://repo.camsys-apps.com/third-party</url>-->
-<!--        </pluginRepository>-->
-<!--    </pluginRepositories>-->
+    <!--    <pluginRepositories>-->
+    <!--        <pluginRepository>-->
+    <!--            <id>central</id>-->
+    <!--            <url>https://repo1.maven.org/maven2/</url>-->
+    <!--        </pluginRepository>-->
+    <!--        <pluginRepository>-->
+    <!--            <id>repo.camsys-apps.com</id>-->
+    <!--            <url>https://repo.camsys-apps.com/third-party</url>-->
+    <!--        </pluginRepository>-->
+    <!--    </pluginRepositories>-->
     <build>
         <pluginManagement>
             <plugins>
@@ -60,8 +87,9 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>3.11.0</version>
-
                     <configuration>
+                        <source>${java.version}</source>
+                        <target>${java.version}</target>
                         <annotationProcessorPaths>
                             <path>
                                 <groupId>org.projectlombok</groupId>
@@ -138,6 +166,24 @@
                     <artifactId>jacoco-maven-plugin</artifactId>
                     <version>0.8.10</version>
                 </plugin>
+                <plugin>
+                    <groupId>org.gaul</groupId>
+                    <artifactId>modernizer-maven-plugin</artifactId>
+                    <version>2.7.0</version>
+                    <configuration>
+                        <javaVersion>17</javaVersion>
+                        <failOnViolations>false</failOnViolations>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>modernizer</id>
+                            <goals>
+                                <goal>modernizer</goal>
+                            </goals>
+                            <phase>verify</phase>
+                        </execution>
+                    </executions>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
@@ -165,8 +211,8 @@
                                 <include>.gitignore</include>
                             </includes>
                             <!-- define the steps to apply to those files -->
-                            <trimTrailingWhitespace></trimTrailingWhitespace>
-                            <endWithNewline></endWithNewline>
+                            <trimTrailingWhitespace/>
+                            <endWithNewline/>
                             <indent>
                                 <tabs>true</tabs>
                                 <spacesPerTab>4</spacesPerTab>
@@ -251,7 +297,7 @@
                             </treatAsClass>
                         </importOrder>
 
-                        <removeUnusedImports></removeUnusedImports>
+                        <removeUnusedImports/>
 
                         <!-- apply a specific flavor of google-java-format and reflow long strings -->
                         <palantirJavaFormat>
@@ -269,14 +315,10 @@
                     </java>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.gaul</groupId>
+                <artifactId>modernizer-maven-plugin</artifactId>
+            </plugin>
         </plugins>
     </build>
-    <profiles>
-        <profile>
-            <id>include-integration-tests</id>
-            <modules>
-                <module>integration</module>
-            </modules>
-        </profile>
-    </profiles>
 </project>

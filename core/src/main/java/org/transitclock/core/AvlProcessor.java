@@ -1,15 +1,9 @@
 /* (C)2023 */
 package org.transitclock.core;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.transitclock.applications.Core;
 import org.transitclock.config.BooleanConfigValue;
 import org.transitclock.config.DoubleConfigValue;
@@ -23,18 +17,8 @@ import org.transitclock.core.dataCache.PredictionDataCache;
 import org.transitclock.core.dataCache.VehicleDataCache;
 import org.transitclock.core.dataCache.VehicleStateManager;
 import org.transitclock.db.hibernate.HibernateUtils;
-import org.transitclock.db.structs.AvlReport;
+import org.transitclock.db.structs.*;
 import org.transitclock.db.structs.AvlReport.AssignmentType;
-import org.transitclock.db.structs.Block;
-import org.transitclock.db.structs.Location;
-import org.transitclock.db.structs.Route;
-import org.transitclock.db.structs.Stop;
-import org.transitclock.db.structs.Trip;
-import org.transitclock.db.structs.VectorWithHeading;
-import org.transitclock.db.structs.VehicleEvent;
-import org.transitclock.db.structs.VehicleToBlockConfig;
-import org.transitclock.logging.Markers;
-import org.transitclock.monitoring.CloudwatchService;
 import org.transitclock.utils.Geo;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.StringUtils;
@@ -47,6 +31,7 @@ import org.transitclock.utils.Time;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class AvlProcessor {
 
     // For keeping track of how long since received an AVL report so
@@ -54,9 +39,8 @@ public class AvlProcessor {
     private AvlReport lastRegularReportProcessed;
 
     // Singleton class
-    private static AvlProcessor singleton = new AvlProcessor();
+    private static final AvlProcessor singleton = new AvlProcessor();
 
-    /*********** Configurable Parameters for this module ***********/
     private static double getTerminalDistanceForRouteMatching() {
         return terminalDistanceForRouteMatching.getValue();
     }
@@ -114,11 +98,6 @@ public class AvlProcessor {
         return maxMatchDistanceFromAVLRecord.getValue();
     }
 
-    /************************** Logging *******************************/
-    private static final Logger logger = LoggerFactory.getLogger(AvlProcessor.class);
-
-    /********************** Member Functions **************************/
-
     /*
      * Singleton class so shouldn't use constructor so declared private
      */
@@ -129,7 +108,7 @@ public class AvlProcessor {
      *
      * @return
      */
-    public static AvlProcessor getInstance() {
+    public static synchronized AvlProcessor getInstance() {
         return singleton;
     }
 
@@ -854,7 +833,6 @@ public class AvlProcessor {
             // Only send e-mail error rarely
             if (shouldSendMessage(vehicleState.getVehicleId(), vehicleState.getAvlReport())) {
                 logger.error(
-                        Markers.email(),
                         "For agencyId={} got a match for vehicleId={} but that "
                                 + "assignment is already taken by vehicleId={} and the new "
                                 + "match doesn't appear to be valid because it is more "
@@ -878,7 +856,7 @@ public class AvlProcessor {
     // Keyed on vehicleId. Contains last time problem grabbing assignment
     // message sent for the vehicle. For reducing number of emails sent
     // when there is a problem.
-    private Map<String, Long> problemGrabbingAssignmentMap = new HashMap<String, Long>();
+    private Map<String, Long> problemGrabbingAssignmentMap = new HashMap<>();
 
     /**
      * For reducing e-mail logging messages when problem grabbing assignment. Java property
@@ -942,7 +920,6 @@ public class AvlProcessor {
      * assignment. If successful then the vehicle can be made predictable. The AvlReport is obtained
      * from the vehicleState parameter.
      *
-     * @param avlReport
      * @param vehicleState provides current AvlReport plus is updated by this method with the new
      *     state.
      * @return true if successfully assigned vehicle
@@ -1527,21 +1504,5 @@ public class AvlProcessor {
         // Do the low level work of matching vehicle and then generating results
         lowLevelProcessAvlReport(avlReport, false);
         logger.debug("Processing AVL report took {}msec", timer);
-        CloudwatchService.getInstance()
-                .saveMetric(
-                        "PredictionProcessingTimeInMillis",
-                        Double.valueOf(timer.elapsedMsec()),
-                        1,
-                        CloudwatchService.MetricType.AVERAGE,
-                        CloudwatchService.ReportingIntervalTimeUnit.MINUTE,
-                        false);
-        CloudwatchService.getInstance()
-                .saveMetric(
-                        "PredictionTotalLatencyInMillis",
-                        Double.valueOf((System.currentTimeMillis() - avlReport.getTime())),
-                        1,
-                        CloudwatchService.MetricType.AVERAGE,
-                        CloudwatchService.ReportingIntervalTimeUnit.MINUTE,
-                        false);
     }
 }

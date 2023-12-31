@@ -13,12 +13,8 @@ import org.transitclock.applications.Core;
  */
 public class PlaybackIntervalTimer {
 
-    // The time the interval timer created or reset
     private long initialtime;
 
-    private static DecimalFormat decimalFormat = new DecimalFormat("#.###");
-
-    /********************** Member Functions **************************/
 
     /** Records the current time so that elapsed time can later be determined. */
     public PlaybackIntervalTimer() {

@@ -46,7 +46,7 @@ public abstract class PredictionGenerator {
 
     private static final IntegerConfigValue closestVehicleStopsAhead = new IntegerConfigValue(
             "transitclock.prediction.closestvehiclestopsahead",
-            new Integer(2),
+            2,
             "Num stops ahead a vehicle must be to be considers in the closest vehicle" + " calculation");
 
     protected static BooleanConfigValue storeTravelTimeStopPathPredictions = new BooleanConfigValue(
@@ -216,7 +216,7 @@ public abstract class PredictionGenerator {
         List<String> routeStops =
                 stopsByDirection.get(currentVehicleState.getTrip().getDirectionId());
 
-        Integer closest = 100;
+        int closest = 100;
 
         VehicleState result = null;
 

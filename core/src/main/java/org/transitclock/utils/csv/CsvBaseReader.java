@@ -7,14 +7,15 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.Time;
 
@@ -24,6 +25,8 @@ import org.transitclock.utils.Time;
  *
  * @author SkiBu Smith
  */
+@Getter
+@Slf4j
 public abstract class CsvBaseReader<T> {
 
     // Full file name of CSV file to be read
@@ -34,7 +37,7 @@ public abstract class CsvBaseReader<T> {
     private final boolean required;
 
     // Whether file is a supplemental one or not. For supplemental
-    // files some of elements specified as required in the CSV
+    // files some of the elements specified as required in the CSV
     // spec can actually be missing since the data from supplemental
     // file is going to be combined with the main file.
     private final boolean supplemental;
@@ -42,18 +45,6 @@ public abstract class CsvBaseReader<T> {
     // The CSV objects read from the file
     protected List<T> gtfsObjects;
 
-    protected static final Logger logger = LoggerFactory.getLogger(CsvBaseReader.class);
-
-    /********************** Member Functions **************************/
-
-    /**
-     * Constructor. Stores the file name to be used.
-     *
-     * @param dirName
-     * @param fileName
-     * @param required
-     * @param supplemental
-     */
     protected CsvBaseReader(String dirName, String fileName, boolean required, boolean supplemental) {
         this.fileName = dirName + "/" + fileName;
         this.required = required;
@@ -107,7 +98,8 @@ public abstract class CsvBaseReader<T> {
             // way the CSV parser will process the file starting with the first
             // true character.
 
-            Reader in = new BufferedReader(new InputStreamReader(new FileInputStream(fileName), "UTF-8"));
+            Reader in =
+                    new BufferedReader(new InputStreamReader(new FileInputStream(fileName), StandardCharsets.UTF_8));
 
             // Deal with the possible BOM character at the beginning of the file
             in.mark(1);
@@ -121,7 +113,9 @@ public abstract class CsvBaseReader<T> {
             // certain data is missing. Using the '-' character so can
             // comment out line that starts with "--", which is what is
             // used for SQL.
-            CSVFormat formatter = CSVFormat.DEFAULT.withHeader().withCommentMarker('-');
+            CSVFormat formatter = CSVFormat.DEFAULT
+                    .withHeader()
+                    .withCommentMarker('-');
 
             // Parse the file
             Iterable<CSVRecord> records = formatter.parse(in);
@@ -132,10 +126,9 @@ public abstract class CsvBaseReader<T> {
             timer = new IntervalTimer();
             IntervalTimer loggingTimer = new IntervalTimer();
 
-            Iterator<CSVRecord> iterator = records.iterator();
-            while (iterator.hasNext()) {
+            for (CSVRecord strings : records) {
                 // Determine the record to process
-                record = iterator.next();
+                record = strings;
 
                 // If blank line then skip it. This way avoid error messages since
                 // expected data column won't exist
@@ -228,17 +221,10 @@ public abstract class CsvBaseReader<T> {
      * @return List of CSV objects. Can be empty but not null.
      */
     public List<T> get(int initialSize) {
-        gtfsObjects = new ArrayList<T>(initialSize);
+        gtfsObjects = new ArrayList<>(initialSize);
 
         parse();
 
         return gtfsObjects;
-    }
-
-    /**
-     * @return the file name of the file being processed
-     */
-    public String getFileName() {
-        return fileName;
     }
 }

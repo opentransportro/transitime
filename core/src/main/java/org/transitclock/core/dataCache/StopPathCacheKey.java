@@ -1,16 +1,13 @@
 /* (C)2023 */
 package org.transitclock.core.dataCache;
 
+import java.io.Serializable;
 import org.transitclock.core.Indices;
 
 /**
  * @author Sean Óg Crudden
  */
-public class StopPathCacheKey implements java.io.Serializable {
-
-    /** */
-    private static final long serialVersionUID = 9119654046491298858L;
-
+public class StopPathCacheKey implements Serializable {
     private String tripId;
     private Integer stopPathIndex;
 
@@ -51,25 +48,16 @@ public class StopPathCacheKey implements java.io.Serializable {
     }
 
     public StopPathCacheKey(StopPathCacheKey key) {
-
-        this.stopPathIndex = new Integer(key.getStopPathIndex());
-
-        this.tripId = new String(key.getTripId());
-
+        this.stopPathIndex = key.getStopPathIndex();
+        this.tripId = key.getTripId();
         this.travelTime = key.travelTime;
-
-        this.startTime = new Long(key.getStartTime());
+        this.startTime = key.getStartTime();
     }
 
     public StopPathCacheKey(Indices indices) {
-        super();
-
         this.stopPathIndex = indices.getStopPathIndex();
-
         int tripIndex = indices.getTripIndex();
-
         this.tripId = indices.getBlock().getTrip(tripIndex).getId();
-
         this.travelTime = true;
     }
 
@@ -131,8 +119,7 @@ public class StopPathCacheKey implements java.io.Serializable {
         } else if (!stopPathIndex.equals(other.stopPathIndex)) return false;
         if (travelTime != other.travelTime) return false;
         if (tripId == null) {
-            if (other.tripId != null) return false;
-        } else if (!tripId.equals(other.tripId)) return false;
-        return true;
+            return other.tripId == null;
+        } else return tripId.equals(other.tripId);
     }
 }

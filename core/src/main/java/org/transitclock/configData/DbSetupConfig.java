@@ -38,7 +38,7 @@ public class DbSetupConfig {
 
     private static StringConfigValue dbType = new StringConfigValue(
             "transitclock.db.dbType",
-            "mysql",
+            "postgres",
             "Specifies type of database when creating the URL to "
                     + "connect to the database. Can be mysql or postgresql. "
                     + "Should work for other dbs as well. Default is mysql.");
@@ -86,7 +86,7 @@ public class DbSetupConfig {
 
     private static StringConfigValue hibernateConfigFileName = new StringConfigValue(
             "transitclock.hibernate.configFile",
-            "hsql_hibernate.cfg.xml",
+            "hibernate.cfg.xml",
             "Specifies the database dependent hibernate.cfg.xml file "
                     + "to use to configure hibernate. The system will look both "
                     + "on the file system and in the classpath. Can specify "

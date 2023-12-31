@@ -8,18 +8,11 @@ import org.transitclock.db.structs.HoldingTime;
 
 public class IpcHoldingTime implements Serializable {
 
-    /** */
-    private static final long serialVersionUID = 2869001113239169554L;
-
     private final Date holdingTime;
 
     private final Date creationTime;
 
     private Date currentTime;
-
-    public void setCurrentTime(Date currentTime) {
-        this.currentTime = currentTime;
-    }
 
     private final String vehicleId;
 
@@ -38,14 +31,6 @@ public class IpcHoldingTime implements Serializable {
     private boolean hasD1;
 
     private int numberPredictionsUsed;
-
-    public boolean isHasD1() {
-        return hasD1;
-    }
-
-    public void setHasD1(boolean hasD1) {
-        this.hasD1 = hasD1;
-    }
 
     public IpcHoldingTime(
             Date holdingTime,
@@ -142,5 +127,17 @@ public class IpcHoldingTime implements Serializable {
 
     public boolean isArrivalUsed() {
         return arrivalUsed;
+    }
+
+    public void setCurrentTime(Date currentTime) {
+        this.currentTime = currentTime;
+    }
+
+    public boolean isHasD1() {
+        return hasD1;
+    }
+
+    public void setHasD1(boolean hasD1) {
+        this.hasD1 = hasD1;
     }
 }

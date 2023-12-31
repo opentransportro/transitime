@@ -22,8 +22,6 @@ public class IpcCalendar implements Serializable {
     private final String startDate;
     private final String endDate;
 
-    private static final long serialVersionUID = 7248540190574905163L;
-
     public IpcCalendar(Calendar calendar) {
         super();
         this.serviceId = calendar.getServiceId();

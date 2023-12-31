@@ -12,9 +12,6 @@ import org.transitclock.db.structs.VehicleToBlockConfig;
  */
 public class IpcVehicleToBlockConfig implements Serializable {
 
-    /** */
-    private static final long serialVersionUID = 8343324870221439002L;
-
     private final long id;
     private final String vehicleId;
     private final Date validFrom;
@@ -23,7 +20,6 @@ public class IpcVehicleToBlockConfig implements Serializable {
     private final String blockId;
     private final String tripId;
 
-    /********************** Member Functions **************************/
     public IpcVehicleToBlockConfig(VehicleToBlockConfig vehicleToBlockConfig) {
         this.id = vehicleToBlockConfig.getId();
         this.vehicleId = vehicleToBlockConfig.getVehicleId();
@@ -32,10 +28,6 @@ public class IpcVehicleToBlockConfig implements Serializable {
         this.assignmentDate = vehicleToBlockConfig.getAssignmentDate();
         this.tripId = vehicleToBlockConfig.getTripId();
         this.blockId = vehicleToBlockConfig.getBlockId();
-    }
-
-    public static long getSerialversionuid() {
-        return serialVersionUID;
     }
 
     public long getId() {

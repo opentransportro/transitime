@@ -29,7 +29,7 @@ public class HistoricalAveragePredictionGeneratorImpl extends LastVehiclePredict
 
     private static final IntegerConfigValue minDays = new IntegerConfigValue(
             "transitclock.prediction.data.average.mindays",
-            new Integer(1),
+            1,
             "Min number of days trip data that needs to be available before historical"
                     + " average prediciton is used instead of default transiTime prediction.");
 

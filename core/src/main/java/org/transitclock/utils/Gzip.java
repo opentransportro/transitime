@@ -7,6 +7,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
+
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,12 +17,8 @@ import org.slf4j.LoggerFactory;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class Gzip {
-
-    private static final Logger logger = LoggerFactory.getLogger(Gzip.class);
-
-    /********************** Member Functions **************************/
-
     /**
      * Uncompresses .gz file. Deletes the original .gz file.
      *

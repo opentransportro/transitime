@@ -21,7 +21,6 @@ import org.hibernate.exception.SQLGrammarException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.configData.DbSetupConfig;
-import org.transitclock.logging.Markers;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.Time;
 import org.transitclock.utils.threading.NamedThreadFactory;
@@ -40,7 +39,7 @@ public class DbQueue<T> {
     private static final int QUEUE_CAPACITY = 500000;
 
     // The queue that objects to be stored are placed in
-    private BlockingQueue<T> queue = new LinkedBlockingQueue<T>(QUEUE_CAPACITY);
+    private final BlockingQueue<T> queue = new LinkedBlockingQueue<T>(QUEUE_CAPACITY);
 
     // When running in playback mode where getting AVLReports from database
     // instead of from an AVL feed, then debugging and don't want to store
@@ -56,7 +55,7 @@ public class DbQueue<T> {
 
     // The queue capacity levels when an error message should be e-mailed out.
     // The max value should be 1.0.
-    private final double levels[] = {0.5, 0.8, 1.00};
+    private final double[] levels = {0.5, 0.8, 1.00};
 
     // For keeping track of index into levels, which level of capacity of
     // queue being used. When level changes then an e-mail is sent out warning
@@ -68,7 +67,7 @@ public class DbQueue<T> {
     private double maxQueueLevel = 0.0;
 
     // So can access projectId for logging messages
-    private String projectId;
+    private final String projectId;
 
     // The Session for writing data to db
     private SessionFactory sessionFactory;
@@ -76,9 +75,9 @@ public class DbQueue<T> {
     // collect some statistics on how the db is performing
     private long throughputCount = 0;
     private long throughputTimestamp = System.currentTimeMillis();
-    private String shortType;
+    private final Class<?> shortType;
 
-    public DbQueue(String projectId, boolean shouldStoreToDb, boolean shouldPauseToReduceQueue, String shortType) {
+    public DbQueue(String projectId, boolean shouldStoreToDb, boolean shouldPauseToReduceQueue, Class<?> shortType) {
         this.projectId = projectId;
         this.shouldStoreToDb = shouldStoreToDb;
         this.shouldPauseToReduceQueue = shouldPauseToReduceQueue;
@@ -91,11 +90,7 @@ public class DbQueue<T> {
         // actually stores the data
         NamedThreadFactory threadFactory = new NamedThreadFactory(getClass().getSimpleName());
         ExecutorService executor = Executors.newSingleThreadExecutor(threadFactory);
-        executor.execute(new Runnable() {
-            public void run() {
-                processData();
-            }
-        });
+        executor.execute(this::processData);
         ThroughputMonitor tm = new ThroughputMonitor();
         new Thread(tm).start();
     }
@@ -126,7 +121,7 @@ public class DbQueue<T> {
                             + queue.size()
                             + " elements already in the queue."
                     : "DataDbLogger queue is now completely full for projectId=" + projectId + ". LOSING DATA!!!";
-            logger.error(Markers.email(), message);
+            logger.error(message);
         }
 
         // If losing data then log such
@@ -151,9 +146,7 @@ public class DbQueue<T> {
         // thread for 10 seconds so that separate thread can clear out
         // queue a bit.
         if (shouldPauseToReduceQueue && level > 0.2) {
-            logger.info(
-                    "Pausing thread adding data to DataDbLogger queue "
-                            + "so that queue can be cleared out. Level={}%, type=",
+            logger.info("Pausing thread adding data to DataDbLogger queue so that queue can be cleared out. Level={}%, type={}",
                     level * 100.0, shortType);
             Time.sleep(10 * Time.MS_PER_SEC);
         }
@@ -184,20 +177,18 @@ public class DbQueue<T> {
         double level = queueLevel();
         int levelIndexIncludingMargin = indexOfLevel(level + 0.10);
         if (levelIndexIncludingMargin < indexOfLevelWhenMessageLogged) {
-            logger.error(
-                    Markers.email(),
-                    "DataDbLogger queue emptying out somewhat "
-                            + " for projectId="
-                            + projectId
-                            + " and type "
-                            + shortType
-                            + ". It is now at "
-                            + String.format("%.1f", level * 100)
-                            + "% capacity with "
-                            + queue.size()
-                            + " elements already in the queue. The maximum capacity was "
-                            + String.format("%.1f", maxQueueLevel * 100)
-                            + "%.");
+            logger.error("DataDbLogger queue emptying out somewhat "
+                    + " for projectId="
+                    + projectId
+                    + " and type "
+                    + shortType
+                    + ". It is now at "
+                    + String.format("%.1f", level * 100)
+                    + "% capacity with "
+                    + queue.size()
+                    + " elements already in the queue. The maximum capacity was "
+                    + String.format("%.1f", maxQueueLevel * 100)
+                    + "%.");
             indexOfLevelWhenMessageLogged = levelIndexIncludingMargin;
 
             // Reset the maxQueueLevel so can determine what next peak is
@@ -228,7 +219,7 @@ public class DbQueue<T> {
         // then can try to write the objects one at a time to make sure that the
         // the good ones are written. This way don't lose any good data even if
         // an exception occurs while batching data.
-        List<Object> objectsForThisBatch = new ArrayList<Object>(DbSetupConfig.getBatchSize());
+        List<Object> objectsForThisBatch = new ArrayList<>(DbSetupConfig.getBatchSize());
 
         Transaction tx = null;
         Session session = null;
@@ -276,12 +267,10 @@ public class DbQueue<T> {
                     || rootCause instanceof SocketException
                     || (rootCause instanceof SQLException
                             && rootCause.getMessage().contains("statement closed"))) {
-                logger.error(
-                        Markers.email(),
-                        "Had a connection problem to the database. Likely "
-                                + "means that the db was rebooted or that the "
-                                + "connection to it was lost. Therefore creating a new "
-                                + "SessionFactory so get new connections.");
+                logger.error("Had a connection problem to the database. Likely "
+                        + "means that the db was rebooted or that the "
+                        + "connection to it was lost. Therefore creating a new "
+                        + "SessionFactory so get new connections.");
                 HibernateUtils.clearSessionFactory();
                 sessionFactory = HibernateUtils.getSessionFactory(projectId);
             } else {
@@ -394,8 +383,7 @@ public class DbQueue<T> {
     public double queueLevel() {
         int remainingCapacity = queue.remainingCapacity();
         int totalCapacity = queue.size() + remainingCapacity;
-        double level = 1.0 - (double) remainingCapacity / totalCapacity;
-        return level;
+        return 1.0 - (double) remainingCapacity / totalCapacity;
     }
 
     /**
@@ -467,8 +455,7 @@ public class DbQueue<T> {
         //   GenericJDBCException    (obtained when committing transaction with db turned off)
         // So if exception is JDBCConnectionException or JDBCGenericException
         // then should keep retrying until successful.
-        boolean keepTryingTillSuccessfull = e instanceof JDBCConnectionException || e instanceof GenericJDBCException;
-        return keepTryingTillSuccessfull;
+        return e instanceof JDBCConnectionException || e instanceof GenericJDBCException;
     }
 
     /**
@@ -476,7 +463,7 @@ public class DbQueue<T> {
      * used when the batching encounters an exception. This way can still store all of the good data
      * from a batch.
      *
-     * @param o
+     * @param objectToBeStored
      */
     private void processSingleObject(Object objectToBeStored) {
         Session session = null;
@@ -492,18 +479,18 @@ public class DbQueue<T> {
     }
 
     private class ThroughputMonitor implements Runnable {
-        private long interval = 1l; // minutes
+        private static final long INTERVAL = 1l; // minutes
 
         @Override
         public void run() {
-            Time.sleep(interval * Time.MS_PER_MIN);
+            Time.sleep(INTERVAL * Time.MS_PER_MIN);
             while (!Thread.interrupted()) {
                 try {
                     processThroughput();
                 } catch (Throwable t) {
                     logger.error("monitor broke:{}", t, t);
                 }
-                Time.sleep(interval * Time.MS_PER_MIN);
+                Time.sleep(INTERVAL * Time.MS_PER_MIN);
             }
         }
 
@@ -519,7 +506,7 @@ public class DbQueue<T> {
             throughputTimestamp = System.currentTimeMillis();
             double rate = throughput / delta;
             logger.info(
-                    "wrote {} {} messages in {}s, ({}/s) ", throughput, shortType, (long) delta / 1000, (long) rate);
+                    "wrote {} {} messages in {}s, ({}/s) ", throughput, shortType, delta / 1000, (long) rate);
         }
     }
 }

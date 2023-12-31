@@ -386,7 +386,7 @@ public class PredictionGeneratorDefaultImpl extends PredictionGenerator
         // might substitute in for that block.
         TemporalDifference lateness = vehicleState.getRealTimeSchedAdh();
         boolean lateSoMarkSubsequentTripsAsUncertain =
-                lateness != null ? lateness.isLaterThan(maxLateCutoffPredsForNextTripsSecs.getValue()) : false;
+                lateness != null && lateness.isLaterThan(maxLateCutoffPredsForNextTripsSecs.getValue());
         if (lateSoMarkSubsequentTripsAsUncertain)
             logger.info(
                     "Vehicle late so marking predictions for subsequent " + "trips as being uncertain. {}",
@@ -399,9 +399,9 @@ public class PredictionGeneratorDefaultImpl extends PredictionGenerator
 
         // indices.incrementStopPath(predictionTime);
 
-        Integer tripCounter = new Integer(vehicleState.getTripCounter());
+        Integer tripCounter = vehicleState.getTripCounter();
 
-        Map<Integer, IpcPrediction> filteredPredictions = new HashMap<Integer, IpcPrediction>();
+        Map<Integer, IpcPrediction> filteredPredictions = new HashMap<>();
 
         // Continue through block until end of block or limit on how far
         // into the future should generate predictions reached.
@@ -418,7 +418,7 @@ public class PredictionGeneratorDefaultImpl extends PredictionGenerator
             boolean lateSoMarkAsUncertain =
                     lateSoMarkSubsequentTripsAsUncertain && indices.getTripIndex() > currentTripIndex;
 
-            Integer delay = RealTimeSchedAdhProcessor.generateEffectiveScheduleDifference(vehicleState)
+            int delay = RealTimeSchedAdhProcessor.generateEffectiveScheduleDifference(vehicleState)
                             .getTemporalDifference()
                     / 1000;
 
@@ -443,8 +443,6 @@ public class PredictionGeneratorDefaultImpl extends PredictionGenerator
                     HoldingTime holdingTime = HoldingTimeGeneratorFactory.getInstance()
                             .generateHoldingTime(vehicleState, predictionForStop);
                     if (holdingTime != null) {
-                        // HoldingTimeCache.getInstance().putHoldingTimeExlusiveByStop(holdingTime,
-                        // new Date(Core.getInstance().getSystemTime()));
                         HoldingTimeCache.getInstance().putHoldingTime(holdingTime);
                         vehicleState.setHoldingTime(holdingTime);
                     }
@@ -558,9 +556,7 @@ public class PredictionGeneratorDefaultImpl extends PredictionGenerator
             }
         }
 
-        for (IpcPrediction prediction : filteredPredictions.values()) {
-            newPredictions.add(prediction);
-        }
+        newPredictions.addAll(filteredPredictions.values());
 
         // Return the results
         return newPredictions;
@@ -586,10 +582,7 @@ public class PredictionGeneratorDefaultImpl extends PredictionGenerator
     }
 
     public long getStopTimeForPath(Indices indices, AvlReport avlReport, VehicleState vehicleState) {
-        long prediction = TravelTimes.getInstance().expectedStopTimeForStopPath(indices);
-        // logger.debug("Using transiTime default algorithm for stop time prediction : "+indices + "
-        // Value: "+prediction);
-        return prediction;
+        return TravelTimes.getInstance().expectedStopTimeForStopPath(indices);
     }
 
     public long expectedTravelTimeFromMatchToEndOfStopPath(AvlReport avlReport, SpatialMatch match) {

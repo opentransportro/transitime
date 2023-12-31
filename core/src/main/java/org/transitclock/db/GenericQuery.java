@@ -12,6 +12,8 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.db.webstructs.WebAgency;
@@ -24,6 +26,7 @@ import org.transitclock.utils.Time;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class GenericQuery {
 
     // Number of rows read in
@@ -31,10 +34,6 @@ public class GenericQuery {
 
     // For caching db connection
     private static Connection connection;
-
-    protected static final Logger logger = LoggerFactory.getLogger(GenericQuery.class);
-
-    /********************** Member Functions **************************/
 
     /**
      * Constructor
@@ -117,13 +116,9 @@ public class GenericQuery {
      * @throws SQLException
      */
     protected void doQuery(String sql, Object... parameters) throws SQLException {
-        PreparedStatement statement = null;
 
         IntervalTimer timer = new IntervalTimer();
-
-        try {
-
-            statement = connection.prepareStatement(sql);
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
 
             // TODO Deal with dates for the moment
             for (int i = 0; i < parameters.length; i++) {
@@ -158,8 +153,6 @@ public class GenericQuery {
             logger.debug("GenericQuery query took {}msec rows={}", timer.elapsedMsec(), rows);
         } catch (SQLException e) {
             throw e;
-        } finally {
-            if (statement != null) statement.close();
         }
     }
 
@@ -170,15 +163,10 @@ public class GenericQuery {
      * @throws SQLException
      */
     public void doUpdate(String sql) throws SQLException {
-        Statement statement = null;
-
-        try {
-            statement = connection.createStatement();
+        try (Statement statement = connection.createStatement()) {
             statement.executeUpdate(sql);
         } catch (SQLException e) {
             throw e;
-        } finally {
-            if (statement != null) statement.close();
         }
     }
 

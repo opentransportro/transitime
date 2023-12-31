@@ -3,8 +3,7 @@ package org.transitclock.core;
 
 import java.util.Date;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.transitclock.applications.Core;
 import org.transitclock.configData.CoreConfig;
 import org.transitclock.db.structs.AvlReport;
@@ -20,14 +19,11 @@ import org.transitclock.utils.Time;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class TemporalMatcher {
 
     // Singleton class
     private static TemporalMatcher singleton = new TemporalMatcher();
-
-    private static final Logger logger = LoggerFactory.getLogger(TemporalMatcher.class);
-
-    /********************** Member Functions **************************/
 
     /** Declaring constructor as private since singleton class */
     private TemporalMatcher() {}
@@ -47,7 +43,7 @@ public class TemporalMatcher {
      * can be used to determine which spatial match has the best temporal match. Intended to be used
      * when first matching a vehicle to an assignment.
      *
-     * @param for logging messages
+     * @param vehicleId for logging messages
      * @param date
      * @param spatialMatch
      * @param isFirstSpatialMatch Set to true if this is the first of the spatial matches. This is

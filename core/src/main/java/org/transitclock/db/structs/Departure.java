@@ -1,8 +1,8 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
-import java.util.Date;
 import javax.persistence.Entity;
+import java.util.Date;
 
 /**
  * For persisting a Departure time.
@@ -11,12 +11,6 @@ import javax.persistence.Entity;
  */
 @Entity
 public class Departure extends ArrivalDeparture {
-
-    // Needed because Hibernate requires objects to be serializable
-    private static final long serialVersionUID = 8489481047642753556L;
-
-    /********************** Member Functions **************************/
-
     /**
      * Simple constructor
      *

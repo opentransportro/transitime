@@ -13,20 +13,10 @@ import org.transitclock.db.structs.Trip;
  */
 public class VehicleAtStopInfo extends Indices {
 
-    /********************** Member Functions **************************/
-
-    /**
-     * @param block
-     * @param tripIndex
-     * @param stopPathIndex
-     */
     public VehicleAtStopInfo(Block block, int tripIndex, int stopPathIndex) {
         super(block, tripIndex, stopPathIndex, 0); // segment index
     }
 
-    /**
-     * @param indices
-     */
     public VehicleAtStopInfo(Indices indices) {
         super(indices.getBlock(), indices.getTripIndex(), indices.getStopPathIndex(), 0); // segment index
     }

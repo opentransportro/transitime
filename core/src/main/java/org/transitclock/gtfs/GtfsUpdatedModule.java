@@ -13,13 +13,10 @@ import java.util.Date;
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.transitclock.Module;
 import org.transitclock.config.LongConfigValue;
 import org.transitclock.config.StringConfigValue;
 import org.transitclock.configData.AgencyConfig;
-import org.transitclock.logging.Markers;
-import org.transitclock.Module;
-import org.transitclock.monitoring.MonitorBase;
-import org.transitclock.utils.EmailSender;
 import org.transitclock.utils.HttpGetFile;
 import org.transitclock.utils.Time;
 
@@ -47,8 +44,6 @@ public class GtfsUpdatedModule extends Module {
             // frequently so get updates as soon as possible
             4 * Time.MS_PER_HOUR,
             "How long to wait before checking if GTFS file has changed " + "on web");
-
-    private static EmailSender emailSender = new EmailSender();
 
     private static final Logger logger = LoggerFactory.getLogger(GtfsUpdatedModule.class);
 
@@ -122,16 +117,6 @@ public class GtfsUpdatedModule extends Module {
                             "Got remote file because didn't have a local " + "copy of it. Url={} dir={}",
                             httpGetFile.getFullFileName(),
                             dirName.getValue());
-
-                // Email message
-                String subject = "GTFS file was updated for " + AgencyConfig.getAgencyId();
-                String message = "For "
-                        + AgencyConfig.getAgencyId()
-                        + " the GTFS file "
-                        + url.getValue()
-                        + " was updated so was downloaded to "
-                        + httpGetFile.getFullFileName();
-                emailSender.send(MonitorBase.recipientsGlobal(), subject, message);
 
                 // Make copy of GTFS zip file in separate directory for archival
                 archive(httpGetFile.getFullFileName());
@@ -207,11 +192,7 @@ public class GtfsUpdatedModule extends Module {
             try {
                 get();
             } catch (Exception e) {
-                logger.error(
-                        Markers.email(),
-                        "Exception in GtfsUpdatedModule for agencyId={}",
-                        AgencyConfig.getAgencyId(),
-                        e);
+                logger.error("Exception in GtfsUpdatedModule for agencyId={}", AgencyConfig.getAgencyId(), e);
             }
         }
     }

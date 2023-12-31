@@ -6,6 +6,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.applications.Core;
@@ -34,14 +37,12 @@ import org.transitclock.ipc.rmi.AbstractServer;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class ConfigServer extends AbstractServer implements ConfigInterface {
 
     // Should only be accessed as singleton class
     private static ConfigServer singleton;
 
-    private static final Logger logger = LoggerFactory.getLogger(ConfigServer.class);
-
-    /********************** Member Functions **************************/
 
     /**
      * Starts up the ConfigServer so that RMI calls can query for configuration data. This will
@@ -89,9 +90,11 @@ public class ConfigServer extends AbstractServer implements ConfigInterface {
     private Route getRoute(String routeIdOrShortName) {
         DbConfig dbConfig = Core.getInstance().getDbConfig();
         Route dbRoute = dbConfig.getRouteByShortName(routeIdOrShortName);
-        if (dbRoute == null) dbRoute = dbConfig.getRouteById(routeIdOrShortName);
-        if (dbRoute != null) return dbRoute;
-        else return null;
+        if (dbRoute == null) {
+            dbRoute = dbConfig.getRouteById(routeIdOrShortName);
+        }
+
+        return dbRoute;
     }
 
     /* (non-Javadoc)
@@ -101,17 +104,12 @@ public class ConfigServer extends AbstractServer implements ConfigInterface {
     public Collection<IpcRouteSummary> getRoutes() throws RemoteException {
         // Get the db route info
         DbConfig dbConfig = Core.getInstance().getDbConfig();
-        Collection<org.transitclock.db.structs.Route> dbRoutes = dbConfig.getRoutes();
+        var dbRoutes = dbConfig.getRoutes();
 
-        // Convert the db routes into ipc routes
-        Collection<IpcRouteSummary> ipcRoutes = new ArrayList<IpcRouteSummary>(dbRoutes.size());
-        for (org.transitclock.db.structs.Route dbRoute : dbRoutes) {
-            IpcRouteSummary ipcRoute = new IpcRouteSummary(dbRoute);
-            ipcRoutes.add(ipcRoute);
-        }
-
-        // Return the collection of ipc routes
-        return ipcRoutes;
+        return dbRoutes
+                .stream()
+                .map(IpcRouteSummary::new)
+                .collect(Collectors.toList());
     }
 
     /* (non-Javadoc)
@@ -122,11 +120,12 @@ public class ConfigServer extends AbstractServer implements ConfigInterface {
             throws RemoteException {
         // Determine the route
         Route dbRoute = getRoute(routeIdOrShortName);
-        if (dbRoute == null) return null;
+        if (dbRoute == null) {
+            return null;
+        }
 
         // Convert db route into an ipc route and return it
-        IpcRoute ipcRoute = new IpcRoute(dbRoute, directionId, stopId, tripPatternId);
-        return ipcRoute;
+        return new IpcRoute(dbRoute, directionId, stopId, tripPatternId);
     }
 
     /*
@@ -135,7 +134,7 @@ public class ConfigServer extends AbstractServer implements ConfigInterface {
      */
     @Override
     public List<IpcRoute> getRoutes(List<String> routeIdsOrShortNames) throws RemoteException {
-        List<IpcRoute> routes = new ArrayList<IpcRoute>();
+        List<IpcRoute> routes = new ArrayList<>();
 
         // If no route specified then return data for all routes
         if (routeIdsOrShortNames == null || routeIdsOrShortNames.isEmpty()) {
@@ -169,11 +168,8 @@ public class ConfigServer extends AbstractServer implements ConfigInterface {
         Route dbRoute = getRoute(routeIdOrShortName);
         if (dbRoute == null) return null;
 
-        // Convert db route into an ipc route
-        IpcDirectionsForRoute ipcStopsForRoute = new IpcDirectionsForRoute(dbRoute);
-
         // Return the ipc route
-        return ipcStopsForRoute;
+        return new IpcDirectionsForRoute(dbRoute);
     }
 
     /* (non-Javadoc)
@@ -184,7 +180,9 @@ public class ConfigServer extends AbstractServer implements ConfigInterface {
         Block dbBlock = Core.getInstance().getDbConfig().getBlock(serviceId, blockId);
 
         // If no such block then return null since can't create a IpcBlock
-        if (dbBlock == null) return null;
+        if (dbBlock == null) {
+            return null;
+        }
 
         return new IpcBlock(dbBlock);
     }
@@ -195,7 +193,7 @@ public class ConfigServer extends AbstractServer implements ConfigInterface {
     @Override
     public Collection<IpcBlock> getBlocks(String blockId) throws RemoteException {
         // For returning results
-        Collection<IpcBlock> ipcBlocks = new ArrayList<IpcBlock>();
+        List<IpcBlock> ipcBlocks = new ArrayList<>();
 
         // Get the blocks with specified ID
         Collection<Block> dbBlocks = Core.getInstance().getDbConfig().getBlocksForAllServiceIds(blockId);
@@ -217,13 +215,15 @@ public class ConfigServer extends AbstractServer implements ConfigInterface {
         Trip dbTrip = Core.getInstance().getDbConfig().getTrip(tripId);
 
         // If couldn't find a trip with the specified trip_id then see if a
-        // a trip has the trip_short_name specified.
+        // trip has the trip_short_name specified.
         if (dbTrip == null) {
             dbTrip = Core.getInstance().getDbConfig().getTripUsingTripShortName(tripId);
         }
 
         // If no such trip then return null since can't create a IpcTrip
-        if (dbTrip == null) return null;
+        if (dbTrip == null) {
+            return null;
+        }
 
         return new IpcTrip(dbTrip);
     }
@@ -241,7 +241,7 @@ public class ConfigServer extends AbstractServer implements ConfigInterface {
         List<TripPattern> dbTripPatterns = dbConfig.getTripPatternsForRoute(dbRoute.getId());
         if (dbTripPatterns == null) return null;
 
-        List<IpcTripPattern> tripPatterns = new ArrayList<IpcTripPattern>();
+        List<IpcTripPattern> tripPatterns = new ArrayList<>();
         for (TripPattern dbTripPattern : dbTripPatterns) {
             tripPatterns.add(new IpcTripPattern(dbTripPattern));
         }
@@ -269,8 +269,7 @@ public class ConfigServer extends AbstractServer implements ConfigInterface {
         List<Block> blocksForRoute = Core.getInstance().getDbConfig().getBlocksForRoute(dbRoute.getId());
 
         // Convert blocks to list of IpcSchedule objects and return
-        List<IpcSchedule> ipcSchedules = IpcSchedule.createSchedules(dbRoute, blocksForRoute);
-        return ipcSchedules;
+        return IpcSchedule.createSchedules(dbRoute, blocksForRoute);
     }
 
     /* (non-Javadoc)
@@ -282,7 +281,7 @@ public class ConfigServer extends AbstractServer implements ConfigInterface {
         List<Calendar> calendarList = Core.getInstance().getDbConfig().getCurrentCalendars();
 
         // Convert Calendar list to IpcCalendar list
-        List<IpcCalendar> ipcCalendarList = new ArrayList<IpcCalendar>();
+        List<IpcCalendar> ipcCalendarList = new ArrayList<>();
         for (Calendar calendar : calendarList) {
             ipcCalendarList.add(new IpcCalendar(calendar));
         }
@@ -299,7 +298,7 @@ public class ConfigServer extends AbstractServer implements ConfigInterface {
         List<Calendar> calendarList = Core.getInstance().getDbConfig().getCalendars();
 
         // Convert Calendar list to IpcCalendar list
-        List<IpcCalendar> ipcCalendarList = new ArrayList<IpcCalendar>();
+        List<IpcCalendar> ipcCalendarList = new ArrayList<>();
         for (Calendar calendar : calendarList) {
             ipcCalendarList.add(new IpcCalendar(calendar));
         }
@@ -314,8 +313,10 @@ public class ConfigServer extends AbstractServer implements ConfigInterface {
     public List<String> getVehicleIds() throws RemoteException {
         Collection<VehicleConfig> vehicleConfigs =
                 VehicleDataCache.getInstance().getVehicleConfigs();
-        List<String> vehicleIds = new ArrayList<String>(vehicleConfigs.size());
-        for (VehicleConfig vehicleConfig : vehicleConfigs) vehicleIds.add(vehicleConfig.getId());
+        List<String> vehicleIds = new ArrayList<>(vehicleConfigs.size());
+        for (VehicleConfig vehicleConfig : vehicleConfigs) {
+            vehicleIds.add(vehicleConfig.getId());
+        }
         return vehicleIds;
     }
 
@@ -326,7 +327,7 @@ public class ConfigServer extends AbstractServer implements ConfigInterface {
     public List<String> getServiceIds() throws RemoteException {
         // Convert the Set from getServiceIds() to a List since need
         // to use a List for IPC due to serialization.
-        return new ArrayList<String>(Core.getInstance().getDbConfig().getServiceIds());
+        return new ArrayList<>(Core.getInstance().getDbConfig().getServiceIds());
     }
 
     /* (non-Javadoc)
@@ -336,7 +337,7 @@ public class ConfigServer extends AbstractServer implements ConfigInterface {
     public List<String> getCurrentServiceIds() throws RemoteException {
         // Convert the Set from getCurrentServiceIds() to a List since need
         // to use a List for IPC due to serialization.
-        return new ArrayList<String>(Core.getInstance().getDbConfig().getCurrentServiceIds());
+        return new ArrayList<>(Core.getInstance().getDbConfig().getCurrentServiceIds());
     }
 
     /* (non-Javadoc)
@@ -344,10 +345,10 @@ public class ConfigServer extends AbstractServer implements ConfigInterface {
      */
     @Override
     public List<String> getTripIds() throws RemoteException {
-        Collection<Trip> trips = Core.getInstance().getDbConfig().getTrips().values();
-        List<String> tripIds = new ArrayList<String>(trips.size());
-        for (Trip trip : trips) tripIds.add(trip.getId());
-        return tripIds;
+        var trips = Core.getInstance().getDbConfig().getTrips().values();
+        return trips.stream()
+                .map(Trip::getId)
+                .collect(Collectors.toList());
     }
 
     /* (non-Javadoc)
@@ -355,10 +356,11 @@ public class ConfigServer extends AbstractServer implements ConfigInterface {
      */
     @Override
     public List<String> getBlockIds() throws RemoteException {
-        Collection<Block> blocks = Core.getInstance().getDbConfig().getBlocks();
-        Collection<String> blockIds = new HashSet<String>(blocks.size());
-        for (Block block : blocks) blockIds.add(block.getId());
-        return new ArrayList<String>(blockIds);
+        var blocks = Core.getInstance().getDbConfig().getBlocks();
+        return blocks.stream()
+                .map(Block::getId)
+                .distinct()
+                .collect(Collectors.toList());
     }
 
     /* (non-Javadoc)
@@ -366,12 +368,14 @@ public class ConfigServer extends AbstractServer implements ConfigInterface {
      */
     @Override
     public List<String> getBlockIds(String serviceId) throws RemoteException {
-        // If serviceId not specified (is null) then return all block IDs
-        if (serviceId == null) return getBlockIds();
+        if (serviceId == null) {
+            return getBlockIds();
+        }
 
-        Collection<Block> blocks = Core.getInstance().getDbConfig().getBlocks(serviceId);
-        List<String> blockIds = new ArrayList<String>(blocks.size());
-        for (Block block : blocks) blockIds.add(block.getId());
-        return blockIds;
+        var blocks = Core.getInstance().getDbConfig().getBlocks(serviceId);
+        return blocks.stream()
+                .map(Block::getId)
+                .distinct()
+                .collect(Collectors.toList());
     }
 }

@@ -1,9 +1,9 @@
 /* (C)2023 */
 package org.transitclock.utils.csv;
 
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVRecord;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Base class for CSV struct classes. The main CSV struct classes must inherit from this class.
@@ -11,16 +11,14 @@ import org.slf4j.LoggerFactory;
  *
  * @author SkiBu Smith
  */
+@Getter
+@Slf4j
 public class CsvBase {
 
     protected final int lineNumber;
     private final String fileName;
 
     private final boolean supplementalFileSoSomeRequiredItemsCanBeMissing;
-
-    protected static final Logger logger = LoggerFactory.getLogger(CsvBase.class);
-
-    /********************** Member Functions **************************/
 
     /**
      * Main constructor for when creating CSV object from a CSV file.
@@ -52,22 +50,6 @@ public class CsvBase {
         this.lineNumber = -1;
         this.supplementalFileSoSomeRequiredItemsCanBeMissing = true;
         this.fileName = null;
-    }
-
-    /**
-     * The line number in CSV file that the record came from. Useful for debugging.
-     *
-     * @return
-     */
-    public int getLineNumber() {
-        return lineNumber;
-    }
-
-    /**
-     * @return file name being processed
-     */
-    public String getFileName() {
-        return fileName;
     }
 
     /**
@@ -119,10 +101,10 @@ public class CsvBase {
     protected Boolean getOptionalBooleanValue(CSVRecord record, String name) {
         String booleanStr = getOptionalValue(record, name);
         if (booleanStr != null) {
-            if (booleanStr.equals("1") || booleanStr.equals("t") || booleanStr.equals("true")) {
-                return true;
-            } else return false;
-        } else return null;
+            return booleanStr.equals("1") || booleanStr.equals("t") || booleanStr.equals("true");
+        }
+
+        return null;
     }
 
     /**
@@ -138,8 +120,7 @@ public class CsvBase {
         if (integerStr == null) return null;
 
         try {
-            Integer value = Integer.parseInt(integerStr);
-            return value;
+            return Integer.parseInt(integerStr);
         } catch (NumberFormatException e) {
             logger.error("NumberFormatException when parsing integer \"{}\"", integerStr);
             return null;
@@ -159,8 +140,7 @@ public class CsvBase {
         if (doubleStr == null) return null;
 
         try {
-            Double value = Double.parseDouble(doubleStr);
-            return value;
+            return Double.parseDouble(doubleStr);
         } catch (NumberFormatException e) {
             logger.error("NumberFormatException when parsing double \"{}\"", doubleStr);
             return null;

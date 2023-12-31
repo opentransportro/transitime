@@ -12,8 +12,8 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.RMISocketFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 import org.transitclock.config.IntegerConfigValue;
 import org.transitclock.config.StringConfigValue;
 import org.transitclock.utils.Time;
@@ -24,7 +24,9 @@ import org.transitclock.utils.Time;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class ClientFactory<T extends Remote> {
+    private static final Object SYNCHRONIZER = new Object();
 
     // So that only need to setup RMI timeout once
     private static Boolean rmiTimeoutEnabled = false;
@@ -38,10 +40,6 @@ public class ClientFactory<T extends Remote> {
 
     private static StringConfigValue debugRmiServerHost = new StringConfigValue(
             "transtime.rmi.debug.rmi.server", null, "The RMI server to connect to when in debug mode");
-
-    private static final Logger logger = LoggerFactory.getLogger(ClientFactory.class);
-
-    /********************** Member Functions **************************/
 
     /**
      * This serves as a factory class For a Remote object. It is expected that a new instance is
@@ -85,13 +83,14 @@ public class ClientFactory<T extends Remote> {
             logger.debug("Got proxy instance. proxiedStub={}", proxiedStub);
 
             // Return the object that the client can use
-            return (T) proxiedStub;
+            return proxiedStub;
         } catch (Exception e) {
             logger.error(
-                    "Exception occurred when creating the RMI client " + "object for class={} and agencyId={}. {}",
+                    "Exception occurred when creating the RMI client object for class={} and agencyId={}. {}",
                     clazz.getName(),
                     agencyId,
-                    e.getMessage());
+                    e.getMessage(),
+                    e);
             return null;
         }
     }
@@ -142,10 +141,12 @@ public class ClientFactory<T extends Remote> {
      * connect.
      */
     private static void enableRmiTimeout() {
-        synchronized (rmiTimeoutEnabled) {
+        synchronized (SYNCHRONIZER) {
 
             // If already enabled for process then don't need to enable it again
-            if (rmiTimeoutEnabled) return;
+            if (rmiTimeoutEnabled) {
+                return;
+            }
 
             try {
                 // Enable the RMI timeout by creating a new RMI socket factory

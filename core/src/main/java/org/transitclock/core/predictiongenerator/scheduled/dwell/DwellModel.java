@@ -8,7 +8,7 @@ import java.io.Serializable;
  *     possible inputs to any such algorithms are dwelltime, headway and demand.
  */
 public interface DwellModel extends Serializable {
-    public Integer predict(Integer headway, Integer demand);
+    Integer predict(Integer headway, Integer demand);
 
-    public void putSample(Integer dwelltime, Integer headway, Integer demand);
+    void putSample(Integer dwelltime, Integer headway, Integer demand);
 }

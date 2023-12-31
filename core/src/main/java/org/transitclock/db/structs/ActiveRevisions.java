@@ -5,12 +5,14 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
-import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.transitclock.db.hibernate.HibernateUtils;
 
 /**
@@ -20,7 +22,11 @@ import org.transitclock.db.hibernate.HibernateUtils;
  * @author SkiBu Smith
  */
 @Entity
+@Getter
+@Setter
+@ToString
 @DynamicUpdate
+@Slf4j
 public class ActiveRevisions {
 
     // Need a generated ID since Hibernate required some type
@@ -43,10 +49,6 @@ public class ActiveRevisions {
     @Column
     private int travelTimesRev;
 
-    private static final Logger logger = LoggerFactory.getLogger(ActiveRevisions.class);
-
-    /********************** Member Functions **************************/
-
     /** Constructor. Sets the revisions to default values of -1. */
     public ActiveRevisions() {
         configRev = -1;
@@ -62,16 +64,14 @@ public class ActiveRevisions {
      */
     public static ActiveRevisions get(Session session) throws HibernateException {
         // There should only be a single object so don't need a WHERE clause
-        String hql = "FROM ActiveRevisions";
-        Query query = session.createQuery(hql);
+        var query = session.createQuery("FROM ActiveRevisions");
         ActiveRevisions activeRevisions = null;
         try {
             activeRevisions = (ActiveRevisions) query.uniqueResult();
         } catch (Exception e) {
             System.err.println("Exception when reading ActiveRevisions object " + "from database so will create it");
         } finally {
-            // If couldn't read from db use default values and write the
-            // object to the database.
+            // If we couldn't read from db use default values and write the object to the database.
             if (activeRevisions == null) {
                 activeRevisions = new ActiveRevisions();
                 session.persist(activeRevisions);
@@ -82,29 +82,12 @@ public class ActiveRevisions {
         return activeRevisions;
     }
 
-    /**
-     * Reads revisions from database.
-     *
-     * @param agencyId
-     * @return
-     * @throws HibernateException
-     */
     public static ActiveRevisions get(String agencyId) throws HibernateException {
-        Session session = null;
-        try {
-            // Get from db
-            session = HibernateUtils.getSession(agencyId);
-            ActiveRevisions activeRevisions = get(session);
-
-            // Return the object
-            return activeRevisions;
+        try (Session session = HibernateUtils.getSession(agencyId)) {
+            return get(session);
         } catch (HibernateException e) {
             logger.error("Exception in ActiveRevisions.get(). {}", e.getMessage(), e);
-        } finally {
-            // Always make sure session gets closed
-            if (session != null) session.close();
         }
-
         return null;
     }
 
@@ -125,9 +108,6 @@ public class ActiveRevisions {
      * Updates travelTimeRev member and calls saveOrUpdate(this) on the session. Useful for when
      * want to update the value but don't want to commit it until all other data is also written out
      * successfully.
-     *
-     * @param session
-     * @param travelTimeRev
      */
     public void setTravelTimesRev(Session session, int travelTimeRev) {
         this.travelTimesRev = travelTimeRev;
@@ -135,42 +115,9 @@ public class ActiveRevisions {
     }
 
     /**
-     * Sets the travel time rev. Doesn't write it to db though. To write to db should flush the
-     * session that the object was read in by.
-     *
-     * @param travelTimeRev
-     */
-    public void setTravelTimesRev(int travelTimeRev) {
-        this.travelTimesRev = travelTimeRev;
-    }
-
-    /**
-     * Sets the config rev. Doesn't write it to db though. To write to db should flush the session
-     * that the object was read in by.
-     *
-     * @param configRev
-     */
-    public void setConfigRev(int configRev) {
-        this.configRev = configRev;
-    }
-
-    public int getConfigRev() {
-        return configRev;
-    }
-
-    public int getTravelTimesRev() {
-        return travelTimesRev;
-    }
-
-    /**
      * @return True if both the configRev and travelTimesRev are both valid.
      */
     public boolean isValid() {
         return configRev >= 0 && travelTimesRev >= 0;
-    }
-
-    @Override
-    public String toString() {
-        return "ActiveRevisions [" + "configRev=" + configRev + ", travelTimesRev=" + travelTimesRev + "]";
     }
 }

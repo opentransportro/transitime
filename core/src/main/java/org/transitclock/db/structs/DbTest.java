@@ -1,17 +1,16 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
-import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import java.util.List;
+
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
-import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.annotations.DynamicUpdate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.transitclock.db.hibernate.HibernateUtils;
 
 /**
@@ -22,17 +21,13 @@ import org.transitclock.db.hibernate.HibernateUtils;
  */
 @Entity
 @DynamicUpdate
+@Slf4j
 public class DbTest {
 
     @Id
     @Column
     private Integer id;
 
-    private static final Logger logger = LoggerFactory.getLogger(DbTest.class);
-
-    /********************** Member Functions **************************/
-
-    /** Constructor. Sets the revisions to default values of -1. */
     public DbTest() {
         id = -1;
     }
@@ -47,21 +42,18 @@ public class DbTest {
     @SuppressWarnings("unchecked")
     public static List<DbTest> readAll(String agencyId) throws HibernateException {
         Session session = HibernateUtils.getSession(agencyId);
-        if (session == null) {
-            logger.error("Could not get database session for agencyId={}", agencyId);
-            return null;
-        }
 
-        String hql = "FROM DbTest";
-        Query query = session.createQuery(hql);
-        try {
-            List<DbTest> dbTests = query.list();
-            return dbTests;
+        try (session) {
+            if (session == null) {
+                logger.error("Could not get database session for agencyId={}", agencyId);
+                return null;
+            }
+            return (List<DbTest>) session
+                    .createQuery("FROM DbTest")
+                    .list();
         } catch (HibernateException e) {
             logger.error("Could not get DbTest object. {}. {}", e.getCause().getMessage(), e.getMessage());
             throw e;
-        } finally {
-            session.close();
         }
     }
 

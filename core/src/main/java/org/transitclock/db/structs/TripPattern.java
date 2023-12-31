@@ -6,16 +6,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.persistence.Column;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.JoinTable;
-import javax.persistence.OneToMany;
-import javax.persistence.OrderColumn;
-import javax.persistence.Table;
-import javax.persistence.Transient;
+import javax.persistence.*;
+import lombok.Getter;
 import org.hibernate.CallbackException;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
@@ -24,7 +16,6 @@ import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.classic.Lifecycle;
-import org.transitclock.db.hibernate.HibernateUtils;
 import org.transitclock.gtfs.GtfsData;
 import org.transitclock.gtfs.gtfsStructs.GtfsRoute;
 
@@ -36,6 +27,7 @@ import org.transitclock.gtfs.gtfsStructs.GtfsRoute;
  * @author SkiBu Smith
  */
 @Entity
+@Getter
 @DynamicUpdate
 @Table(name = "TripPatterns")
 public class TripPattern implements Serializable, Lifecycle {
@@ -50,7 +42,7 @@ public class TripPattern implements Serializable, Lifecycle {
     @Id
     private final String id;
 
-    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
+    @Column(length = 60)
     protected final String shapeId;
 
     // For the List of Paths want to use FetchType.EAGER
@@ -67,10 +59,10 @@ public class TripPattern implements Serializable, Lifecycle {
     @Column(length = HEADSIGN_LENGTH)
     private String headsign;
 
-    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
+    @Column(length = 60)
     private final String directionId;
 
-    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
+    @Column(length = 60)
     private final String routeId;
 
     @Column(length = 80)
@@ -82,7 +74,7 @@ public class TripPattern implements Serializable, Lifecycle {
 
     // So know which trips use this trip pattern
     @Transient
-    private List<Trip> trips = new ArrayList<Trip>();
+    private List<Trip> trips = new ArrayList<>();
 
     // For quickly finding a StopPath using a stop ID.
     // Keyed on stop ID. Since this member is transient this
@@ -91,16 +83,12 @@ public class TripPattern implements Serializable, Lifecycle {
     // @PostLoad annotation because that only works when using
     // EntityManager but we are using regular Hibernate sessions.
     @Transient
-    protected final Map<String, StopPath> stopPathsMap = new HashMap<String, StopPath>();
+    protected final Map<String, StopPath> stopPathsMap = new HashMap<>();
 
     // For specifying max size of the trip pattern ID
     public static final int TRIP_PATTERN_ID_LENGTH = 120;
     // For specifying max size of headsign
     public static final int HEADSIGN_LENGTH = 255;
-
-    // Hibernate requires this class to be serializable because it uses multiple
-    // columns for the Id.
-    private static final long serialVersionUID = 8002349177548788550L;
 
     /********************** Member Functions **************************/
 
@@ -233,7 +221,7 @@ public class TripPattern implements Serializable, Lifecycle {
         // key to the StopPath table,
         int rowsUpdated = 0;
         rowsUpdated += session.createSQLQuery(
-                        "DELETE FROM TripPattern_to_Path_joinTable " + "WHERE TripPatterns_configRev=" + configRev)
+                        "DELETE FROM TripPattern_to_Path_joinTable " + "WHERE TripPattern_configRev=" + configRev)
                 .executeUpdate();
         rowsUpdated += session.createSQLQuery("DELETE FROM StopPath_Locations WHERE StopPath_configRev=" + configRev)
                 .executeUpdate();
@@ -378,11 +366,6 @@ public class TripPattern implements Serializable, Lifecycle {
         return tripPatternId;
     }
 
-    /**
-     * When processing a new trip let the TripPattern know that this additional Trip refers to it.
-     *
-     * @param gtfsTrip
-     */
     public void addTrip(Trip trip) {
         trips.add(trip);
     }
@@ -571,22 +554,6 @@ public class TripPattern implements Serializable, Lifecycle {
         return false;
     }
 
-    /************** Getter Methods ****************/
-
-    /**
-     * @return the configRev
-     */
-    public int getConfigRev() {
-        return configRev;
-    }
-
-    /**
-     * @return the List of the stop paths for the trip pattern
-     */
-    public List<StopPath> getStopPaths() {
-        return stopPaths;
-    }
-
     /**
      * Returns list of stop IDs for the stop paths for this trip pattern.
      *
@@ -671,34 +638,6 @@ public class TripPattern implements Serializable, Lifecycle {
     }
 
     /**
-     * @return shapeId which is the shape_id from the trip used to create this trip pattern.
-     */
-    public String getShapeId() {
-        return shapeId;
-    }
-
-    /**
-     * @return the id which is of the form "stopId1_to_stopIds"
-     */
-    public String getId() {
-        return id;
-    }
-
-    /**
-     * @return routeId, the id of the route
-     */
-    public String getRouteId() {
-        return routeId;
-    }
-
-    /**
-     * @return routeShortName, which varies less across schedule changes than the routeId
-     */
-    public String getRouteShortName() {
-        return routeShortName;
-    }
-
-    /**
      * For modifying the headsign. Useful for when reading in GTFS data and determine that the
      * headsign should be modified because it is for a different last stop or such.
      *
@@ -708,62 +647,12 @@ public class TripPattern implements Serializable, Lifecycle {
         this.headsign = headsign.length() <= HEADSIGN_LENGTH ? headsign : headsign.substring(0, HEADSIGN_LENGTH);
     }
 
-    /**
-     * Usually from the trip_headsign from the trips.txt file
-     *
-     * @return name, the title of the trip pattern
-     */
-    public String getHeadsign() {
-        return headsign;
-    }
-
-    /**
-     * Optional element direction_id specified in trips.txt GTFS file.
-     *
-     * @return direction_id. Will be null if not specified in GTFS data
-     */
-    public String getDirectionId() {
-        return directionId;
-    }
-
-    /**
-     * NOTE: the Trip List is not available when the object has been read from the database. It is
-     * only available while actually processing the GTFS data.
-     *
-     * @return trips, the list of the trips that use the trip pattern
-     */
-    public List<Trip> getTrips() {
-        return trips;
-    }
-
-    /**
-     * The extent of all of the stops that make up the trip pattern
-     *
-     * @return extent
-     */
-    public Extent getExtent() {
-        return extent;
-    }
-
-    /* (non-Javadoc)
-     * @see org.hibernate.classic.Lifecycle#onDelete(org.hibernate.Session)
-     */
     @Override
     public boolean onDelete(Session arg0) throws CallbackException {
         // Don't veto delete
         return false;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.hibernate.classic.Lifecycle#onLoad(org.hibernate.Session,
-     * java.io.Serializable)
-     * <p>
-     * Needed in order to initialize the transient member
-     * stopPathsMap. Can't use @PostLoad since using classic Hibernate sessions
-     * instead of an EntityManager.
-     */
     @Override
     public void onLoad(Session arg0, Serializable arg1) {
         // Initialize the transient member stopPathsMaps
@@ -772,9 +661,6 @@ public class TripPattern implements Serializable, Lifecycle {
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.hibernate.classic.Lifecycle#onSave(org.hibernate.Session)
-     */
     @Override
     public boolean onSave(Session arg0) throws CallbackException {
         // Don't veto save

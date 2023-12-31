@@ -4,8 +4,7 @@ package org.transitclock;
 import java.lang.reflect.Constructor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.transitclock.configData.AgencyConfig;
 import org.transitclock.utils.threading.NamedThreadFactory;
 
@@ -18,8 +17,8 @@ import org.transitclock.utils.threading.NamedThreadFactory;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public abstract class Module implements Runnable {
-    protected static final Logger logger = LoggerFactory.getLogger(Module.class);
 
     protected final String agencyId;
 

@@ -21,8 +21,7 @@ public class PredictionGeneratorFactory {
 
     private static PredictionGenerator singleton = null;
 
-    /********************** Member Functions **************************/
-    public static PredictionGenerator getInstance() {
+    public static synchronized PredictionGenerator getInstance() {
         // If the PredictionGenerator hasn't been created yet then do so now
         if (singleton == null) {
             singleton = ClassInstantiator.instantiate(className.getValue(), PredictionGenerator.class);

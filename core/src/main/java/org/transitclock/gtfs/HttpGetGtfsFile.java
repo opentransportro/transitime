@@ -1,6 +1,7 @@
 /* (C)2023 */
 package org.transitclock.gtfs;
 
+import lombok.extern.slf4j.Slf4j;
 import org.transitclock.utils.HttpGetFile;
 import org.transitclock.utils.Time;
 
@@ -10,9 +11,8 @@ import org.transitclock.utils.Time;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class HttpGetGtfsFile extends HttpGetFile {
-
-    /********************** Member Functions **************************/
 
     /**
      * @param projectId For determining directory where to store file
@@ -56,19 +56,8 @@ public class HttpGetGtfsFile extends HttpGetFile {
             getter.getFile();
             return getter.getFullFileName();
         } catch (Exception e) {
-            HttpGetFile.logger.error("Exception occurred when reading in file: ", e.getMessage(), e);
+            logger.error("Exception occurred when reading in file: {}", e.getMessage(), e);
             return null;
         }
-    }
-
-    /**
-     * Copies over Gtfs file.
-     *
-     * @param args First arg=projectId, second arg=url
-     */
-    public static void main(String[] args) {
-        String projectId = args[0];
-        String url = args[1];
-        HttpGetGtfsFile.getFile(projectId, url, null);
     }
 }

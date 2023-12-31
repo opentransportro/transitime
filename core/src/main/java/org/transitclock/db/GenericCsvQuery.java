@@ -3,7 +3,8 @@ package org.transitclock.db;
 
 import java.sql.SQLException;
 import java.util.List;
-import org.apache.commons.lang3.StringEscapeUtils;
+
+import org.apache.commons.text.StringEscapeUtils;
 
 /**
  * For doing an SQL query and returning the results in CVS format.
@@ -13,12 +14,10 @@ import org.apache.commons.lang3.StringEscapeUtils;
 public class GenericCsvQuery extends GenericQuery {
 
     // For putting in the CSV data
-    private StringBuilder sb = new StringBuilder();
+    private final StringBuilder sb = new StringBuilder();
 
     // So can determine if first column
     private int numColumns = 0;
-
-    /********************** Member Functions **************************/
 
     /**
      * Constructor
@@ -35,7 +34,8 @@ public class GenericCsvQuery extends GenericQuery {
      */
     @Override
     protected void addColumn(String columnName, int type) {
-        if (numColumns++ > 0) sb.append(',');
+        if (numColumns++ > 0)
+            sb.append(',');
         sb.append(columnName);
     }
 
@@ -60,8 +60,10 @@ public class GenericCsvQuery extends GenericQuery {
             // Output value as long as it is not null
             if (o != null) {
                 // Strings should be escaped but numbers can be output directly
-                if (o instanceof String) sb.append(StringEscapeUtils.escapeCsv((String) o));
-                else sb.append(o);
+                if (o instanceof String)
+                    sb.append(StringEscapeUtils.escapeCsv((String) o));
+                else
+                    sb.append(o);
             }
         }
         sb.append('\n');

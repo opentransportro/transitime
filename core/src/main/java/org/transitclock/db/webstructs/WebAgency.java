@@ -13,7 +13,6 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-
 import lombok.Getter;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
@@ -44,7 +43,7 @@ import org.transitclock.utils.Time;
 public class WebAgency {
 
     @Id
-    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
+    @Column(length = 60)
     private final String agencyId;
 
     @Column(length = 120)
@@ -119,7 +118,7 @@ public class WebAgency {
 
     /** Needed because Hibernate requires no-arg constructor for reading in data */
     @SuppressWarnings("unused")
-    private WebAgency() {
+    protected WebAgency() {
         this.agencyId = null;
         this.hostName = null;
         this.active = false;
@@ -428,7 +427,7 @@ public class WebAgency {
      * @param args agencyId = args[0]; hostName = args[1]; dbName = args[2]; dbType = args[3];
      *     dbHost = args[4]; dbUserName = args[5]; dbPassword = args[6];
      */
-    public static void main(String args[]) {
+    public static void main(String[] args) {
         // Determine all the params
         if (args.length <= 5) {
 

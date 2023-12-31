@@ -1,6 +1,7 @@
 /* (C)2023 */
 package org.transitclock.utils;
 
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,11 +11,8 @@ import org.slf4j.LoggerFactory;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class ClassInstantiator {
-
-    private static final Logger logger = LoggerFactory.getLogger(ClassInstantiator.class);
-
-    /********************** Member Functions **************************/
 
     /**
      * Instantiates the named class using reflection and a no-arg constructor. If could not
@@ -29,14 +27,11 @@ public class ClassInstantiator {
         try {
             // Instantiate the object for the specified className
             Class<?> theClass = Class.forName(className);
-            Object uncastInstance = theClass.newInstance();
+            Object uncastInstance = theClass.getDeclaredConstructor().newInstance();
 
             // Make sure the created object is of the proper class. If it is not
             // then a ClassCastException is thrown.
-            T instance = clazz.cast(uncastInstance);
-
-            // Return the instantiated object
-            return instance;
+            return clazz.cast(uncastInstance);
         } catch (ClassCastException e) {
             logger.error("Could not cast {} to a {}", className, clazz.getName(), e);
             return null;

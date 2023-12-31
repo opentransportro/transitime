@@ -14,9 +14,6 @@ public class IpcServerStatus implements Serializable {
 
     private final List<MonitorResult> monitorResults;
 
-    private static final long serialVersionUID = 4167038313695279486L;
-
-    /********************** Member Functions **************************/
     public IpcServerStatus(List<MonitorResult> monitorResults) {
         this.monitorResults = monitorResults;
     }

@@ -32,10 +32,6 @@ public class IpcVehicleComplete extends IpcVehicleGtfsRealtime {
     private final Double distanceAlongTrip;
     private double headway;
 
-    private static final long serialVersionUID = 8154105842499551461L;
-
-    /********************** Member Functions **************************/
-
     /**
      * The constructor.
      *
@@ -203,8 +199,6 @@ public class IpcVehicleComplete extends IpcVehicleGtfsRealtime {
         private Double distanceAlongTrip;
         private double headway;
         private static final short currentSerializationVersion = 0;
-
-        private static final long serialVersionUID = 6982458672576764027L;
 
         private CompleteVehicleSerializationProxy(IpcVehicleComplete v) {
             super(v);

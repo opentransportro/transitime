@@ -1,6 +1,8 @@
 /* (C)2023 */
 package org.transitclock.gtfs.gtfsStructs;
 
+import lombok.Getter;
+import lombok.ToString;
 import org.transitclock.statistics.ScheduleStatistics;
 
 /**
@@ -10,6 +12,8 @@ import org.transitclock.statistics.ScheduleStatistics;
  *
  * @author SkiBu Smith
  */
+@Getter
+@ToString
 public class GtfsExtendedStopTime extends GtfsStopTime {
 
     private final Integer arrivalOrigTimeSecs;
@@ -23,8 +27,6 @@ public class GtfsExtendedStopTime extends GtfsStopTime {
     private final Integer departureMaxTimeSecs;
     private final float departureStandardDeviation;
     private final int departureNumberDatapoints;
-
-    /********************** Member Functions **************************/
 
     /**
      * @param originalValues
@@ -73,43 +75,15 @@ public class GtfsExtendedStopTime extends GtfsStopTime {
         }
     }
 
-    public Integer getArrivalOrigTimeSecs() {
-        return arrivalOrigTimeSecs;
-    }
-
-    public Integer getArrivalMinTimeSecs() {
-        return arrivalMinTimeSecs;
-    }
-
-    public Integer getArrivalMaxTimeSecs() {
-        return arrivalMaxTimeSecs;
-    }
-
     public double getArrivalStdDev() {
         return arrivalStandardDeviation;
-    }
-
-    public int getArrivalNumberDatapoints() {
-        return arrivalNumberDatapoints;
     }
 
     public Integer getDepartureOrigTimeSecs() {
         return departureOriginalTimeSecs;
     }
 
-    public Integer getDepartureMinTimeSecs() {
-        return departureMinTimeSecs;
-    }
-
-    public Integer getDepartureMaxTimeSecs() {
-        return departureMaxTimeSecs;
-    }
-
     public double getDepartureStdDev() {
         return departureStandardDeviation;
-    }
-
-    public int getDepartureNumberDatapoints() {
-        return departureNumberDatapoints;
     }
 }

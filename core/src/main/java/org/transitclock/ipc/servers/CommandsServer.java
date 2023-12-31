@@ -6,9 +6,9 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Collection;
 import java.util.Date;
+
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.transitclock.avl.AvlExecutor;
 import org.transitclock.core.AvlProcessor;
 import org.transitclock.core.TemporalMatch;
@@ -25,14 +25,12 @@ import org.transitclock.ipc.data.IpcVehicleComplete;
 import org.transitclock.ipc.interfaces.CommandsInterface;
 import org.transitclock.ipc.rmi.AbstractServer;
 
+@Slf4j
 public class CommandsServer extends AbstractServer implements CommandsInterface {
 
     // Should only be accessed as singleton class
     private static CommandsServer singleton;
 
-    private static final Logger logger = LoggerFactory.getLogger(CommandsServer.class);
-
-    /********************** Member Functions **************************/
 
     /**
      * Starts up the CommandsServer so that RMI calls can be used to control the server. This will
@@ -138,12 +136,12 @@ public class CommandsServer extends AbstractServer implements CommandsInterface 
     }
 
     private VehicleState getVehicleStateForTrip(String tripId, LocalDateTime _startTripTime) {
-        /** The startTripTime parameter should not be null if noSchedule */
+        /* The startTripTime parameter should not be null if noSchedule */
         long startTripTime = 0;
         if (_startTripTime != null)
             startTripTime = _startTripTime.atZone(ZoneId.systemDefault()).toEpochSecond() * 1000L;
-        /**
-         * Get the vehicle assosiated to the tripId. Is it possible to have more than 1 bus with the
+        /*
+         * Get the vehicle associated to the tripId. Is it possible to have more than 1 bus with the
          * same tripId??
          */
         Collection<IpcVehicleComplete> ipcVehicleCompletList =

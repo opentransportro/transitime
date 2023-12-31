@@ -14,6 +14,7 @@
 .flattened-pom.xml
 dependency-reduced-pom.xml
 target
+logs
 
 
 HELP.md
@@ -34,7 +35,6 @@ target/
 ### IntelliJ IDEA ###
 .idea
 *.iws
-*.iml
 *.ipr
 
 ### NetBeans ###

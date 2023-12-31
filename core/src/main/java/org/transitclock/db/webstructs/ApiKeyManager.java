@@ -4,6 +4,8 @@ package org.transitclock.db.webstructs;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.slf4j.Logger;
@@ -18,6 +20,7 @@ import org.transitclock.utils.Time;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class ApiKeyManager {
 
     // Cache of the ApiKeys loaded from database.
@@ -36,11 +39,8 @@ public class ApiKeyManager {
             "Amount of time to wait in sec before updating the apiKeyCache");
 
     // This is a singleton class
-    private static ApiKeyManager singleton = new ApiKeyManager();
+    private static final ApiKeyManager singleton = new ApiKeyManager();
 
-    private static final Logger logger = LoggerFactory.getLogger(ApiKeyManager.class);
-
-    /********************** Member Functions **************************/
 
     /** Constructor private because singleton class */
     private ApiKeyManager() {
@@ -189,39 +189,5 @@ public class ApiKeyManager {
 
         // That key not found in database so report error
         logger.error("Could not delete key {} because it was not in database", key);
-    }
-
-    /**
-     * For testing and debugging. Currently creates a new key for an application.
-     *
-     * @param args
-     */
-    public static void main(String[] args) {
-        if (args.length != 5) {
-            System.err.println(
-                    "Must supply arguments for applicationName, " + "applicationUrl, email, phone, and description");
-            System.exit(-1);
-        }
-        ApiKeyManager manager = ApiKeyManager.getInstance();
-        ApiKey apiKey = manager.generateApiKey(args[0], args[1], args[2], args[3], args[4]);
-        System.out.println(apiKey);
-
-        // try {
-        // ApiKey apiKey = generateApiKey("applicationName",
-        // "applicationUrl", "email", "phone",
-        // "description");
-        // System.out.println(apiKey);
-        //
-        // } catch (IllegalArgumentException e) {
-        // e.printStackTrace();
-        // } catch (HibernateException e) {
-        // e.printStackTrace();
-        // }
-        //
-        //
-        // ApiKeyManager manager = new ApiKeyManager();
-        // boolean valid = manager.isKeyValid("1852453479"/* "sldkfj" */);
-        // int xx = 9;
-
     }
 }

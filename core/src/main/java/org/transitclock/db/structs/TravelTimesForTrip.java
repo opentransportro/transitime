@@ -6,16 +6,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Index;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.OrderColumn;
-import javax.persistence.Table;
+import javax.persistence.*;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -23,9 +18,6 @@ import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.criterion.Restrictions;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.transitclock.db.hibernate.HibernateUtils;
 
 /**
  * Keeps track of travel times for a trip. Can be shared amongst trips if the travel times are
@@ -34,7 +26,11 @@ import org.transitclock.db.hibernate.HibernateUtils;
  * @author SkiBu Smith
  */
 @Entity
+@Slf4j
 @DynamicUpdate
+@Getter
+@EqualsAndHashCode
+@ToString
 @Table(
         name = "TravelTimesForTrips",
         indexes = {@Index(name = "TravelTimesRevIndex", columnList = "travelTimesRev")})
@@ -49,10 +45,6 @@ public class TravelTimesForTrip implements Serializable {
     @Id
     @GeneratedValue
     private Integer id;
-
-    public Integer getId() {
-        return id;
-    }
 
     // Need configRev for the configuration so that when old configurations
     // cleaned out can also easily get rid of old travel times. Note: at one
@@ -80,30 +72,15 @@ public class TravelTimesForTrip implements Serializable {
     // So know which trip these travel times were created for. Useful
     // for logging statements. Used when creating travel times based
     // on schedule.
-    @Column(length = HibernateUtils.DEFAULT_ID_SIZE)
+    @Column(length = 60)
     private final String tripCreatedForId;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "TravelTimesForTrip_to_TravelTimesForPath_joinTable")
     @Cascade({CascadeType.SAVE_UPDATE})
     @OrderColumn(name = "listIndex")
-    private final List<TravelTimesForStopPath> travelTimesForStopPaths = new ArrayList<TravelTimesForStopPath>();
+    private final List<TravelTimesForStopPath> travelTimesForStopPaths = new ArrayList<>();
 
-    // Hibernate requires that this class be serializable if it has multiple
-    // column IDs so doing it in case have multiple ID columns in future.
-    private static final long serialVersionUID = -5208608077900300605L;
-
-    private static final Logger logger = LoggerFactory.getLogger(TravelTimesForTrip.class);
-
-    /********************** Member Functions **************************/
-
-    /**
-     * Simple constructor.
-     *
-     * @param configRev
-     * @param travelTimesRev
-     * @param trip So can determine trip pattern ID and set which trip this was created for.
-     */
     public TravelTimesForTrip(int configRev, int travelTimesRev, Trip trip) {
         this.configRev = configRev;
         this.travelTimesRev = travelTimesRev;
@@ -147,26 +124,25 @@ public class TravelTimesForTrip implements Serializable {
         // This means that cannot use an INNER JOIN as part of the delete since the
         // syntax for inner joins is different for the two databases. Therefore need to
         // use the IN statement with a SELECT clause.
-        int rowsUpdated = session.createSQLQuery("DELETE  FROM TravelTimesForTrip_to_TravelTimesForPath_joinTable"
-                        + " WHERE TravelTimesForTrips_id IN   (SELECT id      FROM"
-                        + " TravelTimesForTrips     WHERE configRev="
-                        + configRev
-                        + "  )")
+        int rowsUpdated = session
+                .createNativeQuery("DELETE FROM TravelTimesForTrip_to_TravelTimesForPath_joinTable WHERE TravelTimesForTrip_id IN   (SELECT id FROM TravelTimesForTrips WHERE configRev=" + configRev +")")
                 .executeUpdate();
         logger.info(
-                "Deleted {} rows from " + "TravelTimesForTrip_to_TravelTimesForPath_joinTable for " + "configRev={}",
+                "Deleted {} rows from TravelTimesForTrip_to_TravelTimesForPath_joinTable for configRev={}",
                 rowsUpdated,
                 configRev);
         totalRowsUpdated += rowsUpdated;
 
         // Delete configRev data from TravelTimesForStopPaths
-        rowsUpdated = session.createSQLQuery("DELETE FROM TravelTimesForStopPaths WHERE configRev=" + configRev)
+        rowsUpdated = session
+                .createNativeQuery("DELETE FROM TravelTimesForStopPaths WHERE configRev=" + configRev)
                 .executeUpdate();
         logger.info("Deleted {} rows from TravelTimesForStopPaths for " + "configRev={}", rowsUpdated, configRev);
         totalRowsUpdated += rowsUpdated;
 
         // Delete configRev data from TravelTimesForTrips
-        rowsUpdated = session.createSQLQuery("DELETE FROM TravelTimesForTrips WHERE configRev=" + configRev)
+        rowsUpdated = session
+                .createNativeQuery("DELETE FROM TravelTimesForTrips WHERE configRev=" + configRev)
                 .executeUpdate();
         logger.info("Deleted {} rows from TravelTimesForTrips for configRev={}", rowsUpdated, configRev);
         totalRowsUpdated += rowsUpdated;
@@ -197,15 +173,11 @@ public class TravelTimesForTrip implements Serializable {
         logger.info("Putting travel times into map...");
 
         // Now create the map and return it
-        Map<String, List<TravelTimesForTrip>> map = new HashMap<String, List<TravelTimesForTrip>>();
+        Map<String, List<TravelTimesForTrip>> map = new HashMap<>();
         for (TravelTimesForTrip travelTimes : allTravelTimes) {
             // Get the List to add the travelTimes to
             String tripPatternId = travelTimes.getTripPatternId();
-            List<TravelTimesForTrip> listForTripPattern = map.get(tripPatternId);
-            if (listForTripPattern == null) {
-                listForTripPattern = new ArrayList<TravelTimesForTrip>();
-                map.put(tripPatternId, listForTripPattern);
-            }
+            List<TravelTimesForTrip> listForTripPattern = map.computeIfAbsent(tripPatternId, k -> new ArrayList<>());
 
             // Add the travelTimes to the List
             listForTripPattern.add(travelTimes);
@@ -233,72 +205,13 @@ public class TravelTimesForTrip implements Serializable {
 
     /** Returns true if all stop paths are valid. */
     public boolean isValid() {
-        for (TravelTimesForStopPath times : travelTimesForStopPaths) if (!times.isValid()) return false;
+        for (TravelTimesForStopPath times : travelTimesForStopPaths) {
+            if (!times.isValid()) {
+                return false;
+            }
+        }
+
         return true;
-    }
-
-    /**
-     * Needed because of Hibernate and also because want to cache TravelTimesForTrip and to do so
-     * need to store the objects as keys in a map and need hashCode() and equals() for doing that
-     * properly.
-     *
-     * <p>Note that not comparing tripCreatedForId. This is VERY IMPORTANT because when caching
-     * TravelTimesForTrip don't need to the tripCreatedForId to match. This is the only way that can
-     * used cached values for other trips when processing historic travel data.
-     */
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + configRev;
-        result = prime * result + travelTimesRev;
-        result = prime * result + tripPatternId.hashCode();
-        //		result = prime * result + tripCreatedForId.hashCode();
-        //		result = prime * result + travelTimesForStopPaths.hashCode();  // Stack Overflow with
-        // lots of data
-        return result;
-    }
-
-    /**
-     * Needed because of Hibernate and also because want to cache TravelTimesForTrip and to do so
-     * need to store the objects as keys in a map and need hashCode() and equals() for doing that
-     * properly.
-     *
-     * <p>Note that not comparing tripCreatedForId. This is VERY IMPORTANT because when caching
-     * TravelTimesForTrip don't need to the tripCreatedForId to match. This is the only way that can
-     * used cached values for other trips when processing historic travel data.
-     */
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null) return false;
-        if (getClass() != obj.getClass()) return false;
-        TravelTimesForTrip other = (TravelTimesForTrip) obj;
-        if (travelTimesForStopPaths == null) {
-            if (other.travelTimesForStopPaths != null) return false;
-        } else if (!travelTimesForStopPaths.equals(other.travelTimesForStopPaths)) return false;
-        if (configRev != other.configRev) return false;
-        if (travelTimesRev != other.travelTimesRev) return false;
-        if (!tripPatternId.equals(other.tripPatternId)) return false;
-        //		if (!tripCreatedForId.equals(other.tripCreatedForId))
-        //			return false;
-        return true;
-    }
-
-    @Override
-    public String toString() {
-        return "TravelTimesForTrip ["
-                + "configRev="
-                + configRev
-                + ", travelTimesRev="
-                + travelTimesRev
-                + ", tripPatternId="
-                + tripPatternId
-                + ", tripCreatedForId="
-                + tripCreatedForId
-                + ", travelTimesForStopPaths="
-                + travelTimesForStopPaths
-                + "]";
     }
 
     /**
@@ -309,11 +222,13 @@ public class TravelTimesForTrip implements Serializable {
      * @return
      */
     private static String travelTimesToStringWithNewlines(List<TravelTimesForStopPath> travelTimesForStopPaths) {
-        String results = "";
+        StringBuilder results = new StringBuilder();
         for (TravelTimesForStopPath travelTimesForSP : travelTimesForStopPaths) {
-            results += "     " + travelTimesForSP.toStringEmphasizeTravelTimes() + "\n";
+            results.append("     ")
+                    .append(travelTimesForSP.toStringEmphasizeTravelTimes())
+                    .append("\n");
         }
-        return results;
+        return results.toString();
     }
 
     /**
@@ -335,27 +250,6 @@ public class TravelTimesForTrip implements Serializable {
                 + ", travelTimesForStopPaths=\n"
                 + travelTimesToStringWithNewlines(travelTimesForStopPaths)
                 + "]";
-    }
-
-    /**************************** Getter Methods ******************************/
-    public int getConfigRev() {
-        return configRev;
-    }
-
-    public int getTravelTimeRev() {
-        return travelTimesRev;
-    }
-
-    public String getTripPatternId() {
-        return tripPatternId;
-    }
-
-    public String getTripCreatedForId() {
-        return tripCreatedForId;
-    }
-
-    public List<TravelTimesForStopPath> getTravelTimesForStopPaths() {
-        return travelTimesForStopPaths;
     }
 
     public TravelTimesForStopPath getTravelTimesForStopPath(int index) {

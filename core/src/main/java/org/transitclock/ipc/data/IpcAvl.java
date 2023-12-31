@@ -30,10 +30,6 @@ public class IpcAvl implements Serializable {
     private final String licensePlate;
     private final int passengerCount;
 
-    private static final long serialVersionUID = 2506303490106709586L;
-
-    /********************** Member Functions **************************/
-
     /**
      * @param vehicleId
      * @param time

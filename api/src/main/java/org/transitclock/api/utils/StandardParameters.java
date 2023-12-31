@@ -205,7 +205,9 @@ public class StandardParameters {
      */
     public ConfigInterface getConfigInterface() throws WebApplicationException {
         ConfigInterface configInterface = ConfigInterfaceFactory.get(agencyId);
-        if (configInterface == null) throw WebUtils.badRequestException("Agency ID " + agencyId + " is not valid");
+        if (configInterface == null) {
+            throw WebUtils.badRequestException("Agency ID " + agencyId + " is not valid");
+        }
 
         return configInterface;
     }

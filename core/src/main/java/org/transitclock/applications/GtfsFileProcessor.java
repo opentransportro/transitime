@@ -8,9 +8,8 @@ import java.nio.file.Paths;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.cli.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.transitclock.config.ConfigFileReader;
 import org.transitclock.configData.AgencyConfig;
 import org.transitclock.gtfs.GtfsData;
@@ -30,6 +29,7 @@ import org.transitclock.utils.Zip;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class GtfsFileProcessor {
 
     // Optional command line info used within this class
@@ -63,11 +63,6 @@ public class GtfsFileProcessor {
     static {
         ConfigFileReader.processConfig();
     }
-
-    // Logging important in this class
-    private static final Logger logger = LoggerFactory.getLogger(GtfsFileProcessor.class);
-
-    /******************* Constructor ***********************/
 
     /**
      * Simple constructor. Stores the configurable parameters for this class. Declared private since
@@ -148,8 +143,6 @@ public class GtfsFileProcessor {
         this.disableSpecialLoopBackToBeginningCase = disableSpecialLoopBackToBeginningCase;
     }
 
-    /********************** Member Functions **************************/
-
     /**
      * Gets the GTFS files ready. Reads the zip file from the web if necessary. Then unpacks the zip
      * file if necessary. This method will make sure gtfsDirectoryName is set to where the unzipped
@@ -183,7 +176,6 @@ public class GtfsFileProcessor {
             gtfsZipFileName = HttpGetGtfsFile.getFile(AgencyConfig.getAgencyId(), gtfsUrl, unzipSubdirectory);
         }
 
-        // Uncompress the GTFS zip file if need to
         if (gtfsZipFileName != null) {
             gtfsDirectoryName = Zip.unzip(gtfsZipFileName, unzipSubdirectory);
 
@@ -201,7 +193,7 @@ public class GtfsFileProcessor {
 
         try {
             File f = new File(gtfsDirectoryName);
-            String fileNames[] = f.list();
+            String[] fileNames = f.list();
             for (String fileName : fileNames) {
                 if (fileName.endsWith(".txt")) {
                     Files.delete(Paths.get(gtfsDirectoryName, fileName));
@@ -445,7 +437,7 @@ public class GtfsFileProcessor {
      */
     @SuppressWarnings("static-access")
     // Needed for using OptionBuilder
-    private static CommandLine processCommandLineOptions(String[] args) {
+    public static CommandLine processCommandLineOptions(String[] args) {
         // Specify the options
         Options options = new Options();
 
@@ -625,17 +617,6 @@ public class GtfsFileProcessor {
             processor.process();
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
-        }
-
-        // Found that when running on AWS that program never terminates,
-        // probably because still have db threads running. Therefore
-        // using exit() to definitely end the process.
-        String integrationTest = System.getProperty("transitclock.core.integrationTest");
-        if (integrationTest != null) {
-            logger.info("GTFS import complete for integration test");
-            System.setProperty("transitclock.core.gtfsImported", "true");
-        } else {
-            System.exit(0);
         }
     }
 }

@@ -21,8 +21,6 @@ public class TrimmableArrayList<E> extends ArrayList<E> {
     // capacity will be trimmed
     private static final int TRIM_THRESHOLD = 10;
 
-    private static final long serialVersionUID = 5708182748798889326L;
-
     /**
      * Constructs an empty list with the specified initial capacity.
      *

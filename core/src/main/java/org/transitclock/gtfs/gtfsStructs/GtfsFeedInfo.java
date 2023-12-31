@@ -2,6 +2,8 @@
 package org.transitclock.gtfs.gtfsStructs;
 
 import java.text.ParseException;
+import lombok.Getter;
+import lombok.ToString;
 import org.apache.commons.csv.CSVRecord;
 import org.transitclock.utils.csv.CsvBase;
 
@@ -10,6 +12,8 @@ import org.transitclock.utils.csv.CsvBase;
  *
  * @author SkiBu Smith
  */
+@ToString
+@Getter
 public class GtfsFeedInfo extends CsvBase {
 
     private final String feedPublisherName;
@@ -18,8 +22,6 @@ public class GtfsFeedInfo extends CsvBase {
     private final String feedStartDate;
     private final String feedEndDate;
     private final String feedVersion;
-
-    /********************** Member Functions **************************/
 
     /**
      * Creates a GtfsFeedInfo object by reading the data from the CSVRecord.
@@ -37,49 +39,5 @@ public class GtfsFeedInfo extends CsvBase {
         feedStartDate = getOptionalValue(record, "feed_start_date");
         feedEndDate = getOptionalValue(record, "feed_end_date");
         feedVersion = getOptionalValue(record, "feed_version");
-    }
-
-    public String getFeedPublisherName() {
-        return feedPublisherName;
-    }
-
-    public String getFeedPublisherUrl() {
-        return feedPublisherUrl;
-    }
-
-    public String getFeedLang() {
-        return feedLang;
-    }
-
-    public String getFeedStartDate() {
-        return feedStartDate;
-    }
-
-    public String getFeedEndDate() {
-        return feedEndDate;
-    }
-
-    public String getFeedVersion() {
-        return feedVersion;
-    }
-
-    @Override
-    public String toString() {
-        return "GtfsFeedInfo ["
-                + "lineNumber="
-                + lineNumber
-                + ", feedPublisherName="
-                + feedPublisherName
-                + ", feedPublisherUrl="
-                + feedPublisherUrl
-                + ", feedLang="
-                + feedLang
-                + ", feedStartDate="
-                + feedStartDate
-                + ", feedEndDate="
-                + feedEndDate
-                + ", feedVersion="
-                + feedVersion
-                + "]";
     }
 }

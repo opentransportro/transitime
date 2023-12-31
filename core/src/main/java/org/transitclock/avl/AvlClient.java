@@ -2,13 +2,13 @@
 package org.transitclock.avl;
 
 import java.util.HashMap;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Map;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.transitclock.configData.AgencyConfig;
 import org.transitclock.configData.AvlConfig;
 import org.transitclock.core.AvlProcessor;
 import org.transitclock.db.structs.AvlReport;
-import org.transitclock.logging.Markers;
 import org.transitclock.utils.Time;
 
 /**
@@ -17,19 +17,23 @@ import org.transitclock.utils.Time;
  *
  * @author SkiBu Smith
  */
+@Getter
+@Slf4j
 public class AvlClient implements Runnable {
 
+    /**
+     * -- GETTER --
+     *  Returns the AVL report associated with this AvlClient
+     *
+     * @return the AVL report
+     */
     // The AVL report being processed
     private final AvlReport avlReport;
 
     // List of current AVL reports by vehicle. Useful for determining last
     // report so can filter out new report if the same as the old one.
     // Keyed on vehicle ID.
-    private static HashMap<String, AvlReport> avlReports = new HashMap<String, AvlReport>();
-
-    private static final Logger logger = LoggerFactory.getLogger(AvlClient.class);
-
-    /********************** Member Functions **************************/
+    private static final Map<String, AvlReport> avlReports = new HashMap<>();
 
     /**
      * Constructor
@@ -38,15 +42,6 @@ public class AvlClient implements Runnable {
      */
     public AvlClient(AvlReport avlReport) {
         this.avlReport = avlReport;
-    }
-
-    /**
-     * Returns the AVL report associated with this AvlClient
-     *
-     * @return the AVL report
-     */
-    public AvlReport getAvlReport() {
-        return avlReport;
     }
 
     /**
@@ -145,12 +140,10 @@ public class AvlClient implements Runnable {
                     avlReport);
             AvlProcessor.getInstance().processAvlReport(avlReport);
         } catch (Exception e) {
-            e.printStackTrace();
             // Catch unexpected exceptions so that can continue to use the same
             // AVL thread even if there is an unexpected problem. Only let
             // Errors, such as OutOfMemory errors, through.
             logger.error(
-                    Markers.email(),
                     "For agencyId={} Exception {} for avlReport={}.",
                     AgencyConfig.getAgencyId(),
                     e.getMessage(),

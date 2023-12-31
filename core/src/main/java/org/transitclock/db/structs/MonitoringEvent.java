@@ -1,23 +1,17 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Index;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import net.jcip.annotations.Immutable;
+
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
-import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.hibernate.annotations.Immutable;
+import org.hibernate.type.TimestampType;
 import org.transitclock.applications.Core;
 import org.transitclock.db.hibernate.HibernateUtils;
 import org.transitclock.utils.IntervalTimer;
@@ -28,7 +22,8 @@ import org.transitclock.utils.IntervalTimer;
  *
  * @author SkiBu Smith
  */
-@Immutable // From jcip.annoations
+@Immutable
+@Slf4j
 @Entity
 @DynamicUpdate
 @Table(
@@ -62,25 +57,7 @@ public class MonitoringEvent implements Serializable {
     @Column
     private final double value;
 
-    // Hibernate requires class to be Serializable
-    private static final long serialVersionUID = 9133751362365305772L;
-
-    private static final Logger logger = LoggerFactory.getLogger(MonitoringEvent.class);
-
-    /********************** Member Functions **************************/
-
-    /**
-     * Simple constructor. Declared private because should be only accessed by the create() method
-     * so that can make sure that do things like log each creation of a VehicleEvent.
-     *
-     * @param time
-     * @param type
-     * @param triggered
-     * @param message
-     * @param value
-     */
     private MonitoringEvent(Date time, String type, boolean triggered, String message, double value) {
-        super();
         this.time = time;
         this.type = type;
         this.triggered = triggered;
@@ -93,16 +70,6 @@ public class MonitoringEvent implements Serializable {
         this.value = Double.isNaN(value) ? 0.0 : value;
     }
 
-    /**
-     * Constructs a monitoring event and queues it to be stored in database.
-     *
-     * @param time
-     * @param type
-     * @param triggered
-     * @param message
-     * @param value
-     * @return
-     */
     public static MonitoringEvent create(Date time, String type, boolean triggered, String message, double value) {
         MonitoringEvent monitoringEvent = new MonitoringEvent(time, type, triggered, message, value);
 
@@ -132,13 +99,15 @@ public class MonitoringEvent implements Serializable {
 
         // Create the query. Table name is case sensitive and needs to be the
         // class name instead of the name of the db table.
-        String hql = "FROM MonitorEvent " + "    WHERE time >= :beginDate " + "      AND time < :endDate";
-        if (sqlClause != null) hql += " " + sqlClause;
-        Query query = session.createQuery(hql);
+        String hql = "FROM MonitoringEvent WHERE time >= :beginDate AND time < :endDate";
+        if (sqlClause != null) {
+            hql += " " + sqlClause;
+        }
+        var query = session.createQuery(hql);
 
         // Set the parameters
-        query.setTimestamp("beginDate", beginTime);
-        query.setTimestamp("endDate", endTime);
+        query.setParameter("beginDate", beginTime, TimestampType.INSTANCE);
+        query.setParameter("endDate", endTime, TimestampType.INSTANCE);
 
         try {
             @SuppressWarnings("unchecked")

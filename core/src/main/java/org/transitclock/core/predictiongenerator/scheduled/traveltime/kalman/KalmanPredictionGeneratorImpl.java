@@ -4,32 +4,16 @@ package org.transitclock.core.predictiongenerator.scheduled.traveltime.kalman;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.DateUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.transitclock.applications.Core;
 import org.transitclock.config.BooleanConfigValue;
 import org.transitclock.config.DoubleConfigValue;
 import org.transitclock.config.IntegerConfigValue;
-import org.transitclock.core.Indices;
-import org.transitclock.core.PredictionGeneratorDefaultImpl;
-import org.transitclock.core.SpatialMatch;
-import org.transitclock.core.TravelTimeDetails;
-import org.transitclock.core.VehicleState;
-import org.transitclock.core.dataCache.ErrorCache;
-import org.transitclock.core.dataCache.ErrorCacheFactory;
-import org.transitclock.core.dataCache.KalmanError;
-import org.transitclock.core.dataCache.KalmanErrorCacheKey;
-import org.transitclock.core.dataCache.StopPathPredictionCache;
-import org.transitclock.core.dataCache.TripDataHistoryCacheFactory;
-import org.transitclock.core.dataCache.TripDataHistoryCacheInterface;
-import org.transitclock.core.dataCache.VehicleStateManager;
+import org.transitclock.core.*;
+import org.transitclock.core.dataCache.*;
 import org.transitclock.core.predictiongenerator.PredictionComponentElementsGenerator;
-import org.transitclock.core.predictiongenerator.kalman.KalmanPrediction;
-import org.transitclock.core.predictiongenerator.kalman.KalmanPredictionResult;
-import org.transitclock.core.predictiongenerator.kalman.TripSegment;
-import org.transitclock.core.predictiongenerator.kalman.Vehicle;
-import org.transitclock.core.predictiongenerator.kalman.VehicleStopDetail;
+import org.transitclock.core.predictiongenerator.kalman.*;
 import org.transitclock.db.structs.AvlReport;
 import org.transitclock.db.structs.PredictionEvent;
 import org.transitclock.db.structs.PredictionForStopPath;
@@ -39,10 +23,11 @@ import org.transitclock.db.structs.PredictionForStopPath;
  *     predictions. It uses historical average while waiting on enough data to support a Kalman
  *     filter.
  */
+@Slf4j
 public class KalmanPredictionGeneratorImpl extends PredictionGeneratorDefaultImpl
         implements PredictionComponentElementsGenerator {
 
-    private String alternative = "PredictionGeneratorDefaultImpl";
+    private final String alternative = "PredictionGeneratorDefaultImpl";
 
     /*
      * TODO I think this needs to be a minimum of three and if just two will use
@@ -50,45 +35,43 @@ public class KalmanPredictionGeneratorImpl extends PredictionGeneratorDefaultImp
      */
     private static final IntegerConfigValue minKalmanDays = new IntegerConfigValue(
             "transitclock.prediction.data.kalman.mindays",
-            new Integer(3),
+            3,
             "Min number of days trip data that needs to be available before Kalman"
                     + " prediciton is used instead of default transiTime prediction.");
 
     private static final IntegerConfigValue maxKalmanDays = new IntegerConfigValue(
             "transitclock.prediction.data.kalman.maxdays",
-            new Integer(3),
+            3,
             "Max number of historical days trips to include in Kalman prediction" + " calculation.");
 
     private static final IntegerConfigValue maxKalmanDaysToSearch = new IntegerConfigValue(
             "transitclock.prediction.data.kalman.maxdaystoseach",
-            new Integer(21),
+            21,
             "Max number of days to look back for data. This will also be effected by how"
                     + " old the data in the cache is.");
 
     private static final DoubleConfigValue initialErrorValue = new DoubleConfigValue(
             "transitclock.prediction.data.kalman.initialerrorvalue",
-            new Double(100),
+            100D,
             "Initial Kalman error value to use to start filter.");
 
     /* May be better to use the default implementation as it splits things down into segments. */
     private static final BooleanConfigValue useKalmanForPartialStopPaths = new BooleanConfigValue(
             "transitclock.prediction.data.kalman.usekalmanforpartialstoppaths",
-            new Boolean(true),
+            true,
             "Will use Kalman prediction to get to first stop of prediction.");
 
     private static final IntegerConfigValue percentagePredictionMethodDifferenceneEventLog = new IntegerConfigValue(
             "transitclock.prediction.data.kalman.percentagePredictionMethodDifferencene",
-            new Integer(50),
+            50,
             "If the difference in prediction method estimates is greater than this"
                     + " percentage log a Vehicle Event");
 
     private static final IntegerConfigValue tresholdForDifferenceEventLog = new IntegerConfigValue(
             "transitclock.prediction.data.kalman.tresholdForDifferenceEventLog",
-            new Integer(60000),
+            60000,
             "This is the threshold in milliseconds that the difference has to be over"
                     + " before it will consider the percentage difference.");
-
-    private static final Logger logger = LoggerFactory.getLogger(KalmanPredictionGeneratorImpl.class);
 
     /*
      * (non-Javadoc)
@@ -246,7 +229,7 @@ public class KalmanPredictionGeneratorImpl extends PredictionGeneratorDefaultImp
                             PredictionForStopPath predictionForStopPath = new PredictionForStopPath(
                                     vehicleState.getVehicleId(),
                                     new Date(Core.getInstance().getSystemTime()),
-                                    new Double(new Long(predictionTime).intValue()),
+                                    (double) Long.valueOf(predictionTime).intValue(),
                                     indices.getTrip().getId(),
                                     indices.getStopPathIndex(),
                                     "KALMAN",
@@ -272,7 +255,7 @@ public class KalmanPredictionGeneratorImpl extends PredictionGeneratorDefaultImp
     @Override
     public long expectedTravelTimeFromMatchToEndOfStopPath(AvlReport avlReport, SpatialMatch match) {
 
-        if (useKalmanForPartialStopPaths.getValue().booleanValue()) {
+        if (useKalmanForPartialStopPaths.getValue()) {
             VehicleStateManager vehicleStateManager = VehicleStateManager.getInstance();
 
             VehicleState currentVehicleState = vehicleStateManager.getVehicleState(avlReport.getVehicleId());
@@ -319,8 +302,7 @@ public class KalmanPredictionGeneratorImpl extends PredictionGeneratorDefaultImp
 
     @Override
     public long getStopTimeForPath(Indices indices, AvlReport avlReport, VehicleState vehicleState) {
-        long result = super.getStopTimeForPath(indices, avlReport, vehicleState);
 
-        return result;
+        return super.getStopTimeForPath(indices, avlReport, vehicleState);
     }
 }

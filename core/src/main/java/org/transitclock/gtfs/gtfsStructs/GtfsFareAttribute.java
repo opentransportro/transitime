@@ -1,6 +1,8 @@
 /* (C)2023 */
 package org.transitclock.gtfs.gtfsStructs;
 
+import lombok.Getter;
+import lombok.ToString;
 import org.apache.commons.csv.CSVRecord;
 import org.transitclock.utils.csv.CsvBase;
 
@@ -9,6 +11,8 @@ import org.transitclock.utils.csv.CsvBase;
  *
  * @author SkiBu Smith
  */
+@ToString
+@Getter
 public class GtfsFareAttribute extends CsvBase {
 
     private final String fareId;
@@ -17,8 +21,6 @@ public class GtfsFareAttribute extends CsvBase {
     private final String paymentMethod;
     private final String transfers;
     private final Integer transferDuration;
-
-    /********************** Member Functions **************************/
 
     /**
      * Creates a GtfsFareAttribute object by reading the data from the CSVRecord.
@@ -41,49 +43,5 @@ public class GtfsFareAttribute extends CsvBase {
         String transferDurationStr = getOptionalValue(record, "transfer_duration");
         if (transferDurationStr != null) transferDuration = Integer.parseInt(transferDurationStr);
         else transferDuration = null;
-    }
-
-    public String getFareId() {
-        return fareId;
-    }
-
-    public float getPrice() {
-        return price;
-    }
-
-    public String getCurrencyType() {
-        return currencyType;
-    }
-
-    public String getPaymentMethod() {
-        return paymentMethod;
-    }
-
-    public String getTransfers() {
-        return transfers;
-    }
-
-    public Integer getTransferDuration() {
-        return transferDuration;
-    }
-
-    @Override
-    public String toString() {
-        return "GtfsFareAttribute ["
-                + "lineNumber="
-                + lineNumber
-                + ", fareId="
-                + fareId
-                + ", price="
-                + price
-                + ", currencyType="
-                + currencyType
-                + ", paymentMethod="
-                + paymentMethod
-                + ", transfers="
-                + transfers
-                + ", transferDuration="
-                + transferDuration
-                + "]";
     }
 }

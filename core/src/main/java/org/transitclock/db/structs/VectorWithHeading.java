@@ -16,10 +16,6 @@ public class VectorWithHeading extends Vector {
     // equator.
     private final float headingInDegrees;
 
-    private static final long serialVersionUID = -1505569199887453928L;
-
-    /********************** Member Functions **************************/
-
     /**
      * Construct a vector and determine its heading. Heading will be between -180 and 180 degrees.
      *
@@ -29,7 +25,9 @@ public class VectorWithHeading extends Vector {
     public VectorWithHeading(Location l1, Location l2) {
         super(l1, l2);
         float heading = (float) heading();
-        if (heading < 0.0) heading += 360.0;
+        if (heading < 0.0) {
+            heading += 360.0;
+        }
         headingInDegrees = heading;
     }
 
@@ -56,15 +54,10 @@ public class VectorWithHeading extends Vector {
 
     @Override
     public String toString() {
-        return "VectorWithHeading ["
-                + "l1="
-                + l1
-                + ", l2="
-                + l2
-                + ", headingInDegrees="
-                + headingInDegrees
-                + ", length="
-                + length()
-                + "]";
+        return "VectorWithHeading [" + "l1="
+                + l1 + ", " + "l2="
+                + l2 + ", " + "headingInDegrees="
+                + headingInDegrees + ", " + "length="
+                + length() + "]";
     }
 }

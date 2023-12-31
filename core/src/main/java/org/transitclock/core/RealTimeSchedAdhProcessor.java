@@ -127,7 +127,7 @@ public class RealTimeSchedAdhProcessor {
         // If using departure time then add in expected stop wait time
         int stopPathIndex = matchAtStopWithScheduleTime.getStopPathIndex();
         ScheduleTime scheduleTime = trip.getScheduleTime(stopPathIndex);
-        if (scheduleTime.getDepartureTime() != null) {
+        if (scheduleTime != null && scheduleTime.getDepartureTime() != null) {
             // TravelTimesForStopPath
             int stopTime = trip.getTravelTimesForStopPath(stopPathIndex).getStopTimeMsec();
             travelTimeToStopMsec += stopTime;
@@ -162,7 +162,7 @@ public class RealTimeSchedAdhProcessor {
 
         if (previousStopPathIndex < 0) {
             // we are either before the trip or at the first stop (layover)
-            Long departureEpoch = Core.getInstance()
+            long departureEpoch = Core.getInstance()
                     .getTime()
                     .getEpochTime(trip.getScheduleTime(0).getTime(), avlTime);
 
@@ -176,7 +176,7 @@ public class RealTimeSchedAdhProcessor {
                 int tripIndex = match.getTripIndex();
                 if (tripIndex > 0) {
                     Trip prevTrip = match.getBlock().getTrip(tripIndex - 1);
-                    Long epochEndTime = Core.getInstance().getTime().getEpochTime(prevTrip.getEndTime(), avlTime);
+                    long epochEndTime = Core.getInstance().getTime().getEpochTime(prevTrip.getEndTime(), avlTime);
 
                     difference = Math.min(0, avlTime - epochEndTime);
 
@@ -193,7 +193,7 @@ public class RealTimeSchedAdhProcessor {
             // If at stop, nextStopPathIndex can be for current stop or next stop depending
             // on match.atEndOfPathStop()
             int departureSecs = match.getAtStop().getScheduleTime().getTime();
-            Long departureEpoch = Core.getInstance().getTime().getEpochTime(departureSecs, avlTime);
+            long departureEpoch = Core.getInstance().getTime().getEpochTime(departureSecs, avlTime);
             if (departureEpoch > avlTime) {
                 logger.debug("vehicleId {} has schedDev at stop of 0", vehicleId);
             }
@@ -201,15 +201,22 @@ public class RealTimeSchedAdhProcessor {
             return new TemporalDifference(avlTime - departureEpoch);
         }
 
+        final var fromStopPath = trip.getScheduleTime(previousStopPathIndex);
+        final var toStopPath = trip.getScheduleTime(nextStopPathIndex);
+        int effectiveStopTimeSec = 0;
         // we must be between stops, interpolate effective schedule
-        long fromStopTimeSecs = trip.getScheduleTime(previousStopPathIndex).getTime();
-        long toStopTimeSecs = trip.getScheduleTime(nextStopPathIndex).getTime();
-        long pathTime = toStopTimeSecs - fromStopTimeSecs;
+        if (fromStopPath != null && toStopPath != null) {
+            long fromStopTimeSecs = fromStopPath.getTime();
+            long toStopTimeSecs = toStopPath.getTime();
+            long pathTime = toStopTimeSecs - fromStopTimeSecs;
 
-        double ratio = match.getDistanceAlongStopPath() / match.getStopPath().getLength();
+            double ratio =
+                    match.getDistanceAlongStopPath() / match.getStopPath().getLength();
 
-        int effectiveStopTimeSec = (int) (fromStopTimeSecs + (pathTime * ratio));
-        Long effectiveScheduleTimeEpoch = Core.getInstance().getTime().getEpochTime(effectiveStopTimeSec, avlTime);
+            effectiveStopTimeSec = (int) (fromStopTimeSecs + (pathTime * ratio));
+        }
+
+        long effectiveScheduleTimeEpoch = Core.getInstance().getTime().getEpochTime(effectiveStopTimeSec, avlTime);
 
         logger.debug(
                 "vehicleId {} has interpolated schedDev of {}, avlTime={}, effective={}",

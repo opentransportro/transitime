@@ -1,7 +1,6 @@
 /* (C)2023 */
 package org.transitclock.core.travelTimes;
 
-import com.amazonaws.services.importexport.model.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -10,7 +9,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.config.BooleanConfigValue;
@@ -21,7 +19,6 @@ import org.transitclock.db.structs.ArrivalDeparture;
 import org.transitclock.db.structs.Match;
 import org.transitclock.db.structs.StopPath;
 import org.transitclock.db.structs.Trip;
-import org.transitclock.monitoring.CloudwatchService;
 import org.transitclock.statistics.Statistics;
 import org.transitclock.utils.Geo;
 import org.transitclock.utils.IntervalTimer;
@@ -143,17 +140,13 @@ public class TravelTimesProcessor {
 
     private static final Logger logger = LoggerFactory.getLogger(TravelTimesProcessor.class);
 
-    private CloudwatchService cloudwatchService;
-
     private boolean isEmpty = true;
 
     public boolean isEmpty() {
         return isEmpty;
     }
 
-    public TravelTimesProcessor() {
-        cloudwatchService = CloudwatchService.getInstance();
-    }
+    public TravelTimesProcessor() {}
 
     /********************** Member Functions **************************/
 
@@ -364,7 +357,7 @@ public class TravelTimesProcessor {
      * @param trip
      * @param stopPathIndex
      * @return Number of travel time segments
-     * @throws InvalidParameterException
+     * @throws IllegalArgumentException
      */
     private static int getNumTravelTimeSegments(Trip trip, int stopPathIndex) {
         StopPath stopPath = trip.getStopPath(stopPathIndex);
@@ -372,7 +365,7 @@ public class TravelTimesProcessor {
             String message =
                     "In getNumTravelTimeSegments() stopPathIndex=" + stopPathIndex + " not " + "valid for trip=" + trip;
             logger.error(message);
-            throw new InvalidParameterException(message);
+            throw new IllegalArgumentException(message);
         }
         double pathLength = stopPath.getLength();
         return getNumTravelTimeSegments(pathLength);
@@ -921,7 +914,6 @@ public class TravelTimesProcessor {
                 unmatched,
                 invalid,
                 intervalTimer.elapsedMsec());
-        reportStatus(setSize, matched, unmatched, invalid);
         // Return the map with all the processed travel time data in it
         return travelTimeInfoMap;
     }
@@ -946,7 +938,6 @@ public class TravelTimesProcessor {
         if (dataFetcher.getMatchesMap() == null || dataFetcher.getMatchesMap().isEmpty()) {
             logger.error("No Matches:  Nothing to do!");
             isEmpty = true;
-            reportStatus(0, 0, 0, 0);
             return;
         }
         isEmpty = false;
@@ -966,88 +957,5 @@ public class TravelTimesProcessor {
         logger.info(
                 "Processing data from db into the travel times and stop " + "times map took {} msec.",
                 intervalTimer.elapsedMsec());
-    }
-
-    public Long updateMetrics(Session session, int travelTimesRev) {
-        Long count = Trip.countTravelTimesForTrips(session, travelTimesRev);
-        cloudwatchService.saveMetric(
-                "PredictionLatestTravelTimeRev",
-                travelTimesRev * 1.0,
-                1,
-                CloudwatchService.MetricType.SCALAR,
-                CloudwatchService.ReportingIntervalTimeUnit.IMMEDIATE,
-                false);
-        if (count != null) {
-            cloudwatchService.saveMetric(
-                    "PredictionTravelTimesForTripsCount",
-                    count * 1.0,
-                    1,
-                    CloudwatchService.MetricType.SCALAR,
-                    CloudwatchService.ReportingIntervalTimeUnit.IMMEDIATE,
-                    false);
-        } else {
-            cloudwatchService.saveMetric(
-                    "PredictionTravelTimesForTripsCount",
-                    -1.0,
-                    1,
-                    CloudwatchService.MetricType.SCALAR,
-                    CloudwatchService.ReportingIntervalTimeUnit.IMMEDIATE,
-                    false);
-        }
-        return count;
-    }
-
-    // cloudwatch reporting/monitoring
-    private void reportStatus(int setSize, int matched, int unmatched, int invalid) {
-        cloudwatchService.saveMetric(
-                "TravelTimeTotal",
-                setSize * 1.0,
-                1,
-                CloudwatchService.MetricType.SCALAR,
-                CloudwatchService.ReportingIntervalTimeUnit.IMMEDIATE,
-                false);
-        cloudwatchService.saveMetric(
-                "TravelTimeMatched",
-                matched * 1.0,
-                1,
-                CloudwatchService.MetricType.SCALAR,
-                CloudwatchService.ReportingIntervalTimeUnit.IMMEDIATE,
-                false);
-        cloudwatchService.saveMetric(
-                "TravelTimeUnmatched",
-                unmatched * 1.0,
-                1,
-                CloudwatchService.MetricType.SCALAR,
-                CloudwatchService.ReportingIntervalTimeUnit.IMMEDIATE,
-                false);
-        cloudwatchService.saveMetric(
-                "TravelTimeInvalid",
-                invalid * 1.0,
-                1,
-                CloudwatchService.MetricType.SCALAR,
-                CloudwatchService.ReportingIntervalTimeUnit.IMMEDIATE,
-                false);
-    }
-
-    /*
-     * Just for debugging
-     */
-    public static void main(String[] args) {
-        List<Integer> t1 = new ArrayList<Integer>();
-        t1.add(1);
-        t1.add(2);
-        t1.add(3);
-
-        List<Integer> t2 = new ArrayList<Integer>();
-        t2.add(4);
-        t2.add(5);
-        t2.add(6);
-
-        List<List<Integer>> travelTimesByTrip = new ArrayList<List<Integer>>();
-        travelTimesByTrip.add(t1);
-        travelTimesByTrip.add(t2);
-        List<List<Integer>> travelTimesBySegment = bySegment(travelTimesByTrip, null, 0);
-        System.err.println(travelTimesByTrip);
-        System.err.println(travelTimesBySegment);
     }
 }

@@ -23,7 +23,7 @@ public interface CommandsInterface extends Remote {
      * @return If error then contains error message string, otherwise null
      * @throws RemoteException
      */
-    public String pushAvl(IpcAvl avlData) throws RemoteException;
+    String pushAvl(IpcAvl avlData) throws RemoteException;
 
     /**
      * Sends collection of AVL data to server.
@@ -32,18 +32,18 @@ public interface CommandsInterface extends Remote {
      * @return If error then contains error message string, otherwise null
      * @throws RemoteException
      */
-    public String pushAvl(Collection<IpcAvl> avlData) throws RemoteException;
+    String pushAvl(Collection<IpcAvl> avlData) throws RemoteException;
 
     /*
      * WIP This is to give a means of manually setting a vehicle unpredictable and unassigned so it will be reassigned quickly.
      */
-    public void setVehicleUnpredictable(String vehicleId) throws RemoteException;
+    void setVehicleUnpredictable(String vehicleId) throws RemoteException;
 
     /*
      * Cancel a trip. It should exists in current predictions.
      * Retruns null on success
      */
-    public String cancelTrip(String tripId, LocalDateTime at) throws RemoteException;
+    String cancelTrip(String tripId, LocalDateTime at) throws RemoteException;
 
     /*
      * Enable a canceled trip. It should exists in current predictions.
@@ -55,7 +55,7 @@ public interface CommandsInterface extends Remote {
      * Add vehicle to Block to predictions.
      * Returns null on success
      */
-    public String addVehicleToBlock(
+    String addVehicleToBlock(
             String vehicleId, String blockId, String tripId, Date assignmentDate, Date validFrom, Date validTo)
             throws RemoteException;
 
@@ -63,5 +63,5 @@ public interface CommandsInterface extends Remote {
      * Add remove vehicle to block.
      * Returns null on success
      */
-    public String removeVehicleToBlock(long id) throws RemoteException;
+    String removeVehicleToBlock(long id) throws RemoteException;
 }

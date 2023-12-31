@@ -8,18 +8,17 @@ import java.io.InputStreamReader;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.zip.GZIPInputStream;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
 import org.json.JSONException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.transitclock.config.BooleanConfigValue;
 import org.transitclock.config.StringConfigValue;
 import org.transitclock.configData.AgencyConfig;
 import org.transitclock.configData.AvlConfig;
 import org.transitclock.db.structs.AvlReport;
-import org.transitclock.logging.Markers;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.Time;
 
@@ -32,6 +31,7 @@ import org.transitclock.utils.Time;
  *
  * @author Michael Smith (michael@transitclock.org)
  */
+@Slf4j
 public abstract class PollUrlAvlModule extends AvlModule {
 
     private static StringConfigValue url =
@@ -57,15 +57,6 @@ public abstract class PollUrlAvlModule extends AvlModule {
     // superclass can override this value.
     protected boolean useCompression = true;
 
-    private static final Logger logger = LoggerFactory.getLogger(PollUrlAvlModule.class);
-
-    /********************** Member Functions **************************/
-
-    /**
-     * Constructor
-     *
-     * @param agencyId
-     */
     protected PollUrlAvlModule(String agencyId) {
         super(agencyId);
     }
@@ -107,7 +98,7 @@ public abstract class PollUrlAvlModule extends AvlModule {
      * @throws JSONException
      */
     protected String getJsonString(InputStream in) throws IOException, JSONException {
-        BufferedReader streamReader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+        BufferedReader streamReader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
         StringBuilder responseStrBuilder = new StringBuilder();
 
         String inputStr;
@@ -205,7 +196,6 @@ public abstract class PollUrlAvlModule extends AvlModule {
                 getAndProcessData();
             } catch (SocketTimeoutException e) {
                 logger.error(
-                        Markers.email(),
                         "Error for agencyId={} accessing AVL feed using URL={} " + "with a timeout of {} msec.",
                         AgencyConfig.getAgencyId(),
                         getUrl(),

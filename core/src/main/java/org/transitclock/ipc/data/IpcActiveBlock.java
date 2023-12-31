@@ -23,10 +23,6 @@ public class IpcActiveBlock implements Serializable {
     // done on server side only so marked as transient.
     private final transient Trip tripForSorting;
 
-    private static final long serialVersionUID = -921793252731257869L;
-
-    /********************** Member Functions **************************/
-
     /**
      * Constructor
      *
