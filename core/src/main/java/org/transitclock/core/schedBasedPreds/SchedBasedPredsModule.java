@@ -5,6 +5,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.Module;
@@ -43,11 +45,8 @@ import org.transitclock.utils.Time;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class SchedBasedPredsModule extends Module {
-
-    private static final Logger logger = LoggerFactory.getLogger(SchedBasedPredsModule.class);
-
-    /********************** Config Params **************************/
     private static final IntegerConfigValue timeBetweenPollingMsec = new IntegerConfigValue(
             "transitclock.schedBasedPreds.pollingRateMsec",
             4 * Time.MS_PER_MIN,
@@ -92,8 +91,6 @@ public class SchedBasedPredsModule extends Module {
                     + " after afterStartTimeMinutes. Instead it will change the state to"
                     + " cancelled.");
 
-    /********************** Member Functions **************************/
-
     /**
      * The constructor for the module. Called automatically if the module is configured.
      *
@@ -111,7 +108,7 @@ public class SchedBasedPredsModule extends Module {
         // Determine all the block IDs already in use so that can skip these
         // when doing the somewhat expensive searching for currently active
         // blocks.
-        Set<String> blockIdsAlreadyAssigned = new HashSet<String>();
+        Set<String> blockIdsAlreadyAssigned = new HashSet<>();
         Collection<IpcVehicleComplete> vehicles = VehicleDataCache.getInstance().getVehiclesIncludingSchedBasedOnes();
         for (IpcVehicle vehicle : vehicles) {
             String blockId = vehicle.getBlockId();
@@ -266,7 +263,9 @@ public class SchedBasedPredsModule extends Module {
 
             // Wait appropriate amount of time till poll again
             long sleepTime = timeBetweenPollingMsec.getValue() - timer.elapsedMsec();
-            if (sleepTime > 0) Time.sleep(sleepTime);
+            if (sleepTime > 0) {
+                Time.sleep(sleepTime);
+            }
         }
     }
 }

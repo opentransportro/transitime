@@ -1,18 +1,13 @@
 /* (C)2023 */
 package org.transitclock.core.predAccuracy;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 import org.transitclock.Module;
 import org.transitclock.applications.Core;
 import org.transitclock.config.IntegerConfigValue;
@@ -34,6 +29,7 @@ import org.transitclock.utils.Time;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class PredictionAccuracyModule extends Module {
 
     // The map that contains all of the predictions to be used for prediction
@@ -41,30 +37,19 @@ public class PredictionAccuracyModule extends Module {
     // more than a single prediction stored in memory for a vehicle/stop.
     // Declared static because want to be able to access it from another
     // class by using the static method handleArrivalDeparture().
-    private static ConcurrentHashMap<PredictionKey, List<PredAccuracyPrediction>> predictionMap =
-            new ConcurrentHashMap<PredictionAccuracyModule.PredictionKey, List<PredAccuracyPrediction>>();
+    private static final ConcurrentHashMap<PredictionKey, List<PredAccuracyPrediction>> predictionMap = new ConcurrentHashMap<>();
 
-    private static final Logger logger = LoggerFactory.getLogger(PredictionAccuracyModule.class);
-
-    /********************** Config Params **************************/
-    private static final IntegerConfigValue timeBetweenPollingPredictionsMsec = new IntegerConfigValue(
+    protected final IntegerConfigValue timeBetweenPollingPredictionsMsec = new IntegerConfigValue(
             "transitclock.predAccuracy.pollingRateMsec",
             4 * Time.MS_PER_MIN,
             "How frequently to query predictions for determining " + "prediction accuracy.");
 
-    protected static int getTimeBetweenPollingPredictionsMsec() {
-        return timeBetweenPollingPredictionsMsec.getValue();
-    }
 
     private static final IntegerConfigValue maxPredTimeMinutes = new IntegerConfigValue(
             "transitclock.predAccuracy.maxPredTimeMinutes",
             15,
             "Maximum time into the future for a pediction for it to "
                     + "be stored in memory for prediction accuracy analysis.");
-
-    private static int getMaxPredTimeMinutes() {
-        return maxPredTimeMinutes.getValue();
-    }
 
     private static final IntegerConfigValue maxPredStalenessMinutes = new IntegerConfigValue(
             "transitclock.predAccuracy.maxPredStalenessMinutes",
@@ -73,9 +58,6 @@ public class PredictionAccuracyModule extends Module {
                     + "past before it is removed from memory because no "
                     + "corresponding arrival/departure time was determined.");
 
-    private static int getMaxPredStalenessMinutes() {
-        return maxPredStalenessMinutes.getValue();
-    }
 
     private static final IntegerConfigValue stopsPerTrip = new IntegerConfigValue(
             "transitclock.predAccuracy.stopsPerTrip",
@@ -87,9 +69,6 @@ public class PredictionAccuracyModule extends Module {
             100,
             "Max number of random stops to look at to get the stopsPerTrip.");
 
-    private static int getStopsPerTrip() {
-        return stopsPerTrip.getValue();
-    }
 
     private static final IntegerConfigValue maxLatenessComparedToPredictionMsec = new IntegerConfigValue(
             "transitclock.predAccuracy.maxLatenessComparedToPredictionMsec",
@@ -98,9 +77,7 @@ public class PredictionAccuracyModule extends Module {
                     + "compared to the prediction and still have the prediction "
                     + "be considered a match.");
 
-    private static int getMaxLatenessComparedToPredictionMsec() {
-        return maxLatenessComparedToPredictionMsec.getValue();
-    }
+
 
     private static final IntegerConfigValue maxEarlynessComparedToPredictionMsec = new IntegerConfigValue(
             "transitclock.predAccuracy.maxEarlynessComparedToPredictionMsec",
@@ -109,27 +86,18 @@ public class PredictionAccuracyModule extends Module {
                     + "compared to the prediction and still have the prediction "
                     + "be considered a match.");
 
-    private static int getMaxEarlynessComparedToPredictionMsec() {
-        return maxEarlynessComparedToPredictionMsec.getValue();
-    }
 
-    /********************** Internal Classes **************************/
-
-    /** For keeping track of which routes and stops to get predictions for. */
+    @ToString
+    @Getter
+    @AllArgsConstructor
     public static class RouteAndStops {
-        public String routeId;
+        private final String routeId;
         // Keyed on direction ID
-        public Map<String, Collection<String>> stopIds = new HashMap<String, Collection<String>>();
-
-        @Override
-        public String toString() {
-            return "RouteAndStops [" + "routeId=" + routeId + ", stopIds=" + stopIds + "]";
-        }
+        private final Map<String, Collection<String>> stopIds = new HashMap<>();
     }
 
-    /** Key for map of predictions */
-    protected static class PredictionKey extends MapKey {
-        private PredictionKey(String vehicleId, String directionId, String stopId) {
+    private static class PredictionKey extends MapKey {
+        PredictionKey(String vehicleId, String directionId, String stopId) {
             super(vehicleId, directionId, stopId);
         }
 
@@ -139,16 +107,10 @@ public class PredictionAccuracyModule extends Module {
         }
     }
 
-    /********************** Member Functions **************************/
-
-    /**
-     * The constructor for the module. Called automatically if the module is configured.
-     *
-     * @param agencyId
-     */
     public PredictionAccuracyModule(String agencyId) {
         super(agencyId);
     }
+
 
     /* (non-Javadoc)
      * @see java.lang.Runnable#run()
@@ -160,36 +122,30 @@ public class PredictionAccuracyModule extends Module {
 
         // No need to run at startup since internal predictions won't be
         // generated yet. So sleep a bit first.
-        Time.sleep(getTimeBetweenPollingPredictionsMsec());
+        Time.sleep(timeBetweenPollingPredictionsMsec.getValue());
 
         // Run forever
         while (true) {
-            IntervalTimer timer = null;
+            IntervalTimer timer = new IntervalTimer();
 
             try {
-                timer = new IntervalTimer();
-                // Process data
-
-                logger.info("processing prediction accuracy....");
                 getAndProcessData(getRoutesAndStops(), Core.getInstance().getSystemDate());
-                logger.info("processing prediction accuracy complete.");
 
                 // Make sure old predictions that were never matched to an
                 // arrival/departure don't stick around taking up memory.
                 clearStalePredictions();
-
             } catch (Exception e) {
-
                 logger.error("Error accessing predictions feed {}", e, e);
-                logger.debug("execption details {}", e, e);
             } catch (Throwable t) {
                 logger.error("possible sql exception {}", t, t);
             } finally {
                 // if we have an exception, we still need to wait to be nice to the cpu
                 // Wait appropriate amount of time till poll again
                 long elapsedMsec = timer.elapsedMsec();
-                long sleepTime = getTimeBetweenPollingPredictionsMsec() - elapsedMsec;
-                if (sleepTime > 0) Time.sleep(sleepTime);
+                long sleepTime = timeBetweenPollingPredictionsMsec.getValue() - elapsedMsec;
+                if (sleepTime > 0) {
+                    Time.sleep(sleepTime);
+                }
             }
         }
     }
@@ -202,36 +158,31 @@ public class PredictionAccuracyModule extends Module {
      */
     protected List<RouteAndStops> getRoutesAndStops() {
         // The value to be returned
-        List<RouteAndStops> list = new ArrayList<RouteAndStops>();
+        List<RouteAndStops> list = new ArrayList<>();
 
         // For each route...
         List<Route> routes = Core.getInstance().getDbConfig().getRoutes();
         for (Route route : routes) {
-            RouteAndStops routeStopInfo = new RouteAndStops();
+            RouteAndStops routeStopInfo = new RouteAndStops(route.getId());
             list.add(routeStopInfo);
 
-            routeStopInfo.routeId = route.getId();
-
-            // For each direction for the route...
             List<TripPattern> tripPatterns = route.getLongestTripPatternForEachDirection();
             for (TripPattern tripPattern : tripPatterns) {
                 List<String> stopIdsForTripPattern = tripPattern.getStopIds();
 
                 // If not that many stops for the trip then use all of them.
-                if (getStopsPerTrip() >= stopIdsForTripPattern.size()) {
+                if (stopsPerTrip.getValue() >= stopIdsForTripPattern.size()) {
                     // Use all stops for this trip pattern
                     routeStopInfo.stopIds.put(tripPattern.getDirectionId(), stopIdsForTripPattern);
                 } else {
                     // Get stops for direction randomly
-                    Set<String> stopsSet = new HashSet<String>();
+                    Set<String> stopsSet = new HashSet<>();
                     int tries = 0;
-                    while (stopsSet.size() < getStopsPerTrip() && tries < maxRandomStopSelectionsPerTrip.getValue()) {
+                    while (stopsSet.size() < stopsPerTrip.getValue()
+                            && tries < maxRandomStopSelectionsPerTrip.getValue()) {
                         // Randomly get a stop ID for the trip pattern
                         int index = (int) (stopIdsForTripPattern.size() * Math.random());
-                        String stopId = stopIdsForTripPattern.get(index);
-                        if (!stopsSet.contains(stopId)) {
-                            stopsSet.add(stopId);
-                        }
+                        stopsSet.add(stopIdsForTripPattern.get(index));
                         tries++;
                     }
                     routeStopInfo.stopIds.put(tripPattern.getDirectionId(), stopsSet);
@@ -257,7 +208,7 @@ public class PredictionAccuracyModule extends Module {
         // memory. This is important because need to limit how much
         // memory is used for prediction accuracy data collecting.
         if (pred.getPredictedTime().getTime()
-                > Core.getInstance().getSystemTime() + getMaxPredTimeMinutes() * Time.MS_PER_MIN) {
+                > Core.getInstance().getSystemTime() + maxPredTimeMinutes.getValue() * Time.MS_PER_MIN) {
             logger.debug(
                     "Prediction is too far into future so not storing "
                             + "it in memory for prediction accuracy analysis. {}",
@@ -268,7 +219,7 @@ public class PredictionAccuracyModule extends Module {
         PredictionKey key = new PredictionKey(pred.getVehicleId(), pred.getDirectionId(), pred.getStopId());
         List<PredAccuracyPrediction> predsList = predictionMap.get(key);
         if (predsList == null) {
-            predictionMap.putIfAbsent(key, new ArrayList<PredAccuracyPrediction>(1));
+            predictionMap.putIfAbsent(key, new ArrayList<>(1));
             predsList = predictionMap.get(key);
         }
         logger.debug("Adding prediction to memory for prediction accuracy " + "analysis. {}", pred);
@@ -295,7 +246,7 @@ public class PredictionAccuracyModule extends Module {
             while (iter.hasNext()) {
                 PredAccuracyPrediction pred = iter.next();
                 if (pred.getPredictedTime().getTime()
-                        < Core.getInstance().getSystemTime() - getMaxPredStalenessMinutes() * Time.MS_PER_MIN) {
+                        < Core.getInstance().getSystemTime() - maxPredStalenessMinutes.getValue() * Time.MS_PER_MIN) {
                     // Prediction was too old so remove it from memory
                     ++numPredictionsRemoved;
                     logger.info(
@@ -330,7 +281,7 @@ public class PredictionAccuracyModule extends Module {
      *     associated with each other.
      */
     protected synchronized void getAndProcessData(List<RouteAndStops> routesAndStops, Date predictionsReadTime) {
-        logger.debug("Calling PredictionReaderModule.getAndProcessData() " + "to process internal prediction.");
+        logger.debug("Calling PredictionReaderModule.getAndProcessData() to process internal prediction.");
 
         // Get internal predictions from core and store them in memory
         for (RouteAndStops routeAndStop : routesAndStops) {
@@ -376,26 +327,6 @@ public class PredictionAccuracyModule extends Module {
         }
     }
 
-    private static void printPredictionsMap(
-            ConcurrentHashMap<PredictionKey, List<PredAccuracyPrediction>> predictionMap,
-            ArrivalDeparture arrivalDeparture) {
-
-        logger.debug("Looking for match : " + arrivalDeparture.toString());
-        for (PredictionKey key : predictionMap.keySet()) {
-            List<PredAccuracyPrediction> value = predictionMap.get(key);
-            for (PredAccuracyPrediction pred : value) {
-                boolean keyprinted = false;
-                if (pred.getVehicleId().equals(arrivalDeparture.getVehicleId())) {
-                    if (!keyprinted) {
-                        logger.debug(key.toString());
-                        keyprinted = true;
-                    }
-                    logger.debug(pred.toString());
-                }
-            }
-        }
-    }
-
     /**
      * Looks for corresponding prediction in memory. If found then prediction accuracy information
      * for that prediction is stored in the database.
@@ -412,7 +343,6 @@ public class PredictionAccuracyModule extends Module {
 
         if (predsList == null || predsList.isEmpty()) {
             logger.debug("No matching predictions for {}", arrivalDeparture);
-            // printPredictionsMap(predictionMap, arrivalDeparture);
             return;
         }
 
@@ -424,7 +354,9 @@ public class PredictionAccuracyModule extends Module {
             PredAccuracyPrediction pred = predIterator.next();
 
             // If not correct arrival/departure type continue to next prediction
-            if (pred.isArrival() != arrivalDeparture.isArrival()) continue;
+            if (pred.isArrival() != arrivalDeparture.isArrival()) {
+                continue;
+            }
 
             // Make sure it is for the proper trip. This is important in case a
             // vehicle is reassigned after a prediction is made. For example, a
@@ -435,16 +367,19 @@ public class PredictionAccuracyModule extends Module {
             // is especially true for MBTA Commuter Rail
             String tripIdOrShortName = pred.getTripId();
             if (!tripIdOrShortName.equals(arrivalDeparture.getTripId())
-                    && !tripIdOrShortName.equals(arrivalDeparture.getTripShortName())) continue;
+                    && !tripIdOrShortName.equals(arrivalDeparture.getTripShortName())) {
+                continue;
+            }
 
             // Make sure predicted time isn't too far away from the
             // arrival/departure time so that don't match to something really
             // inappropriate. First determine how late vehicle arrived
             // at stop compared to the original prediction time.
-            long latenessComparedToPrediction =
-                    arrivalDeparture.getTime() - pred.getPredictedTime().getTime();
-            if (latenessComparedToPrediction > getMaxLatenessComparedToPredictionMsec()
-                    || latenessComparedToPrediction < -getMaxEarlynessComparedToPredictionMsec()) continue;
+            long latenessComparedToPrediction = arrivalDeparture.getTime() - pred.getPredictedTime().getTime();
+            if (latenessComparedToPrediction > maxLatenessComparedToPredictionMsec.getValue()
+                    || latenessComparedToPrediction < -maxEarlynessComparedToPredictionMsec.getValue()) {
+                continue;
+            }
 
             // There is a match so store the prediction accuracy info into the
             // database

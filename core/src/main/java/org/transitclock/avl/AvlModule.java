@@ -11,7 +11,7 @@ import org.transitclock.db.structs.AvlReport;
  *
  * @author SkiBu Smith
  */
-public abstract class AvlModule extends Module {
+abstract class AvlModule extends Module {
     protected AvlModule(String agencyId) {
         super(agencyId);
     }

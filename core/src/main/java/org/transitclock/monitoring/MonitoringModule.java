@@ -1,6 +1,7 @@
 /* (C)2023 */
 package org.transitclock.monitoring;
 
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.Module;
@@ -19,20 +20,14 @@ import org.transitclock.utils.Time;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class MonitoringModule extends Module {
 
-    private static IntegerConfigValue secondsBetweenMonitorinPolling = new IntegerConfigValue(
+    private static final IntegerConfigValue secondsBetweenMonitorinPolling = new IntegerConfigValue(
             "transitclock.monitoring.secondsBetweenMonitorinPolling",
             120,
             "How frequently an monitoring should be run to look for " + "problems.");
 
-    private static final Logger logger = LoggerFactory.getLogger(MonitoringModule.class);
-
-    /********************** Member Functions **************************/
-
-    /**
-     * @param agencyId
-     */
     public MonitoringModule(String agencyId) {
         super(agencyId);
     }

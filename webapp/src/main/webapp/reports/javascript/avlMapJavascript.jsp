@@ -169,9 +169,9 @@ function routeConfigCallback(data, status) {
   
 // Data in vehicles will be available as CSV when you click the `export' link.
 // CSV should be the AVL CSV format used elsewhere in Transitime.
-// org.transitclock.avl.AvlCsvWriter writes the following header:
+// org.transitclock.avl.csv.AvlCsvWriter writes the following header:
 // vehicleId,time,justTime,latitude,longitude,speed,heading,assignmentId,assignmentType
-// org.transitclock.avl.AvlCsvRecord has required keys vehicleId, time, latitude, longitude
+// org.transitclock.avl.csv.AvlCsvRecord has required keys vehicleId, time, latitude, longitude
 // all others optional
 function createExport(vehicles) {
 	
@@ -211,7 +211,7 @@ var map = L.map('map');
 var mapTileUrl = <%=System.getProperty("transitclock.mapTileUrl")%>
 L.control.scale({metric: false}).addTo(map);
 L.tileLayer(mapTileUrl, {
- attribution: '&copy; <a href="http://openstreetmap.org">OpenStreetMap</a> &amp; <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
+ attribution: '&copy; <a href="http://openstreetmap.org">OpenStreetMap</a> &amp; <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery ï¿½ <a href="http://mapbox.com">Mapbox</a>',
  maxZoom: 19
 }).addTo(map);
 

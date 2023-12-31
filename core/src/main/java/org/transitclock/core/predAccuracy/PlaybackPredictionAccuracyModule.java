@@ -1,14 +1,12 @@
 /* (C)2023 */
 package org.transitclock.core.predAccuracy;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.transitclock.applications.Core;
 import org.transitclock.utils.PlaybackIntervalTimer;
 
+@Slf4j
 public class PlaybackPredictionAccuracyModule extends PredictionAccuracyModule {
-    private static final Logger logger = LoggerFactory.getLogger(PredictionAccuracyModule.class);
-
     public PlaybackPredictionAccuracyModule(String agencyId) {
         super(agencyId);
     }
@@ -26,7 +24,7 @@ public class PlaybackPredictionAccuracyModule extends PredictionAccuracyModule {
             // generated yet. So sleep a bit first.
 
             // Time.sleep(5000);
-            if (timer.elapsedMsec() > getTimeBetweenPollingPredictionsMsec()) {
+            if (timer.elapsedMsec() > timeBetweenPollingPredictionsMsec.getValue()) {
                 try {
                     // Process data
                     getAndProcessData(getRoutesAndStops(), Core.getInstance().getSystemDate());
@@ -35,7 +33,6 @@ public class PlaybackPredictionAccuracyModule extends PredictionAccuracyModule {
                     // arrival/departure don't stick around taking up memory.
                     clearStalePredictions();
                 } catch (Exception e) {
-                    e.printStackTrace();
                     logger.error("Error accessing predictions feed :  " + e.getMessage(), e);
                 }
                 timer.resetTimer();

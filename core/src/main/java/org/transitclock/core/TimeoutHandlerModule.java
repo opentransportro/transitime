@@ -4,6 +4,7 @@ package org.transitclock.core;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.Module;
 import org.transitclock.applications.Core;
@@ -35,9 +36,7 @@ public class TimeoutHandlerModule extends Module {
     // vehicle ID. Synchronize map modifications since elsewhere the elements
     // can be removed from the map.
     private final Map<String, AvlReport> avlReportsMap = new HashMap<>();
-
-    /********************* Parameters *********************************/
-    private static IntegerConfigValue pollingRateSecs = new IntegerConfigValue(
+    private static final IntegerConfigValue pollingRateSecs = new IntegerConfigValue(
             "transitclock.timeout.pollingRateSecs",
             30,
             "Specifies in seconds how frequently the TimeoutHandler "
@@ -47,14 +46,14 @@ public class TimeoutHandlerModule extends Module {
                     + "every new AVL report and it has to look at every "
                     + "vehicle to see if has been timed out.");
 
-    private static IntegerConfigValue allowableNoAvlSecs = new IntegerConfigValue(
+    private static final IntegerConfigValue allowableNoAvlSecs = new IntegerConfigValue(
             "transitclock.timeout.allowableNoAvlSecs",
             6 * Time.SEC_PER_MIN,
             "For AVL timeouts. If don't get an AVL report for the "
                     + "vehicle in this amount of time in seconds then the "
                     + "vehicle will be made non-predictable.");
 
-    private static IntegerConfigValue allowableNoAvlAfterSchedDepartSecs = new IntegerConfigValue(
+    private static final IntegerConfigValue allowableNoAvlAfterSchedDepartSecs = new IntegerConfigValue(
             "transitclock.timeout.allowableNoAvlAfterSchedDepartSecs",
             6 * Time.SEC_PER_MIN,
             "If a vehicle is at a wait stop, such as "
@@ -66,7 +65,7 @@ public class TimeoutHandlerModule extends Module {
                     + "for long after scheduled departure time if vehicle "
                     + "taken out of service.");
 
-    private static BooleanConfigValue removeTimedOutVehiclesFromVehicleDataCache = new BooleanConfigValue(
+    private static final BooleanConfigValue removeTimedOutVehiclesFromVehicleDataCache = new BooleanConfigValue(
             "transitclock.timeout.removeTimedOutVehiclesFromVehicleDataCache",
             false,
             "When timing out vehicles, the default behavior is to make "
@@ -112,10 +111,6 @@ public class TimeoutHandlerModule extends Module {
      * For regular predictable vehicle that is not a schedule based prediction nor a vehicle at a
      * wait stop. If haven't reported in too long makes the vehicle unpredictable and logs
      * situation.
-     *
-     * @param vehicleState
-     * @param now
-     * @param mapIterator
      */
     private void handlePredictablePossibleTimeout(
             VehicleState vehicleState, long now, Iterator<AvlReport> mapIterator) {
@@ -150,8 +145,9 @@ public class TimeoutHandlerModule extends Module {
      *
      * @param mapIterator So can remove AVL report from map
      */
-    private void handleNotPredictablePossibleTimeout(
-            VehicleState vehicleState, long now, Iterator<AvlReport> mapIterator) {
+    private void handleNotPredictablePossibleTimeout(VehicleState vehicleState,
+                                                     long now,
+                                                     Iterator<AvlReport> mapIterator) {
         if (!removeTimedOutVehiclesFromVehicleDataCache.getValue()) {
             // Remove vehicle from map for next time looking for timeouts and return
             mapIterator.remove();
@@ -178,13 +174,10 @@ public class TimeoutHandlerModule extends Module {
      * amount then the schedule based vehicle is removed. Useful for situations such as when using
      * schedule based vehicles and auto assigner but the auto assigner can't find a vehicle for a
      * while, indicating no such vehicle in service.
-     *
-     * @param vehicleState
-     * @param now
-     * @param mapIterator
      */
-    private void handleSchedBasedPredsPossibleTimeout(
-            VehicleState vehicleState, long now, Iterator<AvlReport> mapIterator) {
+    private void handleSchedBasedPredsPossibleTimeout(VehicleState vehicleState,
+                                                      long now,
+                                                      Iterator<AvlReport> mapIterator) {
         // If should timeout the schedule based vehicle...
         String shouldTimeoutEventDescription = SchedBasedPredsModule.shouldTimeoutVehicle(vehicleState, now);
         if (shouldTimeoutEventDescription != null) {
@@ -210,12 +203,10 @@ public class TimeoutHandlerModule extends Module {
      * It is a wait stop which means that vehicle can be stopped and turned off for a while such
      * that don't expect to get any AVL reports. Only timeout if past more that the allowed time for
      * wait stops
-     *
-     * @param vehicleState
-     * @param now
-     * @param mapIterator
      */
-    private void handleWaitStopPossibleTimeout(VehicleState vehicleState, long now, Iterator<AvlReport> mapIterator) {
+    private void handleWaitStopPossibleTimeout(VehicleState vehicleState,
+                                               long now,
+                                               Iterator<AvlReport> mapIterator) {
 
         // we can't easily determine wait stop time for frequency based trips
         // so don't timeout based on stop info
@@ -274,7 +265,6 @@ public class TimeoutHandlerModule extends Module {
         }
     }
 
-    /** Goes through all vehicles and finds ones that have timed out */
     public void handlePossibleTimeouts() {
         // Determine what now is. Don't use System.currentTimeMillis() since
         // that doesn't work for playback.
@@ -315,11 +305,6 @@ public class TimeoutHandlerModule extends Module {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see java.lang.Runnable#run()
-     */
     @Override
     public void run() {
         logger.info("Starting module {} for agencyId={}", getClass().getName(), getAgencyId());
@@ -338,7 +323,9 @@ public class TimeoutHandlerModule extends Module {
 
                 // Wait appropriate amount of time till poll again
                 long sleepTime = pollingRateSecs.getValue() * Time.MS_PER_SEC - timer.elapsedMsec();
-                if (sleepTime > 0) Time.sleep(sleepTime);
+                if (sleepTime > 0) {
+                    Time.sleep(sleepTime);
+                }
             } catch (Exception e) {
                 logger.error("Error with TimeoutHandlerModule for agencyId={}", AgencyConfig.getAgencyId(), e);
             }

@@ -10,6 +10,8 @@ import java.nio.file.StandardCopyOption;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,31 +31,21 @@ import org.transitclock.utils.Time;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class GtfsUpdatedModule extends Module {
-
-    // Configuration parameters
-    private static StringConfigValue url =
+    private static final StringConfigValue url =
             new StringConfigValue("transitclock.gtfs.url", "URL where to retrieve the GTFS file.");
 
-    private static StringConfigValue dirName = new StringConfigValue(
+    private static final StringConfigValue dirName = new StringConfigValue(
             "transitclock.gtfs.dirName", "Directory on agency server where to place the GTFS file.");
 
-    private static LongConfigValue intervalMsec = new LongConfigValue(
+    private static final LongConfigValue intervalMsec = new LongConfigValue(
             "transitclock.gtfs.intervalMsec",
             // Low cost unless file actually downloaded so do pretty
             // frequently so get updates as soon as possible
             4 * Time.MS_PER_HOUR,
             "How long to wait before checking if GTFS file has changed " + "on web");
 
-    private static final Logger logger = LoggerFactory.getLogger(GtfsUpdatedModule.class);
-
-    /********************** Member Functions **************************/
-
-    /**
-     * Constructor
-     *
-     * @param agencyId
-     */
     public GtfsUpdatedModule(String agencyId) {
         super(agencyId);
     }
@@ -79,6 +71,7 @@ public class GtfsUpdatedModule extends Module {
         // get the file if it is newer on the web server
         File file = new File(httpGetFile.getFullFileName());
         boolean fileAlreadyExists = file.exists();
+
         if (fileAlreadyExists) {
             // Get the last modified time of the local file. Add 10 minutes
             // since the web server might be load balanced and the files

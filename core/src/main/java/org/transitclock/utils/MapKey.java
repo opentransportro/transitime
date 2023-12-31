@@ -31,6 +31,9 @@ import javax.annotation.concurrent.Immutable;
  */
 @Immutable
 public class MapKey {
+    // Since hashCode() can be called a lot might as well cache the value
+    // since this object is immutable.
+    private final int cachedHashCode;
 
     // The key is made up of these four strings. Null values are OK. If fewer
     // than four objects are needed then the remaining ones will be null.
@@ -38,12 +41,6 @@ public class MapKey {
     protected final Object o2;
     protected final Object o3;
     protected final Object o4;
-
-    // Since hashCode() can be called a lot might as well cache the value
-    // since this object is immutable.
-    private int cachedHashCode;
-
-    /********************** Member Functions **************************/
 
     /**
      * For when need a key consisting of two objects.

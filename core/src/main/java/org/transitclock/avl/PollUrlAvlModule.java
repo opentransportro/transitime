@@ -160,9 +160,6 @@ public abstract class PollUrlAvlModule extends AvlModule {
         InputStream in = con.getInputStream();
         if ("gzip".equals(con.getContentEncoding())) {
             in = new GZIPInputStream(in);
-            logger.debug("Returned data is compressed");
-        } else {
-            logger.debug("Returned data is NOT compressed");
         }
 
         // For debugging
