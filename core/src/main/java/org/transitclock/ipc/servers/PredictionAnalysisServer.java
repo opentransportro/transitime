@@ -5,6 +5,8 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.core.dataCache.StopPathCacheKey;
@@ -19,11 +21,10 @@ import org.transitclock.ipc.rmi.AbstractServer;
  *     not be set to run by default as really only for analysis of predictions. TODO This needs to
  *     be changed to also work with frequency based services.
  */
+@Slf4j
 public class PredictionAnalysisServer extends AbstractServer implements PredictionAnalysisInterface {
     // Should only be accessed as singleton class
     private static PredictionAnalysisServer singleton;
-
-    private static final Logger logger = LoggerFactory.getLogger(PredictionAnalysisServer.class);
 
     protected PredictionAnalysisServer(String agencyId) {
         super(agencyId, PredictionAnalysisInterface.class.getSimpleName());
@@ -38,7 +39,7 @@ public class PredictionAnalysisServer extends AbstractServer implements Predicti
      * @return the singleton PredictionAnalysisServer object. Usually does not need to used since
      *     the server will be fully running.
      */
-    public static PredictionAnalysisServer start(String agencyId) {
+    public static synchronized PredictionAnalysisServer start(String agencyId) {
         if (singleton == null) {
             singleton = new PredictionAnalysisServer(agencyId);
         }
@@ -59,7 +60,7 @@ public class PredictionAnalysisServer extends AbstractServer implements Predicti
             throws RemoteException {
         List<PredictionForStopPath> result = PredictionForStopPath.getPredictionForStopPathFromDB(
                 startdate, enddate, algorithm, tripId, stopPathIndex);
-        List<IpcPredictionForStopPath> results = new ArrayList<IpcPredictionForStopPath>();
+        List<IpcPredictionForStopPath> results = new ArrayList<>();
         for (PredictionForStopPath prediction : result) {
             IpcPredictionForStopPath ipcPrediction = new IpcPredictionForStopPath(prediction);
             results.add(ipcPrediction);
@@ -79,7 +80,7 @@ public class PredictionAnalysisServer extends AbstractServer implements Predicti
         if (predictions != null) {
             for (PredictionForStopPath prediction : predictions) {
                 IpcPredictionForStopPath ipcPrediction = new IpcPredictionForStopPath(prediction);
-                if (algorithm != null && algorithm.length() > 0) {
+                if (algorithm != null && !algorithm.isEmpty()) {
                     if (algorithm.equals(prediction.getAlgorithm())) {
                         results.add(ipcPrediction);
                     }

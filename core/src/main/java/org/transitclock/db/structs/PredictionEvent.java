@@ -7,8 +7,8 @@ import javax.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
-import net.jcip.annotations.Immutable;
 import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.Immutable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.applications.Core;
@@ -21,7 +21,7 @@ import org.transitclock.core.TemporalMatch;
  *
  * @author SkiBu Smith, Sean Óg Crudden
  */
-@Immutable // From jcip.annoations
+@Immutable
 @Entity
 @DynamicUpdate
 @EqualsAndHashCode

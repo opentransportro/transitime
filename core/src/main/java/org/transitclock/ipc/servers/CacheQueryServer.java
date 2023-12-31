@@ -9,6 +9,8 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.core.dataCache.ErrorCacheFactory;
@@ -35,11 +37,10 @@ import org.transitclock.ipc.rmi.AbstractServer;
 /**
  * @author Sean Og Crudden Server to allow cache content to be queried.
  */
+@Slf4j
 public class CacheQueryServer extends AbstractServer implements CacheQueryInterface {
     // Should only be accessed as singleton class
     private static CacheQueryServer singleton;
-
-    private static final Logger logger = LoggerFactory.getLogger(CacheQueryServer.class);
 
     protected CacheQueryServer(String agencyId) {
         super(agencyId, CacheQueryInterface.class.getSimpleName());
@@ -83,10 +84,7 @@ public class CacheQueryServer extends AbstractServer implements CacheQueryInterf
             StopArrivalDepartureCacheKey nextStopKey = new StopArrivalDepartureCacheKey(
                     stopId, Calendar.getInstance().getTime());
 
-            List<IpcArrivalDeparture> result =
-                    StopArrivalDepartureCacheFactory.getInstance().getStopHistory(nextStopKey);
-
-            return result;
+            return StopArrivalDepartureCacheFactory.getInstance().getStopHistory(nextStopKey);
 
         } catch (Exception e) {
 
@@ -115,7 +113,7 @@ public class CacheQueryServer extends AbstractServer implements CacheQueryInterf
             throws RemoteException {
 
         try {
-            List<IpcArrivalDeparture> result = new ArrayList<IpcArrivalDeparture>();
+            List<IpcArrivalDeparture> result = new ArrayList<>();
 
             if (tripId != null && localDate != null && starttime != null) {
 
@@ -148,7 +146,7 @@ public class CacheQueryServer extends AbstractServer implements CacheQueryInterf
                 }
             }
 
-            Collections.sort(result, new IpcArrivalDepartureComparator());
+            result.sort(new IpcArrivalDepartureComparator());
 
             return result;
 
@@ -174,14 +172,13 @@ public class CacheQueryServer extends AbstractServer implements CacheQueryInterf
     @Override
     public Double getKalmanErrorValue(String tripId, Integer stopPathIndex) throws RemoteException {
         KalmanErrorCacheKey key = new KalmanErrorCacheKey(tripId, stopPathIndex);
-        Double result = ErrorCacheFactory.getInstance().getErrorValue(key).getError();
-        return result;
+        return ErrorCacheFactory.getInstance().getErrorValue(key).getError();
     }
 
     @Override
     public List<IpcKalmanErrorCacheKey> getKalmanErrorCacheKeys() throws RemoteException {
         List<KalmanErrorCacheKey> keys = ErrorCacheFactory.getInstance().getKeys();
-        List<IpcKalmanErrorCacheKey> ipcResultList = new ArrayList<IpcKalmanErrorCacheKey>();
+        List<IpcKalmanErrorCacheKey> ipcResultList = new ArrayList<>();
 
         for (KalmanErrorCacheKey key : keys) {
             ipcResultList.add(new IpcKalmanErrorCacheKey(key));

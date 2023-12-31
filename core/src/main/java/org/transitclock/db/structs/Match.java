@@ -8,12 +8,12 @@ import javax.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
-import net.jcip.annotations.Immutable;
 import org.hibernate.CallbackException;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.Immutable;
 import org.hibernate.classic.Lifecycle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +36,7 @@ import org.transitclock.utils.IntervalTimer;
  *
  * @author SkiBu Smith
  */
-@Immutable // From jcip.annoations
+@Immutable
 @Entity
 @DynamicUpdate
 @EqualsAndHashCode

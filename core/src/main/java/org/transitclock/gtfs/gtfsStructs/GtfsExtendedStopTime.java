@@ -28,8 +28,6 @@ public class GtfsExtendedStopTime extends GtfsStopTime {
     private final float departureStandardDeviation;
     private final int departureNumberDatapoints;
 
-    /********************** Member Functions **************************/
-
     /**
      * @param originalValues
      * @param useOriginalTimes

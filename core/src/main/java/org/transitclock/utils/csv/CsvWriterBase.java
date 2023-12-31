@@ -81,19 +81,23 @@ public abstract class CsvWriterBase {
      * @throws IOException
      */
     protected Writer append(Integer i) throws IOException {
-        if (i != null) writer.append(i.toString());
+        if (i != null) {
+            writer.append(i.toString());
+        }
         return writer;
     }
 
     /**
      * Writes a single Double to the file
      *
-     * @param i
+     * @param d
      * @return
      * @throws IOException
      */
     protected Writer append(Double d) throws IOException {
-        if (d != null) writer.append(StringUtils.twoDigitFormat(d));
+        if (d != null) {
+            writer.append(StringUtils.twoDigitFormat(d));
+        }
         return writer;
     }
 
@@ -105,7 +109,9 @@ public abstract class CsvWriterBase {
      * @throws IOException
      */
     protected Writer append(Object o) throws IOException {
-        if (o != null) writer.append(o.toString());
+        if (o != null) {
+            writer.append(o.toString());
+        }
         return writer;
     }
 }

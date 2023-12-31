@@ -43,8 +43,6 @@ public class GtfsStopTime extends CsvBase implements Comparable<GtfsStopTime> {
      * is to look along the route when the vehicle is at this point. */
     private final Double maxSpeed;
 
-    /********************** Member Functions **************************/
-
     /**
      * For creating a GtfsStopTime object from scratch
      *

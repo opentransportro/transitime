@@ -7,7 +7,7 @@ import javax.persistence.Embeddable;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
-import net.jcip.annotations.Immutable;
+import org.hibernate.annotations.Immutable;
 import org.transitclock.utils.Geo;
 
 /**

@@ -1,9 +1,10 @@
 /* (C)2023 */
 package org.transitclock.gtfs.gtfsStructs;
 
+import javax.annotation.concurrent.Immutable;
+
 import lombok.Getter;
 import lombok.ToString;
-import net.jcip.annotations.Immutable;
 import org.apache.commons.csv.CSVRecord;
 import org.transitclock.utils.csv.CsvBase;
 

@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
+
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,13 +21,10 @@ import org.slf4j.LoggerFactory;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class Zip {
 
     private static final int BUFFER_SIZE = 4096;
-
-    private static final Logger logger = LoggerFactory.getLogger(Zip.class);
-
-    /********************** Member Functions **************************/
 
     /**
      * Unzips the specified file into the specified directory
@@ -206,15 +205,5 @@ public class Zip {
 
         String fullOutputFileName = inputDirectory + "/" + subDirectory + "/" + outputFileName;
         return zip(inputDirectory, fileNames, fullOutputFileName);
-    }
-
-    /**
-     * For testing
-     *
-     * @param args
-     */
-    public static void main(String[] args) {
-        zip("D:/Logs/mbta", "core/2014/08", "FOO.zip");
-        unzip("/GTFS/sfmta/09-13-2013/latest.zip", "subdir");
     }
 }

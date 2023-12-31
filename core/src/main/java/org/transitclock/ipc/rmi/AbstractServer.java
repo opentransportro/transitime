@@ -1,15 +1,17 @@
 /* (C)2023 */
 package org.transitclock.ipc.rmi;
 
+import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.rmi.Remote;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.text.MessageFormat;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 import org.transitclock.configData.AgencyConfig;
 import org.transitclock.utils.Timer;
 
@@ -34,6 +36,7 @@ import org.transitclock.utils.Timer;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public abstract class AbstractServer {
 
     protected boolean constructed = false;
@@ -63,11 +66,8 @@ public abstract class AbstractServer {
     private static Registry registry = null;
 
     // Share the timer. Don't want separate thread for every RMI class
-    private static ScheduledThreadPoolExecutor rebindTimer = Timer.get();
+    private static final ScheduledThreadPoolExecutor rebindTimer = Timer.get();
 
-    private static final Logger logger = LoggerFactory.getLogger(AbstractServer.class);
-
-    /********************** Member Functions **************************/
 
     /**
      * Binds the RMI implementation object to the registry so that it can be accessed by a client.
@@ -198,7 +198,7 @@ public abstract class AbstractServer {
             if (errorEmailedSoAlsoNotifyWhenSuccessful) {
                 String hostname = null;
                 try {
-                    hostname = java.net.InetAddress.getLocalHost().getHostName();
+                    hostname = InetAddress.getLocalHost().getHostName();
                 } catch (UnknownHostException e1) {
                 }
                 logger.error(
@@ -237,18 +237,11 @@ public abstract class AbstractServer {
     private String rebindErrorMessage(Exception e) {
         String hostname = null;
         try {
-            hostname = java.net.InetAddress.getLocalHost().getHostName();
+            hostname = InetAddress.getLocalHost().getHostName();
         } catch (UnknownHostException e1) {
         }
 
-        String msg = "It appears that the rmiregistry is not running on host "
-                + hostname
-                + ". Make sure it is started immediately. "
-                + "Exception occurred when rebinding "
-                + bindName
-                + ": "
-                + e.getMessage();
-        return msg;
+        return MessageFormat.format("It appears that the rmiregistry is not running on host {0}. Make sure it is started immediately. Exception occurred when rebinding {1}: {2}", hostname, bindName, e.getMessage());
     }
 
     /**

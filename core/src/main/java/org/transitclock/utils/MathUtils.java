@@ -11,7 +11,7 @@ import java.util.Collection;
  */
 public class MathUtils {
 
-    private static long TENS[] = new long[19];
+    private static final long[] TENS = new long[19];
 
     static {
         TENS[0] = 1;
@@ -56,7 +56,8 @@ public class MathUtils {
     }
 
     public static double min(Collection<Double> doubles) {
-        if (doubles.size() < 1) throw new IllegalArgumentException("No items in list");
+        if (doubles.isEmpty())
+            throw new IllegalArgumentException("No items in list");
         Double min = Double.MAX_VALUE;
         for (Double doubleVal : doubles) {
             if (doubleVal < min) min = doubleVal;
@@ -65,7 +66,8 @@ public class MathUtils {
     }
 
     public static double max(Collection<Double> doubles) {
-        if (doubles.size() < 1) throw new IllegalArgumentException("No items in list");
+        if (doubles.isEmpty())
+            throw new IllegalArgumentException("No items in list");
         Double max = 0d;
         for (Double doubleVal : doubles) {
             if (doubleVal > max) max = doubleVal;

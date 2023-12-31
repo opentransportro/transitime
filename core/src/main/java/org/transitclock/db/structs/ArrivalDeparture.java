@@ -1,19 +1,23 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import javax.persistence.*;
+
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.*;
-import org.hibernate.Query;
+import org.hibernate.CallbackException;
+import org.hibernate.Criteria;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.classic.Lifecycle;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.type.TimestampType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.applications.Core;
@@ -41,12 +45,12 @@ import org.transitclock.utils.Time;
 @Setter
 @DynamicUpdate
 @EqualsAndHashCode
-@Table(
-        name = "ArrivalsDepartures",
-        indexes = {
+@Table(name = "ArrivalsDepartures",
+    indexes = {
             @Index(name = "ArrivalsDeparturesTimeIndex", columnList = "time"),
             @Index(name = "ArrivalsDeparturesRouteTimeIndex", columnList = "routeShortName, time")
-        })
+    }
+)
 public class ArrivalDeparture implements Lifecycle, Serializable {
 
     @Id
@@ -177,7 +181,7 @@ public class ArrivalDeparture implements Lifecycle, Serializable {
     public enum ArrivalsOrDepartures {
         ARRIVALS,
         DEPARTURES
-    };
+    }
 
     private static final Logger logger = LoggerFactory.getLogger(ArrivalDeparture.class);
 
@@ -342,12 +346,6 @@ public class ArrivalDeparture implements Lifecycle, Serializable {
         return Lifecycle.NO_VETO;
     }
 
-    /**
-     * For logging each creation of an ArrivalDeparture to the separate ArrivalsDepartures.log file.
-     */
-    public void logCreation() {
-        logger.info(this.toString());
-    }
 
     @Override
     public String toString() {
@@ -404,23 +402,17 @@ public class ArrivalDeparture implements Lifecycle, Serializable {
      * getArrivalsDeparturesFromDb() with a fairly large batch size of ~50000.
      *
      * <p>Note that the session needs to be closed externally once done with the Iterator.
-     *
-     * @param session
-     * @param beginTime
-     * @param endTime
-     * @return
-     * @throws HibernateException
      */
     public static Iterator<ArrivalDeparture> getArrivalsDeparturesDbIterator(
             Session session, Date beginTime, Date endTime) throws HibernateException {
-        // Create the query. Table name is case sensitive and needs to be the
+        // Create the query. Table name is case-sensitive and needs to be the
         // class name instead of the name of the db table.
-        String hql = "FROM ArrivalDeparture " + "    WHERE time >= :beginDate " + "      AND time < :endDate";
-        Query query = session.createQuery(hql);
+        String hql = "FROM ArrivalDeparture WHERE time >= :beginDate AND time < :endDate";
+        var query = session.createQuery(hql);
 
         // Set the parameters
-        query.setTimestamp("beginDate", beginTime);
-        query.setTimestamp("endDate", endTime);
+        query.setParameter("beginDate", beginTime, TimestampType.INSTANCE);
+        query.setParameter("endDate", endTime, TimestampType.INSTANCE);
 
         @SuppressWarnings("unchecked")
         Iterator<ArrivalDeparture> iterator = query.iterate();
@@ -429,12 +421,6 @@ public class ArrivalDeparture implements Lifecycle, Serializable {
 
     /**
      * Read in arrivals and departures for a vehicle, over a time range.
-     *
-     * @param projectId
-     * @param beginTime
-     * @param endTime
-     * @param vehicleId
-     * @return
      */
     public static List<ArrivalDeparture> getArrivalsDeparturesFromDb(Date beginTime, Date endTime, String vehicleId) {
         // Call in standard getArrivalsDeparturesFromDb() but pass in
@@ -452,12 +438,6 @@ public class ArrivalDeparture implements Lifecycle, Serializable {
     /**
      * Reads in arrivals and departures for a particular trip and service. Create session and uses
      * it
-     *
-     * @param beginTime
-     * @param endTime
-     * @param trip
-     * @param serviceId
-     * @return
      */
     public static List<ArrivalDeparture> getArrivalsDeparturesFromDb(
             Date beginTime, Date endTime, String tripId, String serviceId) {
@@ -468,39 +448,26 @@ public class ArrivalDeparture implements Lifecycle, Serializable {
 
     /**
      * Reads in arrivals and departures for a particular trip and service. Uses session provided
-     *
-     * @paran session
-     * @param beginTime
-     * @param endTime
-     * @param trip
-     * @param serviceId
-     * @return
      */
     public static List<ArrivalDeparture> getArrivalsDeparturesFromDb(
             Session session, Date beginTime, Date endTime, String tripId, String serviceId) {
+
         Criteria criteria = session.createCriteria(ArrivalDeparture.class);
 
         criteria.add(Restrictions.eq("tripId", tripId));
         criteria.add(Restrictions.gt("time", beginTime));
         criteria.add(Restrictions.lt("time", endTime)).list();
 
-        if (serviceId != null) criteria.add(Restrictions.eq("serviceId", serviceId));
+        if (serviceId != null) {
+            criteria.add(Restrictions.eq("serviceId", serviceId));
+        }
 
-        @SuppressWarnings("unchecked")
-        List<ArrivalDeparture> arrivalsDeparatures = criteria.list();
-        return arrivalsDeparatures;
+        return criteria.list();
     }
 
     /**
      * Reads in arrivals and departures for a particular stopPathIndex of a trip between two dates.
      * Uses session provided
-     *
-     * @paran session
-     * @param beginTime
-     * @param endTime
-     * @param trip
-     * @param stopPathIndex
-     * @return
      */
     public static List<ArrivalDeparture> getArrivalsDeparturesFromDb(
             Session session, Date beginTime, Date endTime, String tripId, Integer stopPathIndex) {
@@ -509,7 +476,9 @@ public class ArrivalDeparture implements Lifecycle, Serializable {
         if (tripId != null) {
             criteria.add(Restrictions.eq("tripId", tripId));
 
-            if (stopPathIndex != null) criteria.add(Restrictions.eq("stopPathIndex", stopPathIndex));
+            if (stopPathIndex != null) {
+                criteria.add(Restrictions.eq("stopPathIndex", stopPathIndex));
+            }
         }
 
         criteria.add(Restrictions.gt("time", beginTime));
@@ -525,26 +494,21 @@ public class ArrivalDeparture implements Lifecycle, Serializable {
      * so could present memory issue if reading in a very large amount of data. For that case
      * probably best to instead use getArrivalsDeparturesDb() where one specifies the firstResult
      * and maxResult parameters.
-     *
-     * @param projectId
-     * @param beginTime
-     * @param endTime
-     * @return
      */
     public static List<ArrivalDeparture> getArrivalsDeparturesFromDb(String projectId, Date beginTime, Date endTime) {
         IntervalTimer timer = new IntervalTimer();
 
-        // Get the database session. This is supposed to be pretty light weight
+        // Get the database session. This is supposed to be pretty lightweight
         Session session = HibernateUtils.getSession(projectId);
 
-        // Create the query. Table name is case sensitive and needs to be the
+        // Create the query. Table name is case-sensitive and needs to be the
         // class name instead of the name of the db table.
-        String hql = "FROM ArrivalDeparture " + "    WHERE time >= :beginDate " + "      AND time < :endDate";
-        Query query = session.createQuery(hql);
+        String hql = "FROM ArrivalDeparture WHERE time >= :beginDate AND time < :endDate";
+        var query = session.createQuery(hql);
 
         // Set the parameters
-        query.setTimestamp("beginDate", beginTime);
-        query.setTimestamp("endDate", endTime);
+        query.setParameter("beginDate", beginTime, TimestampType.INSTANCE);
+        query.setParameter("endDate", endTime, TimestampType.INSTANCE);
 
         try {
             @SuppressWarnings("unchecked")
@@ -599,17 +563,19 @@ public class ArrivalDeparture implements Lifecycle, Serializable {
 
         // Create the query. Table name is case sensitive and needs to be the
         // class name instead of the name of the db table.
-        String hql = "FROM ArrivalDeparture " + "    WHERE time between :beginDate " + "      AND :endDate";
+        String hql = "FROM ArrivalDeparture WHERE time between :beginDate AND :endDate";
         if (arrivalOrDeparture != null) {
             if (arrivalOrDeparture == ArrivalsOrDepartures.ARRIVALS) hql += " AND isArrival = true";
             else hql += " AND isArrival = false";
         }
-        if (sqlClause != null) hql += " " + sqlClause;
-        Query query = session.createQuery(hql);
+        if (sqlClause != null) {
+            hql += " " + sqlClause;
+        }
+        var query = session.createQuery(hql);
 
         // Set the parameters for the query
-        query.setTimestamp("beginDate", beginTime);
-        query.setTimestamp("endDate", endTime);
+        query.setParameter("beginDate", beginTime, TimestampType.INSTANCE);
+        query.setParameter("endDate", endTime, TimestampType.INSTANCE);
 
         // Only get a batch of data at a time if maxResults specified
         if (firstResult != null) {
@@ -644,19 +610,18 @@ public class ArrivalDeparture implements Lifecycle, Serializable {
 
         // Create the query. Table name is case sensitive and needs to be the
         // class name instead of the name of the db table.
-        String hql = "select count(*) FROM ArrivalDeparture "
-                + "    WHERE time >= :beginDate "
-                + "      AND time < :endDate";
+        String hql = "select count(*) FROM ArrivalDeparture WHERE time >= :beginDate AND time < :endDate";
         if (arrivalOrDeparture != null) {
-            if (arrivalOrDeparture == ArrivalsOrDepartures.ARRIVALS) hql += " AND isArrival = true";
-            else hql += " AND isArrival = false";
+            if (arrivalOrDeparture == ArrivalsOrDepartures.ARRIVALS) {
+                hql += " AND isArrival = true";
+            } else {
+                hql += " AND isArrival = false";
+            }
         }
 
-        Query query = session.createQuery(hql);
-
-        // Set the parameters for the query
-        query.setTimestamp("beginDate", beginTime);
-        query.setTimestamp("endDate", endTime);
+        var query = session.createQuery(hql);
+        query.setParameter("beginDate", beginTime, TimestampType.INSTANCE);
+        query.setParameter("endDate", endTime, TimestampType.INSTANCE);
 
         try {
             count = (Long) query.uniqueResult();

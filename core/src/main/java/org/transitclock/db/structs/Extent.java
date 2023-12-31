@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import net.jcip.annotations.Immutable;
+import org.hibernate.annotations.Immutable;
 
 /**
  * A rectangle specified by min and max latitudes and longitudes.

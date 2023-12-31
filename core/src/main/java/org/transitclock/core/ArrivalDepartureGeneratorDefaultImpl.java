@@ -430,9 +430,6 @@ public class ArrivalDepartureGeneratorDefaultImpl implements ArrivalDepartureGen
         // Queue to store object into db
         Core.getInstance().getDbLogger().add(arrivalDeparture);
 
-        // Log creation of ArrivalDeparture in ArrivalsDepartures.log file
-        arrivalDeparture.logCreation();
-
         /* add event to vehicle state. Will increment tripCounter if the last arrival in a trip */
         VehicleState vehicleState = VehicleStateManager.getInstance().getVehicleState(arrivalDeparture.getVehicleId());
 

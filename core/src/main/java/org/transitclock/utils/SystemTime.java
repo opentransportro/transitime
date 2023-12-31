@@ -13,5 +13,5 @@ public interface SystemTime {
      * @return Returns current system epoch time in milliseconds. If in playback mode or such this
      *     might not actually be the clock time for the computer.
      */
-    public abstract long get();
+    long get();
 }

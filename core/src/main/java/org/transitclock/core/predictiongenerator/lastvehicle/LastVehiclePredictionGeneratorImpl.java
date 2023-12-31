@@ -95,7 +95,7 @@ public class LastVehiclePredictionGeneratorImpl extends PredictionGeneratorDefau
                     PredictionForStopPath predictionForStopPath = new PredictionForStopPath(
                             vehicleState.getVehicleId(),
                             new Date(Core.getInstance().getSystemTime()),
-                            new Double(new Long(travelTimeDetails.getTravelTime()).intValue()),
+                            (double) Long.valueOf(travelTimeDetails.getTravelTime()).intValue(),
                             indices.getTrip().getId(),
                             indices.getStopPathIndex(),
                             "LAST VEHICLE",

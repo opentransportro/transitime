@@ -22,8 +22,6 @@ public class GtfsFareAttribute extends CsvBase {
     private final String transfers;
     private final Integer transferDuration;
 
-    /********************** Member Functions **************************/
-
     /**
      * Creates a GtfsFareAttribute object by reading the data from the CSVRecord.
      *

@@ -1,6 +1,7 @@
 /* (C)2023 */
 package org.transitclock.utils;
 
+import lombok.extern.slf4j.Slf4j;
 import org.jasypt.exceptions.EncryptionOperationNotPossibleException;
 import org.jasypt.util.text.BasicTextEncryptor;
 import org.jasypt.util.text.TextEncryptor;
@@ -13,6 +14,7 @@ import org.transitclock.config.StringConfigValue;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class Encryption {
 
     private static final StringConfigValue encryptionPassword = new StringConfigValue(
@@ -24,10 +26,6 @@ public class Encryption {
 
     // Must call getEncryptor() to initialize and access
     private static BasicTextEncryptor textEncryptor = null;
-
-    private static final Logger logger = LoggerFactory.getLogger(Encryption.class);
-
-    /********************** Member Functions **************************/
 
     /**
      * Encrypts the specified string using the configured encryptionPassword

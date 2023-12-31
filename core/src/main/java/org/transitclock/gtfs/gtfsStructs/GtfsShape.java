@@ -25,8 +25,6 @@ public class GtfsShape extends CsvBase implements Comparable<GtfsShape> {
     // For deleting a point via a supplemental shapes.txt file
     private final Boolean delete;
 
-    /********************** Member Functions **************************/
-
     /** Creates a GtfsShape object from scratch */
     public GtfsShape(
             String shapeId, double shapePtLat, double shapePtLon, int shapePtSequence, double shapeDistTraveled) {

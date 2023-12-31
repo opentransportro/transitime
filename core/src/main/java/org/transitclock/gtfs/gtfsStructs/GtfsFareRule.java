@@ -23,8 +23,6 @@ public class GtfsFareRule extends CsvBase {
     private final String destinationId;
     private final String containsId;
 
-    /********************** Member Functions **************************/
-
     /**
      * Creates a GtfsFareRule object by reading the data from the CSVRecord.
      *

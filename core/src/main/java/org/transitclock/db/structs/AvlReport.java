@@ -7,11 +7,11 @@ import java.util.List;
 import java.util.regex.Pattern;
 import javax.persistence.*;
 import lombok.EqualsAndHashCode;
-import net.jcip.annotations.Immutable;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.Immutable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.applications.Core;
@@ -28,13 +28,15 @@ import org.transitclock.utils.Time;
  *
  * @author SkiBu Smith
  */
-@Immutable // From jcip.annoations
+@Immutable
 @Entity
 @DynamicUpdate
 @EqualsAndHashCode
 @Table(
-        name = "AvlReports",
-        indexes = {@Index(name = "AvlReportsTimeIndex", columnList = "time")})
+    name = "AvlReports",
+    indexes = {
+        @Index(name = "AvlReportsTimeIndex", columnList = "time")
+    })
 public class AvlReport implements Serializable {
     // vehicleId is an @Id since might get multiple AVL reports
     // for different vehicles with the same time but need a unique

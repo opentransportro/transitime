@@ -34,7 +34,6 @@ public class GtfsCalendar extends CsvBase {
      */
     private final String endDate;
 
-    /********************** Member Functions **************************/
 
     /**
      * Creates a GtfsCalendar object by reading the data from the CSVRecord.

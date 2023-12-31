@@ -5,6 +5,8 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.Date;
 import java.util.List;
+
+import lombok.extern.slf4j.Slf4j;
 import org.transitclock.db.GenericQuery;
 import org.transitclock.reports.ChartJsonBuilder.RowBuilder;
 
@@ -15,11 +17,10 @@ import org.transitclock.reports.ChartJsonBuilder.RowBuilder;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class ChartGenericJsonQuery extends GenericQuery {
+    private final ChartJsonBuilder jsonBuilder;
 
-    private ChartJsonBuilder jsonBuilder = new ChartJsonBuilder();
-
-    /********************** Member Functions **************************/
 
     /**
      * @param agencyId
@@ -27,6 +28,7 @@ public class ChartGenericJsonQuery extends GenericQuery {
      */
     public ChartGenericJsonQuery(String agencyId) throws SQLException {
         super(agencyId);
+        jsonBuilder = new ChartJsonBuilder();
     }
 
     /* (non-Javadoc)
@@ -73,38 +75,10 @@ public class ChartGenericJsonQuery extends GenericQuery {
 
         query.doQuery(sql, (Object[]) parameters);
         // If query returns empty set then should return null!
-        if (query.getNumberOfRows() != 0) return query.jsonBuilder.getJson();
-        else return null;
-    }
-
-    /**
-     * For debugging
-     *
-     * @param args
-     */
-    public static void main(String[] args) {
-        String agencyId = "mbtaAWS";
-
-        String sql = "SELECT      to_char(arrivalDepartureTime-predictionReadTime, 'SSSS')::integer as"
-                + " predLength, "
-                // + "     predictionAccuracyMsecs/1000 as predAccuracy, "
-                + "     abs(predictionAccuracyMsecs/1000) as absPredAccuracy,     "
-                + " format(E'Stop=%s tripId=%s\\n"
-                + "arrDepTime=%s predTime=%s predReadTime=%s\\n"
-                + "vehicleId=%s source=%s',        stopId, tripId,       "
-                + " to_char(arrivalDepartureTime, 'MM/DD/YYYY HH:MM:SS.MS'),      "
-                + " to_char(predictedTime, 'HH:MM:SS.MS'),      "
-                + " to_char(predictionReadTime, 'HH:MM:SS.MS'),       vehicleId,"
-                + " predictionSource) AS tooltip  FROM predictionaccuracy WHERE"
-                + " arrivaldeparturetime BETWEEN '2014-10-31' AND '2014-11-01'   AND"
-                + " arrivalDepartureTime-predictionReadTime < '00:15:00'   AND"
-                + " routeId='CR-Providence'   AND predictionSource='Transitime';";
-
-        try {
-            String str = ChartGenericJsonQuery.getJsonString(agencyId, sql);
-            System.out.println(str);
-        } catch (SQLException e) {
-            e.printStackTrace();
+        if (query.getNumberOfRows() != 0) {
+            return query.jsonBuilder.getJson();
         }
+
+        return null;
     }
 }

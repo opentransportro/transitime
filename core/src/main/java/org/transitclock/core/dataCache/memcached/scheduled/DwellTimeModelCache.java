@@ -175,7 +175,7 @@ public class DwellTimeModelCache implements org.transitclock.core.dataCache.Dwel
         if (model == null || headway == null) return null;
 
         if (model.predict((int) headway.getHeadway(), null) != null)
-            return new Long(model.predict((int) headway.getHeadway(), null));
+            return Long.valueOf(model.predict((int) headway.getHeadway(), null));
 
         return null;
     }

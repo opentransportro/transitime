@@ -11,13 +11,12 @@ import java.text.DecimalFormat;
  * @author SkiBu Smith
  */
 public class IntervalTimer {
+    private static final DecimalFormat decimalFormat = new DecimalFormat("#.###");
 
     // The time the interval timer created or reset
     private long initialNanotime;
 
-    private static DecimalFormat decimalFormat = new DecimalFormat("#.###");
 
-    /********************** Member Functions **************************/
 
     /** Records the current time so that elapsed time can later be determined. */
     public IntervalTimer() {

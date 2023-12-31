@@ -229,7 +229,7 @@ public class KalmanPredictionGeneratorImpl extends PredictionGeneratorDefaultImp
                             PredictionForStopPath predictionForStopPath = new PredictionForStopPath(
                                     vehicleState.getVehicleId(),
                                     new Date(Core.getInstance().getSystemTime()),
-                                    new Double(new Long(predictionTime).intValue()),
+                                    (double) Long.valueOf(predictionTime).intValue(),
                                     indices.getTrip().getId(),
                                     indices.getStopPathIndex(),
                                     "KALMAN",

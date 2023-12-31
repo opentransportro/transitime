@@ -113,7 +113,9 @@ public abstract class CsvBaseReader<T> {
             // certain data is missing. Using the '-' character so can
             // comment out line that starts with "--", which is what is
             // used for SQL.
-            CSVFormat formatter = CSVFormat.DEFAULT.withHeader().withCommentMarker('-');
+            CSVFormat formatter = CSVFormat.DEFAULT
+                    .withHeader()
+                    .withCommentMarker('-');
 
             // Parse the file
             Iterable<CSVRecord> records = formatter.parse(in);
@@ -124,10 +126,9 @@ public abstract class CsvBaseReader<T> {
             timer = new IntervalTimer();
             IntervalTimer loggingTimer = new IntervalTimer();
 
-            Iterator<CSVRecord> iterator = records.iterator();
-            while (iterator.hasNext()) {
+            for (CSVRecord strings : records) {
                 // Determine the record to process
-                record = iterator.next();
+                record = strings;
 
                 // If blank line then skip it. This way avoid error messages since
                 // expected data column won't exist
@@ -220,7 +221,7 @@ public abstract class CsvBaseReader<T> {
      * @return List of CSV objects. Can be empty but not null.
      */
     public List<T> get(int initialSize) {
-        gtfsObjects = new ArrayList<T>(initialSize);
+        gtfsObjects = new ArrayList<>(initialSize);
 
         parse();
 

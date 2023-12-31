@@ -16,10 +16,7 @@ import java.util.List;
  * @author SkiBu Smith
  */
 public class OrderedCollection {
-
-    private final List<String> list = new LinkedList<String>();
-
-    /********************** Member Functions **************************/
+    private final List<String> list = new LinkedList<>();
 
     /**
      * Quick way of adding the first list.
@@ -70,7 +67,7 @@ public class OrderedCollection {
     private void add(Collection<String> newList) {
         // Groups of items in a row that haven't yet been added to list.
         // They are grouped so that can find the right place to insert them.
-        List<String> itemsToAdd = new ArrayList<String>();
+        List<String> itemsToAdd = new ArrayList<>();
 
         // For each of the new items...
         int insertionPoint = 0;
@@ -104,12 +101,7 @@ public class OrderedCollection {
     }
 
     // For sorting lists by their size descending
-    private Comparator<List<String>> comparator = new Comparator<List<String>>() {
-        @Override
-        public int compare(List<String> l1, List<String> l2) {
-            return l2.size() - l1.size();
-        }
-    };
+    private final Comparator<List<String>> comparator = (l1, l2) -> l2.size() - l1.size();
 
     /**
      * Adds the lists to the OrderedCollection. Need to add all lists at once so that this method
@@ -119,7 +111,7 @@ public class OrderedCollection {
      * @param listOfLists
      */
     public void add(List<List<String>> listOfLists) {
-        Collections.sort(listOfLists, comparator);
+        listOfLists.sort(comparator);
         for (Collection<String> list : listOfLists) {
             add(list);
         }
@@ -137,32 +129,5 @@ public class OrderedCollection {
     @Override
     public String toString() {
         return "OrderedCollection [list=" + list + "]";
-    }
-
-    /**
-     * For testing.
-     *
-     * @param args
-     */
-    public static void main(String args[]) {
-        List<String> a1 = Arrays.asList("1", "2", "3", "4");
-        List<String> a1x = Arrays.asList("1", "2", "3", "3.1", "3.2", "4");
-        List<String> a1xx = Arrays.asList("3", "4", "1", "2", "3");
-        List<String> a2 = Arrays.asList("a21", "a22", "1", "2", "3");
-        List<String> a3 = Arrays.asList("1", "2", "a31", "a32", "3", "4", "a35", "a36");
-
-        OrderedCollection oc = new OrderedCollection();
-        oc.addOriginal(a1);
-        oc.add(a1x);
-        System.out.println(oc.get());
-
-        oc.add(a1xx);
-        System.out.println(oc.get());
-
-        oc.add(a2);
-        System.out.println(oc.get());
-
-        oc.add(a3);
-        System.out.println(oc.get());
     }
 }

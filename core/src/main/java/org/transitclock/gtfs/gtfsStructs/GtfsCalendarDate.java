@@ -20,8 +20,6 @@ public class GtfsCalendarDate extends CsvBase {
     private final String date;
     private final String exceptionType;
 
-    /********************** Member Functions **************************/
-
     /**
      * Creates a GtfsRoute object by reading the data from the CSVRecord.
      *

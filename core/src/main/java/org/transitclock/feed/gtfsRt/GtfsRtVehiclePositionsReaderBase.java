@@ -11,6 +11,8 @@ import com.google.transit.realtime.GtfsRealtime.VehiclePosition;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
+
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.db.structs.AvlReport;
@@ -26,13 +28,11 @@ import org.transitclock.utils.MathUtils;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public abstract class GtfsRtVehiclePositionsReaderBase {
 
     private final String urlString;
 
-    private static final Logger logger = LoggerFactory.getLogger(GtfsRtVehiclePositionsReaderBase.class);
-
-    /********************** Member Functions **************************/
     public GtfsRtVehiclePositionsReaderBase(String urlString) {
         this.urlString = urlString;
     }

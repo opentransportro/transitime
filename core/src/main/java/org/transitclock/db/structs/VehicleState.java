@@ -7,8 +7,8 @@ import javax.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
-import net.jcip.annotations.Immutable;
 import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.Immutable;
 
 /**
  * For persisting the vehicle state for the vehicle. Can be joined with AvlReport table in order to
@@ -16,7 +16,7 @@ import org.hibernate.annotations.DynamicUpdate;
  *
  * @author SkiBu Smith
  */
-@Immutable // From jcip.annoations
+@Immutable
 @Entity
 @DynamicUpdate
 @EqualsAndHashCode

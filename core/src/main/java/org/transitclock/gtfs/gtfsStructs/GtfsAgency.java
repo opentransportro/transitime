@@ -52,8 +52,8 @@ public class GtfsAgency extends CsvBase {
      * When combining a regular agency with a supplemental agency need to create a whole new object
      * since this class is Immutable to make it safer to use.
      *
-     * @param originalStop
-     * @param supplementStop
+     * @param originalAgency
+     * @param supplementAgency
      */
     public GtfsAgency(GtfsAgency originalAgency, GtfsAgency supplementAgency) {
         super(originalAgency);

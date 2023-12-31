@@ -211,8 +211,8 @@
                                 <include>.gitignore</include>
                             </includes>
                             <!-- define the steps to apply to those files -->
-                            <trimTrailingWhitespace></trimTrailingWhitespace>
-                            <endWithNewline></endWithNewline>
+                            <trimTrailingWhitespace/>
+                            <endWithNewline/>
                             <indent>
                                 <tabs>true</tabs>
                                 <spacesPerTab>4</spacesPerTab>
@@ -297,7 +297,7 @@
                             </treatAsClass>
                         </importOrder>
 
-                        <removeUnusedImports></removeUnusedImports>
+                        <removeUnusedImports/>
 
                         <!-- apply a specific flavor of google-java-format and reflow long strings -->
                         <palantirJavaFormat>

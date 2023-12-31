@@ -321,7 +321,7 @@ public class GTFSRealtimePredictionAccuracyModule extends PredictionAccuracyModu
                                                             eventTime,
                                                             eventReadTime,
                                                             true,
-                                                            new Boolean(false),
+                                                            false,
                                                             "GTFS-rt",
                                                             null,
                                                             scheduledTime.toString());
@@ -447,7 +447,7 @@ public class GTFSRealtimePredictionAccuracyModule extends PredictionAccuracyModu
                                                             eventTime,
                                                             eventReadTime,
                                                             false,
-                                                            new Boolean(false),
+                                                            false,
                                                             "GTFS-rt",
                                                             null,
                                                             scheduledTime.toString());

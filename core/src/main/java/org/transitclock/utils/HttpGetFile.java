@@ -9,6 +9,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+
+import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +21,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class HttpGetFile {
 
     // UserAgenct info sent to web server when file is requested
@@ -34,10 +37,6 @@ public class HttpGetFile {
 
     private final List<String> headerKeys = new ArrayList<String>();
     private final List<String> headerValues = new ArrayList<String>();
-
-    protected static final Logger logger = LoggerFactory.getLogger(HttpGetFile.class);
-
-    /********************** Member Functions **************************/
 
     /**
      * Constructor

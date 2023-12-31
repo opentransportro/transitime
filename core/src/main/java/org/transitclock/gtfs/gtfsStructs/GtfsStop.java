@@ -91,8 +91,6 @@ public class GtfsStop extends CsvBase {
     // if it is first stop for the trip
     private final String deleteFirstStopFromRoutesStr;
 
-    /********************** Member Functions **************************/
-
     /** For creating a GtfsStop object from scratch. */
     public GtfsStop(String stopId, Integer stopCode, String stopName, double lat, double lon) {
         this.stopId = stopId;
