@@ -421,7 +421,9 @@ public class Route implements Serializable {
         List<TripPattern> tripPatterns = new ArrayList<>();
 
         List<String> directionIds = getDirectionIds();
-        for (String directionId : directionIds) tripPatterns.add(getLongestTripPatternForDirection(directionId));
+        for (String directionId : directionIds) {
+            tripPatterns.add(getLongestTripPatternForDirection(directionId));
+        }
 
         return tripPatterns;
     }
@@ -449,15 +451,16 @@ public class Route implements Serializable {
      * @return
      */
     public List<String> getDirectionIds() {
-        List<String> directionIds = new ArrayList<String>();
-        List<TripPattern> tripPatternsForRoute =
-                Core.getInstance().getDbConfig().getTripPatternsForRoute(getId());
-        if (tripPatternsForRoute == null) return directionIds;
-        for (TripPattern tripPattern : tripPatternsForRoute) {
-            String directionId = tripPattern.getDirectionId();
-            if (!directionIds.contains(directionId)) directionIds.add(directionId);
+        List<TripPattern> tripPatternsForRoute = Core.getInstance().getDbConfig().getTripPatternsForRoute(getId());
+        if (tripPatternsForRoute == null) {
+            return new ArrayList<>();
         }
-        return directionIds;
+
+        Set<String> directionIds = new HashSet<>();
+        for (TripPattern tripPattern : tripPatternsForRoute) {
+            directionIds.add(tripPattern.getDirectionId());
+        }
+        return directionIds.stream().toList();
     }
 
     /**
@@ -478,7 +481,7 @@ public class Route implements Serializable {
         List<TripPattern> tripPatternsForRoute =
                 Core.getInstance().getDbConfig().getTripPatternsForRoute(id);
 
-        Map<String, StopPath> stopPathMap = new HashMap<String, StopPath>();
+        Map<String, StopPath> stopPathMap = new HashMap<>();
         for (TripPattern tripPattern : tripPatternsForRoute) {
             for (StopPath stopPath : tripPattern.getStopPaths()) {
                 String stopPathId = stopPath.getId();
@@ -542,7 +545,7 @@ public class Route implements Serializable {
         if (stopOrderByDirectionMap != null) return;
 
         // Map not yet created so create it now
-        stopOrderByDirectionMap = new HashMap<String, Map<String, List<Integer>>>();
+        stopOrderByDirectionMap = new HashMap<>();
         Map<String, List<String>> orderedStopsByDirection = getOrderedStopsByDirection();
 
         // Create submap for each direction Id
@@ -646,8 +649,11 @@ public class Route implements Serializable {
      * @return the max distance if set, otherwise NaN
      */
     public double getMaxAllowableDistanceFromSegment() {
-        if (maxDistance != null) return maxDistance;
-        else return Double.NaN;
+        if (maxDistance != null) {
+            return maxDistance;
+        }
+
+        return Double.NaN;
     }
 
 }
