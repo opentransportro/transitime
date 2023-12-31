@@ -44,11 +44,11 @@
             <version>5.6.15.Final</version>
         </dependency>
 
-        <!--        <dependency>-->
-        <!--            <groupId>org.hibernate</groupId>-->
-        <!--            <artifactId>hibernate-c3p0</artifactId>-->
-        <!--            <version>5.6.15.Final</version>-->
-        <!--        </dependency>-->
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-c3p0</artifactId>
+            <version>5.6.15.Final</version>
+        </dependency>
 
         <!-- For logging -->
         <dependency>
@@ -129,6 +129,7 @@
         <dependency>
             <groupId>org.ehcache</groupId>
             <artifactId>ehcache</artifactId>
+<!--            <version>3.9.11</version>-->
             <version>3.4.0</version>
             <exclusions>
                 <exclusion>
