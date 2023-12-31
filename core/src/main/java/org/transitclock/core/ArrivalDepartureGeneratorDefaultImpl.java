@@ -1,35 +1,22 @@
 /* (C)2023 */
 package org.transitclock.core;
 
-import java.util.ArrayList;
-import java.util.Date;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.transitclock.applications.Core;
 import org.transitclock.config.IntegerConfigValue;
 import org.transitclock.configData.AgencyConfig;
 import org.transitclock.configData.CoreConfig;
-import org.transitclock.core.dataCache.DwellTimeModelCacheFactory;
-import org.transitclock.core.dataCache.HoldingTimeCache;
-import org.transitclock.core.dataCache.StopArrivalDepartureCacheFactory;
-import org.transitclock.core.dataCache.TripDataHistoryCacheFactory;
-import org.transitclock.core.dataCache.VehicleStateManager;
+import org.transitclock.core.dataCache.*;
 import org.transitclock.core.dataCache.frequency.FrequencyBasedHistoricalAverageCache;
 import org.transitclock.core.dataCache.scheduled.ScheduleBasedHistoricalAverageCache;
 import org.transitclock.core.holdingmethod.HoldingTimeGeneratorFactory;
 import org.transitclock.core.predAccuracy.PredictionAccuracyModule;
-import org.transitclock.db.structs.Arrival;
-import org.transitclock.db.structs.ArrivalDeparture;
-import org.transitclock.db.structs.AvlReport;
-import org.transitclock.db.structs.Block;
-import org.transitclock.db.structs.Departure;
-import org.transitclock.db.structs.HoldingTime;
-import org.transitclock.db.structs.Route;
-import org.transitclock.db.structs.Stop;
-import org.transitclock.db.structs.Trip;
-import org.transitclock.db.structs.VehicleEvent;
+import org.transitclock.db.structs.*;
 import org.transitclock.ipc.data.IpcArrivalDeparture;
 import org.transitclock.utils.Time;
+
+import java.util.ArrayList;
+import java.util.Date;
 
 /**
  * For determining Arrival/Departure times based on a new GPS report and corresponding
@@ -65,16 +52,14 @@ import org.transitclock.utils.Time;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class ArrivalDepartureGeneratorDefaultImpl implements ArrivalDepartureGenerator {
 
-    private static final Logger logger = LoggerFactory.getLogger(ArrivalDepartureGeneratorDefaultImpl.class);
-
-    /********************** Config Params **************************/
 
     /**
      * If vehicle just became predictable as indicated by no previous match then still want to
      * determine arrival/departure times for earlier stops so that won't miss recording data for
-     * them. But only want to go so far. Otherwise could be generating fake arrival/departure times
+     * them. But only want to go so far. Otherwise, could be generating fake arrival/departure times
      * when vehicle did not actually traverse that stop.
      */
     private static int getMaxStopsWhenNoPreviousMatch() {
@@ -119,8 +104,6 @@ public class ArrivalDepartureGeneratorDefaultImpl implements ArrivalDepartureGen
             "If the time of a determine arrival/departure is really "
                     + "different from the AVL time then something must be "
                     + "wrong and the situation will be logged.");
-
-    /********************** Member Functions **************************/
 
     /**
      * Returns whether going from oldMatch to newMatch traverses so many stops during the elapsed

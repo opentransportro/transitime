@@ -1,14 +1,7 @@
 /* (C)2023 */
 package org.transitclock.avl;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.transitclock.Module;
 import org.transitclock.applications.Core;
 import org.transitclock.config.StringListConfigValue;
@@ -17,6 +10,8 @@ import org.transitclock.db.structs.AvlReport;
 import org.transitclock.db.structs.Location;
 import org.transitclock.feed.gtfsRt.GtfsRtVehiclePositionsReader;
 import org.transitclock.utils.Time;
+
+import java.util.*;
 
 /**
  * For reading in a batch of GTFS-realtime data and processing it. It only reads a single batch of
@@ -34,12 +29,8 @@ import org.transitclock.utils.Time;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class BatchGtfsRealtimeModule extends Module {
-
-    /*********** Logging *******************************************/
-    private static final Logger logger = LoggerFactory.getLogger(BatchGtfsRealtimeModule.class);
-
-    /*********** Configurable Parameters for this module ***********/
     public static List<String> getGtfsRealtimeURIs() {
         return gtfsRealtimeURIs.getValue();
     }
@@ -49,11 +40,6 @@ public class BatchGtfsRealtimeModule extends Module {
             null,
             "Semicolon separated list of URIs of the GTFS-realtime data to read in");
 
-    /********************** Member Functions **************************/
-
-    /**
-     * @param agencyId
-     */
     public BatchGtfsRealtimeModule(String agencyId) {
         super(agencyId);
     }

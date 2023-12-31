@@ -19,9 +19,6 @@ public class IpcSchedTimes implements Serializable {
     private final String stopId;
     private final String stopName;
 
-    private static final long serialVersionUID = 2469869322769172736L;
-
-    /********************** Member Functions **************************/
     public IpcSchedTimes(ScheduleTime dbScheduleTime, String stopId) {
         this.arrivalTime = dbScheduleTime.getArrivalTime();
         this.departureTime = dbScheduleTime.getDepartureTime();

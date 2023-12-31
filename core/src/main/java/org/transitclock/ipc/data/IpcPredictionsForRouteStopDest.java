@@ -47,9 +47,6 @@ public class IpcPredictionsForRouteStopDest implements Serializable {
 
     private static final int INITIAL_CAPACITY = 5;
 
-    private static final long serialVersionUID = 5875028328864504842L;
-
-    /********************** Member Functions **************************/
 
     /**
      * Constructor for creating a IpcPredictionsForRouteStopDest on the server side.

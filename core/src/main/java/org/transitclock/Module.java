@@ -1,13 +1,13 @@
 /* (C)2023 */
 package org.transitclock;
 
+import lombok.extern.slf4j.Slf4j;
+import org.transitclock.configData.AgencyConfig;
+import org.transitclock.utils.threading.NamedThreadFactory;
+
 import java.lang.reflect.Constructor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.transitclock.configData.AgencyConfig;
-import org.transitclock.utils.threading.NamedThreadFactory;
 
 /**
  * Modules are run in a separate thread and continuously process data. They are initiated by core
@@ -18,8 +18,8 @@ import org.transitclock.utils.threading.NamedThreadFactory;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public abstract class Module implements Runnable {
-    protected static final Logger logger = LoggerFactory.getLogger(Module.class);
 
     protected final String agencyId;
 

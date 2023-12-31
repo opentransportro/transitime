@@ -1,9 +1,7 @@
 /* (C)2023 */
 package org.transitclock.avl;
 
-import java.io.IOException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.transitclock.db.structs.AvlReport;
 import org.transitclock.db.structs.AvlReport.AssignmentType;
 import org.transitclock.utils.ChinaGpsOffset;
@@ -12,19 +10,18 @@ import org.transitclock.utils.Geo;
 import org.transitclock.utils.Time;
 import org.transitclock.utils.csv.CsvWriterBase;
 
+import java.io.IOException;
+
 /**
  * For writing a CSV file containing AVL reports.
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class AvlCsvWriter extends CsvWriterBase {
 
     // Needed so can output times in proper timezone
     private final Time timeUsingTimeZone;
-
-    private static final Logger logger = LoggerFactory.getLogger(AvlCsvWriter.class);
-
-    /********************** Member Functions **************************/
 
     /**
      * Simple constructor.

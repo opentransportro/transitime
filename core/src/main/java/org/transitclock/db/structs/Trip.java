@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nullable;
 import javax.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -108,7 +109,7 @@ public class Trip implements Lifecycle, Serializable {
     // stop_times.txt file. Useful for determining schedule adherence.
     @ElementCollection
     @OrderColumn
-    private final List<ScheduleTime> scheduledTimesList = new ArrayList<ScheduleTime>();
+    private final List<ScheduleTime> scheduledTimesList = new ArrayList<>();
 
     // For non-scheduled blocks where vehicle runs a trip as a continuous loop
     @Column
@@ -150,8 +151,6 @@ public class Trip implements Lifecycle, Serializable {
     private static final long serialVersionUID = -23135771144135812L;
 
     private static final Logger logger = LoggerFactory.getLogger(Trip.class);
-
-    /********************** Member Functions **************************/
 
     /**
      * Constructs Trip object from GTFS data.
@@ -744,11 +743,11 @@ public class Trip implements Lifecycle, Serializable {
      * @param stopPathIndex
      * @return
      */
+    @Nullable
     public ScheduleTime getScheduleTime(int stopPathIndex) {
-        if (scheduledTimesList instanceof PersistentList) {
+        if (scheduledTimesList instanceof PersistentList persistentListTimes) {
             // TODO this is an anti-pattern
             // instead find a way to manage sessions more consistently
-            PersistentList persistentListTimes = (PersistentList) scheduledTimesList;
             var session = persistentListTimes.getSession();
             if (session == null) {
                 Session globalLazyLoadSession = Core.getInstance().getDbConfig().getGlobalSession();

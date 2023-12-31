@@ -1,13 +1,8 @@
 /* (C)2023 */
 package org.transitclock.core;
 
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Objects;
+import java.util.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.configData.CoreConfig;
@@ -52,7 +47,7 @@ public class VehicleState {
     private TemporalDifference realTimeSchedAdh;
 
     // create a hashamp to store the trip start times.  TODO change to LinkedList doesn't grow
-    HashMap<Integer, Long> tripStartTimesMap = new HashMap<Integer, Long>();
+    Map<Integer, Long> tripStartTimesMap = new HashMap<>();
 
     // For keeping track of how many bad matches have been encountered.
     // This way can ignore bad matches if only get a couple

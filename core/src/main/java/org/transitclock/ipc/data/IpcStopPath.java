@@ -28,9 +28,6 @@ public class IpcStopPath implements Serializable {
     private List<Location> locations;
     private double pathLength;
 
-    private static final long serialVersionUID = -3355335358825870977L;
-
-    /********************** Member Functions **************************/
     public IpcStopPath(StopPath dbStopPath) {
         this.configRev = dbStopPath.getConfigRev();
         this.stopPathId = dbStopPath.getStopPathId();

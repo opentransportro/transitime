@@ -10,6 +10,8 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.Collection;
 import java.util.zip.GZIPInputStream;
+
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
 import org.json.JSONException;
 import org.slf4j.Logger;
@@ -31,6 +33,7 @@ import org.transitclock.utils.Time;
  *
  * @author Michael Smith (michael@transitclock.org)
  */
+@Slf4j
 public abstract class PollUrlAvlModule extends AvlModule {
 
     private static StringConfigValue url =
@@ -56,15 +59,6 @@ public abstract class PollUrlAvlModule extends AvlModule {
     // superclass can override this value.
     protected boolean useCompression = true;
 
-    private static final Logger logger = LoggerFactory.getLogger(PollUrlAvlModule.class);
-
-    /********************** Member Functions **************************/
-
-    /**
-     * Constructor
-     *
-     * @param agencyId
-     */
     protected PollUrlAvlModule(String agencyId) {
         super(agencyId);
     }

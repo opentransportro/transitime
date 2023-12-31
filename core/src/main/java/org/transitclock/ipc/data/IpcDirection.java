@@ -19,10 +19,6 @@ public class IpcDirection implements Serializable {
     private String directionTitle;
     private Collection<IpcStop> stops;
 
-    private static final long serialVersionUID = -7843832825147865279L;
-
-    /********************** Member Functions **************************/
-
     /**
      * Constructor. All IpcStops are marked as being a normal UiMode stop.
      *

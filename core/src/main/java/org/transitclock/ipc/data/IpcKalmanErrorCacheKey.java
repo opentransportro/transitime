@@ -6,12 +6,10 @@ import org.transitclock.core.dataCache.KalmanErrorCacheKey;
 
 public class IpcKalmanErrorCacheKey implements Serializable {
 
-    private static final long serialVersionUID = -748336688312487489L;
     private String tripId;
     private Integer stopPathIndex;
 
     public IpcKalmanErrorCacheKey(KalmanErrorCacheKey key) {
-        super();
         this.tripId = key.getTripId();
         this.stopPathIndex = key.getStopPathIndex();
     }

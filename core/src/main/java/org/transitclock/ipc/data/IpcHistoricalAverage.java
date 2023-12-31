@@ -9,9 +9,11 @@ import org.transitclock.core.dataCache.HistoricalAverage;
  */
 public class IpcHistoricalAverage implements Serializable {
 
-    public IpcHistoricalAverage(HistoricalAverage historicalAverage) {
-        super();
+    private Integer count = 0;
 
+    private Double average = 0.0;
+
+    public IpcHistoricalAverage(HistoricalAverage historicalAverage) {
         if (historicalAverage != null) {
             this.count = historicalAverage.getCount();
             this.average = historicalAverage.getAverage();
@@ -33,10 +35,4 @@ public class IpcHistoricalAverage implements Serializable {
     public void setAverage(Double average) {
         this.average = average;
     }
-
-    private static final long serialVersionUID = -1285357644186049157L;
-
-    private Integer count = 0;
-
-    private Double average = 0.0;
 }

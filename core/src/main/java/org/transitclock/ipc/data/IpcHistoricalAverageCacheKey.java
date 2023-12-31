@@ -5,8 +5,6 @@ import java.io.Serializable;
 import org.transitclock.core.dataCache.StopPathCacheKey;
 
 public class IpcHistoricalAverageCacheKey implements Serializable {
-    private static final long serialVersionUID = 8712981814295653998L;
-
     private String tripId;
     private Integer stopPathIndex;
 

@@ -1,9 +1,7 @@
 /* (C)2023 */
 package org.transitclock.core;
 
-import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.transitclock.applications.Core;
 import org.transitclock.configData.CoreConfig;
 import org.transitclock.core.dataCache.PredictionDataCache;
@@ -13,20 +11,19 @@ import org.transitclock.db.structs.Prediction;
 import org.transitclock.ipc.data.IpcPrediction;
 import org.transitclock.utils.Time;
 
+import java.util.List;
+
 /**
  * For generating predictions, arrival/departure times, headways etc. This class is used once a
  * vehicle is successfully matched to an assignment.
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class MatchProcessor {
 
     // Singleton class
-    private static MatchProcessor singleton = new MatchProcessor();
-
-    private static final Logger logger = LoggerFactory.getLogger(MatchProcessor.class);
-
-    /********************** Member Functions **************************/
+    private static final MatchProcessor singleton = new MatchProcessor();
 
     /** Constructor declared private because singleton class */
     private MatchProcessor() {}
@@ -58,7 +55,7 @@ public class MatchProcessor {
             for (IpcPrediction prediction : newPredictions) {
                 // If prediction not too far into the future then ...
                 if (prediction.getPredictionTime() - prediction.getAvlTime()
-                        < (CoreConfig.getMaxPredictionsTimeForDbSecs() * Time.MS_PER_SEC)) {
+                        < ((long) CoreConfig.getMaxPredictionsTimeForDbSecs() * Time.MS_PER_SEC)) {
                     // Store the prediction into db
                     Prediction dbPrediction = new Prediction(prediction);
 

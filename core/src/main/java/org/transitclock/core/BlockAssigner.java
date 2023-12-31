@@ -1,9 +1,7 @@
 /* (C)2023 */
 package org.transitclock.core;
 
-import java.util.Collection;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.transitclock.applications.Core;
 import org.transitclock.db.structs.AvlReport;
 import org.transitclock.db.structs.Block;
@@ -11,19 +9,18 @@ import org.transitclock.db.structs.Trip;
 import org.transitclock.gtfs.DbConfig;
 import org.transitclock.utils.Time;
 
+import java.util.Collection;
+
 /**
  * Singleton class that handles block assignments from AVL feed.
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class BlockAssigner {
 
     // Singleton class
-    private static BlockAssigner singleton = new BlockAssigner();
-
-    private static final Logger logger = LoggerFactory.getLogger(BlockAssigner.class);
-
-    /********************** Member Functions **************************/
+    private static final BlockAssigner singleton = new BlockAssigner();
 
     /** Constructor private since singleton class */
     private BlockAssigner() {}
@@ -33,7 +30,7 @@ public class BlockAssigner {
      *
      * @return
      */
-    public static BlockAssigner getInstance() {
+    public static synchronized BlockAssigner getInstance() {
         return singleton;
     }
 

@@ -116,11 +116,8 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
             if (lastVehicleDepartureByHoldingTime != null) {
                 logger.debug("Found waiting vehicle with holding time: {}", lastVehicleDepartureByHoldingTime);
                 if (predictions.size() > 1) {
-                    Long N[] = null;
-
                     int counter = 0;
-
-                    N = predictionsToLongArray(predictions);
+                    Long[] N = predictionsToLongArray(predictions);
 
                     for (int i = 0;
                             i < predictions.size() && counter < maxPredictionsForHoldingTimeCalculation.getValue();
@@ -464,8 +461,10 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
         return events;
     }
 
-    private static Long calculateHoldingTime(
-            Long current_vehicle_arrival_time, Long last_vehicle_departure_time, Long N[], int max_predictions) {
+    static Long calculateHoldingTime(Long current_vehicle_arrival_time,
+                                             Long last_vehicle_departure_time,
+                                             Long[] N,
+                                             int max_predictions) {
         long max_value = -1;
 
         for (int i = 0; i < N.length && i < max_predictions; i++) {
@@ -803,7 +802,7 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
         if (predictions != null) {
             int i = 0;
             for (IpcPrediction prediction : predictions) {
-                list[i] = new Long(prediction.getPredictionTime());
+                list[i] = prediction.getPredictionTime();
                 i++;
             }
         }
@@ -814,7 +813,7 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
 
         if (predictions != null) {
             for (IpcPrediction prediction : predictions) {
-                list.add(new Long(prediction.getPredictionTime()));
+                list.add(prediction.getPredictionTime());
             }
         }
         Collections.sort(list);
@@ -831,52 +830,6 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
             }
         }
         return false;
-    }
-
-    public static void main(String[] args) {
-        {
-            Long N[] = {new Long(11), new Long(18), new Long(28)};
-
-            Long result = calculateHoldingTime(5L, 0L, N, maxPredictionsForHoldingTimeCalculation.getValue());
-
-            System.out.println("Holding time: " + result);
-        }
-        {
-            Long N[] = {9L, 21L, 26L};
-
-            Long result = calculateHoldingTime(5L, 0L, N, maxPredictionsForHoldingTimeCalculation.getValue());
-
-            System.out.println("Holding time: " + result);
-        }
-        {
-            Long N[] = {10L};
-
-            Long result = calculateHoldingTime(4L, 0L, N, maxPredictionsForHoldingTimeCalculation.getValue());
-
-            System.out.println("Holding time: " + result);
-        }
-
-        {
-            Long N[] = {12L, 18L, 25L};
-
-            Long result = calculateHoldingTime(7L, 0L, N, maxPredictionsForHoldingTimeCalculation.getValue());
-
-            System.out.println("Holding time: " + result);
-        }
-        {
-            Long N[] = {10L, 14L, 19L};
-
-            Long result = calculateHoldingTime(3L, 0L, N, maxPredictionsForHoldingTimeCalculation.getValue());
-
-            System.out.println("Holding time: " + result);
-        }
-        {
-            Long N[] = {13L, 20L, 28L};
-
-            Long result = calculateHoldingTime(4L, 0L, N, maxPredictionsForHoldingTimeCalculation.getValue());
-
-            System.out.println("Holding time: " + result);
-        }
     }
 
     @Override

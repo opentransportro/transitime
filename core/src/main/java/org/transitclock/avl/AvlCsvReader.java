@@ -13,7 +13,6 @@ import org.transitclock.utils.csv.CsvBaseReader;
  */
 public class AvlCsvReader extends CsvBaseReader<AvlReport> {
 
-    /********************** Member Functions **************************/
     public AvlCsvReader(String fileName) {
         super(fileName);
     }

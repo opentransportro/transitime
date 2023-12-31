@@ -35,9 +35,8 @@ public class DwellTimeDetails {
         if (this.arrival != null && this.departure != null && arrival.isArrival() && departure.isDeparture()) {
 
             if (sanityCheck()) {
-                long dwellTime = this.departure.getTime().getTime()
+                return this.departure.getTime().getTime()
                         - this.arrival.getTime().getTime();
-                return dwellTime;
             } else {
                 logger.warn("Outside bounds : {} ", this);
             }

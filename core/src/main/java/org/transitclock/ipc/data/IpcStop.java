@@ -29,9 +29,6 @@ public class IpcStop implements Serializable {
         this.stopPathLength = stopPathLength;
     }
 
-    private static final long serialVersionUID = 8964112532327897125L;
-
-    /********************** Member Functions **************************/
     public IpcStop(Stop dbStop, boolean aUiStop, String directionId, Double stopPathLength) {
         this.id = dbStop.getId();
         this.name = dbStop.getName();

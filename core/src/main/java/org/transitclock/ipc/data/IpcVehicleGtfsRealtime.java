@@ -50,9 +50,6 @@ public class IpcVehicleGtfsRealtime extends IpcVehicle {
     // For GTFS-rt to set scheduled relationship
     private final boolean isTripUnscheduled;
 
-    private static final long serialVersionUID = -6611046660260490100L;
-
-    /********************** Member Functions **************************/
 
     /**
      * The constructor used on the server side

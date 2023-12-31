@@ -19,9 +19,6 @@ public class IpcVehicleConfig implements Serializable {
     private final Boolean nonPassengerVehicle;
     private final String name;
 
-    private static final long serialVersionUID = 4172266751162647909L;
-
-    /********************** Member Functions **************************/
     public IpcVehicleConfig(VehicleConfig vc) {
         this.id = vc.getId();
         this.type = vc.getType();

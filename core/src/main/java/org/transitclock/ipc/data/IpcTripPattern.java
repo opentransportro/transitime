@@ -25,9 +25,6 @@ public class IpcTripPattern implements Serializable {
     private final String shapeId;
     private final List<IpcStopPath> stopPaths;
 
-    private static final long serialVersionUID = 5631162916487757340L;
-
-    /********************** Member Functions **************************/
     public IpcTripPattern(TripPattern dbTripPattern) {
         this.configRev = dbTripPattern.getConfigRev();
         this.id = dbTripPattern.getId();

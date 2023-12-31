@@ -1,15 +1,15 @@
 /* (C)2023 */
 package org.transitclock.avl;
 
-import java.io.InputStream;
-import java.util.Collection;
-import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.transitclock.Module;
 import org.transitclock.config.StringConfigValue;
 import org.transitclock.db.structs.AvlReport;
 import org.transitclock.feed.gtfsRt.GtfsRtVehiclePositionsReader;
+
+import java.io.InputStream;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * For reading in feed of GTFS-realtime AVL data. Is used for both realtime feeds and for when
@@ -17,14 +17,13 @@ import org.transitclock.feed.gtfsRt.GtfsRtVehiclePositionsReader;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class GtfsRealtimeModule extends PollUrlAvlModule {
 
     // If debugging feed and want to not actually process
     // AVL reports to generate predictions and such then
     // set shouldProcessAvl to false;
     protected static boolean shouldProcessAvl = true;
-
-    private static final Logger logger = LoggerFactory.getLogger(GtfsRealtimeModule.class);
 
     /*********** Configurable Parameters for this module ***********/
     public static String getGtfsRealtimeURI() {
@@ -36,11 +35,6 @@ public class GtfsRealtimeModule extends PollUrlAvlModule {
             "file:///C:/Users/Mike/gtfsRealtimeData",
             "The URI of the GTFS-realtime feed to use.");
 
-    /********************** Member Functions **************************/
-
-    /**
-     * @param projectId
-     */
     public GtfsRealtimeModule(String projectId) {
         super(projectId);
         // GTFS-realtime is already binary so don't want to get compressed

@@ -38,9 +38,6 @@ public class IpcSchedule implements Serializable {
     // Additional members that are transient and not to be serialized
     private final List<Trip> trips;
 
-    private static final long serialVersionUID = 1037940637843537012L;
-
-    /********************** Member Functions **************************/
 
     /** Constructor made private because need to use createSchedules() to construct the objects. */
     private IpcSchedule() {

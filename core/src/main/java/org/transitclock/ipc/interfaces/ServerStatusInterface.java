@@ -19,7 +19,7 @@ public interface ServerStatusInterface extends Remote {
      * @return
      * @throws RemoteException
      */
-    public IpcServerStatus get() throws RemoteException;
+    IpcServerStatus get() throws RemoteException;
 
     /**
      * Monitors the agency server for problems. If there is a problem then a message indicating such
@@ -28,7 +28,7 @@ public interface ServerStatusInterface extends Remote {
      * @return Error message if there is one, otherwise null
      * @throws RemoteException
      */
-    public String monitor() throws RemoteException;
+    String monitor() throws RemoteException;
 
     /**
      * Gets current server time.
@@ -36,5 +36,5 @@ public interface ServerStatusInterface extends Remote {
      * @return
      * @throws RemoteException
      */
-    public Date getCurrentServerTime() throws RemoteException;
+    Date getCurrentServerTime() throws RemoteException;
 }

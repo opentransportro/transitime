@@ -17,5 +17,5 @@ public interface HeadwayGenerator {
      *
      * @param vehicleState
      */
-    public Headway generate(VehicleState vehicleState);
+    Headway generate(VehicleState vehicleState);
 }

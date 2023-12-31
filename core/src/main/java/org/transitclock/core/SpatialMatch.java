@@ -296,15 +296,16 @@ public class SpatialMatch {
         StopPath stopPathWithScheduleTime = null;
         int stopPathIndex = 0;
         for (int i = getStopPathIndex(); i < stopPaths.size(); ++i) {
-            StopPath stopPath = stopPaths.get(i);
             ScheduleTime scheduleTime = getTrip().getScheduleTime(i);
-            if (scheduleTime.getTime() != null) {
-                stopPathWithScheduleTime = stopPath;
+            if (scheduleTime != null  && scheduleTime.getTime() != null) {
+                stopPathWithScheduleTime = stopPaths.get(i);
                 stopPathIndex = i;
                 break;
             }
         }
-        if (stopPathWithScheduleTime == null) return null;
+        if (stopPathWithScheduleTime == null) {
+            return null;
+        }
 
         // Determine the appropriate match to use for the upcoming stop where
         // there is a schedule time.
@@ -314,11 +315,9 @@ public class SpatialMatch {
         int segmentIndex = stopPath.getNumberSegments() - 1;
         Vector segmentVector = stopPath.getSegmentVector(segmentIndex);
         double distanceAlongSegment = segmentVector.length();
-        SpatialMatch matchAtStopWithScheduleTime =
-                new SpatialMatch(this, indicesAtStopWithScheduleTime, distanceAlongSegment);
 
         // Return the spatial match at the next stop with a schedule time
-        return matchAtStopWithScheduleTime;
+        return new SpatialMatch(this, indicesAtStopWithScheduleTime, distanceAlongSegment);
     }
 
     /**
@@ -785,8 +784,7 @@ public class SpatialMatch {
      */
     public Vector getSegmentVector() {
         int segmentIndex = block.numSegments(tripIndex, stopPathIndex) - 1;
-        Vector segmentVector = block.getSegmentVector(tripIndex, stopPathIndex, segmentIndex);
-        return segmentVector;
+        return block.getSegmentVector(tripIndex, stopPathIndex, segmentIndex);
     }
 
     /**
@@ -860,16 +858,14 @@ public class SpatialMatch {
      * @return VehicleAtStopInfo if vehicle at stop at beginning of stop path. Otherwise null.
      */
     public VehicleAtStopInfo getAtBeginningStop() {
-        if (atStop == null) return null;
-
         // At a stop so see if it is the end of path stop
-        if (atStop.getStopPathIndex() == stopPathIndex) {
+        if (atStop == null || atStop.getStopPathIndex() == stopPathIndex) {
             // At end of path stop so return null
             return null;
-        } else {
-            // At beginning stop so return it
-            return atStop;
         }
+
+        // At beginning stop so return it
+        return atStop;
     }
 
     /**

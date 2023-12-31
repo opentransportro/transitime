@@ -1,26 +1,13 @@
 /* (C)2023 */
 package org.transitclock.core.autoAssigner;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.transitclock.applications.Core;
 import org.transitclock.config.BooleanConfigValue;
 import org.transitclock.config.DoubleConfigValue;
 import org.transitclock.config.IntegerConfigValue;
 import org.transitclock.configData.CoreConfig;
-import org.transitclock.core.BlocksInfo;
-import org.transitclock.core.SpatialMatch;
-import org.transitclock.core.SpatialMatcher;
-import org.transitclock.core.TemporalDifference;
-import org.transitclock.core.TemporalMatch;
-import org.transitclock.core.TemporalMatcher;
-import org.transitclock.core.TravelTimes;
-import org.transitclock.core.VehicleState;
+import org.transitclock.core.*;
 import org.transitclock.core.dataCache.VehicleDataCache;
 import org.transitclock.core.dataCache.VehicleStateManager;
 import org.transitclock.db.structs.AvlReport;
@@ -28,6 +15,8 @@ import org.transitclock.db.structs.Block;
 import org.transitclock.db.structs.Trip;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.Time;
+
+import java.util.*;
 
 /**
  * For automatically assigning a vehicle to an available block by determining both spatial and
@@ -44,6 +33,7 @@ import org.transitclock.utils.Time;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class AutoBlockAssigner {
 
     // The vehicle state is repeatedly used so it is a member so it doesn't
@@ -53,7 +43,7 @@ public class AutoBlockAssigner {
     // Contains the results of spatial matching the avl report to the
     // specified trip pattern. Keyed on trip pattern ID. Note: since the spatial
     // matches are cached and reused the block member will not be correct
-    private Map<String, SpatialMatch> spatialMatchCache = new HashMap<String, SpatialMatch>();
+    private Map<String, SpatialMatch> spatialMatchCache = new HashMap<>();
 
     /****************************** Config params **********************/
     private static BooleanConfigValue autoAssignerEnabled = new BooleanConfigValue(
@@ -105,9 +95,6 @@ public class AutoBlockAssigner {
     // For keeping track of last time vehicle auto assigned so that can limit
     // how frequently it is done. Keyed on vehicleId
     private static HashMap<String, Long> timeVehicleLastAutoAssigned = new HashMap<String, Long>();
-
-    /*********************** Logging **********************************/
-    private static final Logger logger = LoggerFactory.getLogger(AutoBlockAssigner.class);
 
     /**
      * Constructor
@@ -251,11 +238,11 @@ public class AutoBlockAssigner {
         }
 
         // Return the best temporal match if an adequate one was found
-        if (bestSpatialMatch == null) return null;
-        else {
-            TemporalMatch bestTemporalMatch = new TemporalMatch(bestSpatialMatch, bestTemporalDifference);
-            return bestTemporalMatch;
+        if (bestSpatialMatch == null) {
+            return null;
         }
+
+        return new TemporalMatch(bestSpatialMatch, bestTemporalDifference);
     }
 
     /**
@@ -273,7 +260,7 @@ public class AutoBlockAssigner {
         String vehicleId = avlReport.getVehicleId();
 
         // For returning results of this method
-        List<SpatialMatch> spatialMatches = new ArrayList<SpatialMatch>();
+        List<SpatialMatch> spatialMatches = new ArrayList<>();
 
         // Determine which trips are currently active so that don't bother
         // looking at all trips
@@ -281,7 +268,7 @@ public class AutoBlockAssigner {
 
         // Determine trips that need to look at for spatial matches because
         // haven't looked at the associated trip pattern yet.
-        List<Trip> tripsNeedToInvestigate = new ArrayList<Trip>();
+        List<Trip> tripsNeedToInvestigate = new ArrayList<>();
 
         // Go through the activeTrips and determine which ones actually need
         // to be investigated. If the associated trip pattern was already
@@ -422,9 +409,7 @@ public class AutoBlockAssigner {
         List<Trip> activeTrips = block.getTripsCurrentlyActive(avlReport);
 
         // Get and return the spatial matches
-        List<SpatialMatch> spatialMatches =
-                SpatialMatcher.getSpatialMatchesForAutoAssigning(avlReport, block, activeTrips);
-        return spatialMatches;
+        return SpatialMatcher.getSpatialMatchesForAutoAssigning(avlReport, block, activeTrips);
     }
 
     /**

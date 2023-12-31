@@ -65,9 +65,6 @@ public class IpcPrediction implements Serializable {
     private final Integer delay;
     private boolean isCanceled;
 
-    public boolean isCanceled() {
-        return isCanceled;
-    }
 
     private final long freqStartTime;
     private final int tripCounter;
@@ -75,14 +72,11 @@ public class IpcPrediction implements Serializable {
     // when creating PredictionsForRouteStop object.
     private final Trip trip;
 
-    private static final long serialVersionUID = 7264507678733060173L;
 
     public enum ArrivalOrDeparture {
         ARRIVAL,
         DEPARTURE
-    };
-
-    /********************** Member Functions **************************/
+    }
 
     /**
      * Constructs a Prediction object. For use on server side.
@@ -222,6 +216,9 @@ public class IpcPrediction implements Serializable {
         this.isCanceled = isCanceled;
     }
 
+    public boolean isCanceled() {
+        return isCanceled;
+    }
     /**
      * SerializationProxy is used so that this class can be immutable and so that can do versioning
      * of objects.
@@ -256,7 +253,6 @@ public class IpcPrediction implements Serializable {
         private Integer delay;
         private boolean isCanceled;
 
-        private static final long serialVersionUID = -8585283691951746719L;
         private static final short currentSerializationVersion = 0;
 
         /*

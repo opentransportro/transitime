@@ -22,10 +22,6 @@ public class IpcSchedTrip implements Serializable {
     private final String tripHeadsign;
     private final List<IpcSchedTime> scheduleTimes;
 
-    private static final long serialVersionUID = 4410014384520957092L;
-
-    /********************** Member Functions **************************/
-
     /**
      * Constructor. Goes through the complete ordered list of stops for the direction and creates
      * the corresponding IpcSchedTime objects for each one, even if there is no scheduled time for

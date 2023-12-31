@@ -22,14 +22,12 @@ public class BlocksInfo {
 
     private static IntegerConfigValue blockactiveForTimeBeforeSecs = new IntegerConfigValue(
             "transitclock.core.blockactiveForTimeBeforeSecs",
-            new Integer(0),
+            0,
             "Now many seconds before the start of a block it will be considered active.");
     private static IntegerConfigValue blockactiveForTimeAfterSecs = new IntegerConfigValue(
             "transitclock.core.blockactiveForTimeAfterSecs",
-            new Integer(-1),
+            -1,
             "Now many seconds after the end of a block it will be considered active.");
-
-    /********************** Member Functions **************************/
 
     /**
      * Looks at all blocks that are for the current service ID and returns list of ones that will
@@ -41,7 +39,7 @@ public class BlocksInfo {
      */
     public static List<Block> getBlocksAboutToStart(int beforeStartTimeSecs) {
         // The list to be returned
-        List<Block> aboutToStartBlocks = new ArrayList<Block>(1000);
+        List<Block> aboutToStartBlocks = new ArrayList<>(1000);
 
         Core core = Core.getInstance();
         if (core == null) return aboutToStartBlocks;
@@ -104,10 +102,9 @@ public class BlocksInfo {
         if (core == null) return activeBlocks;
 
         // Determine which service IDs are currently active
-        Set<String> serviceIds = new HashSet<String>();
         long now = core.getSystemTime();
         List<String> currentServiceIds = core.getServiceUtils().getServiceIdsForDay(now);
-        serviceIds.addAll(currentServiceIds);
+        Set<String> serviceIds = new HashSet<>(currentServiceIds);
 
         // If current time is just a couple of hours after midnight then need
         // to also look at service IDs for previous day as well since a block

@@ -34,9 +34,6 @@ public class IpcTrip implements Serializable {
     private final List<IpcSchedTimes> scheduleTimes;
     private final TravelTimesForTrip travelTimes;
 
-    private static final long serialVersionUID = 6369021345710182247L;
-
-    /********************** Member Functions **************************/
     public IpcTrip(Trip dbTrip) {
         configRev = dbTrip.getConfigRev();
         id = dbTrip.getId();

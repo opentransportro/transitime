@@ -13,13 +13,10 @@ import org.transitclock.db.structs.Route;
  */
 public class IpcDirectionsForRoute implements Serializable {
 
-    private List<IpcDirection> directions;
+    private final List<IpcDirection> directions;
 
-    private static final long serialVersionUID = -3112277760645758349L;
-
-    /********************** Member Functions **************************/
     public IpcDirectionsForRoute(Route dbRoute) {
-        directions = new ArrayList<IpcDirection>();
+        directions = new ArrayList<>();
 
         // Determine the directions
         List<String> directionIds = dbRoute.getDirectionIds();

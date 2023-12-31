@@ -29,9 +29,6 @@ public class IpcRoute extends IpcRouteSummary {
     private Collection<IpcShape> shapes;
     private Location locationOfNextPredictedVehicle;
 
-    private static final long serialVersionUID = -227901807027962547L;
-
-    /********************** Member Functions **************************/
 
     /**
      * Create an IpcRoute that contains all stops and paths but separates out information for the

@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
+
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.config.BooleanConfigValue;
@@ -25,6 +27,7 @@ import org.transitclock.utils.Time;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class DataFetcher {
 
     private static boolean pageDbReads() {
@@ -55,10 +58,6 @@ public class DataFetcher {
     private java.util.Calendar calendar = null;
 
     //	private List<Integer> specialDaysOfWeek = null;
-
-    private static final Logger logger = LoggerFactory.getLogger(DataFetcher.class);
-
-    /********************** Member Functions **************************/
 
     /**
      * Sets up needed calendar information if separating out data for special days of the week, such

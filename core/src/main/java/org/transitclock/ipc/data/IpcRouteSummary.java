@@ -22,10 +22,6 @@ public class IpcRouteSummary implements Serializable {
     protected final String color;
     protected final String textColor;
 
-    private static final long serialVersionUID = -3670639103802632389L;
-
-    /********************** Member Functions **************************/
-
     /**
      * Constructs a new RouteSummary object using a Route object from the database. Used by the
      * server to create an object to be transmitted via RMI.

@@ -69,9 +69,6 @@ public class IpcVehicle implements Serializable {
     private final double predictedLatitude;
     private final double predictedLongitude;
 
-    private static final long serialVersionUID = -1744566765456572041L;
-
-    /********************** Member Functions **************************/
 
     /**
      * Constructs a new Vehicle object from data in a VehicleState object.

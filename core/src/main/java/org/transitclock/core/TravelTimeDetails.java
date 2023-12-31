@@ -10,8 +10,8 @@ import org.transitclock.ipc.data.IpcArrivalDeparture;
 import org.transitclock.utils.Time;
 
 public class TravelTimeDetails {
-    private IpcArrivalDeparture departure;
-    private IpcArrivalDeparture arrival;
+    private final IpcArrivalDeparture departure;
+    private final IpcArrivalDeparture arrival;
 
     private static final IntegerConfigValue maxTravelTime = new IntegerConfigValue(
             "transitclock.core.maxTravelTime",
@@ -34,9 +34,8 @@ public class TravelTimeDetails {
     public long getTravelTime() {
         if (this.arrival != null && this.departure != null && arrival.isArrival() && departure.isDeparture()) {
             if (sanityCheck()) {
-                long travelTime = this.arrival.getTime().getTime()
+                return this.arrival.getTime().getTime()
                         - this.getDeparture().getTime().getTime();
-                return travelTime;
             } else {
                 logger.warn("Outside bounds : {} ", this);
             }
