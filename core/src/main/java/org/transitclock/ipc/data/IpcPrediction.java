@@ -6,10 +6,10 @@ import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.Date;
+
 import org.transitclock.applications.Core;
 import org.transitclock.db.structs.AvlReport;
 import org.transitclock.db.structs.Trip;
-import org.transitclock.ipc.data.IpcPrediction.ArrivalOrDeparture;
 import org.transitclock.utils.StringUtils;
 import org.transitclock.utils.Time;
 
@@ -603,7 +603,8 @@ public class IpcPrediction implements Serializable {
      * @return
      */
     public String getRouteShortName() {
-        if (trip == null) return null;
+        if (trip == null)
+            return null;
         return trip.getRouteShortName();
     }
 

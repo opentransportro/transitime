@@ -1,16 +1,16 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.*;
-import javax.persistence.*;
+
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
-import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
 import org.transitclock.applications.Core;
@@ -112,17 +112,6 @@ public class Route implements Serializable {
     @EqualsAndHashCode.Exclude
     private Map<String, Map<String, List<Integer>>> stopOrderByDirectionMap = null;
 
-    /********************** Member Functions **************************/
-
-    /**
-     * Constructor. Used for when processing GTFS data. Creates a Route object that can be written
-     * to database.
-     *
-     * @param configRev
-     * @param gtfsRoute
-     * @param tripPatternsForRoute
-     * @param titleFormatter
-     */
     public Route(
             int configRev, GtfsRoute gtfsRoute, List<TripPattern> tripPatternsForRoute, TitleFormatter titleFormatter) {
         // Because will be writing data to the sandbox in the db
@@ -214,9 +203,9 @@ public class Route implements Serializable {
      */
     public static int deleteFromRev(Session session, int configRev) throws HibernateException {
         // Note that hql uses class name, not the table name
-        String hql = "DELETE Route WHERE configRev=" + configRev;
-        int numUpdates = session.createQuery(hql).executeUpdate();
-        return numUpdates;
+        return session.createQuery("DELETE Route WHERE configRev=:configRev")
+                .setParameter("configRev", configRev)
+                .executeUpdate();
     }
 
     // For dealing with route order
@@ -280,10 +269,9 @@ public class Route implements Serializable {
     @SuppressWarnings("unchecked")
     public static List<Route> getRoutes(Session session, int configRev) throws HibernateException {
         // Get list of routes from database
-        String hql = "FROM Route " + "    WHERE configRev = :configRev" + "    ORDER BY routeOrder, shortName";
-        Query query = session.createQuery(hql);
-        query.setInteger("configRev", configRev);
-        List<Route> routesList = query.list();
+        List<Route> routesList = session.createQuery("FROM Route WHERE configRev = :configRev ORDER BY routeOrder, shortName")
+                .setParameter("configRev", configRev)
+                .list();
 
         // Need to set the route order for each route so that can sort
         // predictions based on distance from stop and route order. For
@@ -309,11 +297,11 @@ public class Route implements Serializable {
         // each TripPattern.toString() result is pretty long (list of stops,
         // extent, etc). Therefore for tripPatternsForRoute just output
         // a short version of the object.
-        String tripPatternIds = "not set";
+        StringBuilder tripPatternIds = new StringBuilder("not set");
         if (tripPatternsForRoute != null) {
-            tripPatternIds = "[";
-            for (TripPattern tp : tripPatternsForRoute) tripPatternIds += tp.toShortString() + ", ";
-            tripPatternIds += "]";
+            tripPatternIds = new StringBuilder("[");
+            for (TripPattern tp : tripPatternsForRoute) tripPatternIds.append(tp.toShortString()).append(", ");
+            tripPatternIds.append("]");
         }
 
         return "Route ["
@@ -363,12 +351,11 @@ public class Route implements Serializable {
         // is transient it is not stored in the db and therefore not
         // available to this client application. But it can be obtained
         // from the DbConfig.
-        List<TripPattern> tripPatternsForRoute =
-                Core.getInstance().getDbConfig().getTripPatternsForRoute(id);
+        List<TripPattern> tripPatternsForRoute = Core.getInstance().getDbConfig().getTripPatternsForRoute(id);
 
         // Stop list not yet determined so determine it now using
         // trip patterns.
-        Map<String, Stop> stopMap = new HashMap<String, Stop>();
+        Map<String, Stop> stopMap = new HashMap<>();
         for (TripPattern tripPattern : tripPatternsForRoute) {
             for (StopPath stopPath : tripPattern.getStopPaths()) {
                 String stopId = stopPath.getStopId();
@@ -416,8 +403,7 @@ public class Route implements Serializable {
         TripPattern longestTripPatternForDir = null;
         for (TripPattern tripPattern : tripPatternsForRoute) {
             if (Objects.equals(tripPattern.getDirectionId(), directionId)) {
-                if (longestTripPatternForDir == null
-                        || tripPattern.getNumberStopPaths() > longestTripPatternForDir.getNumberStopPaths())
+                if (longestTripPatternForDir == null || tripPattern.getNumberStopPaths() > longestTripPatternForDir.getNumberStopPaths())
                     longestTripPatternForDir = tripPattern;
             }
         }
@@ -432,7 +418,7 @@ public class Route implements Serializable {
      * @return
      */
     public List<TripPattern> getLongestTripPatternForEachDirection() {
-        List<TripPattern> tripPatterns = new ArrayList<TripPattern>();
+        List<TripPattern> tripPatterns = new ArrayList<>();
 
         List<String> directionIds = getDirectionIds();
         for (String directionId : directionIds) tripPatterns.add(getLongestTripPatternForDirection(directionId));
@@ -449,7 +435,7 @@ public class Route implements Serializable {
     public List<TripPattern> getTripPatterns(String directionId) {
         List<TripPattern> tripPatternsForRoute =
                 Core.getInstance().getDbConfig().getTripPatternsForRoute(getId());
-        List<TripPattern> tripPatternsForDir = new ArrayList<TripPattern>();
+        List<TripPattern> tripPatternsForDir = new ArrayList<>();
         for (TripPattern tripPattern : tripPatternsForRoute) {
             if (Objects.equals(tripPattern.getDirectionId(), directionId)) tripPatternsForDir.add(tripPattern);
         }
@@ -507,9 +493,7 @@ public class Route implements Serializable {
         // For each of the unique stop paths add the vectors to the collection
         stopPaths = new ArrayList<Vector>(stopPathMap.values().size());
         for (StopPath stopPath : stopPathMap.values()) {
-            for (Vector vector : stopPath.getSegmentVectors()) {
-                stopPaths.add(vector);
-            }
+            stopPaths.addAll(stopPath.getSegmentVectors());
         }
 
         // Return the newly created collection of stop paths
@@ -529,14 +513,14 @@ public class Route implements Serializable {
         if (orderedStopsPerDirectionMap != null) return orderedStopsPerDirectionMap;
 
         // Haven't yet determined ordered stops so do so now
-        orderedStopsPerDirectionMap = new HashMap<String, List<String>>();
+        orderedStopsPerDirectionMap = new HashMap<>();
 
         // For each direction
         for (String directionId : getDirectionIds()) {
             // Determine ordered collection of stops for direction
             OrderedCollection orderedCollection = new OrderedCollection();
             List<TripPattern> tripPatternsForDir = getTripPatterns(directionId);
-            List<List<String>> stopIdsForTripPatternList = new ArrayList<List<String>>();
+            List<List<String>> stopIdsForTripPatternList = new ArrayList<>();
             for (TripPattern tripPattern : tripPatternsForDir) {
                 List<String> stopIdsForTripPattern = tripPattern.getStopIds();
                 stopIdsForTripPatternList.add(stopIdsForTripPattern);
@@ -566,7 +550,7 @@ public class Route implements Serializable {
             // Create the submap for the direction ID. Map is keyed on stop Id
             // and contains list of stop order for the stop. Need a list since
             // a stop can be in a trip multiple times.
-            Map<String, List<Integer>> stopOrderMap = new HashMap<String, List<Integer>>();
+            Map<String, List<Integer>> stopOrderMap = new HashMap<>();
             stopOrderByDirectionMap.put(directionId, stopOrderMap);
 
             // Add each stop for the direction Id
@@ -576,11 +560,7 @@ public class Route implements Serializable {
                 String stopId = orderedStopsForDirectionList.get(stopOrder);
 
                 // Get list of stop orders for the stop Id
-                List<Integer> stopOrderListForStopId = stopOrderMap.get(stopId);
-                if (stopOrderListForStopId == null) {
-                    stopOrderListForStopId = new ArrayList<Integer>(1);
-                    stopOrderMap.put(stopId, stopOrderListForStopId);
-                }
+                List<Integer> stopOrderListForStopId = stopOrderMap.computeIfAbsent(stopId, k -> new ArrayList<Integer>(1));
 
                 // For the stopId add the stop order to its list of stop orders
                 stopOrderListForStopId.add(stopOrder);
@@ -670,17 +650,4 @@ public class Route implements Serializable {
         else return Double.NaN;
     }
 
-    /**
-     * Just for debugging
-     *
-     * @param args
-     */
-    public static void main(String args[]) {
-        System.out.println(StringUtils.paddedName("Y2"));
-        System.out.println(StringUtils.paddedName("Y101"));
-        System.out.println(StringUtils.paddedName("Y2xx"));
-        System.out.println(StringUtils.paddedName("123SKJFD"));
-        System.out.println(StringUtils.paddedName("123"));
-        System.out.println(StringUtils.paddedName("123.456"));
-    }
 }

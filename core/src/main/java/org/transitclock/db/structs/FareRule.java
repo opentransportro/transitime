@@ -1,17 +1,17 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
-import java.io.Serializable;
-import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.io.Serializable;
+import java.util.List;
+
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import org.hibernate.HibernateException;
-import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
 import org.transitclock.gtfs.gtfsStructs.GtfsFareRule;
@@ -99,8 +99,10 @@ public class FareRule implements Serializable {
      */
     public static int deleteFromRev(Session session, int configRev) throws HibernateException {
         // Note that hql uses class name, not the table name
-        String hql = "DELETE FareRule WHERE configRev=" + configRev;
-        return session.createQuery(hql).executeUpdate();
+        return session
+                .createQuery("DELETE FareRule WHERE configRev = :configRev")
+                .setParameter("configRev", configRev)
+                .executeUpdate();
     }
 
     /**
@@ -113,10 +115,9 @@ public class FareRule implements Serializable {
      */
     @SuppressWarnings("unchecked")
     public static List<FareRule> getFareRules(Session session, int configRev) throws HibernateException {
-        String hql = "FROM FareRule " + "    WHERE configRev = :configRev";
-        Query query = session.createQuery(hql);
-        query.setInteger("configRev", configRev);
-        return query.list();
+        return session.createQuery("FROM FareRule WHERE configRev = :configRev")
+                .setParameter("configRev", configRev)
+                .list();
     }
 
     /**

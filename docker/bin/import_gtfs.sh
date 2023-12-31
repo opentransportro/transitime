@@ -8,7 +8,7 @@ find /usr/local/transitclock/config/ -type f -exec sed -i s#"AGENCYNAME"#"$AGENC
 find /usr/local/transitclock/config/ -type f -exec sed -i s#"GTFSRTVEHICLEPOSITIONS"#"$GTFSRTVEHICLEPOSITIONS"#g {} \;
 
 
-java -Xmx4g -Dtransitclock.core.agencyId=$AGENCYID -Dtransitclock.configFiles=/usr/local/transitclock/config/transitclock.properties -Dtransitclock.logging.dir=/usr/local/transitclock/logs/GtfsFileProcessor -cp /usr/local/transitclock/Core.jar org.transitclock.applications.GtfsFileProcessor -gtfsUrl $GTFS_URL  -maxTravelTimeSegmentLength 600
+java -Xmx4g -Dtransitclock.core.agencyId=$AGENCYID -Dtransitclock.configFiles=/usr/local/transitclock/config/transitclock.properties -Dtransitclock.logging.dir=/usr/local/transitclock/logs/GtfsFileProcessor -cp /usr/local/transitclock/core.jar org.transitclock.applications.GtfsFileProcessor -gtfsUrl $GTFS_URL  -maxTravelTimeSegmentLength 600
 
 psql \
 	-h "$POSTGRES_PORT_5432_TCP_ADDR" \

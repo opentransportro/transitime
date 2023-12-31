@@ -1,14 +1,14 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
-import java.util.Date;
 import javax.persistence.*;
+import java.util.Date;
+
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.annotations.DynamicUpdate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.transitclock.db.hibernate.HibernateUtils;
 
 /**
@@ -18,6 +18,7 @@ import org.transitclock.db.hibernate.HibernateUtils;
  * @author Michael Smith (michael@transitclock.org)
  */
 @Entity
+@Slf4j
 @DynamicUpdate
 public class ConfigRevision {
 
@@ -37,16 +38,6 @@ public class ConfigRevision {
     private final String notes;
 
     // Logging
-    public static final Logger logger = LoggerFactory.getLogger(ConfigRevision.class);
-
-    /********************** Member Functions **************************/
-
-    /**
-     * @param configRev
-     * @param processedTime
-     * @param zipFileLastModifiedTime
-     * @param notes
-     */
     public ConfigRevision(int configRev, Date processedTime, Date zipFileLastModifiedTime, String notes) {
         this.configRev = configRev;
         this.processedTime = processedTime;
@@ -95,7 +86,6 @@ public class ConfigRevision {
         }
     }
 
-    /*********************** Getters *********************/
     public int getConfigRev() {
         return configRev;
     }

@@ -75,8 +75,9 @@ public class Transfer implements Serializable {
      */
     public static int deleteFromRev(Session session, int configRev) throws HibernateException {
         // Note that hql uses class name, not the table name
-        String hql = "DELETE Transfer WHERE configRev=" + configRev;
-        return session.createQuery(hql).executeUpdate();
+        return session.createQuery("DELETE Transfer WHERE configRev=:configRev")
+                .setParameter("configRev", configRev)
+                .executeUpdate();
     }
 
     /**
@@ -89,9 +90,8 @@ public class Transfer implements Serializable {
      */
     @SuppressWarnings("unchecked")
     public static List<Transfer> getTransfers(Session session, int configRev) throws HibernateException {
-        String hql = "FROM Transfer WHERE configRev = :configRev";
-        var query = session.createQuery(hql);
-        query.setParameter("configRev", configRev);
-        return query.list();
+        return session.createQuery("FROM Transfer WHERE configRev = :configRev")
+                .setParameter("configRev", configRev)
+                .list();
     }
 }

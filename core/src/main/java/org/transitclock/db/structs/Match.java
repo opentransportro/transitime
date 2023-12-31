@@ -1,22 +1,22 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
-import javax.persistence.*;
+
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.CallbackException;
 import org.hibernate.HibernateException;
-import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Immutable;
 import org.hibernate.classic.Lifecycle;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.hibernate.type.TimestampType;
 import org.transitclock.applications.Core;
 import org.transitclock.core.TemporalMatch;
 import org.transitclock.core.VehicleState;
@@ -36,6 +36,7 @@ import org.transitclock.utils.IntervalTimer;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 @Immutable
 @Entity
 @DynamicUpdate
@@ -105,15 +106,6 @@ public class Match implements Lifecycle, Serializable {
     @Column
     private final boolean atStop;
 
-    private static final Logger logger = LoggerFactory.getLogger(Match.class);
-
-    /********************** Member Functions **************************/
-
-    /**
-     * Simple constructor
-     *
-     * @param vehicleState
-     */
     public Match(VehicleState vehicleState) {
         this.vehicleId = vehicleState.getVehicleId();
         this.avlTime = vehicleState.getAvlReport().getDate();
@@ -183,13 +175,14 @@ public class Match implements Lifecycle, Serializable {
 
         // Create the query. Table name is case sensitive and needs to be the
         // class name instead of the name of the db table.
-        String hql = "FROM Match " + "    WHERE avlTime between :beginDate " + "      AND :endDate";
-        if (sqlClause != null) hql += " " + sqlClause;
-        Query query = session.createQuery(hql);
+        String hql = "FROM Match WHERE avlTime between :beginDate AND :endDate";
+        if (sqlClause != null)
+            hql += " " + sqlClause;
+        var query = session.createQuery(hql);
 
         // Set the parameters for the query
-        query.setTimestamp("beginDate", beginTime);
-        query.setTimestamp("endDate", endTime);
+        query.setParameter("beginDate", beginTime, TimestampType.INSTANCE);
+        query.setParameter("endDate", endTime, TimestampType.INSTANCE);
 
         if (firstResult != null) {
             // Only get a batch of data at a time
@@ -223,14 +216,14 @@ public class Match implements Lifecycle, Serializable {
 
         // Create the query. Table name is case sensitive and needs to be the
         // class name instead of the name of the db table.
-        String hql =
-                "Select count(*) FROM Match " + "    WHERE avlTime >= :beginDate " + "      AND avlTime < :endDate";
-        if (sqlClause != null) hql += " " + sqlClause;
-        Query query = session.createQuery(hql);
+        String hql = "select count(*) FROM Match WHERE avlTime >= :beginDate AND avlTime < :endDate";
+        if (sqlClause != null)
+            hql += " " + sqlClause;
+        var query = session.createQuery(hql);
 
         // Set the parameters for the query
-        query.setTimestamp("beginDate", beginTime);
-        query.setTimestamp("endDate", endTime);
+        query.setParameter("beginDate", beginTime, TimestampType.INSTANCE);
+        query.setParameter("endDate", endTime, TimestampType.INSTANCE);
 
         Long count = null;
 

@@ -1,16 +1,15 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
-import javax.persistence.*;
+
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Immutable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.transitclock.applications.Core;
 import org.transitclock.core.TemporalMatch;
 
@@ -121,9 +120,6 @@ public class PredictionEvent implements Serializable {
     public static final String PREDICTION_VARIATION = "Prediction variation";
     public static final String TRAVELTIME_EXCEPTION = "Travel time exception";
 
-    private static final Logger logger = LoggerFactory.getLogger(PredictionEvent.class);
-
-    /********************** Member Functions **************************/
     private PredictionEvent(
             Date time,
             Date avlTime,
@@ -201,9 +197,6 @@ public class PredictionEvent implements Serializable {
                 arrivalTime,
                 departureTime);
 
-        // Log predictionEvent in log file
-        logger.info(predictionEvent.toString());
-
         // Queue to write object to database
         Core.getInstance().getDbLogger().add(predictionEvent);
 
@@ -215,14 +208,6 @@ public class PredictionEvent implements Serializable {
      * A simpler way to create a VehicleEvent that gets a lot of its info from the avlReport and
      * match params. This also logs it and queues it to be stored in database. The match param can
      * be null.
-     *
-     * @param avlReport
-     * @param match
-     * @param eventType
-     * @param description
-     * @param predictable
-     * @param becameUnpredictable
-     * @param supervisor
      * @return The VehicleEvent constructed
      */
     public static PredictionEvent create(

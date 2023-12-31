@@ -90,11 +90,7 @@ public class DbQueue<T> {
         // actually stores the data
         NamedThreadFactory threadFactory = new NamedThreadFactory(getClass().getSimpleName());
         ExecutorService executor = Executors.newSingleThreadExecutor(threadFactory);
-        executor.execute(new Runnable() {
-            public void run() {
-                processData();
-            }
-        });
+        executor.execute(this::processData);
         ThroughputMonitor tm = new ThroughputMonitor();
         new Thread(tm).start();
     }
@@ -387,8 +383,7 @@ public class DbQueue<T> {
     public double queueLevel() {
         int remainingCapacity = queue.remainingCapacity();
         int totalCapacity = queue.size() + remainingCapacity;
-        double level = 1.0 - (double) remainingCapacity / totalCapacity;
-        return level;
+        return 1.0 - (double) remainingCapacity / totalCapacity;
     }
 
     /**
@@ -460,8 +455,7 @@ public class DbQueue<T> {
         //   GenericJDBCException    (obtained when committing transaction with db turned off)
         // So if exception is JDBCConnectionException or JDBCGenericException
         // then should keep retrying until successful.
-        boolean keepTryingTillSuccessfull = e instanceof JDBCConnectionException || e instanceof GenericJDBCException;
-        return keepTryingTillSuccessfull;
+        return e instanceof JDBCConnectionException || e instanceof GenericJDBCException;
     }
 
     /**
@@ -469,7 +463,7 @@ public class DbQueue<T> {
      * used when the batching encounters an exception. This way can still store all of the good data
      * from a batch.
      *
-     * @param o
+     * @param objectToBeStored
      */
     private void processSingleObject(Object objectToBeStored) {
         Session session = null;
@@ -485,18 +479,18 @@ public class DbQueue<T> {
     }
 
     private class ThroughputMonitor implements Runnable {
-        private long interval = 1l; // minutes
+        private static final long INTERVAL = 1l; // minutes
 
         @Override
         public void run() {
-            Time.sleep(interval * Time.MS_PER_MIN);
+            Time.sleep(INTERVAL * Time.MS_PER_MIN);
             while (!Thread.interrupted()) {
                 try {
                     processThroughput();
                 } catch (Throwable t) {
                     logger.error("monitor broke:{}", t, t);
                 }
-                Time.sleep(interval * Time.MS_PER_MIN);
+                Time.sleep(INTERVAL * Time.MS_PER_MIN);
             }
         }
 

@@ -21,11 +21,6 @@ import org.transitclock.applications.Core;
         name = "HoldingTimes",
         indexes = {@Index(name = "HoldingTimeIndex", columnList = "creationTime")})
 
-/**
- * For persisting a holding time recommendation.
- *
- * @author Sean Óg Crudden
- */
 public class HoldingTime implements Serializable {
 
     @Id
@@ -60,10 +55,6 @@ public class HoldingTime implements Serializable {
     @Column
     @Temporal(TemporalType.TIMESTAMP)
     private final Date arrivalTime;
-
-    public Date getArrivalTime() {
-        return arrivalTime;
-    }
 
     @Column
     private boolean arrivalPredictionUsed;

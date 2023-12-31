@@ -1,15 +1,15 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import javax.persistence.*;
+
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import org.hibernate.HibernateException;
-import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.annotations.DynamicUpdate;
@@ -143,16 +143,16 @@ public class TravelTimesForStopPath implements Serializable {
         AVL(4);
 
         @SuppressWarnings("unused")
-        private int value;
+        private final int value;
 
-        private HowSet(int value) {
+        HowSet(int value) {
             this.value = value;
         }
 
         public boolean isScheduleBased() {
             return this == SPEED || this == SCHED;
         }
-    };
+    }
 
     public TravelTimesForStopPath(
             int configRev,
@@ -312,25 +312,16 @@ public class TravelTimesForStopPath implements Serializable {
         // They are supposed to be lightweight so this should be OK.
         Session session = sessionFactory.openSession();
 
-        // Create the query. Table name is case sensitive!
-        String hql = "FROM TravelTimesForStopPath " + "    WHERE configRev=:configRev ";
-        Query query = session.createQuery(hql);
+        // Create the query. Table name is case-sensitive!
 
-        // Set the parameters
-        query.setInteger("configRev", configRev);
-
-        try {
-            @SuppressWarnings("unchecked")
-            List<TravelTimesForStopPath> travelTimes = query.list();
-            return travelTimes;
+        try (session) {
+            return (List<TravelTimesForStopPath>) session
+                    .createQuery("FROM TravelTimesForStopPath WHERE configRev=:configRev ")
+                    .setParameter("configRev", configRev)
+                    .list();
         } catch (HibernateException e) {
-            // Log error to the Core logger
             logger.error(e.getMessage(), e);
             return null;
-        } finally {
-            // Clean things up. Not sure if this absolutely needed nor if
-            // it might actually be detrimental and slow things down.
-            session.close();
         }
     }
 
@@ -341,7 +332,6 @@ public class TravelTimesForStopPath implements Serializable {
                 if (time < 0) return false;
             }
         }
-        if (stopTimeMsec < 0) return false;
-        return true;
+        return stopTimeMsec >= 0;
     }
 }

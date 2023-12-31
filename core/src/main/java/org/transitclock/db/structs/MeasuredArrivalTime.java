@@ -44,16 +44,6 @@ public class MeasuredArrivalTime implements Serializable {
     @Column(length = 60)
     private String headsign;
 
-    /**
-     * Constructor called when creating an MeasuredArrivalTime object to be stored in db.
-     *
-     * @param time
-     * @param stopId
-     * @param routeId
-     * @param routeShortName
-     * @param directionId
-     * @param headsign
-     */
     public MeasuredArrivalTime(
             Date time, String stopId, String routeId, String routeShortName, String directionId, String headsign) {
         this.time = time;

@@ -1,17 +1,17 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
-import java.io.Serializable;
-import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.io.Serializable;
+import java.util.List;
+
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import org.hibernate.HibernateException;
-import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
 import org.transitclock.gtfs.gtfsStructs.GtfsFrequency;
@@ -93,33 +93,16 @@ public class Frequency implements Serializable {
         exactTimes = false;
     }
 
-    /**
-     * Deletes rev from the Frequencies table
-     *
-     * @param session
-     * @param configRev
-     * @return Number of rows deleted
-     * @throws HibernateException
-     */
     public static int deleteFromRev(Session session, int configRev) throws HibernateException {
         // Note that hql uses class name, not the table name
-        String hql = "DELETE Frequency WHERE configRev=" + configRev;
-        return session.createQuery(hql).executeUpdate();
+        return session.createQuery("DELETE Frequency WHERE configRev= :configRev")
+                .setParameter("configRev", configRev)
+                .executeUpdate();
     }
 
-    /**
-     * Returns List of Frequency objects for the specified database revision.
-     *
-     * @param session
-     * @param configRev
-     * @return
-     * @throws HibernateException
-     */
-    @SuppressWarnings("unchecked")
     public static List<Frequency> getFrequencies(Session session, int configRev) throws HibernateException {
-        String hql = "FROM Frequency " + "    WHERE configRev = :configRev";
-        Query query = session.createQuery(hql);
-        query.setInteger("configRev", configRev);
-        return query.list();
+        return (List<Frequency>) session.createQuery("FROM Frequency WHERE configRev = :configRev")
+                .setParameter("configRev", configRev)
+                .list();
     }
 }

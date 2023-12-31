@@ -1,28 +1,27 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
+import javax.annotation.Nullable;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.annotation.Nullable;
-import javax.persistence.*;
+
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.CallbackException;
 import org.hibernate.HibernateException;
-import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.classic.Lifecycle;
 import org.hibernate.collection.internal.PersistentList;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.transitclock.applications.Core;
 import org.transitclock.gtfs.DbConfig;
 import org.transitclock.gtfs.TitleFormatter;
@@ -40,6 +39,7 @@ import org.transitclock.utils.Time;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 @Entity
 @Getter
 @Setter
@@ -141,16 +141,6 @@ public class Trip implements Lifecycle, Serializable {
     @Transient
     private Route route;
 
-    // Note: though trip_short_name and wheelchair_accessible are available
-    // as part of the GTFS spec and in a GtfsTrip object, they are not
-    // included here because currently don't understand how best to use them
-    // for RTPI. Route and shape can be determined from the TripPattern so don't
-    // need to be here.
-
-    // Hibernate requires class to be serializable because has composite Id
-    private static final long serialVersionUID = -23135771144135812L;
-
-    private static final Logger logger = LoggerFactory.getLogger(Trip.class);
 
     /**
      * Constructs Trip object from GTFS data.
@@ -418,15 +408,11 @@ public class Trip implements Lifecycle, Serializable {
     @SuppressWarnings("unchecked")
     public static Map<String, Trip> getTrips(Session session, int configRev) throws HibernateException {
         // Setup the query
-        String hql = "FROM Trip " + "    WHERE configRev = :configRev";
-        Query query = session.createQuery(hql);
-        query.setInteger("configRev", configRev);
+        List<Trip> tripsList = session.createQuery("FROM Trip WHERE configRev = :configRev")
+                .setParameter("configRev", configRev)
+                .list();
 
-        // Actually perform the query
-        List<Trip> tripsList = query.list();
-
-        // Now put the Trips into a map and return it
-        Map<String, Trip> tripsMap = new HashMap<String, Trip>();
+        Map<String, Trip> tripsMap = new HashMap<>();
         for (Trip trip : tripsList) {
             tripsMap.put(trip.getId(), trip);
         }
@@ -443,20 +429,11 @@ public class Trip implements Lifecycle, Serializable {
      * @throws HibernateException
      */
     public static Trip getTrip(Session session, int configRev, String tripId) throws HibernateException {
-        // Setup the query
-        String hql = "FROM Trip t "
-                + "   left join fetch t.scheduledTimesList "
-                + "   left join fetch t.travelTimes "
-                + "    WHERE t.configRev = :configRev"
-                + "      AND tripId = :tripId";
-        Query query = session.createQuery(hql);
-        query.setInteger("configRev", configRev);
-        query.setString("tripId", tripId);
-
-        // Actually perform the query
-        Trip trip = (Trip) query.uniqueResult();
-
-        return trip;
+        return (Trip) session
+                .createQuery("FROM Trip t LEFT JOIN fetch t.scheduledTimesList LEFT JOIN FETCH t.travelTimes WHERE t.configRev = :configRev AND t.tripId = :tripId")
+                .setParameter("configRev", configRev)
+                .setParameter("tripId", tripId)
+                .uniqueResult();
     }
 
     /**
@@ -472,21 +449,11 @@ public class Trip implements Lifecycle, Serializable {
      */
     public static List<Trip> getTripByShortName(Session session, int configRev, String tripShortName)
             throws HibernateException {
-        // Setup the query
-        String hql = "FROM Trip t "
-                + "   left join fetch t.scheduledTimesList "
-                + "   left join fetch t.travelTimes "
-                + "    WHERE t.configRev = :configRev"
-                + "      AND t.tripShortName = :tripShortName";
-        Query query = session.createQuery(hql);
-        query.setInteger("configRev", configRev);
-        query.setString("tripShortName", tripShortName);
-
-        // Actually perform the query
-        @SuppressWarnings("unchecked")
-        List<Trip> trips = query.list();
-
-        return trips;
+        return (List<Trip>) session
+                .createQuery("FROM Trip t left join fetch t.scheduledTimesList left join fetch t.travelTimes WHERE t.configRev = :configRev AND t.tripShortName = :tripShortName")
+                .setParameter("configRev", configRev)
+                .setParameter("tripShortName", tripShortName)
+                .list();
     }
 
     /**
@@ -498,10 +465,9 @@ public class Trip implements Lifecycle, Serializable {
      * @throws HibernateException
      */
     public static int deleteFromRev(Session session, int configRev) throws HibernateException {
-        int rowsUpdated = 0;
-        rowsUpdated += session.createSQLQuery("DELETE FROM Trips WHERE configRev=" + configRev)
+        return session.createQuery("DELETE FROM Trip WHERE configRev= :configRev")
+                .setParameter("configRev", configRev)
                 .executeUpdate();
-        return rowsUpdated;
     }
 
     /* (non-Javadoc)
@@ -874,21 +840,22 @@ public class Trip implements Lifecycle, Serializable {
      * @return
      */
     public static Long countTravelTimesForTrips(Session session, int travelTimesRev) {
-        String sql = "Select count(*) from TravelTimesForTrips where travelTimesRev=:rev";
-
-        Query query = session.createSQLQuery(sql);
-        query.setInteger("rev", travelTimesRev);
+        var result = session
+                .createQuery("select count(*) from TravelTimesForTrip where travelTimesRev=:rev")
+                .setParameter("rev", travelTimesRev)
+                .uniqueResult();
         Long count = null;
         try {
-
             Integer bcount;
-            if (query.uniqueResult() instanceof BigInteger) {
-                bcount = ((BigInteger) query.uniqueResult()).intValue();
+            if (result instanceof BigInteger) {
+                bcount = ((BigInteger) result).intValue();
             } else {
-                bcount = (Integer) query.uniqueResult();
+                bcount = (Integer) result;
             }
 
-            if (bcount != null) count = bcount.longValue();
+            if (bcount != null) {
+                count = bcount.longValue();
+            }
         } catch (HibernateException e) {
             Core.getLogger().error("exception querying for metrics", e);
         }

@@ -83,11 +83,21 @@ public class PredictionForStopPath implements Serializable {
         Session session = HibernateUtils.getSession();
         Criteria criteria = session.createCriteria(PredictionForStopPath.class);
 
-        if (algorithm != null && !algorithm.isEmpty()) criteria.add(Restrictions.eq("algorithm", algorithm));
-        if (tripId != null) criteria.add(Restrictions.eq("tripId", tripId));
-        if (stopPathIndex != null) criteria.add(Restrictions.eq("stopPathIndex", stopPathIndex));
-        if (beginTime != null) criteria.add(Restrictions.gt("creationTime", beginTime));
-        if (endTime != null) criteria.add(Restrictions.lt("creationTime", endTime));
+        if (algorithm != null && !algorithm.isEmpty()) {
+            criteria.add(Restrictions.eq("algorithm", algorithm));
+        }
+        if (tripId != null) {
+            criteria.add(Restrictions.eq("tripId", tripId));
+        }
+        if (stopPathIndex != null) {
+            criteria.add(Restrictions.eq("stopPathIndex", stopPathIndex));
+        }
+        if (beginTime != null) {
+            criteria.add(Restrictions.gt("creationTime", beginTime));
+        }
+        if (endTime != null) {
+            criteria.add(Restrictions.lt("creationTime", endTime));
+        }
 
         return (List<PredictionForStopPath>) criteria.list();
     }

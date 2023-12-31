@@ -1,17 +1,17 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
-import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.util.List;
+
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.HibernateException;
-import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
 
@@ -64,13 +64,6 @@ public class VehicleConfig {
     @Column
     private final Boolean nonPassengerVehicle;
 
-    /********************** Member Functions **************************/
-
-    /**
-     * Constructor for when new vehicle encountered and automatically adding it to the db.
-     *
-     * @param id vehicle ID
-     */
     public VehicleConfig(String id) {
         this.id = id;
         type = null;
@@ -121,9 +114,9 @@ public class VehicleConfig {
      */
     @SuppressWarnings("unchecked")
     public static List<VehicleConfig> getVehicleConfigs(Session session) throws HibernateException {
-        String hql = "FROM VehicleConfig";
-        Query query = session.createQuery(hql);
-        return query.list();
+        return session
+                .createQuery("FROM VehicleConfig")
+                .list();
     }
 
     /**

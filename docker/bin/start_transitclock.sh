@@ -15,7 +15,7 @@ export APIKEY="$(get_api_key.sh)"
 # make it so we can also access as a system property in the JSP
 export JAVA_OPTS="$JAVA_OPTS -Dtransitclock.apikey=$APIKEY -Dtransitclock.configFiles=/usr/local/transitclock/config/transitclock.properties"
 
-java -Xss12m -Xms16g -Xmx32g -Duser.timezone=Europe/Bucharest -Dtransitclock.configFiles=/usr/local/transitclock/config/transitclock.properties -Dtransitclock.core.agencyId=$AGENCYID -Dtransitclock.logging.dir=/usr/local/transitclock/logs/ -jar /usr/local/transitclock/Core.jar &
+java -Xss12m -Xms16g -Xmx32g -Duser.timezone=Europe/Bucharest -Dtransitclock.configFiles=/usr/local/transitclock/config/transitclock.properties -Dtransitclock.core.agencyId=$AGENCYID -Dtransitclock.logging.dir=/usr/local/transitclock/logs/ -jar /usr/local/transitclock/core.jar &
 
 /usr/local/tomcat/bin/startup.sh
 tail -f /dev/null

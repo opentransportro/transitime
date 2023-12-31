@@ -1,21 +1,21 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
-import javax.persistence.*;
+
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
-import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Immutable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.hibernate.type.TimestampType;
 import org.transitclock.applications.Core;
 import org.transitclock.core.TemporalMatch;
 import org.transitclock.db.hibernate.HibernateUtils;
@@ -30,6 +30,7 @@ import org.transitclock.utils.IntervalTimer;
  */
 @Immutable
 @Entity
+@Slf4j
 @DynamicUpdate
 @EqualsAndHashCode
 @ToString
@@ -39,6 +40,21 @@ import org.transitclock.utils.IntervalTimer;
         name = "VehicleEvents",
         indexes = {@Index(name = "VehicleEventsTimeIndex", columnList = "time")})
 public class VehicleEvent implements Serializable {
+
+    // Some standard event types
+    public static final String PREDICTABLE = "Predictable";
+    public static final String TIMEOUT = "Timeout";
+    public static final String NO_MATCH = "No match";
+    public static final String NO_PROGRESS = "No progress";
+    public static final String DELAYED = "Delayed";
+    public static final String END_OF_BLOCK = "End of block";
+    public static final String LEFT_TERMINAL_EARLY = "Left terminal early";
+    public static final String LEFT_TERMINAL_LATE = "Left terminal late";
+    public static final String NOT_LEAVING_TERMINAL = "Not leaving terminal";
+    public static final String ASSIGNMENT_GRABBED = "Assignment Grabbed";
+    public static final String ASSIGNMENT_CHANGED = "Assignment Changed";
+    public static final String AVL_CONFLICT = "AVL Conflict";
+    public static final String PREDICTION_VARIATION = "Prediction variation";
 
     // System time of the event.
     @Id
@@ -129,45 +145,7 @@ public class VehicleEvent implements Serializable {
     @Column(length = 60)
     private final String stopId;
 
-    // Some standard event types
-    public static final String PREDICTABLE = "Predictable";
-    public static final String TIMEOUT = "Timeout";
-    public static final String NO_MATCH = "No match";
-    public static final String NO_PROGRESS = "No progress";
-    public static final String DELAYED = "Delayed";
-    public static final String END_OF_BLOCK = "End of block";
-    public static final String LEFT_TERMINAL_EARLY = "Left terminal early";
-    public static final String LEFT_TERMINAL_LATE = "Left terminal late";
-    public static final String NOT_LEAVING_TERMINAL = "Not leaving terminal";
-    public static final String ASSIGNMENT_GRABBED = "Assignment Grabbed";
-    public static final String ASSIGNMENT_CHANGED = "Assignment Changed";
-    public static final String AVL_CONFLICT = "AVL Conflict";
-    public static final String PREDICTION_VARIATION = "Prediction variation";
 
-    private static final Logger logger = LoggerFactory.getLogger(VehicleEvent.class);
-
-    /********************** Member Functions **************************/
-
-    /**
-     * Simple constructor. Declared private because should be only accessed by the create() method
-     * so that can make sure that do things like log each creation of a VehicleEvent.
-     *
-     * @param time
-     * @param avlTime
-     * @param vehicleId
-     * @param eventType
-     * @param description
-     * @param predictable
-     * @param becameUnpredictable
-     * @param supervisor
-     * @param location
-     * @param routeId
-     * @param routeShortName
-     * @param blockId
-     * @param serviceId
-     * @param tripId
-     * @param stopId
-     */
     private VehicleEvent(
             Date time,
             Date avlTime,
@@ -204,26 +182,6 @@ public class VehicleEvent implements Serializable {
         this.stopId = stopId;
     }
 
-    /**
-     * Constructs a vehicle event and logs it and queues it to be stored in database.
-     *
-     * @param time
-     * @param avlTime
-     * @param vehicleId
-     * @param eventType
-     * @param description
-     * @param predictable
-     * @param becameUnpredictable
-     * @param supervisor
-     * @param location
-     * @param routeId
-     * @param routeShortName
-     * @param blockId
-     * @param serviceId
-     * @param tripId
-     * @param stopId
-     * @return The VehicleEvent constructed
-     */
     public static VehicleEvent create(
             Date time,
             Date avlTime,
@@ -257,9 +215,6 @@ public class VehicleEvent implements Serializable {
                 tripId,
                 stopId);
 
-        // Log VehicleEvent in log file
-        logger.info(vehicleEvent.toString());
-
         // Queue to write object to database
         Core.getInstance().getDbLogger().add(vehicleEvent);
 
@@ -272,13 +227,6 @@ public class VehicleEvent implements Serializable {
      * match params. This also logs it and queues it to be stored in database. The match param can
      * be null.
      *
-     * @param avlReport
-     * @param match
-     * @param eventType
-     * @param description
-     * @param predictable
-     * @param becameUnpredictable
-     * @param supervisor
      * @return The VehicleEvent constructed
      */
     public static VehicleEvent create(
@@ -361,13 +309,15 @@ public class VehicleEvent implements Serializable {
 
         // Create the query. Table name is case sensitive and needs to be the
         // class name instead of the name of the db table.
-        String hql = "FROM VehicleEvent " + "    WHERE time >= :beginDate " + "      AND time < :endDate";
-        if (sqlClause != null) hql += " " + sqlClause;
-        Query query = session.createQuery(hql);
+        String hql = "FROM VehicleEvent WHERE time >= :beginDate AND time < :endDate";
+        if (sqlClause != null) {
+            hql += " " + sqlClause;
+        }
+        var query = session.createQuery(hql);
 
         // Set the parameters
-        query.setTimestamp("beginDate", beginTime);
-        query.setTimestamp("endDate", endTime);
+        query.setParameter("beginDate", beginTime, TimestampType.INSTANCE);
+        query.setParameter("endDate", endTime, TimestampType.INSTANCE);
 
         try {
             @SuppressWarnings("unchecked")

@@ -27,9 +27,7 @@ import org.transitclock.configData.DbSetupConfig;
 public class HibernateUtils {
 
     // Cache. Keyed on database name
-    private static Map<String, SessionFactory> sessionFactoryCache = new HashMap<>();
-
-    /********************** Member Functions **************************/
+    private static final Map<String, SessionFactory> sessionFactoryCache = new HashMap<>();
 
     /**
      * Creates a new session factory. This is to be cached and only access internally since creating
@@ -66,10 +64,13 @@ public class HibernateUtils {
             // Couldn't find file directly so look in classpath for it
             ClassLoader classLoader = HibernateUtils.class.getClassLoader();
             URL url = classLoader.getResource(fileName);
-            if (url != null) f = new File(url.getFile());
+            if (url != null) {
+                f = new File(url.getFile());
+            }
         }
-        if (f.exists()) config.configure(f);
-        else {
+        if (f.exists()) {
+            config.configure(f);
+        } else {
             logger.error("Could not load in hibernate config file {}", fileName);
         }
 
@@ -124,10 +125,9 @@ public class HibernateUtils {
         Properties properties = config.getProperties();
         ServiceRegistry serviceRegistry =
                 new StandardServiceRegistryBuilder().applySettings(properties).build();
-        SessionFactory sessionFactory = config.buildSessionFactory(serviceRegistry);
 
         // Return the factory
-        return sessionFactory;
+        return config.buildSessionFactory(serviceRegistry);
     }
 
     /**
@@ -202,8 +202,7 @@ public class HibernateUtils {
 
     public static Session getSession(String agencyId, boolean readOnly) throws HibernateException {
         SessionFactory sessionFactory = HibernateUtils.getSessionFactory(agencyId, readOnly);
-        Session session = sessionFactory.openSession();
-        return session;
+        return sessionFactory.openSession();
     }
 
     /**

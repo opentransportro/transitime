@@ -1,14 +1,14 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
+import javax.persistence.*;
 import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
-import javax.persistence.*;
+
 import org.hibernate.HibernateException;
-import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
 import org.slf4j.Logger;
@@ -91,10 +91,9 @@ public class CalendarDate implements Serializable {
      * @throws HibernateException
      */
     public static int deleteFromRev(Session session, int configRev) throws HibernateException {
-        // Note that hql uses class name, not the table name
-        String hql = "DELETE CalendarDate WHERE configRev=" + configRev;
-        int numUpdates = session.createQuery(hql).executeUpdate();
-        return numUpdates;
+        return session.createQuery("DELETE CalendarDate WHERE configRev= :configRev")
+                .setParameter("configRev", configRev)
+                .executeUpdate();
     }
 
     /**
@@ -107,10 +106,9 @@ public class CalendarDate implements Serializable {
      */
     @SuppressWarnings("unchecked")
     public static List<CalendarDate> getCalendarDates(Session session, int configRev) throws HibernateException {
-        String hql = "FROM CalendarDate " + "    WHERE configRev = :configRev";
-        Query query = session.createQuery(hql);
-        query.setInteger("configRev", configRev);
-        return query.list();
+        return session.createQuery("FROM CalendarDate WHERE configRev = :configRev")
+                .setParameter("configRev", configRev)
+                .list();
     }
 
     /* (non-Javadoc)

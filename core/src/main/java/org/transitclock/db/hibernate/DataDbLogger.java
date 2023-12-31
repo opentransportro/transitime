@@ -3,11 +3,7 @@ package org.transitclock.db.hibernate;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.transitclock.configData.DbSetupConfig;
+
 import org.transitclock.db.structs.ArrivalDeparture;
 import org.transitclock.db.structs.AvlReport;
 import org.transitclock.db.structs.Match;

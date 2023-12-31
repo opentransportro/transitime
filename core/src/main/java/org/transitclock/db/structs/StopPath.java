@@ -1,17 +1,17 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import javax.persistence.*;
+
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.CallbackException;
 import org.hibernate.HibernateException;
-import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.classic.Lifecycle;
@@ -170,20 +170,11 @@ public class StopPath implements Serializable, Lifecycle {
         this.maxSpeed = null;
     }
 
-    /**
-     * Returns List of StopPath objects for the specified database revision.
-     *
-     * @param session
-     * @param configRev
-     * @return
-     * @throws HibernateException
-     */
     @SuppressWarnings("unchecked")
     public static List<StopPath> getPaths(Session session, int configRev) throws HibernateException {
-        String hql = "FROM StopPath " + "    WHERE configRev = :configRev";
-        Query query = session.createQuery(hql);
-        query.setInteger("configRev", configRev);
-        return query.list();
+        return session.createQuery("FROM StopPath WHERE configRev = :configRev")
+                .setParameter("configRev", configRev)
+                .list();
     }
 
     /**
@@ -204,7 +195,7 @@ public class StopPath implements Serializable, Lifecycle {
     }
 
     /**
-     * Returns the distance to travel along the path. Summation of all of the path segments.
+     * Returns the distance to travel along the path. Summation of all path segments.
      *
      * @return
      */
@@ -402,11 +393,6 @@ public class StopPath implements Serializable, Lifecycle {
     }
 
     /*
-     * (non-Javadoc)
-     *
-     * @see org.hibernate.classic.Lifecycle#onLoad(org.hibernate.Session,
-     * java.io.Serializable)
-     *
      * When the vector is read in from db this method is automatically called to
      * set the transient vector array. This way it is simpler to go through the
      * path segments to determine matches.
@@ -428,18 +414,12 @@ public class StopPath implements Serializable, Lifecycle {
         return location;
     }
 
-    /* (non-Javadoc)
-     * @see org.hibernate.classic.Lifecycle#onSave(org.hibernate.Session)
-     */
     @Override
     public boolean onSave(Session arg0) throws CallbackException {
         // Don't veto save
         return false;
     }
 
-    /* (non-Javadoc)
-     * @see org.hibernate.classic.Lifecycle#onUpdate(org.hibernate.Session)
-     */
     @Override
     public boolean onUpdate(Session arg0) throws CallbackException {
         // Don't veto update

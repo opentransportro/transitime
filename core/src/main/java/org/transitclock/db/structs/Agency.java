@@ -1,14 +1,15 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.List;
 import java.util.TimeZone;
-import javax.persistence.*;
+
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.ToString;
 import org.hibernate.HibernateException;
-import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
 import org.transitclock.db.hibernate.HibernateUtils;
@@ -28,6 +29,7 @@ import org.transitclock.utils.Time;
 @Table(name = "Agencies")
 public class Agency implements Serializable {
 
+    @Getter
     @Column
     @Id
     private final int configRev;
@@ -59,6 +61,7 @@ public class Agency implements Serializable {
     @Column
     private final String agencyFareUrl;
 
+    @Getter
     @Embedded
     private final Extent extent;
 
@@ -67,11 +70,6 @@ public class Agency implements Serializable {
 
     @Transient
     private Time time = null;
-
-    // Because Hibernate requires objects with composite Ids to be Serializable
-    private static final long serialVersionUID = -3381456129303325040L;
-
-    /********************** Member Functions **************************/
 
     /**
      * For creating object to be written to db.
@@ -135,9 +133,8 @@ public class Agency implements Serializable {
      */
     @SuppressWarnings("unchecked")
     public static List<Agency> getAgencies(Session session, int configRev) throws HibernateException {
-        String hql = "FROM Agency " + "    WHERE configRev = :configRev";
-        Query query = session.createQuery(hql);
-        query.setInteger("configRev", configRev);
+        var query = session.createQuery("FROM Agency WHERE configRev = :configRev");
+        query.setParameter("configRev", configRev);
         return query.list();
     }
 
@@ -150,11 +147,8 @@ public class Agency implements Serializable {
      */
     public static List<Agency> getAgencies(String agencyId, int configRev) {
         // Get the database session. This is supposed to be pretty light weight
-        Session session = HibernateUtils.getSession(agencyId);
-        try {
+        try (Session session = HibernateUtils.getSession(agencyId)) {
             return getAgencies(session, configRev);
-        } finally {
-            session.close();
         }
     }
 
@@ -178,7 +172,9 @@ public class Agency implements Serializable {
      * @return The TimeZone object for this agency
      */
     public TimeZone getTimeZone() {
-        if (timezone == null) timezone = TimeZone.getTimeZone(agencyTimezone);
+        if (timezone == null) {
+            timezone = TimeZone.getTimeZone(agencyTimezone);
+        }
         return timezone;
     }
 
@@ -189,17 +185,10 @@ public class Agency implements Serializable {
      * @return Time object
      */
     public Time getTime() {
-        if (time == null) time = new Time(agencyTimezone);
+        if (time == null) {
+            time = new Time(agencyTimezone);
+        }
         return time;
-    }
-
-    /************************** Getter Methods ******************************/
-
-    /**
-     * @return the configRev
-     */
-    public int getConfigRev() {
-        return configRev;
     }
 
     /**
@@ -256,10 +245,4 @@ public class Agency implements Serializable {
         return agencyFareUrl;
     }
 
-    /**
-     * @return The extent of all the stops for the agency
-     */
-    public Extent getExtent() {
-        return extent;
-    }
 }

@@ -32,7 +32,6 @@ public class ScheduleTime implements Serializable {
      */
     private final Integer departureTime;
 
-    /********************** Member Functions **************************/
     public ScheduleTime(Integer arrivalTime, Integer departureTime) {
         this.arrivalTime = arrivalTime;
         this.departureTime = departureTime;

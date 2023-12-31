@@ -124,26 +124,25 @@ public class TravelTimesForTrip implements Serializable {
         // This means that cannot use an INNER JOIN as part of the delete since the
         // syntax for inner joins is different for the two databases. Therefore need to
         // use the IN statement with a SELECT clause.
-        int rowsUpdated = session.createNativeQuery("DELETE  FROM TravelTimesForTrip_to_TravelTimesForPath_joinTable"
-                        + " WHERE TravelTimesForTrip_id IN   (SELECT id      FROM"
-                        + " TravelTimesForTrips     WHERE configRev="
-                        + configRev
-                        + "  )")
+        int rowsUpdated = session
+                .createNativeQuery("DELETE FROM TravelTimesForTrip_to_TravelTimesForPath_joinTable WHERE TravelTimesForTrip_id IN   (SELECT id FROM TravelTimesForTrips WHERE configRev=" + configRev +")")
                 .executeUpdate();
         logger.info(
-                "Deleted {} rows from " + "TravelTimesForTrip_to_TravelTimesForPath_joinTable for " + "configRev={}",
+                "Deleted {} rows from TravelTimesForTrip_to_TravelTimesForPath_joinTable for configRev={}",
                 rowsUpdated,
                 configRev);
         totalRowsUpdated += rowsUpdated;
 
         // Delete configRev data from TravelTimesForStopPaths
-        rowsUpdated = session.createNativeQuery("DELETE FROM TravelTimesForStopPaths WHERE configRev=" + configRev)
+        rowsUpdated = session
+                .createNativeQuery("DELETE FROM TravelTimesForStopPaths WHERE configRev=" + configRev)
                 .executeUpdate();
         logger.info("Deleted {} rows from TravelTimesForStopPaths for " + "configRev={}", rowsUpdated, configRev);
         totalRowsUpdated += rowsUpdated;
 
         // Delete configRev data from TravelTimesForTrips
-        rowsUpdated = session.createNativeQuery("DELETE FROM TravelTimesForTrips WHERE configRev=" + configRev)
+        rowsUpdated = session
+                .createNativeQuery("DELETE FROM TravelTimesForTrips WHERE configRev=" + configRev)
                 .executeUpdate();
         logger.info("Deleted {} rows from TravelTimesForTrips for configRev={}", rowsUpdated, configRev);
         totalRowsUpdated += rowsUpdated;
@@ -223,11 +222,13 @@ public class TravelTimesForTrip implements Serializable {
      * @return
      */
     private static String travelTimesToStringWithNewlines(List<TravelTimesForStopPath> travelTimesForStopPaths) {
-        String results = "";
+        StringBuilder results = new StringBuilder();
         for (TravelTimesForStopPath travelTimesForSP : travelTimesForStopPaths) {
-            results += "     " + travelTimesForSP.toStringEmphasizeTravelTimes() + "\n";
+            results.append("     ")
+                    .append(travelTimesForSP.toStringEmphasizeTravelTimes())
+                    .append("\n");
         }
-        return results;
+        return results.toString();
     }
 
     /**

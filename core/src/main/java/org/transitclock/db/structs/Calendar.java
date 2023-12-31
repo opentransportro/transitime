@@ -1,6 +1,7 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
+import javax.persistence.*;
 import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -9,12 +10,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.persistence.*;
+
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import org.hibernate.HibernateException;
-import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Immutable;
@@ -180,9 +180,8 @@ public class Calendar implements Serializable {
      */
     @SuppressWarnings("unchecked")
     public static List<Calendar> getCalendars(Session session, int configRev) throws HibernateException {
-        String hql = "FROM Calendar " + "    WHERE configRev = :configRev" + " ORDER BY serviceId";
-        Query query = session.createQuery(hql);
-        query.setInteger("configRev", configRev);
+        var query = session.createQuery("FROM Calendar WHERE configRev = :configRev ORDER BY serviceId");
+        query.setParameter("configRev", configRev);
         return query.list();
     }
 

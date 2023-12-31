@@ -122,33 +122,16 @@ public class Stop implements Serializable {
         hidden = false;
     }
 
-    /**
-     * Deletes rev from the Stops table
-     *
-     * @param session
-     * @param configRev
-     * @return Number of rows deleted
-     * @throws HibernateException
-     */
     public static int deleteFromRev(Session session, int configRev) throws HibernateException {
-        // Note that hql uses class name, not the table name
-        String hql = "DELETE Stop WHERE configRev=" + configRev;
-        return session.createQuery(hql).executeUpdate();
+        return session.createQuery("DELETE Stop WHERE configRev=:configRev")
+                .setParameter("configRev", configRev)
+                .executeUpdate();
     }
 
-    /**
-     * Returns List of Stop objects for the specified database revision.
-     *
-     * @param session
-     * @param configRev
-     * @return
-     * @throws HibernateException
-     */
     @SuppressWarnings("unchecked")
     public static List<Stop> getStops(Session session, int configRev) throws HibernateException {
-        String hql = "FROM Stop " + "    WHERE configRev = :configRev";
-        var query = session.createQuery(hql);
-        query.setParameter("configRev", configRev);
-        return query.list();
+        return session.createQuery("FROM Stop WHERE configRev = :configRev")
+                .setParameter("configRev", configRev)
+                .list();
     }
 }

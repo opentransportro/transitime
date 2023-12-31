@@ -15,9 +15,6 @@ public class DbTest {
 
     private static final Logger logger = LoggerFactory.getLogger(DbTest.class);
 
-    /**
-     * @param args
-     */
     public static void main(String[] args) {
         try {
             List<AvlReport> avlReports = AvlReport.getAvlReportsFromDb(
@@ -34,6 +31,4 @@ public class DbTest {
                     e);
         }
     }
-
-    /********************** Member Functions **************************/
 }
