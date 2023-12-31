@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
+
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.slf4j.Logger;
@@ -37,6 +39,7 @@ import org.transitclock.utils.Time;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class UpdateTravelTimes {
 
     // Read in configuration files. This should be done statically before
@@ -46,10 +49,6 @@ public class UpdateTravelTimes {
     static {
         ConfigFileReader.processConfig();
     }
-
-    private static final Logger logger = LoggerFactory.getLogger(UpdateTravelTimes.class);
-
-    /********************** Member Functions **************************/
 
     /**
      * For each trip it finds and sets the best travel times. Then the Trip objects can be stored in
@@ -253,7 +252,7 @@ public class UpdateTravelTimes {
      * @return
      */
     private static Map<String, Trip> readTripsFromDb(String agencyId, Session session) {
-        Map<String, Trip> tripMap = new HashMap<String, Trip>();
+        Map<String, Trip> tripMap;
         IntervalTimer timer = new IntervalTimer();
         try {
             ActiveRevisions activeRevisions = ActiveRevisions.get(session);
@@ -399,16 +398,5 @@ public class UpdateTravelTimes {
         // another thread still running. Not sure why. Probably has to do
         // with changes to how Core is constructed. For now simply exit.
         System.exit(0);
-
-        //		// this is just for debugging
-        //		Trip trip5889634 = tripMap.get("5889634");
-        //		Trip trip5889635 = tripMap.get("5889635");
-        //		trip5889634.setName(trip5889634.getName() + "foo");
-        //		trip5889635.setName(trip5889635.getName() + "foo");
-        //		List<Trip> tripList = new ArrayList<Trip>();
-        //		tripList.add(trip5889634);
-        //		tripList.add(trip5889635);
-        //		DbWriter.writeTrips(session, tripList);
-
     }
 }

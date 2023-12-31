@@ -223,8 +223,7 @@ public class HibernateUtils {
 
     public static Session getSession(boolean readOnly) {
         SessionFactory sessionFactory = HibernateUtils.getSessionFactory(DbSetupConfig.getDbName(), readOnly);
-        Session session = sessionFactory.openSession();
-        return session;
+        return sessionFactory.openSession();
     }
 
     /**

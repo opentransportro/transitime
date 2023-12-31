@@ -437,7 +437,7 @@ public class GtfsFileProcessor {
      */
     @SuppressWarnings("static-access")
     // Needed for using OptionBuilder
-    private static CommandLine processCommandLineOptions(String[] args) {
+    public static CommandLine processCommandLineOptions(String[] args) {
         // Specify the options
         Options options = new Options();
 
@@ -617,17 +617,6 @@ public class GtfsFileProcessor {
             processor.process();
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
-        }
-
-        // Found that when running on AWS that program never terminates,
-        // probably because still have db threads running. Therefore
-        // using exit() to definitely end the process.
-        String integrationTest = System.getProperty("transitclock.core.integrationTest");
-        if (integrationTest != null) {
-            logger.info("GTFS import complete for integration test");
-            System.setProperty("transitclock.core.gtfsImported", "true");
-        } else {
-            System.exit(0);
         }
     }
 }

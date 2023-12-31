@@ -39,7 +39,7 @@ public class DbQueue<T> {
     private static final int QUEUE_CAPACITY = 500000;
 
     // The queue that objects to be stored are placed in
-    private BlockingQueue<T> queue = new LinkedBlockingQueue<T>(QUEUE_CAPACITY);
+    private final BlockingQueue<T> queue = new LinkedBlockingQueue<T>(QUEUE_CAPACITY);
 
     // When running in playback mode where getting AVLReports from database
     // instead of from an AVL feed, then debugging and don't want to store
@@ -55,7 +55,7 @@ public class DbQueue<T> {
 
     // The queue capacity levels when an error message should be e-mailed out.
     // The max value should be 1.0.
-    private final double levels[] = {0.5, 0.8, 1.00};
+    private final double[] levels = {0.5, 0.8, 1.00};
 
     // For keeping track of index into levels, which level of capacity of
     // queue being used. When level changes then an e-mail is sent out warning
@@ -67,7 +67,7 @@ public class DbQueue<T> {
     private double maxQueueLevel = 0.0;
 
     // So can access projectId for logging messages
-    private String projectId;
+    private final String projectId;
 
     // The Session for writing data to db
     private SessionFactory sessionFactory;
@@ -75,9 +75,9 @@ public class DbQueue<T> {
     // collect some statistics on how the db is performing
     private long throughputCount = 0;
     private long throughputTimestamp = System.currentTimeMillis();
-    private String shortType;
+    private final Class<?> shortType;
 
-    public DbQueue(String projectId, boolean shouldStoreToDb, boolean shouldPauseToReduceQueue, String shortType) {
+    public DbQueue(String projectId, boolean shouldStoreToDb, boolean shouldPauseToReduceQueue, Class<?> shortType) {
         this.projectId = projectId;
         this.shouldStoreToDb = shouldStoreToDb;
         this.shouldPauseToReduceQueue = shouldPauseToReduceQueue;
@@ -150,9 +150,7 @@ public class DbQueue<T> {
         // thread for 10 seconds so that separate thread can clear out
         // queue a bit.
         if (shouldPauseToReduceQueue && level > 0.2) {
-            logger.info(
-                    "Pausing thread adding data to DataDbLogger queue "
-                            + "so that queue can be cleared out. Level={}%, type=",
+            logger.info("Pausing thread adding data to DataDbLogger queue so that queue can be cleared out. Level={}%, type={}",
                     level * 100.0, shortType);
             Time.sleep(10 * Time.MS_PER_SEC);
         }
@@ -225,7 +223,7 @@ public class DbQueue<T> {
         // then can try to write the objects one at a time to make sure that the
         // the good ones are written. This way don't lose any good data even if
         // an exception occurs while batching data.
-        List<Object> objectsForThisBatch = new ArrayList<Object>(DbSetupConfig.getBatchSize());
+        List<Object> objectsForThisBatch = new ArrayList<>(DbSetupConfig.getBatchSize());
 
         Transaction tx = null;
         Session session = null;
@@ -514,7 +512,7 @@ public class DbQueue<T> {
             throughputTimestamp = System.currentTimeMillis();
             double rate = throughput / delta;
             logger.info(
-                    "wrote {} {} messages in {}s, ({}/s) ", throughput, shortType, (long) delta / 1000, (long) rate);
+                    "wrote {} {} messages in {}s, ({}/s) ", throughput, shortType, delta / 1000, (long) rate);
         }
     }
 }

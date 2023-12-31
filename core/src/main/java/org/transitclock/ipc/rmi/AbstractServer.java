@@ -11,12 +11,13 @@ import java.text.MessageFormat;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.configData.AgencyConfig;
 import org.transitclock.utils.Timer;
 
 /**
- * This class does all of the work on the server side for an RMI object. A server side RMI object
+ * This class does all the work on the server side for an RMI object. A server side RMI object
  * should inherit/extend this class. The constructor automatically registers the RMI server object
  * with the registry. It also periodically rebinds the object every 30 seconds so that if the
  * rmiregistry gets restarted the RMI object will then automatically become available again. Sends
@@ -39,11 +40,16 @@ import org.transitclock.utils.Timer;
 @Slf4j
 public abstract class AbstractServer {
 
+    /**
+     *  Specifies if this object was successfully constructed and is ready for use.
+     */
+    @Getter
     protected boolean constructed = false;
 
     // Need to store this so can rebind
     private String bindName;
 
+    @Getter
     private final String agencyId;
 
     // Need to store this so can rebind
@@ -96,14 +102,13 @@ public abstract class AbstractServer {
             // First make sure that this object is a subclass of Remote
             // since this class is only intended to be a parent class
             // of Remote.
-            if (!(this instanceof Remote)) {
+            if (!(this instanceof Remote remoteThis)) {
                 logger.error(
                         "Class {} is not a subclass of Remote. Therefore " + "it cannot be used with {}",
                         this.getClass().getName(),
                         getClass().getSimpleName());
                 return;
             }
-            Remote remoteThis = (Remote) this;
 
             logger.info(
                     "Setting up AbstractServer for RMI using secondary " + "port={}", RmiParams.getSecondaryRmiPort());
@@ -139,11 +144,7 @@ public abstract class AbstractServer {
             // REBIND_RATE_SEC seconds.
             rebindTimer.scheduleAtFixedRate(
                     // Call rebind() using anonymous class
-                    new Runnable() {
-                        public void run() {
-                            rebind();
-                        }
-                    },
+                    this::rebind,
                     0,
                     REBIND_RATE_SEC,
                     TimeUnit.SECONDS);
@@ -199,7 +200,7 @@ public abstract class AbstractServer {
                 String hostname = null;
                 try {
                     hostname = InetAddress.getLocalHost().getHostName();
-                } catch (UnknownHostException e1) {
+                } catch (UnknownHostException ignored) {
                 }
                 logger.error(
                         "For agencyId={} problem with rmiregistry on host {} " + "has been resolved.",
@@ -230,15 +231,12 @@ public abstract class AbstractServer {
 
     /**
      * Returns appropriate error message for when rebind error occurs.
-     *
-     * @param e
-     * @return
      */
     private String rebindErrorMessage(Exception e) {
         String hostname = null;
         try {
             hostname = InetAddress.getLocalHost().getHostName();
-        } catch (UnknownHostException e1) {
+        } catch (UnknownHostException ignored) {
         }
 
         return MessageFormat.format("It appears that the rmiregistry is not running on host {0}. Make sure it is started immediately. Exception occurred when rebinding {1}: {2}", hostname, bindName, e.getMessage());
@@ -248,25 +246,9 @@ public abstract class AbstractServer {
      * The name that the server object is bound to needs both the classname to identify the object
      * but also the agencyId since multiple projects can be running on a machine that uses a single
      * RMI registry.
-     *
-     * @param agencyId
-     * @param className
-     * @return
      */
     public static String getBindName(String agencyId, String className) {
         return agencyId + "-" + className;
     }
 
-    public String getAgencyId() {
-        return agencyId;
-    }
-
-    /**
-     * Specifies if this object was successfully constructed and is ready for use.
-     *
-     * @return
-     */
-    public boolean isConstructed() {
-        return constructed;
-    }
 }

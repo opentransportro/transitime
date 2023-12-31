@@ -2,10 +2,10 @@
 package org.transitclock.applications;
 
 import java.io.PrintWriter;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
+import java.util.*;
+
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -16,7 +16,6 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.lang3.time.DateUtils;
 import org.hibernate.Session;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.transitclock.Module;
 import org.transitclock.config.ConfigFileReader;
 import org.transitclock.config.StringConfigValue;
@@ -56,9 +55,9 @@ import org.transitclock.utils.Time;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class Core {
-
-    private static Core singleton = null;
+    private static Core SINGLETON;
 
     // Contains the configuration data read from database
     private final DbConfig configData;
@@ -66,9 +65,16 @@ public class Core {
     // For logging data such as AVL reports and arrival times to database
     private final DataDbLogger dataDbLogger;
 
+    @Getter
     private final TimeoutHandlerModule timeoutHandlerModule;
 
     private final ServiceUtils service;
+
+    /**
+     *  For when want to use methods in Time. This is important when need methods that access a
+     *  Calendar a lot. By putting the Calendar in Time it can be shared.
+     */
+    @Getter
     private final Time time;
 
     // So that can access the current time, even when in playback mode
@@ -85,18 +91,15 @@ public class Core {
         ConfigFileReader.processConfig();
     }
 
-    private static StringConfigValue cacheReloadStartTimeStr = new StringConfigValue(
+    private static final StringConfigValue cacheReloadStartTimeStr = new StringConfigValue(
             "transitclock.core.cacheReloadStartTimeStr",
             "",
             "Date and time of when to start reading arrivaldepartures to inform caches.");
 
-    private static StringConfigValue cacheReloadEndTimeStr = new StringConfigValue(
+    private static final StringConfigValue cacheReloadEndTimeStr = new StringConfigValue(
             "transitclock.core.cacheReloadEndTimeStr",
             "",
             "Date and time of when to end reading arrivaldepartures to inform caches.");
-    private static final Logger logger = LoggerFactory.getLogger(Core.class);
-
-    /********************** Member Functions **************************/
 
     /**
      * Construct the Core object and read in the config data. This is private so that the
@@ -104,13 +107,12 @@ public class Core {
      *
      * @param agencyId
      */
-    public Core(String agencyId) {
+     private Core(String agencyId) {
         // Determine configuration rev to use. If one specified on command
         // line, use it. If not, then use revision stored in db.
         int configRev;
         if (configRevStr != null) {
             // Use config rev from command line
-
             configRev = Integer.parseInt(configRevStr);
         } else {
             // Read in config rev from ActiveRevisions table in db
@@ -119,11 +121,8 @@ public class Core {
             // If config rev not set properly then simply log error.
             // Originally would also exit() but found that want system to
             // work even without GTFS configuration so that can test AVL feed.
-            if (!activeRevisions.isValid()) {
-                logger.error(
-                        "ActiveRevisions in database is not valid. The "
-                                + "configuration revs must be set to proper values. {}",
-                        activeRevisions);
+            if (activeRevisions == null || !activeRevisions.isValid()) {
+                logger.error("ActiveRevisions in database is not valid. The configuration revs must be set to proper values. {}", activeRevisions);
             }
             configRev = activeRevisions.getConfigRev();
         }
@@ -161,10 +160,8 @@ public class Core {
         // This is strange since setting TimeZone.setDefault() is supposed
         // to work across all threads it appears that sometimes it wouldn't
         // work if Db logger started first.
-        dataDbLogger = DataDbLogger.getDataDbLogger(
-                agencyId, CoreConfig.storeDataInDatabase(), CoreConfig.pauseIfDbQueueFilling());
+        dataDbLogger = DataDbLogger.getDataDbLogger(agencyId, CoreConfig.storeDataInDatabase(), CoreConfig.pauseIfDbQueueFilling());
 
-        // Start mandatory modules
         timeoutHandlerModule = new TimeoutHandlerModule(AgencyConfig.getAgencyId());
         timeoutHandlerModule.start();
 
@@ -183,25 +180,23 @@ public class Core {
      *
      * @return The Core singleton, or null if could not create it
      */
-    public static synchronized Core createCore() {
+    public static synchronized void createCore() {
         String agencyId = AgencyConfig.getAgencyId();
 
         // If agencyId not set then can't create a Core. This can happen
         // when doing testing.
         if (agencyId == null) {
             logger.error("No agencyId specified for when creating Core.");
-            return null;
+            return;
         }
 
         // Make sure only can have a single Core object
-        if (Core.singleton != null) {
+        if (SINGLETON != null) {
             logger.error("Core singleton already created. Cannot create another one.");
-            return null;
+            return;
         }
 
-        Core core = new Core(agencyId);
-        Core.singleton = core;
-        return core;
+        SINGLETON = new Core(agencyId);
     }
 
     /**
@@ -211,9 +206,10 @@ public class Core {
      * @returns the Core singleton object for this application, or null if it could not be created
      */
     public static synchronized Core getInstance() {
-        if (Core.singleton == null) createCore();
-
-        return singleton;
+        if (SINGLETON == null) {
+            createCore();
+        }
+        return SINGLETON;
     }
 
     /**
@@ -223,7 +219,7 @@ public class Core {
      * @return true if core application
      */
     public static boolean isCoreApplication() {
-        return Core.singleton != null;
+        return SINGLETON != null;
     }
 
     /**
@@ -237,21 +233,9 @@ public class Core {
 
     /**
      * Returns the ServiceUtils object that can be reused for efficiency.
-     *
-     * @return
      */
     public ServiceUtils getServiceUtils() {
         return service;
-    }
-
-    /**
-     * For when want to use methods in Time. This is important when need methods that access a
-     * Calendar a lot. By putting the Calendar in Time it can be shared.
-     *
-     * @return
-     */
-    public Time getTime() {
-        return time;
     }
 
     /**
@@ -278,8 +262,6 @@ public class Core {
 
     /**
      * For setting the system time when in playback or batch mode.
-     *
-     * @param systemTime
      */
     public void setSystemTime(long systemEpochTime) {
         this.systemTime = new SettableSystemTime(systemEpochTime);
@@ -296,32 +278,12 @@ public class Core {
     }
 
     /**
-     * This method logs status of the logger system to the console. Could be useful for seeing if
-     * there are problems with the logger config file.
-     */
-    private static void outputLoggerStatus() {
-        // For debugging output current state of logger
-        // Commented out for now because not truly useful
-        //	    LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
-        //	    StatusPrinter.print(lc);
-    }
-
-    /**
      * Returns the DataDbLogger for logging data to db.
      *
      * @return
      */
     public DataDbLogger getDbLogger() {
         return dataDbLogger;
-    }
-
-    /**
-     * Returns the timeout handler module
-     *
-     * @return
-     */
-    public TimeoutHandlerModule getTimeoutHandlerModule() {
-        return timeoutHandlerModule;
     }
 
     /**
@@ -374,11 +336,8 @@ public class Core {
     /**
      * Start the RMI Servers so that clients can obtain data on predictions, vehicles locations,
      * etc.
-     *
-     * @param agencyId
      */
     public static void startRmiServers(String agencyId) {
-        // Start up all of the RMI servers
         PredictionsServer.start(agencyId, PredictionDataCache.getInstance());
         VehiclesServer.start(agencyId, VehicleDataCache.getInstance());
         ConfigServer.start(agencyId);
@@ -394,8 +353,7 @@ public class Core {
 
         Date endDate = Calendar.getInstance().getTime();
 
-        if (cacheReloadStartTimeStr.getValue().length() > 0
-                && cacheReloadEndTimeStr.getValue().length() > 0) {
+        if (!cacheReloadStartTimeStr.getValue().isEmpty() && !cacheReloadEndTimeStr.getValue().isEmpty()) {
             if (TripDataHistoryCacheFactory.getInstance() != null) {
                 logger.debug(
                         "Populating TripDataHistoryCache cache for period {} to {}",
@@ -494,17 +452,12 @@ public class Core {
         }
     }
 
-    /**
-     * The main program that runs the entire Transitime application.!
-     *
-     * @param args
-     */
     public static void main(String[] args) {
         try {
             try {
                 processCommandLineOptions(args);
             } catch (ParseException e1) {
-                e1.printStackTrace();
+                logger.error("Something happened while processing command line options", e1);
                 System.exit(-1);
             }
 
@@ -512,14 +465,6 @@ public class Core {
             // or restart this application
             PidFile.createPidFile(CoreConfig.getPidFileDirectory() + AgencyConfig.getAgencyId() + ".pid");
 
-            // For making sure logger configured properly
-            outputLoggerStatus();
-
-            Session session = HibernateUtils.getSession();
-
-            Date endDate = Calendar.getInstance().getTime();
-
-            // populate caches to be used by prediction methods.
             try {
                 populateCaches();
             } catch (Exception e) {
@@ -527,21 +472,13 @@ public class Core {
             }
 
             // Close cache if shutting down.
-            Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-                public void run() {
-                    try {
-                        System.out.println("Calling shutdown hook.");
-                        logger.info("Closing cache.");
-                        System.out.println("Closing cache...");
-                        CacheManagerFactory.getInstance().close();
-                        logger.info("Cache closed.");
-                        System.out.println("Cache closed.");
-                    } catch (Exception e) {
-                        System.out.println("Cache close failed.");
-                        e.printStackTrace();
-                        logger.error("Cache close failed...");
-                        logger.error(e.getMessage(), e);
-                    }
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                try {
+                    logger.info("Closing cache.");
+                    CacheManagerFactory.getInstance().close();
+                    logger.info("Cache closed.");
+                } catch (Exception e) {
+                    logger.error("Cache close failed...", e);
                 }
             }));
 
@@ -550,22 +487,22 @@ public class Core {
 
             // Start any optional modules.
             List<String> optionalModuleNames = CoreConfig.getOptionalModules();
-            if (optionalModuleNames.size() > 0)
-                logger.info("Starting up optional modules specified via "
-                        + "transitclock.modules.optionalModulesList param:");
-            else logger.info("No optional modules to start up.");
-            for (String moduleName : optionalModuleNames) {
-                logger.info("Starting up optional module " + moduleName);
-                Module.start(moduleName);
+            if (optionalModuleNames.isEmpty()) {
+                logger.info("No optional modules to start up.");
+            } else {
+                for (String moduleName : optionalModuleNames) {
+                    logger.info("Starting up optional module " + moduleName);
+                    Module.start(moduleName);
+                }
             }
 
             // Start the RMI Servers so that clients can obtain data
             // on predictions, vehicles locations, etc.
             String agencyId = AgencyConfig.getAgencyId();
-            startRmiServers(agencyId);
+            Optional.ofNullable(agencyId)
+                    .ifPresent(Core::startRmiServers);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
-            e.printStackTrace();
         }
     }
 }
