@@ -35,12 +35,12 @@ import org.transitclock.utils.StringUtils;
 @Slf4j
 public class Route implements Serializable {
 
-    @Column
     @Id
+    @Column
     private final int configRev;
 
-    @Column(length = 60)
     @Id
+    @Column(length = 60)
     private final String id;
 
     @Column(length = 10)
@@ -65,15 +65,15 @@ public class Route implements Serializable {
     private final String description;
 
     // Directly from GTFS data
-    @Column(length = 255)
+    @Column
     private final String shortName;
 
     // Directly from GTFS data
-    @Column(length = 255)
+    @Column
     private final String longName;
 
     // Processed name combing the GTFS route_short_name and route_long_name
-    @Column(length = 255)
+    @Column
     private final String name;
 
     @Embedded
@@ -84,9 +84,9 @@ public class Route implements Serializable {
     @Column
     private final Double maxDistance;
 
-    @Transient // Later will probably want to store this in database,
+    // Later will probably want to store this in database,
     // but not yet sure. This means it is not available to application!
-    @EqualsAndHashCode.Exclude
+    @Transient
     private final List<TripPattern> tripPatternsForRoute;
 
     // For getStops()
