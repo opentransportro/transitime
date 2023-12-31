@@ -27,5 +27,5 @@ public enum BlockAssignmentMethod {
     ASSIGNMENT_GRABBED,
 
     // Vehicle could not be matched to the assignment
-    COULD_NOT_MATCH;
+    COULD_NOT_MATCH
 }

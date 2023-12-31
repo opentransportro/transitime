@@ -14,7 +14,7 @@ import org.transitclock.utils.ClassInstantiator;
 public class HeadwayGeneratorFactory {
 
     // The name of the class to instantiate
-    private static StringConfigValue className = new StringConfigValue(
+    private static final StringConfigValue className = new StringConfigValue(
             "transitclock.core.headwayGeneratorClass",
             "org.transitclock.core.HeadwayGeneratorDefaultImpl",
             "Specifies the name of the class used for generating " + "headway data.");

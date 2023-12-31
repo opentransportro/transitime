@@ -1,7 +1,6 @@
 /* (C)2023 */
 package org.transitclock.configData;
 
-import org.transitclock.config.BooleanConfigValue;
 import org.transitclock.config.DoubleConfigValue;
 import org.transitclock.config.FloatConfigValue;
 import org.transitclock.config.IntegerConfigValue;
@@ -23,7 +22,7 @@ public class AvlConfig {
         return secondsBetweenAvlFeedPolling.getValue();
     }
 
-    private static IntegerConfigValue secondsBetweenAvlFeedPolling = new IntegerConfigValue(
+    private static final IntegerConfigValue secondsBetweenAvlFeedPolling = new IntegerConfigValue(
             "transitclock.avl.feedPollingRateSecs", 5, "How frequently an AVL feed should be polled for new data.");
 
     /**
@@ -35,7 +34,7 @@ public class AvlConfig {
         return avlFeedTimeoutInMSecs.getValue();
     }
 
-    private static IntegerConfigValue avlFeedTimeoutInMSecs = new IntegerConfigValue(
+    private static final IntegerConfigValue avlFeedTimeoutInMSecs = new IntegerConfigValue(
             "transitclock.avl.feedTimeoutInMSecs",
             10000,
             "For when polling AVL XML feed. The feed logs error if "
@@ -51,7 +50,7 @@ public class AvlConfig {
         return maxAvlSpeed.getValue();
     }
 
-    private static DoubleConfigValue maxAvlSpeed = new DoubleConfigValue(
+    private static final DoubleConfigValue maxAvlSpeed = new DoubleConfigValue(
             "transitclock.avl.maxSpeed",
             31.3, // 31.3m/s = 70mph
             "Max speed between AVL reports for a vehicle. If this "
@@ -80,7 +79,7 @@ public class AvlConfig {
         return maxStopPathsAhead.getValue();
     }
 
-    private static IntegerConfigValue maxStopPathsAhead =
+    private static final IntegerConfigValue maxStopPathsAhead =
             new IntegerConfigValue("transitclock.avl.maxStopPathsAhead", 999, "Max stopPaths ahead to look for match.");
 
     /**
@@ -92,7 +91,7 @@ public class AvlConfig {
         return minSpeedForValidHeading.getValue();
     }
 
-    private static DoubleConfigValue minSpeedForValidHeading = new DoubleConfigValue(
+    private static final DoubleConfigValue minSpeedForValidHeading = new DoubleConfigValue(
             "transitclock.avl.minSpeedForValidHeading",
             1.5, // 1.5m/s = .34mph
             "If AVL report speed is below this threshold then the " + "heading is not considered valid.");
@@ -112,7 +111,7 @@ public class AvlConfig {
         return minAvlLatitude.getID();
     }
 
-    private static FloatConfigValue minAvlLatitude = new FloatConfigValue(
+    private static final FloatConfigValue minAvlLatitude = new FloatConfigValue(
             "transitclock.avl.minLatitude",
             15.0f,
             "For filtering out bad AVL reports. The default values "
@@ -129,7 +128,7 @@ public class AvlConfig {
         return maxAvlLatitude.getID();
     }
 
-    private static FloatConfigValue maxAvlLatitude = new FloatConfigValue(
+    private static final FloatConfigValue maxAvlLatitude = new FloatConfigValue(
             "transitclock.avl.maxLatitude",
             55.0f,
             "For filtering out bad AVL reports. The default values "
@@ -146,7 +145,7 @@ public class AvlConfig {
         return minAvlLongitude.getID();
     }
 
-    private static FloatConfigValue minAvlLongitude = new FloatConfigValue(
+    private static final FloatConfigValue minAvlLongitude = new FloatConfigValue(
             "transitclock.avl.minLongitude",
             -135.0f,
             "For filtering out bad AVL reports. The default values "
@@ -163,7 +162,7 @@ public class AvlConfig {
         return maxAvlLongitude.getID();
     }
 
-    private static FloatConfigValue maxAvlLongitude = new FloatConfigValue(
+    private static final FloatConfigValue maxAvlLongitude = new FloatConfigValue(
             "transitclock.avl.maxLongitude",
             -60.0f,
             "For filtering out bad AVL reports. The default values "
@@ -182,7 +181,7 @@ public class AvlConfig {
         return unpredictableAssignmentsRegEx.getValue();
     }
 
-    private static StringConfigValue unpredictableAssignmentsRegEx = new StringConfigValue(
+    private static final StringConfigValue unpredictableAssignmentsRegEx = new StringConfigValue(
             "transitclock.avl.unpredictableAssignmentsRegEx",
             "", // default value
             "So can filter out unpredictable assignments such as for "
@@ -201,7 +200,7 @@ public class AvlConfig {
         return minTimeBetweenAvlReportsSecs.getValue();
     }
 
-    private static IntegerConfigValue minTimeBetweenAvlReportsSecs = new IntegerConfigValue(
+    private static final IntegerConfigValue minTimeBetweenAvlReportsSecs = new IntegerConfigValue(
             "transitclock.avl.minTimeBetweenAvlReportsSecs",
             5,
             "Minimum allowable time in seconds between AVL reports for "
@@ -210,18 +209,4 @@ public class AvlConfig {
                     + "filtered out and not processed. Important for when "
                     + "reporting rate is really high, such as every few "
                     + "seconds.");
-
-    /**
-     * For debugging. Logs each AVL report to stdout if set to true. Default is false.
-     *
-     * @return
-     */
-    public static boolean shouldLogToStdOut() {
-        return shouldLogToStdOut.getValue();
-    }
-
-    private static BooleanConfigValue shouldLogToStdOut = new BooleanConfigValue(
-            "transitclock.avl.shouldLogToStdOut",
-            false,
-            "For debugging. Logs each AVL report to stdout if set " + "to true. Default is false.");
 }

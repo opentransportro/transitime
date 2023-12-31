@@ -7,8 +7,6 @@ import java.util.List;
 import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.transitclock.Module;
 import org.transitclock.applications.Core;
 import org.transitclock.config.BooleanConfigValue;
@@ -67,7 +65,7 @@ public class SchedBasedPredsModule extends Module {
             60,
             "How many minutes before a block start time should create " + "a schedule based vehicle for that block.");
 
-    private static IntegerConfigValue afterStartTimeMinutes = new IntegerConfigValue(
+    private static final IntegerConfigValue afterStartTimeMinutes = new IntegerConfigValue(
             "transitclock.schedBasedPreds.afterStartTimeMinutes",
             8, // Can take a while to automatically assign a vehicle
             "If predictions created for a block based on the schedule "
@@ -83,7 +81,7 @@ public class SchedBasedPredsModule extends Module {
                     + "important when using the automatic assignment method "
                     + "because it can take a few minutes.");
 
-    // ADD IN ORDER TO MANAGE CACELLED TRIPS
+    // ADD IN ORDER TO MANAGE CANCELLED TRIPS
     private static final BooleanConfigValue cancelTripOnTimeout = new BooleanConfigValue(
             "transitclock.schedBasedPreds.cancelTripOnTimeout",
             true,
@@ -91,11 +89,6 @@ public class SchedBasedPredsModule extends Module {
                     + " after afterStartTimeMinutes. Instead it will change the state to"
                     + " cancelled.");
 
-    /**
-     * The constructor for the module. Called automatically if the module is configured.
-     *
-     * @param agencyId
-     */
     public SchedBasedPredsModule(String agencyId) {
         super(agencyId);
     }
@@ -188,7 +181,7 @@ public class SchedBasedPredsModule extends Module {
         // If block not active anymore then must have reached end of block then
         // should remove the schedule based vehicle
         if (!block.isActive(now, beforeStartTimeMinutes.getValue() * Time.SEC_PER_MIN)) {
-            String shouldTimeoutEventDescription = "Schedule based predictions to be "
+            return "Schedule based predictions to be "
                     + "removed for block "
                     + vehicleState.getBlock().getId()
                     + " because the block is no longer active."
@@ -196,7 +189,6 @@ public class SchedBasedPredsModule extends Module {
                     + Time.timeOfDayShortStr(block.getStartTime())
                     + " and block end time is "
                     + Time.timeOfDayShortStr(block.getEndTime());
-            return shouldTimeoutEventDescription;
         }
 
         // If block is active but it is beyond the allowable number of minutes past the
@@ -217,8 +209,9 @@ public class SchedBasedPredsModule extends Module {
                             + " while allowable time without an AVL report is "
                             + Time.elapsedTimeStr(maxNoAvl)
                             + ".";
-                    if (!cancelTripOnTimeout.getValue()) return shouldTimeoutEventDescription;
-                    else if (!vehicleState.isCanceled()
+                    if (!cancelTripOnTimeout.getValue()) {
+                        return shouldTimeoutEventDescription;
+                    } else if (!vehicleState.isCanceled()
                             && cancelTripOnTimeout.getValue()) // TODO: Check if it works on state changed
                     {
                         logger.info("Canceling trip...");

@@ -2,6 +2,7 @@
 package org.transitclock.core;
 
 import java.util.*;
+
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
 import org.transitclock.applications.Core;
@@ -9,7 +10,6 @@ import org.transitclock.config.BooleanConfigValue;
 import org.transitclock.config.DoubleConfigValue;
 import org.transitclock.config.IntegerConfigValue;
 import org.transitclock.configData.AgencyConfig;
-import org.transitclock.configData.AvlConfig;
 import org.transitclock.configData.CoreConfig;
 import org.transitclock.core.SpatialMatcher.MatchingType;
 import org.transitclock.core.autoAssigner.AutoBlockAssigner;
@@ -45,7 +45,7 @@ public class AvlProcessor {
         return terminalDistanceForRouteMatching.getValue();
     }
 
-    private static DoubleConfigValue terminalDistanceForRouteMatching = new DoubleConfigValue(
+    private static final DoubleConfigValue terminalDistanceForRouteMatching = new DoubleConfigValue(
             "transitclock.core.terminalDistanceForRouteMatching",
             100.0,
             "How far vehicle must be away from the terminal before doing "
@@ -53,7 +53,7 @@ public class AvlProcessor {
                     + "terminal don't know which trip it it should be matched to until "
                     + "vehicle has left the terminal.");
 
-    private static IntegerConfigValue allowableBadAssignments = new IntegerConfigValue(
+    private static final IntegerConfigValue allowableBadAssignments = new IntegerConfigValue(
             "transitclock.core.allowableBadAssignments",
             0,
             "If get a bad assignment, such as no assignment, but no "
@@ -73,7 +73,7 @@ public class AvlProcessor {
                     + "such e-mails. This property allows one to control those "
                     + "e-mails.");
 
-    private static DoubleConfigValue maxDistanceForAssignmentGrab = new DoubleConfigValue(
+    private static final DoubleConfigValue maxDistanceForAssignmentGrab = new DoubleConfigValue(
             "transitclock.core.maxDistanceForAssignmentGrab",
             10000.0,
             "For when another vehicles gets assignment and needs to "
@@ -81,12 +81,12 @@ public class AvlProcessor {
                     + "match to route within maxDistanceForAssignmentGrab in "
                     + "order to grab the assignment.");
 
-    private static DoubleConfigValue maxMatchDistanceFromAVLRecord = new DoubleConfigValue(
+    private static final DoubleConfigValue maxMatchDistanceFromAVLRecord = new DoubleConfigValue(
             "transitclock.core.maxMatchDistanceFromAVLRecord",
             500.0,
             "For logging distance between spatial match and actual AVL assignment ");
 
-    private static BooleanConfigValue ignoreInactiveBlocks = new BooleanConfigValue(
+    private static final BooleanConfigValue ignoreInactiveBlocks = new BooleanConfigValue(
             "transitclock.core.ignoreInactiveBlocks",
             true,
             "If the block isn't active at this time then ignore it. This way "
@@ -1489,17 +1489,6 @@ public class AvlProcessor {
         // here instead of using a regular timer so that it will work
         // even when in playback mode or when reading batch data.
         Core.getInstance().getTimeoutHandlerModule().storeAvlReport(avlReport);
-
-        // Logging to syserr just for debugging.
-        if (AvlConfig.shouldLogToStdOut()) {
-            System.err.println("Processing avlReport for vehicleId="
-                    + avlReport.getVehicleId()
-                    +
-                    // " AVL time=" + Time.timeStrMsec(avlReport.getTime()) +
-                    " "
-                    + avlReport
-                    + " ...");
-        }
 
         // Do the low level work of matching vehicle and then generating results
         lowLevelProcessAvlReport(avlReport, false);
