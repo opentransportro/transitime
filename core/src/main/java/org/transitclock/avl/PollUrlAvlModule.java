@@ -1,21 +1,9 @@
 /* (C)2023 */
 package org.transitclock.avl;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.SocketTimeoutException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.Collection;
-import java.util.zip.GZIPInputStream;
-
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
 import org.json.JSONException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.transitclock.config.BooleanConfigValue;
 import org.transitclock.config.StringConfigValue;
 import org.transitclock.configData.AgencyConfig;
@@ -23,6 +11,17 @@ import org.transitclock.configData.AvlConfig;
 import org.transitclock.db.structs.AvlReport;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.Time;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.SocketTimeoutException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
+import java.util.Collection;
+import java.util.zip.GZIPInputStream;
 
 /**
  * Subclass of AvlModule to be used when reading AVL data from a feed. Calls the abstract method
@@ -100,7 +99,7 @@ public abstract class PollUrlAvlModule extends AvlModule {
      * @throws JSONException
      */
     protected String getJsonString(InputStream in) throws IOException, JSONException {
-        BufferedReader streamReader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+        BufferedReader streamReader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
         StringBuilder responseStrBuilder = new StringBuilder();
 
         String inputStr;

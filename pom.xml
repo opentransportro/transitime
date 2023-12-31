@@ -166,6 +166,24 @@
                     <artifactId>jacoco-maven-plugin</artifactId>
                     <version>0.8.10</version>
                 </plugin>
+                <plugin>
+                    <groupId>org.gaul</groupId>
+                    <artifactId>modernizer-maven-plugin</artifactId>
+                    <version>2.7.0</version>
+                    <configuration>
+                        <javaVersion>17</javaVersion>
+                        <failOnViolations>false</failOnViolations>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>modernizer</id>
+                            <phase>verify</phase>
+                            <goals>
+                                <goal>modernizer</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
@@ -297,14 +315,10 @@
                     </java>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.gaul</groupId>
+                <artifactId>modernizer-maven-plugin</artifactId>
+            </plugin>
         </plugins>
     </build>
-    <profiles>
-        <profile>
-            <id>include-integration-tests</id>
-            <modules>
-                <module>integration</module>
-            </modules>
-        </profile>
-    </profiles>
 </project>

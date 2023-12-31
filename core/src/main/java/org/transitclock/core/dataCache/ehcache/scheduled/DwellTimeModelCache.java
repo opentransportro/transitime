@@ -207,7 +207,7 @@ public class DwellTimeModelCache implements org.transitclock.core.dataCache.Dwel
     @Override
     public Long predictDwellTime(StopPathCacheKey cacheKey, Headway headway) {
 
-        DwellModel model = (DwellModel) cache.get(cacheKey);
+        DwellModel model = cache.get(cacheKey);
         if (model == null || headway == null) return null;
 
         if (model.predict((int) headway.getHeadway(), null) != null)

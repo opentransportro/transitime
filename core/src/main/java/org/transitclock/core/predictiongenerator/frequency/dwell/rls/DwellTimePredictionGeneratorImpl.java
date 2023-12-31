@@ -1,7 +1,6 @@
 /* (C)2023 */
 package org.transitclock.core.predictiongenerator.frequency.dwell.rls;
 
-import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.core.Indices;
@@ -12,6 +11,8 @@ import org.transitclock.core.dataCache.frequency.FrequencyBasedHistoricalAverage
 import org.transitclock.core.predictiongenerator.frequency.traveltime.kalman.KalmanPredictionGeneratorImpl;
 import org.transitclock.db.structs.AvlReport;
 import org.transitclock.db.structs.Headway;
+
+import java.util.Date;
 
 /**
  * @author Sean Og Crudden
@@ -37,14 +38,14 @@ public class DwellTimePredictionGeneratorImpl extends KalmanPredictionGeneratorI
                  */
                 if (super.getStopTimeForPath(indices, avlReport, vehicleState) > 0) {
                     // TODO Would be more correct to use the start time of the trip.
-                    Integer time =
+                    int time =
                             FrequencyBasedHistoricalAverageCache.secondsFromMidnight(new Date(avlReport.getTime()), 2);
 
                     time = FrequencyBasedHistoricalAverageCache.round(
                             time, FrequencyBasedHistoricalAverageCache.getCacheIncrementsForFrequencyService());
 
                     StopPathCacheKey cacheKey = new StopPathCacheKey(
-                            indices.getTrip().getId(), indices.getStopPathIndex(), false, new Long(time));
+                            indices.getTrip().getId(), indices.getStopPathIndex(), false, (long) time);
 
                     if (DwellTimeModelCacheFactory.getInstance() != null)
                         result = DwellTimeModelCacheFactory.getInstance().predictDwellTime(cacheKey, headway);

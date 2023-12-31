@@ -54,14 +54,14 @@ public class DwellTimeModelCache implements org.transitclock.core.dataCache.Dwel
     @Override
     public synchronized void addSample(ArrivalDeparture event, Headway headway, long dwellTime) {
 
-        Integer time = FrequencyBasedHistoricalAverageCache.secondsFromMidnight(event.getFreqStartTime(), 2);
+        int time = FrequencyBasedHistoricalAverageCache.secondsFromMidnight(event.getFreqStartTime(), 2);
 
         time = FrequencyBasedHistoricalAverageCache.round(
                 time, FrequencyBasedHistoricalAverageCache.getCacheIncrementsForFrequencyService());
 
-        StopPathCacheKey key = new StopPathCacheKey(event.getTripId(), event.getStopPathIndex(), false, new Long(time));
+        StopPathCacheKey key = new StopPathCacheKey(event.getTripId(), event.getStopPathIndex(), false, (long) time);
 
-        TransitClockRLS rls = null;
+        TransitClockRLS rls;
         if (cache.get(key) != null) {
             rls = cache.get(key);
 

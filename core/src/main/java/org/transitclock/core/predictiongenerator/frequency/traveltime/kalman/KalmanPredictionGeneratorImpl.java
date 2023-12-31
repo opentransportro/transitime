@@ -50,7 +50,7 @@ public class KalmanPredictionGeneratorImpl extends HistoricalAveragePredictionGe
      */
     private static final IntegerConfigValue minKalmanDays = new IntegerConfigValue(
             "transitclock.prediction.data.kalman.mindays",
-            new Integer(3),
+            3,
             "Min number of days trip data that needs to be available before Kalman"
                     + " prediciton is used instead of default transiTime prediction.");
 

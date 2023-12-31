@@ -205,7 +205,7 @@ public class DataDbLogger {
             String className = o.getClass().getName();
             Integer count = classNamesMap.get(className);
             if (count == null) {
-                count = new Integer(0);
+                count = 0;
                 classNamesMap.put(className, count);
             }
             ++count;

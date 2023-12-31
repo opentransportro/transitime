@@ -180,13 +180,6 @@ public class DwellTimeModelCache implements org.transitclock.core.dataCache.Dwel
         return null;
     }
 
-    public static void main(String[] args) {
-        double startvalue = 1000;
-        double result1 = Math.log10(startvalue);
-        double result2 = Math.pow(10, result1);
-        if (startvalue == result2) System.out.println("As expected they are the same.");
-    }
-
     private String createKey(StopPathCacheKey key) {
         return keystub + key.getTripId() + "_" + key.getStopPathIndex();
     }

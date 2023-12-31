@@ -219,7 +219,7 @@ public class TravelTimes {
      * @return Expected travel time in msec
      */
     public int expectedTravelTimeFromMatchToEndOfStopPath(SpatialMatch match) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         // Get the travel times for this stop path
         TravelTimesForStopPath travelTimesForStopPath =
                 match.getTrip().getTravelTimesForStopPath(match.getStopPathIndex());

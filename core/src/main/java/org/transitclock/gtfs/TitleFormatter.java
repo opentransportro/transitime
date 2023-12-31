@@ -213,22 +213,22 @@ public class TitleFormatter {
         }
 
         int strLen = str.length();
-        StringBuffer buffer = new StringBuffer(strLen);
+        StringBuilder builder = new StringBuilder(strLen);
         boolean capitalizeNext = true;
         for (int i = 0; i < strLen; i++) {
             char ch = str.charAt(i);
 
             if (isDelimiter(ch, delimiters)) {
-                buffer.append(ch);
+                builder.append(ch);
                 capitalizeNext = true;
             } else if (capitalizeNext) {
-                buffer.append(Character.toTitleCase(ch));
+                builder.append(Character.toTitleCase(ch));
                 capitalizeNext = false;
             } else {
-                buffer.append(Character.toLowerCase(ch));
+                builder.append(Character.toLowerCase(ch));
             }
         }
-        return buffer.toString();
+        return builder.toString();
     }
 
     /**
@@ -257,12 +257,14 @@ public class TitleFormatter {
      * problems can be fixed. If many regexs are configured this could take a lot of processing time
      * if there are a large number of titles.
      *
-     * @param The original title. Can be null
+     * @param original The original title. Can be null
      * @return The formatted title. Null if passed in null.
      */
     public String processTitle(String original) {
         // If pass in null then get back null
-        if (original == null) return original;
+        if (original == null) {
+            return null;
+        }
 
         // First, properly capitalize the title
         String capitalizedStr = capitalize.getValue() ? capitalize(original) : original;
@@ -304,10 +306,10 @@ public class TitleFormatter {
             }
         }
 
-        if (sb.length() > 0) {
+        if (!sb.isEmpty()) {
             logger.info("Regexs that did not affect any titles and could "
                     + "be removed to possibly speed up processing are: "
-                    + sb.toString());
+                    + sb);
         } else {
             logger.info("All regexs that were configured made a difference. " + "None need to be removed.");
         }

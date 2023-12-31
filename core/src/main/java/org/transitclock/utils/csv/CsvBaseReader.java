@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -97,7 +98,7 @@ public abstract class CsvBaseReader<T> {
             // way the CSV parser will process the file starting with the first
             // true character.
 
-            Reader in = new BufferedReader(new InputStreamReader(new FileInputStream(fileName), "UTF-8"));
+            Reader in = new BufferedReader(new InputStreamReader(new FileInputStream(fileName), StandardCharsets.UTF_8));
 
             // Deal with the possible BOM character at the beginning of the file
             in.mark(1);
