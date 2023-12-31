@@ -167,7 +167,7 @@ public class Route implements Serializable {
         this.maxDistance = gtfsRoute.getMaxDistance();
 
         // Determine the extent of the route by looking at the extent
-        // of all of the trip patterns.
+        // of all the trip patterns.
         this.extent = new Extent();
         for (TripPattern tp : tripPatternsForRoute) {
             this.extent.add(tp.getExtent());
