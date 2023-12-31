@@ -21,7 +21,7 @@ public class HeadwayGeneratorFactory {
 
     private static HeadwayGenerator singleton = null;
 
-    public synchronized static HeadwayGenerator getInstance() {
+    public static synchronized HeadwayGenerator getInstance() {
         // If the PredictionGenerator hasn't been created yet then do so now
         if (singleton == null) {
             singleton = ClassInstantiator.instantiate(className.getValue(), HeadwayGenerator.class);

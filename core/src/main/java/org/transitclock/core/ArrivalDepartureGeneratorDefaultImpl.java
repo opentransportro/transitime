@@ -1,6 +1,8 @@
 /* (C)2023 */
 package org.transitclock.core;
 
+import java.util.ArrayList;
+import java.util.Date;
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.applications.Core;
 import org.transitclock.config.IntegerConfigValue;
@@ -14,9 +16,6 @@ import org.transitclock.core.predAccuracy.PredictionAccuracyModule;
 import org.transitclock.db.structs.*;
 import org.transitclock.ipc.data.IpcArrivalDeparture;
 import org.transitclock.utils.Time;
-
-import java.util.ArrayList;
-import java.util.Date;
 
 /**
  * For determining Arrival/Departure times based on a new GPS report and corresponding
@@ -54,7 +53,6 @@ import java.util.Date;
  */
 @Slf4j
 public class ArrivalDepartureGeneratorDefaultImpl implements ArrivalDepartureGenerator {
-
 
     /**
      * If vehicle just became predictable as indicated by no previous match then still want to

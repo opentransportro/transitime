@@ -9,7 +9,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.config.BooleanConfigValue;
@@ -147,8 +146,7 @@ public class TravelTimesProcessor {
         return isEmpty;
     }
 
-    public TravelTimesProcessor() {
-    }
+    public TravelTimesProcessor() {}
 
     /********************** Member Functions **************************/
 

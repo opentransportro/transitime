@@ -1,9 +1,8 @@
 /* (C)2023 */
 package org.transitclock.ipc.data;
 
-import lombok.ToString;
-
 import java.io.Serializable;
+import lombok.ToString;
 
 /**
  * A schedule time for a particular stop/trip.

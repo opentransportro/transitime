@@ -69,7 +69,6 @@ public class IpcVehicle implements Serializable {
     private final double predictedLatitude;
     private final double predictedLongitude;
 
-
     /**
      * Constructs a new Vehicle object from data in a VehicleState object.
      *

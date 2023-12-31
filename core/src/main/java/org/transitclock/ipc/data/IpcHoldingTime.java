@@ -1,11 +1,10 @@
 /* (C)2023 */
 package org.transitclock.ipc.data;
 
-import org.transitclock.db.structs.HoldingTime;
-
 import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
+import org.transitclock.db.structs.HoldingTime;
 
 public class IpcHoldingTime implements Serializable {
 

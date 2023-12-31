@@ -1,6 +1,7 @@
 /* (C)2023 */
 package org.transitclock.core;
 
+import java.util.*;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
 import org.transitclock.applications.Core;
@@ -22,8 +23,6 @@ import org.transitclock.utils.Geo;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.StringUtils;
 import org.transitclock.utils.Time;
-
-import java.util.*;
 
 /**
  * This is a very important high-level class. It takes the AVL data and processes it. Matches

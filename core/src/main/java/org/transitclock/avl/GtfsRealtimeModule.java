@@ -1,15 +1,14 @@
 /* (C)2023 */
 package org.transitclock.avl;
 
+import java.io.InputStream;
+import java.util.Collection;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.Module;
 import org.transitclock.config.StringConfigValue;
 import org.transitclock.db.structs.AvlReport;
 import org.transitclock.feed.gtfsRt.GtfsRtVehiclePositionsReader;
-
-import java.io.InputStream;
-import java.util.Collection;
-import java.util.List;
 
 /**
  * For reading in feed of GTFS-realtime AVL data. Is used for both realtime feeds and for when

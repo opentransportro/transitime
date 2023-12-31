@@ -1,6 +1,9 @@
 /* (C)2023 */
 package org.transitclock.core.predictiongenerator.scheduled.traveltime.kalman;
 
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.DateUtils;
 import org.transitclock.applications.Core;
@@ -14,10 +17,6 @@ import org.transitclock.core.predictiongenerator.kalman.*;
 import org.transitclock.db.structs.AvlReport;
 import org.transitclock.db.structs.PredictionEvent;
 import org.transitclock.db.structs.PredictionForStopPath;
-
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
 
 /**
  * @author Sean Óg Crudden This is a prediction generator that uses a Kalman filter to provide

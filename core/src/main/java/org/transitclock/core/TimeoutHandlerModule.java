@@ -1,6 +1,9 @@
 /* (C)2023 */
 package org.transitclock.core;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.Module;
 import org.transitclock.applications.Core;
@@ -13,10 +16,6 @@ import org.transitclock.db.structs.AvlReport;
 import org.transitclock.db.structs.VehicleEvent;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.Time;
-
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 
 /**
  * For handling when a vehicle doesn't report its position for too long. Makes the vehicle

@@ -859,7 +859,8 @@ public class GtfsData {
             // Make sure departure time >= arrival time.
             // Of course either one can be null so bit more complicated.
             if (arr != null && dep != null && dep < arr) {
-                logger.error("The departure time {} is before the arrival time {} in the stop_times.txt file at line {}",
+                logger.error(
+                        "The departure time {} is before the arrival time {} in the stop_times.txt file at line {}",
                         Time.timeOfDayStr(dep),
                         Time.timeOfDayStr(arr),
                         gtfsStopTime.getLineNumber());

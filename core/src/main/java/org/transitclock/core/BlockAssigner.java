@@ -1,6 +1,7 @@
 /* (C)2023 */
 package org.transitclock.core;
 
+import java.util.Collection;
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.applications.Core;
 import org.transitclock.db.structs.AvlReport;
@@ -8,8 +9,6 @@ import org.transitclock.db.structs.Block;
 import org.transitclock.db.structs.Trip;
 import org.transitclock.gtfs.DbConfig;
 import org.transitclock.utils.Time;
-
-import java.util.Collection;
 
 /**
  * Singleton class that handles block assignments from AVL feed.

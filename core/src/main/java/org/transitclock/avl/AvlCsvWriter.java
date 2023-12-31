@@ -1,6 +1,7 @@
 /* (C)2023 */
 package org.transitclock.avl;
 
+import java.io.IOException;
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.db.structs.AvlReport;
 import org.transitclock.db.structs.AvlReport.AssignmentType;
@@ -9,8 +10,6 @@ import org.transitclock.utils.ChinaGpsOffset.LatLon;
 import org.transitclock.utils.Geo;
 import org.transitclock.utils.Time;
 import org.transitclock.utils.csv.CsvWriterBase;
-
-import java.io.IOException;
 
 /**
  * For writing a CSV file containing AVL reports.

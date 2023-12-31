@@ -167,7 +167,6 @@ public class GtfsRoute extends CsvBase {
         return hidden != null ? hidden : false;
     }
 
-
     /**
      * Returns true if should create unscheduled block assignments for this route.
      *

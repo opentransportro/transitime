@@ -1,9 +1,8 @@
 /* (C)2023 */
 package org.transitclock.core.dataCache;
 
-import org.transitclock.core.Indices;
-
 import java.io.Serializable;
+import org.transitclock.core.Indices;
 
 /**
  * @author Sean Óg Crudden

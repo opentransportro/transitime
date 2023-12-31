@@ -1,10 +1,11 @@
+/* (C)2023 */
 package org.transitclock.core.holdingmethod;
-
-import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.transitclock.core.holdingmethod.HoldingTimeGeneratorDefaultImpl.calculateHoldingTime;
 import static org.transitclock.core.holdingmethod.HoldingTimeGeneratorDefaultImpl.maxPredictionsForHoldingTimeCalculation;
+
+import org.junit.jupiter.api.Test;
 
 class HoldingTimeGeneratorDefaultImplTest {
 

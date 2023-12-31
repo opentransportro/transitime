@@ -1,6 +1,7 @@
 /* (C)2023 */
 package org.transitclock.avl;
 
+import java.util.*;
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.Module;
 import org.transitclock.applications.Core;
@@ -10,8 +11,6 @@ import org.transitclock.db.structs.AvlReport;
 import org.transitclock.db.structs.Location;
 import org.transitclock.feed.gtfsRt.GtfsRtVehiclePositionsReader;
 import org.transitclock.utils.Time;
-
-import java.util.*;
 
 /**
  * For reading in a batch of GTFS-realtime data and processing it. It only reads a single batch of

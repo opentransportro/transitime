@@ -26,7 +26,6 @@ public class Indices implements Serializable {
     private int stopPathIndex;
     private int segmentIndex;
 
-
     public Indices(Block block, int tripIndex, int stopPathIndex, int segmentIndex) throws IndexOutOfBoundsException {
         this.block = block;
         this.tripIndex = tripIndex;

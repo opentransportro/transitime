@@ -1,6 +1,7 @@
 /* (C)2023 */
 package org.transitclock.core.autoAssigner;
 
+import java.util.*;
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.applications.Core;
 import org.transitclock.config.BooleanConfigValue;
@@ -15,8 +16,6 @@ import org.transitclock.db.structs.Block;
 import org.transitclock.db.structs.Trip;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.Time;
-
-import java.util.*;
 
 /**
  * For automatically assigning a vehicle to an available block by determining both spatial and

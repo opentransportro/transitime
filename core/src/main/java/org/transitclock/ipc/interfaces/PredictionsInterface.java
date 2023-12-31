@@ -65,8 +65,7 @@ public interface PredictionsInterface extends Remote {
      *     for each destination for each route/stop.
      * @throws RemoteException
      */
-    List<IpcPredictionsForRouteStopDest> get(List<RouteStop> routeStops, int predictionsPerStop)
-            throws RemoteException;
+    List<IpcPredictionsForRouteStopDest> get(List<RouteStop> routeStops, int predictionsPerStop) throws RemoteException;
 
     /**
      * Returns predictions based on the specified location.

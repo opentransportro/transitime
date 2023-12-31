@@ -2,6 +2,11 @@
 package org.transitclock.applications;
 
 import com.google.common.reflect.ClassPath;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+import java.sql.Types;
+import java.util.*;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.cli.*;
@@ -11,12 +16,6 @@ import org.hibernate.dialect.MySQLDialect;
 import org.hibernate.service.ServiceRegistry;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
 import org.hibernate.tool.schema.TargetType;
-
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
-import java.sql.Types;
-import java.util.*;
 
 /**
  * For generating SQL schema files based on classes to be stored in database
@@ -44,7 +43,6 @@ public class SchemaGenerator {
     private final List<Class<Object>> classList = new ArrayList<>();
     private final String packageName;
     private final String outputDirectory;
-
 
     /**
      * MySQL handles fractional seconds differently from PostGRES and other
@@ -166,9 +164,8 @@ public class SchemaGenerator {
         settings.put("hibernate.connection.username", "sa");
         settings.put("hibernate.connection.password", "password");
 
-        ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
-                .applySettings(settings)
-                .build();
+        ServiceRegistry serviceRegistry =
+                new StandardServiceRegistryBuilder().applySettings(settings).build();
 
         // Determine file name. Use "ddl_" plus dialect name such as mysql or
         // oracle plus the package name with "_" replacing "." such as

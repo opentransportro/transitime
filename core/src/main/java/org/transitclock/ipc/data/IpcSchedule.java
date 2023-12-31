@@ -38,7 +38,6 @@ public class IpcSchedule implements Serializable {
     // Additional members that are transient and not to be serialized
     private final List<Trip> trips;
 
-
     /** Constructor made private because need to use createSchedules() to construct the objects. */
     private IpcSchedule() {
         trips = null;

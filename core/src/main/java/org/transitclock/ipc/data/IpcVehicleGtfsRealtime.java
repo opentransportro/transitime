@@ -50,7 +50,6 @@ public class IpcVehicleGtfsRealtime extends IpcVehicle {
     // For GTFS-rt to set scheduled relationship
     private final boolean isTripUnscheduled;
 
-
     /**
      * The constructor used on the server side
      *

@@ -76,10 +76,7 @@ public class HistoricalAveragePredictionGeneratorImpl extends LastVehiclePredict
                     StopPathPredictionCache.getInstance().putPrediction(predictionForStopPath);
                 }
 
-                logger.debug("Using historical average algorithm for prediction : "
-                        + average
-                        + " for : "
-                        + indices);
+                logger.debug("Using historical average algorithm for prediction : " + average + " for : " + indices);
                 // logger.debug("Instead of transitime value : " +
                 // super.getTravelTimeForPath(indices, avlReport));
                 return (long) average.getAverage();
@@ -161,10 +158,7 @@ public class HistoricalAveragePredictionGeneratorImpl extends LastVehiclePredict
                     StopPathPredictionCache.getInstance().putPrediction(predictionForStopPath);
                 }
 
-                logger.debug("Using historical average alogrithm for dwell time : "
-                        + average
-                        + " for : "
-                        + indices);
+                logger.debug("Using historical average alogrithm for dwell time : " + average + " for : " + indices);
                 return (long) average.getAverage();
             }
         }

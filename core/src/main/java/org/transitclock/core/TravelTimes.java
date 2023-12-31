@@ -1,6 +1,7 @@
 /* (C)2023 */
 package org.transitclock.core;
 
+import java.util.Date;
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.applications.Core;
 import org.transitclock.configData.CoreConfig;
@@ -8,8 +9,6 @@ import org.transitclock.db.structs.Location;
 import org.transitclock.db.structs.ScheduleTime;
 import org.transitclock.db.structs.TravelTimesForStopPath;
 import org.transitclock.utils.Time;
-
-import java.util.Date;
 
 /**
  * Singleton class that contains methods for determining how long a vehicle is expected to take to
@@ -23,7 +22,6 @@ public class TravelTimes {
 
     // Singleton class
     private static final TravelTimes singleton = new TravelTimes();
-
 
     /** Constructor declared private because singleton class */
     private TravelTimes() {}
@@ -138,8 +136,7 @@ public class TravelTimes {
     public static long scheduledDepartureTime(Indices indices, long referenceTime) {
         // Make sure method called appropriately
         if (!indices.isWaitStop()) {
-            logger.error(
-                    "Called scheduledDepartureTimePlusWaitTime() for stop that is not a wait stop. {}", indices);
+            logger.error("Called scheduledDepartureTimePlusWaitTime() for stop that is not a wait stop. {}", indices);
             return -1;
         }
 
@@ -165,13 +162,11 @@ public class TravelTimes {
         return timeUtil.getEpochTime(scheduledDepartureTimeSecs, new Date(referenceTime));
     }
 
-        /**
-         * This class is so that travelTimeIndexForPartialPath() can return more than a single piece of
-         * information.
-         */
-        private record TimeTravelInfo(int indexOfPartialSegment, double fractionCompleted) {
-
-    }
+    /**
+     * This class is so that travelTimeIndexForPartialPath() can return more than a single piece of
+     * information.
+     */
+    private record TimeTravelInfo(int indexOfPartialSegment, double fractionCompleted) {}
 
     /**
      * Returns information on the travel time segment that the match corresponds to.

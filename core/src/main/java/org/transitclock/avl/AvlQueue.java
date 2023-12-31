@@ -1,13 +1,12 @@
 /* (C)2023 */
 package org.transitclock.avl;
 
-import lombok.extern.slf4j.Slf4j;
-import org.transitclock.db.structs.AvlReport;
-
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
+import lombok.extern.slf4j.Slf4j;
+import org.transitclock.db.structs.AvlReport;
 
 /**
  * A queue of AvlClient runnables that can be used with a ThreadPoolExecutor. Implements by

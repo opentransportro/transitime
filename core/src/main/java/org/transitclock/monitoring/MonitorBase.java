@@ -48,7 +48,6 @@ public abstract class MonitorBase {
 
     private static final Logger logger = LoggerFactory.getLogger(MonitorBase.class);
 
-
     /**
      * Constructor.
      *

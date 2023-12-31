@@ -91,7 +91,8 @@ public class ClientFactory<T extends Remote> {
                     "Exception occurred when creating the RMI client object for class={} and agencyId={}. {}",
                     clazz.getName(),
                     agencyId,
-                    e.getMessage(),e);
+                    e.getMessage(),
+                    e);
             return null;
         }
     }

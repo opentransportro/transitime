@@ -28,8 +28,8 @@ public interface VehiclesInterface extends Remote {
      * @return Collection of blocks that are active
      * @throws RemoteException
      */
-    Collection<IpcActiveBlock> getActiveBlocksWithoutVehicles(
-            Collection<String> routeIds, int allowableBeforeTimeSecs) throws RemoteException;
+    Collection<IpcActiveBlock> getActiveBlocksWithoutVehicles(Collection<String> routeIds, int allowableBeforeTimeSecs)
+            throws RemoteException;
 
     /**
      * Gets from the server IpcActiveBlocks for blocks that are currently active with vehicle data
@@ -54,8 +54,8 @@ public interface VehiclesInterface extends Remote {
      * @return Collection of blocks that are active
      * @throws RemoteException
      */
-    Collection<IpcActiveBlock> getActiveBlocksAndVehiclesByRouteName(
-            String routeName, int allowableBeforeTimeSecs) throws RemoteException;
+    Collection<IpcActiveBlock> getActiveBlocksAndVehiclesByRouteName(String routeName, int allowableBeforeTimeSecs)
+            throws RemoteException;
 
     /**
      * For getting configuration information for all vehicles. Useful for determining IDs of all
@@ -169,8 +169,7 @@ public interface VehiclesInterface extends Remote {
      * @return Collection of Vehicle objects
      * @throws RemoteException
      */
-    Collection<IpcVehicleComplete> getCompleteForRoute(Collection<String> routeIdsOrShortNames)
-            throws RemoteException;
+    Collection<IpcVehicleComplete> getCompleteForRoute(Collection<String> routeIdsOrShortNames) throws RemoteException;
 
     /**
      * Gets from the server IpcActiveBlocks for blocks that are currently active.
@@ -197,6 +196,5 @@ public interface VehiclesInterface extends Remote {
 
     Collection<IpcVehicleToBlockConfig> getVehicleToBlockConfig(String blockId) throws RemoteException;
 
-    Collection<IpcVehicleToBlockConfig> getVehicleToBlockConfigByVehicleId(String vehicleId)
-            throws RemoteException;
+    Collection<IpcVehicleToBlockConfig> getVehicleToBlockConfigByVehicleId(String vehicleId) throws RemoteException;
 }

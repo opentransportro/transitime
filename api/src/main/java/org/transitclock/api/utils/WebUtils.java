@@ -48,11 +48,13 @@ public class WebUtils {
     }
 
     public static WebApplicationException badRequestException(Throwable cause, int response, String s) {
-        return new WebApplicationException(cause, Response.status(response)
-                .entity(s)
-                .type(MediaType.TEXT_PLAIN)
-                .header("Access-Control-Allow-Origin", "*")
-                .build());
+        return new WebApplicationException(
+                cause,
+                Response.status(response)
+                        .entity(s)
+                        .type(MediaType.TEXT_PLAIN)
+                        .header("Access-Control-Allow-Origin", "*")
+                        .build());
     }
 
     /**

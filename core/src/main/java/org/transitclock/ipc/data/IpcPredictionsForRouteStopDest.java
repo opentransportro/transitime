@@ -47,7 +47,6 @@ public class IpcPredictionsForRouteStopDest implements Serializable {
 
     private static final int INITIAL_CAPACITY = 5;
 
-
     /**
      * Constructor for creating a IpcPredictionsForRouteStopDest on the server side.
      *

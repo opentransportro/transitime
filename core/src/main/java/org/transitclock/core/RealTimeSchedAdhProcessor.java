@@ -205,12 +205,13 @@ public class RealTimeSchedAdhProcessor {
         final var toStopPath = trip.getScheduleTime(nextStopPathIndex);
         int effectiveStopTimeSec = 0;
         // we must be between stops, interpolate effective schedule
-        if(fromStopPath != null && toStopPath != null) {
+        if (fromStopPath != null && toStopPath != null) {
             long fromStopTimeSecs = fromStopPath.getTime();
             long toStopTimeSecs = toStopPath.getTime();
             long pathTime = toStopTimeSecs - fromStopTimeSecs;
 
-            double ratio = match.getDistanceAlongStopPath() / match.getStopPath().getLength();
+            double ratio =
+                    match.getDistanceAlongStopPath() / match.getStopPath().getLength();
 
             effectiveStopTimeSec = (int) (fromStopTimeSecs + (pathTime * ratio));
         }

@@ -461,10 +461,8 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
         return events;
     }
 
-    static Long calculateHoldingTime(Long current_vehicle_arrival_time,
-                                             Long last_vehicle_departure_time,
-                                             Long[] N,
-                                             int max_predictions) {
+    static Long calculateHoldingTime(
+            Long current_vehicle_arrival_time, Long last_vehicle_departure_time, Long[] N, int max_predictions) {
         long max_value = -1;
 
         for (int i = 0; i < N.length && i < max_predictions; i++) {

@@ -10,7 +10,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import org.hibernate.HibernateException;
-import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -199,7 +198,8 @@ public class DbConfig {
         Map<String, Map<String, Block>> blocksByServiceMap = new HashMap<>();
 
         for (Block block : blocks) {
-            Map<String, Block> blocksByBlockIdMap = blocksByServiceMap.computeIfAbsent(block.getServiceId(), k -> new HashMap<>());
+            Map<String, Block> blocksByBlockIdMap =
+                    blocksByServiceMap.computeIfAbsent(block.getServiceId(), k -> new HashMap<>());
             blocksByBlockIdMap.put(block.getId(), block);
         }
 

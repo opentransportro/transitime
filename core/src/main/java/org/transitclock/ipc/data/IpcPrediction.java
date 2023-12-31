@@ -65,13 +65,11 @@ public class IpcPrediction implements Serializable {
     private final Integer delay;
     private boolean isCanceled;
 
-
     private final long freqStartTime;
     private final int tripCounter;
     // Want to store trip on server side so that can determine route info
     // when creating PredictionsForRouteStop object.
     private final Trip trip;
-
 
     public enum ArrivalOrDeparture {
         ARRIVAL,

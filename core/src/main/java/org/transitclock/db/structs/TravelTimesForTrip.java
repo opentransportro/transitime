@@ -18,8 +18,6 @@ import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.criterion.Restrictions;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Keeps track of travel times for a trip. Can be shared amongst trips if the travel times are
@@ -33,9 +31,9 @@ import org.slf4j.LoggerFactory;
 @Getter
 @EqualsAndHashCode
 @ToString
-@Table(name = "TravelTimesForTrips", indexes = {
-        @Index(name = "TravelTimesRevIndex", columnList = "travelTimesRev")
-})
+@Table(
+        name = "TravelTimesForTrips",
+        indexes = {@Index(name = "TravelTimesRevIndex", columnList = "travelTimesRev")})
 public class TravelTimesForTrip implements Serializable {
 
     // Need a generated ID because trying to share TravelTimesForStopPath
@@ -145,8 +143,7 @@ public class TravelTimesForTrip implements Serializable {
         totalRowsUpdated += rowsUpdated;
 
         // Delete configRev data from TravelTimesForTrips
-        rowsUpdated = session
-                .createNativeQuery("DELETE FROM TravelTimesForTrips WHERE configRev=" + configRev)
+        rowsUpdated = session.createNativeQuery("DELETE FROM TravelTimesForTrips WHERE configRev=" + configRev)
                 .executeUpdate();
         logger.info("Deleted {} rows from TravelTimesForTrips for configRev={}", rowsUpdated, configRev);
         totalRowsUpdated += rowsUpdated;
@@ -169,8 +166,7 @@ public class TravelTimesForTrip implements Serializable {
             throws HibernateException {
         logger.info("Reading TravelTimesForTrips for travelTimesRev={} ...", travelTimesRev);
 
-        List<TravelTimesForTrip> allTravelTimes = session
-                .createCriteria(TravelTimesForTrip.class)
+        List<TravelTimesForTrip> allTravelTimes = session.createCriteria(TravelTimesForTrip.class)
                 .add(Restrictions.eq("travelTimesRev", travelTimesRev))
                 .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
                 .list();

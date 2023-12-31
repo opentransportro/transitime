@@ -29,7 +29,6 @@ public class IpcRoute extends IpcRouteSummary {
     private Collection<IpcShape> shapes;
     private Location locationOfNextPredictedVehicle;
 
-
     /**
      * Create an IpcRoute that contains all stops and paths but separates out information for the
      * remaining part of the trip specified by stopId and tripPatternId.

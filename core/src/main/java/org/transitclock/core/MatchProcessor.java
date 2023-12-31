@@ -1,6 +1,7 @@
 /* (C)2023 */
 package org.transitclock.core;
 
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.applications.Core;
 import org.transitclock.configData.CoreConfig;
@@ -10,8 +11,6 @@ import org.transitclock.db.structs.Match;
 import org.transitclock.db.structs.Prediction;
 import org.transitclock.ipc.data.IpcPrediction;
 import org.transitclock.utils.Time;
-
-import java.util.List;
 
 /**
  * For generating predictions, arrival/departure times, headways etc. This class is used once a

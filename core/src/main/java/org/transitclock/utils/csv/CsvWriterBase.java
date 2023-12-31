@@ -1,10 +1,9 @@
 /* (C)2023 */
 package org.transitclock.utils.csv;
 
-import org.transitclock.utils.StringUtils;
-
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import org.transitclock.utils.StringUtils;
 
 /**
  * A base class for writing out a CSV file. A subclass needs
@@ -46,7 +45,8 @@ public abstract class CsvWriterBase {
 
             // Create the writer. Need to use UTF-8 since sometimes will be
             // writing Chinese or other characters for route names and such.
-            writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileName, append), StandardCharsets.UTF_8));
+            writer = new BufferedWriter(
+                    new OutputStreamWriter(new FileOutputStream(fileName, append), StandardCharsets.UTF_8));
 
             // Write the header if it is a new file or not appending
             if (!fileAlreadyExists || !append) writeHeader();

@@ -1,6 +1,8 @@
 /* (C)2023 */
 package org.transitclock.core;
 
+import java.util.Date;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.applications.Core;
 import org.transitclock.configData.CoreConfig;
@@ -9,9 +11,6 @@ import org.transitclock.db.structs.Location;
 import org.transitclock.db.structs.Trip;
 import org.transitclock.utils.Geo;
 import org.transitclock.utils.Time;
-
-import java.util.Date;
-import java.util.List;
 
 /**
  * Singleton class that does the temporal matching to determine where an AVL report matches to the

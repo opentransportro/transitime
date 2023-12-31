@@ -418,9 +418,9 @@ public class PredictionGeneratorDefaultImpl extends PredictionGenerator
             boolean lateSoMarkAsUncertain =
                     lateSoMarkSubsequentTripsAsUncertain && indices.getTripIndex() > currentTripIndex;
 
-            int delay = RealTimeSchedAdhProcessor
-                    .generateEffectiveScheduleDifference(vehicleState)
-                    .getTemporalDifference() / 1000;
+            int delay = RealTimeSchedAdhProcessor.generateEffectiveScheduleDifference(vehicleState)
+                            .getTemporalDifference()
+                    / 1000;
 
             // Determine the new prediction
             IpcPrediction predictionForStop = generatePredictionForStop(
@@ -434,10 +434,14 @@ public class PredictionGeneratorDefaultImpl extends PredictionGenerator
                     tripCounter,
                     delay);
 
-            if ((predictionForStop.getPredictionTime() - Core.getInstance().getSystemTime()) < generateHoldingTimeWhenPredictionWithin.getValue()
-                    && (predictionForStop.getPredictionTime() - Core.getInstance().getSystemTime()) > 0) {
+            if ((predictionForStop.getPredictionTime() - Core.getInstance().getSystemTime())
+                            < generateHoldingTimeWhenPredictionWithin.getValue()
+                    && (predictionForStop.getPredictionTime()
+                                    - Core.getInstance().getSystemTime())
+                            > 0) {
                 if (HoldingTimeGeneratorFactory.getInstance() != null) {
-                    HoldingTime holdingTime = HoldingTimeGeneratorFactory.getInstance().generateHoldingTime(vehicleState, predictionForStop);
+                    HoldingTime holdingTime = HoldingTimeGeneratorFactory.getInstance()
+                            .generateHoldingTime(vehicleState, predictionForStop);
                     if (holdingTime != null) {
                         HoldingTimeCache.getInstance().putHoldingTime(holdingTime);
                         vehicleState.setHoldingTime(holdingTime);
@@ -452,8 +456,8 @@ public class PredictionGeneratorDefaultImpl extends PredictionGenerator
             // stop is added to the arrival time) then don't add the prediction
             // and break out of the loop.
             if (!schedBasedPreds
-                    && predictionForStop.getPredictionTime() > avlTime + maxPredictionsTimeSecs.getValue() * Time.MS_PER_SEC)
-                break;
+                    && predictionForStop.getPredictionTime()
+                            > avlTime + maxPredictionsTimeSecs.getValue() * Time.MS_PER_SEC) break;
 
             // If no schedule assignment then don't want to generate predictions
             // for the last stop of the trip since it is a duplicate of the

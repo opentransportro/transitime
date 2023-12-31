@@ -1,13 +1,13 @@
 /* (C)2023 */
 package org.transitclock.core.predictiongenerator.kalman.dwell;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
 import org.apache.commons.jcs.JCS;
 import org.apache.commons.jcs.access.CacheAccess;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import smile.regression.RLS;
-
-import static org.junit.jupiter.api.Assertions.fail;
 
 public class RLSCache {
     @BeforeEach

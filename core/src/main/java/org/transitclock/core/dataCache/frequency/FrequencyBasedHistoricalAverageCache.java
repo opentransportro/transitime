@@ -169,7 +169,7 @@ public class FrequencyBasedHistoricalAverageCache {
                     && pathDuration.getDuration() < maxTravelTimeFilterValue.getValue()) {
                 if (trip.isNoSchedule()) {
                     StopPathCacheKey historicalAverageCacheKey = new StopPathCacheKey(
-                            trip.getId(), pathDuration.getArrival().getStopPathIndex(), true, (long)time);
+                            trip.getId(), pathDuration.getArrival().getStopPathIndex(), true, (long) time);
 
                     HistoricalAverage average =
                             FrequencyBasedHistoricalAverageCache.getInstance().getAverage(historicalAverageCacheKey);
@@ -193,7 +193,7 @@ public class FrequencyBasedHistoricalAverageCache {
                     && stopDuration.getDuration() > minDwellTimeFilterValue.getValue()
                     && stopDuration.getDuration() < maxDwellTimeFilterValue.getValue()) {
                 StopPathCacheKey historicalAverageCacheKey = new StopPathCacheKey(
-                        trip.getId(), stopDuration.getDeparture().getStopPathIndex(), false, (long)time);
+                        trip.getId(), stopDuration.getDeparture().getStopPathIndex(), false, (long) time);
 
                 HistoricalAverage average =
                         FrequencyBasedHistoricalAverageCache.getInstance().getAverage(historicalAverageCacheKey);

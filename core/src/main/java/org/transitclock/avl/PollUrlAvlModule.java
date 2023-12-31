@@ -1,17 +1,6 @@
 /* (C)2023 */
 package org.transitclock.avl;
 
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.codec.binary.Base64;
-import org.json.JSONException;
-import org.transitclock.config.BooleanConfigValue;
-import org.transitclock.config.StringConfigValue;
-import org.transitclock.configData.AgencyConfig;
-import org.transitclock.configData.AvlConfig;
-import org.transitclock.db.structs.AvlReport;
-import org.transitclock.utils.IntervalTimer;
-import org.transitclock.utils.Time;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,6 +11,16 @@ import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.zip.GZIPInputStream;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.binary.Base64;
+import org.json.JSONException;
+import org.transitclock.config.BooleanConfigValue;
+import org.transitclock.config.StringConfigValue;
+import org.transitclock.configData.AgencyConfig;
+import org.transitclock.configData.AvlConfig;
+import org.transitclock.db.structs.AvlReport;
+import org.transitclock.utils.IntervalTimer;
+import org.transitclock.utils.Time;
 
 /**
  * Subclass of AvlModule to be used when reading AVL data from a feed. Calls the abstract method

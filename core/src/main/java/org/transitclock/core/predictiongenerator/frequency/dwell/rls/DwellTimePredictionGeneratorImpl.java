@@ -1,6 +1,7 @@
 /* (C)2023 */
 package org.transitclock.core.predictiongenerator.frequency.dwell.rls;
 
+import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.core.Indices;
@@ -11,8 +12,6 @@ import org.transitclock.core.dataCache.frequency.FrequencyBasedHistoricalAverage
 import org.transitclock.core.predictiongenerator.frequency.traveltime.kalman.KalmanPredictionGeneratorImpl;
 import org.transitclock.db.structs.AvlReport;
 import org.transitclock.db.structs.Headway;
-
-import java.util.Date;
 
 /**
  * @author Sean Og Crudden
