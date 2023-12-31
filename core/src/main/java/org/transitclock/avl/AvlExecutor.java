@@ -5,12 +5,11 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 import org.transitclock.config.IntegerConfigValue;
 import org.transitclock.configData.AgencyConfig;
 import org.transitclock.db.structs.AvlReport;
-import org.transitclock.utils.Time;
 import org.transitclock.utils.threading.NamedThreadFactory;
 
 /**
@@ -25,21 +24,10 @@ import org.transitclock.utils.threading.NamedThreadFactory;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class AvlExecutor {
 
-    // The actual executor
-    ThreadPoolExecutor avlClientExecutor = null;
-
-    // Singleton class
-    private static AvlExecutor singleton;
-
-    /********************* Configurable parameters *************************/
-
-    // For making sure that AvlConfig.getNumAvlThreads() config doesn't specify
-    // an absurdly large number of threads.
-    private static final int MAX_THREADS = 25;
-
-    private static IntegerConfigValue avlQueueSize = new IntegerConfigValue(
+    private static final IntegerConfigValue avlQueueSize = new IntegerConfigValue(
             "transitclock.avl.queueSize",
             2000,
             "How many items to go into the blocking AVL queue "
@@ -60,68 +48,46 @@ public class AvlExecutor {
                     + "multiple threads, such as 3-15 so that more of the cores "
                     + "are used.");
 
-    private static final Logger logger = LoggerFactory.getLogger(AvlExecutor.class);
+    private static final int MAX_THREADS = 25;
+    private static AvlExecutor singleton;
+    private final ThreadPoolExecutor avlClientExecutor;
+    private final AvlReportProcessorFactory avlReportProcessorFactory;
 
-    /** Constructor declared private because singleton class */
-    private AvlExecutor() {
+    public AvlExecutor(AvlReportProcessorFactory avlReportProcessorFactory) {
+        this.avlReportProcessorFactory = avlReportProcessorFactory;
+
         int numberThreads = numAvlThreads.getValue();
         final int maxAVLQueueSize = avlQueueSize.getValue();
 
         // Make sure that numberThreads is reasonable
         if (numberThreads < 1) {
-            logger.error(
-                    "Number of threads must be at least 1 but {} was " + "specified. Therefore using 1 thread.",
-                    numberThreads);
+            logger.error("Number of threads must be at least 1 but {} was " + "specified. Therefore using 1 thread.", numberThreads);
             numberThreads = 1;
         }
+
         if (numberThreads > MAX_THREADS) {
-            logger.error(
-                    "Number of threads must be no greater than {} but "
-                            + "{} was specified. Therefore using {} threads.",
-                    MAX_THREADS,
-                    numberThreads,
-                    MAX_THREADS);
+            logger.error("Number of threads must be no greater than {} but {} was specified. Therefore using {} threads.", MAX_THREADS, numberThreads, MAX_THREADS);
             numberThreads = MAX_THREADS;
         }
 
-        logger.info(
-                "Starting AvlExecutor for directly handling AVL reports "
-                        + "via a queue instead of JMS. maxAVLQueueSize={} and "
-                        + "numberThreads={}",
-                maxAVLQueueSize,
-                numberThreads);
+        logger.info("Starting AvlExecutor for directly handling AVL reports via a queue instead of JMS. maxAVLQueueSize={} and numberThreads={}", maxAVLQueueSize, numberThreads);
 
-        // Start up the ThreadPoolExecutor
-        int corePoolSize = 1;
-        int maximumPoolSize = numberThreads;
-        long keepAliveTime = 1; /* 1 hour */
-        BlockingQueue<Runnable> workQueue = new AvlQueue(maxAVLQueueSize);
+        AvlReportProcessorQueue workQueue = new AvlReportProcessorQueue(maxAVLQueueSize);
         NamedThreadFactory avlClientThreadFactory = new NamedThreadFactory("avlClient");
+
         // Called when queue fills up
-        RejectedExecutionHandler rejectedHandler = new RejectedExecutionHandler() {
-            @Override
-            public void rejectedExecution(Runnable arg0, ThreadPoolExecutor arg1) {
-                String message = "Rejected AVL report in AvlExecutor for agencyId="
-                        + AgencyConfig.getAgencyId()
-                        + ". The work "
-                        + "queue with capacity "
-                        + maxAVLQueueSize
-                        + " must be full. "
-                        + ((AvlClient) arg0).getAvlReport();
-                // If first one then send out an e-mail message since this can
-                // be a serious issue indicating that system is locked up. This
-                // actually happened once when couldn't read from db due to a
-                // strange locking condition.
-                logger.error(message);
-            }
+        RejectedExecutionHandler rejectedHandler = (arg0, arg1) -> {
+            logger.error("Rejected AVL report {} in AvlExecutor for agencyId={}. The work queue with capacity {}  must be full.",
+                    ((AvlReportProcessor) arg0).getAvlReport(),
+                    AgencyConfig.getAgencyId(),
+                    maxAVLQueueSize);
         };
 
-        avlClientExecutor = new ThreadPoolExecutor(
-                corePoolSize,
-                maximumPoolSize,
-                keepAliveTime,
+        avlClientExecutor = new ThreadPoolExecutor(1,
+                numberThreads,
+                1,
                 TimeUnit.HOURS,
-                workQueue,
+                (BlockingQueue) workQueue,
                 avlClientThreadFactory,
                 rejectedHandler);
     }
@@ -132,11 +98,10 @@ public class AvlExecutor {
      *
      * @return the singleton AvlExecutor
      */
-    public static AvlExecutor getInstance() {
+    public static synchronized AvlExecutor getInstance() {
         if (singleton == null) {
-            singleton = new AvlExecutor();
+            singleton = new AvlExecutor(new DefaultAvlReportProcessorFactory());
         }
-
         return singleton;
     }
 
@@ -155,48 +120,10 @@ public class AvlExecutor {
      * <p>Causes AvlClient.run() to be called on each AvlReport, unless using test executor, in
      * which case the AvlClientTester() is called.
      *
-     * @param newAvlReport The AVL report to be processed
-     * @param useTestExecutor So can optional specify that should use a different test executor for
-     *     testing out the queuing
+     * @param avlReport The AVL report to be processed
      */
-    public void processAvlReport(AvlReport newAvlReport, boolean... useTestExecutor) {
-        boolean testing = useTestExecutor.length > 0 && useTestExecutor[0];
-        Runnable avlClient = !testing ? new AvlClient(newAvlReport) : new AvlClientTester(newAvlReport);
-
-        avlClientExecutor.execute(avlClient);
-    }
-
-    /**
-     * Separate executor, just for testing. The run method simply sleeps for a while so can verify
-     * that the queuing works when system getting behind in the processing of AVL reports
-     */
-    private static class AvlClientTester extends AvlClient {
-        private AvlClientTester(AvlReport avlReport) {
-            super(avlReport);
-        }
-
-        /** Delays for a while */
-        @Override
-        public void run() {
-            // Let each call get backed up so can see what happens to queue
-            logger.info("Starting processing of {}", getAvlReport());
-            Time.sleep(6 * Time.SEC_IN_MSECS);
-            logger.info("Finished processing of {}", getAvlReport());
-        }
-    }
-
-    /** For testing. */
-    public static void main(String args[]) {
-        AvlExecutor executor = AvlExecutor.getInstance();
-
-        executor.processAvlReport(new AvlReport("v1", 0, 12.34, 43.21, null), true);
-        executor.processAvlReport(new AvlReport("v2", 1000, 12.34, 43.21, null), true);
-        executor.processAvlReport(new AvlReport("v3", 2000, 12.34, 43.21, null), true);
-        executor.processAvlReport(new AvlReport("v1", 3000, 12.34, 43.21, null), true);
-        executor.processAvlReport(new AvlReport("v2", 4000, 12.34, 43.21, null), true);
-        executor.processAvlReport(new AvlReport("v3", 5000, 12.34, 43.21, null), true);
-        executor.processAvlReport(new AvlReport("v1", 6000, 12.34, 43.21, null), true);
-        executor.processAvlReport(new AvlReport("v1", 7000, 12.34, 43.21, null), true);
-        executor.processAvlReport(new AvlReport("v1", 8000, 12.34, 43.21, null), true);
+    public void processAvlReport(AvlReport avlReport) {
+        AvlReportProcessor client = avlReportProcessorFactory.createClient(avlReport);
+        avlClientExecutor.execute(client);
     }
 }

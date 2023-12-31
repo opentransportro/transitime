@@ -196,14 +196,4 @@ public class GtfsUpdatedModule extends Module {
             }
         }
     }
-
-    /**
-     * For debugging
-     *
-     * @param args
-     */
-    public static void main(String[] args) {
-        // Start the module
-        start("org.transitclock.gtfs.GtfsUpdatedModule");
-    }
 }

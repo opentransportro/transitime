@@ -9,6 +9,8 @@ import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.zip.GZIPInputStream;
 import lombok.extern.slf4j.Slf4j;
@@ -173,21 +175,20 @@ public abstract class PollUrlAvlModule extends AvlModule {
         logger.debug("Time to parse document {} msec", timer.elapsedMsec());
 
         // Process all the reports read in
-        if (shouldProcessAvl.getValue()) processAvlReports(avlReportsReadIn);
+        if (shouldProcessAvl.getValue()) {
+            processAvlReports(avlReportsReadIn);
+        }
     }
 
     /**
      * Does all of the work for the class. Runs forever and reads in AVL data from feed and
      * processes it.
-     *
-     * @see java.lang.Runnable#run()
      */
     @Override
     public void run() {
         // Log that module successfully started
         logger.info("Started module {} for agencyId={}", getClass().getName(), getAgencyId());
 
-        // Run forever
         while (true) {
             IntervalTimer timer = new IntervalTimer();
 

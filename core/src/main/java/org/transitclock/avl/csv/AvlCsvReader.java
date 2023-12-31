@@ -1,5 +1,5 @@
 /* (C)2023 */
-package org.transitclock.avl.via;
+package org.transitclock.avl.csv;
 
 import java.text.ParseException;
 import org.apache.commons.csv.CSVRecord;
@@ -13,7 +13,6 @@ import org.transitclock.utils.csv.CsvBaseReader;
  */
 public class AvlCsvReader extends CsvBaseReader<AvlReport> {
 
-    /********************** Member Functions **************************/
     public AvlCsvReader(String fileName) {
         super(fileName);
     }

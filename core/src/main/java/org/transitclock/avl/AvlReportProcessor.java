@@ -19,7 +19,11 @@ import org.transitclock.utils.Time;
  */
 @Getter
 @Slf4j
-public class AvlClient implements Runnable {
+public class AvlReportProcessor implements Runnable {
+    // List of current AVL reports by vehicle. Useful for determining last
+    // report so can filter out new report if the same as the old one.
+    // Keyed on vehicle ID.
+    private static final Map<String, AvlReport> avlReports = new HashMap<>();
 
     /**
      * -- GETTER --
@@ -30,27 +34,13 @@ public class AvlClient implements Runnable {
     // The AVL report being processed
     private final AvlReport avlReport;
 
-    // List of current AVL reports by vehicle. Useful for determining last
-    // report so can filter out new report if the same as the old one.
-    // Keyed on vehicle ID.
-    private static final Map<String, AvlReport> avlReports = new HashMap<>();
-
-    /**
-     * Constructor
-     *
-     * @param avlReport
-     */
-    public AvlClient(AvlReport avlReport) {
+    public AvlReportProcessor(AvlReport avlReport) {
         this.avlReport = avlReport;
     }
 
     /**
      * Filters out problematic AVL reports (such as for having invalid data, being in the past, or
      * too recent) and processes the ones that are good.
-     *
-     * <p>(non-Javadoc)
-     *
-     * @see java.lang.Runnable#run()
      */
     @Override
     public void run() {
@@ -68,7 +58,7 @@ public class AvlClient implements Runnable {
             synchronized (avlReports) {
                 AvlReport previousReportForVehicle = avlReports.get(avlReport.getVehicleId());
 
-                // If report the same time or older then don't need to process
+                // If report the same time or older than don't need to process
                 // it
                 if (previousReportForVehicle != null && avlReport.getTime() <= previousReportForVehicle.getTime()) {
                     logger.warn(

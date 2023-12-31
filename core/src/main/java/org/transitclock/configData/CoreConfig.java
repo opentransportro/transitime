@@ -111,14 +111,14 @@ public class CoreConfig {
         return optionalModules.getValue();
     }
 
-    private static List<String> optionalModulesDefaultList = new ArrayList<String>();
+    private static final List<String> optionalModulesDefaultList = new ArrayList<>();
 
     static {
         // Can add all the modules that should be started as default here
         // optionalModulesDefaultList.add("org.transitclock.avl.NextBusAvlModule");
     }
 
-    private static StringListConfigValue optionalModules = new StringListConfigValue(
+    private static final StringListConfigValue optionalModules = new StringListConfigValue(
             "transitclock.modules.optionalModulesList",
             optionalModulesDefaultList,
             "The semicolon separated list of names of all of the " + "modules that should be automatically started.");

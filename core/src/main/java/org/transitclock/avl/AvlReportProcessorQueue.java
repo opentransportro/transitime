@@ -3,13 +3,14 @@ package org.transitclock.avl;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
+
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.db.structs.AvlReport;
 
 /**
- * A queue of AvlClient runnables that can be used with a ThreadPoolExecutor. Implements by
+ * A queue of {@link AvlReportProcessor} runnables that can be used with a ThreadPoolExecutor. Implements by
  * subclassing a ArrayBlockingQueue<Runnable> where the Runnable is an AvlClient. Also keeps track
  * of the last AVL report per vehicle. When getting data from queue, if the data is obsolete (a new
  * AVL report has been received for the vehicle) then that element from the queue is thrown out and
@@ -23,18 +24,18 @@ import org.transitclock.db.structs.AvlReport;
  * @author SkiBu Smith
  */
 @Slf4j
-public class AvlQueue extends ArrayBlockingQueue<Runnable> {
+public class AvlReportProcessorQueue extends ArrayBlockingQueue<AvlReportProcessor> {
 
     // For keeping track of the last AVL report for each vehicle. Used to
     // determine if AVL report from queue is obsolete.
-    ConcurrentMap<String, AvlReport> avlDataPerVehicleMap = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, AvlReport> avlDataPerVehicleMap = new ConcurrentHashMap<>();
 
     /**
      * Constructs the queue to have specified size.
      *
      * @param queueSize How many AVL elements can be put into the queue before it blocks.
      */
-    public AvlQueue(int queueSize) {
+    public AvlReportProcessorQueue(int queueSize) {
         super(queueSize);
     }
 
@@ -43,10 +44,11 @@ public class AvlQueue extends ArrayBlockingQueue<Runnable> {
      *
      * @param runnable the AvlClient
      */
-    private void addToAvlDataPerVehicleMap(Runnable runnable) {
-        if (!(runnable instanceof AvlClient)) throw new IllegalArgumentException("Runnable must be AvlClient.");
+    private void addToAvlDataPerVehicleMap(AvlReportProcessor runnable) {
+        if (runnable == null)
+            throw new IllegalArgumentException("Runnable must be AvlClient.");
 
-        AvlReport avlReport = ((AvlClient) runnable).getAvlReport();
+        AvlReport avlReport = runnable.getAvlReport();
         avlDataPerVehicleMap.put(avlReport.getVehicleId(), avlReport);
     }
 
@@ -54,18 +56,17 @@ public class AvlQueue extends ArrayBlockingQueue<Runnable> {
      * Returns true if the AVL report is older than the latest one for the vehicle and is therefore
      * obsolete and doesn't need to be processed.
      *
-     * @param avlReportFromQueue AvlClient from the queue containing an AvlReport
+     * @param runnableFromQueue {@link AvlReportProcessor} from the queue containing an AvlReport
      * @return true of obsolete
      */
-    private boolean isObsolete(Runnable runnableFromQueue) {
-        if (!(runnableFromQueue instanceof AvlClient))
+    private boolean isObsolete(AvlReportProcessor runnableFromQueue) {
+        if (runnableFromQueue == null)
             throw new IllegalArgumentException("Runnable must be AvlClient.");
 
-        AvlReport avlReportFromQueue = ((AvlClient) runnableFromQueue).getAvlReport();
+        AvlReport avlReportFromQueue = runnableFromQueue.getAvlReport();
 
         AvlReport lastAvlReportForVehicle = avlDataPerVehicleMap.get(avlReportFromQueue.getVehicleId());
-        boolean obsolete =
-                lastAvlReportForVehicle != null && avlReportFromQueue.getTime() < lastAvlReportForVehicle.getTime();
+        boolean obsolete = lastAvlReportForVehicle != null && avlReportFromQueue.getTime() < lastAvlReportForVehicle.getTime();
         if (obsolete) {
             logger.debug(
                     "AVL report from queue is obsolete (there is a newer "
@@ -85,7 +86,7 @@ public class AvlQueue extends ArrayBlockingQueue<Runnable> {
      * be used by ThreadPoolExecutor but still included for completeness.
      */
     @Override
-    public boolean add(Runnable runnable) {
+    public boolean add(@NonNull AvlReportProcessor runnable) {
         addToAvlDataPerVehicleMap(runnable);
         return super.add(runnable);
     }
@@ -95,7 +96,7 @@ public class AvlQueue extends ArrayBlockingQueue<Runnable> {
      * be used by ThreadPoolExecutor but still included for completeness.
      */
     @Override
-    public void put(Runnable runnable) throws InterruptedException {
+    public void put(@NonNull AvlReportProcessor runnable) throws InterruptedException {
         super.put(runnable);
         addToAvlDataPerVehicleMap(runnable);
     }
@@ -105,8 +106,8 @@ public class AvlQueue extends ArrayBlockingQueue<Runnable> {
      * ThreadPoolExecutor.
      */
     @Override
-    public boolean offer(Runnable runnable) {
-        AvlReport avlReport = ((AvlClient) runnable).getAvlReport();
+    public boolean offer(@NonNull AvlReportProcessor runnable) {
+        AvlReport avlReport = runnable.getAvlReport();
         logger.debug("offer() remainingCapacity={} {}", remainingCapacity(), avlReport);
 
         boolean successful = super.offer(runnable);
@@ -121,7 +122,7 @@ public class AvlQueue extends ArrayBlockingQueue<Runnable> {
      * Doesn't seem to be used by ThreadPoolExecutor but still included for completeness.
      */
     @Override
-    public boolean offer(Runnable runnable, long timeout, TimeUnit unit) throws InterruptedException {
+    public boolean offer(AvlReportProcessor runnable, long timeout, TimeUnit unit) throws InterruptedException {
         boolean successful = super.offer(runnable, timeout, unit);
         if (successful) addToAvlDataPerVehicleMap(runnable);
 
@@ -133,8 +134,8 @@ public class AvlQueue extends ArrayBlockingQueue<Runnable> {
      * be used by ThreadPoolExecutor but still included for completeness.
      */
     @Override
-    public Runnable poll() {
-        Runnable runnable;
+    public AvlReportProcessor poll() {
+        AvlReportProcessor runnable;
         do {
             runnable = super.poll();
         } while (isObsolete(runnable));
@@ -146,16 +147,16 @@ public class AvlQueue extends ArrayBlockingQueue<Runnable> {
      * by ThreadPoolExecutor.
      */
     @Override
-    public Runnable poll(long timeout, TimeUnit unit) throws InterruptedException {
+    public AvlReportProcessor poll(long timeout, TimeUnit unit) throws InterruptedException {
         logger.debug("In poll(t,u) timeout={} units={}", timeout, unit);
 
-        Runnable runnable;
+        AvlReportProcessor runnable;
         do {
             runnable = super.poll(timeout, unit);
         } while (runnable != null && isObsolete(runnable));
 
         if (runnable != null) {
-            logger.debug("poll(t,u) in AvlQueue returned {}", ((AvlClient) runnable).getAvlReport());
+            logger.debug("poll(t,u) in AvlQueue returned {}", ((AvlReportProcessor) runnable).getAvlReport());
         }
         return runnable;
     }
@@ -165,8 +166,9 @@ public class AvlQueue extends ArrayBlockingQueue<Runnable> {
      * be used by ThreadPoolExecutor but still included for completeness.
      */
     @Override
-    public Runnable take() throws InterruptedException {
-        Runnable runnable;
+    @NonNull
+    public AvlReportProcessor take() throws InterruptedException {
+        AvlReportProcessor runnable;
         do {
             runnable = super.take();
         } while (isObsolete(runnable));
