@@ -2,6 +2,7 @@
 package org.transitclock.gtfs.gtfsStructs;
 
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 import org.apache.commons.csv.CSVRecord;
 import org.transitclock.utils.Time;
@@ -14,13 +15,14 @@ import org.transitclock.utils.csv.CsvBase;
  */
 @ToString
 @Getter
+@Setter
 public class GtfsStopTime extends CsvBase implements Comparable<GtfsStopTime> {
 
     private final String tripId;
     // arrivalTimeSecs is in seconds into day. Can be null
-    private final Integer arrivalTimeSecs;
+    private Integer arrivalTimeSecs;
     // departureTimeSecs is in seconds into day. Can be null
-    private final Integer departureTimeSecs;
+    private Integer departureTimeSecs;
     private final String stopId;
     private final Integer stopSequence;
     private final String stopHeadsign;
@@ -253,5 +255,13 @@ public class GtfsStopTime extends CsvBase implements Comparable<GtfsStopTime> {
     @Override
     public int compareTo(GtfsStopTime arg0) {
         return getStopSequence() - arg0.getStopSequence();
+    }
+
+    public boolean isDepartureTimeSet() {
+        return departureTimeSecs != null;
+    }
+
+    public boolean isArrivalTimeSet() {
+        return arrivalTimeSecs != null;
     }
 }

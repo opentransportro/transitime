@@ -1073,6 +1073,7 @@ public class GtfsData {
 
         // Determine the gtfs stop times for this trip
         List<GtfsStopTime> gtfsStopTimesForTrip = gtfsStopTimesForTripMap.get(trip.getId());
+        new StopTimeInterpolator(gtfsStopTimesForTrip).interpolate();
 
         // For each stop time for the trip...
         List<ScheduleTime> newScheduleTimesList = new ArrayList<>();
@@ -1096,8 +1097,11 @@ public class GtfsData {
             Integer filteredArr = arrTime;
             Integer filteredDep = depTime;
             if (arrTime != null && arrTime.equals(depTime)) {
-                if (lastStopInTrip) filteredDep = null;
-                else filteredArr = null;
+                if (lastStopInTrip) {
+                    filteredDep = null;
+                } else {
+                    filteredArr = null;
+                }
             }
             ScheduleTime scheduleTime = new ScheduleTime(filteredArr, filteredDep);
             newScheduleTimesList.add(scheduleTime);
