@@ -1327,7 +1327,7 @@ public class AvlProcessor {
                                             + "called recursively, which is wrong. {}",
                                     vehicleState);
                         } else {
-                            // Actually process AVL report again to see if can
+                            // Actually process AVL report again to see if you can
                             // assign to new assignment.
                             lowLevelProcessAvlReport(avlReport, true);
                         }
@@ -1350,7 +1350,7 @@ public class AvlProcessor {
             org.transitclock.db.structs.VehicleState dbVehicleState =
                     new org.transitclock.db.structs.VehicleState(vehicleState);
             Core.getInstance().getDbLogger().add(dbVehicleState);
-        } // End of synchronizing on vehicleState }
+        }
     }
 
     /**
@@ -1388,8 +1388,6 @@ public class AvlProcessor {
 
     /**
      * Returns the last regular (non-schedule based) AvlReport.
-     *
-     * @return
      */
     public AvlReport getLastAvlReport() {
         return lastRegularReportProcessed;
@@ -1441,13 +1439,8 @@ public class AvlProcessor {
                     avlReport);
             avlReport.setAssignment(null, AssignmentType.UNSET);
         }
-        Session session = null;
-        try {
-            session = HibernateUtils.getSession();
+        try (Session session = HibernateUtils.getSession()) {
             String blockId = null;
-            if (avlReport.getVehicleId().equals("4045")) {
-                System.out.println("stop");
-            }
             for (VehicleToBlockConfig vTBC :
                     VehicleToBlockConfig.getVehicleToBlockConfigsByVehicleId(session, avlReport.getVehicleId())) {
                 Date d = new Date();
@@ -1460,14 +1453,12 @@ public class AvlProcessor {
             if (blockId != null) {
                 avlReport.setAssignment(blockId, AssignmentType.BLOCK_ID);
             }
-            session.close();
         } catch (Exception ex) {
-            session.close();
         }
 
         // The beginning of processing AVL data is an important milestone
         // in processing data so log it as info.
-        logger.info("====================================================" + "AvlProcessor processing {}", avlReport);
+        logger.info("=====" + "AvlProcessor processing {}", avlReport);
 
         // Record when the AvlReport was actually processed. This is done here
         // so that the value will be set when the avlReport is stored in the

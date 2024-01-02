@@ -26,8 +26,6 @@ public class StopsByLoc {
     // time to get there plus less travel time on the bus.
     private static final double BIAS_TO_NEXT_STOP_OFFSET = 40.0;
 
-    /********************** Member Functions **************************/
-
     /** For describing a stop. Can be used to look up corresponding predictions. */
     public static class StopInfo {
         public TripPattern tripPattern;

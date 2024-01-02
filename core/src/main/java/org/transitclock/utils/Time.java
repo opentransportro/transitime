@@ -59,20 +59,20 @@ public class Time {
 
     // These two are for reading in dates in various formats
     private static final DateFormat defaultDateFormat = SimpleDateFormat.getDateInstance(DateFormat.SHORT);
-    private static final DateFormat dateFormatDashesShortYear = new SimpleDateFormat("MM-dd-yy");
+    private static final DateFormat dateFormatDashesShortYear = new SimpleDateFormat("dd-MM-yy");
 
-    private static final DateFormat readableDateFormat = new SimpleDateFormat("MM-dd-yyyy");
+    private static final DateFormat readableDateFormat = new SimpleDateFormat("dd-MM-yyyy");
 
-    private static final DateFormat readableDateFormat24 = new SimpleDateFormat("MM-dd-yyyy HH:mm:ss z");
+    private static final DateFormat readableDateFormat24 = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss z");
 
-    private static final DateFormat readableDateFormat24NoSecs = new SimpleDateFormat("MM-dd-yyyy HH:mm");
+    private static final DateFormat readableDateFormat24NoSecs = new SimpleDateFormat("dd-MM-yyyy HH:mm");
 
-    private static final DateFormat readableDateFormat24Msec = new SimpleDateFormat("MM-dd-yyyy HH:mm:ss.SSS z");
+    private static final DateFormat readableDateFormat24Msec = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss.SSS z");
 
     private static final DateFormat readableDateFormat24NoTimeZoneMsec =
             new SimpleDateFormat("MM-dd-yyyy HH:mm:ss.SSS");
 
-    private static final DateFormat readableDateFormat24NoTimeZoneNoMsec = new SimpleDateFormat("MM-dd-yyyy HH:mm:ss");
+    private static final DateFormat readableDateFormat24NoTimeZoneNoMsec = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 
     private static final DateFormat timeFormat24 = new SimpleDateFormat("HH:mm:ss z");
 
@@ -87,9 +87,9 @@ public class Time {
 
     // Note that this one is not static. It is for when need to include
     // timezone via a Time object.
-    private final DateFormat readableDateFormat24MsecForTimeZone = new SimpleDateFormat("MM-dd-yyyy HH:mm:ss.SSS z");
+    private final DateFormat readableDateFormat24MsecForTimeZone = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss.SSS z");
     private final DateFormat readableTimeFormatForTimeZone = new SimpleDateFormat("HH:mm:ss");
-    private final DateFormat readableDateFormatForTimeZone = new SimpleDateFormat("MM-dd-yyyy");
+    private final DateFormat readableDateFormatForTimeZone = new SimpleDateFormat("dd-MM-yyyy");
 
     // So can output headings and such with a consistent number of decimal places
     private static final DecimalFormat oneDigitFormat = new DecimalFormat("0.0");
@@ -97,9 +97,8 @@ public class Time {
     // Have a shared calendar so don't have to keep creating one
     private Calendar calendar;
 
-    /******************* Methods ******************/
-    public Time(DbConfig dbConfig) {
 
+    public Time(DbConfig dbConfig) {
         Agency agency = dbConfig.getFirstAgency();
         this.calendar = agency != null ? new GregorianCalendar(agency.getTimeZone()) : new GregorianCalendar();
     }
@@ -145,7 +144,7 @@ public class Time {
     /**
      * Converts the epoch time into number of seconds into the day.
      *
-     * @param epochTime
+     * @param epochDate
      * @return seconds into the day
      */
     public int getSecondsIntoDay(Date epochDate) {
@@ -812,18 +811,6 @@ public class Time {
             Thread.sleep(msec);
         } catch (InterruptedException e) {
             // ignore
-        }
-    }
-
-    public static void main(String args[]) {
-        try {
-            // TODO make this a unit test
-            Time time = new Time("America/Los_Angeles");
-            Date referenceDate = parse("11-23-2013 23:55:00");
-            int secondsIntoDay = 24 * SEC_PER_HOUR - 60;
-            long epochTime = time.getEpochTime(secondsIntoDay, referenceDate);
-            System.out.println(new Date(epochTime));
-        } catch (ParseException e) {
         }
     }
 }

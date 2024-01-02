@@ -6,7 +6,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Optional;
 import java.util.TimeZone;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -161,7 +160,7 @@ public class Core {
          dataDbLogger = DataDbLogger.getDataDbLogger(agencyId, CoreConfig.storeDataInDatabase(), CoreConfig.pauseIfDbQueueFilling());
 
          ThreadFactory threadFactory = new NamedThreadFactory("module-thread-pool");
-         Executor executor = Executors.newFixedThreadPool(5, threadFactory);
+         Executor executor = Executors.newFixedThreadPool(10, threadFactory);
 
          timeoutHandlerModule = new TimeoutHandlerModule(AgencyConfig.getAgencyId());
          executor.execute(timeoutHandlerModule);

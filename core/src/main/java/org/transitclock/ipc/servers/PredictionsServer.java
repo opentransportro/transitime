@@ -6,8 +6,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 import org.transitclock.applications.Core;
 import org.transitclock.core.dataCache.PredictionDataCache;
 import org.transitclock.db.structs.Location;
@@ -26,6 +26,7 @@ import org.transitclock.utils.Time;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class PredictionsServer extends AbstractServer implements PredictionsInterface {
 
     // Should only be accessed as singleton class
@@ -34,9 +35,6 @@ public class PredictionsServer extends AbstractServer implements PredictionsInte
     // The PredictionDataCache associated with the singleton.
     private PredictionDataCache predictionDataCache;
 
-    private static final Logger logger = LoggerFactory.getLogger(PredictionsServer.class);
-
-    /********************** Member Functions **************************/
 
     /**
      * Starts up the PredictionsServer so that RMI calls can query for predictions. This will

@@ -15,7 +15,7 @@ import org.transitclock.db.structs.AvlReport;
  */
 public class GtfsRtVehiclePositionsReader extends GtfsRtVehiclePositionsReaderBase {
 
-    private List<AvlReport> avlReports = new ArrayList<>();
+    private final List<AvlReport> avlReports = new ArrayList<>();
 
     /**
      * Simple constructor. Protected because should access this class through getAvlReports().

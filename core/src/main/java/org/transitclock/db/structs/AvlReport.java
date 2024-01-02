@@ -1,19 +1,21 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
-import javax.persistence.*;
+
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
-import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Immutable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.hibernate.type.TimestampType;
 import org.transitclock.applications.Core;
 import org.transitclock.configData.AvlConfig;
 import org.transitclock.db.hibernate.HibernateUtils;
@@ -37,10 +39,12 @@ import org.transitclock.utils.Time;
     indexes = {
         @Index(name = "AvlReportsTimeIndex", columnList = "time")
     })
+@Slf4j
 public class AvlReport implements Serializable {
     // vehicleId is an @Id since might get multiple AVL reports
     // for different vehicles with the same time but need a unique
     // primary key.
+    @Getter
     @Id
     @Column(length = 60)
     private final String vehicleId;
@@ -63,6 +67,7 @@ public class AvlReport implements Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     private Date timeProcessed;
 
+    @Getter
     @Embedded
     private final Location location;
 
@@ -88,10 +93,12 @@ public class AvlReport implements Serializable {
     private final Float heading; // optional
 
     // Optional text for describing the source of the AVL report
+    @Getter
     @Column(length = SOURCE_LENGTH)
     private String source;
 
     // Can be block, trip, or route ID
+    @Getter
     @Column(length = 60)
     private String assignmentId; // optional
 
@@ -109,21 +116,28 @@ public class AvlReport implements Serializable {
         PREVIOUS
     };
 
+    @Getter
     @Column(length = 40)
     @Enumerated(EnumType.STRING)
     private AssignmentType assignmentType;
 
+    /**
+     *  Returns the ID of the leading vehicle if this is an AVL report for a non-lead vehicle in a
+     *  multi-car consist. Otherwise, returns null.
+     */
     // Optional. This value is transient because it is usually not set.
-    // Initially only used for San Francisco Muni. Therefore not as
-    // worthwhile for storing in the database.
+    // Initially only used for San Francisco Muni. Therefore, not as worthwhile for storing in the database.
+    @Getter
     @Transient
     private final String leadVehicleId;
 
     // Optional
+    @Getter
     @Column(length = 60)
     private final String driverId;
 
     // Optional
+    @Getter
     @Column(length = 10)
     private final String licensePlate;
 
@@ -138,20 +152,22 @@ public class AvlReport implements Serializable {
 
     // Optional. For containing additional info for a particular feed.
     // Not declared final because setField1() is used to set values.
+    @Getter
     @Column(length = 60)
     private String field1Name;
 
     // Optional. For containing additional info for a particular feed.
     // Not declared final because setField1() is used to set values.
+    @Getter
     @Column(length = 60)
     String field1Value;
 
+    @Setter
+    @Getter
     private String vehicleName;
 
     // How long the AvlReport source field can be in db
     private static final int SOURCE_LENGTH = 10;
-
-    private static final Logger logger = LoggerFactory.getLogger(AvlReport.class);
 
     /**
      * Hibernate requires a no-args constructor for reading data. So this is an experiment to see
@@ -219,88 +235,6 @@ public class AvlReport implements Serializable {
     }
 
     /**
-     * Constructor for an AvlReport object that is not yet being processed. Since not yet being
-     * processed timeProcessed is set to null.
-     *
-     * @param vehicleId ID of the vehicle
-     * @param vehicleName Name of the vehicle
-     * @param time Epoch time in msec of GPS report (not when processed)
-     * @param lat Latitude in decimal degrees
-     * @param lon Longitude in decimal degrees
-     * @param speed Speed of vehicle in m/s. Should be set to Float.NaN if speed not available
-     * @param heading Heading of vehicle in degrees clockwise from north. Should be set to Float.NaN
-     *     if speed not available
-     * @param source Text describing the source of the report
-     */
-    public AvlReport(
-            String vehicleId,
-            String vehicleName,
-            long time,
-            double lat,
-            double lon,
-            float speed,
-            float heading,
-            String source) {
-        // Store the values
-        this.vehicleId = vehicleId;
-        this.time = new Date(time);
-        this.location = new Location(lat, lon);
-        // DB requires null instead of NaN
-        this.speed = Float.isNaN(speed) ? null : speed;
-        this.heading = Float.isNaN(heading) ? null : heading;
-        this.source = sized(source);
-        this.assignmentId = null;
-        this.assignmentType = AssignmentType.UNSET;
-        this.leadVehicleId = null;
-        this.driverId = null;
-        this.licensePlate = null;
-        this.passengerCount = null;
-        this.passengerFullness = null;
-        this.field1Name = null;
-        this.field1Value = null;
-        this.vehicleName = vehicleName;
-
-        // Don't yet know when processed so set timeProcessed to null
-        this.timeProcessed = null;
-    }
-
-    /**
-     * Constructor for an AvlReport object that is not yet being processed. Since not yet being
-     * processed timeProcessed is set to null.
-     *
-     * @param vehicleId ID of the vehicle
-     * @param time Epoch time in msec of GPS report (not when processed)
-     * @param location
-     * @param speed Speed of vehicle in m/s. Should be set to Float.NaN if speed not available
-     * @param heading Heading of vehicle in degrees clockwise from north. Should be set to Float.NaN
-     *     if speed not available
-     * @param source Text describing the source of the report. Can only be SOURCE_LENGTH (10)
-     *     characters long
-     */
-    public AvlReport(String vehicleId, long time, Location location, float speed, float heading, String source) {
-        // Store the values
-        this.vehicleId = vehicleId;
-        this.time = new Date(time);
-        this.location = location;
-        // DB requires null instead of NaN
-        this.speed = Float.isNaN(speed) ? null : speed;
-        this.heading = Float.isNaN(heading) ? null : heading;
-        this.source = sized(source);
-        this.assignmentId = null;
-        this.assignmentType = AssignmentType.UNSET;
-        this.leadVehicleId = null;
-        this.driverId = null;
-        this.licensePlate = null;
-        this.passengerCount = null;
-        this.passengerFullness = null;
-        this.field1Name = null;
-        this.field1Value = null;
-
-        // Don't yet know when processed so set timeProcessed to null
-        this.timeProcessed = null;
-    }
-
-    /**
      * @param vehicleId ID of the vehicle
      * @param time Epoch time in msec of GPS report (not when processed) For when speed and heading
      *     are not valid. They are set to Float.NaN . Since not yet being processed timeProcessed is
@@ -317,7 +251,6 @@ public class AvlReport implements Serializable {
         // Store the values
         this.vehicleId = vehicleId;
         this.time = new Date(time);
-        ;
         this.location = new Location(lat, lon);
         this.speed = null;
         this.heading = null;
@@ -427,8 +360,6 @@ public class AvlReport implements Serializable {
 
     /**
      * For converting a RMI IpcAvl object to a regular AvlReport.
-     *
-     * @param ipcAvl
      */
     public AvlReport(IpcAvl ipcAvl) {
         this.vehicleId = ipcAvl.getVehicleId();
@@ -449,32 +380,6 @@ public class AvlReport implements Serializable {
 
         // Don't yet know when processed so set timeProcessed to null
         this.timeProcessed = null;
-    }
-
-    /**
-     * Makes a copy of the AvlReport but uses the new time passed in. Useful for creating a new
-     * AvlReport when AVL timeout occurs when vehicle on a layover.
-     *
-     * @param toCopy The AvlReport to copy (except for the AVL time)
-     * @param newTime The AVL time to use
-     */
-    public AvlReport(AvlReport toCopy, Date newTime) {
-        this.vehicleId = toCopy.vehicleId;
-        this.time = newTime;
-        this.location = toCopy.location;
-        this.speed = toCopy.speed;
-        this.heading = toCopy.heading;
-        this.source = toCopy.source;
-        this.assignmentId = toCopy.assignmentId;
-        this.assignmentType = toCopy.assignmentType;
-        this.leadVehicleId = toCopy.leadVehicleId;
-        this.driverId = toCopy.driverId;
-        this.licensePlate = toCopy.licensePlate;
-        this.timeProcessed = toCopy.timeProcessed;
-        this.passengerCount = toCopy.passengerCount;
-        this.passengerFullness = toCopy.passengerFullness;
-        this.field1Name = toCopy.field1Name;
-        this.field1Value = toCopy.field1Value;
     }
 
     /**
@@ -513,7 +418,9 @@ public class AvlReport implements Serializable {
      * @return The original source string, but truncated to SOURCE_LENGTH
      */
     private static String sized(String source) {
-        if (source == null || source.length() <= SOURCE_LENGTH) return source;
+        if (source == null || source.length() <= SOURCE_LENGTH) {
+            return source;
+        }
 
         return source.substring(0, SOURCE_LENGTH);
     }
@@ -528,76 +435,53 @@ public class AvlReport implements Serializable {
 
         // Make sure vehicleId is set
         if (vehicleId == null) errorMsg += "VehicleId is null. ";
-        else if (vehicleId.length() == 0) errorMsg += "VehicleId is empty string. ";
+        else if (vehicleId.isEmpty()) errorMsg += "VehicleId is empty string. ";
 
         // Make sure GPS time is OK
         long currentTime = System.currentTimeMillis();
-        if (time.getTime() < currentTime - 10 * Time.MS_PER_YEAR)
-            errorMsg += "Time of " + Time.dateTimeStr(time) + " is more than 10 years old. ";
-        if (time.getTime() > currentTime + 1 * Time.MS_PER_MIN)
-            errorMsg += "Time of " + Time.dateTimeStr(time) + " is more than 1 minute into the future. ";
+        var dateTimeStr = Time.dateTimeStr(time);
+        if (time.getTime() < (currentTime - 10 * Time.MS_PER_YEAR)) {
+            errorMsg += "Time of " + dateTimeStr + " is more than 10 years old. ";
+        }
+        if (time.getTime() > (currentTime + 5 * Time.MS_PER_MIN)) {
+            errorMsg += "Time of " + dateTimeStr + " is more than 5 minute into the future. [" + Time.dateTimeStr(currentTime) + "]";
+        }
 
         // Make sure lat/lon is OK
         double lat = location.getLat();
         double lon = location.getLon();
+
         if (lat < AvlConfig.getMinAvlLatitude())
-            errorMsg += "Latitude of "
-                    + lat
-                    + " is less than the parameter "
-                    + AvlConfig.getMinAvlLatitudeParamName()
-                    + " which is set to "
-                    + AvlConfig.getMinAvlLatitude()
-                    + " . ";
+            errorMsg += "Latitude of " + lat + " is less than the parameter " + AvlConfig.getMinAvlLatitudeParamName() + " which is set to " + AvlConfig.getMinAvlLatitude() + " . ";
         if (lat > AvlConfig.getMaxAvlLatitude())
-            errorMsg += "Latitude of "
-                    + lat
-                    + " is greater than the parameter "
-                    + AvlConfig.getMaxAvlLatitudeParamName()
-                    + " which is set to "
-                    + AvlConfig.getMaxAvlLatitude()
-                    + " . ";
+            errorMsg += "Latitude of " + lat + " is greater than the parameter " + AvlConfig.getMaxAvlLatitudeParamName() + " which is set to " + AvlConfig.getMaxAvlLatitude() + " . ";
         if (lon < AvlConfig.getMinAvlLongitude())
-            errorMsg += "Longitude of "
-                    + lon
-                    + " is less than the parameter "
-                    + AvlConfig.getMinAvlLongitudeParamName()
-                    + " which is set to "
-                    + AvlConfig.getMinAvlLongitude()
-                    + " . ";
+            errorMsg += "Longitude of " + lon + " is less than the parameter " + AvlConfig.getMinAvlLongitudeParamName() + " which is set to " + AvlConfig.getMinAvlLongitude() + " . ";
         if (lon > AvlConfig.getMaxAvlLongitude())
-            errorMsg += "Longitude of "
-                    + lon
-                    + " is greater than the parameter "
-                    + AvlConfig.getMaxAvlLongitudeParamName()
-                    + " which is set to "
-                    + AvlConfig.getMaxAvlLongitude()
-                    + " . ";
+            errorMsg += "Longitude of " + lon + " is greater than the parameter " + AvlConfig.getMaxAvlLongitudeParamName() + " which is set to " + AvlConfig.getMaxAvlLongitude() + " . ";
 
         // Make sure speed is OK
         if (isSpeedValid()) {
-            if (speed < 0.0f) errorMsg += "Speed of " + speed + " is less than zero. ";
+            if (speed < 0.0f)
+                errorMsg += "Speed of " + speed + " is less than zero. ";
             if (speed > AvlConfig.getMaxAvlSpeed()) {
-                errorMsg += "Speed of "
-                        + speed
-                        + "m/s is greater than maximum allowable speed of "
-                        + AvlConfig.getMaxAvlSpeed()
-                        + "m/s. ";
+                errorMsg += "Speed of " + speed + "m/s is greater than maximum allowable speed of " + AvlConfig.getMaxAvlSpeed() + "m/s. ";
             }
         }
 
         // Make sure heading is OK
         if (isHeadingValid()) {
-            if (heading < 0.0f) errorMsg += "Heading of " + heading + " degrees is less than 0.0 degrees. ";
-            if (heading > 360.0f) errorMsg += "Heading of " + heading + " degrees is greater than 360.0 degrees. ";
+            if (heading < 0.0f)
+                errorMsg += "Heading of " + heading + " degrees is less than 0.0 degrees. ";
+            if (heading > 360.0f)
+                errorMsg += "Heading of " + heading + " degrees is greater than 360.0 degrees. ";
         }
 
         // Return the error message if any
-        if (!errorMsg.isEmpty()) return errorMsg;
-        else return null;
-    }
+        if (!errorMsg.isEmpty())
+            return errorMsg;
 
-    public String getVehicleId() {
-        return vehicleId;
+        return null;
     }
 
     /**
@@ -619,10 +503,6 @@ public class AvlReport implements Serializable {
      */
     public long getTimeProcessed() {
         return timeProcessed.getTime();
-    }
-
-    public Location getLocation() {
-        return location;
     }
 
     public double getLat() {
@@ -663,16 +543,6 @@ public class AvlReport implements Serializable {
         }
     }
 
-    /**
-     * The source of the AVL report
-     *
-     * @return
-     */
-    public String getSource() {
-        return source;
-    }
-
-    /** Override the source set by constructor */
     public void setSource(String source) {
         this.source = sized(source);
     }
@@ -680,8 +550,6 @@ public class AvlReport implements Serializable {
     /**
      * Returns how many msec elapsed between the GPS fix was generated to the time it was finally
      * processed. Returns 0 if timeProcessed was never set.
-     *
-     * @return
      */
     public long getLatency() {
         // If never processed then return 0.
@@ -706,19 +574,6 @@ public class AvlReport implements Serializable {
      */
     public boolean isHeadingValid() {
         return heading != null;
-    }
-
-    /**
-     * Returns the assignment ID if it is set. If it is not set then null is returned.
-     *
-     * @return
-     */
-    public String getAssignmentId() {
-        return assignmentId;
-    }
-
-    public AssignmentType getAssignmentType() {
-        return assignmentType;
     }
 
     /**
@@ -755,7 +610,7 @@ public class AvlReport implements Serializable {
      * @return true if assignment matches regular expression
      */
     public static boolean matchesUnpredictableAssignment(String assignment) {
-        if (unpredictableAssignmentsPatternInitialized == false) {
+        if (!unpredictableAssignmentsPatternInitialized) {
             String regEx = AvlConfig.getUnpredictableAssignmentsRegEx();
             if (regEx != null && !regEx.isEmpty()) {
                 regExPattern = Pattern.compile(regEx);
@@ -810,16 +665,6 @@ public class AvlReport implements Serializable {
     }
 
     /**
-     * Returns the ID of the leading vehicle if this is an AVL report for a non-lead vehicle in a
-     * multi-car consist. Otherwise returns null.
-     *
-     * @return
-     */
-    public String getLeadVehicleId() {
-        return leadVehicleId;
-    }
-
-    /**
      * For containing additional info as part of AVL feed that is specific to a particular feed or a
      * new element.
      *
@@ -839,14 +684,6 @@ public class AvlReport implements Serializable {
      */
     public boolean ignoreBecauseInConsist() {
         return leadVehicleId != null;
-    }
-
-    public String getDriverId() {
-        return driverId;
-    }
-
-    public String getLicensePlate() {
-        return licensePlate;
     }
 
     /**
@@ -894,22 +731,6 @@ public class AvlReport implements Serializable {
      */
     public void setTimeProcessed() {
         timeProcessed = new Date(Core.getInstance().getSystemTime());
-    }
-
-    public String getField1Name() {
-        return field1Name;
-    }
-
-    public String getField1Value() {
-        return field1Value;
-    }
-
-    public String getVehicleName() {
-        return vehicleName;
-    }
-
-    public void setVehicleName(String vehicleName) {
-        this.vehicleName = vehicleName;
     }
 
     /**
@@ -968,20 +789,21 @@ public class AvlReport implements Serializable {
         Session session = HibernateUtils.getSession();
 
         // Create the query. Table name is case sensitive!
-        String hql = "FROM AvlReport " + "    WHERE time >= :beginDate " + "      AND time < :endDate";
-        if (vehicleId != null && !vehicleId.isEmpty()) hql += " AND vehicleId=:vehicleId";
-        if (clause != null) hql += " " + clause;
-        Query query = session.createQuery(hql);
+        String hql = "FROM AvlReport WHERE time >= :beginDate AND time < :endDate";
+        if (vehicleId != null && !vehicleId.isEmpty())
+            hql += " AND vehicleId=:vehicleId";
+        if (clause != null)
+            hql += " " + clause;
+        var query = session.createQuery(hql);
 
         // Set the parameters
-        if (vehicleId != null && !vehicleId.isEmpty()) query.setString("vehicleId", vehicleId);
-        query.setTimestamp("beginDate", beginTime);
-        query.setTimestamp("endDate", endTime);
+        if (vehicleId != null && !vehicleId.isEmpty())
+            query.setParameter("vehicleId", vehicleId);
+        query.setParameter("beginDate", beginTime, TimestampType.INSTANCE);
+        query.setParameter("endDate", endTime, TimestampType.INSTANCE);
 
         try {
-            @SuppressWarnings("unchecked")
-            List<AvlReport> avlReports = query.list();
-            return avlReports;
+            return query.list();
         } catch (HibernateException e) {
             // Log error to the Core logger
             Core.getLogger().error(e.getMessage(), e);

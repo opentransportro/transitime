@@ -1,20 +1,13 @@
 /* (C)2023 */
 package org.transitclock.feed.gtfsRt;
 
-import com.google.protobuf.CodedInputStream;
-import com.google.transit.realtime.GtfsRealtime.FeedEntity;
-import com.google.transit.realtime.GtfsRealtime.FeedMessage;
-import com.google.transit.realtime.GtfsRealtime.Position;
-import com.google.transit.realtime.GtfsRealtime.TripDescriptor;
-import com.google.transit.realtime.GtfsRealtime.VehicleDescriptor;
-import com.google.transit.realtime.GtfsRealtime.VehiclePosition;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
 
+import com.google.protobuf.CodedInputStream;
+import com.google.transit.realtime.GtfsRealtime.*;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.transitclock.db.structs.AvlReport;
 import org.transitclock.db.structs.AvlReport.AssignmentType;
 import org.transitclock.utils.IntervalTimer;
@@ -98,19 +91,22 @@ public abstract class GtfsRtVehiclePositionsReaderBase {
         int counter = 0;
         for (FeedEntity entity : message.getEntityList()) {
             // If no vehicles in the entity then nothing to process
-            if (!entity.hasVehicle()) continue;
+            if (!entity.hasVehicle()) {
+                continue;
+            }
 
             // Get the object describing the vehicle
             VehiclePosition vehicle = entity.getVehicle();
 
             // Determine vehicle ID. If no vehicle ID then can't handle it.
             String vehicleId = getVehicleId(vehicle);
-
             String vehicleLabel = getVehicleLabel(vehicle);
 
-            if (vehicleId == null && vehicleLabel != null) vehicleId = vehicleLabel;
+            if (vehicleId == null && vehicleLabel != null)
+                vehicleId = vehicleLabel;
 
-            if (vehicleId == null) continue;
+            if (vehicleId == null)
+                continue;
 
             // Determine the GPS time. If time is not available then use the
             // current time. This is really a bad idea though because the
@@ -120,7 +116,8 @@ public abstract class GtfsRtVehiclePositionsReaderBase {
 
             if (vehicle.hasTimestamp()) {
                 gpsTime = vehicle.getTimestamp();
-                if (gpsTime < 14396727760l) { // TODO if too small to be milli second epoch
+                if (gpsTime < 14396727760L) {
+                    // TODO if too small to be milli second epoch
                     gpsTime = gpsTime * 1000;
                 }
             } else {
@@ -141,17 +138,16 @@ public abstract class GtfsRtVehiclePositionsReaderBase {
             if (position.hasSpeed()) {
                 speed = position.getSpeed();
             }
+
             float heading = Float.NaN;
             if (position.hasBearing()) {
                 heading = position.getBearing();
             }
 
-            // Create the core AVL object. The feed can provide a silly amount
-            // of precision so round to just 5 decimal places.
-
-            // AvlReport is expecting time in ms while the proto provides it in
-            // seconds
-            AvlReport avlReport = new AvlReport(
+            // Create the core AVL object.
+            // The feed can provide a silly amount of precision so round to just 5 decimal places.
+            // AvlReport is expecting time in ms while the proto provides it in seconds
+            var avlReport = new AvlReport(
                     vehicleId,
                     gpsTime,
                     MathUtils.round(lat, 5),
@@ -178,36 +174,32 @@ public abstract class GtfsRtVehiclePositionsReaderBase {
                 }
             }
 
-            logger.debug("Processed {}", avlReport);
-
             // The callback for each AvlReport
             handleAvlReport(avlReport);
-
             ++counter;
         }
 
         logger.info(
-                "Successfully processed {} AVL reports from " + "GTFS-realtime feed in {} msec",
+                "Successfully processed {} AVL reports from GTFS-realtime feed in {} msec",
                 counter,
                 timer.elapsedMsec());
     }
 
     private String getVehicleLabel(VehiclePosition vehicle) {
-
         return vehicle.getVehicle().getLabel();
     }
 
     /** Actually processes the GTFS-realtime file and calls handleAvlReport() for each AvlReport. */
     public void process() {
         try {
-            logger.info("Getting GTFS-realtime AVL data from URL={} ...", urlString);
+            logger.trace("Getting GTFS-realtime AVL data from URL={} ...", urlString);
             IntervalTimer timer = new IntervalTimer();
 
             URI uri = new URI(urlString);
             URL url = uri.toURL();
 
             // Create a CodedInputStream instead of just a regular InputStream
-            // so that can change the size limit. Otherwise if file is greater
+            // so that can change the size limit. Otherwise, if file is greater
             // than 64MB get an exception.
             InputStream inputStream = url.openStream();
             CodedInputStream codedStream = CodedInputStream.newInstance(inputStream);
@@ -222,7 +214,7 @@ public abstract class GtfsRtVehiclePositionsReaderBase {
             // it never seemed to complete, even for just a single call to
             // parseFrom(). Therefore loading in entire file at once.
             FeedMessage feed = FeedMessage.parseFrom(codedStream);
-            logger.info("Parsing GTFS-realtime file into a FeedMessage took " + "{} msec", timer.elapsedMsec());
+            logger.trace("Parsing GTFS-realtime file into a FeedMessage took " + "{} msec", timer.elapsedMsec());
 
             // Process each individual VehiclePostions message
             processMessage(feed);
@@ -230,14 +222,5 @@ public abstract class GtfsRtVehiclePositionsReaderBase {
         } catch (Exception e) {
             logger.error("Exception when reading GTFS-realtime data from " + "URL {}", urlString, e);
         }
-    }
-
-    /**
-     * Returns the URL that this class is reading the GTFS-realtime data from.
-     *
-     * @return The URL being used.
-     */
-    public String getUrlString() {
-        return urlString;
     }
 }

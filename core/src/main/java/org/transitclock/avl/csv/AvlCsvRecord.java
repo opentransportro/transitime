@@ -82,7 +82,7 @@ public class AvlCsvRecord extends CsvBase {
         Integer passengerCount = passengerCountStr == null ? null : Integer.parseInt(passengerCountStr);
 
         // Create the avlReport
-        AvlReport avlReport = new AvlReport(
+        var avlReport = new AvlReport(
                 vehicleId,
                 time,
                 lat,
@@ -101,11 +101,13 @@ public class AvlCsvRecord extends CsvBase {
         String assignmentTypeStr = avlCsvRecord.getOptionalValue(record, "assignmentType");
         AssignmentType assignmentType;
         if (assignmentId != null && assignmentTypeStr != null) {
-            if (assignmentTypeStr.equals("BLOCK_ID")) assignmentType = AssignmentType.BLOCK_ID;
-            else if (assignmentTypeStr.equals("ROUTE_ID")) assignmentType = AssignmentType.ROUTE_ID;
-            else if (assignmentTypeStr.equals("TRIP_ID")) assignmentType = AssignmentType.TRIP_ID;
-            else if (assignmentTypeStr.equals("TRIP_SHORT_NAME")) assignmentType = AssignmentType.TRIP_SHORT_NAME;
-            else assignmentType = AssignmentType.UNSET;
+            assignmentType = switch (assignmentTypeStr) {
+                case "BLOCK_ID" -> AssignmentType.BLOCK_ID;
+                case "ROUTE_ID" -> AssignmentType.ROUTE_ID;
+                case "TRIP_ID" -> AssignmentType.TRIP_ID;
+                case "TRIP_SHORT_NAME" -> AssignmentType.TRIP_SHORT_NAME;
+                default -> AssignmentType.UNSET;
+            };
             avlReport.setAssignment(assignmentId, assignmentType);
         }
 

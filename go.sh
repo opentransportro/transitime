@@ -10,10 +10,10 @@ docker rm tc-db tc > /dev/null
 docker rmi transitclock-server
 docker build -t transitclock-server:latest \
   --build-arg TRANSITCLOCK_PROPERTIES="docker/config/transitclock.properties" \
-  --build-arg AGENCYID="ro.stpt" \
+  --build-arg AGENCYID="stpt" \
   --build-arg AGENCYNAME="STPT" \
   --build-arg GTFS_URL="https://data.opentransport.ro/routing/gtfs/gtfs-stpt.zip" \
-  --build-arg GTFSRTVEHICLEPOSITIONS="https://api.opentransport.ro/realtime/vehicle-positions/tm" .
+  --build-arg GTFSRTVEHICLEPOSITIONS="https://api.opentransport.ro/exporter/v1/realtime/stpt/vehicle-positions" .
 
 mkdir "logs"
 
