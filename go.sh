@@ -21,7 +21,7 @@ docker run --name tc-db -p 5432:5432 -e POSTGRES_PASSWORD=$PGPASSWORD -d postgre
 echo "-- wait for db"
 docker run --name tc --rm --link tc-db:postgres -e PGPASSWORD=$PGPASSWORD transitclock-server check_db_up.sh
 echo "-- creating tables"
-docker run --name tc --rm --link tc-db:postgres -e PGPASSWORD=$PGPASSWORD transitclock-server create_tables.sh ./logs/table-creation.log 2>&1
+docker run --name tc --rm --link tc-db:postgres -e PGPASSWORD=$PGPASSWORD transitclock-server create_tables.sh > ./logs/table-creation.log 2>&1
 echo "-- import gtfs data"
 docker run --name tc --rm --link tc-db:postgres -e PGPASSWORD=$PGPASSWORD transitclock-server import_gtfs.sh > ./logs/gtfs-import.log 2>&1
 echo "-- creating api & webagency"
