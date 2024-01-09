@@ -1,37 +1,24 @@
 /* (C)2023 */
 package org.transitclock.ipc.servers;
 
+import com.querydsl.jpa.impl.JPAQuery;
+import org.hibernate.Session;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.transitclock.core.BlocksInfo;
+import org.transitclock.core.dataCache.VehicleDataCache;
+import org.transitclock.db.hibernate.HibernateUtils;
+import org.transitclock.db.structs.*;
+import org.transitclock.ipc.data.*;
+import org.transitclock.ipc.interfaces.VehiclesInterface;
+import org.transitclock.ipc.rmi.AbstractServer;
+
 import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-import org.hibernate.Criteria;
-import org.hibernate.Session;
-import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Restrictions;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.transitclock.core.BlocksInfo;
-import org.transitclock.core.dataCache.VehicleDataCache;
-import org.transitclock.db.hibernate.HibernateUtils;
-import org.transitclock.db.structs.Block;
-import org.transitclock.db.structs.Route;
-import org.transitclock.db.structs.Trip;
-import org.transitclock.db.structs.VehicleConfig;
-import org.transitclock.db.structs.VehicleToBlockConfig;
-import org.transitclock.ipc.data.IpcActiveBlock;
-import org.transitclock.ipc.data.IpcBlock;
-import org.transitclock.ipc.data.IpcVehicle;
-import org.transitclock.ipc.data.IpcVehicleComplete;
-import org.transitclock.ipc.data.IpcVehicleConfig;
-import org.transitclock.ipc.data.IpcVehicleGtfsRealtime;
-import org.transitclock.ipc.data.IpcVehicleToBlockConfig;
-import org.transitclock.ipc.interfaces.VehiclesInterface;
-import org.transitclock.ipc.rmi.AbstractServer;
-
-import javax.persistence.criteria.CriteriaBuilder;
 
 /**
  * Implements the VehiclesInterface interface on the server side such that a VehiclessClient can
@@ -338,11 +325,13 @@ public class VehiclesServer extends AbstractServer implements VehiclesInterface 
             String routeName, int allowableBeforeTimeSecs) throws RemoteException {
 
         Session session = HibernateUtils.getSession();
-        CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
-        Criteria criteria = session.createCriteria(Route.class)
-                .add(Restrictions.eq("name", routeName))
-                .setProjection(Projections.groupProperty("id"));
-        List<String> routeIds = criteria.list();
+        JPAQuery<Route> query = new JPAQuery<>(session);
+        var qentity = QRoute.route;
+        List<String> routeIds = query.from(qentity)
+                .select(qentity.id)
+                .where(qentity.name.eq(routeName))
+                .groupBy(qentity.id)
+                .fetch();
         session.close();
 
         return getActiveBlocksAndVehiclesByRouteId(routeIds, allowableBeforeTimeSecs);
@@ -352,7 +341,7 @@ public class VehiclesServer extends AbstractServer implements VehiclesInterface 
             Collection<String> routeIds, int allowableBeforeTimeSecs) throws RemoteException {
 
         // List of data to be returned
-        List<IpcActiveBlock> results = new ArrayList<IpcActiveBlock>();
+        List<IpcActiveBlock> results = new ArrayList<>();
         // Determine all the active blocks
         List<Block> blocks = BlocksInfo.getCurrentlyActiveBlocks(routeIds, null, allowableBeforeTimeSecs, -1);
         // For each active block determine associated vehicle

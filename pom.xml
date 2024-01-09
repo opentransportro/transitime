@@ -116,6 +116,7 @@
                     <configuration>
                         <source>${java.version}</source>
                         <target>${java.version}</target>
+                        <showDeprecation>true</showDeprecation>
                         <annotationProcessorPaths>
                             <annotationProcessorPath>
                                 <groupId>org.projectlombok</groupId>

@@ -1,6 +1,8 @@
 /* (C)2023 */
 package org.transitclock.xssfilter;
 
+import org.apache.commons.text.StringEscapeUtils;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,7 +15,6 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
-import org.apache.commons.lang3.StringEscapeUtils;
 
 public class XSSFilter implements Filter {
 
@@ -28,7 +29,6 @@ public class XSSFilter implements Filter {
             throws IOException, ServletException {
 
         ServletRequest wrappedRequest = new HttpServletRequestWrapper((HttpServletRequest) request) {
-
             @Override
             public String getParameter(String param) {
                 String str = super.getParameter(param);
@@ -39,12 +39,13 @@ public class XSSFilter implements Filter {
             public Map<String, String[]> getParameterMap() {
                 Map<String, String[]> orig = super.getParameterMap();
 
-                Map<String, String[]> map = new HashMap<String, String[]>();
+                Map<String, String[]> map = new HashMap<>();
 
                 for (Entry<String, String[]> entry : orig.entrySet()) {
                     String[] src = entry.getValue();
-                    String value[] = new String[src.length];
-                    for (int i = 0; i < src.length; i++) value[i] = StringEscapeUtils.escapeHtml4(src[i]);
+                    String[] value = new String[src.length];
+                    for (int i = 0; i < src.length; i++)
+                        value[i] = StringEscapeUtils.escapeHtml4(src[i]);
 
                     map.put(entry.getKey(), value);
                 }

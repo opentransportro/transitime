@@ -4,6 +4,10 @@ package org.transitclock.reports;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.NumberPath;
+import com.querydsl.jpa.impl.JPAQuery;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
@@ -19,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.db.hibernate.HibernateUtils;
 import org.transitclock.db.structs.PredictionAccuracy;
+import org.transitclock.db.structs.QPredictionAccuracy;
 
 /**
  * To find route performance information. For now, route performance is the percentage of
@@ -36,7 +41,8 @@ public class RoutePerformanceQuery {
 
     private static final String TRANSITIME_PREDICTION_SOURCE = "Transitime";
 
-    public List<Object[]> query(
+    // TODO: revisit query
+    public List<PredictionAccuracy> query(
             String agencyId,
             Date startDate,
             int numDays,
@@ -54,41 +60,35 @@ public class RoutePerformanceQuery {
         // Project to: # of predictions in which route is on time / # of predictions
         // for route. This cannot be done with pure Criteria API. This could be
         // moved to a separate class or XML file.
-        String sqlProjection = "avg(predictionAccuracyMsecs)  AS avgAccuracy";
-
         try {
             session = HibernateUtils.getSession(agencyId);
 
-            Projection proj = Projections.projectionList()
-                    .add(Projections.groupProperty("routeId"), "routeId")
-                    .add(
-                            Projections.sqlProjection(
-                                    sqlProjection, new String[] {"avgAccuracy"}, new Type[] {DoubleType.INSTANCE}),
-                            "performance");
+            JPAQuery<PredictionAccuracy> query = new JPAQuery<>(session);
+            var qentity = QPredictionAccuracy.predictionAccuracy;
+            NumberPath<Double> performance = Expressions.numberPath(Double.class, "performance");
+            query.from(qentity)
+                    .select(qentity.predictionAccuracyMsecs.avg().as(performance))
+                    .where(qentity.arrivalDepartureTime.between(startDate,endDate))
+                    .where(qentity.predictionAccuracyMsecs.between(msecLo,msecHi));
 
-            Criteria criteria = session.createCriteria(PredictionAccuracy.class)
-                    .setProjection(proj)
-                    .add(Restrictions.ge("arrivalDepartureTime", startDate))
-                    .add(Restrictions.le("arrivalDepartureTime", endDate))
-                    .add(Restrictions.ge("predictionAccuracyMsecs", msecLo))
-                    .add(Restrictions.le("predictionAccuracyMsecs", msecHi));
 
-            if (predictionType == PREDICTION_TYPE_AFFECTED) criteria.add(Restrictions.eq("affectedByWaitStop", true));
+            if (predictionType == PREDICTION_TYPE_AFFECTED)
+                query.where(qentity.affectedByWaitStop.eq(true));
             else if (predictionType == PREDICTION_TYPE_NOT_AFFECTED)
-                criteria.add(Restrictions.eq("affectedByWaitStop", false));
+                query.where(qentity.affectedByWaitStop.eq(false));
 
             if (predictionSource != null && !StringUtils.isEmpty(predictionSource)) {
                 if (predictionSource.equals(TRANSITIME_PREDICTION_SOURCE))
-                    criteria.add(Restrictions.eq("predictionSource", TRANSITIME_PREDICTION_SOURCE));
-                else criteria.add(Restrictions.ne("predictionSource", TRANSITIME_PREDICTION_SOURCE));
+                    query.where(qentity.predictionSource.eq(TRANSITIME_PREDICTION_SOURCE));
+                else
+                    query.where(qentity.predictionSource.ne(TRANSITIME_PREDICTION_SOURCE));
             }
 
-            criteria.addOrder(Order.desc("performance"));
-
-            criteria.setResultTransformer(CriteriaSpecification.ALIAS_TO_ENTITY_MAP);
+            query.orderBy(performance.desc())
+                    .groupBy(qentity.routeId);
 
             @SuppressWarnings("unchecked")
-            List<Object[]> results = criteria.list();
+            List<PredictionAccuracy> results = query.fetch();
 
             return results;
         } catch (HibernateException e) {

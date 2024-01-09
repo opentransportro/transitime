@@ -1,14 +1,6 @@
 /* (C)2023 */
 package org.transitclock.db.hibernate;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -17,6 +9,15 @@ import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.service.ServiceRegistry;
 import org.transitclock.configData.DbSetupConfig;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 
 @Slf4j
 public class HibernateUtils {
@@ -201,6 +202,7 @@ public class HibernateUtils {
     public static Session getSession() {
         return getSession(false);
     }
+
 
     public static Session getSession(boolean readOnly) {
         SessionFactory sessionFactory = HibernateUtils.getSessionFactory(DbSetupConfig.getDbName(), readOnly);

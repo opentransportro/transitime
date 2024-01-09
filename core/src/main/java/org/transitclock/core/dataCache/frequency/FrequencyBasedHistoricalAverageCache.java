@@ -9,6 +9,8 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
+
+import com.querydsl.jpa.impl.JPAQuery;
 import org.apache.commons.lang3.time.DateUtils;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
@@ -18,8 +20,7 @@ import org.slf4j.LoggerFactory;
 import org.transitclock.applications.Core;
 import org.transitclock.config.IntegerConfigValue;
 import org.transitclock.core.dataCache.*;
-import org.transitclock.db.structs.ArrivalDeparture;
-import org.transitclock.db.structs.Trip;
+import org.transitclock.db.structs.*;
 import org.transitclock.gtfs.DbConfig;
 import org.transitclock.gtfs.GtfsData;
 import org.transitclock.ipc.data.IpcArrivalDeparture;
@@ -314,12 +315,13 @@ public class FrequencyBasedHistoricalAverageCache {
     }
 
     public void populateCacheFromDb(Session session, Date startDate, Date endDate) throws Exception {
-        Criteria criteria = session.createCriteria(ArrivalDeparture.class);
+        JPAQuery<ArrivalDeparture> query = new JPAQuery<>(session);
+        var qentity = QArrivalDeparture.arrivalDeparture;
+        List<ArrivalDeparture> results = query.from(qentity)
+                .where(qentity.time.between(startDate,endDate))
+                .fetch();
 
-        @SuppressWarnings("unchecked")
-        List<ArrivalDeparture> results =
-                criteria.add(Restrictions.between("time", startDate, endDate)).list();
-        Collections.sort(results, new ArrivalDepartureComparator());
+        results.sort(new ArrivalDepartureComparator());
         for (ArrivalDeparture result : results) {
             // TODO this might be better done in the database.
             if (GtfsData.routeNotFiltered(result.getRouteId())) {

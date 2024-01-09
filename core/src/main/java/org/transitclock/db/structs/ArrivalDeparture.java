@@ -1,6 +1,7 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
+import com.querydsl.jpa.impl.JPAQuery;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -449,18 +450,19 @@ public class ArrivalDeparture implements Lifecycle, Serializable {
      */
     public static List<ArrivalDeparture> getArrivalsDeparturesFromDb(
             Session session, Date beginTime, Date endTime, String tripId, String serviceId) {
+        JPAQuery<ArrivalDeparture> query = new JPAQuery<>(session);
+        var qentity = QArrivalDeparture.arrivalDeparture;
 
-        Criteria criteria = session.createCriteria(ArrivalDeparture.class);
-
-        criteria.add(Restrictions.eq("tripId", tripId));
-        criteria.add(Restrictions.gt("time", beginTime));
-        criteria.add(Restrictions.lt("time", endTime)).list();
+        query = query.from(qentity)
+            .where(qentity.tripId.eq(tripId))
+            .where(qentity.time.gt(beginTime))
+            .where(qentity.time.lt(endTime));
 
         if (serviceId != null) {
-            criteria.add(Restrictions.eq("serviceId", serviceId));
+            query.where(qentity.serviceId.eq(serviceId));
         }
 
-        return criteria.list();
+        return query.fetch();
     }
 
     /**
@@ -469,22 +471,22 @@ public class ArrivalDeparture implements Lifecycle, Serializable {
      */
     public static List<ArrivalDeparture> getArrivalsDeparturesFromDb(
             Session session, Date beginTime, Date endTime, String tripId, Integer stopPathIndex) {
-        Criteria criteria = session.createCriteria(ArrivalDeparture.class);
+        JPAQuery<ArrivalDeparture> query = new JPAQuery<>(session);
+        var qentity = QArrivalDeparture.arrivalDeparture;
 
+        query.select(qentity);
         if (tripId != null) {
-            criteria.add(Restrictions.eq("tripId", tripId));
+            query.where(qentity.tripId.eq(tripId));
 
             if (stopPathIndex != null) {
-                criteria.add(Restrictions.eq("stopPathIndex", stopPathIndex));
+                query.where(qentity.stopPathIndex.eq(stopPathIndex));
             }
         }
 
-        criteria.add(Restrictions.gt("time", beginTime));
-        criteria.add(Restrictions.lt("time", endTime)).list();
+        query.where(qentity.time.gt(beginTime))
+                .where(qentity.time.lt(endTime));
 
-        @SuppressWarnings("unchecked")
-        List<ArrivalDeparture> arrivalsDeparatures = criteria.list();
-        return arrivalsDeparatures;
+        return query.fetch();
     }
 
     /**

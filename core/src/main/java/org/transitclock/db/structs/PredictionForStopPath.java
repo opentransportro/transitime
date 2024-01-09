@@ -5,6 +5,8 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 import javax.persistence.*;
+
+import com.querydsl.jpa.impl.JPAQuery;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -80,26 +82,28 @@ public class PredictionForStopPath implements Serializable {
     @SuppressWarnings("unchecked")
     public static List<PredictionForStopPath> getPredictionForStopPathFromDB(
             Date beginTime, Date endTime, String algorithm, String tripId, Integer stopPathIndex) {
-        Session session = HibernateUtils.getSession();
-        Criteria criteria = session.createCriteria(PredictionForStopPath.class);
+        EntityManager em = HibernateUtils.getSession();
+        JPAQuery<PredictionForStopPath> query = new JPAQuery<>(em);
+        var qentity = QPredictionForStopPath.predictionForStopPath;
 
+        query.from(qentity);
         if (algorithm != null && !algorithm.isEmpty()) {
-            criteria.add(Restrictions.eq("algorithm", algorithm));
+            query.where(qentity.algorithm.eq(algorithm));
         }
         if (tripId != null) {
-            criteria.add(Restrictions.eq("tripId", tripId));
+            query.where(qentity.tripId.eq(tripId));
         }
         if (stopPathIndex != null) {
-            criteria.add(Restrictions.eq("stopPathIndex", stopPathIndex));
+            query.where(qentity.stopPathIndex.eq(stopPathIndex));
         }
         if (beginTime != null) {
-            criteria.add(Restrictions.gt("creationTime", beginTime));
+            query.where(qentity.creationTime.gt(beginTime));
         }
         if (endTime != null) {
-            criteria.add(Restrictions.lt("creationTime", endTime));
+            query.where(qentity.creationTime.lt(endTime));
         }
 
-        return (List<PredictionForStopPath>) criteria.list();
+        return query.fetch();
     }
 
     public PredictionForStopPath() {

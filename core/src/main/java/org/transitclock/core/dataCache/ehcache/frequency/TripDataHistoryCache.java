@@ -7,6 +7,8 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+
+import com.querydsl.jpa.impl.JPAQuery;
 import org.apache.commons.lang3.time.DateUtils;
 import org.ehcache.Cache;
 import org.ehcache.CacheManager;
@@ -26,6 +28,7 @@ import org.transitclock.core.dataCache.ehcache.CacheManagerFactory;
 import org.transitclock.core.dataCache.frequency.FrequencyBasedHistoricalAverageCache;
 import org.transitclock.db.structs.ArrivalDeparture;
 import org.transitclock.db.structs.Block;
+import org.transitclock.db.structs.QArrivalDeparture;
 import org.transitclock.db.structs.Trip;
 import org.transitclock.gtfs.DbConfig;
 import org.transitclock.gtfs.GtfsData;
@@ -130,7 +133,7 @@ public class TripDataHistoryCache implements TripDataHistoryCacheInterface {
 
             // TODO need to set start time based on start of bucket
             if (arrivalDeparture.getFreqStartTime() != null) {
-                Integer time = FrequencyBasedHistoricalAverageCache.secondsFromMidnight(
+                int time = FrequencyBasedHistoricalAverageCache.secondsFromMidnight(
                         arrivalDeparture.getFreqStartTime(), 2);
 
                 time = FrequencyBasedHistoricalAverageCache.round(
@@ -146,10 +149,10 @@ public class TripDataHistoryCache implements TripDataHistoryCacheInterface {
                     TripEvents element = cache.get(tripKey);
 
                     if (element != null && element.getEvents() != null) {
-                        list = (List<IpcArrivalDeparture>) element.getEvents();
+                        list = element.getEvents();
                         cache.remove(tripKey);
                     } else {
-                        list = new ArrayList<IpcArrivalDeparture>();
+                        list = new ArrayList<>();
                     }
 
                     try {
@@ -177,11 +180,11 @@ public class TripDataHistoryCache implements TripDataHistoryCacheInterface {
 
     @Override
     public void populateCacheFromDb(Session session, Date startDate, Date endDate) {
-        Criteria criteria = session.createCriteria(ArrivalDeparture.class);
-
-        @SuppressWarnings("unchecked")
-        List<ArrivalDeparture> results =
-                criteria.add(Restrictions.between("time", startDate, endDate)).list();
+        JPAQuery<ArrivalDeparture> query = new JPAQuery<>(session);
+        var qentity = QArrivalDeparture.arrivalDeparture;
+        List<ArrivalDeparture> results = query.from(qentity)
+                .where(qentity.time.between(startDate,endDate))
+                .fetch();
 
         for (ArrivalDeparture result : results) {
             // TODO this might be better done in the database.
@@ -197,7 +200,7 @@ public class TripDataHistoryCache implements TripDataHistoryCacheInterface {
     @Override
     public IpcArrivalDeparture findPreviousArrivalEvent(
             List<IpcArrivalDeparture> arrivalDepartures, IpcArrivalDeparture current) {
-        Collections.sort(arrivalDepartures, new IpcArrivalDepartureComparator());
+        arrivalDepartures.sort(new IpcArrivalDepartureComparator());
         for (IpcArrivalDeparture tocheck : emptyIfNull(arrivalDepartures)) {
             if (tocheck.getStopId().equals(current.getStopId()) && (current.isDeparture() && tocheck.isArrival())) {
                 return tocheck;
@@ -212,7 +215,7 @@ public class TripDataHistoryCache implements TripDataHistoryCacheInterface {
     @Override
     public IpcArrivalDeparture findPreviousDepartureEvent(
             List<IpcArrivalDeparture> arrivalDepartures, IpcArrivalDeparture current) {
-        Collections.sort(arrivalDepartures, new IpcArrivalDepartureComparator());
+        arrivalDepartures.sort(new IpcArrivalDepartureComparator());
         for (IpcArrivalDeparture tocheck : emptyIfNull(arrivalDepartures)) {
             try {
 

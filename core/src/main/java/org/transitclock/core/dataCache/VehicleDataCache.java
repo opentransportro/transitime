@@ -96,8 +96,7 @@ public class VehicleDataCache {
      * to sync.
      */
     private void readVehicleConfigFromDb() {
-        Session session = HibernateUtils.getSession(AgencyConfig.getAgencyId());
-        try {
+        try (Session session = HibernateUtils.getSession(AgencyConfig.getAgencyId())) {
             // Read VehicleConfig data from database
             List<VehicleConfig> vehicleConfigs = VehicleConfig.getVehicleConfigs(session);
 
@@ -109,10 +108,8 @@ public class VehicleDataCache {
             }
         } catch (HibernateException e) {
             logger.error("Exception reading in VehicleConfig data. {}", e.getMessage(), e);
-        } finally {
-            // Always close the session
-            session.close();
         }
+        // Always close the session
     }
 
     /** Reads in vehicle config data from db if haven't done so yet. */

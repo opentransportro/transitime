@@ -1,20 +1,7 @@
 /* (C)2023 */
 package org.transitclock.avl;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.SocketTimeoutException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.nio.charset.StandardCharsets;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.Collection;
-import java.util.zip.GZIPInputStream;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.codec.binary.Base64;
 import org.json.JSONException;
 import org.transitclock.config.BooleanConfigValue;
 import org.transitclock.config.StringConfigValue;
@@ -23,6 +10,18 @@ import org.transitclock.configData.AvlConfig;
 import org.transitclock.db.structs.AvlReport;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.Time;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.SocketTimeoutException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+import java.util.Collection;
+import java.util.zip.GZIPInputStream;
 
 /**
  * Subclass of AvlModule to be used when reading AVL data from a feed. Calls the abstract method
@@ -147,7 +146,7 @@ public abstract class PollUrlAvlModule extends AvlModule {
         // If authentication being used then set user and password
         if (authenticationUser.getValue() != null && authenticationPassword.getValue() != null) {
             String authString = authenticationUser.getValue() + ":" + authenticationPassword.getValue();
-            byte[] authEncBytes = Base64.encodeBase64(authString.getBytes());
+            byte[] authEncBytes = Base64.getEncoder().encode(authString.getBytes());
             String authStringEnc = new String(authEncBytes);
             con.setRequestProperty("Authorization", "Basic " + authStringEnc);
         }

@@ -7,6 +7,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+
+import com.querydsl.jpa.impl.JPAQuery;
 import org.apache.commons.jcs.JCS;
 import org.apache.commons.jcs.access.CacheAccess;
 import org.apache.commons.lang3.time.DateUtils;
@@ -22,6 +24,7 @@ import org.transitclock.core.dataCache.TripDataHistoryCacheInterface;
 import org.transitclock.core.dataCache.TripKey;
 import org.transitclock.core.dataCache.frequency.FrequencyBasedHistoricalAverageCache;
 import org.transitclock.db.structs.ArrivalDeparture;
+import org.transitclock.db.structs.QArrivalDeparture;
 import org.transitclock.db.structs.Trip;
 import org.transitclock.gtfs.DbConfig;
 import org.transitclock.gtfs.GtfsData;
@@ -87,7 +90,7 @@ public class TripDataHistoryCache implements TripDataHistoryCacheInterface {
             Trip trip = dbConfig.getTrip(arrivalDeparture.getTripId());
 
             if (trip != null) {
-                Integer time = FrequencyBasedHistoricalAverageCache.secondsFromMidnight(arrivalDeparture.getDate(), 2);
+                int time = FrequencyBasedHistoricalAverageCache.secondsFromMidnight(arrivalDeparture.getDate(), 2);
 
                 /* this is what gets the trip from the buckets */
                 time = FrequencyBasedHistoricalAverageCache.round(
@@ -97,7 +100,7 @@ public class TripDataHistoryCache implements TripDataHistoryCacheInterface {
 
                 List<IpcArrivalDeparture> list = cache.get(tripKey);
 
-                if (list == null) list = new ArrayList<IpcArrivalDeparture>();
+                if (list == null) list = new ArrayList<>();
 
                 try {
                     list.add(new IpcArrivalDeparture(arrivalDeparture));
@@ -117,11 +120,11 @@ public class TripDataHistoryCache implements TripDataHistoryCacheInterface {
 
     @Override
     public void populateCacheFromDb(Session session, Date startDate, Date endDate) {
-        Criteria criteria = session.createCriteria(ArrivalDeparture.class);
-
-        @SuppressWarnings("unchecked")
-        List<ArrivalDeparture> results =
-                criteria.add(Restrictions.between("time", startDate, endDate)).list();
+        JPAQuery<ArrivalDeparture> query = new JPAQuery<>(session);
+        var qentity = QArrivalDeparture.arrivalDeparture;
+        List<ArrivalDeparture> results = query.from(qentity)
+                .where(qentity.time.between(startDate,endDate))
+                .fetch();
 
         for (ArrivalDeparture result : results) {
             // TODO this might be better done in the database.
@@ -137,7 +140,7 @@ public class TripDataHistoryCache implements TripDataHistoryCacheInterface {
     @Override
     public IpcArrivalDeparture findPreviousArrivalEvent(
             List<IpcArrivalDeparture> arrivalDepartures, IpcArrivalDeparture current) {
-        Collections.sort(arrivalDepartures, new IpcArrivalDepartureComparator());
+        arrivalDepartures.sort(new IpcArrivalDepartureComparator());
         for (IpcArrivalDeparture tocheck : emptyIfNull(arrivalDepartures)) {
             if (tocheck.getStopId().equals(current.getStopId()) && (current.isDeparture() && tocheck.isArrival())) {
                 return tocheck;
@@ -152,7 +155,7 @@ public class TripDataHistoryCache implements TripDataHistoryCacheInterface {
     @Override
     public IpcArrivalDeparture findPreviousDepartureEvent(
             List<IpcArrivalDeparture> arrivalDepartures, IpcArrivalDeparture current) {
-        Collections.sort(arrivalDepartures, new IpcArrivalDepartureComparator());
+        arrivalDepartures.sort(new IpcArrivalDepartureComparator());
         for (IpcArrivalDeparture tocheck : emptyIfNull(arrivalDepartures)) {
             try {
                 if (tocheck.getStopPathIndex() == (current.getStopPathIndex() - 1)

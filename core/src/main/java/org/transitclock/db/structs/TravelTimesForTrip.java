@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.persistence.*;
+
+import com.querydsl.jpa.impl.JPAQuery;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -165,10 +167,12 @@ public class TravelTimesForTrip implements Serializable {
             throws HibernateException {
         logger.info("Reading TravelTimesForTrips for travelTimesRev={} ...", travelTimesRev);
 
-        List<TravelTimesForTrip> allTravelTimes = session.createCriteria(TravelTimesForTrip.class)
-                .add(Restrictions.eq("travelTimesRev", travelTimesRev))
-                .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
-                .list();
+        JPAQuery<TravelTimesForTrip> query = new JPAQuery<>(session);
+        var qentity = QTravelTimesForTrip.travelTimesForTrip;
+        List<TravelTimesForTrip> allTravelTimes = query.from(qentity)
+                .where(qentity.travelTimesRev.eq(travelTimesRev))
+                .distinct()
+                .fetch();
 
         logger.info("Putting travel times into map...");
 

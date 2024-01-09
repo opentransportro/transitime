@@ -6,6 +6,8 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+
+import com.querydsl.jpa.impl.JPAQuery;
 import org.apache.commons.lang3.time.DateUtils;
 import org.ehcache.Cache;
 import org.ehcache.CacheManager;
@@ -23,6 +25,7 @@ import org.transitclock.core.dataCache.TripEvents;
 import org.transitclock.core.dataCache.TripKey;
 import org.transitclock.core.dataCache.ehcache.CacheManagerFactory;
 import org.transitclock.db.structs.ArrivalDeparture;
+import org.transitclock.db.structs.QArrivalDeparture;
 import org.transitclock.db.structs.Trip;
 import org.transitclock.gtfs.DbConfig;
 import org.transitclock.gtfs.GtfsData;
@@ -134,11 +137,11 @@ public class TripDataHistoryCache implements TripDataHistoryCacheInterface {
 
     @Override
     public void populateCacheFromDb(Session session, Date startDate, Date endDate) {
-        Criteria criteria = session.createCriteria(ArrivalDeparture.class);
-
-        @SuppressWarnings("unchecked")
-        List<ArrivalDeparture> results =
-                criteria.add(Restrictions.between("time", startDate, endDate)).list();
+        JPAQuery<ArrivalDeparture> query = new JPAQuery<>(session);
+        var qentity = QArrivalDeparture.arrivalDeparture;
+        List<ArrivalDeparture> results = query.from(qentity)
+                .where(qentity.time.between(startDate,endDate))
+                .fetch();
 
         for (ArrivalDeparture result : results) {
             // TODO this might be better done in the database.

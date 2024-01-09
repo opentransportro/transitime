@@ -1,32 +1,28 @@
 /* (C)2023 */
 package org.transitclock.core.dataCache.scheduled;
 
-import java.net.URL;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import com.querydsl.jpa.impl.JPAQuery;
 import org.apache.commons.lang3.time.DateUtils;
 import org.ehcache.Cache;
 import org.ehcache.CacheManager;
-import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.applications.Core;
 import org.transitclock.core.DwellTimeDetails;
 import org.transitclock.core.TravelTimeDetails;
-import org.transitclock.core.dataCache.ArrivalDepartureComparator;
-import org.transitclock.core.dataCache.HistoricalAverage;
-import org.transitclock.core.dataCache.StopPathCacheKey;
-import org.transitclock.core.dataCache.TripDataHistoryCacheFactory;
-import org.transitclock.core.dataCache.TripKey;
+import org.transitclock.core.dataCache.*;
 import org.transitclock.core.dataCache.ehcache.CacheManagerFactory;
 import org.transitclock.db.structs.ArrivalDeparture;
+import org.transitclock.db.structs.QArrivalDeparture;
 import org.transitclock.db.structs.Trip;
 import org.transitclock.gtfs.DbConfig;
 import org.transitclock.ipc.data.IpcArrivalDeparture;
+
+import java.net.URL;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @author Sean Óg Crudden
@@ -129,10 +125,9 @@ public class ScheduleBasedHistoricalAverageCache {
         Date nearestDay = DateUtils.truncate(new Date(arrivalDeparture.getTime().getTime()), Calendar.DAY_OF_MONTH);
         TripKey tripKey = new TripKey(arrivalDeparture.getTripId(), nearestDay, trip.getStartTime());
 
-        List<IpcArrivalDeparture> arrivalDepartures = (List<IpcArrivalDeparture>)
-                TripDataHistoryCacheFactory.getInstance().getTripHistory(tripKey);
+        List<IpcArrivalDeparture> arrivalDepartures = TripDataHistoryCacheFactory.getInstance().getTripHistory(tripKey);
 
-        if (arrivalDepartures != null && arrivalDepartures.size() > 0 && arrivalDeparture.isArrival()) {
+        if (arrivalDepartures != null && !arrivalDepartures.isEmpty() && arrivalDeparture.isArrival()) {
             IpcArrivalDeparture previousEvent = TripDataHistoryCacheFactory.getInstance()
                     .findPreviousDepartureEvent(arrivalDepartures, arrivalDeparture);
 
@@ -148,8 +143,7 @@ public class ScheduleBasedHistoricalAverageCache {
         Date nearestDay = DateUtils.truncate(new Date(arrivalDeparture.getTime().getTime()), Calendar.DAY_OF_MONTH);
         TripKey tripKey = new TripKey(arrivalDeparture.getTripId(), nearestDay, trip.getStartTime());
 
-        List<IpcArrivalDeparture> arrivalDepartures = (List<IpcArrivalDeparture>)
-                TripDataHistoryCacheFactory.getInstance().getTripHistory(tripKey);
+        List<IpcArrivalDeparture> arrivalDepartures = TripDataHistoryCacheFactory.getInstance().getTripHistory(tripKey);
 
         if (arrivalDepartures != null && arrivalDepartures.size() > 0 && arrivalDeparture.isDeparture()) {
             IpcArrivalDeparture previousEvent = TripDataHistoryCacheFactory.getInstance()
@@ -163,13 +157,13 @@ public class ScheduleBasedHistoricalAverageCache {
     }
 
     public void populateCacheFromDb(Session session, Date startDate, Date endDate) throws Exception {
-        Criteria criteria = session.createCriteria(ArrivalDeparture.class);
+        JPAQuery<ArrivalDeparture> query = new JPAQuery<>(session);
+        var qentity = QArrivalDeparture.arrivalDeparture;
+        List<ArrivalDeparture> results = query.from(qentity)
+                .where(qentity.time.between(startDate,endDate))
+                .fetch();
 
-        @SuppressWarnings("unchecked")
-        List<ArrivalDeparture> results =
-                criteria.add(Restrictions.between("time", startDate, endDate)).list();
-
-        Collections.sort(results, new ArrivalDepartureComparator());
+        results.sort(new ArrivalDepartureComparator());
 
         for (ArrivalDeparture result : results) {
             ScheduleBasedHistoricalAverageCache.getInstance().putArrivalDeparture(result);

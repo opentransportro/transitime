@@ -6,6 +6,8 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+
+import com.querydsl.jpa.impl.JPAQuery;
 import org.ehcache.Cache;
 import org.ehcache.CacheManager;
 import org.hibernate.Criteria;
@@ -21,6 +23,7 @@ import org.transitclock.core.dataCache.StopArrivalDepartureCacheInterface;
 import org.transitclock.core.dataCache.StopArrivalDepartureCacheKey;
 import org.transitclock.core.dataCache.StopEvents;
 import org.transitclock.db.structs.ArrivalDeparture;
+import org.transitclock.db.structs.QArrivalDeparture;
 import org.transitclock.ipc.data.IpcArrivalDeparture;
 import org.transitclock.utils.Time;
 
@@ -128,12 +131,12 @@ public class StopArrivalDepartureCache extends StopArrivalDepartureCacheInterfac
     }
 
     public void populateCacheFromDb(Session session, Date startDate, Date endDate) {
-        Criteria criteria = session.createCriteria(ArrivalDeparture.class);
-
-        @SuppressWarnings("unchecked")
-        List<ArrivalDeparture> results = criteria.add(Restrictions.between("time", startDate, endDate))
-                .addOrder(Order.asc("time"))
-                .list();
+        JPAQuery<ArrivalDeparture> query = new JPAQuery<>(session);
+        var qentity = QArrivalDeparture.arrivalDeparture;
+        List<ArrivalDeparture> results = query.from(qentity)
+                .where(qentity.time.between(startDate,endDate))
+                .orderBy(qentity.time.asc())
+                .fetch();
 
         for (ArrivalDeparture result : results) {
             StopArrivalDepartureCacheFactory.getInstance().putArrivalDeparture(result);
