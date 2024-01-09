@@ -190,21 +190,4 @@ public class ClientFactory<T extends Remote> {
     public static int getTimeoutSec() {
         return timeoutSec.getValue();
     }
-
-    /**
-     * Just for debugging.
-     *
-     * @param args
-     */
-    public static void main(String args[]) {
-        String agencyId = "testProjectId";
-
-        Hello hello = ClientFactory.getInstance(agencyId, Hello.class);
-        try {
-            String result = hello.concat("s1", "s2");
-            System.err.println("result=" + result);
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        }
-    }
 }

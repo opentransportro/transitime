@@ -39,7 +39,6 @@ public class GtfsData {
 
     // Various params set by constructor
     private final ActiveRevisions revs;
-    private final String notes;
     // For when zip file used. Null otherwise
     private final Date zipFileLastModifiedTime;
     private final int originalTravelTimesRev;
@@ -220,7 +219,6 @@ public class GtfsData {
 
     public GtfsData(
             int configRev,
-            String notes,
             Date zipFileLastModifiedTime,
             boolean shouldStoreNewRevs,
             boolean shouldDeleteRevs,
@@ -238,7 +236,6 @@ public class GtfsData {
             double maxDistanceBetweenStops,
             boolean disableSpecialLoopBackToBeginningCase) {
         this.agencyId = projectId;
-        this.notes = notes;
         this.zipFileLastModifiedTime = zipFileLastModifiedTime;
         this.gtfsDirectoryName = gtfsDirectoryName;
         this.supplementDir = supplementDir;
@@ -2225,7 +2222,7 @@ public class GtfsData {
      * @return
      */
     public ConfigRevision getConfigRevision() {
-        return new ConfigRevision(revs.getConfigRev(), new Date(), zipFileLastModifiedTime, notes);
+        return new ConfigRevision(revs.getConfigRev(), new Date(), zipFileLastModifiedTime, "");
     }
 
     public void outputRoutesForGraphing() {

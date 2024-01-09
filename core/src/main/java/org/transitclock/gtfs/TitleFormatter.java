@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,10 +63,10 @@ public class TitleFormatter {
     // so that if one isn't doing anything anymore it could be removed
     // and processing could then be sped up a bit since doing a
     // regex for each title is expensive.
-    private boolean logUnusedRegexs;
-    private HashSet<String> regexesThatMadeDifference = new HashSet<String>();
+    private final boolean logUnusedRegexs;
+    private final Set<String> regexesThatMadeDifference = new HashSet<String>();
 
-    private List<RegexInfo> regexReplaceList = new ArrayList<RegexInfo>();
+    private final List<RegexInfo> regexReplaceList = new ArrayList<RegexInfo>();
 
     private static final BooleanConfigValue capitalize = new BooleanConfigValue(
             "transitclock.gtfs.capitalize",
@@ -78,7 +79,6 @@ public class TitleFormatter {
 
     private static final Logger logger = LoggerFactory.getLogger(TitleFormatter.class);
 
-    /********************** Member Functions **************************/
     public TitleFormatter(String regexReplaceListFileName, boolean logUnusedRegexs) {
         this.logUnusedRegexs = logUnusedRegexs;
 

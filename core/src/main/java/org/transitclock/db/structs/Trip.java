@@ -857,7 +857,7 @@ public class Trip implements Lifecycle, Serializable {
                 count = bcount.longValue();
             }
         } catch (HibernateException e) {
-            Core.getLogger().error("exception querying for metrics", e);
+            logger.error("exception querying for metrics", e);
         }
         return count;
     }

@@ -10,6 +10,7 @@ import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.CallbackException;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
@@ -51,6 +52,7 @@ import org.transitclock.utils.Time;
             @Index(name = "ArrivalsDeparturesRouteTimeIndex", columnList = "routeShortName, time")
     }
 )
+@Slf4j
 public class ArrivalDeparture implements Lifecycle, Serializable {
 
     @Id
@@ -182,8 +184,6 @@ public class ArrivalDeparture implements Lifecycle, Serializable {
         ARRIVALS,
         DEPARTURES
     }
-
-    private static final Logger logger = LoggerFactory.getLogger(ArrivalDeparture.class);
 
     /**
      * Constructor called when creating an ArrivalDeparture object to be stored in db.
@@ -516,8 +516,7 @@ public class ArrivalDeparture implements Lifecycle, Serializable {
             logger.debug("Getting arrival/departures from database took {} msec", timer.elapsedMsec());
             return arrivalsDeparatures;
         } catch (HibernateException e) {
-            // Log error to the Core logger
-            Core.getLogger().error(e.getMessage(), e);
+            logger.error(e.getMessage(), e);
             return null;
         } finally {
             // Clean things up. Not sure if this absolutely needed nor if
@@ -591,8 +590,7 @@ public class ArrivalDeparture implements Lifecycle, Serializable {
             logger.debug("Getting arrival/departures from database took {} msec", timer.elapsedMsec());
             return arrivalsDeparatures;
         } catch (HibernateException e) {
-            // Log error to the Core logger
-            Core.getLogger().error(e.getMessage(), e);
+            logger.error(e.getMessage(), e);
             return null;
         } finally {
             // Clean things up. Not sure if this absolutely needed nor if
@@ -628,8 +626,7 @@ public class ArrivalDeparture implements Lifecycle, Serializable {
             logger.debug("Getting arrival/departures from database took {} msec", timer.elapsedMsec());
             return count;
         } catch (HibernateException e) {
-            // Log error to the Core logger
-            Core.getLogger().error(e.getMessage(), e);
+            logger.error(e.getMessage(), e);
             return null;
         } finally {
             // Clean things up. Not sure if this absolutely needed nor if

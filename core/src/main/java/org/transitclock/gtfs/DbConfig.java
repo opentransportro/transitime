@@ -105,15 +105,6 @@ public class DbConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(DbConfig.class);
 
-    private StringConfigValue validateTestQuery =
-            new StringConfigValue("transitclock.db.validateQuery", "SELECT 1", "query to validate database connection");
-
-    public String getValidateTestQuery() {
-        return validateTestQuery.getValue();
-    }
-
-    /********************** Member Functions **************************/
-
     /**
      * Constructor
      *
@@ -121,7 +112,6 @@ public class DbConfig {
      */
     public DbConfig(String agencyId) {
         this.agencyId = agencyId;
-        new Thread(new ValidateSessionThread(this)).start();
     }
 
     /**
@@ -908,7 +898,7 @@ public class DbConfig {
      * @return The first agency, or null if no agencies configured
      */
     public Agency getFirstAgency() {
-        return agencies.size() > 0 ? agencies.get(0) : null;
+        return !agencies.isEmpty() ? agencies.get(0) : null;
     }
 
     public List<Agency> getAgencies() {
@@ -922,84 +912,5 @@ public class DbConfig {
      */
     public int getConfigRev() {
         return configRev;
-    }
-
-    /**
-     * Output contents of collection to stdout. For debugging.
-     *
-     * @param name
-     * @param list
-     */
-    private static void outputCollection(String name, Collection<?> list) {
-        if (list == null) return;
-
-        System.out.println("\n" + name + ": ");
-        for (Object o : list) {
-            System.out.println(" " + o);
-        }
-    }
-
-    @SuppressWarnings("unused")
-    private static class ValidateSessionThread implements Runnable {
-
-        private DbConfig service;
-
-        public ValidateSessionThread(DbConfig service) {
-            this.service = service;
-        }
-
-        @Override
-        public void run() {
-            DbConfig dbConfig = Core.getInstance().getDbConfig();
-
-            while (!Thread.interrupted()) {
-                Time.sleep(60 * 1000);
-                try {
-                    var query = service.getGlobalSession().createSQLQuery(dbConfig.getValidateTestQuery());
-                    query.list();
-                    logger.debug("session test success");
-                } catch (Throwable t) {
-                    logger.error("session test failure: {} {}", t, t);
-                    // the only reason this validate query should fail is if
-                    // our db connnection is invalid
-                    // log the issue for now
-                    // eventually flush connection pool or give other hints
-                }
-            }
-        }
-    }
-
-    /**
-     * For debugging.
-     *
-     * @param args
-     */
-    public static void main(String args[]) {
-        String projectId = "1";
-
-        int configRev = ActiveRevisions.get(projectId).getConfigRev();
-
-        DbConfig dbConfig = new DbConfig(projectId);
-        dbConfig.read(configRev);
-
-        Block block0 = dbConfig.blocks.get(0);
-        Trip trip0 = block0.getTrips().get(0);
-        TravelTimesForTrip ttft = trip0.getTravelTimes();
-        @SuppressWarnings("unused")
-        TravelTimesForStopPath tte0 = ttft.getTravelTimesForStopPath(0);
-        TripPattern tp = trip0.getTripPattern();
-        @SuppressWarnings("unused")
-        StopPath path0 = tp.getStopPath(0);
-
-        outputCollection("Blocks", dbConfig.blocks);
-        outputCollection("Routes", dbConfig.routesByRouteIdMap.values());
-        outputCollection("Stops", dbConfig.stopsMap.values());
-        outputCollection("Agencies", dbConfig.agencies);
-        outputCollection("Calendars", dbConfig.calendars);
-        outputCollection("CalendarDates", dbConfig.calendarDates);
-        outputCollection("FareAttributes", dbConfig.fareAttributes);
-        outputCollection("FareRules", dbConfig.fareRules);
-        outputCollection("Frequencies", dbConfig.frequencies);
-        outputCollection("Transfers", dbConfig.transfers);
     }
 }

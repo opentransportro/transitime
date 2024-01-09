@@ -171,7 +171,7 @@ public class Match implements Lifecycle, Serializable {
         IntervalTimer timer = new IntervalTimer();
 
         // Get the database session. This is supposed to be pretty light weight
-        Session session = HibernateUtils.getSession(projectId, false);
+        Session session = HibernateUtils.getSession(projectId);
 
         // Create the query. Table name is case sensitive and needs to be the
         // class name instead of the name of the db table.
@@ -199,7 +199,7 @@ public class Match implements Lifecycle, Serializable {
             return matches;
         } catch (HibernateException e) {
             // Log error to the Core logger
-            Core.getLogger().error(e.getMessage(), e);
+            logger.error(e.getMessage(), e);
             return null;
         } finally {
             // Clean things up. Not sure if this absolutely needed nor if
@@ -212,7 +212,7 @@ public class Match implements Lifecycle, Serializable {
         IntervalTimer timer = new IntervalTimer();
 
         // Get the database session. This is supposed to be pretty light weight
-        Session session = HibernateUtils.getSession(projectId, false);
+        Session session = HibernateUtils.getSession(projectId);
 
         // Create the query. Table name is case sensitive and needs to be the
         // class name instead of the name of the db table.
@@ -233,7 +233,7 @@ public class Match implements Lifecycle, Serializable {
             return count;
         } catch (HibernateException e) {
             // Log error to the Core logger
-            Core.getLogger().error(e.getMessage(), e);
+            logger.error(e.getMessage(), e);
             return null;
         } finally {
             // Clean things up. Not sure if this absolutely needed nor if

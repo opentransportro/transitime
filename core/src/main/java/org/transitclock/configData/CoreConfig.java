@@ -3,12 +3,8 @@ package org.transitclock.configData;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.transitclock.config.BooleanConfigValue;
-import org.transitclock.config.DoubleConfigValue;
-import org.transitclock.config.FloatConfigValue;
-import org.transitclock.config.IntegerConfigValue;
-import org.transitclock.config.StringConfigValue;
-import org.transitclock.config.StringListConfigValue;
+
+import org.transitclock.config.*;
 import org.transitclock.utils.Time;
 
 /**
@@ -102,33 +98,21 @@ public class CoreConfig {
                     + "thereby empty out the queue.");
 
     /**
-     * The semicolon separated list of names of all of the modules that should be automatically
+     * The semicolon separated list of names of all the modules that should be automatically
      * started.
-     *
-     * @return
      */
-    public static List<String> getOptionalModules() {
+    public static List<Class> getOptionalModules() {
         return optionalModules.getValue();
     }
 
-    private static final List<String> optionalModulesDefaultList = new ArrayList<>();
 
-    static {
-        // Can add all the modules that should be started as default here
-        // optionalModulesDefaultList.add("org.transitclock.avl.NextBusAvlModule");
-    }
-
-    private static final StringListConfigValue optionalModules = new StringListConfigValue(
+    private static final ClassListConfigValue optionalModules = new ClassListConfigValue(
             "transitclock.modules.optionalModulesList",
-            optionalModulesDefaultList,
-            "The semicolon separated list of names of all of the " + "modules that should be automatically started.");
-
-    /** General parameters for matching vehicles, making predictions, etc */
+            new ArrayList<>(),
+            "The semicolon separated list of names of all of the modules that should be automatically started.");
 
     /**
      * How far a location can be from a path segment and still be considered a match.
-     *
-     * @return
      */
     public static double getMaxDistanceFromSegment() {
         return maxDistanceFromSegment.getValue();

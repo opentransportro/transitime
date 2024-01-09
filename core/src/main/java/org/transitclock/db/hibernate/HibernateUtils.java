@@ -18,32 +18,13 @@ import org.hibernate.cfg.Configuration;
 import org.hibernate.service.ServiceRegistry;
 import org.transitclock.configData.DbSetupConfig;
 
-/**
- * Utilities for dealing with Hibernate issues such as sessions.
- *
- * @author SkiBu Smith
- */
 @Slf4j
 public class HibernateUtils {
 
     // Cache. Keyed on database name
     private static final Map<String, SessionFactory> sessionFactoryCache = new HashMap<>();
 
-    /**
-     * Creates a new session factory. This is to be cached and only access internally since creating
-     * one is expensive.
-     *
-     * @param dbName
-     * @return
-     */
-    private static SessionFactory createSessionFactory(String dbName) throws HibernateException {
-        return createSessionFactory(dbName, false);
-    }
-
     private static SessionFactory createSessionFactory(String dbName, boolean readOnly) throws HibernateException {
-        logger.debug("Creating new Hibernate SessionFactory for dbName={}", dbName);
-
-        // Create a Hibernate configuration based on customized config file
         Configuration config = new Configuration();
 
         // Want to be able to specify a configuration file for now
@@ -57,9 +38,7 @@ public class HibernateUtils {
         logger.info("Configuring Hibernate for dbName={} using config file={}", dbName, fileName);
         File f = new File(fileName);
         if (!f.exists()) {
-            logger.info(
-                    "The Hibernate file {} doesn't exist as a regular file " + "so seeing if it is in classpath.",
-                    fileName);
+            logger.info("The Hibernate file {} doesn't exist as a regular file " + "so seeing if it is in classpath.", fileName);
 
             // Couldn't find file directly so look in classpath for it
             ClassLoader classLoader = HibernateUtils.class.getClassLoader();
@@ -68,6 +47,7 @@ public class HibernateUtils {
                 f = new File(url.getFile());
             }
         }
+
         if (f.exists()) {
             config.configure(f);
         } else {
@@ -96,7 +76,9 @@ public class HibernateUtils {
             Integer timeout = DbSetupConfig.getSocketTimeoutSec();
             if (timeout != null && timeout != 0) {
                 // If mysql then timeout specified in msec instead of secs
-                if (DbSetupConfig.getDbType().equals("mysql")) timeout *= 1000;
+                if (DbSetupConfig.getDbType().equals("mysql")) {
+                    timeout *= 1000;
+                }
 
                 dbUrl += "?connectTimeout=" + timeout + "&socketTimeout=" + timeout;
             }
@@ -110,21 +92,20 @@ public class HibernateUtils {
             dbUserName = config.getProperty("hibernate.connection.username");
         }
 
-        if (DbSetupConfig.getDbPassword() != null)
+        if (DbSetupConfig.getDbPassword() != null) {
             config.setProperty("hibernate.connection.password", DbSetupConfig.getDbPassword());
+        }
 
         // Log info, but don't log password. This can just be debug logging
         // even though it is important because the C3P0 connector logs the info.
-        logger.info(
-                "For Hibernate factory project dbName={} " + "using url={} username={}, and configured password",
+        logger.info("For Hibernate factory project dbName={} using url={} username={}, and configured password",
                 dbName,
                 dbUrl,
                 dbUserName);
 
         // Get the session factory for persistence
         Properties properties = config.getProperties();
-        ServiceRegistry serviceRegistry =
-                new StandardServiceRegistryBuilder().applySettings(properties).build();
+        ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder().applySettings(properties).build();
 
         // Return the factory
         return config.buildSessionFactory(serviceRegistry);
@@ -140,7 +121,7 @@ public class HibernateUtils {
         return getSessionFactory(agencyId, false);
     }
 
-    public static SessionFactory getSessionFactory(String agencyId, boolean readOnly) throws HibernateException {
+    private static SessionFactory getSessionFactory(String agencyId, boolean readOnly) throws HibernateException {
         // Determine the database name to use. Will usually use the
         // projectId since each project has a database. But this might
         // be overridden by the transitclock.core.dbName property.
@@ -150,6 +131,7 @@ public class HibernateUtils {
         if (readOnly) {
             dbName = dbName + "-ro";
         }
+
         SessionFactory factory;
 
         synchronized (sessionFactoryCache) {

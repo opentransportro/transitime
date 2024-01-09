@@ -39,7 +39,6 @@ public class StopPathProcessor {
 
     private static final Logger logger = LoggerFactory.getLogger(StopPathProcessor.class);
 
-    /********************** Member Functions **************************/
 
     /**
      * Constructor. Stores parameters.
@@ -396,7 +395,7 @@ public class StopPathProcessor {
         }
 
         logger.debug(" bestMatch {} expected distanceAlongPattern {}", bestMatch, stopPath.getShapeDistanceTraveled());
-        System.out.println("bestMatch " + bestMatch + " " + stopPath.getShapeDistanceTraveled());
+        // System.out.println("bestMatch " + bestMatch + " " + stopPath.getShapeDistanceTraveled());
 
         // Return results
         return bestMatch;
@@ -408,7 +407,6 @@ public class StopPathProcessor {
      * accordingly.
      *
      * @param shapeLocs List of Locations that represent the shapes that matching the stops to.
-     * @param stopIdsForTripPattern List of IDs of the stops that need to match to shapes.
      * @param tripPattern so can get routeId, tripPatternId, and shapeId when creating the actual
      *     StopPath objects.
      */

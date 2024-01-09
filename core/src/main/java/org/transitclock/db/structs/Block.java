@@ -6,7 +6,9 @@ import java.io.Serializable;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.*;
+import java.util.stream.Collectors;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
@@ -43,6 +45,10 @@ import org.transitclock.utils.Time;
 @Table(name = "Blocks")
 @Slf4j
 public final class Block implements Serializable {
+    // For making sure only lazy load trips collection via one thread
+    // at a time.
+    @Getter
+    private static final Object lazyLoadingSyncObject = new Object();
 
     @Column
     @Id
@@ -99,11 +105,9 @@ public final class Block implements Serializable {
     // NOTE: since trying to use serialization need to use ArrayList<> instead
     // of List<> since List<> doesn't implement Serializable.
     @Column(length = 500)
+//    @ElementCollection
     private final HashSet<String> routeIds;
 
-    // For making sure only lazy load trips collection via one thread
-    // at a time.
-    private static final Object lazyLoadingSyncObject = new Object();
 
     private static BooleanConfigValue blockLoading = new BooleanConfigValue(
             "transitclock.blockLoading.agressive",
@@ -126,7 +130,7 @@ public final class Block implements Serializable {
         this.trips = trips;
 
         // Obtain the set of route IDs from the trips
-        this.routeIds = new HashSet<String>();
+        this.routeIds = new HashSet<>();
         for (Trip trip : trips) {
             this.routeIds.add(trip.getRouteId());
         }
@@ -269,11 +273,8 @@ public final class Block implements Serializable {
      */
     public String toShortString() {
         // Create shortened version of Trip info that only includes the trip_id
-        String tripsStr = "Trip [";
-        for (Trip trip : getTrips()) {
-            tripsStr += trip.getId() + ", ";
-        }
-        tripsStr += "]";
+        String tripsStr = "Trip [" + getTrips().stream().map(Trip::getId).collect(Collectors.joining(", ")) + "]";
+
         return "Block ["
                 + "blockId="
                 + blockId
@@ -757,22 +758,6 @@ public final class Block implements Serializable {
                             this.getId(),
                             e);
 
-                    if (!(rootCause instanceof SocketException || rootCause instanceof SocketTimeoutException
-                    //                            || rootCause instanceof PSQLException
-                    )) {
-                        logger.error(
-                                "For agencyId={} in Blocks.getTrips() for "
-                                        + "blockId={} encountered exception whose root "
-                                        + "cause was not a SocketException, "
-                                        + "SocketTimeoutException, or PSQLException,"
-                                        + "which therefore is unexpected. Therefore should "
-                                        + "investigate. Root cause is {}.",
-                                AgencyConfig.getAgencyId(),
-                                this.getId(),
-                                rootCause,
-                                e);
-                    }
-
                     // Even though there was a timeout meaning that the
                     // session is no longer any good the Block object
                     // might still be associated with the old session.
@@ -838,16 +823,6 @@ public final class Block implements Serializable {
         }
 
         return Collections.unmodifiableList(trips);
-    }
-
-    /**
-     * So can sync up loading of trip and trip pattern data when trips are all read at once in
-     * another class as opposed to through Block.getTrips().
-     *
-     * @return
-     */
-    public static Object getLazyLoadingSyncObject() {
-        return lazyLoadingSyncObject;
     }
 
     /**

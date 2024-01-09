@@ -1,0 +1,11 @@
+version: "3.18"
+services:
+  db:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: transitclock
+      POSTGRES_DB: STPT
+#      POSTGRES_USER:
+    ports:
+      - "5432:5432"

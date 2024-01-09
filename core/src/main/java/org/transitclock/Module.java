@@ -1,13 +1,7 @@
 /* (C)2023 */
 package org.transitclock;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 import lombok.extern.slf4j.Slf4j;
-import org.transitclock.utils.threading.NamedThreadFactory;
 
 /**
  * Modules are run in a separate thread and continuously process data. They are initiated by core

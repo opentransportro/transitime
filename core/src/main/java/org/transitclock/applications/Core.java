@@ -1,23 +1,11 @@
 /* (C)2023 */
 package org.transitclock.applications;
 
-import java.io.PrintWriter;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.TimeZone;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
-
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.cli.*;
 import org.apache.commons.lang3.time.DateUtils;
 import org.hibernate.Session;
-import org.slf4j.Logger;
 import org.transitclock.Module;
 import org.transitclock.config.ConfigFileReader;
 import org.transitclock.config.StringConfigValue;
@@ -38,12 +26,18 @@ import org.transitclock.db.structs.ActiveRevisions;
 import org.transitclock.db.structs.Agency;
 import org.transitclock.gtfs.DbConfig;
 import org.transitclock.ipc.servers.*;
-import org.transitclock.monitoring.PidFile;
 import org.transitclock.utils.SettableSystemTime;
 import org.transitclock.utils.SystemCurrentTime;
 import org.transitclock.utils.SystemTime;
 import org.transitclock.utils.Time;
 import org.transitclock.utils.threading.NamedThreadFactory;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.*;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
 /**
  * The main class for running a Transitime Core real-time data processing system. Handles command
@@ -66,6 +60,7 @@ public class Core {
 
     private final ServiceUtils service;
 
+    private final Map<Class<?>, Module> modules = new HashMap<>();
 
     /**
      *  For when want to use methods in Time. This is important when need methods that access a
@@ -76,9 +71,6 @@ public class Core {
 
     // So that can access the current time, even when in playback mode
     private SystemTime systemTime = new SystemCurrentTime();
-
-    // Set by command line option. Specifies config rev to use if set
-    private static String configRevStr = null;
 
     // Read in configuration files. This should be done statically before
     // the logback LoggerFactory.getLogger() is called so that logback can
@@ -101,31 +93,21 @@ public class Core {
     /**
      * Construct the Core object and read in the config data. This is private so that the
      * createCore() factory method must be used.
-     *
-     * @param agencyId
      */
      private Core(@NonNull String agencyId) {
-         // Determine configuration rev to use. If one specified on command
-         // line, use it. If not, then use revision stored in db.
-         int configRev;
-         if (configRevStr != null) {
-             // Use config rev from command line
-             configRev = Integer.parseInt(configRevStr);
-         } else {
-             // Read in config rev from ActiveRevisions table in db
-             ActiveRevisions activeRevisions = ActiveRevisions.get(agencyId);
+         // Read in config rev from ActiveRevisions table in db
+         ActiveRevisions activeRevisions = ActiveRevisions.get(agencyId);
 
-             // If config rev not set properly then simply log error.
-             // Originally would also exit() but found that want system to
-             // work even without GTFS configuration so that can test AVL feed.
-             if (activeRevisions == null || !activeRevisions.isValid()) {
-                 logger.error("ActiveRevisions in database is not valid. The configuration revs must be set to proper values. {}", activeRevisions);
-             }
-             configRev = activeRevisions.getConfigRev();
+         // If config rev not set properly then simply log error.
+         // Originally would also exit() but found that want system to
+         // work even without GTFS configuration so that can test AVL feed.
+         if (activeRevisions == null || !activeRevisions.isValid()) {
+             logger.error("ActiveRevisions in database is not valid. The configuration revs must be set to proper values. {}", activeRevisions);
          }
+         int configRev = activeRevisions.getConfigRev();
 
          // Set the timezone so that when dates are read from db or are logged
-         // the time will be correct. Therefore this needs to be done right at
+         // the time will be correct. Therefore, this needs to be done right at
          // the start of the application, before db is read.
          TimeZone timeZone = Agency.getTimeZoneFromDb(agencyId);
          TimeZone.setDefault(timeZone);
@@ -164,6 +146,7 @@ public class Core {
 
          timeoutHandlerModule = new TimeoutHandlerModule(AgencyConfig.getAgencyId());
          executor.execute(timeoutHandlerModule);
+         modules.put(timeoutHandlerModule.getClass(), timeoutHandlerModule);
 
          service = new ServiceUtils(configData);
          time = new Time(configData);
@@ -174,13 +157,12 @@ public class Core {
          if (optionalModuleNames.isEmpty()) {
              logger.info("No optional modules to start up.");
          } else {
-             for (String moduleName : optionalModuleNames) {
+             for (Class<?> moduleName : optionalModuleNames) {
                  logger.info("Starting up optional module " + moduleName);
                  try {
                      Module module = createModule(moduleName, agencyId);
+                     modules.put(module.getClass(), module);
                      executor.execute(module);
-                 } catch (ClassNotFoundException e) {
-                     logger.error("Failed to start {}", moduleName, e);
                  } catch (NoSuchMethodException e) {
                      logger.error("Failed to start {} because could not find constructor with agencyId arg", moduleName, e);
                  } catch (InvocationTargetException e) {
@@ -228,15 +210,10 @@ public class Core {
         SINGLETON = new Core(agencyId);
     }
 
-    /**
-     * For obtaining singleton Core object. Synchronized to prevent race conditions if starting lots
-     * of optional modules.
-     *
-     * @returns the Core singleton object for this application, or null if it could not be created
-     */
+
     public static synchronized Core getInstance() {
         if (SINGLETON == null) {
-            createCore();
+            throw new RuntimeException();
         }
         return SINGLETON;
     }
@@ -297,16 +274,6 @@ public class Core {
     }
 
     /**
-     * Returns the Core logger so that each class doesn't need to create its own and have it be
-     * configured properly.
-     *
-     * @return
-     */
-    public static Logger getLogger() {
-        return logger;
-    }
-
-    /**
      * Returns the DataDbLogger for logging data to db.
      *
      * @return
@@ -315,52 +282,6 @@ public class Core {
         return dataDbLogger;
     }
 
-    /**
-     * Processes all command line options using Apache CLI. Further info at
-     * http://commons.apache.org/proper/commons-cli/usage.html
-     */
-    @SuppressWarnings("static-access") // Needed for using OptionBuilder
-    private static void processCommandLineOptions(String[] args) throws ParseException {
-        // Specify the options
-        Options options = new Options();
-        options.addOption("h", "help", false, "Display usage and help info.");
-
-        options.addOption(OptionBuilder.withArgName("configRev")
-                .hasArg()
-                .withDescription("Specifies optional configuration revision. "
-                        + "If not set then the configuration rev will be read "
-                        + "from the ActiveRevisions table in the database.")
-                .create("configRev"));
-
-        // Parse the options
-        CommandLineParser parser = new BasicParser();
-        CommandLine cmd = parser.parse(options, args);
-
-        // Handle optional config rev
-        if (cmd.hasOption("configRev")) {
-            configRevStr = cmd.getOptionValue("configRev");
-        }
-
-        // Handle help option
-        if (cmd.hasOption("h")) {
-            // Display help
-            final String commandLineSyntax = "java transitclock.jar";
-            final PrintWriter writer = new PrintWriter(System.out);
-            final HelpFormatter helpFormatter = new HelpFormatter();
-            helpFormatter.printHelp(
-                    writer,
-                    80, // printedRowWidth
-                    commandLineSyntax,
-                    "args:", // header
-                    options,
-                    2, // spacesBeforeOption
-                    2, // spacesBeforeOptionDescription
-                    null, // footer
-                    true); // displayUsage
-            writer.close();
-            System.exit(0);
-        }
-    }
 
     /**
      * Start the RMI Servers so that clients can obtain data on predictions, vehicles locations,
@@ -377,7 +298,7 @@ public class Core {
         HoldingTimeServer.start(agencyId);
     }
 
-    private static void populateCaches() throws Exception {
+    public static void populateCaches() throws Exception {
         Session session = HibernateUtils.getSession();
 
         Date endDate = Calendar.getInstance().getTime();
@@ -391,10 +312,9 @@ public class Core {
                 TripDataHistoryCacheFactory.getInstance()
                         .populateCacheFromDb(
                                 session,
-                                new Date(Time.parse(cacheReloadStartTimeStr.getValue())
-                                        .getTime()),
-                                new Date(Time.parse(cacheReloadEndTimeStr.getValue())
-                                        .getTime()));
+                                new Date(Time.parse(cacheReloadStartTimeStr.getValue()).getTime()),
+                                new Date(Time.parse(cacheReloadEndTimeStr.getValue()).getTime())
+                        );
             }
 
             if (FrequencyBasedHistoricalAverageCache.getInstance() != null) {
@@ -405,10 +325,9 @@ public class Core {
                 FrequencyBasedHistoricalAverageCache.getInstance()
                         .populateCacheFromDb(
                                 session,
-                                new Date(Time.parse(cacheReloadStartTimeStr.getValue())
-                                        .getTime()),
-                                new Date(Time.parse(cacheReloadEndTimeStr.getValue())
-                                        .getTime()));
+                                new Date(Time.parse(cacheReloadStartTimeStr.getValue()).getTime()),
+                                new Date(Time.parse(cacheReloadEndTimeStr.getValue()).getTime())
+                        );
             }
 
             if (StopArrivalDepartureCacheFactory.getInstance() != null) {
@@ -419,10 +338,9 @@ public class Core {
                 StopArrivalDepartureCacheFactory.getInstance()
                         .populateCacheFromDb(
                                 session,
-                                new Date(Time.parse(cacheReloadStartTimeStr.getValue())
-                                        .getTime()),
-                                new Date(Time.parse(cacheReloadEndTimeStr.getValue())
-                                        .getTime()));
+                                new Date(Time.parse(cacheReloadStartTimeStr.getValue()).getTime()),
+                                new Date(Time.parse(cacheReloadEndTimeStr.getValue()).getTime())
+                        );
             }
             /*
             if(ScheduleBasedHistoricalAverageCache.getInstance()!=null)
@@ -484,17 +402,6 @@ public class Core {
     public static void main(String[] args) {
         try {
             try {
-                processCommandLineOptions(args);
-            } catch (ParseException e1) {
-                logger.error("Something happened while processing command line options", e1);
-                System.exit(-1);
-            }
-
-            // Write pid file so that monit can automatically start
-            // or restart this application
-            PidFile.createPidFile(CoreConfig.getPidFileDirectory() + AgencyConfig.getAgencyId() + ".pid");
-
-            try {
                 populateCaches();
             } catch (Exception e) {
                 logger.error("Failed to populate cache.", e);
@@ -520,12 +427,10 @@ public class Core {
     }
 
     @NonNull
-    private static Module createModule(String classname, String agencyId) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    private static Module createModule(Class <?> classname, String agencyId) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         // Create the module object using reflection by calling the constructor
         // and passing in agencyId
-        Class<?> theClass = Class.forName(classname);
-        Constructor<?> constructor = theClass.getConstructor(String.class);
-
+        Constructor<?> constructor = classname.getConstructor(String.class);
         return (Module) constructor.newInstance(agencyId);
     }
 }

@@ -806,7 +806,7 @@ public class AvlReport implements Serializable {
             return query.list();
         } catch (HibernateException e) {
             // Log error to the Core logger
-            Core.getLogger().error(e.getMessage(), e);
+            logger.error(e.getMessage(), e);
             return null;
         } finally {
             // Clean things up. Not sure if this absolutely needed nor if
