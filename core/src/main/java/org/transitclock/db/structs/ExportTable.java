@@ -1,19 +1,18 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
-import javax.persistence.*;
-import java.io.Serializable;
-import java.util.Date;
-import java.util.List;
-
 import org.hibernate.HibernateException;
-import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.annotations.DynamicUpdate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.applications.Core;
+
+import javax.persistence.*;
+import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
 
 /**
  * For storing static configuration for vehicle in block.
@@ -105,18 +104,17 @@ public class ExportTable implements Serializable {
      */
     @SuppressWarnings("unchecked")
     public static List<ExportTable> getExportTable(Session session) throws HibernateException {
-        String hql = "SELECT id, dataDate, exportDate, exportType, exportStatus, fileName FROM"
-                + " ExportTable order by exportDate desc";
         // String hql = "FROM ExportTable";
-        Query query = session.createQuery(hql);
+        var query = session.createQuery("SELECT id, dataDate, exportDate, exportType, exportStatus, fileName FROM ExportTable order by exportDate desc");
         return query.list();
     }
 
     public static void deleteExportTableRecord(long id, Session session) throws HibernateException {
         Transaction transaction = session.beginTransaction();
         try {
-            String hql = "delete from ExportTable where id = :id";
-            var q = session.createQuery(hql).setParameter("id", id);
+            var q = session
+                    .createQuery("delete from ExportTable where id = :id")
+                    .setParameter("id", id);
             q.executeUpdate();
 
             transaction.commit();

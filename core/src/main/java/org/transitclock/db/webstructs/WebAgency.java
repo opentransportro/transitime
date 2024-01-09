@@ -8,6 +8,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -15,7 +16,6 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import lombok.Getter;
 import org.hibernate.HibernateException;
-import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.annotations.DynamicUpdate;
@@ -83,8 +83,6 @@ public class WebAgency {
 
     private static final Logger logger = LoggerFactory.getLogger(WebAgency.class);
 
-    /********************** Member Functions **************************/
-
     /**
      * Simple constructor.
      *
@@ -135,18 +133,15 @@ public class WebAgency {
      * @param dbName Name of the db that the WebAgency object is stored in
      */
     public void store(String dbName) {
-        Session session = HibernateUtils.getSession(dbName);
-        try {
+        try (Session session = HibernateUtils.getSession(dbName)) {
             Transaction transaction = session.beginTransaction();
             session.save(this);
             transaction.commit();
         } catch (Exception e) {
             throw e;
-        } finally {
-            // Make sure that the session always gets closed, even if
-            // exception occurs
-            session.close();
         }
+        // Make sure that the session always gets closed, even if
+        // exception occurs
     }
 
     /**
@@ -233,13 +228,11 @@ public class WebAgency {
         logger.info("Reading WebAgencies data from database \"{}\"...", webAgencyDbName);
         IntervalTimer timer = new IntervalTimer();
 
-        Session session = HibernateUtils.getSession(webAgencyDbName);
-        try {
-            String hql = "FROM WebAgency";
-            Query query = session.createQuery(hql);
+        try (Session session = HibernateUtils.getSession(webAgencyDbName)) {
+            var query = session.createQuery("FROM WebAgency");
             @SuppressWarnings("unchecked")
             List<WebAgency> list = query.list();
-            Map<String, WebAgency> map = new HashMap<String, WebAgency>();
+            Map<String, WebAgency> map = new HashMap<>();
             for (WebAgency webAgency : list) {
                 map.put(webAgency.getAgencyId(), webAgency);
             }
@@ -251,11 +244,9 @@ public class WebAgency {
             return map;
         } catch (Exception e) {
             throw e;
-        } finally {
-            // Make sure that the session always gets closed, even if
-            // exception occurs
-            session.close();
         }
+        // Make sure that the session always gets closed, even if
+        // exception occurs
     }
 
     /**
@@ -300,20 +291,17 @@ public class WebAgency {
         boolean reread = updateCacheIfShould(5 * Time.MIN_IN_MSECS);
 
         if (reread || webAgencyOrderedList == null) {
-            List<WebAgency> webAgencyOrderedListTemp = new ArrayList<WebAgency>(webAgencyMapCache.values());
+            List<WebAgency> webAgencyOrderedListTemp = new ArrayList<>(webAgencyMapCache.values());
 
             // Sort the list
-            Collections.sort(webAgencyOrderedListTemp, new Comparator<WebAgency>() {
-                @Override
-                public int compare(WebAgency o1, WebAgency o2) {
-                    // Handle possibility of null agency name
-                    String agencyName1 = o1.getAgencyName();
-                    if (agencyName1 == null) agencyName1 = "";
-                    String agencyName2 = o2.getAgencyName();
-                    if (agencyName2 == null) agencyName2 = "";
+            webAgencyOrderedListTemp.sort((o1, o2) -> {
+                // Handle possibility of null agency name
+                String agencyName1 = o1.getAgencyName();
+                if (agencyName1 == null) agencyName1 = "";
+                String agencyName2 = o2.getAgencyName();
+                if (agencyName2 == null) agencyName2 = "";
 
-                    return agencyName1.compareTo(agencyName2);
-                }
+                return agencyName1.compareTo(agencyName2);
             });
 
             // Now that the list has been fully created set the member variable

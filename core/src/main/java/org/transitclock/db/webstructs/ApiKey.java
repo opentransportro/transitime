@@ -1,19 +1,19 @@
 /* (C)2023 */
 package org.transitclock.db.webstructs;
 
-import java.io.Serializable;
-import java.util.List;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
 import lombok.Getter;
 import org.hibernate.HibernateException;
-import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.annotations.DynamicUpdate;
 import org.transitclock.db.hibernate.HibernateUtils;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import java.io.Serializable;
+import java.util.List;
 
 /**
  * Database class for storing keys and related info for the API.
@@ -44,8 +44,6 @@ public class ApiKey implements Serializable {
 
     @Column(length = 1000)
     private final String description;
-
-    /********************** Member Functions **************************/
 
     /**
      * For creating object to be written to db.
@@ -81,8 +79,7 @@ public class ApiKey implements Serializable {
      */
     @SuppressWarnings("unchecked")
     public static List<ApiKey> getApiKeys(Session session) throws HibernateException {
-        String hql = "FROM ApiKey";
-        Query query = session.createQuery(hql);
+        var query = session.createQuery("FROM ApiKey");
         return query.list();
     }
 
@@ -92,18 +89,15 @@ public class ApiKey implements Serializable {
      * @param dbName name of database
      */
     public void storeApiKey(String dbName) {
-        Session session = HibernateUtils.getSession(dbName);
-        try {
+        try (Session session = HibernateUtils.getSession(dbName)) {
             Transaction transaction = session.beginTransaction();
             session.save(this);
             transaction.commit();
         } catch (Exception e) {
             throw e;
-        } finally {
-            // Make sure that the session always gets closed, even if
-            // exception occurs
-            session.close();
         }
+        // Make sure that the session always gets closed, even if
+        // exception occurs
     }
 
     /**
@@ -112,18 +106,15 @@ public class ApiKey implements Serializable {
      * @param dbName name of database
      */
     public void deleteApiKey(String dbName) {
-        Session session = HibernateUtils.getSession(dbName);
-        try {
+        try (Session session = HibernateUtils.getSession(dbName)) {
             Transaction transaction = session.beginTransaction();
             session.delete(this);
             transaction.commit();
         } catch (Exception e) {
             throw e;
-        } finally {
-            // Make sure that the session always gets closed, even if
-            // exception occurs
-            session.close();
         }
+        // Make sure that the session always gets closed, even if
+        // exception occurs
     }
 
     @Override

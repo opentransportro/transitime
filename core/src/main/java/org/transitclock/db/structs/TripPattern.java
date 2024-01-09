@@ -1,16 +1,9 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import javax.persistence.*;
 import lombok.Getter;
 import org.hibernate.CallbackException;
 import org.hibernate.HibernateException;
-import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
@@ -18,6 +11,13 @@ import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.classic.Lifecycle;
 import org.transitclock.gtfs.GtfsData;
 import org.transitclock.gtfs.gtfsStructs.GtfsRoute;
+
+import javax.persistence.*;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A trip pattern, as obtained from stop_times.txt GTFS file. A trip pattern defines what stops are
@@ -220,14 +220,17 @@ public class TripPattern implements Serializable, Lifecycle {
         // Delete from TripPattern_to_Path_joinTable first since it has a foreign
         // key to the StopPath table,
         int rowsUpdated = 0;
-        rowsUpdated += session.createSQLQuery(
-                        "DELETE FROM TripPattern_to_Path_joinTable " + "WHERE TripPattern_configRev=" + configRev)
+        rowsUpdated += session
+                .createNativeQuery("DELETE FROM TripPattern_to_Path_joinTable WHERE TripPattern_configRev=" + configRev)
                 .executeUpdate();
-        rowsUpdated += session.createSQLQuery("DELETE FROM StopPath_Locations WHERE StopPath_configRev=" + configRev)
+        rowsUpdated += session
+                .createNativeQuery("DELETE FROM StopPath_Locations WHERE StopPath_configRev=" + configRev)
                 .executeUpdate();
-        rowsUpdated += session.createSQLQuery("DELETE FROM StopPaths WHERE configRev=" + configRev)
+        rowsUpdated += session
+                .createNativeQuery("DELETE FROM StopPaths WHERE configRev=" + configRev)
                 .executeUpdate();
-        rowsUpdated += session.createSQLQuery("DELETE FROM TripPatterns WHERE configRev=" + configRev)
+        rowsUpdated += session
+                .createNativeQuery("DELETE FROM TripPatterns WHERE configRev=" + configRev)
                 .executeUpdate();
         return rowsUpdated;
 
@@ -274,9 +277,8 @@ public class TripPattern implements Serializable, Lifecycle {
      */
     @SuppressWarnings("unchecked")
     public static List<TripPattern> getTripPatterns(Session session, int configRev) throws HibernateException {
-        String hql = "FROM TripPattern " + "    WHERE configRev = :configRev";
-        Query query = session.createQuery(hql);
-        query.setInteger("configRev", configRev);
+        var query = session.createQuery("FROM TripPattern  WHERE configRev = :configRev");
+        query.setParameter("configRev", configRev);
         return query.list();
     }
 

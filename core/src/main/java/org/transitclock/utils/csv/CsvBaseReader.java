@@ -113,9 +113,11 @@ public abstract class CsvBaseReader<T> {
             // certain data is missing. Using the '-' character so can
             // comment out line that starts with "--", which is what is
             // used for SQL.
-            CSVFormat formatter = CSVFormat.DEFAULT
-                    .withHeader()
-                    .withCommentMarker('-');
+            CSVFormat formatter = CSVFormat.Builder
+                    .create()
+                    .setHeader()
+                    .setCommentMarker('-')
+                    .build();
 
             // Parse the file
             Iterable<CSVRecord> records = formatter.parse(in);

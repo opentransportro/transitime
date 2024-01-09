@@ -213,28 +213,28 @@ public final class Block implements Serializable {
 
         // Delete configRev data from Block_to_Trip_joinTable
         int rowsUpdated = session
-                .createSQLQuery("DELETE FROM Block_to_Trip_joinTable WHERE Blocks_configRev=" + configRev)
+                .createNativeQuery("DELETE FROM Block_to_Trip_joinTable WHERE Blocks_configRev=" + configRev)
                 .executeUpdate();
         logger.info("Deleted {} rows from Block_to_Trip_joinTable for " + "configRev={}", rowsUpdated, configRev);
         totalRowsUpdated += rowsUpdated;
 
         // Delete configRev data from Trip_ScheduledTimeslist
         rowsUpdated = session
-                .createSQLQuery("DELETE FROM Trip_ScheduledTimeslist WHERE Trip_configRev=" + configRev)
+                .createNativeQuery("DELETE FROM Trip_ScheduledTimeslist WHERE Trip_configRev=" + configRev)
                 .executeUpdate();
         logger.info("Deleted {} rows from Trip_ScheduledTimeslist for configRev={}", rowsUpdated, configRev);
         totalRowsUpdated += rowsUpdated;
 
         // Delete configRev data from Trips
         rowsUpdated = session
-                .createSQLQuery("DELETE FROM Trips WHERE configRev=" + configRev)
+                .createNativeQuery("DELETE FROM Trips WHERE configRev=" + configRev)
                 .executeUpdate();
         logger.info("Deleted {} rows from Trips for configRev={}", rowsUpdated, configRev);
         totalRowsUpdated += rowsUpdated;
 
         // Delete configRev data from Blocks
         rowsUpdated = session
-                .createSQLQuery("DELETE FROM Blocks WHERE configRev=" + configRev)
+                .createNativeQuery("DELETE FROM Blocks WHERE configRev=" + configRev)
                 .executeUpdate();
         logger.info("Deleted {} rows from Blocks for configRev={}", rowsUpdated, configRev);
         totalRowsUpdated += rowsUpdated;

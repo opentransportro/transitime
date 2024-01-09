@@ -569,7 +569,7 @@ public class PredictionGeneratorDefaultImpl extends PredictionGenerator
             PredictionForStopPath predictionForStopPath = new PredictionForStopPath(
                     vehicleState.getVehicleId(),
                     new Date(Core.getInstance().getSystemTime()),
-                    new Double(new Long(indices.getTravelTimeForPath()).intValue()),
+                    (double)(indices.getTravelTimeForPath()),
                     indices.getTrip().getId(),
                     indices.getStopPathIndex(),
                     "TRANSITIME DEFAULT",

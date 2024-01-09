@@ -21,7 +21,7 @@ public class KalmanPrediction {
      */
     private static final BooleanConfigValue useaverage = new BooleanConfigValue(
             "transitclock.prediction.kalman.useaverage",
-            new Boolean(true),
+            true,
             "Will use average travel time as opposed to last historical vehicle in Kalman"
                     + " prediction calculation.");
 

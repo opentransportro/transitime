@@ -5,10 +5,7 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.util.*;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -27,10 +24,7 @@ import org.transitclock.utils.StringUtils;
  */
 @Entity
 @DynamicUpdate
-@EqualsAndHashCode
-@ToString
-@Getter
-@Setter
+@Data
 @Table(name = "Routes")
 @Slf4j
 public class Route implements Serializable {

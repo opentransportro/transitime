@@ -31,6 +31,8 @@ import org.transitclock.ipc.data.IpcVehicleToBlockConfig;
 import org.transitclock.ipc.interfaces.VehiclesInterface;
 import org.transitclock.ipc.rmi.AbstractServer;
 
+import javax.persistence.criteria.CriteriaBuilder;
+
 /**
  * Implements the VehiclesInterface interface on the server side such that a VehiclessClient can
  * make RMI calls in order to obtain vehicle information. The vehicle information is provided using
@@ -218,7 +220,7 @@ public class VehiclesServer extends AbstractServer implements VehiclesInterface 
      */
     private Collection<IpcVehicleComplete> getCompleteSerializableCollection(Collection<IpcVehicleComplete> vehicles) {
         // If vehicles is null then return empty array.
-        if (vehicles == null) return new ArrayList<IpcVehicleComplete>();
+        if (vehicles == null) return new ArrayList<>();
 
         if (vehicles instanceof Serializable) {
             return vehicles;
@@ -234,7 +236,7 @@ public class VehiclesServer extends AbstractServer implements VehiclesInterface 
     public Collection<IpcActiveBlock> getActiveBlocks(Collection<String> routeIds, int allowableBeforeTimeSecs)
             throws RemoteException {
         // List of data to be returned
-        List<IpcActiveBlock> results = new ArrayList<IpcActiveBlock>();
+        List<IpcActiveBlock> results = new ArrayList<>();
         // Determine all the active blocks
         List<Block> blocks = BlocksInfo.getCurrentlyActiveBlocks(routeIds, null, allowableBeforeTimeSecs, -1);
         // For each active block determine associated vehicle
@@ -289,7 +291,7 @@ public class VehiclesServer extends AbstractServer implements VehiclesInterface 
     public Collection<IpcActiveBlock> getActiveBlocksWithoutVehicles(
             Collection<String> routeIds, int allowableBeforeTimeSecs) throws RemoteException {
         // List of data to be returned
-        List<IpcActiveBlock> results = new ArrayList<IpcActiveBlock>();
+        List<IpcActiveBlock> results = new ArrayList<>();
         // Determine all the active blocks
         List<Block> blocks = BlocksInfo.getCurrentlyActiveBlocks(routeIds, null, allowableBeforeTimeSecs, -1);
         // For each active block determine associated vehicle
@@ -336,6 +338,7 @@ public class VehiclesServer extends AbstractServer implements VehiclesInterface 
             String routeName, int allowableBeforeTimeSecs) throws RemoteException {
 
         Session session = HibernateUtils.getSession();
+        CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
         Criteria criteria = session.createCriteria(Route.class)
                 .add(Restrictions.eq("name", routeName))
                 .setProjection(Projections.groupProperty("id"));
@@ -390,7 +393,7 @@ public class VehiclesServer extends AbstractServer implements VehiclesInterface 
      */
     @Override
     public Collection<IpcVehicleConfig> getVehicleConfigs() throws RemoteException {
-        Collection<IpcVehicleConfig> result = new ArrayList<IpcVehicleConfig>();
+        Collection<IpcVehicleConfig> result = new ArrayList<>();
         for (VehicleConfig vehicleConfig : VehicleDataCache.getInstance().getVehicleConfigs()) {
             result.add(new IpcVehicleConfig(vehicleConfig));
         }
@@ -403,7 +406,7 @@ public class VehiclesServer extends AbstractServer implements VehiclesInterface 
      */
     @Override
     public Collection<IpcVehicle> getVehiclesForBlocks() throws RemoteException {
-        List<String> vehicleIds = new ArrayList<String>();
+        List<String> vehicleIds = new ArrayList<>();
         List<Block> blocks = BlocksInfo.getCurrentlyActiveBlocks();
         for (Block block : blocks) {
             Collection<String> vehicleIdsForBlock =
@@ -415,7 +418,7 @@ public class VehiclesServer extends AbstractServer implements VehiclesInterface 
 
     @Override
     public Collection<IpcVehicleToBlockConfig> getVehicleToBlockConfig(String blockId) throws RemoteException {
-        List<IpcVehicleToBlockConfig> result = new ArrayList<IpcVehicleToBlockConfig>();
+        List<IpcVehicleToBlockConfig> result = new ArrayList<>();
         Session session = HibernateUtils.getSession();
         try {
             for (VehicleToBlockConfig vTBC : VehicleToBlockConfig.getVehicleToBlockConfigsByBlockId(session, blockId)) {
@@ -431,7 +434,7 @@ public class VehiclesServer extends AbstractServer implements VehiclesInterface 
     @Override
     public Collection<IpcVehicleToBlockConfig> getVehicleToBlockConfigByVehicleId(String vehicleId)
             throws RemoteException {
-        List<IpcVehicleToBlockConfig> result = new ArrayList<IpcVehicleToBlockConfig>();
+        List<IpcVehicleToBlockConfig> result = new ArrayList<>();
         Session session = HibernateUtils.getSession();
         try {
             for (VehicleToBlockConfig vTBC :

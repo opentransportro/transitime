@@ -1,12 +1,6 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
-import javax.persistence.*;
-import java.io.Serializable;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,8 +13,6 @@ import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.classic.Lifecycle;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.type.TimestampType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.transitclock.applications.Core;
 import org.transitclock.configData.AgencyConfig;
 import org.transitclock.configData.DbSetupConfig;
@@ -29,6 +21,12 @@ import org.transitclock.db.hibernate.HibernateUtils;
 import org.transitclock.utils.Geo;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.Time;
+
+import javax.persistence.*;
+import java.io.Serializable;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * For persisting an Arrival or a Departure time. Should use Arrival or Departure subclasses.
@@ -411,11 +409,11 @@ public class ArrivalDeparture implements Lifecycle, Serializable {
         var query = session.createQuery(hql);
 
         // Set the parameters
-        query.setParameter("beginDate", beginTime, TimestampType.INSTANCE);
-        query.setParameter("endDate", endTime, TimestampType.INSTANCE);
+        query.setParameter("beginDate", beginTime);
+        query.setParameter("endDate", endTime);
 
         @SuppressWarnings("unchecked")
-        Iterator<ArrivalDeparture> iterator = query.iterate();
+        Iterator<ArrivalDeparture> iterator = query.stream().iterator();
         return iterator;
     }
 
