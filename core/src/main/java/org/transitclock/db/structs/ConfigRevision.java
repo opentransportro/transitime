@@ -1,7 +1,7 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.Date;
 
 import lombok.extern.slf4j.Slf4j;

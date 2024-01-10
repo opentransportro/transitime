@@ -1,21 +1,18 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
-import java.io.Serializable;
-import java.util.Date;
-import java.util.List;
-import javax.persistence.*;
-
 import com.querydsl.jpa.impl.JPAQuery;
+import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.hibernate.Criteria;
-import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
-import org.hibernate.criterion.Restrictions;
 import org.transitclock.db.hibernate.HibernateUtils;
+
+import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @author Sean Og Crudden Store the travel time prediction for a stopPath.

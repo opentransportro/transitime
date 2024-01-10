@@ -1,9 +1,9 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;

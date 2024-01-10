@@ -1,29 +1,23 @@
 /* (C)2023 */
 package org.transitclock.core.dataCache.frequency;
 
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeMap;
-import java.util.concurrent.ConcurrentHashMap;
-
 import com.querydsl.jpa.impl.JPAQuery;
 import org.apache.commons.lang3.time.DateUtils;
-import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.applications.Core;
 import org.transitclock.config.IntegerConfigValue;
 import org.transitclock.core.dataCache.*;
-import org.transitclock.db.structs.*;
+import org.transitclock.db.structs.ArrivalDeparture;
+import org.transitclock.db.structs.QArrivalDeparture;
+import org.transitclock.db.structs.Trip;
 import org.transitclock.gtfs.DbConfig;
 import org.transitclock.gtfs.GtfsData;
 import org.transitclock.ipc.data.IpcArrivalDeparture;
+
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Sean Óg Crudden This class is to hold the historical average for frequency based

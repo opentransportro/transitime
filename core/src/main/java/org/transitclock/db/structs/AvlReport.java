@@ -1,12 +1,7 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
-import javax.persistence.*;
-import java.io.Serializable;
-import java.util.Date;
-import java.util.List;
-import java.util.regex.Pattern;
-
+import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,13 +10,17 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Immutable;
-import org.hibernate.type.TimestampType;
 import org.transitclock.applications.Core;
 import org.transitclock.configData.AvlConfig;
 import org.transitclock.db.hibernate.HibernateUtils;
 import org.transitclock.ipc.data.IpcAvl;
 import org.transitclock.utils.Geo;
 import org.transitclock.utils.Time;
+
+import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * An AvlReport is a GPS report with some additional information, such as vehicleId.
@@ -799,8 +798,8 @@ public class AvlReport implements Serializable {
         // Set the parameters
         if (vehicleId != null && !vehicleId.isEmpty())
             query.setParameter("vehicleId", vehicleId);
-        query.setParameter("beginDate", beginTime, TimestampType.INSTANCE);
-        query.setParameter("endDate", endTime, TimestampType.INSTANCE);
+        query.setParameter("beginDate", beginTime);
+        query.setParameter("endDate", endTime);
 
         try {
             return query.list();

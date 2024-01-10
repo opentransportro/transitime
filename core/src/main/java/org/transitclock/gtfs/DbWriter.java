@@ -1,25 +1,12 @@
 /* (C)2023 */
 package org.transitclock.gtfs;
 
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.transitclock.configData.DbSetupConfig;
-import org.transitclock.db.structs.Agency;
-import org.transitclock.db.structs.Block;
-import org.transitclock.db.structs.Calendar;
-import org.transitclock.db.structs.CalendarDate;
-import org.transitclock.db.structs.FareAttribute;
-import org.transitclock.db.structs.FareRule;
-import org.transitclock.db.structs.Frequency;
-import org.transitclock.db.structs.Route;
-import org.transitclock.db.structs.Stop;
-import org.transitclock.db.structs.Transfer;
-import org.transitclock.db.structs.TravelTimesForTrip;
-import org.transitclock.db.structs.Trip;
-import org.transitclock.db.structs.TripPattern;
+import org.transitclock.db.structs.*;
 import org.transitclock.utils.IntervalTimer;
 
 /**
@@ -27,23 +14,16 @@ import org.transitclock.utils.IntervalTimer;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class DbWriter {
 
     private final GtfsData gtfsData;
     private int counter = 0;
-    private static final Logger logger = LoggerFactory.getLogger(DbWriter.class);
 
-    /********************** Member Functions **************************/
     public DbWriter(GtfsData gtfsData) {
         this.gtfsData = gtfsData;
     }
 
-    /**
-     * Actually writes data to database (once transaction closed). Uses Hibernate batching so don't
-     * use as much memory.
-     *
-     * @param object
-     */
     private void writeObject(Session session, Object object) {
         writeObject(session, object, true);
     }

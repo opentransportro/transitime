@@ -2,18 +2,16 @@
 package org.transitclock.db.structs;
 
 import com.querydsl.jpa.impl.JPAQuery;
+import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.CallbackException;
-import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.classic.Lifecycle;
-import org.hibernate.criterion.Restrictions;
-import org.hibernate.type.TimestampType;
 import org.transitclock.applications.Core;
 import org.transitclock.configData.AgencyConfig;
 import org.transitclock.configData.DbSetupConfig;
@@ -23,7 +21,6 @@ import org.transitclock.utils.Geo;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.Time;
 
-import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Iterator;
@@ -507,8 +504,8 @@ public class ArrivalDeparture implements Lifecycle, Serializable {
         var query = session.createQuery(hql);
 
         // Set the parameters
-        query.setParameter("beginDate", beginTime, TimestampType.INSTANCE);
-        query.setParameter("endDate", endTime, TimestampType.INSTANCE);
+        query.setParameter("beginDate", beginTime);
+        query.setParameter("endDate", endTime);
 
         try {
             @SuppressWarnings("unchecked")
@@ -573,8 +570,8 @@ public class ArrivalDeparture implements Lifecycle, Serializable {
         var query = session.createQuery(hql);
 
         // Set the parameters for the query
-        query.setParameter("beginDate", beginTime, TimestampType.INSTANCE);
-        query.setParameter("endDate", endTime, TimestampType.INSTANCE);
+        query.setParameter("beginDate", beginTime);
+        query.setParameter("endDate", endTime);
 
         // Only get a batch of data at a time if maxResults specified
         if (firstResult != null) {
@@ -618,8 +615,8 @@ public class ArrivalDeparture implements Lifecycle, Serializable {
         }
 
         var query = session.createQuery(hql);
-        query.setParameter("beginDate", beginTime, TimestampType.INSTANCE);
-        query.setParameter("endDate", endTime, TimestampType.INSTANCE);
+        query.setParameter("beginDate", beginTime);
+        query.setParameter("endDate", endTime);
 
         try {
             count = (Long) query.uniqueResult();

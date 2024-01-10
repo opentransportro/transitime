@@ -1,20 +1,19 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
-import javax.persistence.*;
-import java.io.Serializable;
-import java.util.Date;
-import java.util.List;
-
+import jakarta.persistence.*;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Immutable;
-import org.hibernate.type.TimestampType;
 import org.transitclock.applications.Core;
 import org.transitclock.db.hibernate.HibernateUtils;
 import org.transitclock.utils.IntervalTimer;
+
+import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
 
 /**
  * For storing monitoring events into database. By storing the monitoring events one can look back
@@ -106,8 +105,8 @@ public class MonitoringEvent implements Serializable {
         var query = session.createQuery(hql);
 
         // Set the parameters
-        query.setParameter("beginDate", beginTime, TimestampType.INSTANCE);
-        query.setParameter("endDate", endTime, TimestampType.INSTANCE);
+        query.setParameter("beginDate", beginTime);
+        query.setParameter("endDate", endTime);
 
         try {
             @SuppressWarnings("unchecked")

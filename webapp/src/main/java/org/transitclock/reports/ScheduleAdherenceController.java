@@ -1,21 +1,9 @@
 /* (C)2023 */
 package org.transitclock.reports;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import com.querydsl.jpa.impl.JPAQuery;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
-import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.Projection;
-import org.hibernate.criterion.ProjectionList;
-import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Restrictions;
-import org.hibernate.type.DoubleType;
-import org.hibernate.type.StringType;
 import org.hibernate.type.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +11,10 @@ import org.transitclock.config.BooleanConfigValue;
 import org.transitclock.config.IntegerConfigValue;
 import org.transitclock.db.hibernate.HibernateUtils;
 import org.transitclock.db.structs.ArrivalDeparture;
+import org.transitclock.db.structs.QArrivalDeparture;
 import org.transitclock.utils.Time;
+
+import java.util.*;
 
 public class ScheduleAdherenceController {
 
@@ -51,11 +42,11 @@ public class ScheduleAdherenceController {
             Boolean.FALSE,
             "use the allowable early/late report params or use configured schedule limits");
 
-    private static final String ADHERENCE_SQL = "(time - scheduledTime) AS scheduleAdherence";
-    private static final Projection ADHERENCE_PROJECTION = Projections.sqlProjection(
-            ADHERENCE_SQL, new String[] {"scheduleAdherence"}, new Type[] {DoubleType.INSTANCE});
-    private static final Projection AVG_ADHERENCE_PROJECTION = Projections.sqlProjection(
-            "avg" + ADHERENCE_SQL, new String[] {"scheduleAdherence"}, new Type[] {DoubleType.INSTANCE});
+//    private static final String ADHERENCE_SQL = "(time - scheduledTime) AS scheduleAdherence";
+//    private static final Projection ADHERENCE_PROJECTION = Projections.sqlProjection(
+//            ADHERENCE_SQL, new String[] {"scheduleAdherence"}, new Type[] {DoubleType.INSTANCE});
+//    private static final Projection AVG_ADHERENCE_PROJECTION = Projections.sqlProjection(
+//            "avg" + ADHERENCE_SQL, new String[] {"scheduleAdherence"}, new Type[] {DoubleType.INSTANCE});
 
     public static List<Object> stopScheduleAdherence(
             Date startDate,
@@ -142,43 +133,51 @@ public class ScheduleAdherenceController {
             boolean byGroup,
             String datatype) {
 
-        // filter ids which may be empty.
-        List<String> ids = new ArrayList<String>();
-        if (idsOrEmpty != null)
-            for (String id : idsOrEmpty)
-                if (!StringUtils.isBlank(id)) {
-                    ids.add(id);
-                }
-
-        Date endDate = new Date(startDate.getTime() + (numDays * Time.MS_PER_DAY));
-
-        ProjectionList proj = Projections.projectionList();
-
-        if (byGroup) proj.add(Projections.groupProperty(groupName), groupName).add(Projections.rowCount(), "count");
-        else
-            proj.add(Projections.property("routeId"), "routeId")
-                    .add(Projections.property("stopId"), "stopId")
-                    .add(Projections.property("tripId"), "tripId");
-
-        proj.add(byGroup ? AVG_ADHERENCE_PROJECTION : ADHERENCE_PROJECTION, "scheduleAdherence");
-
-        DetachedCriteria criteria = DetachedCriteria.forClass(ArrivalDeparture.class)
-                .add(Restrictions.between("time", startDate, endDate))
-                .add(Restrictions.isNotNull("scheduledTime"));
-
-        if ("arrival".equals(datatype)) criteria.add(Restrictions.eq("isArrival", true));
-        else if ("departure".equals(datatype)) criteria.add(Restrictions.eq("isArrival", false));
-
-        String sql = "time({alias}.time) between ? and ?";
-        String[] values = {startTime, endTime};
-        Type[] types = {StringType.INSTANCE, StringType.INSTANCE};
-        criteria.add(Restrictions.sqlRestriction(sql, values, types));
-
-        criteria.setProjection(proj).setResultTransformer(DetachedCriteria.ALIAS_TO_ENTITY_MAP);
-
-        if (ids != null && ids.size() > 0) criteria.add(Restrictions.in(groupName, ids));
-
-        return dbify(criteria);
+//        Session session = HibernateUtils.getSession();
+//        JPAQuery<ArrivalDeparture> query = new JPAQuery<>(session);
+//
+//        var qentity = QArrivalDeparture.arrivalDeparture;
+//
+//        // filter ids which may be empty.
+//        List<String> ids = new ArrayList<>();
+//        if (idsOrEmpty != null)
+//            for (String id : idsOrEmpty)
+//                if (!StringUtils.isBlank(id)) {
+//                    ids.add(id);
+//                }
+//
+//        Date endDate = new Date(startDate.getTime() + (numDays * Time.MS_PER_DAY));
+//
+//        ProjectionList proj = Projections.projectionList();
+//
+//        if (byGroup)
+//            proj.add(Projections.groupProperty(groupName), groupName)
+//                .add(Projections.rowCount(), "count");
+//        else
+//            proj.add(Projections.property("routeId"), "routeId")
+//                    .add(Projections.property("stopId"), "stopId")
+//                    .add(Projections.property("tripId"), "tripId");
+//
+//        proj.add(byGroup ? AVG_ADHERENCE_PROJECTION : ADHERENCE_PROJECTION, "scheduleAdherence");
+//
+//        DetachedCriteria criteria = DetachedCriteria.forClass(ArrivalDeparture.class)
+//                .add(Restrictions.between("time", startDate, endDate))
+//                .add(Restrictions.isNotNull("scheduledTime"));
+//
+//        if ("arrival".equals(datatype)) criteria.add(Restrictions.eq("isArrival", true));
+//        else if ("departure".equals(datatype)) criteria.add(Restrictions.eq("isArrival", false));
+//
+//        String sql = "time({alias}.time) between ? and ?";
+//        String[] values = {startTime, endTime};
+//        Type[] types = {StringType.INSTANCE, StringType.INSTANCE};
+//        criteria.add(Restrictions.sqlRestriction(sql, values, types));
+//
+//        criteria.setProjection(proj).setResultTransformer(DetachedCriteria.ALIAS_TO_ENTITY_MAP);
+//
+//        if (ids != null && ids.size() > 0) criteria.add(Restrictions.in(groupName, ids));
+//
+//        return dbify(criteria);
+        return null;
     }
 
     private static Date endOfDay(Date endDate) {
@@ -189,13 +188,13 @@ public class ScheduleAdherenceController {
         c.set(Calendar.SECOND, 59);
         return c.getTime();
     }
-
-    private static List<Object> dbify(DetachedCriteria criteria) {
-        Session session = HibernateUtils.getSession();
-        try {
-            return criteria.getExecutableCriteria(session).list();
-        } finally {
-            session.close();
-        }
-    }
+//
+//    private static List<Object> dbify(DetachedCriteria criteria) {
+//        Session session = HibernateUtils.getSession();
+//        try {
+//            return criteria.getExecutableCriteria(session).list();
+//        } finally {
+//            session.close();
+//        }
+//    }
 }

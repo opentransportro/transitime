@@ -1,13 +1,7 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
-import javax.persistence.*;
-import java.io.Serializable;
-import java.net.SocketException;
-import java.net.SocketTimeoutException;
-import java.util.*;
-import java.util.stream.Collectors;
-
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Hibernate;
@@ -17,17 +11,22 @@ import org.hibernate.Session;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.DynamicUpdate;
-import org.hibernate.collection.internal.PersistentList;
+import org.hibernate.collection.spi.PersistentList;
 import org.hibernate.internal.SessionImpl;
 import org.transitclock.applications.Core;
 import org.transitclock.config.BooleanConfigValue;
-import org.transitclock.configData.AgencyConfig;
 import org.transitclock.configData.CoreConfig;
 import org.transitclock.core.SpatialMatch;
 import org.transitclock.db.hibernate.HibernateUtils;
 import org.transitclock.gtfs.DbConfig;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.Time;
+
+import java.io.Serializable;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Represents assignment for a vehicle for a day. Obtained by combining data from multiple GTFS

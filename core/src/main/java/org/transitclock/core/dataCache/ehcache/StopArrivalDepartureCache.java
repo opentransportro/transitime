@@ -1,31 +1,24 @@
 /* (C)2023 */
 package org.transitclock.core.dataCache.ehcache;
 
+import com.querydsl.jpa.impl.JPAQuery;
+import org.ehcache.Cache;
+import org.ehcache.CacheManager;
+import org.hibernate.Session;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.transitclock.config.IntegerConfigValue;
+import org.transitclock.core.dataCache.*;
+import org.transitclock.db.structs.ArrivalDeparture;
+import org.transitclock.db.structs.QArrivalDeparture;
+import org.transitclock.ipc.data.IpcArrivalDeparture;
+import org.transitclock.utils.Time;
+
 import java.net.URL;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-
-import com.querydsl.jpa.impl.JPAQuery;
-import org.ehcache.Cache;
-import org.ehcache.CacheManager;
-import org.hibernate.Criteria;
-import org.hibernate.Session;
-import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Restrictions;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.transitclock.config.IntegerConfigValue;
-import org.transitclock.core.dataCache.DwellTimeModelCacheFactory;
-import org.transitclock.core.dataCache.StopArrivalDepartureCacheFactory;
-import org.transitclock.core.dataCache.StopArrivalDepartureCacheInterface;
-import org.transitclock.core.dataCache.StopArrivalDepartureCacheKey;
-import org.transitclock.core.dataCache.StopEvents;
-import org.transitclock.db.structs.ArrivalDeparture;
-import org.transitclock.db.structs.QArrivalDeparture;
-import org.transitclock.ipc.data.IpcArrivalDeparture;
-import org.transitclock.utils.Time;
 
 /**
  * @author Sean Og Crudden This is a Cache to hold a sorted list of all arrival departure events for

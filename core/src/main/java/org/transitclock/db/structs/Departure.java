@@ -1,7 +1,7 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
-import javax.persistence.Entity;
+import jakarta.persistence.Entity;
 import java.util.Date;
 
 /**

@@ -1,29 +1,16 @@
 /* (C)2023 */
 package org.transitclock.core.dataCache.ehcache.frequency;
 
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-
 import com.querydsl.jpa.impl.JPAQuery;
 import org.apache.commons.lang3.time.DateUtils;
 import org.ehcache.Cache;
 import org.ehcache.CacheManager;
-import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.applications.Core;
 import org.transitclock.config.IntegerConfigValue;
-import org.transitclock.core.dataCache.IpcArrivalDepartureComparator;
-import org.transitclock.core.dataCache.TripDataHistoryCacheFactory;
-import org.transitclock.core.dataCache.TripDataHistoryCacheInterface;
-import org.transitclock.core.dataCache.TripEvents;
-import org.transitclock.core.dataCache.TripKey;
+import org.transitclock.core.dataCache.*;
 import org.transitclock.core.dataCache.ehcache.CacheManagerFactory;
 import org.transitclock.core.dataCache.frequency.FrequencyBasedHistoricalAverageCache;
 import org.transitclock.db.structs.ArrivalDeparture;
@@ -34,6 +21,9 @@ import org.transitclock.gtfs.DbConfig;
 import org.transitclock.gtfs.GtfsData;
 import org.transitclock.ipc.data.IpcArrivalDeparture;
 import org.transitclock.utils.Time;
+
+import java.net.URL;
+import java.util.*;
 
 /**
  * @author Sean Og Crudden This is a Cache to hold historical arrival departure data for trips. It

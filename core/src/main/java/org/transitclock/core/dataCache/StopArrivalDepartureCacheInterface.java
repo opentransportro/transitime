@@ -1,17 +1,14 @@
 /* (C)2023 */
 package org.transitclock.core.dataCache;
 
-import java.util.Date;
-import java.util.List;
-
 import com.querydsl.jpa.impl.JPAQuery;
-import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Restrictions;
 import org.transitclock.db.structs.ArrivalDeparture;
 import org.transitclock.db.structs.QArrivalDeparture;
 import org.transitclock.ipc.data.IpcArrivalDeparture;
+
+import java.util.Date;
+import java.util.List;
 
 public abstract class StopArrivalDepartureCacheInterface {
 

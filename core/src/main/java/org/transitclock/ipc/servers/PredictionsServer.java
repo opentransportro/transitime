@@ -11,8 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.transitclock.applications.Core;
 import org.transitclock.core.dataCache.PredictionDataCache;
 import org.transitclock.db.structs.Location;
-import org.transitclock.gtfs.StopsByLoc;
-import org.transitclock.gtfs.StopsByLoc.StopInfo;
+import org.transitclock.gtfs.StopsByLocation;
+import org.transitclock.gtfs.StopsByLocation.StopInfo;
 import org.transitclock.ipc.data.IpcPredictionsForRouteStopDest;
 import org.transitclock.ipc.interfaces.PredictionsInterface;
 import org.transitclock.ipc.rmi.AbstractServer;
@@ -151,7 +151,7 @@ public class PredictionsServer extends AbstractServer implements PredictionsInte
         List<IpcPredictionsForRouteStopDest> results = new ArrayList<IpcPredictionsForRouteStopDest>();
 
         // Determine which stops are near the location
-        List<StopInfo> stopInfos = StopsByLoc.getStops(loc, maxDistance);
+        List<StopInfo> stopInfos = StopsByLocation.getStops(loc, maxDistance);
 
         // Gather predictions for all of those stops
         for (StopInfo stopInfo : stopInfos) {

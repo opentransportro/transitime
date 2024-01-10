@@ -2,7 +2,7 @@
 package org.transitclock.db.structs;
 
 import java.io.Serializable;
-import javax.persistence.Embeddable;
+import jakarta.persistence.Embeddable;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.transitclock.utils.Time;

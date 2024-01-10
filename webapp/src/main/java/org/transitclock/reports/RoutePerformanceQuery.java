@@ -1,29 +1,21 @@
 /* (C)2023 */
 package org.transitclock.reports;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberPath;
 import com.querydsl.jpa.impl.JPAQuery;
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.hibernate.criterion.CriteriaSpecification;
-import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Projection;
-import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Restrictions;
-import org.hibernate.type.DoubleType;
-import org.hibernate.type.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.db.hibernate.HibernateUtils;
 import org.transitclock.db.structs.PredictionAccuracy;
 import org.transitclock.db.structs.QPredictionAccuracy;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 /**
  * To find route performance information. For now, route performance is the percentage of

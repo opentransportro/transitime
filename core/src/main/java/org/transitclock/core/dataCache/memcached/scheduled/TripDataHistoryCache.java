@@ -1,21 +1,10 @@
 /* (C)2023 */
 package org.transitclock.core.dataCache.memcached.scheduled;
 
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-
 import com.querydsl.jpa.impl.JPAQuery;
 import net.spy.memcached.MemcachedClient;
 import org.apache.commons.lang3.time.DateUtils;
-import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.transitclock.applications.Core;
 import org.transitclock.config.IntegerConfigValue;
@@ -31,6 +20,11 @@ import org.transitclock.gtfs.DbConfig;
 import org.transitclock.gtfs.GtfsData;
 import org.transitclock.ipc.data.IpcArrivalDeparture;
 import org.transitclock.utils.Time;
+
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class TripDataHistoryCache implements TripDataHistoryCacheInterface {
 

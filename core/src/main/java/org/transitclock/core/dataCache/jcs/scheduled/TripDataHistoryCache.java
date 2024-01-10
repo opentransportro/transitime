@@ -1,20 +1,11 @@
 /* (C)2023 */
 package org.transitclock.core.dataCache.jcs.scheduled;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
-
 import com.querydsl.jpa.impl.JPAQuery;
 import org.apache.commons.jcs.JCS;
 import org.apache.commons.jcs.access.CacheAccess;
 import org.apache.commons.lang3.time.DateUtils;
-import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.applications.Core;
@@ -28,6 +19,8 @@ import org.transitclock.db.structs.Trip;
 import org.transitclock.gtfs.DbConfig;
 import org.transitclock.gtfs.GtfsData;
 import org.transitclock.ipc.data.IpcArrivalDeparture;
+
+import java.util.*;
 
 public class TripDataHistoryCache implements TripDataHistoryCacheInterface {
     private static final String cacheName = "TripDataHistoryCache";

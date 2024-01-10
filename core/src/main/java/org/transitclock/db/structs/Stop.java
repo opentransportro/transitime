@@ -3,7 +3,7 @@ package org.transitclock.db.structs;
 
 import java.io.Serializable;
 import java.util.List;
-import javax.persistence.*;
+import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;

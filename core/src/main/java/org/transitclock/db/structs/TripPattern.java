@@ -12,7 +12,7 @@ import org.hibernate.classic.Lifecycle;
 import org.transitclock.gtfs.GtfsData;
 import org.transitclock.gtfs.gtfsStructs.GtfsRoute;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;

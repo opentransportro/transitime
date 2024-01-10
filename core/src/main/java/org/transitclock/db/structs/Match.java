@@ -1,7 +1,7 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
@@ -16,7 +16,6 @@ import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Immutable;
 import org.hibernate.classic.Lifecycle;
-import org.hibernate.type.TimestampType;
 import org.transitclock.applications.Core;
 import org.transitclock.core.TemporalMatch;
 import org.transitclock.core.VehicleState;
@@ -181,8 +180,8 @@ public class Match implements Lifecycle, Serializable {
         var query = session.createQuery(hql);
 
         // Set the parameters for the query
-        query.setParameter("beginDate", beginTime, TimestampType.INSTANCE);
-        query.setParameter("endDate", endTime, TimestampType.INSTANCE);
+        query.setParameter("beginDate", beginTime);
+        query.setParameter("endDate", endTime);
 
         if (firstResult != null) {
             // Only get a batch of data at a time
@@ -222,8 +221,8 @@ public class Match implements Lifecycle, Serializable {
         var query = session.createQuery(hql);
 
         // Set the parameters for the query
-        query.setParameter("beginDate", beginTime, TimestampType.INSTANCE);
-        query.setParameter("endDate", endTime, TimestampType.INSTANCE);
+        query.setParameter("beginDate", beginTime);
+        query.setParameter("endDate", endTime);
 
         Long count = null;
 

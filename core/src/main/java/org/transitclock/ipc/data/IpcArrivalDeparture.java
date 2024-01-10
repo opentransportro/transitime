@@ -3,7 +3,8 @@ package org.transitclock.ipc.data;
 
 import java.io.Serializable;
 import java.util.Date;
-import javax.xml.bind.annotation.XmlAttribute;
+
+import jakarta.xml.bind.annotation.XmlAttribute;
 import org.transitclock.core.TemporalDifference;
 import org.transitclock.db.structs.ArrivalDeparture;
 
