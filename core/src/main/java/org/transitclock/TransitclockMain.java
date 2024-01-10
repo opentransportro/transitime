@@ -51,6 +51,8 @@ public class TransitclockMain {
         var application = new Application(cli);
         application.init();
         application.loadGtfs();
+        application.createApiKey();
+        application.createWebAgency();
         application.run();
     }
 }

@@ -32,7 +32,7 @@ public class DatabaseModule {
         config.addDataSourceProperty( "cachePrepStmts" , "true" );
         config.addDataSourceProperty( "prepStmtCacheSize" , "250" );
         config.addDataSourceProperty( "prepStmtCacheSqlLimit" , "2048" );
-        config.addDataSourceProperty("hibernate.hbm2ddl.auto", "create");
+        //config.addDataSourceProperty("hibernate.hbm2ddl.auto", "create");
         HikariDataSource hikariDataSource = new HikariDataSource(config);
         hikariDataSource.setThreadFactory(new NamedThreadFactory("hikar-cp"));
         return hikariDataSource;

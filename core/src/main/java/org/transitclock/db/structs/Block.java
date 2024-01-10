@@ -710,10 +710,9 @@ public final class Block implements Serializable {
                 // global session was created when trips for another block was
                 // loaded and it was found that the old session was no longer
                 // valid, such as when the db is rebooted.
-                if (trips instanceof PersistentList) {
+                if (trips instanceof PersistentList persistentListTrips) {
                     // Get the current session associated with the trips.
                     // Can be null.
-                    PersistentList persistentListTrips = (PersistentList) trips;
                     var session = persistentListTrips.getSession();
 
                     // If the session is different from the global

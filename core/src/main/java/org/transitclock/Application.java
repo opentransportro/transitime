@@ -9,6 +9,8 @@ import org.quartz.impl.StdSchedulerFactory;
 import org.transitclock.applications.Core;
 import org.transitclock.applications.GtfsFileProcessor;
 import org.transitclock.core.dataCache.ehcache.CacheManagerFactory;
+import org.transitclock.db.webstructs.ApiKeyManager;
+import org.transitclock.db.webstructs.WebAgency;
 
 import javax.sql.DataSource;
 
@@ -41,7 +43,7 @@ public class Application {
 
         scheduler.start();
 
-        DataSource dataSource = factory.dataSource();
+        //DataSource dataSource = factory.dataSource();
     }
 
     public void loadGtfs() {
@@ -78,4 +80,21 @@ public class Application {
         }
     }
 
+    public void createApiKey() {
+        ApiKeyManager.getInstance()
+                .generateApiKey(
+                        "Sean Og Crudden",
+                        "http://www.transitclock.org",
+                        "og.crudden@gmail.com",
+                        "123456",
+                        "foo");
+    }
+
+    public void createWebAgency() {
+        WebAgency webAgency = new WebAgency("STPT",
+                "127.0.0.1", true, "STPT", "postgress", "localhost", "postgress", "transitclock");
+
+        // Store the WebAgency
+        webAgency.store("web");
+    }
 }

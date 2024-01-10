@@ -18,7 +18,7 @@ import org.transitclock.utils.Geo;
  *
  * @author SkiBu Smith
  */
-public class StopsByLoc {
+public class StopsByLocation {
 
     // When looking for nearest stop should bias a bit to the next one
     // in the trip pattern. This way if a user is in between two stops

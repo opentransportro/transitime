@@ -140,8 +140,6 @@ public class WebAgency {
         } catch (Exception e) {
             throw e;
         }
-        // Make sure that the session always gets closed, even if
-        // exception occurs
     }
 
     /**

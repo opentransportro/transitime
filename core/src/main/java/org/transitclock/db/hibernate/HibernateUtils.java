@@ -39,7 +39,7 @@ public class HibernateUtils {
         logger.info("Configuring Hibernate for dbName={} using config file={}", dbName, fileName);
         File f = new File(fileName);
         if (!f.exists()) {
-            logger.info("The Hibernate file {} doesn't exist as a regular file " + "so seeing if it is in classpath.", fileName);
+            logger.info("The Hibernate file {} doesn't exist as a regular file so seeing if it is in classpath.", fileName);
 
             // Couldn't find file directly so look in classpath for it
             ClassLoader classLoader = HibernateUtils.class.getClassLoader();

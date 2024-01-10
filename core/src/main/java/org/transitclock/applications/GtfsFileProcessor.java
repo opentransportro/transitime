@@ -260,7 +260,7 @@ public class GtfsFileProcessor {
                 params.gtfsMaxTravelTimeSegmentLength,
                 -1,
                 true, //shouldStoreNewRevs,
-                true, //shouldDeleteRevs,
+                false, //shouldDeleteRevs,
                 params.gtfsTrimPathBeforeFirstStopOfTrip,
                 params.gtfsMaxDistanceBetweenStops,
                 params.gtfsDisableSpecialLoopBackToBeginningCase);
