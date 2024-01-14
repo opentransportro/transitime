@@ -5,7 +5,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import javax.ws.rs.WebApplicationException;
+import jakarta.ws.rs.WebApplicationException;
 
 public class DateTimeParam {
 

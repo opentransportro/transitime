@@ -43,7 +43,6 @@ public class GtfsRtVehicleFeed {
 
     private static final Logger logger = LoggerFactory.getLogger(GtfsRtVehicleFeed.class);
 
-    /********************** Member Functions **************************/
     public GtfsRtVehicleFeed(String agencyId) {
         this.agencyId = agencyId;
 
@@ -62,7 +61,7 @@ public class GtfsRtVehicleFeed {
         VehiclePosition.Builder vehiclePosition = VehiclePosition.newBuilder();
 
         // If there is route information then add it via the TripDescriptor
-        if (vehicleData.getRouteId() != null && vehicleData.getRouteId().length() > 0) {
+        if (vehicleData.getRouteId() != null && !vehicleData.getRouteId().isEmpty()) {
             String tripStartDateStr = gtfsRealtimeDateFormatter.format(new Date(vehicleData.getTripStartEpochTime()));
             TripDescriptor.Builder tripDescriptor = TripDescriptor.newBuilder()
                     .setRouteId(vehicleData.getRouteId())

@@ -1,14 +1,16 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @XmlRootElement(name = "adherenceSummary")
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class ApiAdherenceSummary {
 
     @XmlAttribute

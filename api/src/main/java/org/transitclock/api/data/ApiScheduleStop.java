@@ -1,7 +1,7 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import javax.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlAttribute;
 
 /**
  * Contains minimal for a stop for a schedule

@@ -1,8 +1,8 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import org.transitclock.ipc.data.IpcTrip;
 
 /**

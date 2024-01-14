@@ -8,9 +8,12 @@ import org.quartz.SchedulerException;
 import org.quartz.impl.StdSchedulerFactory;
 import org.transitclock.applications.Core;
 import org.transitclock.applications.GtfsFileProcessor;
+import org.transitclock.configData.AgencyConfig;
+import org.transitclock.configData.DbSetupConfig;
 import org.transitclock.core.dataCache.ehcache.CacheManagerFactory;
 import org.transitclock.db.webstructs.ApiKeyManager;
 import org.transitclock.db.webstructs.WebAgency;
+import org.transitclock.gtfs.DbConfig;
 
 import javax.sql.DataSource;
 
@@ -91,8 +94,14 @@ public class Application {
     }
 
     public void createWebAgency() {
-        WebAgency webAgency = new WebAgency("STPT",
-                "127.0.0.1", true, "STPT", "postgress", "localhost", "postgress", "transitclock");
+        WebAgency webAgency = new WebAgency(AgencyConfig.getAgencyId(),
+                "127.0.0.1",
+                true,
+                DbSetupConfig.getDbName(),
+                DbSetupConfig.getDbType(),
+                "localhost",
+                DbSetupConfig.getDbUserName(),
+                DbSetupConfig.getDbPassword());
 
         // Store the WebAgency
         webAgency.store("web");

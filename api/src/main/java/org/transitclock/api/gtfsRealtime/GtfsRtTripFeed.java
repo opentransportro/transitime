@@ -85,7 +85,6 @@ public class GtfsRtTripFeed {
 
     private static final Logger logger = LoggerFactory.getLogger(GtfsRtTripFeed.class);
 
-    /********************** Member Functions **************************/
     public GtfsRtTripFeed(String agencyId) {
         this.agencyId = agencyId;
 

@@ -135,7 +135,7 @@ public class WebAgency {
     public void store(String dbName) {
         try (Session session = HibernateUtils.getSession(dbName)) {
             Transaction transaction = session.beginTransaction();
-            session.save(this);
+            session.persist(this);
             transaction.commit();
         } catch (Exception e) {
             throw e;
@@ -227,8 +227,7 @@ public class WebAgency {
         IntervalTimer timer = new IntervalTimer();
 
         try (Session session = HibernateUtils.getSession(webAgencyDbName)) {
-            var query = session.createQuery("FROM WebAgency");
-            @SuppressWarnings("unchecked")
+            var query = session.createQuery("FROM WebAgency", WebAgency.class);
             List<WebAgency> list = query.list();
             Map<String, WebAgency> map = new HashMap<>();
             for (WebAgency webAgency : list) {
@@ -260,8 +259,7 @@ public class WebAgency {
      */
     private static boolean updateCacheIfShould(long rereadIfOlderThanMsecs) {
         // If haven't read in web agencies yet or in a while, do so now
-        if (webAgencyMapCache == null
-                || System.currentTimeMillis() - webAgencyMapCacheReadTime > rereadIfOlderThanMsecs) {
+        if (webAgencyMapCache == null || System.currentTimeMillis() - webAgencyMapCacheReadTime > rereadIfOlderThanMsecs) {
             webAgencyMapCache = getMapFromDb();
             webAgencyMapCacheReadTime = System.currentTimeMillis();
 

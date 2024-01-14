@@ -123,7 +123,7 @@ public class Core {
          // one can read in timezone from database, set the default timezone,
          // clear the factory so that future db connections will use the newly
          // configured timezone, and then successfully process dates.
-         HibernateUtils.clearSessionFactory();
+         // HibernateUtils.clearSessionFactory();
 
          // Read in all GTFS based config data from the database
          configData = new DbConfig(agencyId);

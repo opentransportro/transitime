@@ -115,7 +115,7 @@ public class VehicleConfig {
     @SuppressWarnings("unchecked")
     public static List<VehicleConfig> getVehicleConfigs(Session session) throws HibernateException {
         return session
-                .createQuery("FROM VehicleConfig")
+                .createQuery("FROM VehicleConfig", VehicleConfig.class)
                 .list();
     }
 

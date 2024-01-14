@@ -4,7 +4,7 @@ package org.transitclock.api.utils;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import javax.ws.rs.WebApplicationException;
+import jakarta.ws.rs.WebApplicationException;
 import org.transitclock.config.IntegerConfigValue;
 
 /**
@@ -41,7 +41,6 @@ public class UsageValidator {
     // IP address.
     private Map<String, LinkedList<Long>> requestTimesPerIp = new ConcurrentHashMap<String, LinkedList<Long>>();
 
-    /********************** Member Functions **************************/
 
     /** Constructor private because singleton class */
     private UsageValidator() {}
@@ -62,7 +61,5 @@ public class UsageValidator {
      * @throws WebApplicationException
      */
     public void validateUsage(StandardParameters stdParameters) throws WebApplicationException {
-
-        return;
     }
 }

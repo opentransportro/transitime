@@ -793,7 +793,7 @@ public class AvlReport implements Serializable {
             hql += " AND vehicleId=:vehicleId";
         if (clause != null)
             hql += " " + clause;
-        var query = session.createQuery(hql);
+        var query = session.createQuery(hql, AvlReport.class);
 
         // Set the parameters
         if (vehicleId != null && !vehicleId.isEmpty())

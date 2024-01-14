@@ -2,8 +2,8 @@
 package org.transitclock.api.data;
 
 import java.util.Date;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlTransient;
+import jakarta.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlTransient;
 import org.transitclock.ipc.data.IpcVehicleToBlockConfig;
 
 /**

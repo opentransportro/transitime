@@ -16,8 +16,8 @@ ENV TRANSITCLOCK_PROPERTIES ${TRANSITCLOCK_PROPERTIES}
 ENV CATALINA_HOME /usr/local/tomcat
 ENV PATH $CATALINA_HOME/bin:$PATH
 
-ENV TOMCAT_MAJOR 9
-ENV TOMCAT_VERSION 9.0.84
+ENV TOMCAT_MAJOR 10
+ENV TOMCAT_VERSION 10.1.18
 ENV TOMCAT_TGZ_URL https://dlcdn.apache.org/tomcat/tomcat-$TOMCAT_MAJOR/v$TOMCAT_VERSION/bin/apache-tomcat-$TOMCAT_VERSION.tar.gz
 
 EXPOSE 8080
@@ -64,10 +64,6 @@ COPY docker/bin/set_config.sh /usr/local/transitclock/bin/set_config.sh
 COPY docker/bin/connect_to_db.sh /usr/local/transitclock/bin/connect_to_db.sh
 
 ENV PATH="/usr/local/transitclock/bin:${PATH}"
-
-# This is a way to copy in test data to run a regression test.
-# COPY docker/data/avl.csv /usr/local/transitclock/data/avl.csv
-# COPY docker/data/gtfs_hart_old.zip /usr/local/transitclock/data/gtfs_hart_old.zip
 
 RUN \
 	sed -i 's/\r//' /usr/local/transitclock/bin/*.sh &&\

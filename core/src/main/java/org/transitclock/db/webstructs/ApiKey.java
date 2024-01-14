@@ -22,7 +22,6 @@ import java.util.List;
  */
 @Entity
 @Getter
-@DynamicUpdate
 @Table(name = "ApiKeys")
 public class ApiKey implements Serializable {
 
@@ -60,7 +59,6 @@ public class ApiKey implements Serializable {
         this.description = description;
     }
 
-    /** Needed because Hibernate requires no-arg constructor for reading in data */
     protected ApiKey() {
         this.applicationName = null;
         this.applicationKey = null;
@@ -77,9 +75,8 @@ public class ApiKey implements Serializable {
      * @return
      * @throws HibernateException
      */
-    @SuppressWarnings("unchecked")
     public static List<ApiKey> getApiKeys(Session session) throws HibernateException {
-        var query = session.createQuery("FROM ApiKey");
+        var query = session.createQuery("FROM ApiKey", ApiKey.class);
         return query.list();
     }
 
@@ -91,13 +88,11 @@ public class ApiKey implements Serializable {
     public void storeApiKey(String dbName) {
         try (Session session = HibernateUtils.getSession(dbName)) {
             Transaction transaction = session.beginTransaction();
-            session.save(this);
+            session.persist(this);
             transaction.commit();
         } catch (Exception e) {
             throw e;
         }
-        // Make sure that the session always gets closed, even if
-        // exception occurs
     }
 
     /**
@@ -107,9 +102,7 @@ public class ApiKey implements Serializable {
      */
     public void deleteApiKey(String dbName) {
         try (Session session = HibernateUtils.getSession(dbName)) {
-            Transaction transaction = session.beginTransaction();
-            session.delete(this);
-            transaction.commit();
+            session.remove(this);
         } catch (Exception e) {
             throw e;
         }

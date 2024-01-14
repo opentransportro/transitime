@@ -404,7 +404,7 @@ public class ArrivalDeparture implements Lifecycle, Serializable {
         // Create the query. Table name is case-sensitive and needs to be the
         // class name instead of the name of the db table.
         String hql = "FROM ArrivalDeparture WHERE time >= :beginDate AND time < :endDate";
-        var query = session.createQuery(hql);
+        var query = session.createQuery(hql, ArrivalDeparture.class);
 
         // Set the parameters
         query.setParameter("beginDate", beginTime);

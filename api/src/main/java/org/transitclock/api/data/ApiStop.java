@@ -1,8 +1,8 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlType;
+import jakarta.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlType;
 import org.transitclock.ipc.data.IpcStop;
 
 /**

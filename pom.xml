@@ -16,7 +16,6 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>17</java.version>
-        <javax.activation.version>1.2.0</javax.activation.version>
         <google.dagger.version>2.50</google.dagger.version>
     </properties>
 
@@ -57,24 +56,38 @@
                 <scope>import</scope>
             </dependency>
             <dependency>
-                <groupId>org.glassfish.jersey</groupId>
-                <artifactId>jersey-bom</artifactId>
-                <version>2.40</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-parent</artifactId>
                 <version>1.4.14</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            <!-- web section -->
             <dependency>
-                <groupId>com.sun.activation</groupId>
-                <artifactId>javax.activation</artifactId>
-                <version>${javax.activation.version}</version>
+                <groupId>org.glassfish.jersey</groupId>
+                <artifactId>jersey-bom</artifactId>
+                <version>3.1.5</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
+            <dependency>
+                <groupId>org.glassfish.jaxb</groupId>
+                <artifactId>jaxb-bom</artifactId>
+                <version>4.0.4</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>jakarta.servlet</groupId>
+                <artifactId>jakarta.servlet-api</artifactId>
+                <version>6.0.0</version>
+            </dependency>
+            <dependency>
+                <groupId>jakarta.servlet.jsp</groupId>
+                <artifactId>jakarta.servlet.jsp-api</artifactId>
+                <version>3.1.1</version>
+            </dependency>
+            <!-- end of web section -->
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
@@ -84,6 +97,11 @@
                 <groupId>org.quartz-scheduler</groupId>
                 <artifactId>quartz</artifactId>
                 <version>2.3.2</version>
+            </dependency>
+            <dependency>
+                <groupId>com.zaxxer</groupId>
+                <artifactId>HikariCP</artifactId>
+                <version>5.1.0</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -96,16 +114,6 @@
         </dependency>
     </dependencies>
 
-    <!--    <pluginRepositories>-->
-    <!--        <pluginRepository>-->
-    <!--            <id>central</id>-->
-    <!--            <url>https://repo1.maven.org/maven2/</url>-->
-    <!--        </pluginRepository>-->
-    <!--        <pluginRepository>-->
-    <!--            <id>repo.camsys-apps.com</id>-->
-    <!--            <url>https://repo.camsys-apps.com/third-party</url>-->
-    <!--        </pluginRepository>-->
-    <!--    </pluginRepositories>-->
     <build>
         <pluginManagement>
             <plugins>

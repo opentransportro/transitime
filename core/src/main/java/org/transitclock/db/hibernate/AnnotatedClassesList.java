@@ -94,6 +94,7 @@ public class AnnotatedClassesList {
         VehicleToBlockConfig.class,
         HoldingTime.class,
         Headway.class,
+
         // For website
         ApiKey.class,
         WebAgency.class,

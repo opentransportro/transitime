@@ -1,17 +1,11 @@
 /* (C)2023 */
 package org.transitclock.api.utils;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import jakarta.servlet.*;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class ApiLoggingFilter implements Filter {
-
-    private static final Logger logger = LoggerFactory.getLogger(ApiLoggingFilter.class);
 
     @Override
     public void init(FilterConfig filterConfg) {

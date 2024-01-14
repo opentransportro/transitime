@@ -17,7 +17,6 @@ public class DataCache {
 
     private Map<String, CacheEntry> cacheMap = new HashMap<String, CacheEntry>();
 
-    /********************** Member Functions **************************/
     private static class CacheEntry {
         private long timeCreated;
         private FeedMessage cachedFeedMessage;

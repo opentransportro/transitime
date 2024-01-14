@@ -183,7 +183,7 @@ public final class Block implements Serializable {
                 /*+ "join fetch sp.locations "*/
                 // this makes the resultset REALLY big
                 + "WHERE b.configRev = :configRev";
-        var query = session.createQuery(hql);
+        var query = session.createQuery(hql, Block.class);
         query.setParameter("configRev", configRev);
         return query.list();
     }
@@ -212,28 +212,28 @@ public final class Block implements Serializable {
 
         // Delete configRev data from Block_to_Trip_joinTable
         int rowsUpdated = session
-                .createNativeQuery("DELETE FROM Block_to_Trip_joinTable WHERE Blocks_configRev=" + configRev)
+                .createNativeQuery("DELETE FROM Block_to_Trip_joinTable WHERE Blocks_configRev=" + configRev, Void.class)
                 .executeUpdate();
         logger.info("Deleted {} rows from Block_to_Trip_joinTable for " + "configRev={}", rowsUpdated, configRev);
         totalRowsUpdated += rowsUpdated;
 
         // Delete configRev data from Trip_ScheduledTimeslist
         rowsUpdated = session
-                .createNativeQuery("DELETE FROM Trip_ScheduledTimeslist WHERE Trip_configRev=" + configRev)
+                .createNativeQuery("DELETE FROM Trip_ScheduledTimeslist WHERE Trip_configRev=" + configRev, Void.class)
                 .executeUpdate();
         logger.info("Deleted {} rows from Trip_ScheduledTimeslist for configRev={}", rowsUpdated, configRev);
         totalRowsUpdated += rowsUpdated;
 
         // Delete configRev data from Trips
         rowsUpdated = session
-                .createNativeQuery("DELETE FROM Trips WHERE configRev=" + configRev)
+                .createNativeQuery("DELETE FROM Trips WHERE configRev=" + configRev, Void.class)
                 .executeUpdate();
         logger.info("Deleted {} rows from Trips for configRev={}", rowsUpdated, configRev);
         totalRowsUpdated += rowsUpdated;
 
         // Delete configRev data from Blocks
         rowsUpdated = session
-                .createNativeQuery("DELETE FROM Blocks WHERE configRev=" + configRev)
+                .createNativeQuery("DELETE FROM Blocks WHERE configRev=" + configRev, Void.class)
                 .executeUpdate();
         logger.info("Deleted {} rows from Blocks for configRev={}", rowsUpdated, configRev);
         totalRowsUpdated += rowsUpdated;

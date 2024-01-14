@@ -1,8 +1,8 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlTransient;
+import jakarta.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlTransient;
 import org.transitclock.utils.ChinaGpsOffset;
 import org.transitclock.utils.MathUtils;
 
