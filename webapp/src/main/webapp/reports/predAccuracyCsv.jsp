@@ -5,47 +5,47 @@
 <%-- This file is for outputting prediction accuracy data in CSV format. 
   --%>
 <%
-// In order to make at least Windows based systems treat the file as
+    // In order to make at least Windows based systems treat the file as
 // a CSV file need to change the file name suffix to csv and also
 // set the content type. This way the file can be loaded into Excel
 // directory from the web browser.
-response.setHeader("Content-Disposition", "filename=predAccuracy.csv");
-response.setContentType("application/csv");
+    response.setHeader("Content-Disposition", "filename=predAccuracy.csv");
+    response.setContentType("application/csv");
 
 // Parameters from request
-String agencyId = request.getParameter("a");
-String beginDate = request.getParameter("beginDate");
-String numDays = request.getParameter("numDays");
-String beginTime = request.getParameter("beginTime");
-String endTime = request.getParameter("endTime");
-String routeId =  request.getParameter("r");
+    String agencyId = request.getParameter("a");
+    String beginDate = request.getParameter("beginDate");
+    String numDays = request.getParameter("numDays");
+    String beginTime = request.getParameter("beginTime");
+    String endTime = request.getParameter("endTime");
+    String routeId = request.getParameter("r");
 
-if (agencyId == null || beginDate == null || numDays == null) {
-	response.getWriter().write("For predAccuracyCsv.jsp must "
-		+ "specify parameters 'a' (agencyId), " 
-		+ "'beginDate', and 'numDays'."); 
-	return;
-}
+    if (agencyId == null || beginDate == null || numDays == null) {
+        response.getWriter().write("For predAccuracyCsv.jsp must "
+                + "specify parameters 'a' (agencyId), "
+                + "'beginDate', and 'numDays'.");
+        return;
+    }
 
 //Determine the time portion of the SQL
-String timeSql = "";
-if ((beginTime != null && !beginTime.isEmpty()) 
-		|| (endTime != null && !endTime.isEmpty())) {
-	// If only begin or only end time set then use default value
-	if (beginTime == null || beginTime.isEmpty())
-		beginTime = "00:00:00";
-	if (endTime == null || endTime.isEmpty())
-		endTime = "23:59:59";
-    timeSql = " AND arrivalDepartureTime::time BETWEEN '" 
-		+ beginTime + "' AND '" + endTime + "' ";
-}
+    String timeSql = "";
+    if ((beginTime != null && !beginTime.isEmpty())
+            || (endTime != null && !endTime.isEmpty())) {
+        // If only begin or only end time set then use default value
+        if (beginTime == null || beginTime.isEmpty())
+            beginTime = "00:00:00";
+        if (endTime == null || endTime.isEmpty())
+            endTime = "23:59:59";
+        timeSql = " AND arrivalDepartureTime::time BETWEEN '"
+                + beginTime + "' AND '" + endTime + "' ";
+    }
 
 //Determine route portion of SQL. Default is to provide info for
 //all routes.
-String routeSql = "";
-if (routeId!=null && !routeId.trim().isEmpty()) {
- routeSql = "  AND routeShortName='" + routeId + "' ";
-}
+    String routeSql = "";
+    if (routeId != null && !routeId.trim().isEmpty()) {
+        routeSql = "  AND routeShortName='" + routeId + "' ";
+    }
 
 // NOTE: this query only works on postgreSQL. For mySQL would need to change
 // from using to_char(), not using casting like "::interger", don't put
@@ -55,7 +55,7 @@ if (routeId!=null && !routeId.trim().isEmpty()) {
     WebAgency agency = WebAgency.getCachedWebAgency(agencyId);
     String dbtype = agency.getDbType();
     String sql = null;
-    if(dbtype.equals("mysql")){
+    if (dbtype.equals("mysql")) {
         sql = "SELECT "
                 + "     predictedTime-predictionReadTime as pred_length_secs, "
                 + "     predictionAccuracyMsecs/1000 as accuracy_secs, "
@@ -74,7 +74,7 @@ if (routeId!=null && !routeId.trim().isEmpty()) {
                 // TODO should clean this up by not having MBTA_seconds source at all
                 // in the prediction accuracy module for MBTA.
                 + "  AND predictionSource <> 'MBTA_seconds' ";
-    }else{
+    } else {
         sql = "SELECT "
                 + "     to_char(predictedTime-predictionReadTime, 'SSSS')::integer as pred_length_secs, "
                 + "     predictionAccuracyMsecs/1000 as accuracy_secs, "
@@ -87,7 +87,7 @@ if (routeId!=null && !routeId.trim().isEmpty()) {
                 + "     affectedByWaitStop AS affected_by_wait_stop"
                 + " FROM PredictionAccuracy "
                 + "WHERE arrivalDepartureTime BETWEEN '" + beginDate
-                +     "' AND TIMESTAMP '" + beginDate + "' + INTERVAL '" + numDays + " day' "
+                + "' AND TIMESTAMP '" + beginDate + "' + INTERVAL '" + numDays + " day' "
                 + timeSql
                 + "  AND predictedTime-predictionReadTime < '00:15:00' "
                 + routeSql
@@ -99,6 +99,6 @@ if (routeId!=null && !routeId.trim().isEmpty()) {
 
 
 // Do the actual query	
-String csvStr = GenericCsvQuery.getCsvString(agencyId, sql);
-response.getWriter().write(csvStr);
+    String csvStr = GenericCsvQuery.getCsvString(agencyId, sql);
+    response.getWriter().write(csvStr);
 %>

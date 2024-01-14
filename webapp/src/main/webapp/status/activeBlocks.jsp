@@ -1,7 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
          pageEncoding="UTF-8" %>
 <%@ page import="org.transitclock.reports.ScheduleAdherenceController" %>
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE html>
 <%
     String agencyId = request.getParameter("a");
     if (agencyId == null || agencyId.isEmpty()) {
@@ -14,7 +14,7 @@
 <head>
     <%@include file="/template/includes.jsp" %>
 
-    <style>
+    <style type="text/css">
         #accordion {
             margin-left: 20px;
             margin-right: 20px;
@@ -98,11 +98,11 @@
 
     </style>
 
-    <script>
-        var ALLOWABLE_EARLY_MSEC =
+    <script type="application/javascript">
+        let ALLOWABLE_EARLY_MSEC =
         <%= ScheduleAdherenceController.getScheduleEarlySeconds() %> *
         -1000;
-        var ALLOWABLE_LATE_MSEC =
+        let ALLOWABLE_LATE_MSEC =
         <%= ScheduleAdherenceController.getScheduleLateSeconds() %> *
         1000;
 
@@ -126,7 +126,7 @@
                 var routeInAjaxData = false;
                 // Go through ajax route data
                 for (var j = 0; j < routes.routes.length; ++j) {
-                    if (routeElementId == "routeId-" + routes.routes[j].id) {
+                    if (routeElementId === "routeId-" + routes.routes[j].id) {
                         routeInAjaxData = true;
                         break;
                     }
@@ -146,7 +146,7 @@
                 for (var j = 0; j < routes.routes.length; ++j) {
                     var routeData = routes.routes[j];
                     for (var k = 0; k < routeData.block.length; ++k) {
-                        if (blockElementId == "blockId=" + routeData.block[k].id) {
+                        if (blockElementId === "blockId=" + routeData.block[k].id) {
                             blockInAjaxData = true;
                             break;
                         }
@@ -476,10 +476,10 @@
         }
 
         function getSummaryData() {
-            var requestData = {
+            const requestData = {
                 "allowableEarlySec": ALLOWABLE_EARLY_MSEC / 1000,
                 "allowableLateSec": ALLOWABLE_LATE_MSEC / 1000
-            }
+            };
             $.getJSON(apiUrlPrefix + "/command/vehicleAdherenceSummary", requestData, updateFooter)
                 .fail(function () {
                     console.log("Could not access /command/vehicleAdherenceSummary");
@@ -566,7 +566,7 @@
                 heightStyle: "content", // So each blocks info element can be different size
                 header: "> div > h3", // So can be sortable
                 beforeActivate: function (event, ui) {
-                    var headerId = $(ui.newHeader).attr('id');
+                    const headerId = $(ui.newHeader).attr('id');
                     if (headerId) {
                         // route name is header title without summary
                         var routeName = $('#' + headerId).clone().find('*').remove().end().text();
@@ -590,7 +590,7 @@
                 });
 
             // Start getting the active blocks data and processing it.
-// 	Update every 2 minutes.
+            // 	Update every 2 minutes.
             getAndProcessData();
             // do not update automatically -- until performance issues solved
             //setInterval(getAndProcessData, 60000);
