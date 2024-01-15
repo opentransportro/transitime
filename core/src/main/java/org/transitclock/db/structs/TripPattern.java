@@ -52,7 +52,16 @@ public class TripPattern implements Serializable, Lifecycle {
     // Paths are automatically stored.
     @OneToMany(fetch = FetchType.EAGER)
     @Cascade({CascadeType.SAVE_UPDATE})
-    @JoinTable(name = "TripPattern_to_Path_joinTable")
+    @JoinTable(name="TripPattern_to_Path_joinTable",
+            joinColumns= {
+                    @JoinColumn(name="trippattern_id", referencedColumnName="id"),
+                    @JoinColumn(name="trippatterns_configrev", referencedColumnName="configrev")
+            },
+            inverseJoinColumns= {
+                    @JoinColumn(name="stoppaths_trippatternid", referencedColumnName="trippatternid"),
+                    @JoinColumn(name="stoppaths_stoppathid", referencedColumnName="stoppathid"),
+                    @JoinColumn(name="stoppaths_configrev", referencedColumnName="configRev")
+            })
     @OrderColumn(name = "listIndex")
     protected final List<StopPath> stopPaths;
 
