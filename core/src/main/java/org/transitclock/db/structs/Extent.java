@@ -4,10 +4,7 @@ package org.transitclock.db.structs;
 import java.io.Serializable;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 import org.hibernate.annotations.Immutable;
 
 /**
@@ -17,9 +14,7 @@ import org.hibernate.annotations.Immutable;
  */
 @Immutable
 @Embeddable
-@EqualsAndHashCode
-@ToString
-@Getter
+@Data
 @NoArgsConstructor
 public class Extent implements Serializable {
 

@@ -313,10 +313,9 @@ public class TravelTimesForStopPath implements Serializable {
         Session session = sessionFactory.openSession();
 
         // Create the query. Table name is case-sensitive!
-
         try (session) {
-            return (List<TravelTimesForStopPath>) session
-                    .createQuery("FROM TravelTimesForStopPath WHERE configRev=:configRev ")
+            return session
+                    .createQuery("FROM TravelTimesForStopPath WHERE configRev=:configRev ", TravelTimesForStopPath.class)
                     .setParameter("configRev", configRev)
                     .list();
         } catch (HibernateException e) {

@@ -33,8 +33,6 @@ import org.transitclock.ipc.interfaces.VehiclesInterface;
 @Path("/key/{key}/agency/{agency}")
 public class SiriApi {
 
-    /********************** Member Functions **************************/
-
     /**
      * Returns vehicleMonitoring vehicle information in SIRI format. Can specify vehicleIds,
      * routeIds, or routeShortNames to get subset of data. If not specified then vehicle information
@@ -130,7 +128,7 @@ public class SiriApi {
 
             // For each prediction also need corresponding vehicle so can create
             // the absurdly large MonitoredVehicleJourney element.
-            List<String> vehicleIds = new ArrayList<String>();
+            List<String> vehicleIds = new ArrayList<>();
             for (IpcPredictionsForRouteStopDest predsForDest : preds) {
                 for (IpcPrediction individualPred : predsForDest.getPredictionsForRouteStop()) {
                     vehicleIds.add(individualPred.getVehicleId());

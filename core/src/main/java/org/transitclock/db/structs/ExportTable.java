@@ -1,6 +1,7 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -21,6 +22,7 @@ import java.util.List;
  */
 @Entity
 @DynamicUpdate
+@Slf4j
 @Table(name = "ExportTable")
 public class ExportTable implements Serializable {
 
@@ -48,8 +50,6 @@ public class ExportTable implements Serializable {
 
     @Column
     private byte[] file;
-
-    private static final Logger logger = LoggerFactory.getLogger(ExportTable.class);
 
     /**
      * @param vehicleId vehicle ID * @param blockId block ID * @param tripId trip ID * @param
@@ -102,10 +102,9 @@ public class ExportTable implements Serializable {
      * @return List of VehicleConfig objects
      * @throws HibernateException
      */
-    @SuppressWarnings("unchecked")
     public static List<ExportTable> getExportTable(Session session) throws HibernateException {
         // String hql = "FROM ExportTable";
-        var query = session.createQuery("SELECT id, dataDate, exportDate, exportType, exportStatus, fileName FROM ExportTable order by exportDate desc");
+        var query = session.createQuery("FROM ExportTable ORDER BY exportDate DESC", ExportTable.class);
         return query.list();
     }
 
@@ -113,7 +112,7 @@ public class ExportTable implements Serializable {
         Transaction transaction = session.beginTransaction();
         try {
             var q = session
-                    .createQuery("delete from ExportTable where id = :id")
+                    .createMutationQuery("delete from ExportTable where id = :id")
                     .setParameter("id", id);
             q.executeUpdate();
 
@@ -124,9 +123,8 @@ public class ExportTable implements Serializable {
         }
     }
 
-    @SuppressWarnings("unchecked")
     public static List<ExportTable> getExportFile(Session session, long id) throws HibernateException {
-        return session.createQuery("FROM ExportTable WHERE id = :id")
+        return session.createQuery("FROM ExportTable WHERE id = :id", ExportTable.class)
                 .setParameter("id", id)
                 .list();
     }

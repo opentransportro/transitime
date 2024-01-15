@@ -1,5 +1,5 @@
 /* (C)2023 */
-package org.transitclock.db.webstructs;
+package org.transitclock.db;
 
 import java.util.HashMap;
 import java.util.List;
@@ -8,11 +8,10 @@ import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.transitclock.config.IntegerConfigValue;
 import org.transitclock.configData.DbSetupConfig;
 import org.transitclock.db.hibernate.HibernateUtils;
+import org.transitclock.db.webstructs.ApiKey;
 import org.transitclock.utils.Time;
 
 /**

@@ -100,7 +100,7 @@ public class FareRule implements Serializable {
     public static int deleteFromRev(Session session, int configRev) throws HibernateException {
         // Note that hql uses class name, not the table name
         return session
-                .createQuery("DELETE FareRule WHERE configRev = :configRev")
+                .createMutationQuery("DELETE FareRule WHERE configRev = :configRev")
                 .setParameter("configRev", configRev)
                 .executeUpdate();
     }
@@ -115,7 +115,7 @@ public class FareRule implements Serializable {
      */
     @SuppressWarnings("unchecked")
     public static List<FareRule> getFareRules(Session session, int configRev) throws HibernateException {
-        return session.createQuery("FROM FareRule WHERE configRev = :configRev")
+        return session.createQuery("FROM FareRule WHERE configRev = :configRev", FareRule.class)
                 .setParameter("configRev", configRev)
                 .list();
     }

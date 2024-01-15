@@ -15,7 +15,7 @@ import org.transitclock.utils.Time;
  */
 public class DataCache {
 
-    private Map<String, CacheEntry> cacheMap = new HashMap<String, CacheEntry>();
+    private Map<String, CacheEntry> cacheMap = new HashMap<>();
 
     private static class CacheEntry {
         private long timeCreated;

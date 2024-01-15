@@ -95,7 +95,7 @@ public class SpatialMatcher {
         Block block = trip.getBlock();
 
         // The matches to be returned
-        List<SpatialMatch> spatialMatches = new ArrayList<SpatialMatch>();
+        List<SpatialMatch> spatialMatches = new ArrayList<>();
 
         // Start looking for matches at the beginning of the trip.
         Indices indices = new Indices(

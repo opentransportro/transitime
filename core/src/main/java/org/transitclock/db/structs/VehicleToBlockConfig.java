@@ -101,29 +101,28 @@ public class VehicleToBlockConfig implements Serializable {
      * @return List of VehicleConfig objects
      * @throws HibernateException
      */
-    @SuppressWarnings("unchecked")
     public static List<VehicleToBlockConfig> getVehicleToBlockConfigs(Session session) throws HibernateException {
         return session
-                .createQuery("FROM VehicleToBlockConfig")
+                .createQuery("FROM VehicleToBlockConfig", VehicleToBlockConfig.class)
                 .list();
     }
 
     /**
      * Reads List of VehicleConfig objects from database
      *
-     * @param VehicleConfig, session
+     * @param vehicleToBlockConfig, session
      * @throws HibernateException
      */
     public static void updateVehicleToBlockConfig(VehicleToBlockConfig vehicleToBlockConfig, Session session)
             throws HibernateException {
-        session.update(vehicleToBlockConfig);
+        session.merge(vehicleToBlockConfig);
     }
 
     public static void deleteVehicleToBlockConfig(long id, Session session) throws HibernateException {
         Transaction transaction = session.beginTransaction();
         try {
             session
-                    .createQuery("delete from VehicleToBlockConfig where id = :id")
+                    .createMutationQuery("delete from VehicleToBlockConfig where id = :id")
                     .setParameter("id", id)
                     .executeUpdate();
 
@@ -134,17 +133,15 @@ public class VehicleToBlockConfig implements Serializable {
         }
     }
 
-    @SuppressWarnings("unchecked")
     public static List<VehicleToBlockConfig> getVehicleToBlockConfigsByBlockId(Session session, String blockId) throws HibernateException {
         return session
-                .createQuery("FROM VehicleToBlockConfig WHERE blockId = :blockId ORDER BY assignmentDate DESC")
+                .createQuery("FROM VehicleToBlockConfig WHERE blockId = :blockId ORDER BY assignmentDate DESC", VehicleToBlockConfig.class)
                 .setParameter("blockId", blockId)
                 .list();
     }
 
-    @SuppressWarnings("unchecked")
     public static List<VehicleToBlockConfig> getVehicleToBlockConfigsByVehicleId(Session session, String vehicleId) throws HibernateException {
-        return session.createQuery("FROM VehicleToBlockConfig WHERE vehicleId = :vehicleId ORDER BY assignmentDate DESC")
+        return session.createQuery("FROM VehicleToBlockConfig WHERE vehicleId = :vehicleId ORDER BY assignmentDate DESC", VehicleToBlockConfig.class)
                 .setParameter("vehicleId", vehicleId)
                 .list();
     }

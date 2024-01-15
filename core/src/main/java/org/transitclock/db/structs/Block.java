@@ -155,7 +155,6 @@ public final class Block implements Serializable {
      * @return List of Block objects
      * @throws HibernateException
      */
-    @SuppressWarnings("unchecked")
     public static List<Block> getBlocks(Session session, int configRev) throws HibernateException {
         try {
             logger.warn("caching blocks....");
@@ -169,22 +168,22 @@ public final class Block implements Serializable {
     }
 
     private static List<Block> getBlocksPassive(Session session, int configRev) throws HibernateException {
-        var query = session.createQuery("FROM Blocks b WHERE b.configRev = :configRev");
-        query.setParameter("configRev", configRev);
+        var query = session
+                .createQuery("FROM Blocks b WHERE b.configRev = :configRev", Block.class)
+                .setParameter("configRev", configRev);
         return query.list();
     }
 
     private static List<Block> getBlocksAgressively(Session session, int configRev) throws HibernateException {
-        String hql = "FROM Blocks b "
-                + "join fetch b.trips t "
-                + "join fetch t.travelTimes "
-                + "join fetch t.tripPattern tp "
-                + "join fetch tp.stopPaths sp "
-                /*+ "join fetch sp.locations "*/
-                // this makes the resultset REALLY big
-                + "WHERE b.configRev = :configRev";
-        var query = session.createQuery(hql, Block.class);
-        query.setParameter("configRev", configRev);
+        var query = session.createQuery("FROM Blocks b "
+                        + "join fetch b.trips t "
+                        + "join fetch t.travelTimes "
+                        + "join fetch t.tripPattern tp "
+                        + "join fetch tp.stopPaths sp "
+                        /*+ "join fetch sp.locations "*/
+                        // this makes the resultset REALLY big
+                        + "WHERE b.configRev = :configRev", Block.class)
+                .setParameter("configRev", configRev);
         return query.list();
     }
 
@@ -637,8 +636,6 @@ public final class Block implements Serializable {
         return tripsThatMatchTime;
     }
 
-    /***************************** Getter Methods ************************/
-
     /**
      * @return the blockId
      */
@@ -709,7 +706,7 @@ public final class Block implements Serializable {
                 // global session was created when trips for another block was
                 // loaded and it was found that the old session was no longer
                 // valid, such as when the db is rebooted.
-                if (trips instanceof PersistentList persistentListTrips) {
+                if (trips instanceof PersistentList<?> persistentListTrips) {
                     // Get the current session associated with the trips.
                     // Can be null.
                     var session = persistentListTrips.getSession();
@@ -732,7 +729,7 @@ public final class Block implements Serializable {
                                 session == null ? null : session.hashCode(),
                                 globalLazyLoadSession.hashCode());
 
-                        globalLazyLoadSession.update(this);
+                        globalLazyLoadSession.merge(this);
                     }
                 } else {
                     logger.error("Blocks.trips member is not a PersistentList!?!?. ");

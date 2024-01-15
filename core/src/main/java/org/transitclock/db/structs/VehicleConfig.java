@@ -112,7 +112,6 @@ public class VehicleConfig {
      * @return List of VehicleConfig objects
      * @throws HibernateException
      */
-    @SuppressWarnings("unchecked")
     public static List<VehicleConfig> getVehicleConfigs(Session session) throws HibernateException {
         return session
                 .createQuery("FROM VehicleConfig", VehicleConfig.class)
@@ -122,12 +121,12 @@ public class VehicleConfig {
     /**
      * Reads List of VehicleConfig objects from database
      *
-     * @param VehicleConfig, session
+     * @param vehicleConfig, session
      * @throws HibernateException
      */
     public static void updateVehicleConfig(VehicleConfig vehicleConfig, Session session) throws HibernateException {
         // Transaction tx = session.beginTransaction();
-        session.update(vehicleConfig);
+        session.merge(vehicleConfig);
         // tx.commit();
     }
 }

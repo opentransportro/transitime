@@ -6,6 +6,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.TimeZone;
 
+import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -23,8 +24,7 @@ import org.transitclock.utils.Time;
  * @author SkiBu Smith
  */
 @Entity
-@ToString
-@EqualsAndHashCode
+@Data
 @DynamicUpdate
 @Table(name = "Agencies")
 public class Agency implements Serializable {
@@ -119,8 +119,8 @@ public class Agency implements Serializable {
      */
     public static int deleteFromRev(Session session, int configRev) throws HibernateException {
         // Note that hql uses class name, not the table name
-        String hql = "DELETE Agency WHERE configRev=" + configRev;
-        return session.createQuery(hql).executeUpdate();
+        return session.createMutationQuery("DELETE Agency WHERE configRev=" + configRev)
+                .executeUpdate();
     }
 
     /**
@@ -131,10 +131,10 @@ public class Agency implements Serializable {
      * @return
      * @throws HibernateException
      */
-    @SuppressWarnings("unchecked")
     public static List<Agency> getAgencies(Session session, int configRev) throws HibernateException {
-        var query = session.createQuery("FROM Agency WHERE configRev = :configRev");
-        query.setParameter("configRev", configRev);
+        var query = session
+                .createQuery("FROM Agency WHERE configRev = :configRev", Agency.class)
+                .setParameter("configRev", configRev);
         return query.list();
     }
 

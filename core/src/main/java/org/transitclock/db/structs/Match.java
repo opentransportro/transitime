@@ -6,6 +6,7 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
+import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -39,9 +40,7 @@ import org.transitclock.utils.IntervalTimer;
 @Immutable
 @Entity
 @DynamicUpdate
-@EqualsAndHashCode
-@ToString
-@Getter
+@Data
 @Table(
         name = "Matches",
         indexes = {@Index(name = "AvlTimeIndex", columnList = "avlTime")})

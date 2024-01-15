@@ -1,20 +1,9 @@
 /* (C)2023 */
 package org.transitclock.db.webstructs;
 
-import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
-import lombok.Getter;
+import jakarta.persistence.*;
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -30,6 +19,12 @@ import org.transitclock.utils.Encryption;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.Time;
 
+import java.rmi.RemoteException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
  * For keeping track of agency data for a website. Contains info such as the host of the agency so
  * that can use RMI to connect to it.
@@ -38,8 +33,9 @@ import org.transitclock.utils.Time;
  */
 @Entity
 @DynamicUpdate
+@Data
+@Slf4j
 @Table(name = "WebAgencies")
-@Getter
 public class WebAgency {
 
     @Id
@@ -80,8 +76,6 @@ public class WebAgency {
     private static Map<String, WebAgency> webAgencyMapCache;
     private static long webAgencyMapCacheReadTime = 0;
     private static List<WebAgency> webAgencyOrderedList;
-
-    private static final Logger logger = LoggerFactory.getLogger(WebAgency.class);
 
     /**
      * Simple constructor.
@@ -227,20 +221,19 @@ public class WebAgency {
         IntervalTimer timer = new IntervalTimer();
 
         try (Session session = HibernateUtils.getSession(webAgencyDbName)) {
-            var query = session.createQuery("FROM WebAgency", WebAgency.class);
-            List<WebAgency> list = query.list();
+            List<WebAgency> list =  session
+                    .createQuery("FROM WebAgency", WebAgency.class)
+                    .list();
             Map<String, WebAgency> map = new HashMap<>();
             for (WebAgency webAgency : list) {
                 map.put(webAgency.getAgencyId(), webAgency);
             }
 
             logger.info(
-                    "Done reading WebAgencies from database. Took {} msec. " + "They are {}",
+                    "Done reading WebAgencies from database. Took {} msec. They are {}",
                     timer.elapsedMsec(),
                     map.values());
             return map;
-        } catch (Exception e) {
-            throw e;
         }
         // Make sure that the session always gets closed, even if
         // exception occurs
@@ -379,64 +372,8 @@ public class WebAgency {
         return getCachedWebAgency(agencyId, Integer.MAX_VALUE);
     }
 
-    @Override
-    public String toString() {
-        return "WebAgency ["
-                + "agencyId="
-                + agencyId
-                + ", hostName="
-                + hostName
-                + ", active="
-                + active
-                + ", dbName="
-                + dbName
-                + ", dbType="
-                + dbType
-                + ", dbHost="
-                + dbHost
-                + ", dbUserName="
-                + dbUserName
-                + ", dbEncryptedPassword="
-                + dbEncryptedPassword
-                + "]";
-    }
 
     public String getDbPassword() {
         return Encryption.decrypt(dbEncryptedPassword);
-    }
-
-    /**
-     * For storing a web agency in the web database
-     *
-     * @param args agencyId = args[0]; hostName = args[1]; dbName = args[2]; dbType = args[3];
-     *     dbHost = args[4]; dbUserName = args[5]; dbPassword = args[6];
-     */
-    public static void main(String[] args) {
-        // Determine all the params
-        if (args.length <= 5) {
-
-            System.err.println("Specify params for the WebAgency: agencyId = args[0]; hostName = args[1];"
-                    + " dbName = args[2] ;dbType = args[3]; dbHost = args[4]; dbUserName ="
-                    + " args[5]; dbPassword = args[6];");
-
-            System.exit(-1);
-        }
-        String agencyId = args[0];
-        String hostName = args[1];
-        boolean active = true;
-        String dbName = args[2];
-        String dbType = args[3];
-        String dbHost = args[4];
-        String dbUserName = args[5];
-        String dbPassword = args[6];
-        // Name of database where to store the WebAgency object
-        String webAgencyDbName = "web";
-
-        // Create the WebAgency object
-        WebAgency webAgency = new WebAgency(agencyId, hostName, active, dbName, dbType, dbHost, dbUserName, dbPassword);
-        System.out.println("Storing " + webAgency);
-
-        // Store the WebAgency
-        webAgency.store(webAgencyDbName);
     }
 }

@@ -13,6 +13,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
 import jakarta.ws.rs.BeanParam;
 import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
@@ -22,6 +24,7 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
 import org.transitclock.api.data.ApiActiveBlocks;
 import org.transitclock.api.data.ApiActiveBlocksRoutes;
@@ -497,8 +500,7 @@ public class TransitimeApi {
 
             Collection<IpcVehicle> vehicles;
             // Collection<IpcVehicle> vehicles_temp;
-            if (!routesIdOrShortNames.isEmpty()
-                    && !routesIdOrShortNames.get(0).trim().isEmpty()) {
+            if (!routesIdOrShortNames.isEmpty() && !routesIdOrShortNames.get(0).trim().isEmpty()) {
                 vehicles = inter.getForRoute(routesIdOrShortNames);
             } else if (!vehicleIds.isEmpty() && !vehicleIds.get(0).trim().isEmpty()) {
                 vehicles = inter.get(vehicleIds);
@@ -520,15 +522,21 @@ public class TransitimeApi {
 
             Collection<IpcVehicleConfig> vehicleConfigs = inter.getVehicleConfigs();
 
-            for (IpcVehicle ipcVehicle : vehicles) {
-                for (IpcVehicleConfig iVC : vehicleConfigs) {
-                    if (iVC.getId().equals(ipcVehicle.getId())) {
-                        ipcVehicle.setVehicleName(iVC.getName());
-                        System.out.println(ipcVehicle.getVehicleName() + " " + iVC.getName());
-                        break;
+            Map<String, List<IpcVehicle>> vehiclesGrouped = vehicles.stream().collect(Collectors.groupingBy(IpcVehicle::getId));
+            Map<String, List<IpcVehicleConfig>> vehiclesConfigsGrouped = vehicleConfigs.stream().collect(Collectors.groupingBy(IpcVehicleConfig::getId));
+
+            for (String id : vehiclesGrouped.keySet()) {
+                List<IpcVehicleConfig> configs = vehiclesConfigsGrouped.getOrDefault(id, List.of());
+                if (!configs.isEmpty()) {
+                    for (IpcVehicleConfig config : configs) {
+                        if(!StringUtils.isEmpty(config.getName())) {
+                            vehiclesGrouped.get(id).forEach(v -> v.setVehicleName(config.getName()));
+                            break;
+                        }
                     }
                 }
             }
+
 
             // To determine how vehicles should be drawn in UI. If stop
             // specified

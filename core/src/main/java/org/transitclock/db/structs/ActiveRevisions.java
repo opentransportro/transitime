@@ -64,10 +64,10 @@ public class ActiveRevisions {
      */
     public static ActiveRevisions get(Session session) throws HibernateException {
         // There should only be a single object so don't need a WHERE clause
-        var query = session.createQuery("FROM ActiveRevisions");
+        var query = session.createQuery("FROM ActiveRevisions", ActiveRevisions.class);
         ActiveRevisions activeRevisions = null;
         try {
-            activeRevisions = (ActiveRevisions) query.uniqueResult();
+            activeRevisions = query.uniqueResult();
         } catch (Exception e) {
             System.err.println("Exception when reading ActiveRevisions object " + "from database so will create it");
         } finally {

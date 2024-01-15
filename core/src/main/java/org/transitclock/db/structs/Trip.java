@@ -89,8 +89,7 @@ public class Trip implements Lifecycle, Serializable {
     private String routeShortName;
 
     // So can determine all the stops and stopPaths associated with trip
-    // Note that needs to be FetchType.EAGER because otherwise get a
-    // Javassist HibernateException.
+    // Note that needs to be FetchType.EAGER because otherwise get a Javassist HibernateException.
     @ManyToOne(fetch = FetchType.EAGER)
     @Cascade({CascadeType.SAVE_UPDATE})
     private TripPattern tripPattern;
@@ -127,7 +126,7 @@ public class Trip implements Lifecycle, Serializable {
 
     // The GTFS trips.txt trip_headsign if set. Otherwise will get from the
     // stop_headsign, if set, from the first stop of the trip. Otherwise null.
-    @Column(length = TripPattern.HEADSIGN_LENGTH)
+    @Column
     private String headsign;
 
     // From GTFS trips.txt block_id if set. Otherwise the trip_id.
@@ -275,9 +274,7 @@ public class Trip implements Lifecycle, Serializable {
         this.endTime = frequenciesBasedEndTime;
 
         // Set the scheduledTimesMap by using the frequencies based start time
-        for (ScheduleTime schedTimeFromStopTimes : tripFromStopTimes.scheduledTimesList) {
-            this.scheduledTimesList.add(schedTimeFromStopTimes);
-        }
+        this.scheduledTimesList.addAll(tripFromStopTimes.scheduledTimesList);
 
         // Since this constructor is only for frequency based trips where
         // exact_times is false set the corresponding members to indicate such
@@ -350,8 +347,7 @@ public class Trip implements Lifecycle, Serializable {
             scheduledTimesList.add(scheduleTime);
 
             // Determine the begin and end time. Assumes that times are added in order
-            if (startTime == null
-                    || (scheduleTime.getDepartureTime() != null && scheduleTime.getDepartureTime() < startTime))
+            if (startTime == null || (scheduleTime.getDepartureTime() != null && scheduleTime.getDepartureTime() < startTime))
                 startTime = scheduleTime.getDepartureTime();
             if (endTime == null || (scheduleTime.getArrivalTime() != null && scheduleTime.getArrivalTime() > endTime))
                 endTime = scheduleTime.getArrivalTime();
@@ -405,10 +401,9 @@ public class Trip implements Lifecycle, Serializable {
      * @return
      * @throws HibernateException
      */
-    @SuppressWarnings("unchecked")
     public static Map<String, Trip> getTrips(Session session, int configRev) throws HibernateException {
         // Setup the query
-        List<Trip> tripsList = session.createQuery("FROM Trip WHERE configRev = :configRev")
+        List<Trip> tripsList = session.createQuery("FROM Trip WHERE configRev = :configRev", Trip.class)
                 .setParameter("configRev", configRev)
                 .list();
 
@@ -429,8 +424,8 @@ public class Trip implements Lifecycle, Serializable {
      * @throws HibernateException
      */
     public static Trip getTrip(Session session, int configRev, String tripId) throws HibernateException {
-        return (Trip) session
-                .createQuery("FROM Trip t LEFT JOIN fetch t.scheduledTimesList LEFT JOIN FETCH t.travelTimes WHERE t.configRev = :configRev AND t.tripId = :tripId")
+        return session
+                .createQuery("FROM Trip t LEFT JOIN fetch t.scheduledTimesList LEFT JOIN FETCH t.travelTimes WHERE t.configRev = :configRev AND t.tripId = :tripId", Trip.class)
                 .setParameter("configRev", configRev)
                 .setParameter("tripId", tripId)
                 .uniqueResult();
@@ -447,10 +442,9 @@ public class Trip implements Lifecycle, Serializable {
      * @return list of trips for specified configRev and tripShortName
      * @throws HibernateException
      */
-    public static List<Trip> getTripByShortName(Session session, int configRev, String tripShortName)
-            throws HibernateException {
-        return (List<Trip>) session
-                .createQuery("FROM Trip t left join fetch t.scheduledTimesList left join fetch t.travelTimes WHERE t.configRev = :configRev AND t.tripShortName = :tripShortName")
+    public static List<Trip> getTripByShortName(Session session, int configRev, String tripShortName) throws HibernateException {
+        return session
+                .createQuery("FROM Trip t left join fetch t.scheduledTimesList left join fetch t.travelTimes WHERE t.configRev = :configRev AND t.tripShortName = :tripShortName", Trip.class)
                 .setParameter("configRev", configRev)
                 .setParameter("tripShortName", tripShortName)
                 .list();
@@ -465,7 +459,7 @@ public class Trip implements Lifecycle, Serializable {
      * @throws HibernateException
      */
     public static int deleteFromRev(Session session, int configRev) throws HibernateException {
-        return session.createQuery("DELETE FROM Trip WHERE configRev= :configRev")
+        return session.createMutationQuery("DELETE FROM Trip WHERE configRev= :configRev")
                 .setParameter("configRev", configRev)
                 .executeUpdate();
     }
@@ -711,13 +705,13 @@ public class Trip implements Lifecycle, Serializable {
      */
     @Nullable
     public ScheduleTime getScheduleTime(int stopPathIndex) {
-        if (scheduledTimesList instanceof PersistentList persistentListTimes) {
+        if (scheduledTimesList instanceof PersistentList<?> persistentListTimes) {
             // TODO this is an anti-pattern
             // instead find a way to manage sessions more consistently
             var session = persistentListTimes.getSession();
             if (session == null) {
                 Session globalLazyLoadSession = Core.getInstance().getDbConfig().getGlobalSession();
-                globalLazyLoadSession.update(this);
+                globalLazyLoadSession.merge(this);
             }
         }
         return scheduledTimesList.get(stopPathIndex);
@@ -841,7 +835,7 @@ public class Trip implements Lifecycle, Serializable {
      */
     public static Long countTravelTimesForTrips(Session session, int travelTimesRev) {
         var result = session
-                .createQuery("select count(*) from TravelTimesForTrip where travelTimesRev=:rev")
+                .createQuery("select count(*) from TravelTimesForTrip where travelTimesRev=:rev", Object.class)
                 .setParameter("rev", travelTimesRev)
                 .uniqueResult();
         Long count = null;

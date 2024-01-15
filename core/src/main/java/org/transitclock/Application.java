@@ -1,8 +1,6 @@
 package org.transitclock;
 
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.impl.StdSchedulerFactory;
@@ -11,11 +9,8 @@ import org.transitclock.applications.GtfsFileProcessor;
 import org.transitclock.configData.AgencyConfig;
 import org.transitclock.configData.DbSetupConfig;
 import org.transitclock.core.dataCache.ehcache.CacheManagerFactory;
-import org.transitclock.db.webstructs.ApiKeyManager;
+import org.transitclock.db.ApiKeyManager;
 import org.transitclock.db.webstructs.WebAgency;
-import org.transitclock.gtfs.DbConfig;
-
-import javax.sql.DataSource;
 
 @Slf4j
 public class Application {

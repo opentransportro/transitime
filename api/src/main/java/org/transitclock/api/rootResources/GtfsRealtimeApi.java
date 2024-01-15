@@ -4,14 +4,7 @@ package org.transitclock.api.rootResources;
 import com.google.transit.realtime.GtfsRealtime.FeedMessage;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import java.io.IOException;
-import java.io.OutputStream;
-import jakarta.ws.rs.BeanParam;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.QueryParam;
-import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.StreamingOutput;
@@ -32,9 +25,10 @@ public class GtfsRealtimeApi {
     private static final int DEFAULT_MAX_GTFS_RT_CACHE_SECS = 15;
 
     private static IntegerConfigValue gtfsRtCacheSeconds = new IntegerConfigValue(
-            "transitclock.api.gtfsRtCacheSeconds", DEFAULT_MAX_GTFS_RT_CACHE_SECS, "How long to cache GTFS Realtime");
+            "transitclock.api.gtfsRtCacheSeconds",
+            DEFAULT_MAX_GTFS_RT_CACHE_SECS,
+            "How long to cache GTFS Realtime");
 
-    /********************** Member Functions **************************/
 
     /**
      * For getting GTFS-realtime Vehicle Positions data for all vehicles.
@@ -54,19 +48,14 @@ public class GtfsRealtimeApi {
             tags = {"GTFS", "feed"})
     public Response getGtfsRealtimeVehiclePositionsFeed(
             final @BeanParam StandardParameters stdParameters,
-            @Parameter(
-                            description = "If specified as human, it will get the output in human"
-                                    + " readable format. Otherwise will output data in binary"
-                                    + " format",
-                            required = false)
-                    @QueryParam(value = "format")
-                    String format)
-            throws WebApplicationException {
+            @Parameter(description = "If specified as human, it will get the output in human readable format. Otherwise will output data in binary format")
+            @QueryParam(value = "format")
+            String format) throws WebApplicationException {
 
         // Make sure request is valid
         stdParameters.validate();
 
-        // Determine if output should be in human readable format or in
+        // Determine if output should be in human-readable format or in
         // standard binary GTFS-realtime format.
         final boolean humanFormatOutput = "human".equals(format);
 
@@ -77,26 +66,24 @@ public class GtfsRealtimeApi {
         String mediaType = humanFormatOutput ? MediaType.TEXT_PLAIN : MediaType.APPLICATION_OCTET_STREAM;
 
         // Prepare a StreamingOutput object so can write using it
-        StreamingOutput stream = new StreamingOutput() {
-            public void write(OutputStream outputStream) throws IOException, WebApplicationException {
-                try {
-                    FeedMessage message = GtfsRtVehicleFeed.getPossiblyCachedMessage(
-                            stdParameters.getAgencyId(), gtfsRtCacheSeconds.getValue());
+        StreamingOutput stream = outputStream -> {
+            try {
+                FeedMessage message = GtfsRtVehicleFeed.getPossiblyCachedMessage(
+                        stdParameters.getAgencyId(), gtfsRtCacheSeconds.getValue());
 
-                    // Output in human readable format or in standard binary
-                    // format
-                    if (humanFormatOutput) {
-                        // Output data in human readable format. First, convert
-                        // the octal escaped message to regular UTF encoding.
-                        String decodedMessage = OctalDecoder.convertOctalEscapedString(message.toString());
-                        outputStream.write(decodedMessage.getBytes());
-                    } else {
-                        // Standard binary output
-                        message.writeTo(outputStream);
-                    }
-                } catch (Exception e) {
-                    throw new WebApplicationException(e);
+                // Output in human-readable format or in standard binary
+                // format
+                if (humanFormatOutput) {
+                    // Output data in human-readable format. First, convert
+                    // the octal escaped message to regular UTF encoding.
+                    String decodedMessage = OctalDecoder.convertOctalEscapedString(message.toString());
+                    outputStream.write(decodedMessage.getBytes());
+                } else {
+                    // Standard binary output
+                    message.writeTo(outputStream);
                 }
+            } catch (Exception e) {
+                throw new WebApplicationException(e);
             }
         };
 
@@ -122,14 +109,9 @@ public class GtfsRealtimeApi {
             tags = {"GTFS", "feed"})
     public Response getGtfsRealtimeTripFeed(
             final @BeanParam StandardParameters stdParameters,
-            @Parameter(
-                            description = "If specified as human, it will get the output in human"
-                                    + " readable format. Otherwise will output data in binary"
-                                    + " format",
-                            required = false)
-                    @QueryParam(value = "format")
-                    String format)
-            throws WebApplicationException {
+            @Parameter(description = "If specified as human, it will get the output in human readable format. Otherwise will output data in binary format")
+            @QueryParam(value = "format")
+            String format) throws WebApplicationException {
 
         // Make sure request is valid
         stdParameters.validate();
@@ -145,26 +127,24 @@ public class GtfsRealtimeApi {
         String mediaType = humanFormatOutput ? MediaType.TEXT_PLAIN : MediaType.APPLICATION_OCTET_STREAM;
 
         // Prepare a StreamingOutput object so can write using it
-        StreamingOutput stream = new StreamingOutput() {
-            public void write(OutputStream outputStream) throws IOException, WebApplicationException {
-                try {
-                    FeedMessage message = GtfsRtTripFeed.getPossiblyCachedMessage(
-                            stdParameters.getAgencyId(), gtfsRtCacheSeconds.getValue());
+        StreamingOutput stream = outputStream -> {
+            try {
+                FeedMessage message = GtfsRtTripFeed.getPossiblyCachedMessage(
+                        stdParameters.getAgencyId(), gtfsRtCacheSeconds.getValue());
 
-                    // Output in human readable format or in standard binary
-                    // format
-                    if (humanFormatOutput) {
-                        // Output data in human readable format. First, convert
-                        // the octal escaped message to regular UTF encoding.
-                        String decodedMessage = OctalDecoder.convertOctalEscapedString(message.toString());
-                        outputStream.write(decodedMessage.getBytes());
-                    } else {
-                        // Standard binary output
-                        message.writeTo(outputStream);
-                    }
-                } catch (Exception e) {
-                    throw new WebApplicationException(e);
+                // Output in human-readable format or in standard binary
+                // format
+                if (humanFormatOutput) {
+                    // Output data in human-readable format. First, convert
+                    // the octal escaped message to regular UTF encoding.
+                    String decodedMessage = OctalDecoder.convertOctalEscapedString(message.toString());
+                    outputStream.write(decodedMessage.getBytes());
+                } else {
+                    // Standard binary output
+                    message.writeTo(outputStream);
                 }
+            } catch (Exception e) {
+                throw new WebApplicationException(e);
             }
         };
 

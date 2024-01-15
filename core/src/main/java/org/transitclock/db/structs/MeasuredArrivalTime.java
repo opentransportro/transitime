@@ -1,13 +1,12 @@
 /* (C)2023 */
 package org.transitclock.db.structs;
 
+import jakarta.persistence.*;
+import lombok.Data;
+import org.hibernate.annotations.DynamicUpdate;
+
 import java.io.Serializable;
 import java.util.Date;
-import jakarta.persistence.*;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
-import org.hibernate.annotations.DynamicUpdate;
 
 /**
  * For storing a measured arrival time so that can see if measured arrival time via GPS is accurate.
@@ -16,9 +15,7 @@ import org.hibernate.annotations.DynamicUpdate;
  */
 @Entity
 @DynamicUpdate
-@ToString
-@EqualsAndHashCode
-@Getter
+@Data
 @Table(
         name = "MeasuredArrivalTimes",
         indexes = {@Index(name = "MeasuredArrivalTimesIndex", columnList = "time")})

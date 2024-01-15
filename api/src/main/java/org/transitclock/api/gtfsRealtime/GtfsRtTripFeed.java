@@ -152,11 +152,11 @@ public class GtfsRtTripFeed {
         Collection<IpcVehicleConfig> vehConfigs;
         try {
             vehConfigs = vehiclesInterface.getVehicleConfigs();
-            Iterator<IpcVehicleConfig> iteratorConfigs = vehConfigs.iterator();
-            while (iteratorConfigs.hasNext()) {
-                IpcVehicleConfig ipcVehicleConfig = iteratorConfigs.next();
+            for (IpcVehicleConfig ipcVehicleConfig : vehConfigs) {
                 if (ipcVehicleConfig.getId().equals(firstPred.getVehicleId())) {
-                    vehicleDescriptor = VehicleDescriptor.newBuilder().setId(ipcVehicleConfig.getName());
+                    vehicleDescriptor = VehicleDescriptor
+                            .newBuilder()
+                            .setId(ipcVehicleConfig.getId());
                     break;
                 }
             }
@@ -231,7 +231,7 @@ public class GtfsRtTripFeed {
         for (List<IpcPrediction> predsForTrip : predsByTripMap.values()) {
             // Sort trip data according to sequnece
 
-            Collections.sort(predsForTrip, comparator);
+            predsForTrip.sort(comparator);
             //  Need to check if predictions for frequency based trip and group by start time if
             // they are.
             if (isFrequencyBasedTrip(predsForTrip)) {
@@ -279,12 +279,14 @@ public class GtfsRtTripFeed {
         Map<Long, List<IpcPrediction>> map = new HashMap<>();
         for (IpcPrediction prediction : predsForTrip) {
             if (map.get(prediction.getFreqStartTime()) == null) {
-                List<IpcPrediction> list = new ArrayList<IpcPrediction>();
+                List<IpcPrediction> list = new ArrayList<>();
                 map.put(prediction.getFreqStartTime(), list);
             }
-            map.get(prediction.getFreqStartTime()).add(prediction);
+            map.get(prediction.getFreqStartTime())
+                    .add(prediction);
 
-            Collections.sort(map.get(prediction.getFreqStartTime()), new PredictionTimeComparator());
+            map.get(prediction.getFreqStartTime())
+                    .sort(new PredictionTimeComparator());
         }
         return map;
     }
@@ -305,20 +307,15 @@ public class GtfsRtTripFeed {
                     PredictionsInterfaceFactory.get(agencyId).getAllPredictions(PREDICTION_MAX_FUTURE_SECS);
         } catch (RemoteException e) {
             logger.error("Exception when getting vehicles from RMI", e);
-            return null;
+            return new HashMap<>();
         }
 
         // Group the predictions by trip instead of by vehicle
-        Map<String, List<IpcPrediction>> predictionsByTrip = new HashMap<String, List<IpcPrediction>>();
+        Map<String, List<IpcPrediction>> predictionsByTrip = new HashMap<>();
         for (IpcPredictionsForRouteStopDest predictionsForStop : allPredictionsByStop) {
             for (IpcPrediction prediction : predictionsForStop.getPredictionsForRouteStop()) {
                 String tripId = prediction.getTripId();
-                List<IpcPrediction> predsForTrip = predictionsByTrip.get(tripId);
-                if (predsForTrip == null) {
-                    // A new trip so need to use a new trip list
-                    predsForTrip = new ArrayList<IpcPrediction>();
-                    predictionsByTrip.put(tripId, predsForTrip);
-                }
+                List<IpcPrediction> predsForTrip = predictionsByTrip.computeIfAbsent(tripId, k -> new ArrayList<>());
 
                 predsForTrip.add(prediction);
             }
@@ -338,7 +335,7 @@ public class GtfsRtTripFeed {
         IntervalTimer timer = new IntervalTimer();
         Map<String, List<IpcPrediction>> predsByTrip = getPredictionsPerTrip();
         logger.debug(
-                "Getting predictions via RMI for " + "GtfsRtTripFeed.createMessage() took {} msec",
+                "Getting predictions via RMI for GtfsRtTripFeed.createMessage() took {} msec",
                 timer.elapsedMsec());
 
         // Use prediction data to create GTFS-RT message and return it.

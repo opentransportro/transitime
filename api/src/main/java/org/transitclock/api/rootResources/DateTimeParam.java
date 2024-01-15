@@ -9,8 +9,6 @@ import jakarta.ws.rs.WebApplicationException;
 
 public class DateTimeParam {
 
-    private static SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
-
     private LocalDateTime date;
 
     public DateTimeParam(String in) throws WebApplicationException {
@@ -32,14 +30,5 @@ public class DateTimeParam {
 
     public String format() {
         return date.toString();
-    }
-
-    public static void main(String[] args) {
-
-        DateTimeParam date = new DateTimeParam("2018-02-02T18:02:00");
-        LocalDateTime now = date.getDate(); // 2015-11-19T19:42:19.224
-
-        System.out.println(
-                now + " " + date.getTimeStamp() + " " + format.format(now.toEpochSecond(ZoneOffset.UTC) * 1000L));
     }
 }

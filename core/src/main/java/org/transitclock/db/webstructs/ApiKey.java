@@ -1,7 +1,9 @@
 /* (C)2023 */
 package org.transitclock.db.webstructs;
 
+import lombok.Data;
 import lombok.Getter;
+import lombok.ToString;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -21,7 +23,7 @@ import java.util.List;
  * @author SkiBu Smith
  */
 @Entity
-@Getter
+@Data
 @Table(name = "ApiKeys")
 public class ApiKey implements Serializable {
 
@@ -108,23 +110,5 @@ public class ApiKey implements Serializable {
         }
         // Make sure that the session always gets closed, even if
         // exception occurs
-    }
-
-    @Override
-    public String toString() {
-        return "ApiKey ["
-                + "applicationName="
-                + applicationName
-                + ", key="
-                + applicationKey
-                + ", applicationUrl="
-                + applicationUrl
-                + ", email="
-                + email
-                + ", phone="
-                + phone
-                + ", description="
-                + description
-                + "]";
     }
 }

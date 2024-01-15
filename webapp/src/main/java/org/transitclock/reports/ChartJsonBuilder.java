@@ -21,14 +21,14 @@ import org.transitclock.utils.StringUtils;
 public class ChartJsonBuilder {
 
     // Contains all the column data in JSON format
-    private List<String> columnList = new ArrayList<String>();
+    private final List<String> columnList = new ArrayList<>();
 
     // Contains all the row data in JSON format
-    private List<RowBuilder> rowList = new ArrayList<RowBuilder>();
+    private final List<RowBuilder> rowList = new ArrayList<>();
 
     /** For building a row, which consists of multiple data elements. */
     public static class RowBuilder {
-        private List<String> rowElementsList = new ArrayList<String>();
+        private final List<String> rowElementsList = new ArrayList<>();
 
         public void addRowElement(Object o) {
             if (o instanceof Double || o instanceof Float) {
@@ -115,8 +115,6 @@ public class ChartJsonBuilder {
             return sb.toString();
         }
     }
-
-    /********************** Member Functions **************************/
 
     /** Add a numeric column without a label */
     public void addNumberColumn() {

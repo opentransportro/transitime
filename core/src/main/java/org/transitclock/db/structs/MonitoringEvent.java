@@ -102,7 +102,7 @@ public class MonitoringEvent implements Serializable {
         if (sqlClause != null) {
             hql += " " + sqlClause;
         }
-        var query = session.createQuery(hql);
+        var query = session.createQuery(hql, MonitoringEvent.class);
 
         // Set the parameters
         query.setParameter("beginDate", beginTime);

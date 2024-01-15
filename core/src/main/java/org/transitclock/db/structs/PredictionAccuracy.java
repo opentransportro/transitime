@@ -4,6 +4,7 @@ package org.transitclock.db.structs;
 import java.io.Serializable;
 import java.util.Date;
 import jakarta.persistence.*;
+import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -27,12 +28,12 @@ import org.transitclock.applications.Core;
  */
 @Entity
 @DynamicUpdate
-@EqualsAndHashCode
-@ToString
-@Getter
+@Data
 @Table(
         name = "PredictionAccuracy",
-        indexes = {@Index(name = "PredictionAccuracyTimeIndex", columnList = "arrivalDepartureTime")})
+        indexes = {
+                @Index(name = "PredictionAccuracyTimeIndex", columnList = "arrivalDepartureTime")
+        })
 public class PredictionAccuracy implements Lifecycle, Serializable {
 
     // Need an ID but using regular columns doesn't really make
@@ -116,7 +117,6 @@ public class PredictionAccuracy implements Lifecycle, Serializable {
             String predictionAlgorithm,
             String vehicleId,
             Boolean affectedByWaitStop) {
-        super();
         this.routeId = routeId;
 
         Route route = Core.getInstance().getDbConfig().getRouteById(routeId);
@@ -136,7 +136,6 @@ public class PredictionAccuracy implements Lifecycle, Serializable {
     }
 
     protected PredictionAccuracy() {
-        super();
         this.routeId = null;
         this.routeShortName = null;
         this.directionId = null;

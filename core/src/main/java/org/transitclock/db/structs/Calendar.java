@@ -166,8 +166,9 @@ public class Calendar implements Serializable {
      */
     public static int deleteFromRev(Session session, int configRev) throws HibernateException {
         // Note that hql uses class name, not the table name
-        String hql = "DELETE Calendar WHERE configRev=" + configRev;
-        return session.createQuery(hql).executeUpdate();
+        return session.createMutationQuery("DELETE Calendar WHERE configRev=:configRev")
+                .setParameter("configRev", configRev)
+                .executeUpdate();
     }
 
     /**
@@ -180,8 +181,9 @@ public class Calendar implements Serializable {
      */
     @SuppressWarnings("unchecked")
     public static List<Calendar> getCalendars(Session session, int configRev) throws HibernateException {
-        var query = session.createQuery("FROM Calendar WHERE configRev = :configRev ORDER BY serviceId");
-        query.setParameter("configRev", configRev);
+        var query = session
+                .createQuery("FROM Calendar WHERE configRev = :configRev ORDER BY serviceId", Calendar.class)
+                .setParameter("configRev", configRev);
         return query.list();
     }
 
@@ -202,8 +204,9 @@ public class Calendar implements Serializable {
         List<Calendar> calendarList = getCalendars(session, configRev);
 
         // Convert list to map and return result
-        Map<String, Calendar> map = new HashMap<String, Calendar>();
-        for (Calendar calendar : calendarList) map.put(calendar.getServiceId(), calendar);
+        Map<String, Calendar> map = new HashMap<>();
+        for (Calendar calendar : calendarList)
+            map.put(calendar.getServiceId(), calendar);
         return map;
     }
 

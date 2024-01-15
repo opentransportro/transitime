@@ -4,6 +4,7 @@ package org.transitclock.db.structs;
 import java.io.Serializable;
 import java.util.Date;
 import jakarta.persistence.*;
+import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -18,9 +19,7 @@ import org.transitclock.ipc.data.IpcPrediction;
  */
 @Entity
 @DynamicUpdate
-@ToString
-@Getter
-@EqualsAndHashCode
+@Data
 @Table(
         name = "Predictions",
         indexes = {@Index(name = "PredictionTimeIndex", columnList = "creationTime")})

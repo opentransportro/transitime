@@ -197,7 +197,7 @@ public class Route implements Serializable {
      */
     public static int deleteFromRev(Session session, int configRev) throws HibernateException {
         // Note that hql uses class name, not the table name
-        return session.createQuery("DELETE Route WHERE configRev=:configRev")
+        return session.createMutationQuery("DELETE Route WHERE configRev=:configRev")
                 .setParameter("configRev", configRev)
                 .executeUpdate();
     }
@@ -223,8 +223,10 @@ public class Route implements Serializable {
      * order by route short name. If route short name starts with numbers it will be padded by zeros
      * so that proper numerical order will be used.
      */
-    public static final Comparator<Route> routeComparator = new Comparator<Route>() {
-        /** Returns negative if r1<r2, zero if r1=r2, and positive if r1>r2 */
+    public static final Comparator<Route> routeComparator = new Comparator<>() {
+        /**
+         * Returns negative if r1<r2, zero if r1=r2, and positive if r1>r2
+         */
         @Override
         public int compare(Route r1, Route r2) {
             // Handle if routeOrder indicates r1 should be at beginning of list
@@ -260,10 +262,9 @@ public class Route implements Serializable {
      * @return Map of routes keyed on routeId
      * @throws HibernateException
      */
-    @SuppressWarnings("unchecked")
     public static List<Route> getRoutes(Session session, int configRev) throws HibernateException {
         // Get list of routes from database
-        List<Route> routesList = session.createQuery("FROM Route WHERE configRev = :configRev ORDER BY routeOrder, shortName")
+        List<Route> routesList = session.createQuery("FROM Route WHERE configRev = :configRev ORDER BY routeOrder, shortName", Route.class)
                 .setParameter("configRev", configRev)
                 .list();
 

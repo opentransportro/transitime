@@ -8,6 +8,7 @@ import jakarta.persistence.Table;
 import java.io.Serializable;
 import java.util.List;
 
+import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -24,9 +25,7 @@ import org.transitclock.gtfs.gtfsStructs.GtfsFrequency;
  */
 @Entity
 @DynamicUpdate
-@ToString
-@Getter
-@EqualsAndHashCode
+@Data
 @Table(name = "Frequencies")
 public class Frequency implements Serializable {
 
@@ -95,13 +94,13 @@ public class Frequency implements Serializable {
 
     public static int deleteFromRev(Session session, int configRev) throws HibernateException {
         // Note that hql uses class name, not the table name
-        return session.createQuery("DELETE Frequency WHERE configRev= :configRev")
+        return session.createMutationQuery("DELETE Frequency WHERE configRev= :configRev")
                 .setParameter("configRev", configRev)
                 .executeUpdate();
     }
 
     public static List<Frequency> getFrequencies(Session session, int configRev) throws HibernateException {
-        return (List<Frequency>) session.createQuery("FROM Frequency WHERE configRev = :configRev")
+        return session.createQuery("FROM Frequency WHERE configRev = :configRev", Frequency.class)
                 .setParameter("configRev", configRev)
                 .list();
     }

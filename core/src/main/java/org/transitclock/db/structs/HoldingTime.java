@@ -4,18 +4,12 @@ package org.transitclock.db.structs;
 import java.io.Serializable;
 import java.util.Date;
 import jakarta.persistence.*;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
 import org.transitclock.applications.Core;
 
 @Entity
-@EqualsAndHashCode
-@ToString
-@Getter
-@Setter
+@Data
 @DynamicUpdate
 @Table(
         name = "HoldingTimes",

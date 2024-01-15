@@ -8,6 +8,7 @@ import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
@@ -24,6 +25,7 @@ import org.transitclock.gtfs.gtfsStructs.GtfsCalendarDate;
 @Entity
 @DynamicUpdate
 @Table(name = "CalendarDates")
+@Slf4j
 public class CalendarDate implements Serializable {
 
     @Column
@@ -41,9 +43,6 @@ public class CalendarDate implements Serializable {
 
     @Column(length = 2)
     private final String exceptionType;
-
-    // Logging
-    public static final Logger logger = LoggerFactory.getLogger(CalendarDate.class);
 
     /**
      * Constructor
@@ -91,7 +90,7 @@ public class CalendarDate implements Serializable {
      * @throws HibernateException
      */
     public static int deleteFromRev(Session session, int configRev) throws HibernateException {
-        return session.createQuery("DELETE CalendarDate WHERE configRev= :configRev")
+        return session.createMutationQuery("DELETE CalendarDate WHERE configRev= :configRev")
                 .setParameter("configRev", configRev)
                 .executeUpdate();
     }
@@ -106,7 +105,7 @@ public class CalendarDate implements Serializable {
      */
     @SuppressWarnings("unchecked")
     public static List<CalendarDate> getCalendarDates(Session session, int configRev) throws HibernateException {
-        return session.createQuery("FROM CalendarDate WHERE configRev = :configRev")
+        return session.createQuery("FROM CalendarDate WHERE configRev = :configRev", CalendarDate.class)
                 .setParameter("configRev", configRev)
                 .list();
     }
@@ -163,7 +162,6 @@ public class CalendarDate implements Serializable {
         return true;
     }
 
-    /******************** Getter Methods **************************/
     /**
      * @return the configRev
      */

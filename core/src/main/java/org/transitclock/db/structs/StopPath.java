@@ -6,10 +6,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import org.hibernate.CallbackException;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -28,10 +25,7 @@ import org.transitclock.configData.CoreConfig;
  * @author SkiBu Smith
  */
 @Entity
-@ToString
-@EqualsAndHashCode
-@Getter
-@Setter
+@Data
 @DynamicUpdate
 @Table(name = "StopPaths")
 public class StopPath implements Serializable, Lifecycle {
@@ -170,9 +164,8 @@ public class StopPath implements Serializable, Lifecycle {
         this.maxSpeed = null;
     }
 
-    @SuppressWarnings("unchecked")
     public static List<StopPath> getPaths(Session session, int configRev) throws HibernateException {
-        return session.createQuery("FROM StopPath WHERE configRev = :configRev")
+        return session.createQuery("FROM StopPath WHERE configRev = :configRev", StopPath.class)
                 .setParameter("configRev", configRev)
                 .list();
     }
@@ -399,7 +392,7 @@ public class StopPath implements Serializable, Lifecycle {
      */
     @Override
     public void onLoad(Session arg0, Serializable arg1) {
-        vectors = new ArrayList<VectorWithHeading>(locations.size() - 1);
+        vectors = new ArrayList<>(locations.size() - 1);
         for (int segmentIndex = 0; segmentIndex < locations.size() - 1; ++segmentIndex) {
             VectorWithHeading v = new VectorWithHeading(
                     nullSafeLocation(locations.get(segmentIndex)), nullSafeLocation(locations.get(segmentIndex + 1)));

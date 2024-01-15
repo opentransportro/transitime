@@ -99,8 +99,6 @@ public class TripPattern implements Serializable, Lifecycle {
     // For specifying max size of headsign
     public static final int HEADSIGN_LENGTH = 255;
 
-    /********************** Member Functions **************************/
-
     /**
      * Create a TripPattern. For when processing GTFS data.
      *

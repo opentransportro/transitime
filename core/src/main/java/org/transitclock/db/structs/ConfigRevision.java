@@ -75,14 +75,12 @@ public class ConfigRevision {
      */
     public void save(String agencyId) {
         Session session = HibernateUtils.getSession(agencyId);
-        Transaction tx = session.beginTransaction();
-        try {
-            session.save(this);
+        try (session) {
+            Transaction tx = session.beginTransaction();
+            session.persist(this);
             tx.commit();
         } catch (HibernateException e) {
             logger.error("Error saving ConfigRevision data to db. {}", this, e);
-        } finally {
-            session.close();
         }
     }
 

@@ -33,7 +33,9 @@ import java.util.Map;
 @ToString
 @Table(
         name = "TravelTimesForTrips",
-        indexes = {@Index(name = "TravelTimesRevIndex", columnList = "travelTimesRev")})
+        indexes = {
+                @Index(name = "TravelTimesRevIndex", columnList = "travelTimesRev")
+        })
 public class TravelTimesForTrip implements Serializable {
 
     // Need a generated ID because trying to share TravelTimesForStopPath

@@ -13,7 +13,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.ResponseBuilder;
 import jakarta.ws.rs.core.Response.Status;
-import org.transitclock.db.webstructs.ApiKeyManager;
+import org.transitclock.db.ApiKeyManager;
 import org.transitclock.ipc.clients.CacheQueryInterfaceFactory;
 import org.transitclock.ipc.clients.CommandsInterfaceFactory;
 import org.transitclock.ipc.clients.ConfigInterfaceFactory;

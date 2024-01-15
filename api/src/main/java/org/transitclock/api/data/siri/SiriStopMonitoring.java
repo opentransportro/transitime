@@ -165,8 +165,6 @@ public class SiriStopMonitoring {
         }
     }
 
-    /********************** Member Functions **************************/
-
     // No-args needed because this class is an XML root element
     protected SiriStopMonitoring() {}
 

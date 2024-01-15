@@ -3,10 +3,7 @@ package org.transitclock.db.structs;
 
 import com.querydsl.jpa.impl.JPAQuery;
 import jakarta.persistence.*;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
 import org.transitclock.db.hibernate.HibernateUtils;
 
@@ -19,13 +16,12 @@ import java.util.List;
  */
 @Entity
 @DynamicUpdate
-@Getter
-@Setter
-@EqualsAndHashCode
-@ToString
+@Data
 @Table(
         name = "StopPathPredictions",
-        indexes = {@Index(name = "StopPathPredictionTimeIndex", columnList = "tripId, stopPathIndex")})
+        indexes = {
+                @Index(name = "StopPathPredictionTimeIndex", columnList = "tripId, stopPathIndex")
+        })
 public class PredictionForStopPath implements Serializable {
 
     @Id

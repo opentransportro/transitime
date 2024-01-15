@@ -4,6 +4,7 @@ package org.transitclock.db.structs;
 import java.io.Serializable;
 import java.util.List;
 import jakarta.persistence.*;
+import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -20,9 +21,7 @@ import org.transitclock.gtfs.gtfsStructs.GtfsStop;
  */
 @Entity
 @DynamicUpdate
-@EqualsAndHashCode
-@ToString
-@Getter
+@Data
 @Table(name = "Stops")
 public class Stop implements Serializable {
 
@@ -123,14 +122,13 @@ public class Stop implements Serializable {
     }
 
     public static int deleteFromRev(Session session, int configRev) throws HibernateException {
-        return session.createQuery("DELETE Stop WHERE configRev=:configRev")
+        return session.createMutationQuery("DELETE Stop WHERE configRev=:configRev")
                 .setParameter("configRev", configRev)
                 .executeUpdate();
     }
 
-    @SuppressWarnings("unchecked")
     public static List<Stop> getStops(Session session, int configRev) throws HibernateException {
-        return session.createQuery("FROM Stop WHERE configRev = :configRev")
+        return session.createQuery("FROM Stop WHERE configRev = :configRev", Stop.class)
                 .setParameter("configRev", configRev)
                 .list();
     }

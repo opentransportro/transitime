@@ -500,26 +500,19 @@ public class ArrivalDeparture implements Lifecycle, Serializable {
 
         // Create the query. Table name is case-sensitive and needs to be the
         // class name instead of the name of the db table.
-        String hql = "FROM ArrivalDeparture WHERE time >= :beginDate AND time < :endDate";
-        var query = session.createQuery(hql);
-
-        // Set the parameters
-        query.setParameter("beginDate", beginTime);
-        query.setParameter("endDate", endTime);
-
-        try {
-            @SuppressWarnings("unchecked")
+        try (session) {
+            var query = session
+                    .createQuery("FROM ArrivalDeparture WHERE time >= :beginDate AND time < :endDate", ArrivalDeparture.class)
+                    .setParameter("beginDate", beginTime)
+                    .setParameter("endDate", endTime);
             List<ArrivalDeparture> arrivalsDeparatures = query.list();
             logger.debug("Getting arrival/departures from database took {} msec", timer.elapsedMsec());
             return arrivalsDeparatures;
         } catch (HibernateException e) {
             logger.error(e.getMessage(), e);
-            return null;
-        } finally {
-            // Clean things up. Not sure if this absolutely needed nor if
-            // it might actually be detrimental and slow things down.
-            session.close();
         }
+
+        return null;
     }
 
     /**
@@ -567,7 +560,7 @@ public class ArrivalDeparture implements Lifecycle, Serializable {
         if (sqlClause != null) {
             hql += " " + sqlClause;
         }
-        var query = session.createQuery(hql);
+        var query = session.createQuery(hql, ArrivalDeparture.class);
 
         // Set the parameters for the query
         query.setParameter("beginDate", beginTime);
@@ -582,7 +575,6 @@ public class ArrivalDeparture implements Lifecycle, Serializable {
         }
 
         try {
-            @SuppressWarnings("unchecked")
             List<ArrivalDeparture> arrivalsDeparatures = query.list();
             logger.debug("Getting arrival/departures from database took {} msec", timer.elapsedMsec());
             return arrivalsDeparatures;
@@ -614,12 +606,12 @@ public class ArrivalDeparture implements Lifecycle, Serializable {
             }
         }
 
-        var query = session.createQuery(hql);
+        var query = session.createQuery(hql, Long.class);
         query.setParameter("beginDate", beginTime);
         query.setParameter("endDate", endTime);
 
         try {
-            count = (Long) query.uniqueResult();
+            count = query.uniqueResult();
             logger.debug("Getting arrival/departures from database took {} msec", timer.elapsedMsec());
             return count;
         } catch (HibernateException e) {

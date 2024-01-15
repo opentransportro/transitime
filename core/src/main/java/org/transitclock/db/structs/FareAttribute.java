@@ -8,6 +8,7 @@ import jakarta.persistence.Table;
 import java.io.Serializable;
 import java.util.List;
 
+import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -24,9 +25,7 @@ import org.transitclock.gtfs.gtfsStructs.GtfsFareAttribute;
  */
 @Entity
 @DynamicUpdate
-@EqualsAndHashCode
-@ToString
-@Getter
+@Data
 @Table(name = "FareAttributes")
 public class FareAttribute implements Serializable {
 
@@ -91,8 +90,8 @@ public class FareAttribute implements Serializable {
      */
     public static int deleteFromRev(Session session, int configRev) throws HibernateException {
         // Note that hql uses class name, not the table name
-        String hql = "DELETE FareAttribute WHERE configRev=" + configRev;
-        return session.createQuery(hql).executeUpdate();
+        return session.createMutationQuery("DELETE FareAttribute WHERE configRev=" + configRev)
+                .executeUpdate();
     }
 
     /**
@@ -103,9 +102,8 @@ public class FareAttribute implements Serializable {
      * @return
      * @throws HibernateException
      */
-    @SuppressWarnings("unchecked")
     public static List<FareAttribute> getFareAttributes(Session session, int configRev) throws HibernateException {
-        return session.createQuery("FROM FareAttribute WHERE configRev = :configRev")
+        return session.createQuery("FROM FareAttribute WHERE configRev = :configRev", FareAttribute.class)
                 .setParameter("configRev", configRev)
                 .list();
     }
