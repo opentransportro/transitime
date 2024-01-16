@@ -12,7 +12,7 @@ import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
 import org.transitclock.applications.Core;
 import org.transitclock.gtfs.TitleFormatter;
-import org.transitclock.gtfs.gtfsStructs.GtfsRoute;
+import org.transitclock.gtfs.model.GtfsRoute;
 import org.transitclock.utils.OrderedCollection;
 import org.transitclock.utils.StringUtils;
 

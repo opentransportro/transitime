@@ -12,9 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.transitclock.gtfs.gtfsStructs.GtfsCalendarDate;
+import org.transitclock.gtfs.model.GtfsCalendarDate;
 
 /**
  * Contains data from the calendardates.txt GTFS file. This class is for reading/writing that data

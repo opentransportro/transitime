@@ -12,7 +12,7 @@ import org.transitclock.api.gtfsRealtime.GtfsRtTripFeed;
 import org.transitclock.api.gtfsRealtime.GtfsRtVehicleFeed;
 import org.transitclock.api.utils.StandardParameters;
 import org.transitclock.config.IntegerConfigValue;
-import org.transitclock.feed.gtfsRt.OctalDecoder;
+import org.transitclock.gtfs.realtime.OctalDecoder;
 
 /**
  * Contains API commands for the GTFS-realtime API.

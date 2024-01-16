@@ -21,7 +21,7 @@ import org.hibernate.annotations.Immutable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.db.hibernate.HibernateUtils;
-import org.transitclock.gtfs.gtfsStructs.GtfsCalendar;
+import org.transitclock.gtfs.model.GtfsCalendar;
 import org.transitclock.utils.Time;
 
 /**

@@ -1,5 +1,5 @@
 /* (C)2023 */
-package org.transitclock.feed.gtfsRt;
+package org.transitclock.gtfs.realtime;
 
 import java.io.InputStream;
 import java.net.URI;

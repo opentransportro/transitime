@@ -1,5 +1,5 @@
 /* (C)2023 */
-package org.transitclock.gtfs.gtfsStructs;
+package org.transitclock.gtfs.model;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

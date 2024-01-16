@@ -7,14 +7,12 @@ import java.util.List;
 import java.util.TimeZone;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.ToString;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
 import org.transitclock.db.hibernate.HibernateUtils;
-import org.transitclock.gtfs.gtfsStructs.GtfsAgency;
+import org.transitclock.gtfs.model.GtfsAgency;
 import org.transitclock.utils.Time;
 
 /**

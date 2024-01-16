@@ -9,13 +9,10 @@ import java.io.Serializable;
 import java.util.List;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
-import org.transitclock.gtfs.gtfsStructs.GtfsFrequency;
+import org.transitclock.gtfs.model.GtfsFrequency;
 
 /**
  * Contains data from the frequencies.txt GTFS file. This class is for reading/writing that data to

@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.transitclock.db.structs.Block;
 import org.transitclock.db.structs.Trip;
 import org.transitclock.db.structs.TripPattern;
-import org.transitclock.gtfs.gtfsStructs.GtfsRoute;
+import org.transitclock.gtfs.model.GtfsRoute;
 
 /**
  * Goes through all the Trip objects and creates corresponding Block assignments that use them.

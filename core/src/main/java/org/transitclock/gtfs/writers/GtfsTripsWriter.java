@@ -2,7 +2,7 @@
 package org.transitclock.gtfs.writers;
 
 import java.io.IOException;
-import org.transitclock.gtfs.gtfsStructs.GtfsTrip;
+import org.transitclock.gtfs.model.GtfsTrip;
 import org.transitclock.utils.csv.CsvWriterBase;
 
 /**

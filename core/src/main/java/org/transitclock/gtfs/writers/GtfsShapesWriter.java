@@ -3,7 +3,7 @@ package org.transitclock.gtfs.writers;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
-import org.transitclock.gtfs.gtfsStructs.GtfsShape;
+import org.transitclock.gtfs.model.GtfsShape;
 import org.transitclock.utils.csv.CsvWriterBase;
 
 /**

@@ -4,7 +4,7 @@ package org.transitclock.gtfs.readers;
 import java.text.ParseException;
 import java.util.List;
 import org.apache.commons.csv.CSVRecord;
-import org.transitclock.gtfs.gtfsStructs.GtfsAgency;
+import org.transitclock.gtfs.model.GtfsAgency;
 import org.transitclock.utils.csv.CsvBaseReader;
 
 /**

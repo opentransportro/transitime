@@ -1,5 +1,5 @@
 /* (C)2023 */
-package org.transitclock.feed.gtfsRt;
+package org.transitclock.gtfs.realtime;
 
 /**
  * GTFS-RT doesn't handle UTF-8 characters well when outputing human readable format. Each UTF-8

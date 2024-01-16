@@ -8,7 +8,7 @@ import org.transitclock.configData.AgencyConfig;
 import org.transitclock.gtfs.GtfsData;
 import org.transitclock.gtfs.HttpGetGtfsFile;
 import org.transitclock.gtfs.TitleFormatter;
-import org.transitclock.gtfs.gtfsStructs.GtfsAgency;
+import org.transitclock.gtfs.model.GtfsAgency;
 import org.transitclock.gtfs.readers.GtfsAgencyReader;
 import org.transitclock.utils.Zip;
 

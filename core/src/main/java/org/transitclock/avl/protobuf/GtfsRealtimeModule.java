@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.transitclock.avl.PollUrlAvlModule;
 import org.transitclock.config.StringConfigValue;
 import org.transitclock.db.structs.AvlReport;
-import org.transitclock.feed.gtfsRt.GtfsRtVehiclePositionsReader;
+import org.transitclock.gtfs.realtime.GtfsRtVehiclePositionsReader;
 
 /**
  * For reading in feed of GTFS-realtime AVL data. Is used for both realtime feeds and for when

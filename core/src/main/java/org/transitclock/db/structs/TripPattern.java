@@ -10,7 +10,7 @@ import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.classic.Lifecycle;
 import org.transitclock.gtfs.GtfsData;
-import org.transitclock.gtfs.gtfsStructs.GtfsRoute;
+import org.transitclock.gtfs.model.GtfsRoute;
 
 import jakarta.persistence.*;
 import java.io.Serializable;

@@ -11,7 +11,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.db.structs.ArrivalDeparture.ArrivalsOrDepartures;
-import org.transitclock.gtfs.gtfsStructs.GtfsStopTime;
+import org.transitclock.gtfs.model.GtfsStopTime;
 import org.transitclock.statistics.ScheduleDataProcessor.TripStopKey;
 import org.transitclock.utils.StringUtils;
 import org.transitclock.utils.Time;

@@ -18,7 +18,7 @@ import org.transitclock.db.structs.TravelTimesForStopPath.HowSet;
 import org.transitclock.db.structs.TravelTimesForTrip;
 import org.transitclock.db.structs.Trip;
 import org.transitclock.db.structs.TripPattern;
-import org.transitclock.gtfs.gtfsStructs.GtfsStopTime;
+import org.transitclock.gtfs.model.GtfsStopTime;
 import org.transitclock.utils.Geo;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.Time;

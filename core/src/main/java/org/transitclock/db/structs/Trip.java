@@ -25,7 +25,7 @@ import org.hibernate.collection.spi.PersistentList;
 import org.transitclock.applications.Core;
 import org.transitclock.gtfs.DbConfig;
 import org.transitclock.gtfs.TitleFormatter;
-import org.transitclock.gtfs.gtfsStructs.GtfsTrip;
+import org.transitclock.gtfs.model.GtfsTrip;
 import org.transitclock.utils.Time;
 
 /**

@@ -13,7 +13,7 @@ import lombok.ToString;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
-import org.transitclock.gtfs.gtfsStructs.GtfsTransfer;
+import org.transitclock.gtfs.model.GtfsTransfer;
 
 /**
  * Contains data from the transfers.txt GTFS file. This class is for reading/writing that data to

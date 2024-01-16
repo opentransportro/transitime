@@ -3,7 +3,7 @@ package org.transitclock.gtfs.readers;
 
 import java.text.ParseException;
 import org.apache.commons.csv.CSVRecord;
-import org.transitclock.gtfs.gtfsStructs.GtfsCalendar;
+import org.transitclock.gtfs.model.GtfsCalendar;
 import org.transitclock.utils.csv.CsvBaseReader;
 
 /**

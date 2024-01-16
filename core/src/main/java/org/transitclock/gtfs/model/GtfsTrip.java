@@ -1,5 +1,5 @@
 /* (C)2023 */
-package org.transitclock.gtfs.gtfsStructs;
+package org.transitclock.gtfs.model;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

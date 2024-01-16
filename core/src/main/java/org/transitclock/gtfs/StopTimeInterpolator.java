@@ -1,6 +1,6 @@
 package org.transitclock.gtfs;
 
-import org.transitclock.gtfs.gtfsStructs.GtfsStopTime;
+import org.transitclock.gtfs.model.GtfsStopTime;
 
 import java.util.List;
 

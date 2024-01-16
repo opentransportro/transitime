@@ -18,7 +18,7 @@ import org.transitclock.config.StringConfigValue;
 import org.transitclock.db.hibernate.HibernateUtils;
 import org.transitclock.db.structs.*;
 import org.transitclock.db.structs.Calendar;
-import org.transitclock.gtfs.gtfsStructs.*;
+import org.transitclock.gtfs.model.*;
 import org.transitclock.gtfs.readers.*;
 import org.transitclock.utils.*;
 
