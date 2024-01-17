@@ -1,5 +1,5 @@
 /* (C)2023 */
-package org.transitclock.api.rootResources;
+package org.transitclock.api.resources;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

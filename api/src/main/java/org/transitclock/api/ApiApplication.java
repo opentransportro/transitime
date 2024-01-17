@@ -5,7 +5,7 @@ import jakarta.ws.rs.ApplicationPath;
 import org.glassfish.jersey.server.ResourceConfig;
 
 /**
- * Declares that all classes in package org.transitclock.api.rootResources will be searched for
+ * Declares that all classes in package org.transitclock.api.resources will be searched for
  * being a root-resource class with methods annotated with @Path indicating that it handles
  * requests.
  *
@@ -19,6 +19,6 @@ public class ApiApplication extends ResourceConfig {
     public ApiApplication() {
         // Register all root-resource classes in package that handle @Path
         // requests
-        packages("org.transitclock.api.rootResources");
+        packages("org.transitclock.api.resources");
     }
 }

@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import org.transitclock.api.rootResources.TransitimeApi.UiMode;
+import org.transitclock.api.resources.TransitimeApi.UiMode;
 import org.transitclock.db.structs.Agency;
 import org.transitclock.db.webstructs.WebAgency;
 import org.transitclock.ipc.data.IpcVehicle;

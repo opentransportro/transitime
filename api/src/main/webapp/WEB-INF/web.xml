@@ -45,7 +45,7 @@
 
     <filter>
         <filter-name>ApiOriginFilter</filter-name>
-        <filter-class>org.transitclock.servlet.swagger.ApiOriginFilter</filter-class>
+        <filter-class>org.transitclock.api.utils.ApiOriginFilter</filter-class>
     </filter>
 
     <filter-mapping>
@@ -71,7 +71,7 @@
             -->
             <param-value>
                 io.swagger.v3.jaxrs2.integration.resources,
-                org.transitclock.api.rootResources,
+                org.transitclock.api.resources,
                 org.transitclock.api.utils
             </param-value>
         </init-param>

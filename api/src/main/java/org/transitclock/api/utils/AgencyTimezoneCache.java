@@ -1,15 +1,16 @@
 /* (C)2023 */
 package org.transitclock.api.utils;
 
-import java.rmi.RemoteException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.TimeZone;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.transitclock.db.structs.Agency;
 import org.transitclock.ipc.clients.ConfigInterfaceFactory;
 import org.transitclock.ipc.interfaces.ConfigInterface;
+
+import java.rmi.RemoteException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
 
 /**
  * So that can get quick access to TimeZone for agency so that can properly format times and dates
@@ -17,10 +18,9 @@ import org.transitclock.ipc.interfaces.ConfigInterface;
  *
  * @author Michael
  */
+@Slf4j
 public class AgencyTimezoneCache {
-    private static final HashMap<String, TimeZone> timezonesMap = new HashMap<String, TimeZone>();
-
-    private static final Logger logger = LoggerFactory.getLogger(AgencyTimezoneCache.class);
+    private static final Map<String, TimeZone> timezonesMap = new HashMap<>();
 
     /**
      * Returns the TimeZone for the agency specified by the agencyId. The timezone is obtained from

@@ -1,5 +1,5 @@
 /* (C)2016 */
-package org.transitclock.servlet.swagger;
+package org.transitclock.api.utils;
 
 import java.io.IOException;
 import jakarta.servlet.Filter;
@@ -10,6 +10,7 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletResponse;
 
+// used mainly for swagger ui
 public class ApiOriginFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)

@@ -1,5 +1,5 @@
 /* (C)2023 */
-package org.transitclock.api.rootResources;
+package org.transitclock.api.resources;
 
 import com.google.transit.realtime.GtfsRealtime.FeedMessage;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,7 +11,6 @@ import jakarta.ws.rs.core.StreamingOutput;
 import org.transitclock.api.data.gtfs.GtfsRtTripFeed;
 import org.transitclock.api.data.gtfs.GtfsRtVehicleFeed;
 import org.transitclock.api.utils.StandardParameters;
-import org.transitclock.config.IntegerConfigValue;
 import org.transitclock.gtfs.realtime.OctalDecoder;
 
 /**

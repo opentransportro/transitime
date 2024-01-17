@@ -4,7 +4,7 @@ package org.transitclock.api.data;
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlTransient;
-import org.transitclock.api.rootResources.TransitimeApi.UiMode;
+import org.transitclock.api.resources.TransitimeApi.UiMode;
 import org.transitclock.ipc.data.IpcVehicle;
 
 /**

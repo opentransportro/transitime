@@ -1,7 +1,6 @@
 /* (C)2023 */
-package org.transitclock.api.rootResources;
+package org.transitclock.api.resources;
 
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
