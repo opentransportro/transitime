@@ -8,8 +8,8 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.StreamingOutput;
-import org.transitclock.api.gtfsRealtime.GtfsRtTripFeed;
-import org.transitclock.api.gtfsRealtime.GtfsRtVehicleFeed;
+import org.transitclock.api.data.gtfs.GtfsRtTripFeed;
+import org.transitclock.api.data.gtfs.GtfsRtVehicleFeed;
 import org.transitclock.api.utils.StandardParameters;
 import org.transitclock.config.IntegerConfigValue;
 import org.transitclock.gtfs.realtime.OctalDecoder;
@@ -21,15 +21,6 @@ import org.transitclock.gtfs.realtime.OctalDecoder;
  */
 @Path("/key/{key}/agency/{agency}")
 public class GtfsRealtimeApi {
-
-    private static final int DEFAULT_MAX_GTFS_RT_CACHE_SECS = 15;
-
-    private static IntegerConfigValue gtfsRtCacheSeconds = new IntegerConfigValue(
-            "transitclock.api.gtfsRtCacheSeconds",
-            DEFAULT_MAX_GTFS_RT_CACHE_SECS,
-            "How long to cache GTFS Realtime");
-
-
     /**
      * For getting GTFS-realtime Vehicle Positions data for all vehicles.
      *
@@ -69,7 +60,7 @@ public class GtfsRealtimeApi {
         StreamingOutput stream = outputStream -> {
             try {
                 FeedMessage message = GtfsRtVehicleFeed.getPossiblyCachedMessage(
-                        stdParameters.getAgencyId(), gtfsRtCacheSeconds.getValue());
+                        stdParameters.getAgencyId());
 
                 // Output in human-readable format or in standard binary
                 // format
@@ -130,7 +121,7 @@ public class GtfsRealtimeApi {
         StreamingOutput stream = outputStream -> {
             try {
                 FeedMessage message = GtfsRtTripFeed.getPossiblyCachedMessage(
-                        stdParameters.getAgencyId(), gtfsRtCacheSeconds.getValue());
+                        stdParameters.getAgencyId());
 
                 // Output in human-readable format or in standard binary
                 // format

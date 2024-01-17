@@ -1,5 +1,5 @@
 /* (C)2023 */
-package org.transitclock.api.gtfsRealtime;
+package org.transitclock.api.data.gtfs;
 
 import com.google.transit.realtime.GtfsRealtime.FeedEntity;
 import com.google.transit.realtime.GtfsRealtime.FeedHeader;
@@ -16,7 +16,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
-import java.util.Iterator;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.api.utils.AgencyTimezoneCache;
@@ -256,17 +256,16 @@ public class GtfsRtVehicleFeed {
      * For caching Vehicle Positions feed messages.
      *
      * @param agencyId
-     * @param cacheTime
      * @return
      */
-    public static FeedMessage getPossiblyCachedMessage(String agencyId, int cacheTime) {
-        FeedMessage feedMessage = vehicleFeedDataCache.get(agencyId, cacheTime);
+    public static FeedMessage getPossiblyCachedMessage(String agencyId) {
+        FeedMessage feedMessage = vehicleFeedDataCache.get(agencyId);
         if (feedMessage != null) return feedMessage;
 
         synchronized (vehicleFeedDataCache) {
 
             // Cache may have been filled while waiting.
-            feedMessage = vehicleFeedDataCache.get(agencyId, cacheTime);
+            feedMessage = vehicleFeedDataCache.get(agencyId);
             if (feedMessage != null) return feedMessage;
 
             GtfsRtVehicleFeed feed = new GtfsRtVehicleFeed(agencyId);

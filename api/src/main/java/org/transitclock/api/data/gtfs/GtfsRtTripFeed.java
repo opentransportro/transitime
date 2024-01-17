@@ -1,5 +1,5 @@
 /* (C)2023 */
-package org.transitclock.api.gtfsRealtime;
+package org.transitclock.api.data.gtfs;
 
 import com.google.transit.realtime.GtfsRealtime.FeedEntity;
 import com.google.transit.realtime.GtfsRealtime.FeedHeader;
@@ -15,11 +15,9 @@ import java.rmi.RemoteException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -349,17 +347,16 @@ public class GtfsRtTripFeed {
      * For caching Vehicle Positions feed messages.
      *
      * @param agencyId
-     * @param cacheTime
      * @return
      */
-    public static FeedMessage getPossiblyCachedMessage(String agencyId, int cacheTime) {
-        FeedMessage feedMessage = tripFeedDataCache.get(agencyId, cacheTime);
+    public static FeedMessage getPossiblyCachedMessage(String agencyId) {
+        FeedMessage feedMessage = tripFeedDataCache.get(agencyId);
         if (feedMessage != null) return feedMessage;
 
         synchronized (tripFeedDataCache) {
 
             // Cache may have been filled while waiting.
-            feedMessage = tripFeedDataCache.get(agencyId, cacheTime);
+            feedMessage = tripFeedDataCache.get(agencyId);
             if (feedMessage != null) return feedMessage;
 
             GtfsRtTripFeed feed = new GtfsRtTripFeed(agencyId);
