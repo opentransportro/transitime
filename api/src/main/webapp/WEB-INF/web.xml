@@ -16,6 +16,9 @@
         <param-value>${transitclock.configFiles}</param-value>
     </context-param>
 
+    <welcome-file-list>
+        <welcome-file>welcome/index.jsp</welcome-file>
+    </welcome-file-list>
 
     <!-- So that configuration parameters can be read in from file -->
     <listener>
@@ -32,7 +35,14 @@
         <location>/404.html</location>
     </error-page>
 
-
+    <filter>
+        <filter-name>XSSFilter</filter-name>
+        <filter-class>org.transitclock.api.utils.XSSFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>XSSFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
     <filter>
         <filter-name>ApiLoggingFilter</filter-name>
         <filter-class>org.transitclock.api.utils.ApiLoggingFilter</filter-class>
@@ -40,6 +50,15 @@
     <filter-mapping>
         <filter-name>ApiLoggingFilter</filter-name>
         <url-pattern>/api/*</url-pattern>
+    </filter-mapping>
+
+    <filter>
+        <filter-name>WebLoggingFilter</filter-name>
+        <filter-class>org.transitclock.api.utils.WebLoggingFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>WebLoggingFilter</filter-name>
+        <url-pattern>/*</url-pattern>
     </filter-mapping>
 
 

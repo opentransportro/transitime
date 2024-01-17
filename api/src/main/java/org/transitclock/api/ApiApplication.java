@@ -13,7 +13,7 @@ import org.glassfish.jersey.server.ResourceConfig;
  *
  * @author SkiBu Smith
  */
-@ApplicationPath("v1")
+@ApplicationPath("api/v1")
 public class ApiApplication extends ResourceConfig {
 
     public ApiApplication() {
