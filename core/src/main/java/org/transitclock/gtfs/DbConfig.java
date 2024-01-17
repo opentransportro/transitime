@@ -311,7 +311,7 @@ public class DbConfig {
      * @return collection of stop IDs for route
      */
     private Collection<String> getStopIdsForRoute(String routeId) {
-        Collection<String> stopIds = new ArrayList<>(100);
+        List<String> stopIds = new ArrayList<>();
         List<TripPattern> tripPatternsForRoute = tripPatternsByRouteMap.get(routeId);
         if (tripPatternsForRoute != null) {
             for (TripPattern tripPattern : tripPatternsForRoute) {

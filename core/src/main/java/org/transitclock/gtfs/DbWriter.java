@@ -182,8 +182,9 @@ public class DbWriter {
             // Done writing data so commit it
             tx.commit();
         } catch (HibernateException e) {
-            logger.error("Error writing GTFS configuration data to db.", e);
             tx.rollback();
+            logger.error("Error writing GTFS configuration data to db.", e);
+
             throw e;
         }
 

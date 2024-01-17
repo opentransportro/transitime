@@ -208,41 +208,35 @@ public class GtfsFileProcessor {
 
         // Create a title formatter
         TitleFormatter titleFormatter = new TitleFormatter(regexReplaceListFileName, true);
+        var sessionFactory = HibernateUtils.getSessionFactory(AgencyConfig.getAgencyId());
 
-        // Process the GTFS data
-        GtfsData gtfsData = new GtfsData(
-                configRev,
-                zipFileLastModifiedTime,
-                shouldStoreNewRevs,
-                shouldDeleteRevs,
-                AgencyConfig.getAgencyId(),
-                gtfsDirectoryName,
-                supplementDir,
-                pathOffsetDistance,
-                maxStopToPathDistance,
-                maxDistanceForEliminatingVertices,
-                defaultWaitTimeAtStopMsec,
-                maxSpeedKph,
-                maxTravelTimeSegmentLength,
-                trimPathBeforeFirstStopOfTrip,
-                titleFormatter,
-                maxDistanceBetweenStops,
-                disableSpecialLoopBackToBeginningCase);
+        try (Session session = sessionFactory.openSession()) {
+            // Process the GTFS data
+            GtfsData gtfsData = new GtfsData(
+                    session,
+                    configRev,
+                    zipFileLastModifiedTime,
+                    shouldStoreNewRevs,
+                    AgencyConfig.getAgencyId(),
+                    gtfsDirectoryName,
+                    supplementDir,
+                    pathOffsetDistance,
+                    maxStopToPathDistance,
+                    maxDistanceForEliminatingVertices,
+                    defaultWaitTimeAtStopMsec,
+                    maxSpeedKph,
+                    maxTravelTimeSegmentLength,
+                    trimPathBeforeFirstStopOfTrip,
+                    titleFormatter,
+                    maxDistanceBetweenStops,
+                    disableSpecialLoopBackToBeginningCase);
 
-        // For logging how long things take
-        IntervalTimer timer = new IntervalTimer();
+            // For logging how long things take
+            IntervalTimer timer = new IntervalTimer();
 
-        gtfsData.processData();
-
-        try {
-            SessionFactory sessionFactory = HibernateUtils.getSessionFactory(AgencyConfig.getAgencyId());
-            Session session = sessionFactory.openSession();
-            DbWriter dbWriter = new DbWriter(gtfsData);
-            dbWriter.write(session, gtfsData.getRevs().getConfigRev(), shouldDeleteRevs);
-            // Finish things up by closing the session
-            session.close();
-
-            // Let user know what is going on
+            gtfsData.processData();
+            new DbWriter(gtfsData)
+                    .write(session, gtfsData.getRevs().getConfigRev(), shouldDeleteRevs);
             logger.info("Finished processing GTFS data from {} . Took {} msec.", gtfsDirectoryName, timer.elapsedMsec());
         } catch (HibernateException e) {
             logger.error("Exception when writing data to db", e);

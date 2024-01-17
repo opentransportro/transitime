@@ -4,11 +4,9 @@ package org.transitclock.gtfs;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.transitclock.config.DoubleConfigValue;
 import org.transitclock.config.IntegerConfigValue;
 import org.transitclock.config.StringConfigValue;
-import org.transitclock.db.hibernate.HibernateUtils;
 import org.transitclock.db.structs.Calendar;
 import org.transitclock.db.structs.*;
 import org.transitclock.gtfs.model.*;
@@ -28,6 +26,7 @@ import java.util.regex.Pattern;
  * @author SkiBu Smith
  */
 @Slf4j
+@Getter
 public class GtfsData {
     // So can process only routes that match a regular expression.
     // Note, see
@@ -91,18 +90,14 @@ public class GtfsData {
     // Set by constructor. Specifies where to find data files
     private final String gtfsDirectoryName;
     private final String supplementDir;
-
-    // The session used throughout the class
     private final Session session;
 
     // Various params set by constructor
-    @Getter
     private final ActiveRevisions revs;
     // For when zip file used. Null otherwise
     private final Date zipFileLastModifiedTime;
     private final int originalTravelTimesRev;
 
-    @Getter
     private final String agencyId;
 
     private final double pathOffsetDistance;
@@ -118,16 +113,12 @@ public class GtfsData {
 
     // Where the data is stored.
     // From main and supplement routes.txt files. Key is route_id.
-    @Getter
     private Map<String, GtfsRoute> gtfsRoutesMap;
-    /**
-     * -- GETTER --
-     *
-     * @return List of routes that can be stored in db. The result is not ordered by route_order
-     *     since that isn't needed as part of processing GTFS data.
-     */
-    @Getter
+
+    // List of routes that can be stored in db. The result is not ordered by route_order
+    // since that isn't needed as part of processing GTFS data.
     private List<Route> routes;
+
     // For keeping track of which routes are just sub-routes of a parent.
     // For these the route will not be configured separately and the
     // route IDs from trips.txt and fare_rules.txt will be set to the
@@ -154,7 +145,6 @@ public class GtfsData {
     // TripPatterns as the values so that can update
     // the trips list when another Trip is found to
     // use that TripPattern.
-    @Getter
     private Map<TripPatternKey, TripPattern> tripPatternMap;
 
     // Also need to be able to get trip patterns associated
@@ -176,16 +166,13 @@ public class GtfsData {
     private Set<String> serviceIdsWithTrips;
 
     // List of all the blocks, random order
-    @Getter
     private List<Block> blocks;
 
     // Keyed on tripPatternId and pathId using getPathMapKey(tripPatternId, pathId)
     private HashMap<String, StopPath> pathsMap;
 
-    @Getter
     private List<Calendar> calendars;
 
-    @Getter
     private List<CalendarDate> calendarDates;
 
     private Set<String> validServiceIds;
@@ -196,30 +183,26 @@ public class GtfsData {
     // order to define a different headway for different time ranges.
     private Map<String, List<Frequency>> frequencyMap;
 
-    @Getter
     private List<Agency> agencies;
 
-    @Getter
     private List<FareAttribute> fareAttributes;
 
-    @Getter
     private List<FareRule> fareRules;
 
-    @Getter
     private List<Transfer> transfers;
 
     // This is the format that dates are in for CSV. Should
     // be accessed only through getDateFormatter() to make
     // sure that it is initialized.
-    private SimpleDateFormat _dateFormatter = null;
+    private SimpleDateFormat dateFormatter;
     private final double maxDistanceBetweenStops;
     private final boolean disableSpecialLoopBackToBeginningCase;
 
     public GtfsData(
+            Session session,
             int configRev,
             Date zipFileLastModifiedTime,
             boolean shouldStoreNewRevs,
-            boolean shouldDeleteRevs,
             String projectId,
             String gtfsDirectoryName,
             String supplementDir,
@@ -233,6 +216,10 @@ public class GtfsData {
             TitleFormatter titleFormatter,
             double maxDistanceBetweenStops,
             boolean disableSpecialLoopBackToBeginningCase) {
+
+        // Get the database session. Using one session for the whole process.
+        this.session = session;
+
         this.agencyId = projectId;
         this.zipFileLastModifiedTime = zipFileLastModifiedTime;
         this.gtfsDirectoryName = gtfsDirectoryName;
@@ -247,9 +234,7 @@ public class GtfsData {
         this.titleFormatter = titleFormatter;
         this.maxDistanceBetweenStops = maxDistanceBetweenStops;
         this.disableSpecialLoopBackToBeginningCase = disableSpecialLoopBackToBeginningCase;
-        // Get the database session. Using one session for the whole process.
-        SessionFactory sessionFactory = HibernateUtils.getSessionFactory(getAgencyId());
-        session = sessionFactory.openSession();
+
 
         // Deal with the ActiveRevisions. First, store the original travel times
         // rev since need it to read in old travel time data.
@@ -290,7 +275,8 @@ public class GtfsData {
      */
     private DateFormat getDateFormatter() {
         // If already created then return cached version for efficiency
-        if (_dateFormatter != null) return _dateFormatter;
+        if (dateFormatter != null)
+            return dateFormatter;
 
         // The dateFormatter not yet read in.
         // First, read in the agency.txt GTFS data from file
@@ -306,9 +292,10 @@ public class GtfsData {
 
         // Create the dateFormatter with the proper timezone
         TimeZone timezone = TimeZone.getTimeZone(timezoneName);
-        _dateFormatter = new SimpleDateFormat("yyyyMMdd");
-        _dateFormatter.setTimeZone(timezone);
-        return _dateFormatter;
+        dateFormatter = new SimpleDateFormat("yyyyMMdd");
+        dateFormatter.setTimeZone(timezone);
+
+        return dateFormatter;
     }
 
     /**
@@ -1434,8 +1421,7 @@ public class GtfsData {
             for (TripPattern tripPattern : tripPatternsForRoute) {
                 // Add the trip pattern to tripPatternsByHeadsign map
                 String headsign = tripPattern.getHeadsign();
-                List<TripPattern> tripPatternsForHeadsign =
-                        tripPatternsByHeadsign.computeIfAbsent(headsign, k -> new ArrayList<>());
+                List<TripPattern> tripPatternsForHeadsign = tripPatternsByHeadsign.computeIfAbsent(headsign, k -> new ArrayList<>());
                 tripPatternsForHeadsign.add(tripPattern);
             }
 
@@ -1449,10 +1435,8 @@ public class GtfsData {
 
                 for (TripPattern tripPattern : tripPatternsForHeadsign) {
                     String lastStopIdForTrip = tripPattern.getLastStopIdForTrip();
-                    Location currentTripPatternLastStopLoc =
-                            getStop(lastStopIdForTrip).getLoc();
-                    double distanceBetweenLastStops =
-                            Geo.distance(currentTripPatternLastStopLoc, firstTripPatternLastStopLoc);
+                    Location currentTripPatternLastStopLoc = getStop(lastStopIdForTrip).getLoc();
+                    double distanceBetweenLastStops = Geo.distance(currentTripPatternLastStopLoc, firstTripPatternLastStopLoc);
 
                     // If for this headsign the last stops differ then want to
                     // differentiate the headsigns. But only modify a headsign
@@ -1581,7 +1565,8 @@ public class GtfsData {
         logger.info("Processing blocks...");
 
         // Actually process the block info and get back list of blocks
-        blocks = new BlocksProcessor(this).process(revs.getConfigRev());
+        blocks = new BlocksProcessor(this)
+                .process(revs.getConfigRev());
 
         // Let user know what is going on
         logger.info("Finished processing blocks. Took {} msec.", timer.elapsedMsec());
@@ -2344,7 +2329,9 @@ public class GtfsData {
      * @return True if trip not to be filtered out
      */
     public static boolean tripNotFiltered(String tripId) {
-        if (tripIdFilterRegEx.getValue() == null) return true;
+        if (tripIdFilterRegEx.getValue() == null) {
+            return true;
+        }
 
         // Create pattern if haven't done so yet, but only do so once.
         if (tripIdFilterRegExPattern == null) tripIdFilterRegExPattern = Pattern.compile(tripIdFilterRegEx.getValue());
@@ -2418,15 +2405,5 @@ public class GtfsData {
         TravelTimesProcessorForGtfsUpdates travelTimesProcessor = new TravelTimesProcessorForGtfsUpdates(
                 revs, originalTravelTimesRev, maxTravelTimeSegmentLength, defaultWaitTimeAtStopMsec, maxSpeedKph);
         travelTimesProcessor.process(session, this);
-
-        // Try allowing garbage collector to free up some memory since
-        // don't need the GTFS structures anymore.
-        gtfsRoutesMap = null;
-        gtfsTripsMap = null;
-        gtfsStopTimesForTripMap = null;
-        int originalNumberOfTravelTimes = travelTimesProcessor.getOriginalNumberOfTravelTimes();
-        int numberOfTravelTimes = travelTimesProcessor.getNumberOfTravelTimes();
-        int configRev = revs.getConfigRev();
-        int travelTimesRev = revs.getTravelTimesRev();
     }
 }
