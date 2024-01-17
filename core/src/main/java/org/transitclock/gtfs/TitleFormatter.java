@@ -10,6 +10,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
+
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.config.BooleanConfigValue;
@@ -39,6 +41,7 @@ import org.transitclock.config.BooleanConfigValue;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class TitleFormatter {
 
     private static class RegexInfo {
@@ -76,8 +79,6 @@ public class TitleFormatter {
                     + "capitalize titles when process GTFS data. But note that "
                     + "this can require using regular expressions to fix things "
                     + "like acronyms that actually should be all caps.");
-
-    private static final Logger logger = LoggerFactory.getLogger(TitleFormatter.class);
 
     public TitleFormatter(String regexReplaceListFileName, boolean logUnusedRegexs) {
         this.logUnusedRegexs = logUnusedRegexs;

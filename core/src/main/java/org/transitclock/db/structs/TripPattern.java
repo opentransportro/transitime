@@ -2,6 +2,7 @@
 package org.transitclock.db.structs;
 
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.CallbackException;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -26,6 +27,7 @@ import java.util.Map;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 @Entity
 @Getter
 @DynamicUpdate
@@ -323,8 +325,7 @@ public class TripPattern implements Serializable, Lifecycle {
             StopPath path2 = stopPaths.get(stopPaths.size() - 1);
             tripPatternId += path1.getStopId() + "_to_" + path2.getStopId() + "_";
         } else {
-            GtfsData.logger.info("There was an issue with creating trip "
-                    + "pattern for tripId={} for routeId={}, it is missing stops ");
+            logger.info("There was an issue with creating trip pattern for tripId={} for routeId={}, it is missing stops", trip.getId(), trip.getRouteId());
             return tripPatternId;
         }
 
@@ -358,7 +359,7 @@ public class TripPattern implements Serializable, Lifecycle {
         }
 
         if (problemWithTripPatternId)
-            GtfsData.logger.info(
+            logger.info(
                     "There was an issue with creating trip "
                             + "pattern for tripId={} for routeId={} in "
                             + "TripPattern.generateTripPatternId(). "

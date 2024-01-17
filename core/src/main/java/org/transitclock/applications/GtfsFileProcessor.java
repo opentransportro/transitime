@@ -2,22 +2,26 @@
 package org.transitclock.applications;
 
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.transitclock.CommandLineParameters;
 import org.transitclock.config.ConfigFileReader;
 import org.transitclock.configData.AgencyConfig;
+import org.transitclock.db.hibernate.HibernateUtils;
+import org.transitclock.gtfs.DbWriter;
 import org.transitclock.gtfs.GtfsData;
-import org.transitclock.gtfs.HttpGetGtfsFile;
 import org.transitclock.gtfs.TitleFormatter;
 import org.transitclock.gtfs.model.GtfsAgency;
 import org.transitclock.gtfs.readers.GtfsAgencyReader;
+import org.transitclock.utils.HttpGetGtfsFile;
+import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.Zip;
 
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
+import java.util.*;
 
 /**
  * Reads GTFS files, validates and cleans up the data, stores the data into Java objects, and then
@@ -138,19 +142,22 @@ public class GtfsFileProcessor {
      */
     private void cleanupGtfsFiles() {
         // Only need to cleanup if unzipped a zip file
-        if (gtfsZipFileName == null) return;
-
-        try {
-            File f = new File(gtfsDirectoryName);
-            String[] fileNames = f.list();
-            for (String fileName : fileNames) {
-                if (fileName.endsWith(".txt")) {
-                    Files.delete(Paths.get(gtfsDirectoryName, fileName));
-                }
-            }
-        } catch (Exception e) {
-            logger.error("Exception when cleaning up GTFS files", e);
+        if (gtfsZipFileName == null) {
+            return;
         }
+
+        File f = new File(gtfsDirectoryName);
+        Arrays.stream(Objects.requireNonNull(f.list()))
+                .forEach(fileName -> {
+                    try {
+                        if (fileName.endsWith(".txt")) {
+                            Files.delete(Paths.get(gtfsDirectoryName, fileName));
+                        }
+                    } catch (Exception e) {
+                        logger.error("Exception when cleaning up GTFS files", e);
+                    }
+                });
+
     }
 
     /**
@@ -188,7 +195,6 @@ public class GtfsFileProcessor {
     public void process() throws IllegalArgumentException {
         // Gets the GTFS files from URL or from a zip file if need be.
         // This also sets gtfsDirectoryName member
-
         obtainGtfsFiles();
 
         // Set the timezone of the application so that times and dates will be
@@ -223,7 +229,25 @@ public class GtfsFileProcessor {
                 maxDistanceBetweenStops,
                 disableSpecialLoopBackToBeginningCase);
 
+        // For logging how long things take
+        IntervalTimer timer = new IntervalTimer();
+
         gtfsData.processData();
+
+        try {
+            SessionFactory sessionFactory = HibernateUtils.getSessionFactory(AgencyConfig.getAgencyId());
+            Session session = sessionFactory.openSession();
+            DbWriter dbWriter = new DbWriter(gtfsData);
+            dbWriter.write(session, gtfsData.getRevs().getConfigRev(), shouldDeleteRevs);
+            // Finish things up by closing the session
+            session.close();
+
+            // Let user know what is going on
+            logger.info("Finished processing GTFS data from {} . Took {} msec.", gtfsDirectoryName, timer.elapsedMsec());
+        } catch (HibernateException e) {
+            logger.error("Exception when writing data to db", e);
+            throw e;
+        }
 
         // Log possibly useful info
         titleFormatter.logRegexesThatDidNotMakeDifference();

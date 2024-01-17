@@ -1,26 +1,25 @@
 /* (C)2023 */
 package org.transitclock.gtfs;
 
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.transitclock.config.DoubleConfigValue;
+import org.transitclock.config.IntegerConfigValue;
+import org.transitclock.config.StringConfigValue;
+import org.transitclock.db.hibernate.HibernateUtils;
+import org.transitclock.db.structs.Calendar;
+import org.transitclock.db.structs.*;
+import org.transitclock.gtfs.model.*;
+import org.transitclock.gtfs.readers.*;
+import org.transitclock.utils.*;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
-import lombok.Getter;
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.transitclock.config.DoubleConfigValue;
-import org.transitclock.config.IntegerConfigValue;
-import org.transitclock.config.StringConfigValue;
-import org.transitclock.db.hibernate.HibernateUtils;
-import org.transitclock.db.structs.*;
-import org.transitclock.db.structs.Calendar;
-import org.transitclock.gtfs.model.*;
-import org.transitclock.gtfs.readers.*;
-import org.transitclock.utils.*;
 
 /**
  * Contains all the GTFS data processed into Java lists and such. Also combines in info from
@@ -28,7 +27,66 @@ import org.transitclock.utils.*;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class GtfsData {
+    // So can process only routes that match a regular expression.
+    // Note, see
+    // http://stackoverflow.com/questions/406230/regular-expression-to-match-text-that-doesnt-contain-a-word
+    // for details on how to filter out matches as opposed to specifying
+    // which ones want to keep.
+    private static StringConfigValue routeIdFilterRegEx = new StringConfigValue(
+            "transitclock.gtfs.routeIdFilterRegEx",
+            null, // Default of null means don't do any filtering
+            "Route is included only if route_id matches the this regular "
+                    + "expression. If only want routes with \"SPECIAL\" in the id then "
+                    + "would use \".*SPECIAL.*\". If want to filter out such trips "
+                    + "would instead use the complicated \"^((?!SPECIAL).)*$\" or "
+                    + "\"^((?!(SPECIAL1|SPECIAL2)).)*$\" "
+                    + "if want to filter out two names. The default value "
+                    + "of null causes all routes to be included.");
+
+    // So can process only trips that match a regular expression.
+    // Default of null means don't do any filtering
+    private static StringConfigValue tripIdFilterRegEx = new StringConfigValue(
+            "transitclock.gtfs.tripIdFilterRegEx",
+            null, // Default of null means don't do any filtering
+            "Trip is included only if trip_id matches the this regular "
+                    + "expression. If only want trips with \"SPECIAL\" in the id then "
+                    + "would use \".*SPECIAL.*\". If want to filter out such trips "
+                    + "would instead use the complicated \"^((?!SPECIAL).)*$\" or "
+                    + "\"^((?!(SPECIAL1|SPECIAL2)).)*$\" "
+                    + "if want to filter out two names. The default value "
+                    + "of null causes all trips to be included.");
+
+
+
+    private static IntegerConfigValue stopCodeBaseValue = new IntegerConfigValue(
+            "transitclock.gtfs.stopCodeBaseValue",
+            "If agency doesn't specify stop codes but simply wants to "
+                    + "have them be a based number plus the stop ID then this "
+                    + "parameter can specify the base value. ");
+
+    private static DoubleConfigValue minDistanceBetweenStopsToDisambiguateHeadsigns = new DoubleConfigValue(
+            "transitclock.gtfs.minDistanceBetweenStopsToDisambiguateHeadsigns",
+            1000.0,
+            "When disambiguating headsigns by appending the too stop "
+                    + "name of the last stop, won't disambiguate if the last "
+                    + "stops for the trips with the same headsign differ by "
+                    + "less than this amount.");
+
+    private static StringConfigValue outputPathsAndStopsForGraphingRouteIds = new StringConfigValue(
+            "transitclock.gtfs.outputPathsAndStopsForGraphingRouteIds",
+            null, // Default of null means don't output any routes
+            "Outputs data for specified routes grouped by trip pattern."
+                    + "The resulting data can be visualized on a map by cutting"
+                    + "and pasting it in to http://www.gpsvisualizer.com/map_input"
+                    + "Separate multiple route ids with commas");
+
+    private static Pattern routeIdFilterRegExPattern = null;
+
+    private static Pattern tripIdFilterRegExPattern = null;
+
+
 
     // Set by constructor. Specifies where to find data files
     private final String gtfsDirectoryName;
@@ -38,15 +96,12 @@ public class GtfsData {
     private final Session session;
 
     // Various params set by constructor
+    @Getter
     private final ActiveRevisions revs;
     // For when zip file used. Null otherwise
     private final Date zipFileLastModifiedTime;
     private final int originalTravelTimesRev;
-    /**
-     * -- GETTER --
-     *
-     * @return projectId
-     */
+
     @Getter
     private final String agencyId;
 
@@ -57,7 +112,6 @@ public class GtfsData {
     private final double maxSpeedKph;
     private final double maxTravelTimeSegmentLength;
     private final boolean trimPathBeforeFirstStopOfTrip;
-    private final boolean cleanupRevs;
 
     // So can make the titles more readable
     private final TitleFormatter titleFormatter;
@@ -78,7 +132,7 @@ public class GtfsData {
     // For these the route will not be configured separately and the
     // route IDs from trips.txt and fare_rules.txt will be set to the
     // parent ID.
-    private Map<String, String> properRouteIdMap = new HashMap<>();
+    private final Map<String, String> properRouteIdMap = new HashMap<>();
 
     // From main and supplement stops.txt files. Key is stop_id.
     private Map<String, GtfsStop> gtfsStopsMap;
@@ -158,64 +212,8 @@ public class GtfsData {
     // be accessed only through getDateFormatter() to make
     // sure that it is initialized.
     private SimpleDateFormat _dateFormatter = null;
-    private double maxDistanceBetweenStops;
-    private boolean disableSpecialLoopBackToBeginningCase;
-
-    // So can process only routes that match a regular expression.
-    // Note, see
-    // http://stackoverflow.com/questions/406230/regular-expression-to-match-text-that-doesnt-contain-a-word
-    // for details on how to filter out matches as opposed to specifying
-    // which ones want to keep.
-    private static StringConfigValue routeIdFilterRegEx = new StringConfigValue(
-            "transitclock.gtfs.routeIdFilterRegEx",
-            null, // Default of null means don't do any filtering
-            "Route is included only if route_id matches the this regular "
-                    + "expression. If only want routes with \"SPECIAL\" in the id then "
-                    + "would use \".*SPECIAL.*\". If want to filter out such trips "
-                    + "would instead use the complicated \"^((?!SPECIAL).)*$\" or "
-                    + "\"^((?!(SPECIAL1|SPECIAL2)).)*$\" "
-                    + "if want to filter out two names. The default value "
-                    + "of null causes all routes to be included.");
-    private static Pattern routeIdFilterRegExPattern = null;
-
-    // So can process only trips that match a regular expression.
-    // Default of null means don't do any filtering
-    private static StringConfigValue tripIdFilterRegEx = new StringConfigValue(
-            "transitclock.gtfs.tripIdFilterRegEx",
-            null, // Default of null means don't do any filtering
-            "Trip is included only if trip_id matches the this regular "
-                    + "expression. If only want trips with \"SPECIAL\" in the id then "
-                    + "would use \".*SPECIAL.*\". If want to filter out such trips "
-                    + "would instead use the complicated \"^((?!SPECIAL).)*$\" or "
-                    + "\"^((?!(SPECIAL1|SPECIAL2)).)*$\" "
-                    + "if want to filter out two names. The default value "
-                    + "of null causes all trips to be included.");
-    private static Pattern tripIdFilterRegExPattern = null;
-
-    private static IntegerConfigValue stopCodeBaseValue = new IntegerConfigValue(
-            "transitclock.gtfs.stopCodeBaseValue",
-            "If agency doesn't specify stop codes but simply wants to "
-                    + "have them be a based number plus the stop ID then this "
-                    + "parameter can specify the base value. ");
-
-    private static DoubleConfigValue minDistanceBetweenStopsToDisambiguateHeadsigns = new DoubleConfigValue(
-            "transitclock.gtfs.minDistanceBetweenStopsToDisambiguateHeadsigns",
-            1000.0,
-            "When disambiguating headsigns by appending the too stop "
-                    + "name of the last stop, won't disambiguate if the last "
-                    + "stops for the trips with the same headsign differ by "
-                    + "less than this amount.");
-
-    private static StringConfigValue outputPathsAndStopsForGraphingRouteIds = new StringConfigValue(
-            "transitclock.gtfs.outputPathsAndStopsForGraphingRouteIds",
-            null, // Default of null means don't output any routes
-            "Outputs data for specified routes grouped by trip pattern."
-                    + "The resulting data can be visualized on a map by cutting"
-                    + "and pasting it in to http://www.gpsvisualizer.com/map_input"
-                    + "Separate multiple route ids with commas");
-
-    // Logging
-    public static final Logger logger = LoggerFactory.getLogger(GtfsData.class);
+    private final double maxDistanceBetweenStops;
+    private final boolean disableSpecialLoopBackToBeginningCase;
 
     public GtfsData(
             int configRev,
@@ -271,7 +269,6 @@ public class GtfsData {
             // Don't need to store new revs in db so use a transient object
             revs = new ActiveRevisions();
         }
-        cleanupRevs = shouldDeleteRevs;
         // If particular configuration rev specified then use it. This way
         // can write over existing configuration revisions.
         if (configRev >= 0) {
@@ -754,8 +751,7 @@ public class GtfsData {
             // out such stops if they are the first stops in the trip.
             GtfsStop gtfsStop = getGtfsStop(gtfsStopTime.getStopId());
             if (gtfsStop == null) continue;
-            if (gtfsStop.getDeleteFromRoutesStr() != null
-                    || (firstStopInTrip && gtfsStop.getDeleteFirstStopFromRoutesStr() != null)) {
+            if (gtfsStop.getDeleteFromRoutesStr() != null || (firstStopInTrip && gtfsStop.getDeleteFirstStopFromRoutesStr() != null)) {
                 GtfsTrip gtfsTrip = getGtfsTrip(gtfsStopTime.getTripId());
                 GtfsRoute gtfsRoute = getGtfsRoute(gtfsTrip.getRouteId());
                 String routeShortName = gtfsRoute.getRouteShortName();
@@ -2375,8 +2371,6 @@ public class GtfsData {
 
     /** Does all the work. Processes the data and store it in internal structures */
     public void processData() {
-        // For logging how long things take
-        IntervalTimer timer = new IntervalTimer();
 
         // Let user know what is going on
         logger.info("Processing GTFS data from {} ...", gtfsDirectoryName);
@@ -2434,18 +2428,5 @@ public class GtfsData {
         int numberOfTravelTimes = travelTimesProcessor.getNumberOfTravelTimes();
         int configRev = revs.getConfigRev();
         int travelTimesRev = revs.getTravelTimesRev();
-        try {
-            DbWriter dbWriter = new DbWriter(this);
-            dbWriter.write(session, revs.getConfigRev(), cleanupRevs);
-            // Finish things up by closing the session
-            session.close();
-
-            // Let user know what is going on
-            logger.info(
-                    "Finished processing GTFS data from {} . Took {} msec.", gtfsDirectoryName, timer.elapsedMsec());
-        } catch (HibernateException e) {
-            logger.error("Exception when writing data to db", e);
-            throw e;
-        }
     }
 }

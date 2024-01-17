@@ -24,8 +24,7 @@ import org.transitclock.db.structs.PredictionForStopPath;
  *     filter.
  */
 @Slf4j
-public class KalmanPredictionGeneratorImpl extends PredictionGeneratorDefaultImpl
-        implements PredictionComponentElementsGenerator {
+public class KalmanPredictionGeneratorImpl extends PredictionGeneratorDefaultImpl implements PredictionComponentElementsGenerator {
 
     private final String alternative = "PredictionGeneratorDefaultImpl";
 

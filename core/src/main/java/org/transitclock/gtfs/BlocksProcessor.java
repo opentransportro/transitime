@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.db.structs.Block;
@@ -21,16 +23,11 @@ import org.transitclock.gtfs.model.GtfsRoute;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class BlocksProcessor {
-
     private final GtfsData gtfsData;
 
-    private static final Logger logger = LoggerFactory.getLogger(BlocksProcessor.class);
-
-    /********************** Member Functions **************************/
     public BlocksProcessor(GtfsData gtfsData) {
-        this.gtfsData = gtfsData;
-
         // Make sure needed data is already read in. This method uses
         // trips and trip patterns from the stop_time.txt file. Therefore
         // making sure the stop times read in.
@@ -38,6 +35,8 @@ public class BlocksProcessor {
             logger.error("processStopTimesData() must be called before " + "BlocksProcessor() is. Exiting.");
             System.exit(-1);
         }
+
+        this.gtfsData = gtfsData;
     }
 
     /**
@@ -99,15 +98,13 @@ public class BlocksProcessor {
                 // Add a trip from the longest of each direction. Of course can only do
                 // this if found a trip for both direction "0" and "1".
                 if (longestTripPatternForDirection0 != null && longestTripPatternForDirection1 != null) {
-                    List<Trip> tripsListForBlock = new ArrayList<Trip>();
+                    List<Trip> tripsListForBlock = new ArrayList<>();
                     // Note: FIXME should actually create a copy of the trip with noSchedule set to
                     // true
                     // so that they will be treated as no-schedule trips. Also need to set start and
                     // end time for trip so that it is always active.
-                    tripsListForBlock.add(
-                            longestTripPatternForDirection0.getTrips().get(0));
-                    tripsListForBlock.add(
-                            longestTripPatternForDirection1.getTrips().get(0));
+                    tripsListForBlock.add(longestTripPatternForDirection0.getTrips().get(0));
+                    tripsListForBlock.add(longestTripPatternForDirection1.getTrips().get(0));
 
                     // Create the Blocks. Create one for each service ID. The idea is
                     // that this is all about special unscheduled service so even though
@@ -134,7 +131,7 @@ public class BlocksProcessor {
      */
     public List<Block> process(int configRev) {
         // Create list for blocks
-        List<Block> blocks = new ArrayList<Block>();
+        List<Block> blocks = new ArrayList<>();
 
         // Go through trips map, which was created using data from stop_times.txt
         // GTFS file. Then can go through each Trip and construct the
@@ -142,8 +139,8 @@ public class BlocksProcessor {
         // Therefore need to read them all in to a map keyed by serviceId that
         // contains maps keyed by blockId and has list of Trip objects. Then
         // can put them in correct order based on their times.
-        Map<String, HashMap<String, List<Trip>>> tripListByBlocksByServiceMap =
-                new HashMap<String, HashMap<String, List<Trip>>>();
+        Map<String, Map<String, List<Trip>>> tripListByBlocksByServiceMap =
+                new HashMap<>();
         for (Trip trip : gtfsData.getTrips()) {
             String serviceId = trip.getServiceId();
 
@@ -153,18 +150,10 @@ public class BlocksProcessor {
             String blockId = trip.getBlockId();
 
             // Get the map for the specified service ID
-            HashMap<String, List<Trip>> tripListForBlocksMap = tripListByBlocksByServiceMap.get(serviceId);
-            if (tripListForBlocksMap == null) {
-                tripListForBlocksMap = new HashMap<String, List<Trip>>();
-                tripListByBlocksByServiceMap.put(serviceId, tripListForBlocksMap);
-            }
+            Map<String, List<Trip>> tripListForBlocksMap = tripListByBlocksByServiceMap.computeIfAbsent(serviceId, k -> new HashMap<>());
 
             // Determine trip list for the block
-            List<Trip> tripListForBlock = tripListForBlocksMap.get(blockId);
-            if (tripListForBlock == null) {
-                tripListForBlock = new ArrayList<Trip>();
-                tripListForBlocksMap.put(blockId, tripListForBlock);
-            }
+            List<Trip> tripListForBlock = tripListForBlocksMap.computeIfAbsent(blockId, k -> new ArrayList<>());
 
             // Add this trip to the trip list for the block
             tripListForBlock.add(trip);
@@ -173,7 +162,7 @@ public class BlocksProcessor {
         // Now have access to trip list for each block. For each service ID
         // and block ID create the Block object.
         for (String serviceId : tripListByBlocksByServiceMap.keySet()) {
-            HashMap<String, List<Trip>> tripListForBlocksMap = tripListByBlocksByServiceMap.get(serviceId);
+            Map<String, List<Trip>> tripListForBlocksMap = tripListByBlocksByServiceMap.get(serviceId);
 
             // For each block ID for the service ID...
             for (String blockId : tripListForBlocksMap.keySet()) {
@@ -182,14 +171,11 @@ public class BlocksProcessor {
 
                 // Sort the List of Trips chronologically since they might
                 // be listed in the stop_times.txt file in any order.
-                Collections.sort(tripsListForBlock, new Comparator<Trip>() {
-                    @Override
-                    public int compare(Trip arg0, Trip arg1) {
-                        if (arg0 == arg1) return 0;
-                        if (arg0 == null || arg0.getStartTime() == null) return -1;
-                        if (arg1 == null || arg1.getStartTime() == null) return 1;
-                        return arg0.getStartTime().compareTo(arg1.getStartTime());
-                    }
+                tripsListForBlock.sort((arg0, arg1) -> {
+                    if (arg0 == arg1) return 0;
+                    if (arg0 == null || arg0.getStartTime() == null) return -1;
+                    if (arg1 == null || arg1.getStartTime() == null) return 1;
+                    return arg0.getStartTime().compareTo(arg1.getStartTime());
                 });
 
                 // Determine start time for block from the first trip.

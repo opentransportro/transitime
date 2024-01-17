@@ -7,6 +7,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.db.structs.Location;
@@ -24,9 +26,8 @@ import org.transitclock.utils.IntervalTimer;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class StopPathProcessor {
-
-    // Data passed in to constructor
     private final Map<String, List<GtfsShape>> gtfsShapesMap; // Keyed on shapeId
     private final Map<String, Stop> stopsMap;
     private final Collection<TripPattern> tripPatterns;
@@ -34,10 +35,8 @@ public class StopPathProcessor {
     private final double maxStopToPathDistance;
     private final double maxDistanceForEliminatingVertices;
     private final boolean trimPathBeforeFirstStopOfTrip;
-    private double maxDistanceBetweenStops;
-    private boolean disableSpecialLoopBackToBeginningCase;
-
-    private static final Logger logger = LoggerFactory.getLogger(StopPathProcessor.class);
+    private final double maxDistanceBetweenStops;
+    private final boolean disableSpecialLoopBackToBeginningCase;
 
 
     /**
@@ -68,14 +67,10 @@ public class StopPathProcessor {
             boolean disableSpecialLoopBackToBeginningCase) {
         // Create a GtfsShapes Map where can look up
         // GtfsShapes by shapeId.
-        gtfsShapesMap = new HashMap<String, List<GtfsShape>>(gtfsShapes.size());
+        gtfsShapesMap = new HashMap<>(gtfsShapes.size());
         for (GtfsShape gtfsShape : gtfsShapes) {
             String shapeIdKey = gtfsShape.getShapeId();
-            List<GtfsShape> shapesList = gtfsShapesMap.get(shapeIdKey);
-            if (shapesList == null) {
-                shapesList = new ArrayList<GtfsShape>();
-                gtfsShapesMap.put(shapeIdKey, shapesList);
-            }
+            List<GtfsShape> shapesList = gtfsShapesMap.computeIfAbsent(shapeIdKey, k -> new ArrayList<>());
             shapesList.add(gtfsShape);
         }
         // The shapes might not be in the right order so need to sort them.
@@ -107,7 +102,7 @@ public class StopPathProcessor {
         StopPath firstPath = tripPattern.getStopPath(0);
         String firstStopIdForTrip = tripPattern.getStopId(0);
         Stop firstStopForTrip = stopsMap.get(firstStopIdForTrip);
-        ArrayList<Location> locList = new ArrayList<Location>();
+        ArrayList<Location> locList = new ArrayList<>();
         locList.add(firstStopForTrip.getLoc());
         locList.add(firstStopForTrip.getLoc());
         firstPath.setLocations(locList);
@@ -123,7 +118,7 @@ public class StopPathProcessor {
             Stop stop1 = stopsMap.get(stopId1);
             Location loc1 = stop1.getLoc();
 
-            locList = new ArrayList<Location>();
+            locList = new ArrayList<>();
             locList.add(loc0);
             locList.add(loc1);
 
@@ -146,7 +141,7 @@ public class StopPathProcessor {
      */
     private List<Location> getOffsetLocations(List<GtfsShape> gtfsShapes) {
         // The array where the offset path goes
-        List<Location> offsetLocations = new ArrayList<Location>(gtfsShapes.size());
+        List<Location> offsetLocations = new ArrayList<>(gtfsShapes.size());
 
         // If offsetDistance is 0.0 don't need to go through all the calculations
         if (offsetDistance == 0.0) {
@@ -210,12 +205,6 @@ public class StopPathProcessor {
 
     /**
      * Determines and returns the best match of the stop to a shape.
-     *
-     * @param tripPattern
-     * @param stopIndex
-     * @param previousShapeIndex
-     * @param previousDistanceAlongShape
-     * @param shapeLocs
      * @return The BestMatch indicating best match of stop to shape.
      */
     private BestMatch determineBestMatch(
@@ -439,7 +428,7 @@ public class StopPathProcessor {
             Stop stop = stopsMap.get(stopId);
 
             // The list of locations defining the segments for the stop path
-            ArrayList<Location> locList = new ArrayList<Location>();
+            ArrayList<Location> locList = new ArrayList<>();
 
             // Determine the locations for the stop path
             if (previousLocation == null && bestMatch.stopToShapeDistance > maxStopToPathDistance) {

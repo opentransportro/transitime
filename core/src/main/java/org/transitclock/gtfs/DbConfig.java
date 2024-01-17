@@ -311,11 +311,14 @@ public class DbConfig {
      * @return collection of stop IDs for route
      */
     private Collection<String> getStopIdsForRoute(String routeId) {
-        Collection<String> stopIds = new ArrayList<String>(100);
-
+        Collection<String> stopIds = new ArrayList<>(100);
         List<TripPattern> tripPatternsForRoute = tripPatternsByRouteMap.get(routeId);
-        for (TripPattern tripPattern : tripPatternsForRoute) {
-            stopIds.addAll(tripPattern.getStopIds());
+        if (tripPatternsForRoute != null) {
+            for (TripPattern tripPattern : tripPatternsForRoute) {
+                stopIds.addAll(tripPattern.getStopIds());
+            }
+        } else {
+            logger.error("No pattern for route {}", routeId);
         }
 
         return stopIds;

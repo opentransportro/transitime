@@ -6,6 +6,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.slf4j.Logger;
@@ -34,6 +36,7 @@ import org.transitclock.utils.Time;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class TravelTimesProcessorForGtfsUpdates {
 
     // Which config and travel times revs to write data for
@@ -47,9 +50,6 @@ public class TravelTimesProcessorForGtfsUpdates {
     private final double maxSpeedMetersPerMsec;
     private final double maxTravelTimeSegmentLength;
 
-    private static final Logger logger = LoggerFactory.getLogger(TravelTimesProcessorForGtfsUpdates.class);
-
-    /********************** Member Functions **************************/
 
     /**
      * Constructor
@@ -89,13 +89,11 @@ public class TravelTimesProcessorForGtfsUpdates {
      * @param gtfsData
      * @return
      */
-    private ScheduleTime getGtfsScheduleTime(
-            String tripId, TripPattern tripPattern, int gtfsStopSequence, GtfsData gtfsData) {
+    private ScheduleTime getGtfsScheduleTime(String tripId, TripPattern tripPattern, int gtfsStopSequence, GtfsData gtfsData) {
 
         // Go through list of stops for the tripId.
         List<GtfsStopTime> gtfsStopTimesList = gtfsData.getGtfsStopTimesForTrip(tripId);
-        for (int stopTimeIdx = 0; stopTimeIdx < gtfsStopTimesList.size(); ++stopTimeIdx) {
-            GtfsStopTime gtfsStopTime = gtfsStopTimesList.get(stopTimeIdx);
+        for (GtfsStopTime gtfsStopTime : gtfsStopTimesList) {
             if (gtfsStopTime.getStopSequence() == gtfsStopSequence) {
                 // Found the stop.
                 Integer arr = gtfsStopTime.getArrivalTimeSecs();
@@ -284,7 +282,7 @@ public class TravelTimesProcessorForGtfsUpdates {
                 }
 
                 // For this stop path determine the travel times.
-                ArrayList<Integer> travelTimesMsec = new ArrayList<Integer>();
+                List<Integer> travelTimesMsec = new ArrayList<>();
                 int travelTimeForSegmentMsec = (int)
                         ((travelTimeSegmentsLength / distanceBetweenScheduleStops) * msecForTravelBetweenScheduleTimes);
                 for (int j = 0; j < numberTravelTimeSegments; ++j) {
@@ -696,7 +694,8 @@ public class TravelTimesProcessorForGtfsUpdates {
     }
 
     public void setNumberOfTravelTimes(Integer numberOfTravelTimes) {
-        if (numberOfTravelTimes != null) this.numberOfTravelTimes = numberOfTravelTimes;
+        if (numberOfTravelTimes != null)
+            this.numberOfTravelTimes = numberOfTravelTimes;
     }
 
     int originalNumberOfTravelTimes = 0;

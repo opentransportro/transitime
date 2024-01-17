@@ -1,9 +1,7 @@
 /* (C)2023 */
-package org.transitclock.gtfs;
+package org.transitclock.utils;
 
 import lombok.extern.slf4j.Slf4j;
-import org.transitclock.utils.HttpGetFile;
-import org.transitclock.utils.Time;
 
 /**
  * For grabbing a GTFS zip file over the web using http. The getFile() method copies the file to the

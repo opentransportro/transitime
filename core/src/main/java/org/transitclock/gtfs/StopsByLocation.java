@@ -19,7 +19,6 @@ import org.transitclock.utils.Geo;
  * @author SkiBu Smith
  */
 public class StopsByLocation {
-
     // When looking for nearest stop should bias a bit to the next one
     // in the trip pattern. This way if a user is in between two stops
     // it will match to the second one, giving the passenger a bit more
@@ -191,7 +190,7 @@ public class StopsByLocation {
 
                 // Now that have matches for all trip patterns for the direction
                 // need to determine which is the best one.
-                if (matchesForDirection.size() >= 1 && matchesAreForSameStop(matchesForDirection)) {
+                if (!matchesForDirection.isEmpty() && matchesAreForSameStop(matchesForDirection)) {
                     // There is just a single stop so use it
                     results.add(matchesForDirection.get(0));
                 } else if (matchesForDirection.size() > 1) {
