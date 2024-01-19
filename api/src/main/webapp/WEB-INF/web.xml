@@ -16,10 +16,6 @@
         <param-value>${transitclock.configFiles}</param-value>
     </context-param>
 
-    <welcome-file-list>
-        <welcome-file>welcome/index.jsp</welcome-file>
-    </welcome-file-list>
-
     <!-- So that configuration parameters can be read in from file -->
     <listener>
         <listener-class>org.transitclock.web.ReadConfigListener</listener-class>

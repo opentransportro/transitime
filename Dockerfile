@@ -1,28 +1,19 @@
 FROM maven:3-eclipse-temurin-17
 
-ARG AGENCYID="ro.stpt"
-ARG AGENCYNAME="STPT"
-ARG GTFS_URL="https://data.opentransport.ro/routing/gtfs/gtfs-stpt.zip"
-ARG GTFSRTVEHICLEPOSITIONS="https://api.opentransport.ro/realtime/vehicle-positions/tm"
-ARG TRANSITCLOCK_PROPERTIES="docker/config/transitclock.properties"
-
 RUN apt-get update && apt-get install -y postgresql-client git-core vim jq
 
-ENV AGENCYID ${AGENCYID}
-ENV AGENCYNAME ${AGENCYNAME}
-ENV GTFS_URL ${GTFS_URL}
-ENV GTFSRTVEHICLEPOSITIONS ${GTFSRTVEHICLEPOSITIONS}
-ENV TRANSITCLOCK_PROPERTIES ${TRANSITCLOCK_PROPERTIES}
-ENV CATALINA_HOME /usr/local/tomcat
-ENV PATH $CATALINA_HOME/bin:$PATH
+ENV AGENCYID ro.stpt
+ENV AGENCYNAME STPT
+ENV GTFS_URL https://data.opentransport.ro/routing/gtfs/gtfs-stpt.zip
+ENV GTFSRTVEHICLEPOSITIONS https://api.opentransport.ro/exporter/v1/realtime/stpt/vehicle-positions
+ENV TRANSITCLOCK_PROPERTIES docker/config/transitclock.properties
+ENV PATH /usr/local/tomcat/bin:$PATH
 
-ENV TOMCAT_MAJOR 10
-ENV TOMCAT_VERSION 10.1.18
-ENV TOMCAT_TGZ_URL https://dlcdn.apache.org/tomcat/tomcat-$TOMCAT_MAJOR/v$TOMCAT_VERSION/bin/apache-tomcat-$TOMCAT_VERSION.tar.gz
+ENV TOMCAT_TGZ_URL https://dlcdn.apache.org/tomcat/tomcat-10/v10.1.18/bin/apache-tomcat-10.1.18.tar.gz
 
 EXPOSE 8080
-RUN mkdir -p "$CATALINA_HOME"
-WORKDIR $CATALINA_HOME
+RUN mkdir -p "/usr/local/tomcat"
+WORKDIR /usr/local/tomcat
 
 RUN set -x \
 	&& curl -fSL "$TOMCAT_TGZ_URL" -o tomcat.tar.gz \
@@ -36,32 +27,20 @@ RUN mkdir /usr/local/transitclock &&  \
     mkdir /usr/local/transitclock/config &&  \
     mkdir /usr/local/transitclock/logs &&  \
     mkdir /usr/local/transitclock/cache &&  \
-    mkdir /usr/local/transitclock/data &&  \
-    mkdir /usr/local/transitclock/test &&  \
-    mkdir /usr/local/transitclock/test/config
+    mkdir /usr/local/transitclock/data
 
 WORKDIR /usr/local/transitclock
 
-COPY webapp/target/web.war /usr/local/tomcat/webapps/web.war
-COPY api/target/api.war /usr/local/tomcat/webapps/api.war
-COPY core/target/Core.jar /usr/local/transitclock/core.jar
+COPY api/target/api.war /usr/local/tomcat/webapps/ROOT.war
+COPY core/target/core.jar /usr/local/transitclock/core.jar
 
 # Scripts required to start transiTime.
+COPY docker/bin/waitforit /usr/local/transitclock/bin/waitforit
 COPY docker/bin/check_db_up.sh /usr/local/transitclock/bin/check_db_up.sh
-COPY docker/bin/generate_sql.sh /usr/local/transitclock/bin/generate_sql.sh
 COPY docker/bin/create_tables.sh /usr/local/transitclock/bin/create_tables.sh
-COPY docker/bin/create_api_key.sh /usr/local/transitclock/bin/create_api_key.sh
-COPY docker/bin/create_webagency.sh /usr/local/transitclock/bin/create_webagency.sh
-COPY docker/bin/import_gtfs.sh /usr/local/transitclock/bin/import_gtfs.sh
-COPY docker/bin/start_transitclock.sh /usr/local/transitclock/bin/start_transitclock.sh
+COPY docker/bin/start.sh /usr/local/transitclock/bin/start.sh
 COPY docker/bin/get_api_key.sh /usr/local/transitclock/bin/get_api_key.sh
-COPY docker/bin/import_avl.sh /usr/local/transitclock/bin/import_avl.sh
-COPY docker/bin/process_avl.sh /usr/local/transitclock/bin/process_avl.sh
 COPY docker/bin/update_traveltimes.sh /usr/local/transitclock/bin/update_traveltimes.sh
-COPY docker/bin/set_config.sh /usr/local/transitclock/bin/set_config.sh
-
-# Handy utility to allow you connect directly to database
-COPY docker/bin/connect_to_db.sh /usr/local/transitclock/bin/connect_to_db.sh
 
 ENV PATH="/usr/local/transitclock/bin:${PATH}"
 
@@ -70,6 +49,9 @@ RUN \
  	chmod 777 /usr/local/transitclock/bin/*.sh
 
 COPY docker/config/postgres_hibernate.cfg.xml /usr/local/transitclock/config/hibernate.cfg.xml
-COPY ${TRANSITCLOCK_PROPERTIES} /usr/local/transitclock/config/transitclock.properties
+COPY docker/config/tomcat_postgres_hibernate.cfg.xml /usr/local/transitclock/config/tomcat_hibernate.cfg.xml
 
-CMD ["/start_transitclock.sh"]
+COPY docker/config/transitclock.properties /usr/local/transitclock/config/transitclock.properties
+COPY docker/config/tomcat-transitclock.properties /usr/local/transitclock/config/tomcat-transitclock.properties
+
+CMD ["start.sh"]

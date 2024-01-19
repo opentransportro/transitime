@@ -282,7 +282,7 @@
                                     <mainClass>org.transitclock.TransitclockMain</mainClass>
                                 </transformer>
                             </transformers>
-                            <outputFile>target/Core.jar</outputFile>
+                            <outputFile>target/core.jar</outputFile>
                         </configuration>
                     </execution>
                 </executions>
