@@ -1,18 +1,8 @@
 /* (C)2023 */
 package org.transitclock.core.travelTimes;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.transitclock.config.BooleanConfigValue;
-import org.transitclock.config.DoubleConfigValue;
+import lombok.extern.slf4j.Slf4j;
+import org.transitclock.configData.TraveltimesConfig;
 import org.transitclock.core.TemporalDifference;
 import org.transitclock.core.travelTimes.DataFetcher.DbDataMapKey;
 import org.transitclock.db.structs.ArrivalDeparture;
@@ -20,11 +10,9 @@ import org.transitclock.db.structs.Match;
 import org.transitclock.db.structs.StopPath;
 import org.transitclock.db.structs.Trip;
 import org.transitclock.statistics.Statistics;
-import org.transitclock.utils.Geo;
-import org.transitclock.utils.IntervalTimer;
-import org.transitclock.utils.MapKey;
-import org.transitclock.utils.StringUtils;
-import org.transitclock.utils.Time;
+import org.transitclock.utils.*;
+
+import java.util.*;
 
 /**
  * Takes arrival/departure times plus the matches (where vehicle is matched to a route between
@@ -38,6 +26,7 @@ import org.transitclock.utils.Time;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class TravelTimesProcessor {
 
     // Used when determining stop time for first stop of trip. A value
@@ -60,67 +49,6 @@ public class TravelTimesProcessor {
 
     private static final int MAX_SCHED_ADH_SECS = 30 * Time.SEC_PER_MIN;
 
-    private static boolean shouldResetEarlyTerminalDepartures() {
-        return resetEarlyTerminalDepartures.getValue();
-    }
-
-    // For when determining stop times. Throws out
-    // outliers if they are less than 0.7 or greater than 1/0.7
-    // of the average.
-    private static DoubleConfigValue fractionLimitForStopTimes = new DoubleConfigValue(
-            "transitclock.traveltimes.fractionLimitForStopTimes",
-            0.7,
-            "For when determining stop times. Throws out outliers.");
-
-    // For when determining travel times for segments. Throws out
-    // outliers if they are less than 0.7 or greater than 1/0.7
-    // of the average.
-    private static DoubleConfigValue fractionLimitForTravelTimes = new DoubleConfigValue(
-            "transitclock.traveltimes.fractionLimitForTravelTimes",
-            0.7,
-            "For when determining travel times. Throws out outliers.");
-
-    private static BooleanConfigValue resetEarlyTerminalDepartures = new BooleanConfigValue(
-            "transitclock.travelTimes.resetEarlyTerminalDepartures",
-            true,
-            "For some agencies vehicles won't be departing terminal "
-                    + "early. If an early departure is detected for such an "
-                    + "agency then will use the schedule time since the "
-                    + "arrival time is likely a mistake.");
-
-    private static double getMaxTravelTimeSegmentLength() {
-        return maxTravelTimeSegmentLength.getValue();
-    }
-
-    private static DoubleConfigValue maxTravelTimeSegmentLength = new DoubleConfigValue(
-            "transitclock.traveltimes.maxTravelTimeSegmentLength",
-            250.0,
-            "The longest a travel time segment can be. If a stop path "
-                    + "is longer than this distance then it will be divided "
-                    + "into multiple travel time segments of even length.");
-
-    private static double getMinSegmentSpeedMps() {
-        return minSegmentSpeedMps.getValue();
-    }
-
-    private static DoubleConfigValue minSegmentSpeedMps = new DoubleConfigValue(
-            "transitclock.traveltimes.minSegmentSpeedMps",
-            0.0,
-            "If a travel time segment is determined to have a lower "
-                    + "speed than this value in meters/sec then the travel time"
-                    + " will be increased to meet this limit. Purpose is to "
-                    + "make sure that don't get invalid travel times due to "
-                    + "bad data.");
-
-    private static DoubleConfigValue maxSegmentSpeedMps = new DoubleConfigValue(
-            "transitclock.traveltimes.maxSegmentSpeedMps",
-            27.0, // 27.0m/s = 60mph
-            "If a travel time segment is determined to have a higher "
-                    + "speed than this value in meters/second then the travel "
-                    + "time will be decreased to meet this limit. Purpose is "
-                    + "to make sure that don't get invalid travel times due to "
-                    + "bad data.");
-
     // The aggregate data processed from the historic db data.
     // ProcessedDataMapKey combines tripId and stopPathIndex in
     // order to combine data for a particular tripId and stopPathIndex.
@@ -138,8 +66,6 @@ public class TravelTimesProcessor {
     private static Map<ProcessedDataMapKey, List<List<Integer>>> travelTimesMap =
             new HashMap<ProcessedDataMapKey, List<List<Integer>>>();
 
-    private static final Logger logger = LoggerFactory.getLogger(TravelTimesProcessor.class);
-
     private boolean isEmpty = true;
 
     public boolean isEmpty() {
@@ -148,7 +74,6 @@ public class TravelTimesProcessor {
 
     public TravelTimesProcessor() {}
 
-    /********************** Member Functions **************************/
 
     /**
      * Special MapKey class so that can make sure using the proper one for the associated maps in
@@ -209,11 +134,7 @@ public class TravelTimesProcessor {
         // If there is no data then simply return
         if (travelTimesForStopPath == null || travelTimesForStopPath.isEmpty()) return;
 
-        List<List<Integer>> travelTimesForStop = travelTimesMap.get(mapKey);
-        if (travelTimesForStop == null) {
-            travelTimesForStop = new ArrayList<List<Integer>>();
-            travelTimesMap.put(mapKey, travelTimesForStop);
-        }
+        List<List<Integer>> travelTimesForStop = travelTimesMap.computeIfAbsent(mapKey, k -> new ArrayList<>());
         travelTimesForStop.add(travelTimesForStopPath);
     }
 
@@ -255,7 +176,7 @@ public class TravelTimesProcessor {
         // to 0 if it is negative. This is useful for agencies like commuter
         // rail since trains really aren't going to leave early and early
         // departures indicates a problem with travel times.
-        if (shouldResetEarlyTerminalDepartures() && lateTimeMsec < 0) lateTimeMsec = 0;
+        if (TraveltimesConfig.shouldResetEarlyTerminalDepartures() && lateTimeMsec < 0) lateTimeMsec = 0;
 
         // Get the MapKey so can put stop time into map
         ProcessedDataMapKey mapKeyForTravelTimes =
@@ -347,7 +268,7 @@ public class TravelTimesProcessor {
      * @return number of travel time segments
      */
     private static int getNumTravelTimeSegments(double pathLength) {
-        int numberTravelTimeSegments = (int) (pathLength / getMaxTravelTimeSegmentLength() + 1.0);
+        int numberTravelTimeSegments = (int) (pathLength / TraveltimesConfig.getMaxTravelTimeSegmentLength() + 1.0);
         return numberTravelTimeSegments;
     }
 
@@ -460,7 +381,7 @@ public class TravelTimesProcessor {
         // then use the scheduled departure time. This prevents creating
         // bad predictions due to incorrectly determined travel times.
         long departureTime = arrDep1.getTime();
-        if (shouldResetEarlyTerminalDepartures()
+        if (TraveltimesConfig.shouldResetEarlyTerminalDepartures()
                 && arrDep1.getStopPathIndex() == 0
                 && arrDep1.getTime() < arrDep1.getScheduledTime()) {
             logger.debug(
@@ -476,7 +397,7 @@ public class TravelTimesProcessor {
         // If this stop path is short enough such that it is just a single
         // travel times segment then handle specially since don't need
         // to look at matches.
-        if (arrDep2.getStopPathLength() < getMaxTravelTimeSegmentLength()) {
+        if (arrDep2.getStopPathLength() < TraveltimesConfig.getMaxTravelTimeSegmentLength()) {
             // Determine and return the travel time between the stops
             int travelTimeBetweenStopsMsec = (int) (arrDep2.getTime() - departureTime);
             List<Integer> travelTimesForStopPath = new ArrayList<Integer>();
@@ -565,7 +486,7 @@ public class TravelTimesProcessor {
             // rail for example vehicles don't travel below a certain speed.
             // A low speed indicates a problem with the data.
             double segmentSpeedMps = travelTimeSegmentLength * Time.MS_PER_SEC / segmentTime;
-            if (segmentSpeedMps < getMinSegmentSpeedMps()) {
+            if (segmentSpeedMps < TraveltimesConfig.getMinSegmentSpeedMps()) {
                 logger.error(
                         "For segmentIdx={} segment speed of {}m/s is "
                                 + "below the limit of minSegmentSpeedMps={}m/s. "
@@ -573,14 +494,14 @@ public class TravelTimesProcessor {
                                 + "arrDep1={} arrDep2={}",
                         i,
                         StringUtils.twoDigitFormat(segmentSpeedMps),
-                        minSegmentSpeedMps.getValue(),
+                        TraveltimesConfig.getMinSegmentSpeedMps(),
                         arrDep1,
                         arrDep2);
-                segmentTime = (int) (travelTimeSegmentLength * Time.MS_PER_SEC / getMinSegmentSpeedMps());
+                segmentTime = (int) (travelTimeSegmentLength * Time.MS_PER_SEC / TraveltimesConfig.getMinSegmentSpeedMps());
             }
 
             // Make sure segment speed isn't ridiculously high.
-            if (segmentSpeedMps > maxSegmentSpeedMps.getValue()) {
+            if (segmentSpeedMps > TraveltimesConfig.maxSegmentSpeedMps.getValue()) {
                 logger.error(
                         "For segmentIdx={} segment speed of {}m/s is "
                                 + "above the limit of maxSegmentSpeedMps={}m/s. "
@@ -588,10 +509,10 @@ public class TravelTimesProcessor {
                                 + "arrDep1={} arrDep2={}",
                         i,
                         StringUtils.twoDigitFormat(segmentSpeedMps),
-                        maxSegmentSpeedMps.getValue(),
+                        TraveltimesConfig.maxSegmentSpeedMps.getValue(),
                         arrDep1,
                         arrDep2);
-                segmentTime = (int) (travelTimeSegmentLength * Time.MS_PER_SEC / maxSegmentSpeedMps.getValue());
+                segmentTime = (int) (travelTimeSegmentLength * Time.MS_PER_SEC / TraveltimesConfig.maxSegmentSpeedMps.getValue());
             }
 
             // Keep track of this segment time for this segment
@@ -845,7 +766,7 @@ public class TravelTimesProcessor {
                     // For each segment, process travel times...
                     for (List<Integer> travelTimesByTripForSegment : travelTimesBySegment) {
                         int averageTravelTimeForSegment = Statistics.filteredMean(
-                                travelTimesByTripForSegment, fractionLimitForTravelTimes.getValue());
+                                travelTimesByTripForSegment, TraveltimesConfig.fractionLimitForTravelTimes.getValue());
                         averageTravelTimes.add(averageTravelTimeForSegment);
                     }
                 }
@@ -866,7 +787,7 @@ public class TravelTimesProcessor {
                     // Determine best stop time to use
                     averagedStopTime = Statistics.biasedFilteredMean(
                             stopTimesForStopPathForTrip,
-                            fractionLimitForStopTimes.getValue(),
+                            TraveltimesConfig.fractionLimitForStopTimes.getValue(),
                             STD_DEV_BIAS_FOR_FIRST_STOP);
 
                     // So far have determine when vehicle has departed. But should add
@@ -876,7 +797,7 @@ public class TravelTimesProcessor {
                 } else {
                     // Not first stop of trip
                     averagedStopTime =
-                            Statistics.filteredMean(stopTimesForStopPathForTrip, fractionLimitForStopTimes.getValue());
+                            Statistics.filteredMean(stopTimesForStopPathForTrip, TraveltimesConfig.fractionLimitForStopTimes.getValue());
                 }
             } else {
                 // No arrival and corresponding departure time for the stop.

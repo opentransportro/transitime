@@ -7,6 +7,7 @@ import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.avl.PollUrlAvlModule;
 import org.transitclock.config.StringConfigValue;
+import org.transitclock.configData.GtfsConfig;
 import org.transitclock.db.structs.AvlReport;
 import org.transitclock.gtfs.realtime.GtfsRtVehiclePositionsReader;
 
@@ -18,10 +19,6 @@ import org.transitclock.gtfs.realtime.GtfsRtVehiclePositionsReader;
  */
 @Slf4j
 public class GtfsRealtimeModule extends PollUrlAvlModule {
-    private static final StringConfigValue GTFS_REALTIME_URI = new StringConfigValue(
-            "transitclock.avl.gtfsRealtimeFeedURI",
-            null,
-            "The URI of the GTFS-realtime feed to use.");
 
     public GtfsRealtimeModule(String projectId) {
         super(projectId);
@@ -36,7 +33,7 @@ public class GtfsRealtimeModule extends PollUrlAvlModule {
      */
     @Override
     protected void getAndProcessData() {
-        String[] urls = GTFS_REALTIME_URI.getValue().split(",");
+        String[] urls = GtfsConfig.GTFS_REALTIME_URI.getValue().split(",");
 
         for (String urlStr : urls) {
             try {

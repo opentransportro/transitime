@@ -4,9 +4,12 @@ package org.transitclock.monitoring;
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
 import java.lang.reflect.Method;
+
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.config.LongConfigValue;
+import org.transitclock.configData.MonitoringConfig;
 import org.transitclock.utils.StringUtils;
 
 /**
@@ -19,28 +22,8 @@ import org.transitclock.utils.StringUtils;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class SystemMemoryMonitor extends MonitorBase {
-
-    LongConfigValue availableFreePhysicalMemoryThreshold = new LongConfigValue(
-            "transitclock.monitoring.availableFreePhysicalMemoryThreshold",
-            10 * 1024 * 1024L, // ~10 MB
-            "If available free physical memory is less than this "
-                    + "value then free memory monitoring is triggered. This should be "
-                    + "relatively small since on Linux the operating system will use "
-                    + "most of the memory for buffers and such when it is available. "
-                    + "Therefore even when only a small amount of memory is available "
-                    + "the system is still OK.");
-
-    private static LongConfigValue availableFreePhysicalMemoryThresholdGap = new LongConfigValue(
-            "transitclock.monitoring.availableFreePhysicalMemoryThresholdGap",
-            150 * 1024 * 1024L, // ~150 MB
-            "When transitioning from triggered to untriggered don't "
-                    + "want to send out an e-mail right away if actually "
-                    + "dithering. Therefore will only send out OK e-mail if the "
-                    + "value is now above availableFreePhysicalMemoryThreshold + "
-                    + "availableFreePhysicalMemoryThresholdGap ");
-
-    private static final Logger logger = LoggerFactory.getLogger(SystemMemoryMonitor.class);
 
     public SystemMemoryMonitor(String agencyId) {
         super(agencyId);
@@ -65,8 +48,7 @@ public class SystemMemoryMonitor extends MonitorBase {
             method.setAccessible(true);
 
             // Get and return the result by invoking the specified method
-            Object result = method.invoke(operatingSystemMxBean);
-            return result;
+            return method.invoke(operatingSystemMxBean);
         } catch (Exception e) {
             logger.error("Could not execute " + "OperatingSystemMXBean.{}(). {}", methodName, e.getMessage());
             return null;
@@ -94,7 +76,7 @@ public class SystemMemoryMonitor extends MonitorBase {
                     "Free physical memory is "
                             + StringUtils.memoryFormat(freePhysicalMemory)
                             + " while the limit is "
-                            + StringUtils.memoryFormat(availableFreePhysicalMemoryThreshold.getValue())
+                            + StringUtils.memoryFormat(MonitoringConfig.availableFreePhysicalMemoryThreshold.getValue())
                             + ".",
                     freePhysicalMemory);
 
@@ -102,8 +84,10 @@ public class SystemMemoryMonitor extends MonitorBase {
             // then raise the threshold by availableFreePhysicalMemoryThresholdGap
             // in order to prevent lots of e-mail being sent out if the value
             // is dithering around availableFreePhysicalMemoryThreshold.
-            long threshold = availableFreePhysicalMemoryThreshold.getValue();
-            if (wasTriggered()) threshold += availableFreePhysicalMemoryThresholdGap.getValue();
+            long threshold = MonitoringConfig.availableFreePhysicalMemoryThreshold.getValue();
+            if (wasTriggered()) {
+                threshold += MonitoringConfig.availableFreePhysicalMemoryThresholdGap.getValue();
+            }
 
             // Return true if problem detected
             return freePhysicalMemory < threshold;

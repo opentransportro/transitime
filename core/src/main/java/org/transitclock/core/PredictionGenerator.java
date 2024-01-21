@@ -1,23 +1,10 @@
 /* (C)2023 */
 package org.transitclock.core;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 import org.apache.commons.lang3.time.DateUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.transitclock.applications.Core;
-import org.transitclock.config.BooleanConfigValue;
-import org.transitclock.config.IntegerConfigValue;
-import org.transitclock.core.dataCache.StopArrivalDepartureCacheFactory;
-import org.transitclock.core.dataCache.StopArrivalDepartureCacheKey;
-import org.transitclock.core.dataCache.TripDataHistoryCacheFactory;
-import org.transitclock.core.dataCache.TripDataHistoryCacheInterface;
-import org.transitclock.core.dataCache.TripKey;
+import org.transitclock.configData.PredictionConfig;
+import org.transitclock.core.dataCache.*;
 import org.transitclock.core.predictiongenerator.datafilter.TravelTimeDataFilter;
 import org.transitclock.core.predictiongenerator.datafilter.TravelTimeFilterFactory;
 import org.transitclock.db.structs.ArrivalDeparture;
@@ -27,6 +14,8 @@ import org.transitclock.gtfs.DbConfig;
 import org.transitclock.ipc.data.IpcArrivalDeparture;
 import org.transitclock.ipc.data.IpcPrediction;
 
+import java.util.*;
+
 /**
  * Defines the interface for generating predictions. To create predictions using an alternate method
  * simply implement this interface and configure PredictionGeneratorFactory to instantiate the new
@@ -35,26 +24,6 @@ import org.transitclock.ipc.data.IpcPrediction;
  * @author SkiBu Smith
  */
 public abstract class PredictionGenerator {
-    private static final IntegerConfigValue closestVehicleStopsAhead = new IntegerConfigValue(
-            "transitclock.prediction.closestvehiclestopsahead",
-            5,
-            "Num stops ahead a vehicle must be to be considers in the closest vehicle calculation");
-
-    protected static BooleanConfigValue storeTravelTimeStopPathPredictions = new BooleanConfigValue(
-            "transitclock.core.storeTravelTimeStopPathPredictions",
-            false,
-            "This is set to true to record all travelTime  predictions for individual"
-                    + " stopPaths generated. Useful for comparing performance of differant"
-                    + " algorithms. (MAPE comparison). Not for normal use as will generate"
-                    + " massive amounts of data.");
-
-    protected static BooleanConfigValue storeDwellTimeStopPathPredictions = new BooleanConfigValue(
-            "transitclock.core.storeDwellTimeStopPathPredictions",
-            false,
-            "This is set to true to record all travelTime  predictions for individual dwell"
-                    + " times generated. Useful for comparing performance of differant"
-                    + " algorithms. (MAPE comparison). Not for normal use as will generate"
-                    + " massive amounts of data.");
 
     /**
      * Generates and returns the predictions for the vehicle.
@@ -224,7 +193,7 @@ public abstract class PredictionGenerator {
                     routeStops,
                     vehicle.getMatch().getStopPath().getStopId(),
                     currentVehicleState.getMatch().getStopPath().getStopId());
-            if (numAfter != null && numAfter > closestVehicleStopsAhead.getValue() && numAfter < closest) {
+            if (numAfter != null && numAfter > PredictionConfig.closestVehicleStopsAhead.getValue() && numAfter < closest) {
                 closest = numAfter;
                 result = vehicle;
             }

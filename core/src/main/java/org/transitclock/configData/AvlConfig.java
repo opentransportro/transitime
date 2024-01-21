@@ -1,10 +1,7 @@
 /* (C)2023 */
 package org.transitclock.configData;
 
-import org.transitclock.config.DoubleConfigValue;
-import org.transitclock.config.FloatConfigValue;
-import org.transitclock.config.IntegerConfigValue;
-import org.transitclock.config.StringConfigValue;
+import org.transitclock.config.*;
 
 /**
  * Handles the AVL configuration data.
@@ -209,4 +206,64 @@ public class AvlConfig {
                     + "filtered out and not processed. Important for when "
                     + "reporting rate is really high, such as every few "
                     + "seconds.");
+
+
+    public static StringConfigValue url =
+            new StringConfigValue("transitclock.avl.url", "The URL of the AVL feed to poll.");
+
+    public static StringConfigValue authenticationUser = new StringConfigValue(
+            "transitclock.avl.authenticationUser",
+            "If authentication used for the feed then this specifies " + "the user.");
+
+    public static StringConfigValue authenticationPassword = new StringConfigValue(
+            "transitclock.avl.authenticationPassword",
+            "If authentication used for the feed then this specifies " + "the password.");
+
+    public static BooleanConfigValue shouldProcessAvl = new BooleanConfigValue(
+            "transitclock.avl.shouldProcessAvl",
+            true,
+            "Usually want to process the AVL data when it is read in "
+                    + "so that predictions and such are generated. But if "
+                    + "debugging then can set this param to false.");
+
+
+    public static String getCsvAvlFeedFileName() {
+        return csvAvlFeedFileName.getValue();
+    }
+
+    public static StringConfigValue csvAvlFeedFileName = new StringConfigValue(
+            "transitclock.avl.csvAvlFeedFileName",
+            "/Users/Mike/cvsAvlData/testAvlData.csv",
+            "The name of the CSV file containing AVL data to process.");
+
+    public static BooleanConfigValue processInRealTime = new BooleanConfigValue(
+            "transitclock.avl.processInRealTime",
+            false,
+            "For when getting batch of AVL data from a CSV file. "
+                    + "When true then when reading in do at the same speed as "
+                    + "when the AVL was created. Set to false it you just want "
+                    + "to read in as fast as possible.");
+
+
+    // avl executor
+    public static final IntegerConfigValue avlQueueSize = new IntegerConfigValue(
+            "transitclock.avl.queueSize",
+            2000,
+            "How many items to go into the blocking AVL queue "
+                    + "before need to wait for queue to have space. Should "
+                    + "be approximately 50% more than the number of reports "
+                    + "that will be read during a single AVL polling cycle. "
+                    + "If too big then wasteful. If too small then not all the "
+                    + "data will be rejected by the ThreadPoolExecutor. ");
+
+    public static IntegerConfigValue numAvlThreads = new IntegerConfigValue(
+            "transitclock.avl.numThreads",
+            1,
+            "How many threads to be used for processing the AVL "
+                    + "data. For most applications just using a single thread "
+                    + "is probably sufficient and it makes the logging simpler "
+                    + "since the messages will not be interleaved. But for "
+                    + "large systems with lots of vehicles then should use "
+                    + "multiple threads, such as 3-15 so that more of the cores "
+                    + "are used.");
 }

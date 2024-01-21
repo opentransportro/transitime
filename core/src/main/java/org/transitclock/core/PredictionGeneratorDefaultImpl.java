@@ -1,19 +1,8 @@
 /* (C)2023 */
 package org.transitclock.core;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.transitclock.applications.Core;
-import org.transitclock.config.BooleanConfigValue;
-import org.transitclock.config.IntegerConfigValue;
-import org.transitclock.config.LongConfigValue;
 import org.transitclock.core.dataCache.HoldingTimeCache;
 import org.transitclock.core.dataCache.StopPathPredictionCache;
 import org.transitclock.core.dataCache.VehicleStateManager;
@@ -21,15 +10,15 @@ import org.transitclock.core.holdingmethod.HoldingTimeGeneratorFactory;
 import org.transitclock.core.predictiongenerator.PredictionComponentElementsGenerator;
 import org.transitclock.core.predictiongenerator.bias.BiasAdjuster;
 import org.transitclock.core.predictiongenerator.bias.BiasAdjusterFactory;
-import org.transitclock.db.structs.AvlReport;
-import org.transitclock.db.structs.HoldingTime;
-import org.transitclock.db.structs.PredictionForStopPath;
-import org.transitclock.db.structs.StopPath;
-import org.transitclock.db.structs.Trip;
+import org.transitclock.db.structs.*;
 import org.transitclock.ipc.data.IpcPrediction;
 import org.transitclock.ipc.data.IpcPrediction.ArrivalOrDeparture;
 import org.transitclock.utils.Geo;
 import org.transitclock.utils.Time;
+
+import java.util.*;
+
+import static org.transitclock.configData.CoreConfig.*;
 
 /**
  * When a new match based on AVL data is made for a vehicle the methods in this class are used to
@@ -57,52 +46,6 @@ import org.transitclock.utils.Time;
 @Slf4j
 public class PredictionGeneratorDefaultImpl extends PredictionGenerator implements PredictionComponentElementsGenerator {
 
-    private static IntegerConfigValue maxPredictionsTimeSecs = new IntegerConfigValue(
-            "transitclock.core.maxPredictionsTimeSecs",
-            30 * Time.SEC_PER_MIN,
-            "How far forward into the future should generate predictions for.");
-
-    private static LongConfigValue generateHoldingTimeWhenPredictionWithin = new LongConfigValue(
-            "transitclock.core.generateHoldingTimeWhenPredictionWithin",
-            0L,
-            "If the prediction is less than this number of milliseconds from current time"
-                    + " then use it to generate a holding time");
-
-    private static BooleanConfigValue useArrivalPredictionsForNormalStops = new BooleanConfigValue(
-            "transitclock.core.useArrivalPredictionsForNormalStops",
-            true,
-            "For specifying whether to use arrival predictions or "
-                    + "departure predictions for normal, non-wait time, stops.");
-
-    private static IntegerConfigValue maxLateCutoffPredsForNextTripsSecs = new IntegerConfigValue(
-            "transitclock.core.maxLateCutoffPredsForNextTripsSecs",
-            Integer.MAX_VALUE,
-            "If a vehicle is further behind schedule than this amount "
-                    + "then predictions for subsequent trips will be marked as "
-                    + "being uncertain. This is useful for when another vehicle "
-                    + "might take over the next trip for the block due to "
-                    + "vehicle being late.");
-
-    private static BooleanConfigValue useExactSchedTimeForWaitStops = new BooleanConfigValue(
-            "transitclock.core.useExactSchedTimeForWaitStops",
-            true,
-            "The predicted time for wait stops includes the historic "
-                    + "wait stop time. This means it will be a bit after the "
-                    + "configured schedule time. But some might not want to "
-                    + "see such adjusted times. Plus just showing the schedule "
-                    + "time is more conservative, and therefore usually better. "
-                    + "If this value is set to true then the actual schedule "
-                    + "time will be used. If false then the schedule time plus "
-                    + "the wait stop time will be used.");
-
-    private static BooleanConfigValue useHoldingTimeInPrediction =
-            new BooleanConfigValue("transitclock.core.useHoldingTimeInPrediction", false, "Add holding time to prediction.");
-
-
-
-    public static int getMaxPredictionsTimeSecs() {
-        return maxPredictionsTimeSecs.getValue();
-    }
     /**
      * Generates prediction for the stop specified by the indices parameter. It will be an arrival
      * prediction if at the end of the trip or the useArrivalTimes parameter is set to true, and it

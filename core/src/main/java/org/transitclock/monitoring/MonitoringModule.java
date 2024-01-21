@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.transitclock.Module;
 import org.transitclock.config.IntegerConfigValue;
 import org.transitclock.configData.AgencyConfig;
+import org.transitclock.configData.MonitoringConfig;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.Time;
 
@@ -22,11 +23,6 @@ import org.transitclock.utils.Time;
  */
 @Slf4j
 public class MonitoringModule extends Module {
-
-    private static final IntegerConfigValue secondsBetweenMonitorinPolling = new IntegerConfigValue(
-            "transitclock.monitoring.secondsBetweenMonitorinPolling",
-            120,
-            "How frequently an monitoring should be run to look for " + "problems.");
 
     public MonitoringModule(String agencyId) {
         super(agencyId);
@@ -49,11 +45,11 @@ public class MonitoringModule extends Module {
             try {
                 // Wait appropriate amount of time till poll again
                 long elapsedMsec = timer.elapsedMsec();
-                long sleepTime = secondsBetweenMonitorinPolling.getValue() * Time.MS_PER_SEC - elapsedMsec;
+                long sleepTime = MonitoringConfig.secondsBetweenMonitorinPolling.getValue() * Time.MS_PER_SEC - elapsedMsec;
                 if (sleepTime < 0) {
                     logger.warn("For monitoring module upposed to have a polling "
                             + "rate of "
-                            + secondsBetweenMonitorinPolling.getValue() * Time.MS_PER_SEC
+                            + MonitoringConfig.secondsBetweenMonitorinPolling.getValue() * Time.MS_PER_SEC
                             + " msec but processing previous data took "
                             + elapsedMsec
                             + " msec so polling again immediately.");

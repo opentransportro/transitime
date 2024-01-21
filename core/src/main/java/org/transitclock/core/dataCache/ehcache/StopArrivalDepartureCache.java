@@ -2,6 +2,7 @@
 package org.transitclock.core.dataCache.ehcache;
 
 import com.querydsl.jpa.impl.JPAQuery;
+import lombok.extern.slf4j.Slf4j;
 import org.ehcache.Cache;
 import org.ehcache.CacheManager;
 import org.hibernate.Session;
@@ -27,22 +28,13 @@ import java.util.List;
  *     <p>TODO this could do with an interface, factory class, and alternative implementations,
  *     perhaps using Infinispan.
  */
+@Slf4j
 public class StopArrivalDepartureCache extends StopArrivalDepartureCacheInterface {
-
-    private static boolean debug = false;
 
     private static final String cacheByStop = "arrivalDeparturesByStop";
 
-    private static final Logger logger = LoggerFactory.getLogger(StopArrivalDepartureCache.class);
-
     private Cache<StopArrivalDepartureCacheKey, StopEvents> cache = null;
     final URL xmlConfigUrl = getClass().getResource("/ehcache.xml");
-
-    /** Default is 4 as we need 3 days worth for Kalman Filter implementation */
-    private static final IntegerConfigValue tripDataCacheMaxAgeSec = new IntegerConfigValue(
-            "transitime.tripdatacache.tripDataCacheMaxAgeSec",
-            4 * Time.SEC_PER_DAY,
-            "How old an arrivaldeparture has to be before it is removed from the cache ");
 
     public StopArrivalDepartureCache() {
         CacheManager cm = CacheManagerFactory.getInstance();
@@ -60,8 +52,6 @@ public class StopArrivalDepartureCache extends StopArrivalDepartureCacheInterfac
 
     @SuppressWarnings("unchecked")
     public synchronized List<IpcArrivalDeparture> getStopHistory(StopArrivalDepartureCacheKey key) {
-
-        // logger.debug(cache.toString());
         Calendar date = Calendar.getInstance();
         date.setTime(key.getDate());
 
@@ -73,17 +63,13 @@ public class StopArrivalDepartureCache extends StopArrivalDepartureCacheInterfac
         StopEvents result = cache.get(key);
 
         if (result != null) {
-            return (List<IpcArrivalDeparture>) result.getEvents();
+            return result.getEvents();
         } else {
             return null;
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.transitime.core.dataCache.ehcache.StopArrivalDepartureCacheInterface#putArrivalDeparture(org.transitime.db.structs.ArrivalDeparture)
-     */
 
-    @SuppressWarnings("unchecked")
     public synchronized StopArrivalDepartureCacheKey putArrivalDeparture(ArrivalDeparture arrivalDeparture) {
 
         logger.debug("Putting :" + arrivalDeparture.toString() + " in StopArrivalDepartureCache cache.");
@@ -108,7 +94,7 @@ public class StopArrivalDepartureCache extends StopArrivalDepartureCacheInterfac
             try {
                 element.addEvent(new IpcArrivalDeparture(arrivalDeparture));
             } catch (Exception e) {
-                logger.error("Error adding " + arrivalDeparture.toString() + " event to StopArrivalDepartureCache.", e);
+                logger.error("Error adding " + arrivalDeparture + " event to StopArrivalDepartureCache.", e);
             }
 
             cache.put(key, element);
@@ -137,8 +123,8 @@ public class StopArrivalDepartureCache extends StopArrivalDepartureCacheInterfac
             try {
                 if (DwellTimeModelCacheFactory.getInstance() != null)
                     DwellTimeModelCacheFactory.getInstance().addSample(result);
-            } catch (Exception Ex) {
-                Ex.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
     }

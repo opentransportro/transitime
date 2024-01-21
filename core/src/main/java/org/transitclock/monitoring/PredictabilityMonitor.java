@@ -6,6 +6,8 @@ import java.util.Collection;
 import java.util.List;
 import org.transitclock.config.DoubleConfigValue;
 import org.transitclock.config.IntegerConfigValue;
+import org.transitclock.configData.MonitoringConfig;
+import org.transitclock.configData.PredictionConfig;
 import org.transitclock.core.BlocksInfo;
 import org.transitclock.core.dataCache.VehicleDataCache;
 import org.transitclock.db.structs.Block;
@@ -18,28 +20,6 @@ import org.transitclock.utils.StringUtils;
  * @author SkiBu Smith
  */
 public class PredictabilityMonitor extends MonitorBase {
-
-    private static DoubleConfigValue minPredictableBlocks = new DoubleConfigValue(
-            "transitclock.monitoring.minPredictableBlocks",
-            0.50,
-            "The minimum fraction of currently active blocks that " + "should have a predictable vehicle");
-
-    private static DoubleConfigValue minPredictableBlocksGap = new DoubleConfigValue(
-            "transitclock.monitoring.minPredictableBlocksGap",
-            0.25,
-            "When transitioning from triggered to untriggered don't "
-                    + "want to send out an e-mail right away if actually "
-                    + "dithering. Therefore will only send out OK e-mail if the "
-                    + "value is now above minPredictableBlocks + "
-                    + "minPredictableBlocksGap ");
-
-    private static IntegerConfigValue minimumPredictableVehicles = new IntegerConfigValue(
-            "transitclock.monitoring.minimumPredictableVehicles",
-            3,
-            "When looking at small number of vehicles it is too easy "
-                    + "to get below minimumPredictableBlocks. So number of "
-                    + "predictable vehicles is increased to this amount if "
-                    + "below when determining the fraction.");
 
     public PredictabilityMonitor(String agencyId) {
         super(agencyId);
@@ -59,7 +39,7 @@ public class PredictabilityMonitor extends MonitorBase {
         // If there are no currently active blocks then don't need to be
         // getting AVL data so return 0
         List<Block> activeBlocks = BlocksInfo.getCurrentlyActiveBlocks();
-        if (activeBlocks.size() == 0) {
+        if (activeBlocks.isEmpty()) {
             setMessage("No currently active blocks so predictability " + "considered to be OK.");
             return 1.0;
         }
@@ -79,20 +59,20 @@ public class PredictabilityMonitor extends MonitorBase {
         }
 
         // Determine fraction of active blocks that have a predictable vehicle
-        double fraction = ((double) Math.max(predictableVehicleCount, minimumPredictableVehicles.getValue()))
+        double fraction = ((double) Math.max(predictableVehicleCount, MonitoringConfig.minimumPredictableVehicles.getValue()))
                 / activeBlocks.size();
 
         // Provide simple message explaining the situation
         String message = "Predictable blocks fraction="
                 + StringUtils.twoDigitFormat(fraction)
                 + ", minimum allowed fraction="
-                + StringUtils.twoDigitFormat(minPredictableBlocks.getValue())
+                + StringUtils.twoDigitFormat(MonitoringConfig.minPredictableBlocks.getValue())
                 + ", active blocks="
                 + activeBlocks.size()
                 + ", predictable vehicles="
                 + predictableVehicleCount
                 + " (minimumPredictableVehicles="
-                + Math.max(predictableVehicleCount, minimumPredictableVehicles.getValue())
+                + Math.max(predictableVehicleCount, MonitoringConfig.minimumPredictableVehicles.getValue())
                 + ").";
 
         // If below the threshold then add all the active block IDs to the
@@ -125,8 +105,8 @@ public class PredictabilityMonitor extends MonitorBase {
         // then raise the threshold by minPredictableBlocksGap in order
         // to prevent lots of e-mail being sent out if the value is
         // dithering around minPredictableBlocks.
-        double threshold = minPredictableBlocks.getValue();
-        if (wasTriggered()) threshold += minPredictableBlocksGap.getValue();
+        double threshold = MonitoringConfig.minPredictableBlocks.getValue();
+        if (wasTriggered()) threshold += MonitoringConfig.minPredictableBlocksGap.getValue();
 
         double fraction = fractionBlocksPredictable(threshold);
 

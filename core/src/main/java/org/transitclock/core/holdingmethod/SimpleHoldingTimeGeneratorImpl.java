@@ -1,16 +1,9 @@
 /* (C)2023 */
 package org.transitclock.core.holdingmethod;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.transitclock.applications.Core;
-import org.transitclock.config.BooleanConfigValue;
-import org.transitclock.config.IntegerConfigValue;
-import org.transitclock.config.StringListConfigValue;
+import org.transitclock.configData.HoldingConfig;
 import org.transitclock.core.VehicleState;
 import org.transitclock.core.dataCache.PredictionDataCache;
 import org.transitclock.core.dataCache.StopArrivalDepartureCacheFactory;
@@ -21,19 +14,16 @@ import org.transitclock.ipc.data.IpcArrivalDeparture;
 import org.transitclock.ipc.data.IpcPrediction;
 import org.transitclock.ipc.data.IpcPredictionsForRouteStopDest;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+
 /**
  * @author Sean Óg Crudden Simple holding time generator.
  */
+@Slf4j
 public class SimpleHoldingTimeGeneratorImpl implements HoldingTimeGenerator {
-    private static final Logger logger = LoggerFactory.getLogger(SimpleHoldingTimeGeneratorImpl.class);
-
-    protected static BooleanConfigValue storeHoldingTimes = new BooleanConfigValue(
-            "transitclock.holding.storeHoldingTimes", true, "This is set to true to record all holding times.");
-
-    protected static IntegerConfigValue plannedHeadwayMsec =
-            new IntegerConfigValue("transitclock.holding.plannedHeadwayMsec", 60 * 1000 * 9, "Planned Headway");
-    protected static StringListConfigValue controlStopList = new StringListConfigValue(
-            "transitclock.holding.controlStops", null, "This is a list of stops to generate holding times for.");
 
     public HoldingTime generateHoldingTime(VehicleState vehicleState, IpcArrivalDeparture event) {
 
@@ -69,7 +59,7 @@ public class SimpleHoldingTimeGeneratorImpl implements HoldingTimeGenerator {
                         true,
                         0);
 
-                if (storeHoldingTimes.getValue())
+                if (HoldingConfig.storeHoldingTimes.getValue())
                     Core.getInstance().getDbLogger().add(holdingTime);
 
                 return holdingTime;
@@ -154,7 +144,7 @@ public class SimpleHoldingTimeGeneratorImpl implements HoldingTimeGenerator {
         long holdingTime;
 
         holdingTime = Math.max(
-                plannedHeadwayMsec.getValue().longValue()
+                HoldingConfig.plannedHeadwayMsec.getValue().longValue()
                         - Math.abs(current_vehicle_arrival_time - last_vehicle_departure_time),
                 0);
 
@@ -232,10 +222,9 @@ public class SimpleHoldingTimeGeneratorImpl implements HoldingTimeGenerator {
 
     @Override
     public List<ControlStop> getControlPointStops() {
+        List<ControlStop> controlStops = new ArrayList<>();
 
-        ArrayList<ControlStop> controlStops = new ArrayList<ControlStop>();
-
-        for (String stopEntry : controlStopList.getValue()) {
+        for (String stopEntry : HoldingConfig.controlStopList.getValue()) {
             controlStops.add(new ControlStop(stopEntry));
         }
         return controlStops;

@@ -3,9 +3,12 @@ package org.transitclock.monitoring;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.config.DoubleConfigValue;
+import org.transitclock.configData.MonitoringConfig;
 import org.transitclock.utils.StringUtils;
 import org.transitclock.utils.Time;
 
@@ -14,23 +17,8 @@ import org.transitclock.utils.Time;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class SystemCpuMonitor extends MonitorBase {
-
-    DoubleConfigValue cpuThreshold = new DoubleConfigValue(
-            "transitclock.monitoring.cpuThreshold",
-            0.99,
-            "If CPU load averaged over a minute exceeds this 0.0 - 1.0 " + "value then CPU monitoring is triggered.");
-
-    private static DoubleConfigValue cpuThresholdGap = new DoubleConfigValue(
-            "transitclock.monitoring.cpuThresholdGap",
-            0.1,
-            "When transitioning from triggered to untriggered don't "
-                    + "want to send out an e-mail right away if actually "
-                    + "dithering. Therefore will only send out OK e-mail if the "
-                    + "value is now below cpuThreshold - "
-                    + "cpuThresholdGap ");
-
-    private static final Logger logger = LoggerFactory.getLogger(SystemCpuMonitor.class);
 
     public SystemCpuMonitor(String agencyId) {
         super(agencyId);
@@ -68,11 +56,11 @@ public class SystemCpuMonitor extends MonitorBase {
             // and take the average. This is important because sometimes the
             // CPU will be temporarily spiked at 1.0 and don't want to send
             // out an alert for short lived spikes.
-            if (cpuLoad >= cpuThreshold.getValue()) {
+            if (cpuLoad >= MonitoringConfig.cpuThreshold.getValue()) {
                 logger.debug(
                         "CPU load was {} which is higher than threshold " + "of {} so taking another reading.",
                         StringUtils.twoDigitFormat(cpuLoad),
-                        StringUtils.twoDigitFormat(cpuThreshold.getValue()));
+                        StringUtils.twoDigitFormat(MonitoringConfig.cpuThreshold.getValue()));
                 Time.sleep(1 * Time.MS_PER_MIN);
                 resultObject = SystemMemoryMonitor.getOperatingSystemValue("getSystemCpuLoad");
                 double cpuLoad2 = (Double) resultObject;
@@ -85,7 +73,7 @@ public class SystemCpuMonitor extends MonitorBase {
                     "CPU load is "
                             + StringUtils.twoDigitFormat(cpuLoad)
                             + " while limit is "
-                            + StringUtils.twoDigitFormat(cpuThreshold.getValue())
+                            + StringUtils.twoDigitFormat(MonitoringConfig.cpuThreshold.getValue())
                             + ".",
                     cpuLoad);
 
@@ -93,8 +81,8 @@ public class SystemCpuMonitor extends MonitorBase {
             // then lower the threshold by cpuThresholdGap in order
             // to prevent lots of e-mail being sent out if the value is
             // dithering around cpuThreshold.
-            double threshold = cpuThreshold.getValue();
-            if (wasTriggered()) threshold -= cpuThresholdGap.getValue();
+            double threshold = MonitoringConfig.cpuThreshold.getValue();
+            if (wasTriggered()) threshold -= MonitoringConfig.cpuThresholdGap.getValue();
 
             // Return true if CPU problem found
             return cpuLoad >= threshold;

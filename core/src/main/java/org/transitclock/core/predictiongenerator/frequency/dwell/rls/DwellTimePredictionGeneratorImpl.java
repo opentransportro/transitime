@@ -6,6 +6,7 @@ import java.util.Date;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.transitclock.configData.CoreConfig;
 import org.transitclock.core.Indices;
 import org.transitclock.core.VehicleState;
 import org.transitclock.core.dataCache.DwellTimeModelCacheFactory;
@@ -39,7 +40,7 @@ public class DwellTimePredictionGeneratorImpl extends KalmanPredictionGeneratorI
                     // TODO Would be more correct to use the start time of the trip.
                     int time = FrequencyBasedHistoricalAverageCache.secondsFromMidnight(new Date(avlReport.getTime()), 2);
 
-                    time = FrequencyBasedHistoricalAverageCache.round(time, FrequencyBasedHistoricalAverageCache.getCacheIncrementsForFrequencyService());
+                    time = FrequencyBasedHistoricalAverageCache.round(time, CoreConfig.getCacheIncrementsForFrequencyService());
 
                     StopPathCacheKey cacheKey = new StopPathCacheKey(
                             indices.getTrip().getId(), indices.getStopPathIndex(), false, (long) time);

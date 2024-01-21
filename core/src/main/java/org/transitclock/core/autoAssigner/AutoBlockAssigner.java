@@ -1,12 +1,9 @@
 /* (C)2023 */
 package org.transitclock.core.autoAssigner;
 
-import java.util.*;
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.applications.Core;
-import org.transitclock.config.BooleanConfigValue;
-import org.transitclock.config.DoubleConfigValue;
-import org.transitclock.config.IntegerConfigValue;
+import org.transitclock.configData.BlockAssignerConfig;
 import org.transitclock.configData.CoreConfig;
 import org.transitclock.core.*;
 import org.transitclock.core.dataCache.VehicleDataCache;
@@ -16,6 +13,11 @@ import org.transitclock.db.structs.Block;
 import org.transitclock.db.structs.Trip;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.Time;
+
+import java.util.*;
+
+import static org.transitclock.configData.BlockAssignerConfig.allowableEarlySeconds;
+import static org.transitclock.configData.BlockAssignerConfig.allowableLateSeconds;
 
 /**
  * For automatically assigning a vehicle to an available block by determining both spatial and
@@ -34,55 +36,10 @@ import org.transitclock.utils.Time;
  */
 @Slf4j
 public class AutoBlockAssigner {
-    private static final BooleanConfigValue autoAssignerEnabled = new BooleanConfigValue(
-            "transitclock.autoBlockAssigner.autoAssignerEnabled",
-            false,
-            "Set to true to enable the auto assignment feature where "
-                    + "the system tries to assign vehicle to an available block");
-
-    private static final BooleanConfigValue ignoreAvlAssignments = new BooleanConfigValue(
-            "transitclock.autoBlockAssigner.ignoreAvlAssignments",
-            false,
-            "For when want to test automatic assignments. When set to "
-                    + "true then system ignores assignments from AVL feed so "
-                    + "vehicles need to be automatically assigned instead");
-
-    public static boolean ignoreAvlAssignments() {
-        return ignoreAvlAssignments.getValue();
-    }
-
-    private static final DoubleConfigValue minDistanceFromCurrentReport = new DoubleConfigValue(
-            "transitclock.autoBlockAssigner.minDistanceFromCurrentReport",
-            100.0,
-            "AutoBlockAssigner looks at two AVL reports to match "
-                    + "vehicle. This parameter specifies how far away those "
-                    + "AVL reports need to be sure that the vehicle really "
-                    + "is moving and in service. If getting incorrect matches "
-                    + "then this value should likely be increased.");
-
-    private static final IntegerConfigValue allowableEarlySeconds = new IntegerConfigValue(
-            "transitclock.autoBlockAssigner.allowableEarlySeconds",
-            3 * Time.SEC_PER_MIN,
-            "How early a vehicle can be in seconds and still be " + "automatically assigned to a block");
-
-    private static final IntegerConfigValue allowableLateSeconds = new IntegerConfigValue(
-            "transitclock.autoBlockAssigner.allowableLateSeconds",
-            5 * Time.SEC_PER_MIN,
-            "How late a vehicle can be in seconds and still be " + "automatically assigned to a block");
-
-    private static final IntegerConfigValue minTimeBetweenAutoAssigningSecs = new IntegerConfigValue(
-            "transitclock.autoBlockAssigner.minTimeBetweenAutoAssigningSecs",
-            30,
-            "Minimum time per vehicle that can do auto assigning. Auto "
-                    + "assigning is computationally expensive, especially when "
-                    + "there are many blocks. Don't need to do it that "
-                    + "frequently. Especially important for agencies with high "
-                    + "reporting rates. So this param allows one to limit how "
-                    + "frequently auto assigner called for vehicle");
 
     // For keeping track of last time vehicle auto assigned so that can limit
     // how frequently it is done. Keyed on vehicleId
-    private static final HashMap<String, Long> timeVehicleLastAutoAssigned = new HashMap<String, Long>();
+    private static final Map<String, Long> timeVehicleLastAutoAssigned = new HashMap<>();
 
 
     // The vehicle state is repeatedly used, so it is a member, so it doesn't
@@ -118,7 +75,7 @@ public class AutoBlockAssigner {
      *     vehicleState member
      */
     private AvlReport getPreviousAvlReport() {
-        double minDistance = minDistanceFromCurrentReport.getValue();
+        double minDistance = BlockAssignerConfig.minDistanceFromCurrentReport.getValue();
         return vehicleState.getPreviousAvlReport(minDistance);
     }
 
@@ -578,7 +535,7 @@ public class AutoBlockAssigner {
                             + "AVL report in history for vehicleId={} further away "
                             + "than {}m from current AVL report {}",
                     vehicleId,
-                    minDistanceFromCurrentReport.getValue(),
+                    BlockAssignerConfig.minDistanceFromCurrentReport.getValue(),
                     getAvlReport());
             return validMatches;
         }
@@ -662,7 +619,7 @@ public class AutoBlockAssigner {
 
         // Return true if not enough time elapsed
         long elapsedSecs = (gpsTime - lastTime) / Time.MS_PER_SEC;
-        boolean tooRecent = elapsedSecs < minTimeBetweenAutoAssigningSecs.getValue();
+        boolean tooRecent = elapsedSecs < BlockAssignerConfig.minTimeBetweenAutoAssigningSecs.getValue();
 
         logger.debug(
                 "For vehicleId={} tooRecent={} elapsedSecs={} lastTime={} "
@@ -672,7 +629,7 @@ public class AutoBlockAssigner {
                 elapsedSecs,
                 Time.timeStrMsec(lastTime),
                 Time.timeStrMsec(gpsTime),
-                minTimeBetweenAutoAssigningSecs.getValue());
+                BlockAssignerConfig.minTimeBetweenAutoAssigningSecs.getValue());
 
         if (tooRecent) {
             logger.info(
@@ -684,7 +641,7 @@ public class AutoBlockAssigner {
                     elapsedSecs,
                     Time.timeStrMsec(lastTime),
                     Time.timeStrMsec(gpsTime),
-                    minTimeBetweenAutoAssigningSecs.getValue());
+                    BlockAssignerConfig.minTimeBetweenAutoAssigningSecs.getValue());
         } else {
             // Not too recent so should auto assign. Therefore store the time
             // for the vehicle for next time this method is called
@@ -700,7 +657,7 @@ public class AutoBlockAssigner {
      * @return true if enabled
      */
     public static boolean enabled() {
-        return autoAssignerEnabled.getValue();
+        return BlockAssignerConfig.autoAssignerEnabled.getValue();
     }
 
     /**
@@ -717,7 +674,7 @@ public class AutoBlockAssigner {
     public TemporalMatch autoAssignVehicleToBlockIfEnabled() {
         // If the auto assigner is not enabled then simply return null for
         // the match
-        if (!autoAssignerEnabled.getValue()) return null;
+        if (!enabled()) return null;
 
         // If auto assigner called too recently for vehicle then return
         if (tooRecent(vehicleState)) return null;

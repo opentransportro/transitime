@@ -1,17 +1,11 @@
 /* (C)2023 */
 package org.transitclock.core.schedBasedPreds;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.Module;
 import org.transitclock.applications.Core;
-import org.transitclock.config.BooleanConfigValue;
-import org.transitclock.config.IntegerConfigValue;
 import org.transitclock.configData.AgencyConfig;
+import org.transitclock.configData.PredictionConfig;
 import org.transitclock.core.AvlProcessor;
 import org.transitclock.core.BlocksInfo;
 import org.transitclock.core.VehicleState;
@@ -24,6 +18,11 @@ import org.transitclock.ipc.data.IpcVehicle;
 import org.transitclock.ipc.data.IpcVehicleComplete;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.Time;
+
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * The schedule based predictions module runs in the background. Every few minutes it looks for
@@ -45,49 +44,7 @@ import org.transitclock.utils.Time;
  */
 @Slf4j
 public class SchedBasedPredsModule extends Module {
-    private static final IntegerConfigValue timeBetweenPollingMsec = new IntegerConfigValue(
-            "transitclock.schedBasedPreds.pollingRateMsec",
-            4 * Time.MS_PER_MIN,
-            "How frequently to look for blocks that do not have " + "associated vehicle.");
 
-    private static final BooleanConfigValue processImmediatelyAtStartup = new BooleanConfigValue(
-            "transitclock.schedBasedPreds.processImmediatelyAtStartup",
-            false,
-            "Whether should start creating schedule based predictions "
-                    + "right at startup. Usually want to give AVL data a "
-                    + "polling cycle to generate AVL based predictions so the "
-                    + "default is false. But for a purely schedule based "
-                    + "system want to set this to true so get the predictions "
-                    + "immediately.");
-
-    private static final IntegerConfigValue beforeStartTimeMinutes = new IntegerConfigValue(
-            "transitclock.schedBasedPreds.beforeStartTimeMinutes",
-            60,
-            "How many minutes before a block start time should create " + "a schedule based vehicle for that block.");
-
-    private static final IntegerConfigValue afterStartTimeMinutes = new IntegerConfigValue(
-            "transitclock.schedBasedPreds.afterStartTimeMinutes",
-            8, // Can take a while to automatically assign a vehicle
-            "If predictions created for a block based on the schedule "
-                    + "will remove those predictions this specified "
-                    + "number of minutes after the block start time. If using "
-                    + "schedule based predictions "
-                    + "to provide predictions for even when there is no GPS "
-                    + "feed then this can be disabled by using a negative value. "
-                    + "But if using schedule based predictions until a GPS "
-                    + "based vehicle is matched then want the schedule based "
-                    + "predictions to be available until it is clear that no "
-                    + "GPS based vehicle is in service. This is especially "
-                    + "important when using the automatic assignment method "
-                    + "because it can take a few minutes.");
-
-    // ADD IN ORDER TO MANAGE CANCELLED TRIPS
-    private static final BooleanConfigValue cancelTripOnTimeout = new BooleanConfigValue(
-            "transitclock.schedBasedPreds.cancelTripOnTimeout",
-            true,
-            "Whether should mark a ScheduleBasePred as canceled.This won't remove a trip"
-                    + " after afterStartTimeMinutes. Instead it will change the state to"
-                    + " cancelled.");
 
     public SchedBasedPredsModule(String agencyId) {
         super(agencyId);
@@ -112,8 +69,8 @@ public class SchedBasedPredsModule extends Module {
         List<Block> activeBlocks = BlocksInfo.getCurrentlyActiveBlocks(
                 null, // Get for all routes
                 blockIdsAlreadyAssigned,
-                beforeStartTimeMinutes.getValue() * Time.SEC_PER_MIN,
-                afterStartTimeMinutes.getValue() * Time.SEC_PER_MIN);
+                PredictionConfig.beforeStartTimeMinutes.getValue() * Time.SEC_PER_MIN,
+                PredictionConfig.afterStartTimeMinutes.getValue() * Time.SEC_PER_MIN);
 
         // For each block about to start see if no associated vehicle
         for (Block block : activeBlocks) {
@@ -180,7 +137,7 @@ public class SchedBasedPredsModule extends Module {
 
         // If block not active anymore then must have reached end of block then
         // should remove the schedule based vehicle
-        if (!block.isActive(now, beforeStartTimeMinutes.getValue() * Time.SEC_PER_MIN)) {
+        if (!block.isActive(now, PredictionConfig.beforeStartTimeMinutes.getValue() * Time.SEC_PER_MIN)) {
             return "Schedule based predictions to be "
                     + "removed for block "
                     + vehicleState.getBlock().getId()
@@ -193,12 +150,12 @@ public class SchedBasedPredsModule extends Module {
 
         // If block is active but it is beyond the allowable number of minutes past the
         // the block start time then should remove the schedule based vehicle
-        if (afterStartTimeMinutes.getValue() >= 0) {
+        if (PredictionConfig.afterStartTimeMinutes.getValue() >= 0) {
             long scheduledDepartureTime = vehicleState.getMatch().getScheduledWaitStopTime();
             if (scheduledDepartureTime >= 0) {
                 // There is a scheduled departure time. Make sure not too
                 // far past it
-                long maxNoAvl = afterStartTimeMinutes.getValue() * Time.MS_PER_MIN;
+                long maxNoAvl = PredictionConfig.afterStartTimeMinutes.getValue() * Time.MS_PER_MIN;
                 if (now > scheduledDepartureTime + maxNoAvl) {
                     String shouldTimeoutEventDescription = "Schedule based predictions removed for block "
                             + vehicleState.getBlock().getId()
@@ -209,10 +166,10 @@ public class SchedBasedPredsModule extends Module {
                             + " while allowable time without an AVL report is "
                             + Time.elapsedTimeStr(maxNoAvl)
                             + ".";
-                    if (!cancelTripOnTimeout.getValue()) {
+                    if (!PredictionConfig.cancelTripOnTimeout.getValue()) {
                         return shouldTimeoutEventDescription;
                     } else if (!vehicleState.isCanceled()
-                            && cancelTripOnTimeout.getValue()) // TODO: Check if it works on state changed
+                            && PredictionConfig.cancelTripOnTimeout.getValue()) // TODO: Check if it works on state changed
                     {
                         logger.info("Canceling trip...");
                         vehicleState.setCanceled(true);
@@ -240,7 +197,9 @@ public class SchedBasedPredsModule extends Module {
         // vehicles to blocks yet. So sleep a bit first, unless specified to
         // run immediately by the processImmediatelyAtStartup configuration
         // parameter.
-        if (!processImmediatelyAtStartup.getValue()) Time.sleep(timeBetweenPollingMsec.getValue());
+        if (!PredictionConfig.processImmediatelyAtStartup.getValue()) {
+            Time.sleep(PredictionConfig.timeBetweenPollingMsec.getValue());
+        }
 
         // Run forever
         while (true) {
@@ -255,7 +214,7 @@ public class SchedBasedPredsModule extends Module {
             }
 
             // Wait appropriate amount of time till poll again
-            long sleepTime = timeBetweenPollingMsec.getValue() - timer.elapsedMsec();
+            long sleepTime = PredictionConfig.timeBetweenPollingMsec.getValue() - timer.elapsedMsec();
             if (sleepTime > 0) {
                 Time.sleep(sleepTime);
             }

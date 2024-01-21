@@ -1,16 +1,8 @@
 /* (C)2023 */
 package org.transitclock.core.travelTimes;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
 import lombok.extern.slf4j.Slf4j;
-import org.transitclock.config.BooleanConfigValue;
-import org.transitclock.config.IntegerConfigValue;
+import org.transitclock.configData.UpdatesConfig;
 import org.transitclock.db.structs.ActiveRevisions;
 import org.transitclock.db.structs.Agency;
 import org.transitclock.db.structs.ArrivalDeparture;
@@ -19,6 +11,8 @@ import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.MapKey;
 import org.transitclock.utils.Time;
 
+import java.util.*;
+
 /**
  * For retrieving historic AVL based data from database so that travel times can be determined.
  *
@@ -26,22 +20,6 @@ import org.transitclock.utils.Time;
  */
 @Slf4j
 public class DataFetcher {
-
-    private static boolean pageDbReads() {
-        return pageDbReads.getValue();
-    }
-
-    private static BooleanConfigValue pageDbReads = new BooleanConfigValue(
-            "transitclock.updates.pageDbReads",
-            true,
-            "page database reads to break up long reads. " + "It may impact performance on MySql");
-
-    private static Integer pageSize() {
-        return pageSize.getValue();
-    }
-
-    private static IntegerConfigValue pageSize =
-            new IntegerConfigValue("transitclock.updates.pageSize", 50000, "Number of records to read in at a time");
 
     // The data ends up in arrivalDepartureMap and matchesMap.
     // It is keyed by DbDataMapKey which means that data is grouped
@@ -221,7 +199,7 @@ public class DataFetcher {
         // Batch size of 50k found to be significantly faster than 10k,
         // by about a factor of 2. Since sometimes using really large
         // batches of data using 500k
-        int batchSize = pageSize.getValue(); // Also known as maxResults
+        int batchSize = UpdatesConfig.pageSize.getValue(); // Also known as maxResults
         // The temporary list for the loop that contains a batch of results
 
         logger.info("counting arrival/departures");
@@ -229,7 +207,7 @@ public class DataFetcher {
         logger.info("retrieving {} arrival/departures", count);
         List<ArrivalDeparture> arrDepBatchList;
 
-        if (!pageDbReads()) {
+        if (!UpdatesConfig.pageDbReads()) {
             // page by day for MySql -- its batch impl falls down on large data
             Date pageBeginTime = beginTime;
             Date pageEndTime = new Date(beginTime.getTime() + Time.MS_PER_DAY);
@@ -302,11 +280,7 @@ public class DataFetcher {
      */
     private void addMatchToMap(Map<DbDataMapKey, List<Match>> map, Match match) {
         DbDataMapKey key = getKey(match.getServiceId(), match.getDate(), match.getTripId(), match.getVehicleId());
-        List<Match> list = map.get(key);
-        if (list == null) {
-            list = new ArrayList<Match>();
-            map.put(key, list);
-        }
+        List<Match> list = map.computeIfAbsent(key, k -> new ArrayList<>());
         list.add(match);
     }
 
@@ -329,7 +303,7 @@ public class DataFetcher {
         // Batch size of 50k found to be significantly faster than 10k,
         // by about a factor of 2.  Since sometimes using really large
         // batches of data using 500k
-        int batchSize = pageSize.getValue(); // Also known as maxResults
+        int batchSize = UpdatesConfig.pageSize(); // Also known as maxResults
         String sqlClause = "AND atStop = false ORDER BY avlTime";
         logger.info("counting matches...");
         Long count = Match.getMatchesCountFromDb(projectId, beginTime, endTime, "AND atStop = false");
@@ -338,7 +312,7 @@ public class DataFetcher {
         // The temporary list for the loop that contains a batch of results
         List<Match> matchBatchList;
 
-        if (!pageDbReads()) {
+        if (!UpdatesConfig.pageDbReads()) {
             // page by day for MySql -- its batch impl falls down on large data
             Date pageBeginTime = beginTime;
             Date pageEndTime = new Date(beginTime.getTime() + Time.MS_PER_DAY);

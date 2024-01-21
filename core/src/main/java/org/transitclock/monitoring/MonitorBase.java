@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.config.IntegerConfigValue;
 import org.transitclock.config.StringConfigValue;
+import org.transitclock.configData.MonitoringConfig;
 import org.transitclock.db.structs.MonitoringEvent;
 import org.transitclock.utils.Time;
 
@@ -33,18 +34,6 @@ public abstract class MonitorBase {
 
     // A value for the monitor that can be logged into database.
     private double value;
-
-    private static StringConfigValue emailRecipients = new StringConfigValue(
-            "transitclock.monitoring.emailRecipients",
-            "Comma separated list of e-mail addresses indicating who "
-                    + "should be e-mailed when monitor state changes.");
-
-    private static IntegerConfigValue retryTimeoutSecs = new IntegerConfigValue(
-            "transitclock.monitoring.retryTimeoutSecs",
-            5,
-            "How long in seconds system should wait before rexamining "
-                    + "monitor. This way a short lived outage can be ignored. "
-                    + "0 seconds means do not retry.");
 
     private static final Logger logger = LoggerFactory.getLogger(MonitorBase.class);
 
@@ -102,14 +91,14 @@ public abstract class MonitorBase {
         if (!wasTriggered && isTriggered && !acceptableEvenIfTriggered) {
             // If a timeout time is configured then retry after that
             // number of seconds
-            if (retryTimeoutSecs.getValue() != 0) {
+            if (MonitoringConfig.retryTimeoutSecs.getValue() != 0) {
                 logger.debug(
                         "Was triggered first time so trying again after " + "{} seconds. {}",
-                        retryTimeoutSecs.getValue(),
+                        MonitoringConfig.retryTimeoutSecs.getValue(),
                         getMessage());
 
                 // Try checking whether triggered again after sleeping a bit
-                Time.sleep(retryTimeoutSecs.getValue() * Time.MS_PER_SEC);
+                Time.sleep(MonitoringConfig.retryTimeoutSecs.getValue() * Time.MS_PER_SEC);
                 isTriggered = triggered() && !acceptableEvenIfTriggered;
 
                 // If now OK then it was a very temporary issue so do not
@@ -237,7 +226,7 @@ public abstract class MonitorBase {
      * @return E-mail addresses of who to notify
      */
     protected String recipients() {
-        return emailRecipients.getValue();
+        return MonitoringConfig.emailRecipients.getValue();
     }
 
     /**
@@ -248,7 +237,7 @@ public abstract class MonitorBase {
      * @return E-mail addresses of who to notify
      */
     public static String recipientsGlobal() {
-        return emailRecipients.getValue();
+        return MonitoringConfig.emailRecipients.getValue();
     }
 
     /**

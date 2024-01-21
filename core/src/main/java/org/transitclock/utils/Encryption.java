@@ -8,6 +8,7 @@ import org.jasypt.util.text.TextEncryptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.config.StringConfigValue;
+import org.transitclock.configData.DbSetupConfig;
 
 /**
  * For encrypting and decrypting strings.
@@ -16,13 +17,6 @@ import org.transitclock.config.StringConfigValue;
  */
 @Slf4j
 public class Encryption {
-
-    private static final StringConfigValue encryptionPassword = new StringConfigValue(
-            "transitclock.db.encryptionPassword",
-            "SET THIS!",
-            "Used for encrypting, deencrypting passwords for storage "
-                    + "in a database. This value should be customized for each "
-                    + "implementation and should be hidden from users.");
 
     // Must call getEncryptor() to initialize and access
     private static BasicTextEncryptor textEncryptor = null;
@@ -61,7 +55,7 @@ public class Encryption {
     private static TextEncryptor getEncryptor() {
         if (textEncryptor == null) {
             textEncryptor = new BasicTextEncryptor();
-            textEncryptor.setPassword(encryptionPassword.getValue());
+            textEncryptor.setPassword(DbSetupConfig.encryptionPassword.getValue());
         }
 
         return textEncryptor;

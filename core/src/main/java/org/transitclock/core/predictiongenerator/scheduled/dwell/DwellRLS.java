@@ -3,6 +3,7 @@ package org.transitclock.core.predictiongenerator.scheduled.dwell;
 
 import java.io.Serializable;
 import org.transitclock.config.DoubleConfigValue;
+import org.transitclock.configData.PredictionConfig;
 import org.transitclock.core.predictiongenerator.scheduled.dwell.rls.TransitClockRLS;
 
 /**
@@ -23,15 +24,9 @@ public class DwellRLS implements DwellModel, Serializable {
         this.rls = rls;
     }
 
-    private static DoubleConfigValue lambda = new DoubleConfigValue(
-            "transitclock.prediction.rls.lambda",
-            0.75,
-            "This sets the rate at which the RLS algorithm forgets old values. Value are"
-                    + " between 0 and 1. With 0 being the most forgetful.");
-
     public DwellRLS() {
         super();
-        rls = new TransitClockRLS(lambda.getValue());
+        rls = new TransitClockRLS(PredictionConfig.lambda.getValue());
     }
 
     @Override

@@ -10,9 +10,12 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.config.IntegerConfigValue;
+import org.transitclock.configData.RmiConfig;
 import org.transitclock.utils.IntervalTimer;
 
 /**
@@ -25,6 +28,7 @@ import org.transitclock.utils.IntervalTimer;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class RmiCallInvocationHandler implements InvocationHandler {
 
     // The object that does the work. For the RMI package this will
@@ -51,23 +55,10 @@ public class RmiCallInvocationHandler implements InvocationHandler {
     // keep on creating new connections. Keyed on agencyId.
     private static final ConcurrentHashMap<String, Counts> currentCallsByAgencyMap =
             new ConcurrentHashMap<String, Counts>();
-
-    private static IntegerConfigValue maxConcurrentCallsPerProjectConfig = new IntegerConfigValue(
-            "transitclock.usage.maxRmiCalls", 100000, "Maximum number of concurrent RMI calls to allow");
     private static int maxConcurrentCallsPerProject =
-            maxConcurrentCallsPerProjectConfig.getValue().intValue();
+            RmiConfig.maxConcurrentCallsPerProjectConfig.getValue();
 
-    // Logging
-    private static final Logger logger = LoggerFactory.getLogger(RmiCallInvocationHandler.class);
 
-    /********************** Member Functions **************************/
-
-    /**
-     * Simple constructor.
-     *
-     * @param delegate
-     * @param info
-     */
     public RmiCallInvocationHandler(Object delegate, RmiStubInfo info) {
         this.delegate = delegate;
         this.info = info;
@@ -254,7 +245,7 @@ public class RmiCallInvocationHandler implements InvocationHandler {
                             + "set to the proper host name? "
                             + "Is the Java system "
                             + "property transitclock.rmi.timeoutSec timeout time of "
-                            + ClientFactory.getTimeoutSec()
+                            + RmiConfig.getTimeoutSec()
                             + " seconds adequate?";
 
                     logger.error(message);

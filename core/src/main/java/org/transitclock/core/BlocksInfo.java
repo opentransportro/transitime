@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Set;
 import org.transitclock.applications.Core;
 import org.transitclock.config.IntegerConfigValue;
+import org.transitclock.configData.CoreConfig;
 import org.transitclock.db.structs.Block;
 import org.transitclock.gtfs.DbConfig;
 import org.transitclock.utils.Time;
@@ -20,14 +21,7 @@ import org.transitclock.utils.Time;
  */
 public class BlocksInfo {
 
-    private static IntegerConfigValue blockactiveForTimeBeforeSecs = new IntegerConfigValue(
-            "transitclock.core.blockactiveForTimeBeforeSecs",
-            0,
-            "Now many seconds before the start of a block it will be considered active.");
-    private static IntegerConfigValue blockactiveForTimeAfterSecs = new IntegerConfigValue(
-            "transitclock.core.blockactiveForTimeAfterSecs",
-            -1,
-            "Now many seconds after the end of a block it will be considered active.");
+
 
     /**
      * Looks at all blocks that are for the current service ID and returns list of ones that will
@@ -72,7 +66,7 @@ public class BlocksInfo {
      */
     public static List<Block> getCurrentlyActiveBlocks() {
         return getCurrentlyActiveBlocks(
-                null, null, blockactiveForTimeBeforeSecs.getValue(), blockactiveForTimeAfterSecs.getValue());
+                null, null, CoreConfig.blockactiveForTimeBeforeSecs.getValue(), CoreConfig.blockactiveForTimeAfterSecs.getValue());
     }
 
     /**

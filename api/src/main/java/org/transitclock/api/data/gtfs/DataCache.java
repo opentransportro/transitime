@@ -5,6 +5,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.transit.realtime.GtfsRealtime.FeedMessage;
 import org.transitclock.config.IntegerConfigValue;
+import org.transitclock.configData.ApiConfig;
 import org.transitclock.utils.Time;
 
 import java.util.concurrent.TimeUnit;
@@ -17,13 +18,8 @@ import java.util.concurrent.TimeUnit;
  * @author SkiBu Smith
  */
 public class DataCache {
-    private static final int DEFAULT_MAX_GTFS_RT_CACHE_SECS = 15;
-    private static IntegerConfigValue gtfsRtCacheSeconds = new IntegerConfigValue(
-            "transitclock.api.gtfsRtCacheSeconds",
-            DEFAULT_MAX_GTFS_RT_CACHE_SECS,
-            "How long to cache GTFS Realtime");
     private final Cache<String, FeedMessage> cacheMap =  CacheBuilder.newBuilder()
-            .expireAfterWrite(gtfsRtCacheSeconds.getValue(), TimeUnit.SECONDS)
+            .expireAfterWrite(ApiConfig.gtfsRtCacheSeconds.getValue(), TimeUnit.SECONDS)
             .build();
 
 

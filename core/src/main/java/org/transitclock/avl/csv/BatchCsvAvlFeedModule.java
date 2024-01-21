@@ -1,16 +1,15 @@
 /* (C)2023 */
 package org.transitclock.avl.csv;
 
-import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.transitclock.Module;
 import org.transitclock.applications.Core;
-import org.transitclock.config.BooleanConfigValue;
-import org.transitclock.config.StringConfigValue;
+import org.transitclock.configData.AvlConfig;
 import org.transitclock.core.AvlProcessor;
 import org.transitclock.db.structs.AvlReport;
 import org.transitclock.utils.Time;
+
+import java.util.List;
 
 /**
  * For reading in a batch of AVL data in CSV format and processing it. It only reads a single batch
@@ -24,33 +23,12 @@ import org.transitclock.utils.Time;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class BatchCsvAvlFeedModule extends Module {
 
     // For running in real time
     private long lastAvlReportTimestamp = -1;
 
-    /*********** Configurable Parameters for this module ***********/
-    private static String getCsvAvlFeedFileName() {
-        return csvAvlFeedFileName.getValue();
-    }
-
-    private static StringConfigValue csvAvlFeedFileName = new StringConfigValue(
-            "transitclock.avl.csvAvlFeedFileName",
-            "/Users/Mike/cvsAvlData/testAvlData.csv",
-            "The name of the CSV file containing AVL data to process.");
-
-    private static BooleanConfigValue processInRealTime = new BooleanConfigValue(
-            "transitclock.avl.processInRealTime",
-            false,
-            "For when getting batch of AVL data from a CSV file. "
-                    + "When true then when reading in do at the same speed as "
-                    + "when the AVL was created. Set to false it you just want "
-                    + "to read in as fast as possible.");
-
-    /****************** Logging **************************************/
-    private static final Logger logger = LoggerFactory.getLogger(BatchCsvAvlFeedModule.class);
-
-    /********************** Member Functions **************************/
 
     /**
      * @param projectId
@@ -65,7 +43,7 @@ public class BatchCsvAvlFeedModule extends Module {
      * @param avlReport
      */
     private void delayIfRunningInRealTime(AvlReport avlReport) {
-        if (processInRealTime.getValue()) {
+        if (AvlConfig.processInRealTime.getValue()) {
             long delayLength = 0;
 
             if (lastAvlReportTimestamp > 0) {
@@ -87,7 +65,7 @@ public class BatchCsvAvlFeedModule extends Module {
      */
     @Override
     public void run() {
-        List<AvlReport> avlReports = (new AvlCsvReader(getCsvAvlFeedFileName())).get();
+        List<AvlReport> avlReports = (new AvlCsvReader(AvlConfig.getCsvAvlFeedFileName())).get();
 
         // Process the AVL Reports read in.
         for (AvlReport avlReport : avlReports) {

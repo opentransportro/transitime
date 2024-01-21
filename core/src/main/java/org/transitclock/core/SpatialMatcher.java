@@ -1,25 +1,14 @@
 /* (C)2023 */
 package org.transitclock.core;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.transitclock.config.BooleanConfigValue;
+import lombok.extern.slf4j.Slf4j;
 import org.transitclock.configData.AvlConfig;
 import org.transitclock.configData.CoreConfig;
-import org.transitclock.db.structs.AvlReport;
-import org.transitclock.db.structs.Block;
-import org.transitclock.db.structs.Location;
-import org.transitclock.db.structs.Route;
-import org.transitclock.db.structs.StopPath;
-import org.transitclock.db.structs.Trip;
-import org.transitclock.db.structs.VectorWithHeading;
+import org.transitclock.db.structs.*;
 import org.transitclock.utils.Geo;
 import org.transitclock.utils.Time;
+
+import java.util.*;
 
 /**
  * For determining possible spatial matches. A spatial match is when the AVL report location is
@@ -28,6 +17,7 @@ import org.transitclock.utils.Time;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class SpatialMatcher {
 
     // So that know where to start searching from
@@ -53,12 +43,6 @@ public class SpatialMatcher {
         AUTO_ASSIGNING_MATCHING
     };
 
-    private static final Logger logger = LoggerFactory.getLogger(SpatialMatcher.class);
-
-    private static BooleanConfigValue spatialMatchToLayoversAllowedForAutoAssignment = new BooleanConfigValue(
-            "transitclock.core.spatialMatchToLayoversAllowedForAutoAssignment",
-            false,
-            "Allow auto assigner consider spatial matches to layovers. Experimental.");
 
     /**
      * Declared private because only the public static members should be creating a SpatialMatcher.
@@ -338,7 +322,7 @@ public class SpatialMatcher {
         // Filter out the ones that are layovers
         List<SpatialMatch> spatialMatches = new ArrayList<SpatialMatch>();
         for (SpatialMatch spatialMatch : allSpatialMatches) {
-            if (!spatialMatch.isLayover() || spatialMatchToLayoversAllowedForAutoAssignment.getValue())
+            if (!spatialMatch.isLayover() || CoreConfig.spatialMatchToLayoversAllowedForAutoAssignment.getValue())
                 spatialMatches.add(spatialMatch);
         }
 

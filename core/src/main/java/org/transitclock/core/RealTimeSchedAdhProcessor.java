@@ -1,24 +1,21 @@
 /* (C)2023 */
 package org.transitclock.core;
 
-import java.util.Date;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.transitclock.applications.Core;
 import org.transitclock.db.structs.ScheduleTime;
 import org.transitclock.db.structs.Trip;
 import org.transitclock.utils.Time;
+
+import java.util.Date;
 
 /**
  * For determining the real-time schedule adherence for a predictable vehicle.
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class RealTimeSchedAdhProcessor {
-
-    private static final Logger logger = LoggerFactory.getLogger(RealTimeSchedAdhProcessor.class);
-
-    /********************** Member Functions **************************/
 
     /**
      * Determines the current schedule adherence for the vehicle. If vehicle at a stop with a

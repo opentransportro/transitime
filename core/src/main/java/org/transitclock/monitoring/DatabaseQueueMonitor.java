@@ -3,6 +3,7 @@ package org.transitclock.monitoring;
 
 import org.transitclock.applications.Core;
 import org.transitclock.config.DoubleConfigValue;
+import org.transitclock.configData.MonitoringConfig;
 import org.transitclock.db.hibernate.DataDbLogger;
 import org.transitclock.utils.StringUtils;
 
@@ -14,22 +15,6 @@ import org.transitclock.utils.StringUtils;
  */
 public class DatabaseQueueMonitor extends MonitorBase {
 
-    DoubleConfigValue maxQueueFraction = new DoubleConfigValue(
-            "transitclock.monitoring.maxQueueFraction",
-            0.4,
-            "If database queue fills up by more than this 0.0 - 1.0 "
-                    + "fraction then database monitoring is triggered.");
-
-    private static DoubleConfigValue maxQueueFractionGap = new DoubleConfigValue(
-            "transitclock.monitoring.maxQueueFractionGap",
-            0.1,
-            "When transitioning from triggered to untriggered don't "
-                    + "want to send out an e-mail right away if actually "
-                    + "dithering. Therefore will only send out OK e-mail if the "
-                    + "value is now below maxQueueFraction - "
-                    + "maxQueueFractionGap ");
-
-    /********************** Member Functions **************************/
 
     /**
      * Simple constructor
@@ -54,7 +39,7 @@ public class DatabaseQueueMonitor extends MonitorBase {
                 "Database queue fraction="
                         + StringUtils.twoDigitFormat(dbLogger.queueLevel())
                         + " while max allowed fraction="
-                        + StringUtils.twoDigitFormat(maxQueueFraction.getValue())
+                        + StringUtils.twoDigitFormat(MonitoringConfig.maxQueueFraction.getValue())
                         + ", and items in queue="
                         + dbLogger.queueSize()
                         + ".",
@@ -64,8 +49,8 @@ public class DatabaseQueueMonitor extends MonitorBase {
         // then lower the threshold by maxQueueFractionGap in order
         // to prevent lots of e-mail being sent out if the value is
         // dithering around maxQueueFraction.
-        double threshold = maxQueueFraction.getValue();
-        if (wasTriggered()) threshold -= maxQueueFractionGap.getValue();
+        double threshold = MonitoringConfig.maxQueueFraction.getValue();
+        if (wasTriggered()) threshold -= MonitoringConfig.maxQueueFractionGap.getValue();
 
         return dbLogger.queueLevel() > threshold;
     }

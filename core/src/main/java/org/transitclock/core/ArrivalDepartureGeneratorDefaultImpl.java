@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.applications.Core;
+import org.transitclock.config.ArrivalsDeparturesConfig;
 import org.transitclock.config.IntegerConfigValue;
 import org.transitclock.configData.AgencyConfig;
 import org.transitclock.configData.CoreConfig;
@@ -54,54 +55,7 @@ import org.transitclock.utils.Time;
 @Slf4j
 public class ArrivalDepartureGeneratorDefaultImpl implements ArrivalDepartureGenerator {
 
-    /**
-     * If vehicle just became predictable as indicated by no previous match then still want to
-     * determine arrival/departure times for earlier stops so that won't miss recording data for
-     * them. But only want to go so far. Otherwise, could be generating fake arrival/departure times
-     * when vehicle did not actually traverse that stop.
-     */
-    private static int getMaxStopsWhenNoPreviousMatch() {
-        return maxStopsWhenNoPreviousMatch.getValue();
-    }
 
-    private static IntegerConfigValue maxStopsWhenNoPreviousMatch = new IntegerConfigValue(
-            "transitclock.arrivalsDepartures.maxStopsWhenNoPreviousMatch",
-            1,
-            "If vehicle just became predictable as indicated by no "
-                    + "previous match then still want to determine "
-                    + "arrival/departure times for earlier stops so that won't "
-                    + "miss recording data for them them. But only want to go "
-                    + "so far. Otherwise could be generating fake "
-                    + "arrival/departure times when vehicle did not actually "
-                    + "traverse that stop.");
-
-    /**
-     * If between AVL reports the vehicle appears to traverse many stops then something is likely
-     * wrong with the matching. So this parameter is used to limit how many arrivals/departures are
-     * created between AVL reports.
-     *
-     * @return
-     */
-    private static int getMaxStopsBetweenMatches() {
-        return maxStopsBetweenMatches.getValue();
-    }
-
-    private static IntegerConfigValue maxStopsBetweenMatches = new IntegerConfigValue(
-            "transitclock.arrivalsDepartures.maxStopsBetweenMatches",
-            12,
-            "If between AVL reports the vehicle appears to traverse "
-                    + "many stops then something is likely wrong with the "
-                    + "matching. So this parameter is used to limit how many "
-                    + "arrivals/departures are created between AVL reports.");
-
-    private static IntegerConfigValue allowableDifferenceBetweenAvlTimeSecs = new IntegerConfigValue(
-            "transitclock.arrivalsDepartures.allowableDifferenceBetweenAvlTimeSecs",
-            // Default is to only log problem if arrival time is more
-            // than a day off
-            1 * Time.SEC_PER_DAY,
-            "If the time of a determine arrival/departure is really "
-                    + "different from the AVL time then something must be "
-                    + "wrong and the situation will be logged.");
 
     /**
      * Returns whether going from oldMatch to newMatch traverses so many stops during the elapsed
@@ -179,14 +133,14 @@ public class ArrivalDepartureGeneratorDefaultImpl implements ArrivalDepartureGen
         // truly know what is going on it is best to not generate
         // arrivals/departures for between the matches.
         int stopsTraversed = SpatialMatch.numberStopsBetweenMatches(oldMatch, newMatch);
-        if (stopsTraversed > getMaxStopsBetweenMatches()) {
+        if (stopsTraversed > ArrivalsDeparturesConfig.getMaxStopsBetweenMatches()) {
             logger.error(
                     "Attempting to traverse {} stops between oldMatch "
                             + "and newMatch, which is more thanThere are more than "
                             + "MAX_STOPS_BETWEEN_MATCHES={}. Therefore not generating "
                             + "arrival/departure times. oldMatch={} newMatch={}",
                     stopsTraversed,
-                    getMaxStopsBetweenMatches(),
+                    ArrivalsDeparturesConfig.getMaxStopsBetweenMatches(),
                     oldMatch,
                     newMatch);
             return false;
@@ -387,7 +341,7 @@ public class ArrivalDepartureGeneratorDefaultImpl implements ArrivalDepartureGen
     private boolean timeReasonable(ArrivalDeparture arrivalDeparture) {
         long delta = Math.abs(arrivalDeparture.getAvlTime().getTime()
                 - arrivalDeparture.getDate().getTime());
-        if (delta < allowableDifferenceBetweenAvlTimeSecs.getValue() * Time.MS_PER_SEC) return true;
+        if (delta < ArrivalsDeparturesConfig.allowableDifferenceBetweenAvlTimeSecs.getValue() * Time.MS_PER_SEC) return true;
         else {
             logger.error(
                     "For {} arrival or departure time of {} is more than "
@@ -395,7 +349,7 @@ public class ArrivalDepartureGeneratorDefaultImpl implements ArrivalDepartureGen
                             + "storing this time. {}",
                     AgencyConfig.getAgencyId(),
                     arrivalDeparture.getDate(),
-                    allowableDifferenceBetweenAvlTimeSecs.getValue(),
+                    ArrivalsDeparturesConfig.allowableDifferenceBetweenAvlTimeSecs.getValue(),
                     arrivalDeparture.getAvlTime(),
                     arrivalDeparture);
             return false;
@@ -552,7 +506,7 @@ public class ArrivalDepartureGeneratorDefaultImpl implements ArrivalDepartureGen
 
         if (newMatch.getTripIndex() == 0
                 && newMatch.getStopPathIndex() > 0
-                && newMatch.getStopPathIndex() < getMaxStopsWhenNoPreviousMatch()) {
+                && newMatch.getStopPathIndex() < ArrivalsDeparturesConfig.getMaxStopsWhenNoPreviousMatch()) {
             // Couple more convenience variables
             Date avlReportTime = vehicleState.getAvlReport().getDate();
             Block block = newMatch.getBlock();

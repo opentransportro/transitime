@@ -1,16 +1,16 @@
 /* (C)2023 */
 package org.transitclock.avl;
 
+import lombok.extern.slf4j.Slf4j;
+import org.transitclock.configData.AgencyConfig;
+import org.transitclock.configData.AvlConfig;
+import org.transitclock.db.structs.AvlReport;
+import org.transitclock.utils.threading.NamedThreadFactory;
+
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-
-import lombok.extern.slf4j.Slf4j;
-import org.transitclock.config.IntegerConfigValue;
-import org.transitclock.configData.AgencyConfig;
-import org.transitclock.db.structs.AvlReport;
-import org.transitclock.utils.threading.NamedThreadFactory;
 
 /**
  * A singleton thread executor for executing AVL reports. For when not using JMS to handle queue of
@@ -27,27 +27,6 @@ import org.transitclock.utils.threading.NamedThreadFactory;
 @Slf4j
 public class AvlExecutor {
 
-    private static final IntegerConfigValue avlQueueSize = new IntegerConfigValue(
-            "transitclock.avl.queueSize",
-            2000,
-            "How many items to go into the blocking AVL queue "
-                    + "before need to wait for queue to have space. Should "
-                    + "be approximately 50% more than the number of reports "
-                    + "that will be read during a single AVL polling cycle. "
-                    + "If too big then wasteful. If too small then not all the "
-                    + "data will be rejected by the ThreadPoolExecutor. ");
-
-    private static IntegerConfigValue numAvlThreads = new IntegerConfigValue(
-            "transitclock.avl.numThreads",
-            1,
-            "How many threads to be used for processing the AVL "
-                    + "data. For most applications just using a single thread "
-                    + "is probably sufficient and it makes the logging simpler "
-                    + "since the messages will not be interleaved. But for "
-                    + "large systems with lots of vehicles then should use "
-                    + "multiple threads, such as 3-15 so that more of the cores "
-                    + "are used.");
-
     private static final int MAX_THREADS = 25;
     private static AvlExecutor singleton;
     private final ThreadPoolExecutor avlClientExecutor;
@@ -56,8 +35,8 @@ public class AvlExecutor {
     public AvlExecutor(AvlReportProcessorFactory avlReportProcessorFactory) {
         this.avlReportProcessorFactory = avlReportProcessorFactory;
 
-        int numberThreads = numAvlThreads.getValue();
-        final int maxAVLQueueSize = avlQueueSize.getValue();
+        int numberThreads = AvlConfig.numAvlThreads.getValue();
+        final int maxAVLQueueSize = AvlConfig.avlQueueSize.getValue();
 
         // Make sure that numberThreads is reasonable
         if (numberThreads < 1) {

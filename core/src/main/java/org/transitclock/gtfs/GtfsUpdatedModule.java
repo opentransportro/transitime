@@ -1,6 +1,14 @@
 /* (C)2023 */
 package org.transitclock.gtfs;
 
+import lombok.extern.slf4j.Slf4j;
+import org.apache.http.HttpStatus;
+import org.transitclock.Module;
+import org.transitclock.configData.AgencyConfig;
+import org.transitclock.configData.GtfsConfig;
+import org.transitclock.utils.HttpGetFile;
+import org.transitclock.utils.Time;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -10,15 +18,6 @@ import java.nio.file.StandardCopyOption;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
-import lombok.extern.slf4j.Slf4j;
-import org.apache.http.HttpStatus;
-import org.transitclock.Module;
-import org.transitclock.config.LongConfigValue;
-import org.transitclock.config.StringConfigValue;
-import org.transitclock.configData.AgencyConfig;
-import org.transitclock.utils.HttpGetFile;
-import org.transitclock.utils.Time;
 
 /**
  * Downloads GTFS file from web server if it has been updated and notifies users. Useful for
@@ -31,18 +30,6 @@ import org.transitclock.utils.Time;
  */
 @Slf4j
 public class GtfsUpdatedModule extends Module {
-    private static final StringConfigValue url =
-            new StringConfigValue("transitclock.gtfs.url", "URL where to retrieve the GTFS file.");
-
-    private static final StringConfigValue dirName = new StringConfigValue(
-            "transitclock.gtfs.dirName", "Directory on agency server where to place the GTFS file.");
-
-    private static final LongConfigValue intervalMsec = new LongConfigValue(
-            "transitclock.gtfs.intervalMsec",
-            // Low cost unless file actually downloaded so do pretty
-            // frequently so get updates as soon as possible
-            4 * Time.MS_PER_HOUR,
-            "How long to wait before checking if GTFS file has changed " + "on web");
 
     public GtfsUpdatedModule(String agencyId) {
         super(agencyId);
@@ -58,10 +45,10 @@ public class GtfsUpdatedModule extends Module {
      * <p>If file is downloaded then users and e-mailed.
      */
     public static void get() {
-        logger.info("Checking to see if GTFS should be downloaded " + "because it was modified. {}", url.getValue());
+        logger.info("Checking to see if GTFS should be downloaded " + "because it was modified. {}", GtfsConfig.url.getValue());
 
         // Construct the getter
-        HttpGetFile httpGetFile = new HttpGetFile(url.getValue(), dirName.getValue());
+        HttpGetFile httpGetFile = new HttpGetFile(GtfsConfig.url.getValue(), GtfsConfig.dirName.getValue());
 
         // If file hasn't been modified then don't want to download it
         // since it can be large. Therefore determine age of previously
@@ -102,12 +89,12 @@ public class GtfsUpdatedModule extends Module {
                     logger.info(
                             "Got remote file because version on web server " + "is newer. Url={} dir={}",
                             httpGetFile.getFullFileName(),
-                            dirName.getValue());
+                            GtfsConfig.dirName.getValue());
                 else
                     logger.info(
                             "Got remote file because didn't have a local " + "copy of it. Url={} dir={}",
                             httpGetFile.getFullFileName(),
-                            dirName.getValue());
+                            GtfsConfig.dirName.getValue());
 
                 // Make copy of GTFS zip file in separate directory for archival
                 archive(httpGetFile.getFullFileName());
@@ -117,18 +104,18 @@ public class GtfsUpdatedModule extends Module {
                         "Remote GTFS file {} not updated (got "
                                 + "HTTP NOT_MODIFIED status 304) since the local "
                                 + "one  at {} has last modified date of {}",
-                        url.getValue(),
+                        GtfsConfig.url.getValue(),
                         httpGetFile.getFullFileName(),
                         new Date(file.lastModified()));
             } else {
                 // Got unexpected response so log issue
                 logger.error(
                         "Error retrieving remote GTFS file {} . Http " + "response code={}",
-                        url.getValue(),
+                        GtfsConfig.url.getValue(),
                         httpResponseCode);
             }
         } catch (IOException e) {
-            logger.error("Error retrieving {} . {}", url.getValue(), e.getMessage());
+            logger.error("Error retrieving {} . {}", GtfsConfig.url.getValue(), e.getMessage());
         }
     }
 
@@ -175,7 +162,7 @@ public class GtfsUpdatedModule extends Module {
         // Continue running module forever
         while (true) {
             // Wait until appropriate time
-            Time.sleep(intervalMsec.getValue());
+            Time.sleep(GtfsConfig.intervalMsec.getValue());
 
             // Get the GTFS file if it has been updated. Catch and
             // handle all exceptions to make sure module continues

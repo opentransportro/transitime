@@ -26,6 +26,7 @@ import org.transitclock.api.data.IpcPredictionComparator;
 import org.transitclock.api.utils.AgencyTimezoneCache;
 import org.transitclock.config.BooleanConfigValue;
 import org.transitclock.config.IntegerConfigValue;
+import org.transitclock.configData.ApiConfig;
 import org.transitclock.core.holdingmethod.PredictionTimeComparator;
 import org.transitclock.ipc.clients.PredictionsInterfaceFactory;
 import org.transitclock.ipc.clients.VehiclesInterfaceFactory;
@@ -52,21 +53,12 @@ public class GtfsRtTripFeed {
     private final String agencyId;
 
     // For outputting date in GTFS-realtime format
-    private SimpleDateFormat gtfsRealtimeDateFormatter = new SimpleDateFormat("yyyyMMdd");
+    private final SimpleDateFormat gtfsRealtimeDateFormatter = new SimpleDateFormat("yyyyMMdd");
 
-    private SimpleDateFormat gtfsRealtimeTimeFormatter = new SimpleDateFormat("HH:mm:ss");
+    private final SimpleDateFormat gtfsRealtimeTimeFormatter = new SimpleDateFormat("HH:mm:ss");
+    private static final int PREDICTION_MAX_FUTURE_SECS = ApiConfig.predictionMaxFutureSecs.getValue();
 
-    private static IntegerConfigValue predictionMaxFutureSecs = new IntegerConfigValue(
-            "transitclock.api.predictionMaxFutureSecs",
-            60 * 60,
-            "Number of seconds in the future to accept predictions before");
-    private static final int PREDICTION_MAX_FUTURE_SECS = predictionMaxFutureSecs.getValue();
-
-    private static BooleanConfigValue includeTripUpdateDelay = new BooleanConfigValue(
-            "transitclock.api.includeTripUpdateDelay",
-            false,
-            "Whether or not to include delay in the TripUpdate message");
-    private static final boolean INCLUDE_TRIP_UPDATE_DELAY = includeTripUpdateDelay.getValue();
+    private static final boolean INCLUDE_TRIP_UPDATE_DELAY = ApiConfig.includeTripUpdateDelay.getValue();
 
     // For when creating StopTimeEvent for schedule based prediction
     // 5 minutes (300 seconds)

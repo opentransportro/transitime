@@ -2,10 +2,13 @@
 package org.transitclock.monitoring;
 
 import java.util.List;
+
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.config.IntegerConfigValue;
 import org.transitclock.config.StringConfigValue;
+import org.transitclock.configData.MonitoringConfig;
 import org.transitclock.core.AvlProcessor;
 import org.transitclock.core.BlocksInfo;
 import org.transitclock.db.structs.Block;
@@ -18,23 +21,9 @@ import org.transitclock.utils.Time;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class AvlFeedMonitor extends MonitorBase {
 
-    private static IntegerConfigValue allowableNoAvlSecs = new IntegerConfigValue(
-            "transitclock.monitoring.allowableNoAvlSecs",
-            5 * Time.SEC_PER_MIN,
-            "How long in seconds that can not receive valid AVL data " + "before monitoring triggers an alert.");
-
-    private static StringConfigValue avlFeedEmailRecipients = new StringConfigValue(
-            "transitclock.monitoring.avlFeedEmailRecipients",
-            "monitoring@transitclock.org",
-            "Comma separated list of e-mail addresses indicating who "
-                    + "should be e-mail when monitor state changes for AVL "
-                    + "feed.");
-
-    private static final Logger logger = LoggerFactory.getLogger(AvlFeedMonitor.class);
-
-    /********************** Member Functions **************************/
     public AvlFeedMonitor(String agencyId) {
         super(agencyId);
     }
@@ -60,14 +49,14 @@ public class AvlFeedMonitor extends MonitorBase {
                 "Last valid AVL report was "
                         + ageOfAvlReport / Time.MS_PER_SEC
                         + " secs old while allowable age is "
-                        + allowableNoAvlSecs.getValue()
+                        + MonitoringConfig.allowableNoAvlSecs.getValue()
                         + " secs as specified by "
                         + "parameter "
-                        + allowableNoAvlSecs.getID()
+                        + MonitoringConfig.allowableNoAvlSecs.getID()
                         + " .",
                 ageOfAvlReport / Time.MS_PER_SEC);
 
-        if (ageOfAvlReport > allowableNoAvlSecs.getValue() * Time.MS_PER_SEC) {
+        if (ageOfAvlReport > MonitoringConfig.allowableNoAvlSecs.getValue() * Time.MS_PER_SEC) {
             // last AVL report is too old
             return (int) (ageOfAvlReport / Time.MS_PER_SEC);
         } else {
@@ -95,7 +84,7 @@ public class AvlFeedMonitor extends MonitorBase {
     @Override
     protected boolean acceptableEvenIfTriggered() {
         List<Block> activeBlocks = BlocksInfo.getCurrentlyActiveBlocks();
-        if (activeBlocks.size() == 0) {
+        if (activeBlocks.isEmpty()) {
             setAcceptableEvenIfTriggeredMessage("No currently active blocks " + "so AVL feed considered to be OK.");
             return true;
         }
@@ -108,16 +97,5 @@ public class AvlFeedMonitor extends MonitorBase {
     @Override
     protected String type() {
         return "AVL feed";
-    }
-
-    /**
-     * Returns comma separated list of who should be notified via e-mail when trigger state changes
-     * for the monitor. Specified by the Java property transitclock.monitoring.emailRecipients . Can
-     * be overwritten by an implementation of a monitor if want different list for a monitor.
-     *
-     * @return E-mail addresses of who to notify
-     */
-    protected String recipients() {
-        return avlFeedEmailRecipients.getValue();
     }
 }

@@ -121,12 +121,6 @@ public class StandardParameters {
      * @throws WebApplicationException
      */
     public void validate() throws WebApplicationException {
-        // Make sure not accessing feed too much. This needs to be done
-        // early in the handling of the request so can stop processing
-        // bad requests before too much effort is expended. Throw exception
-        // if usage limits exceeded.
-        UsageValidator.getInstance().validateUsage(this);
-
         // Make sure the application key is valid
         if (!ApiKeyManager.getInstance().isKeyValid(getKey())) {
             ApiKeyManager manager = ApiKeyManager.getInstance();

@@ -3,8 +3,6 @@ package org.transitclock.avl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONException;
-import org.transitclock.config.BooleanConfigValue;
-import org.transitclock.config.StringConfigValue;
 import org.transitclock.configData.AgencyConfig;
 import org.transitclock.configData.AvlConfig;
 import org.transitclock.db.structs.AvlReport;
@@ -35,23 +33,6 @@ import java.util.zip.GZIPInputStream;
 @Slf4j
 public abstract class PollUrlAvlModule extends AvlModule {
 
-    private static StringConfigValue url =
-            new StringConfigValue("transitclock.avl.url", "The URL of the AVL feed to poll.");
-
-    private static StringConfigValue authenticationUser = new StringConfigValue(
-            "transitclock.avl.authenticationUser",
-            "If authentication used for the feed then this specifies " + "the user.");
-
-    private static StringConfigValue authenticationPassword = new StringConfigValue(
-            "transitclock.avl.authenticationPassword",
-            "If authentication used for the feed then this specifies " + "the password.");
-
-    private static BooleanConfigValue shouldProcessAvl = new BooleanConfigValue(
-            "transitclock.avl.shouldProcessAvl",
-            true,
-            "Usually want to process the AVL data when it is read in "
-                    + "so that predictions and such are generated. But if "
-                    + "debugging then can set this param to false.");
 
     // Usually want to use compression when reading data but for some AVL
     // feeds might be binary where don't want additional compression. A
@@ -68,7 +49,7 @@ public abstract class PollUrlAvlModule extends AvlModule {
      * @return
      */
     protected String getUrl() {
-        return url.getValue();
+        return AvlConfig.url.getValue();
     }
 
     /**
@@ -144,8 +125,8 @@ public abstract class PollUrlAvlModule extends AvlModule {
         if (useCompression) con.setRequestProperty("Accept-Encoding", "gzip,deflate");
 
         // If authentication being used then set user and password
-        if (authenticationUser.getValue() != null && authenticationPassword.getValue() != null) {
-            String authString = authenticationUser.getValue() + ":" + authenticationPassword.getValue();
+        if (AvlConfig.authenticationUser.getValue() != null && AvlConfig.authenticationPassword.getValue() != null) {
+            String authString = AvlConfig.authenticationUser.getValue() + ":" + AvlConfig.authenticationPassword.getValue();
             byte[] authEncBytes = Base64.getEncoder().encode(authString.getBytes());
             String authStringEnc = new String(authEncBytes);
             con.setRequestProperty("Authorization", "Basic " + authStringEnc);
@@ -171,7 +152,7 @@ public abstract class PollUrlAvlModule extends AvlModule {
         logger.debug("Time to parse document {} msec", timer.elapsedMsec());
 
         // Process all the reports read in
-        if (shouldProcessAvl.getValue()) {
+        if (AvlConfig.shouldProcessAvl.getValue()) {
             processAvlReports(avlReportsReadIn);
         }
     }

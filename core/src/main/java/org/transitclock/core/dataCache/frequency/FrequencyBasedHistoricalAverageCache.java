@@ -2,12 +2,14 @@
 package org.transitclock.core.dataCache.frequency;
 
 import com.querydsl.jpa.impl.JPAQuery;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.DateUtils;
 import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.applications.Core;
 import org.transitclock.config.IntegerConfigValue;
+import org.transitclock.configData.CoreConfig;
 import org.transitclock.core.dataCache.*;
 import org.transitclock.db.structs.ArrivalDeparture;
 import org.transitclock.db.structs.QArrivalDeparture;
@@ -24,40 +26,12 @@ import java.util.concurrent.ConcurrentHashMap;
  *     services. It puts them in buckets that represent increments of time. The start time of the
  *     trip is used to decide which bucket to apply the data to or which average to retrieve.
  */
+@Slf4j
 public class FrequencyBasedHistoricalAverageCache {
 
     private static FrequencyBasedHistoricalAverageCache singleton = new FrequencyBasedHistoricalAverageCache();
 
-    private static final Logger logger = LoggerFactory.getLogger(FrequencyBasedHistoricalAverageCache.class);
 
-    private static IntegerConfigValue minTravelTimeFilterValue = new IntegerConfigValue(
-            "transitclock.core.frequency.minTravelTimeFilterValue",
-            0,
-            "The value to be included in average calculation for Travel times must exceed" + " this value.");
-
-    private static IntegerConfigValue maxTravelTimeFilterValue = new IntegerConfigValue(
-            "transitclock.core.frequency.maxTravelTimeFilterValue",
-            600000,
-            "The value to be included in average calculation for Travel times must be less" + " than this value.");
-
-    private static IntegerConfigValue minDwellTimeFilterValue = new IntegerConfigValue(
-            "transitclock.core.frequency.minDwellTimeFilterValue",
-            0,
-            "The value to be included in average calculation for dwell time must exceed" + " this value.");
-
-    private static IntegerConfigValue maxDwellTimeFilterValue = new IntegerConfigValue(
-            "transitclock.core.frequency.maxDwellTimeFilterValue",
-            600000,
-            "The value to be included in average calculation for dwell time must be less" + " this value.");
-
-    private static IntegerConfigValue cacheIncrementsForFrequencyService = new IntegerConfigValue(
-            "transitclock.core.frequency.cacheIncrementsForFrequencyService",
-            180 * 60,
-            "This is the intervals size of the day that the average is applied to. ");
-
-    public static int getCacheIncrementsForFrequencyService() {
-        return cacheIncrementsForFrequencyService.getValue();
-    }
 
     private final ConcurrentHashMap<StopPathKey, TreeMap<Long, HistoricalAverage>> m =
             new ConcurrentHashMap<StopPathKey, TreeMap<Long, HistoricalAverage>>();
@@ -111,7 +85,7 @@ public class FrequencyBasedHistoricalAverageCache {
             logger.debug("Found average buckets for {}. ", key);
             if (key.getStartTime() != null) {
                 SortedMap<Long, HistoricalAverage> subresult =
-                        result.subMap(key.getStartTime(), key.getStartTime() + getCacheIncrementsForFrequencyService());
+                        result.subMap(key.getStartTime(), key.getStartTime() + CoreConfig.getCacheIncrementsForFrequencyService());
 
                 if (subresult.size() == 1) {
                     logger.debug(
@@ -125,7 +99,7 @@ public class FrequencyBasedHistoricalAverageCache {
                             "No historical data within time range ({} to {}) for this trip {} in"
                                     + " FrequencyBasedHistoricalAverageCache cache.",
                             key.getStartTime(),
-                            key.getStartTime() + getCacheIncrementsForFrequencyService(),
+                            key.getStartTime() + CoreConfig.getCacheIncrementsForFrequencyService(),
                             key);
                 }
             }
@@ -155,13 +129,13 @@ public class FrequencyBasedHistoricalAverageCache {
             int time = secondsFromMidnight(arrivalDeparture.getDate(), 2);
 
             /* this is what puts the trip into the buckets (time slots) */
-            time = round(time, getCacheIncrementsForFrequencyService());
+            time = round(time, CoreConfig.getCacheIncrementsForFrequencyService());
 
             TravelTimeResult pathDuration = getLastPathDuration(new IpcArrivalDeparture(arrivalDeparture), trip);
 
             if (pathDuration != null
-                    && pathDuration.getDuration() > minTravelTimeFilterValue.getValue()
-                    && pathDuration.getDuration() < maxTravelTimeFilterValue.getValue()) {
+                    && pathDuration.getDuration() > CoreConfig.minTravelTimeFilterValue.getValue()
+                    && pathDuration.getDuration() < CoreConfig.maxTravelTimeFilterValue.getValue()) {
                 if (trip.isNoSchedule()) {
                     StopPathCacheKey historicalAverageCacheKey = new StopPathCacheKey(
                             trip.getId(), pathDuration.getArrival().getStopPathIndex(), true, (long) time);
@@ -185,8 +159,8 @@ public class FrequencyBasedHistoricalAverageCache {
             }
             DwellTimeResult stopDuration = getLastStopDuration(new IpcArrivalDeparture(arrivalDeparture), trip);
             if (stopDuration != null
-                    && stopDuration.getDuration() > minDwellTimeFilterValue.getValue()
-                    && stopDuration.getDuration() < maxDwellTimeFilterValue.getValue()) {
+                    && stopDuration.getDuration() > CoreConfig.minDwellTimeFilterValue.getValue()
+                    && stopDuration.getDuration() < CoreConfig.maxDwellTimeFilterValue.getValue()) {
                 StopPathCacheKey historicalAverageCacheKey = new StopPathCacheKey(
                         trip.getId(), stopDuration.getDeparture().getStopPathIndex(), false, (long) time);
 
@@ -213,8 +187,8 @@ public class FrequencyBasedHistoricalAverageCache {
                         arrivalDeparture);
             }
             if (pathDuration != null
-                    && (pathDuration.getDuration() < minTravelTimeFilterValue.getValue()
-                            || pathDuration.getDuration() > maxTravelTimeFilterValue.getValue())) {
+                    && (pathDuration.getDuration() < CoreConfig.minTravelTimeFilterValue.getValue()
+                            || pathDuration.getDuration() > CoreConfig.maxTravelTimeFilterValue.getValue())) {
                 logger.debug(
                         "Cannot add to FrequencyBasedHistoricalAverageCache as pathDuration: {} is"
                                 + " outside parameters. : {}",
@@ -222,8 +196,8 @@ public class FrequencyBasedHistoricalAverageCache {
                         arrivalDeparture);
             }
             if (stopDuration != null
-                    && (stopDuration.getDuration() < minDwellTimeFilterValue.getValue()
-                            || stopDuration.getDuration() > maxDwellTimeFilterValue.getValue())) {
+                    && (stopDuration.getDuration() < CoreConfig.minDwellTimeFilterValue.getValue()
+                            || stopDuration.getDuration() > CoreConfig.maxDwellTimeFilterValue.getValue())) {
                 logger.debug(
                         "Cannot add to FrequencyBasedHistoricalAverageCache as stopDuration: {} is"
                                 + " outside parameters. : {}",
@@ -238,7 +212,7 @@ public class FrequencyBasedHistoricalAverageCache {
 
     public IpcArrivalDeparture findPreviousDepartureEvent(
             List<IpcArrivalDeparture> arrivalDepartures, IpcArrivalDeparture current) {
-        Collections.sort(arrivalDepartures, new IpcArrivalDepartureComparator());
+        arrivalDepartures.sort(new IpcArrivalDepartureComparator());
         for (IpcArrivalDeparture tocheck : emptyIfNull(arrivalDepartures)) {
             if (current.getFreqStartTime() != null
                     && tocheck.getFreqStartTime() != null
@@ -255,7 +229,7 @@ public class FrequencyBasedHistoricalAverageCache {
 
     public IpcArrivalDeparture findPreviousArrivalEvent(
             List<IpcArrivalDeparture> arrivalDepartures, IpcArrivalDeparture current) {
-        Collections.sort(arrivalDepartures, new IpcArrivalDepartureComparator());
+        arrivalDepartures.sort(new IpcArrivalDepartureComparator());
         for (IpcArrivalDeparture tocheck : emptyIfNull(arrivalDepartures)) {
             if (current.getFreqStartTime() != null
                     && tocheck.getFreqStartTime() != null
@@ -278,12 +252,11 @@ public class FrequencyBasedHistoricalAverageCache {
         List<IpcArrivalDeparture> arrivalDepartures = (List<IpcArrivalDeparture>)
                 TripDataHistoryCacheFactory.getInstance().getTripHistory(tripKey);
 
-        if (arrivalDepartures != null && arrivalDepartures.size() > 0 && arrivalDeparture.isArrival()) {
+        if (arrivalDepartures != null && !arrivalDepartures.isEmpty() && arrivalDeparture.isArrival()) {
             IpcArrivalDeparture previousEvent = findPreviousDepartureEvent(arrivalDepartures, arrivalDeparture);
 
             if (previousEvent != null && arrivalDeparture != null && previousEvent.isDeparture()) {
-                TravelTimeResult travelTimeResult = new TravelTimeResult(previousEvent, arrivalDeparture);
-                return travelTimeResult;
+                return new TravelTimeResult(previousEvent, arrivalDeparture);
             }
         }
 
@@ -294,15 +267,13 @@ public class FrequencyBasedHistoricalAverageCache {
         Date nearestDay = DateUtils.truncate(new Date(arrivalDeparture.getTime().getTime()), Calendar.DAY_OF_MONTH);
         TripKey tripKey = new TripKey(arrivalDeparture.getTripId(), nearestDay, trip.getStartTime());
 
-        List<IpcArrivalDeparture> arrivalDepartures = (List<IpcArrivalDeparture>)
-                TripDataHistoryCacheFactory.getInstance().getTripHistory(tripKey);
+        List<IpcArrivalDeparture> arrivalDepartures = TripDataHistoryCacheFactory.getInstance().getTripHistory(tripKey);
 
-        if (arrivalDepartures != null && arrivalDepartures.size() > 0 && arrivalDeparture.isDeparture()) {
+        if (arrivalDepartures != null && !arrivalDepartures.isEmpty() && arrivalDeparture.isDeparture()) {
             IpcArrivalDeparture previousEvent = findPreviousArrivalEvent(arrivalDepartures, arrivalDeparture);
 
             if (previousEvent != null && arrivalDeparture != null && previousEvent.isArrival()) {
-                DwellTimeResult dwellTimeResult = new DwellTimeResult(previousEvent, arrivalDeparture);
-                return dwellTimeResult;
+                return new DwellTimeResult(previousEvent, arrivalDeparture);
             }
         }
         return null;

@@ -1,10 +1,6 @@
 /* (C)2023 */
 package org.transitclock.db;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -13,6 +9,10 @@ import org.transitclock.configData.DbSetupConfig;
 import org.transitclock.db.hibernate.HibernateUtils;
 import org.transitclock.db.webstructs.ApiKey;
 import org.transitclock.utils.Time;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Manages the ApiKeys. Caches them so API can quickly determine if key is valid.

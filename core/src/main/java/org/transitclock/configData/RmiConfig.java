@@ -70,4 +70,33 @@ public class RmiConfig {
                     + "Therefore using default value of 2098 so that the port "
                     + "is consistent. Every server on a machine must use a "
                     + "different secondary port for communication.");
+
+
+
+    public static IntegerConfigValue timeoutSec = new IntegerConfigValue(
+            "transitclock.rmi.timeoutSec",
+            4,
+            "Specifies the timeout time in seconds for RMI calls. Note "
+                    + "that when an RMI failure occurs a second try is done "
+                    + "so total timeout time is twice what is specified here.");
+
+    public static StringConfigValue debugRmiServerHost = new StringConfigValue(
+            "transtime.rmi.debug.rmi.server", null, "The RMI server to connect to when in debug mode");
+
+
+
+    /**
+     * Returns the timeout time. Useful for error messages.
+     *
+     * @return Timeout time in seconds
+     */
+    public static int getTimeoutSec() {
+        return RmiConfig.timeoutSec.getValue();
+    }
+
+
+
+    public static IntegerConfigValue maxConcurrentCallsPerProjectConfig = new IntegerConfigValue(
+            "transitclock.usage.maxRmiCalls", 100000, "Maximum number of concurrent RMI calls to allow");
+
 }

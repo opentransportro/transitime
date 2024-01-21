@@ -1,6 +1,13 @@
 /* (C)2023 */
 package org.transitclock.config;
 
+import org.transitclock.config.ConfigValue.ConfigParamException;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -10,12 +17,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import org.transitclock.config.ConfigValue.ConfigParamException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 /**
  * The ConfigFile class provides a way of handling parameters that can be updated without having to
@@ -68,18 +69,12 @@ public class ConfigFileReader {
     private static final Lock readLock = rwl.readLock();
     private static final Lock writeLock = rwl.writeLock();
 
-    /********************** Member Functions **************************/
-
     /**
      * An exception for when a parameter is being read in
      *
      * @author SkiBu Smith
      */
     public static class ConfigException extends Exception {
-        // Needed since subclass Exception is serializable. Otherwise get
-        // warning.
-        private static final long serialVersionUID = 1L;
-
         private ConfigException(Exception e) {
             super(e);
         }
@@ -115,7 +110,7 @@ public class ConfigFileReader {
                 // Determine full name of parameter by appending node
                 // names together, separated by a period. So get something
                 // like "transitclock.predictor.radius".
-                StringBuilder propertyNameBuilder = new StringBuilder("");
+                StringBuilder propertyNameBuilder = new StringBuilder();
                 for (int j = 0; j < names.size(); ++j) {
                     String name = names.get(j);
                     propertyNameBuilder.append(name);
@@ -343,7 +338,7 @@ public class ConfigFileReader {
         // the configuration files to be read
         String configFilesStr = System.getProperty("transitclock.configFiles");
         if (configFilesStr != null) {
-            String configFiles[] = configFilesStr.split(";");
+            String[] configFiles = configFilesStr.split(";");
             for (String fileName : configFiles) {
                 try {
                     // Read in and process the config file

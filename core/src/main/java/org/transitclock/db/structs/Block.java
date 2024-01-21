@@ -14,7 +14,6 @@ import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.collection.spi.PersistentList;
 import org.hibernate.internal.SessionImpl;
 import org.transitclock.applications.Core;
-import org.transitclock.config.BooleanConfigValue;
 import org.transitclock.configData.CoreConfig;
 import org.transitclock.core.SpatialMatch;
 import org.transitclock.db.hibernate.HibernateUtils;
@@ -27,6 +26,8 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static org.transitclock.configData.CoreConfig.blockLoading;
 
 /**
  * Represents assignment for a vehicle for a day. Obtained by combining data from multiple GTFS
@@ -108,11 +109,6 @@ public final class Block implements Serializable {
     private final HashSet<String> routeIds;
 
 
-    private static BooleanConfigValue blockLoading = new BooleanConfigValue(
-            "transitclock.blockLoading.agressive",
-            false,
-            "Set true to eagerly fetch all blocks into memory on startup");
-
     /**
      * This constructor called when processing GTFS data and creating a Block to be stored in the
      * database. Note: startTime and endTime could in theory be determined here by looking at first
@@ -158,7 +154,7 @@ public final class Block implements Serializable {
     public static List<Block> getBlocks(Session session, int configRev) throws HibernateException {
         try {
             logger.warn("caching blocks....");
-            if (Boolean.TRUE.equals(blockLoading.getValue())) {
+            if (Boolean.TRUE.equals(CoreConfig.blockLoading.getValue())) {
                 return getBlocksAgressively(session, configRev);
             }
             return getBlocksPassive(session, configRev);

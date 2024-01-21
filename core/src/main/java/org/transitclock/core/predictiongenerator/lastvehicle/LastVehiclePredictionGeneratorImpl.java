@@ -7,6 +7,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.applications.Core;
+import org.transitclock.configData.CoreConfig;
 import org.transitclock.core.Indices;
 import org.transitclock.core.PredictionGeneratorDefaultImpl;
 import org.transitclock.core.TravelTimeDetails;
@@ -91,7 +92,7 @@ public class LastVehiclePredictionGeneratorImpl extends PredictionGeneratorDefau
                         + " for : "
                         + indices.toString());
 
-                if (storeTravelTimeStopPathPredictions.getValue()) {
+                if (CoreConfig.storeTravelTimeStopPathPredictions.getValue()) {
                     PredictionForStopPath predictionForStopPath = new PredictionForStopPath(
                             vehicleState.getVehicleId(),
                             new Date(Core.getInstance().getSystemTime()),

@@ -80,16 +80,6 @@ public class Core {
         ConfigFileReader.processConfig();
     }
 
-    private static final StringConfigValue cacheReloadStartTimeStr = new StringConfigValue(
-            "transitclock.core.cacheReloadStartTimeStr",
-            "",
-            "Date and time of when to start reading arrivaldepartures to inform caches.");
-
-    private static final StringConfigValue cacheReloadEndTimeStr = new StringConfigValue(
-            "transitclock.core.cacheReloadEndTimeStr",
-            "",
-            "Date and time of when to end reading arrivaldepartures to inform caches.");
-
     /**
      * Construct the Core object and read in the config data. This is private so that the
      * createCore() factory method must be used.
@@ -303,43 +293,43 @@ public class Core {
 
         Date endDate = Calendar.getInstance().getTime();
 
-        if (!cacheReloadStartTimeStr.getValue().isEmpty() && !cacheReloadEndTimeStr.getValue().isEmpty()) {
+        if (!CoreConfig.cacheReloadStartTimeStr.getValue().isEmpty() && !CoreConfig.cacheReloadEndTimeStr.getValue().isEmpty()) {
             if (TripDataHistoryCacheFactory.getInstance() != null) {
                 logger.debug(
                         "Populating TripDataHistoryCache cache for period {} to {}",
-                        cacheReloadStartTimeStr.getValue(),
-                        cacheReloadEndTimeStr.getValue());
+                        CoreConfig.cacheReloadStartTimeStr.getValue(),
+                        CoreConfig.cacheReloadEndTimeStr.getValue());
                 TripDataHistoryCacheFactory.getInstance()
                         .populateCacheFromDb(
                                 session,
-                                new Date(Time.parse(cacheReloadStartTimeStr.getValue()).getTime()),
-                                new Date(Time.parse(cacheReloadEndTimeStr.getValue()).getTime())
+                                new Date(Time.parse(CoreConfig.cacheReloadStartTimeStr.getValue()).getTime()),
+                                new Date(Time.parse(CoreConfig.cacheReloadEndTimeStr.getValue()).getTime())
                         );
             }
 
             if (FrequencyBasedHistoricalAverageCache.getInstance() != null) {
                 logger.debug(
                         "Populating FrequencyBasedHistoricalAverageCache cache for period {} to {}",
-                        cacheReloadStartTimeStr.getValue(),
-                        cacheReloadEndTimeStr.getValue());
+                        CoreConfig.cacheReloadStartTimeStr.getValue(),
+                        CoreConfig.cacheReloadEndTimeStr.getValue());
                 FrequencyBasedHistoricalAverageCache.getInstance()
                         .populateCacheFromDb(
                                 session,
-                                new Date(Time.parse(cacheReloadStartTimeStr.getValue()).getTime()),
-                                new Date(Time.parse(cacheReloadEndTimeStr.getValue()).getTime())
+                                new Date(Time.parse(CoreConfig.cacheReloadStartTimeStr.getValue()).getTime()),
+                                new Date(Time.parse(CoreConfig.cacheReloadEndTimeStr.getValue()).getTime())
                         );
             }
 
             if (StopArrivalDepartureCacheFactory.getInstance() != null) {
                 logger.debug(
                         "Populating StopArrivalDepartureCache cache for period {} to {}",
-                        cacheReloadStartTimeStr.getValue(),
-                        cacheReloadEndTimeStr.getValue());
+                        CoreConfig.cacheReloadStartTimeStr.getValue(),
+                        CoreConfig.cacheReloadEndTimeStr.getValue());
                 StopArrivalDepartureCacheFactory.getInstance()
                         .populateCacheFromDb(
                                 session,
-                                new Date(Time.parse(cacheReloadStartTimeStr.getValue()).getTime()),
-                                new Date(Time.parse(cacheReloadEndTimeStr.getValue()).getTime())
+                                new Date(Time.parse(CoreConfig.cacheReloadStartTimeStr.getValue()).getTime()),
+                                new Date(Time.parse(CoreConfig.cacheReloadEndTimeStr.getValue()).getTime())
                         );
             }
             /*

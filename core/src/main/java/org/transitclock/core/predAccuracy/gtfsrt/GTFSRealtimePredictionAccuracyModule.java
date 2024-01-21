@@ -5,24 +5,21 @@ import com.google.transit.realtime.GtfsRealtime.FeedEntity;
 import com.google.transit.realtime.GtfsRealtime.FeedMessage;
 import com.google.transit.realtime.GtfsRealtime.TripUpdate;
 import com.google.transit.realtime.GtfsRealtime.TripUpdate.StopTimeUpdate;
-import java.net.URL;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.transitclock.applications.Core;
-import org.transitclock.config.ClassConfigValue;
 import org.transitclock.config.StringConfigValue;
+import org.transitclock.configData.GtfsConfig;
 import org.transitclock.core.predAccuracy.PredAccuracyPrediction;
 import org.transitclock.core.predAccuracy.PredictionAccuracyModule;
 import org.transitclock.db.structs.ScheduleTime;
 import org.transitclock.db.structs.StopPath;
 import org.transitclock.db.structs.Trip;
 import org.transitclock.gtfs.DbConfig;
+
+import java.net.URL;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Reads in external prediction data from a GTFS realtime trip updates feed and stores the data in
@@ -32,18 +29,6 @@ import org.transitclock.gtfs.DbConfig;
  */
 @Slf4j
 public class GTFSRealtimePredictionAccuracyModule extends PredictionAccuracyModule {
-
-    private static final StringConfigValue gtfsTripUpdateUrl = new StringConfigValue(
-            "transitclock.predAccuracy.gtfsTripUpdateUrl",
-            "http://127.0.0.1:8091/trip-updates",
-            "URL to access gtfs-rt trip updates.");
-
-    /**
-     * @return the gtfstripupdateurl
-     */
-    public static StringConfigValue getGtfstripupdateurl() {
-        return gtfsTripUpdateUrl;
-    }
 
 
     /**
@@ -62,13 +47,13 @@ public class GTFSRealtimePredictionAccuracyModule extends PredictionAccuracyModu
     private FeedMessage getExternalPredictions() {
         // Will just read all data from gtfs-rt url
         URL url = null;
-        logger.info("Getting predictions from API using URL={}", getGtfstripupdateurl().getValue());
+        logger.info("Getting predictions from API using URL={}", GtfsConfig.getGtfstripupdateurl().getValue());
 
         try {
-            url = new URL(getGtfstripupdateurl().getValue());
+            url = new URL(GtfsConfig.getGtfstripupdateurl().getValue());
 
             FeedMessage feed = FeedMessage.parseFrom(url.openStream());
-            logger.info("Prediction read successfully from URL={}", getGtfstripupdateurl().getValue());
+            logger.info("Prediction read successfully from URL={}", GtfsConfig.getGtfstripupdateurl().getValue());
 
             return feed;
         } catch (Exception e) {

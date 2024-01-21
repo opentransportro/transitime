@@ -16,6 +16,7 @@ import java.rmi.server.RMISocketFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.config.IntegerConfigValue;
 import org.transitclock.config.StringConfigValue;
+import org.transitclock.configData.RmiConfig;
 import org.transitclock.utils.Time;
 
 /**
@@ -30,16 +31,6 @@ public class ClientFactory<T extends Remote> {
 
     // So that only need to setup RMI timeout once
     private static Boolean rmiTimeoutEnabled = false;
-
-    private static IntegerConfigValue timeoutSec = new IntegerConfigValue(
-            "transitclock.rmi.timeoutSec",
-            4,
-            "Specifies the timeout time in seconds for RMI calls. Note "
-                    + "that when an RMI failure occurs a second try is done "
-                    + "so total timeout time is twice what is specified here.");
-
-    private static StringConfigValue debugRmiServerHost = new StringConfigValue(
-            "transtime.rmi.debug.rmi.server", null, "The RMI server to connect to when in debug mode");
 
     /**
      * This serves as a factory class For a Remote object. It is expected that a new instance is
@@ -113,9 +104,9 @@ public class ClientFactory<T extends Remote> {
         // Determine the hostname depending on if should update cache or not
         String hostName = updateHostName ? info.getHostNameViaUpdatedCache() : info.getHostName();
 
-        if (debugRmiServerHost.getValue() != null) {
-            logger.info("using debug RMI server value of {}", debugRmiServerHost.getValue());
-            hostName = debugRmiServerHost.getValue();
+        if (RmiConfig.debugRmiServerHost.getValue() != null) {
+            logger.info("using debug RMI server value of {}", RmiConfig.debugRmiServerHost.getValue());
+            hostName = RmiConfig.debugRmiServerHost.getValue();
         }
 
         logger.debug("Getting RMI registry for hostname={} port={} ...", hostName, RmiParams.getRmiPort());
@@ -157,12 +148,12 @@ public class ClientFactory<T extends Remote> {
                         // Need to do quite a bit to get a timeout to work with
                         // RMI
                         Socket socket = new Socket();
-                        int timeoutMillis = timeoutSec.getValue() * Time.MS_PER_SEC;
+                        int timeoutMillis = RmiConfig.timeoutSec.getValue() * Time.MS_PER_SEC;
                         socket.setSoTimeout(timeoutMillis);
                         socket.setSoLinger(false, 0);
 
-                        if (debugRmiServerHost.getValue() != null) {
-                            host = debugRmiServerHost.getValue();
+                        if (RmiConfig.debugRmiServerHost.getValue() != null) {
+                            host = RmiConfig.debugRmiServerHost.getValue();
                         }
                         socket.connect(new InetSocketAddress(host, port), timeoutMillis);
                         return socket;
@@ -177,17 +168,8 @@ public class ClientFactory<T extends Remote> {
                 // again
                 rmiTimeoutEnabled = true;
             } catch (IOException e) {
-                logger.error("Couldn't set RMI timeout to {} seconds.", timeoutSec.getValue(), e);
+                logger.error("Couldn't set RMI timeout to {} seconds.", RmiConfig.timeoutSec.getValue(), e);
             }
         }
-    }
-
-    /**
-     * Returns the timeout time. Useful for error messages.
-     *
-     * @return Timeout time in seconds
-     */
-    public static int getTimeoutSec() {
-        return timeoutSec.getValue();
     }
 }

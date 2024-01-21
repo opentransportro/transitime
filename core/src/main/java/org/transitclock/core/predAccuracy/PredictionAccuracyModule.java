@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.transitclock.Module;
 import org.transitclock.applications.Core;
 import org.transitclock.config.IntegerConfigValue;
+import org.transitclock.configData.PredictionAccuracyConfig;
 import org.transitclock.core.dataCache.PredictionDataCache;
 import org.transitclock.db.structs.ArrivalDeparture;
 import org.transitclock.db.structs.PredictionAccuracy;
@@ -38,53 +39,6 @@ public class PredictionAccuracyModule extends Module {
     // Declared static because want to be able to access it from another
     // class by using the static method handleArrivalDeparture().
     private static final ConcurrentHashMap<PredictionKey, List<PredAccuracyPrediction>> predictionMap = new ConcurrentHashMap<>();
-
-    protected final IntegerConfigValue timeBetweenPollingPredictionsMsec = new IntegerConfigValue(
-            "transitclock.predAccuracy.pollingRateMsec",
-            4 * Time.MS_PER_MIN,
-            "How frequently to query predictions for determining " + "prediction accuracy.");
-
-
-    private static final IntegerConfigValue maxPredTimeMinutes = new IntegerConfigValue(
-            "transitclock.predAccuracy.maxPredTimeMinutes",
-            15,
-            "Maximum time into the future for a pediction for it to "
-                    + "be stored in memory for prediction accuracy analysis.");
-
-    private static final IntegerConfigValue maxPredStalenessMinutes = new IntegerConfigValue(
-            "transitclock.predAccuracy.maxPredStalenessMinutes",
-            15,
-            "Maximum time in minutes a prediction cam be into the "
-                    + "past before it is removed from memory because no "
-                    + "corresponding arrival/departure time was determined.");
-
-
-    private static final IntegerConfigValue stopsPerTrip = new IntegerConfigValue(
-            "transitclock.predAccuracy.stopsPerTrip",
-            5,
-            "Number of stops per trip pattern that should collect " + "prediction data for each polling cycle.");
-
-    private static final IntegerConfigValue maxRandomStopSelectionsPerTrip = new IntegerConfigValue(
-            "transitclock.predAccuracy.maxRandomStopSelectionsPerTrip",
-            100,
-            "Max number of random stops to look at to get the stopsPerTrip.");
-
-
-    private static final IntegerConfigValue maxLatenessComparedToPredictionMsec = new IntegerConfigValue(
-            "transitclock.predAccuracy.maxLatenessComparedToPredictionMsec",
-            25 * Time.MS_PER_MIN,
-            "How late in msec a vehicle can arrive/departure a stop "
-                    + "compared to the prediction and still have the prediction "
-                    + "be considered a match.");
-
-
-
-    private static final IntegerConfigValue maxEarlynessComparedToPredictionMsec = new IntegerConfigValue(
-            "transitclock.predAccuracy.maxEarlynessComparedToPredictionMsec",
-            15 * Time.MS_PER_MIN,
-            "How early in msec a vehicle can arrive/departure a stop "
-                    + "compared to the prediction and still have the prediction "
-                    + "be considered a match.");
 
 
     @ToString
@@ -122,7 +76,7 @@ public class PredictionAccuracyModule extends Module {
 
         // No need to run at startup since internal predictions won't be
         // generated yet. So sleep a bit first.
-        Time.sleep(timeBetweenPollingPredictionsMsec.getValue());
+        Time.sleep(PredictionAccuracyConfig.timeBetweenPollingPredictionsMsec.getValue());
 
         // Run forever
         while (true) {
@@ -142,7 +96,7 @@ public class PredictionAccuracyModule extends Module {
                 // if we have an exception, we still need to wait to be nice to the cpu
                 // Wait appropriate amount of time till poll again
                 long elapsedMsec = timer.elapsedMsec();
-                long sleepTime = timeBetweenPollingPredictionsMsec.getValue() - elapsedMsec;
+                long sleepTime = PredictionAccuracyConfig.timeBetweenPollingPredictionsMsec.getValue() - elapsedMsec;
                 if (sleepTime > 0) {
                     Time.sleep(sleepTime);
                 }
@@ -171,15 +125,15 @@ public class PredictionAccuracyModule extends Module {
                 List<String> stopIdsForTripPattern = tripPattern.getStopIds();
 
                 // If not that many stops for the trip then use all of them.
-                if (stopsPerTrip.getValue() >= stopIdsForTripPattern.size()) {
+                if (PredictionAccuracyConfig.stopsPerTrip.getValue() >= stopIdsForTripPattern.size()) {
                     // Use all stops for this trip pattern
                     routeStopInfo.stopIds.put(tripPattern.getDirectionId(), stopIdsForTripPattern);
                 } else {
                     // Get stops for direction randomly
                     Set<String> stopsSet = new HashSet<>();
                     int tries = 0;
-                    while (stopsSet.size() < stopsPerTrip.getValue()
-                            && tries < maxRandomStopSelectionsPerTrip.getValue()) {
+                    while (stopsSet.size() < PredictionAccuracyConfig.stopsPerTrip.getValue()
+                            && tries < PredictionAccuracyConfig.maxRandomStopSelectionsPerTrip.getValue()) {
                         // Randomly get a stop ID for the trip pattern
                         int index = (int) (stopIdsForTripPattern.size() * Math.random());
                         stopsSet.add(stopIdsForTripPattern.get(index));
@@ -208,7 +162,7 @@ public class PredictionAccuracyModule extends Module {
         // memory. This is important because need to limit how much
         // memory is used for prediction accuracy data collecting.
         if (pred.getPredictedTime().getTime()
-                > Core.getInstance().getSystemTime() + maxPredTimeMinutes.getValue() * Time.MS_PER_MIN) {
+                > Core.getInstance().getSystemTime() + PredictionAccuracyConfig.maxPredTimeMinutes.getValue() * Time.MS_PER_MIN) {
             logger.debug(
                     "Prediction is too far into future so not storing "
                             + "it in memory for prediction accuracy analysis. {}",
@@ -246,7 +200,7 @@ public class PredictionAccuracyModule extends Module {
             while (iter.hasNext()) {
                 PredAccuracyPrediction pred = iter.next();
                 if (pred.getPredictedTime().getTime()
-                        < Core.getInstance().getSystemTime() - maxPredStalenessMinutes.getValue() * Time.MS_PER_MIN) {
+                        < Core.getInstance().getSystemTime() - PredictionAccuracyConfig.maxPredStalenessMinutes.getValue() * Time.MS_PER_MIN) {
                     // Prediction was too old so remove it from memory
                     ++numPredictionsRemoved;
                     logger.info(
@@ -376,8 +330,8 @@ public class PredictionAccuracyModule extends Module {
             // inappropriate. First determine how late vehicle arrived
             // at stop compared to the original prediction time.
             long latenessComparedToPrediction = arrivalDeparture.getTime() - pred.getPredictedTime().getTime();
-            if (latenessComparedToPrediction > maxLatenessComparedToPredictionMsec.getValue()
-                    || latenessComparedToPrediction < -maxEarlynessComparedToPredictionMsec.getValue()) {
+            if (latenessComparedToPrediction > PredictionAccuracyConfig.maxLatenessComparedToPredictionMsec.getValue()
+                    || latenessComparedToPrediction < -PredictionAccuracyConfig.maxEarlynessComparedToPredictionMsec.getValue()) {
                 continue;
             }
 

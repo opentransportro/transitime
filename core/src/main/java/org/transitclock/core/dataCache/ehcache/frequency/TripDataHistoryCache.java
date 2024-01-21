@@ -2,6 +2,7 @@
 package org.transitclock.core.dataCache.ehcache.frequency;
 
 import com.querydsl.jpa.impl.JPAQuery;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.DateUtils;
 import org.ehcache.Cache;
 import org.ehcache.CacheManager;
@@ -10,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.applications.Core;
 import org.transitclock.config.IntegerConfigValue;
+import org.transitclock.configData.CoreConfig;
 import org.transitclock.core.dataCache.*;
 import org.transitclock.core.dataCache.ehcache.CacheManagerFactory;
 import org.transitclock.core.dataCache.frequency.FrequencyBasedHistoricalAverageCache;
@@ -34,6 +36,7 @@ import java.util.*;
  *     <p>TODO this could do with an interface, factory class, and alternative implementations,
  *     perhaps using Infinispan.
  */
+@Slf4j
 public class TripDataHistoryCache implements TripDataHistoryCacheInterface {
     private static TripDataHistoryCacheInterface singleton = new TripDataHistoryCache();
 
@@ -43,15 +46,7 @@ public class TripDataHistoryCache implements TripDataHistoryCacheInterface {
 
     final URL xmlConfigUrl = getClass().getResource("/ehcache.xml");
 
-    private static final Logger logger = LoggerFactory.getLogger(TripDataHistoryCache.class);
-
-    private Cache<TripKey, TripEvents> cache = null;
-
-    /** Default is 4 as we need 3 days worth for Kalman Filter implementation */
-    private static final IntegerConfigValue tripDataCacheMaxAgeSec = new IntegerConfigValue(
-            "transitclock.tripdatacache.tripDataCacheMaxAgeSec",
-            15 * Time.SEC_PER_DAY,
-            "How old an arrivaldeparture has to be before it is removed from the cache ");
+    private Cache<TripKey, TripEvents> cache;
 
     /**
      * Gets the singleton instance of this class.
@@ -64,12 +59,7 @@ public class TripDataHistoryCache implements TripDataHistoryCacheInterface {
 
     public TripDataHistoryCache() {
         CacheManager cm = CacheManagerFactory.getInstance();
-
         cache = cm.getCache(cacheByTrip, TripKey.class, TripEvents.class);
-    }
-
-    public void logCache(Logger logger) {
-        logger.debug("Cache content log. Not implemented.");
     }
 
     /* (non-Javadoc)
@@ -86,7 +76,7 @@ public class TripDataHistoryCache implements TripDataHistoryCacheInterface {
 
         if (result != null) {
             logger.debug("Found TripDataHistoryCache cache element using key {}.", tripKey);
-            return (List<IpcArrivalDeparture>) result.getEvents();
+            return result.getEvents();
         } else {
             return null;
         }
@@ -96,7 +86,6 @@ public class TripDataHistoryCache implements TripDataHistoryCacheInterface {
      * @see org.transitclock.core.dataCache.TripDataHistoryCacheInterface#putArrivalDeparture(org.transitclock.db.structs.ArrivalDeparture)
      */
     @Override
-    @SuppressWarnings("unchecked")
     public synchronized TripKey putArrivalDeparture(ArrivalDeparture arrivalDeparture) {
 
         Block block = null;
@@ -127,14 +116,14 @@ public class TripDataHistoryCache implements TripDataHistoryCacheInterface {
                         arrivalDeparture.getFreqStartTime(), 2);
 
                 time = FrequencyBasedHistoricalAverageCache.round(
-                        time, FrequencyBasedHistoricalAverageCache.getCacheIncrementsForFrequencyService());
+                        time, CoreConfig.getCacheIncrementsForFrequencyService());
 
                 if (trip != null) {
                     tripKey = new TripKey(arrivalDeparture.getTripId(), nearestDay, time);
 
                     logger.debug("Putting :{} in TripDataHistoryCache cache using key {}.", arrivalDeparture, tripKey);
 
-                    List<IpcArrivalDeparture> list = null;
+                    List<IpcArrivalDeparture> list;
 
                     TripEvents element = cache.get(tripKey);
 

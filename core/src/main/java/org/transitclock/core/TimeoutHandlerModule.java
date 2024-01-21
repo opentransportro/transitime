@@ -1,22 +1,21 @@
 /* (C)2023 */
 package org.transitclock.core;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.Module;
 import org.transitclock.applications.Core;
-import org.transitclock.config.BooleanConfigValue;
-import org.transitclock.config.IntegerConfigValue;
 import org.transitclock.configData.AgencyConfig;
+import org.transitclock.configData.TimeoutConfig;
 import org.transitclock.core.dataCache.VehicleStateManager;
 import org.transitclock.core.schedBasedPreds.SchedBasedPredsModule;
 import org.transitclock.db.structs.AvlReport;
 import org.transitclock.db.structs.VehicleEvent;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.Time;
+
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * For handling when a vehicle doesn't report its position for too long. Makes the vehicle
@@ -36,45 +35,6 @@ public class TimeoutHandlerModule extends Module {
     // vehicle ID. Synchronize map modifications since elsewhere the elements
     // can be removed from the map.
     private final Map<String, AvlReport> avlReportsMap = new HashMap<>();
-    private static final IntegerConfigValue pollingRateSecs = new IntegerConfigValue(
-            "transitclock.timeout.pollingRateSecs",
-            30,
-            "Specifies in seconds how frequently the TimeoutHandler "
-                    + "should actually look for timeouts. Don't want to do "
-                    + "this too frequently because because "
-                    + "TimeoutHandler.handlePossibleTimeout() is called with "
-                    + "every new AVL report and it has to look at every "
-                    + "vehicle to see if has been timed out.");
-
-    private static final IntegerConfigValue allowableNoAvlSecs = new IntegerConfigValue(
-            "transitclock.timeout.allowableNoAvlSecs",
-            6 * Time.SEC_PER_MIN,
-            "For AVL timeouts. If don't get an AVL report for the "
-                    + "vehicle in this amount of time in seconds then the "
-                    + "vehicle will be made non-predictable.");
-
-    private static final IntegerConfigValue allowableNoAvlAfterSchedDepartSecs = new IntegerConfigValue(
-            "transitclock.timeout.allowableNoAvlAfterSchedDepartSecs",
-            6 * Time.SEC_PER_MIN,
-            "If a vehicle is at a wait stop, such as "
-                    + "sitting at a terminal, and doesn't provide an AVL report "
-                    + "for this number of seconds then the vehicle is made "
-                    + "unpredictable. Important because sometimes vehicles "
-                    + "don't report AVL at terminals because they are powered "
-                    + "down. But don't want to continue to provide predictions "
-                    + "for long after scheduled departure time if vehicle "
-                    + "taken out of service.");
-
-    private static final BooleanConfigValue removeTimedOutVehiclesFromVehicleDataCache = new BooleanConfigValue(
-            "transitclock.timeout.removeTimedOutVehiclesFromVehicleDataCache",
-            false,
-            "When timing out vehicles, the default behavior is to make "
-                    + "the vehicle unpredictable but leave it in the "
-                    + "VehicleDataCache. When set to true, a timeout will also "
-                    + "remove the vehicle from the VehicleDataCache. This can "
-                    + "be useful in situations where it is not desirable to "
-                    + "include timed out vehicles in data feeds, e.g. the GTFS "
-                    + "Realtime vehicle positions feed.");
 
     /** Constructor */
     public TimeoutHandlerModule(String agencyId) {
@@ -101,7 +61,7 @@ public class TimeoutHandlerModule extends Module {
      * @param vehicleId Vehicle to remove
      */
     public void removeFromVehicleDataCache(String vehicleId) {
-        if (removeTimedOutVehiclesFromVehicleDataCache.getValue()) {
+        if (TimeoutConfig.removeTimedOutVehiclesFromVehicleDataCache.getValue()) {
             logger.info("Removing vehicleId={} from VehicleDataCache", vehicleId);
             AvlProcessor.getInstance().removeFromVehicleDataCache(vehicleId);
         }
@@ -115,7 +75,7 @@ public class TimeoutHandlerModule extends Module {
     private void handlePredictablePossibleTimeout(
             VehicleState vehicleState, long now, Iterator<AvlReport> mapIterator) {
         // If haven't reported in too long...
-        long maxNoAvl = allowableNoAvlSecs.getValue() * Time.MS_PER_SEC;
+        long maxNoAvl = TimeoutConfig.allowableNoAvlSecs.getValue() * Time.MS_PER_SEC;
         if (now > vehicleState.getAvlReport().getTime() + maxNoAvl) {
             // Make vehicle unpredictable
             String eventDescription = "Vehicle timed out because it "
@@ -148,14 +108,14 @@ public class TimeoutHandlerModule extends Module {
     private void handleNotPredictablePossibleTimeout(VehicleState vehicleState,
                                                      long now,
                                                      Iterator<AvlReport> mapIterator) {
-        if (!removeTimedOutVehiclesFromVehicleDataCache.getValue()) {
+        if (!TimeoutConfig.removeTimedOutVehiclesFromVehicleDataCache.getValue()) {
             // Remove vehicle from map for next time looking for timeouts and return
             mapIterator.remove();
             return;
         }
 
         // If haven't reported in too long...
-        long maxNoAvl = allowableNoAvlSecs.getValue() * Time.MS_PER_SEC;
+        long maxNoAvl = TimeoutConfig.allowableNoAvlSecs.getValue() * Time.MS_PER_SEC;
         if (now > vehicleState.getAvlReport().getTime() + maxNoAvl) {
 
             // Log the situation
@@ -217,7 +177,7 @@ public class TimeoutHandlerModule extends Module {
 
         // If hasn't been too long between AVL reports then everything is fine
         // and simply return
-        long maxNoAvl = allowableNoAvlSecs.getValue() * Time.MS_PER_SEC;
+        long maxNoAvl = TimeoutConfig.allowableNoAvlSecs.getValue() * Time.MS_PER_SEC;
         if (now < vehicleState.getAvlReport().getTime() + maxNoAvl) return;
 
         // It has been a long time since an AVL report so see if also past the
@@ -226,7 +186,7 @@ public class TimeoutHandlerModule extends Module {
         if (scheduledDepartureTime >= 0) {
             // There is a scheduled departure time. Make sure not too
             // far past it
-            long maxNoAvlAfterSchedDepartSecs = allowableNoAvlAfterSchedDepartSecs.getValue() * Time.MS_PER_SEC;
+            long maxNoAvlAfterSchedDepartSecs = TimeoutConfig.allowableNoAvlAfterSchedDepartSecs.getValue() * Time.MS_PER_SEC;
             if (now > scheduledDepartureTime + maxNoAvlAfterSchedDepartSecs) {
                 // Make vehicle unpredictable
                 String stopId = "none (vehicle not matched)";
@@ -310,7 +270,7 @@ public class TimeoutHandlerModule extends Module {
         logger.info("Starting module {} for agencyId={}", getClass().getName(), getAgencyId());
 
         // No need to run at startup since haven't processed AVL data yet
-        Time.sleep(pollingRateSecs.getValue() * Time.MS_PER_SEC);
+        Time.sleep(TimeoutConfig.pollingRateSecs.getValue() * Time.MS_PER_SEC);
 
         // Run forever
         while (true) {
@@ -322,7 +282,7 @@ public class TimeoutHandlerModule extends Module {
                 handlePossibleTimeouts();
 
                 // Wait appropriate amount of time till poll again
-                long sleepTime = pollingRateSecs.getValue() * Time.MS_PER_SEC - timer.elapsedMsec();
+                long sleepTime = TimeoutConfig.pollingRateSecs.getValue() * Time.MS_PER_SEC - timer.elapsedMsec();
                 if (sleepTime > 0) {
                     Time.sleep(sleepTime);
                 }

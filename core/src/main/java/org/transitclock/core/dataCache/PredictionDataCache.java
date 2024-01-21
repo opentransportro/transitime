@@ -1,18 +1,10 @@
 /* (C)2023 */
 package org.transitclock.core.dataCache;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.transitclock.applications.Core;
-import org.transitclock.config.BooleanConfigValue;
-import org.transitclock.core.PredictionGeneratorDefaultImpl;
+import org.transitclock.configData.CoreConfig;
+import org.transitclock.configData.PredictionConfig;
 import org.transitclock.core.VehicleState;
 import org.transitclock.db.structs.Route;
 import org.transitclock.db.structs.Stop;
@@ -23,6 +15,9 @@ import org.transitclock.ipc.data.IpcPredictionsForRouteStopDest;
 import org.transitclock.ipc.interfaces.PredictionsInterface.RouteStop;
 import org.transitclock.utils.MapKey;
 import org.transitclock.utils.Time;
+
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * For storing and retrieving predictions by stop.
@@ -41,15 +36,12 @@ import org.transitclock.utils.Time;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class PredictionDataCache {
 
     // This is a singleton class
     private static PredictionDataCache singleton = new PredictionDataCache();
 
-    protected static BooleanConfigValue returnArrivalPredictionForEndOfTrip = new BooleanConfigValue(
-            "transitclock.prediction.returnArrivalPredictionForEndOfTrip",
-            false,
-            "This set to false will not return arrival predictions of the last stop on a" + " trip.");
 
     // Contains lists of predictions per route/stop. Also want to group
     // predictions by destination/trip head sign together so that can
@@ -70,9 +62,6 @@ public class PredictionDataCache {
     private final ConcurrentHashMap<MapKey, List<IpcPredictionsForRouteStopDest>> predictionsMap =
             new ConcurrentHashMap<MapKey, List<IpcPredictionsForRouteStopDest>>(1000);
 
-    private static final Logger logger = LoggerFactory.getLogger(PredictionDataCache.class);
-
-    /********************** Member Functions **************************/
 
     /**
      * Returns singleton object for this class. It will use the regular SystemCurrentTime class for
@@ -168,7 +157,7 @@ public class PredictionDataCache {
         // schedule based predictions then generating predictions far into the
         // future.
         long maxPredictionEpochTime = Core.getInstance().getSystemTime()
-                + PredictionGeneratorDefaultImpl.getMaxPredictionsTimeSecs() * Time.SEC_IN_MSECS;
+                + CoreConfig.getMaxPredictionsTimeSecs() * Time.SEC_IN_MSECS;
 
         // Want to filter out arrivals at terminal if also getting departures
         // for that stop. Otherwise if user selects a terminal stop they could
@@ -185,7 +174,7 @@ public class PredictionDataCache {
         }
         /* Is this the best place to filter out predictions. Would it be better to allow the consumer filter? */
         boolean shouldFilterOutEndOfTripPreds =
-                (endOfTripPredFound && nonEndOfTripPredFound && !returnArrivalPredictionForEndOfTrip.getValue());
+                (endOfTripPredFound && nonEndOfTripPredFound && !PredictionConfig.returnArrivalPredictionForEndOfTrip.getValue());
 
         // Make a copy of the prediction objects so that they cannot be
         // modified by another thread while they are being accessed. This
@@ -315,7 +304,7 @@ public class PredictionDataCache {
      * @return List of IpcPredictionsForRouteStopDest. Can be empty but will not be null.
      */
     public List<IpcPredictionsForRouteStopDest> getPredictions(List<RouteStop> routeStops, int predictionsPerStop) {
-        List<IpcPredictionsForRouteStopDest> listOfPredictions = new ArrayList<IpcPredictionsForRouteStopDest>();
+        List<IpcPredictionsForRouteStopDest> listOfPredictions = new ArrayList<>();
         for (RouteStop routeStop : routeStops) {
             List<IpcPredictionsForRouteStopDest> predsForStop = getPredictions(
                     routeStop.getRouteIdOrShortName(), null, routeStop.getStopIdOrCode(), predictionsPerStop);
@@ -425,11 +414,7 @@ public class PredictionDataCache {
                     newPrediction.getRouteShortName(),
                     newPrediction.getStopId(),
                     newPrediction.getTrip().getHeadsign());
-            List<IpcPrediction> predsForRouteStopDestList = newPredsForVehicleByRouteStopDestMap.get(key);
-            if (predsForRouteStopDestList == null) {
-                predsForRouteStopDestList = new ArrayList<IpcPrediction>();
-                newPredsForVehicleByRouteStopDestMap.put(key, predsForRouteStopDestList);
-            }
+            List<IpcPrediction> predsForRouteStopDestList = newPredsForVehicleByRouteStopDestMap.computeIfAbsent(key, k -> new ArrayList<>());
             predsForRouteStopDestList.add(newPrediction);
         }
 

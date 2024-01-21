@@ -7,32 +7,20 @@ import java.util.Collections;
 import java.util.List;
 import org.transitclock.config.DoubleConfigValue;
 import org.transitclock.config.IntegerConfigValue;
+import org.transitclock.configData.PredictionConfig;
 import org.transitclock.statistics.Statistics;
 
 /**
  * @author scrudden This is a running average for dwell times.
  */
 public class DwellAverage implements DwellModel, Serializable {
-    /** */
-    private static final long serialVersionUID = 7514794134817837972L;
-
-    private static IntegerConfigValue samplesize = new IntegerConfigValue(
-            "transitclock.prediction.dwell.average.samplesize",
-            5,
-            "Max number of samples to keep for mean calculation.");
-    private static DoubleConfigValue fractionLimitForStopTimes = new DoubleConfigValue(
-            "transitclock.prediction.dwell.average.fractionlimit",
-            0.7,
-            "For when determining stop times. Throws out outliers if they are less than 0.7"
-                    + " or greater than 1/0.7 of the average.");
-
-    private List<Integer> values = new ArrayList<>();
+    private final List<Integer> values = new ArrayList<>();
 
     // For this model headway or demand is not taken into account.
     @Override
     public void putSample(Integer value, Integer headway, Integer demand) {
 
-        if (values.size() < samplesize.getValue()) {
+        if (values.size() < PredictionConfig.samplesize.getValue()) {
             values.add(value);
             Collections.rotate(values, 1);
         } else {
@@ -44,6 +32,6 @@ public class DwellAverage implements DwellModel, Serializable {
     @Override
     public Integer predict(Integer headway, Integer demand) {
 
-        return Statistics.filteredMean(values, fractionLimitForStopTimes.getValue());
+        return Statistics.filteredMean(values, PredictionConfig.fractionLimitForStopTimes.getValue());
     }
 }

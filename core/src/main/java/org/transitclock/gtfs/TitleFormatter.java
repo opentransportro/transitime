@@ -1,6 +1,9 @@
 /* (C)2023 */
 package org.transitclock.gtfs;
 
+import lombok.extern.slf4j.Slf4j;
+import org.transitclock.configData.FormattingConfig;
+
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -10,11 +13,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
-
-import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.transitclock.config.BooleanConfigValue;
 
 /**
  * Tool for formatting titles in the GTFS data. Need to be able to "unshout" titles (change "MAIN
@@ -70,15 +68,6 @@ public class TitleFormatter {
     private final Set<String> regexesThatMadeDifference = new HashSet<String>();
 
     private final List<RegexInfo> regexReplaceList = new ArrayList<RegexInfo>();
-
-    private static final BooleanConfigValue capitalize = new BooleanConfigValue(
-            "transitclock.gtfs.capitalize",
-            false,
-            "Sometimes GTFS titles have all capital letters or other "
-                    + "capitalization issues. If set to true then will properly "
-                    + "capitalize titles when process GTFS data. But note that "
-                    + "this can require using regular expressions to fix things "
-                    + "like acronyms that actually should be all caps.");
 
     public TitleFormatter(String regexReplaceListFileName, boolean logUnusedRegexs) {
         this.logUnusedRegexs = logUnusedRegexs;
@@ -268,7 +257,7 @@ public class TitleFormatter {
         }
 
         // First, properly capitalize the title
-        String capitalizedStr = capitalize.getValue() ? capitalize(original) : original;
+        String capitalizedStr = FormattingConfig.capitalize.getValue() ? capitalize(original) : original;
 
         // Now that capitalization should mostly be correct, use
         // regexs configured in file to make other adjustments.

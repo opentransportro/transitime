@@ -10,6 +10,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.applications.Core;
@@ -20,31 +22,20 @@ import org.transitclock.db.structs.CalendarDate;
 import org.transitclock.gtfs.DbConfig;
 import org.transitclock.utils.Time;
 
+import static org.transitclock.configData.ServiceConfig.minutesIntoMorningToIncludePreviousServiceIds;
+
 /**
  * For working with service types, such as determining serviceId or appropriate block to use for a
  * given epoch time.
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class ServiceUtils {
 
     private final GregorianCalendar calendar;
 
     private final DbConfig dbConfig;
-
-    private static IntegerConfigValue minutesIntoMorningToIncludePreviousServiceIds = new IntegerConfigValue(
-            "transitclock.service.minutesIntoMorningToIncludePreviousServiceIds",
-            4 * Time.HOUR_IN_MINS,
-            "Early in the morning also want to include at service IDs "
-                    + "for previous day since a block might have started on "
-                    + "that day. But don't want to always include previous day "
-                    + "service IDs since that confuses things. Therefore just "
-                    + "include them if before this time of the day, in minutes.");
-
-    private static final Logger logger = LoggerFactory.getLogger(ServiceUtils.class);
-
-    /********************** Member Functions **************************/
-
     /**
      * ServiceUtils constructor. Creates reusable GregorianCalendar and sets the timezone so that
      * the calendar can be reused.

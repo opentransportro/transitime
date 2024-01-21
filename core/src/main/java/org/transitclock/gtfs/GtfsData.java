@@ -7,6 +7,7 @@ import org.hibernate.Session;
 import org.transitclock.config.DoubleConfigValue;
 import org.transitclock.config.IntegerConfigValue;
 import org.transitclock.config.StringConfigValue;
+import org.transitclock.configData.GtfsConfig;
 import org.transitclock.db.structs.Calendar;
 import org.transitclock.db.structs.*;
 import org.transitclock.gtfs.model.*;
@@ -28,58 +29,7 @@ import java.util.regex.Pattern;
 @Slf4j
 @Getter
 public class GtfsData {
-    // So can process only routes that match a regular expression.
-    // Note, see
-    // http://stackoverflow.com/questions/406230/regular-expression-to-match-text-that-doesnt-contain-a-word
-    // for details on how to filter out matches as opposed to specifying
-    // which ones want to keep.
-    private static StringConfigValue routeIdFilterRegEx = new StringConfigValue(
-            "transitclock.gtfs.routeIdFilterRegEx",
-            null, // Default of null means don't do any filtering
-            "Route is included only if route_id matches the this regular "
-                    + "expression. If only want routes with \"SPECIAL\" in the id then "
-                    + "would use \".*SPECIAL.*\". If want to filter out such trips "
-                    + "would instead use the complicated \"^((?!SPECIAL).)*$\" or "
-                    + "\"^((?!(SPECIAL1|SPECIAL2)).)*$\" "
-                    + "if want to filter out two names. The default value "
-                    + "of null causes all routes to be included.");
 
-    // So can process only trips that match a regular expression.
-    // Default of null means don't do any filtering
-    private static StringConfigValue tripIdFilterRegEx = new StringConfigValue(
-            "transitclock.gtfs.tripIdFilterRegEx",
-            null, // Default of null means don't do any filtering
-            "Trip is included only if trip_id matches the this regular "
-                    + "expression. If only want trips with \"SPECIAL\" in the id then "
-                    + "would use \".*SPECIAL.*\". If want to filter out such trips "
-                    + "would instead use the complicated \"^((?!SPECIAL).)*$\" or "
-                    + "\"^((?!(SPECIAL1|SPECIAL2)).)*$\" "
-                    + "if want to filter out two names. The default value "
-                    + "of null causes all trips to be included.");
-
-
-
-    private static IntegerConfigValue stopCodeBaseValue = new IntegerConfigValue(
-            "transitclock.gtfs.stopCodeBaseValue",
-            "If agency doesn't specify stop codes but simply wants to "
-                    + "have them be a based number plus the stop ID then this "
-                    + "parameter can specify the base value. ");
-
-    private static DoubleConfigValue minDistanceBetweenStopsToDisambiguateHeadsigns = new DoubleConfigValue(
-            "transitclock.gtfs.minDistanceBetweenStopsToDisambiguateHeadsigns",
-            1000.0,
-            "When disambiguating headsigns by appending the too stop "
-                    + "name of the last stop, won't disambiguate if the last "
-                    + "stops for the trips with the same headsign differ by "
-                    + "less than this amount.");
-
-    private static StringConfigValue outputPathsAndStopsForGraphingRouteIds = new StringConfigValue(
-            "transitclock.gtfs.outputPathsAndStopsForGraphingRouteIds",
-            null, // Default of null means don't output any routes
-            "Outputs data for specified routes grouped by trip pattern."
-                    + "The resulting data can be visualized on a map by cutting"
-                    + "and pasting it in to http://www.gpsvisualizer.com/map_input"
-                    + "Separate multiple route ids with commas");
 
     private static Pattern routeIdFilterRegExPattern = null;
 
@@ -542,7 +492,7 @@ public class GtfsData {
         // while iterating across the hash map.
         stopsMap = new ConcurrentHashMap<>(gtfsStops.size());
         for (GtfsStop gtfsStop : gtfsStopsMap.values()) {
-            Stop stop = new Stop(revs.getConfigRev(), gtfsStop, stopCodeBaseValue.getValue(), titleFormatter);
+            Stop stop = new Stop(revs.getConfigRev(), gtfsStop, GtfsConfig.stopCodeBaseValue.getValue(), titleFormatter);
             stopsMap.put(stop.getId(), stop);
         }
 
@@ -1449,7 +1399,7 @@ public class GtfsData {
                     // not worth taking into account.
                     if (!lastStopIdForTrip.equals(lastStopId)
                             && !titleFormatter.isReplaceTitle(headsign)
-                            && distanceBetweenLastStops > minDistanceBetweenStopsToDisambiguateHeadsigns.getValue()) {
+                            && distanceBetweenLastStops > GtfsConfig.minDistanceBetweenStopsToDisambiguateHeadsigns.getValue()) {
                         // The last stop is different for this trip pattern even
                         // though the configured headsign is the same. Therefore
                         // modify the shorter trip pattern to append the last
@@ -1469,7 +1419,7 @@ public class GtfsData {
                                     firstTripPatternForHeadsign.getHeadsign(),
                                     modifiedHeadsign,
                                     StringUtils.distanceFormat(distanceBetweenLastStops),
-                                    minDistanceBetweenStopsToDisambiguateHeadsigns.getValue(),
+                                    GtfsConfig.minDistanceBetweenStopsToDisambiguateHeadsigns.getValue(),
                                     firstTripPatternForHeadsign.toShortString(),
                                     tripPattern.toShortString());
                             firstTripPatternForHeadsign.setHeadsign(modifiedHeadsign);
@@ -1491,7 +1441,7 @@ public class GtfsData {
                                     tripPattern.getHeadsign(),
                                     modifiedHeadsign,
                                     StringUtils.distanceFormat(distanceBetweenLastStops),
-                                    minDistanceBetweenStopsToDisambiguateHeadsigns.getValue(),
+                                    GtfsConfig.minDistanceBetweenStopsToDisambiguateHeadsigns.getValue(),
                                     tripPattern.toShortString(),
                                     firstTripPatternForHeadsign.toShortString());
                             tripPattern.setHeadsign(modifiedHeadsign);
@@ -2207,9 +2157,10 @@ public class GtfsData {
     }
 
     public void outputRoutesForGraphing() {
-        if (outputPathsAndStopsForGraphingRouteIds.getValue() == null) return;
+        if (GtfsConfig.outputPathsAndStopsForGraphingRouteIds.getValue() == null)
+            return;
 
-        String[] routeIds = outputPathsAndStopsForGraphingRouteIds.getValue().split(",");
+        String[] routeIds = GtfsConfig.outputPathsAndStopsForGraphingRouteIds.getValue().split(",");
         for (String routeId : routeIds) {
             outputPathsAndStopsForGraphing(routeId);
         }
@@ -2254,57 +2205,27 @@ public class GtfsData {
             for (StopPath path : tripPattern.getStopPaths()) {
                 // Use different colors and symbols so can tell how things are progressing
                 ++pathCnt;
-                String symbolAndColor;
-                switch (pathCnt % 13) {
-                    case 0:
-                        symbolAndColor = "star, blue";
-                        break;
-                    case 1:
-                        symbolAndColor = "googlemini, green";
-                        break;
-                    case 2:
-                        symbolAndColor = "diamond, blue";
-                        break;
-                    case 3:
-                        symbolAndColor = "square, green";
-                        break;
-                    case 4:
-                        symbolAndColor = "triangle, blue";
-                        break;
-                    case 5:
-                        symbolAndColor = "cross, green";
-                        break;
-                    case 6:
-                        symbolAndColor = "circle, blue";
-                        break;
-
-                    case 7:
-                        symbolAndColor = "star, red";
-                        break;
-                    case 8:
-                        symbolAndColor = "googlemini, yellow";
-                        break;
-                    case 9:
-                        symbolAndColor = "diamond, red";
-                        break;
-                    case 10:
-                        symbolAndColor = "square, yellow";
-                        break;
-                    case 11:
-                        symbolAndColor = "triangle, red";
-                        break;
-                    case 12:
-                        symbolAndColor = "cross, yellow";
-                        break;
-                    default:
-                        symbolAndColor = "circle, red";
-                        break;
-                }
+                String symbolAndColor = switch (pathCnt % 13) {
+                    case 0 -> "star, blue";
+                    case 1 -> "googlemini, green";
+                    case 2 -> "diamond, blue";
+                    case 3 -> "square, green";
+                    case 4 -> "triangle, blue";
+                    case 5 -> "cross, green";
+                    case 6 -> "circle, blue";
+                    case 7 -> "star, red";
+                    case 8 -> "googlemini, yellow";
+                    case 9 -> "diamond, red";
+                    case 10 -> "square, yellow";
+                    case 11 -> "triangle, red";
+                    case 12 -> "cross, yellow";
+                    default -> "circle, red";
+                };
 
                 // Output the path info for this trip pattern
                 int i = 0;
                 for (Location loc : path.getLocations()) {
-                    String popupName = "" + i + " lat=" + Geo.format(loc.getLat()) + " lon=" + Geo.format(loc.getLon());
+                    String popupName = i + " lat=" + Geo.format(loc.getLat()) + " lon=" + Geo.format(loc.getLon());
                     String label = "" + i;
                     System.err.println(popupName
                             + ", "
@@ -2329,12 +2250,13 @@ public class GtfsData {
      * @return True if trip not to be filtered out
      */
     public static boolean tripNotFiltered(String tripId) {
-        if (tripIdFilterRegEx.getValue() == null) {
+        if (GtfsConfig.tripIdFilterRegEx.getValue() == null) {
             return true;
         }
 
         // Create pattern if haven't done so yet, but only do so once.
-        if (tripIdFilterRegExPattern == null) tripIdFilterRegExPattern = Pattern.compile(tripIdFilterRegEx.getValue());
+        if (tripIdFilterRegExPattern == null)
+            tripIdFilterRegExPattern = Pattern.compile(GtfsConfig.tripIdFilterRegEx.getValue());
 
         return tripIdFilterRegExPattern.matcher(tripId.trim()).matches();
     }
@@ -2347,11 +2269,12 @@ public class GtfsData {
      * @return True if route not to be filtered out
      */
     public static boolean routeNotFiltered(String routeId) {
-        if (routeIdFilterRegEx.getValue() == null) return true;
+        if (GtfsConfig.routeIdFilterRegEx.getValue() == null)
+            return true;
 
         // Create pattern if haven't done so yet, but only do so once.
         if (routeIdFilterRegExPattern == null)
-            routeIdFilterRegExPattern = Pattern.compile(routeIdFilterRegEx.getValue());
+            routeIdFilterRegExPattern = Pattern.compile(GtfsConfig.routeIdFilterRegEx.getValue());
 
         return routeIdFilterRegExPattern.matcher(routeId.trim()).matches();
     }

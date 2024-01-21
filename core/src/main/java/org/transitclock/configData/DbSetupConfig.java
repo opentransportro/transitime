@@ -98,4 +98,14 @@ public class DbSetupConfig {
 
     private static IntegerConfigValue batchSize = new IntegerConfigValue(
             "transitclock.db.batchSize", 100, "Specifies the database batch size, defaults to 100");
+
+
+
+
+    public static final StringConfigValue encryptionPassword = new StringConfigValue(
+            "transitclock.db.encryptionPassword",
+            "SET THIS!",
+            "Used for encrypting, deencrypting passwords for storage "
+                    + "in a database. This value should be customized for each "
+                    + "implementation and should be hidden from users.");
 }

@@ -1,37 +1,15 @@
 /* (C)2023 */
 package org.transitclock.core.predictiongenerator.datafilter;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.transitclock.config.IntegerConfigValue;
-import org.transitclock.config.LongConfigValue;
+import lombok.extern.slf4j.Slf4j;
+import org.transitclock.configData.PredictionConfig;
 import org.transitclock.ipc.data.IpcArrivalDeparture;
-import org.transitclock.utils.Time;
 
 /**
  * @author scrudden Filter by schedule adherence min and max travel time min and max
  */
+@Slf4j
 public class TravelTimeDataFilterImpl implements TravelTimeDataFilter {
-
-    private static LongConfigValue maxTravelTimeAllowedInModel = new LongConfigValue(
-            "transitclock.prediction.travel.maxTravelTimeAllowedInModel",
-            (long) (20 * Time.MS_PER_MIN),
-            "Max travel time to be considered in algorithm. Milliseconds.");
-    private static LongConfigValue minTravelTimeAllowedInModel = new LongConfigValue(
-            "transitclock.prediction.travel.minTravelTimeAllowedInModel",
-            (long) 1000,
-            "Min travel time to be considered in algorithm. Milliseconds.");
-    private static IntegerConfigValue minSceheduleAdherence = new IntegerConfigValue(
-            "transitclock.prediction.travel.minSceheduleAdherence",
-            (int) (10 * Time.SEC_PER_MIN),
-            "If schedule adherence of vehicle is outside this then not considerd in travel" + " time algorithm.");
-    private static IntegerConfigValue maxSceheduleAdherence = new IntegerConfigValue(
-            "transitclock.prediction.travel.maxSceheduleAdherence",
-            (int) (10 * Time.SEC_PER_MIN),
-            "If schedule adherence of vehicle is outside this then not considerd in travel" + " time algorithm.");
-
-    private static final Logger logger = LoggerFactory.getLogger(DwellTimeDataFilterImpl.class);
-
     @Override
     public boolean filter(IpcArrivalDeparture departure, IpcArrivalDeparture arrival) {
         if (arrival != null && departure != null) {
@@ -42,14 +20,14 @@ public class TravelTimeDataFilterImpl implements TravelTimeDataFilter {
                             && departure
                                     .getScheduledAdherence()
                                     .isWithinBounds(
-                                            minSceheduleAdherence.getValue(), maxSceheduleAdherence.getValue()))) {
+                                            PredictionConfig.minSceheduleAdherence.getValue(), PredictionConfig.maxSceheduleAdherence.getValue()))) {
                 // TODO Arrival schedule adherence appears not to be set much. So
                 // only stop if set and outside range.
                 if (arrival.getScheduledAdherence() == null
                         || arrival.getScheduledAdherence()
-                                .isWithinBounds(minSceheduleAdherence.getValue(), maxSceheduleAdherence.getValue())) {
-                    if (traveltime < maxTravelTimeAllowedInModel.getValue()
-                            && traveltime > minTravelTimeAllowedInModel.getValue()) {
+                                .isWithinBounds(PredictionConfig.minSceheduleAdherence.getValue(), PredictionConfig.maxSceheduleAdherence.getValue())) {
+                    if (traveltime < PredictionConfig.maxTravelTimeAllowedInModel.getValue()
+                            && traveltime > PredictionConfig.minTravelTimeAllowedInModel.getValue()) {
                         return false;
 
                     } else {

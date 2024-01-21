@@ -1,15 +1,11 @@
 /* (C)2023 */
 package org.transitclock.core;
 
-import java.util.*;
-
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
 import org.transitclock.applications.Core;
-import org.transitclock.config.BooleanConfigValue;
-import org.transitclock.config.DoubleConfigValue;
-import org.transitclock.config.IntegerConfigValue;
 import org.transitclock.configData.AgencyConfig;
+import org.transitclock.configData.BlockAssignerConfig;
 import org.transitclock.configData.CoreConfig;
 import org.transitclock.core.SpatialMatcher.MatchingType;
 import org.transitclock.core.autoAssigner.AutoBlockAssigner;
@@ -23,6 +19,10 @@ import org.transitclock.utils.Geo;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.StringUtils;
 import org.transitclock.utils.Time;
+
+import java.util.*;
+
+import static org.transitclock.configData.CoreConfig.*;
 
 /**
  * This is a very important high-level class. It takes the AVL data and processes it. Matches
@@ -41,62 +41,6 @@ public class AvlProcessor {
     // Singleton class
     private static final AvlProcessor singleton = new AvlProcessor();
 
-    private static double getTerminalDistanceForRouteMatching() {
-        return terminalDistanceForRouteMatching.getValue();
-    }
-
-    private static final DoubleConfigValue terminalDistanceForRouteMatching = new DoubleConfigValue(
-            "transitclock.core.terminalDistanceForRouteMatching",
-            100.0,
-            "How far vehicle must be away from the terminal before doing "
-                    + "initial matching. This is important because when vehicle is at "
-                    + "terminal don't know which trip it it should be matched to until "
-                    + "vehicle has left the terminal.");
-
-    private static final IntegerConfigValue allowableBadAssignments = new IntegerConfigValue(
-            "transitclock.core.allowableBadAssignments",
-            0,
-            "If get a bad assignment, such as no assignment, but no "
-                    + "more than allowableBadAssignments then will use the "
-                    + "previous assignment. Useful for when assignment part "
-                    + "of AVL feed doesn't always provide a valid assignment.");
-
-    private static BooleanConfigValue emailMessagesWhenAssignmentGrabImproper = new BooleanConfigValue(
-            "transitclock.core.emailMessagesWhenAssignmentGrabImproper",
-            false,
-            "When one vehicle gets assigned by AVL feed but another "
-                    + "vehicle already has that assignment then sometimes the "
-                    + "assignment to the new vehicle would be incorrect. Could "
-                    + "be that vehicle was never logged out or simply got bad "
-                    + "assignment. For this situation it can be useful to "
-                    + "receive error message via e-mail. But can get too many "
-                    + "such e-mails. This property allows one to control those "
-                    + "e-mails.");
-
-    private static final DoubleConfigValue maxDistanceForAssignmentGrab = new DoubleConfigValue(
-            "transitclock.core.maxDistanceForAssignmentGrab",
-            10000.0,
-            "For when another vehicles gets assignment and needs to "
-                    + "grab it from another vehicle. The new vehicle must "
-                    + "match to route within maxDistanceForAssignmentGrab in "
-                    + "order to grab the assignment.");
-
-    private static final DoubleConfigValue maxMatchDistanceFromAVLRecord = new DoubleConfigValue(
-            "transitclock.core.maxMatchDistanceFromAVLRecord",
-            500.0,
-            "For logging distance between spatial match and actual AVL assignment ");
-
-    private static final BooleanConfigValue ignoreInactiveBlocks = new BooleanConfigValue(
-            "transitclock.core.ignoreInactiveBlocks",
-            true,
-            "If the block isn't active at this time then ignore it. This way "
-                    + "don't look at each trip to see if it is active which is important "
-                    + "because looking at each trip means all the trip data including "
-                    + "travel times needs to be lazy loaded, which can be slow.");
-
-    private double getMaxMatchDistanceFromAVLRecord() {
-        return maxMatchDistanceFromAVLRecord.getValue();
-    }
 
     /*
      * Singleton class so shouldn't use constructor so declared private
@@ -425,7 +369,7 @@ public class AvlProcessor {
      * @return True if the match can be used when matching vehicle to a route
      */
     private static boolean matchOkForRouteMatching(SpatialMatch match) {
-        return match.awayFromTerminals(getTerminalDistanceForRouteMatching());
+        return match.awayFromTerminals(CoreConfig.getTerminalDistanceForRouteMatching());
     }
 
     /**
@@ -537,7 +481,7 @@ public class AvlProcessor {
         // difference
         double deltaDistance = Math.abs(Geo.distance(avlLocation, matchLocation));
 
-        if (vehicleState.isPredictable() && deltaDistance > getMaxMatchDistanceFromAVLRecord()) {
+        if (vehicleState.isPredictable() && deltaDistance > CoreConfig.getMaxMatchDistanceFromAVLRecord()) {
             String eventDescription = "Vehicle match conflict from AVL report of "
                     + Geo.distanceFormat(deltaDistance)
                     + " from match "
@@ -596,7 +540,7 @@ public class AvlProcessor {
             // because looking at each trip means all the trip data including
             // travel times needs to be lazy loaded, which can be slow.
             // Override by setting transitclock.core.ignoreInactiveBlocks to false
-            if (!block.isActive(avlReport.getDate()) && ignoreInactiveBlocks.getValue()) {
+            if (!block.isActive(avlReport.getDate()) && CoreConfig.ignoreInactiveBlocks.getValue()) {
                 if (logger.isDebugEnabled()) {
                     logger.debug(
                             "For vehicleId={} ignoring block ID {} with "
@@ -1432,7 +1376,7 @@ public class AvlProcessor {
         // Handle special case where want to not use assignment from AVL
         // report, most likely because want to test automatic assignment
         // capability
-        if (AutoBlockAssigner.ignoreAvlAssignments() && !avlReport.isForSchedBasedPreds()) {
+        if (BlockAssignerConfig.ignoreAvlAssignments() && !avlReport.isForSchedBasedPreds()) {
             logger.debug(
                     "Removing assignment from AVL report because "
                             + "transitclock.autoBlockAssigner.ignoreAvlAssignments=true. {}",

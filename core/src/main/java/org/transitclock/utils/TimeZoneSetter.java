@@ -1,8 +1,9 @@
 /* (C)2023 */
 package org.transitclock.utils;
 
+import org.transitclock.configData.CoreConfig;
+
 import java.util.TimeZone;
-import org.transitclock.config.StringConfigValue;
 
 /**
  * For setting timezone for application. Ideally would get timezone from the agency db but once a
@@ -12,18 +13,6 @@ import org.transitclock.config.StringConfigValue;
  * @author Michael
  */
 public class TimeZoneSetter {
-    public static String getTimezone() {
-        return timezone.getValue();
-    }
-
-    private static StringConfigValue timezone = new StringConfigValue(
-            "transitclock.core.timezone",
-            "For setting timezone for application. Ideally would get "
-                    + "timezone from the agency db but once a Hibernate "
-                    + "session factory is created, such as for reading "
-                    + "timezone from db, then it is too late to set the "
-                    + "timezone. Therefore this provides ability to set it "
-                    + "manually.");
 
     /**
      * For setting timezone for application to name specified by the Java property
@@ -32,7 +21,7 @@ public class TimeZoneSetter {
      * late to set the timezone. Therefore this provides ability to set it manually.
      */
     public static void setTimezone() {
-        String timezoneStr = timezone.getValue();
+        String timezoneStr = CoreConfig.getTimezone();
         if (timezoneStr != null) {
             TimeZone.setDefault(TimeZone.getTimeZone(timezoneStr));
         }

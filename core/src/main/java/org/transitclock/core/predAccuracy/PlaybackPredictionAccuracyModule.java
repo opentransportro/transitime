@@ -3,6 +3,7 @@ package org.transitclock.core.predAccuracy;
 
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.applications.Core;
+import org.transitclock.configData.PredictionAccuracyConfig;
 import org.transitclock.utils.PlaybackIntervalTimer;
 
 @Slf4j
@@ -24,7 +25,7 @@ public class PlaybackPredictionAccuracyModule extends PredictionAccuracyModule {
             // generated yet. So sleep a bit first.
 
             // Time.sleep(5000);
-            if (timer.elapsedMsec() > timeBetweenPollingPredictionsMsec.getValue()) {
+            if (timer.elapsedMsec() > PredictionAccuracyConfig.timeBetweenPollingPredictionsMsec.getValue()) {
                 try {
                     // Process data
                     getAndProcessData(getRoutesAndStops(), Core.getInstance().getSystemDate());

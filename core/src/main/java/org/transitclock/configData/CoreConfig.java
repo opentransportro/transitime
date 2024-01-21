@@ -17,6 +17,18 @@ import org.transitclock.utils.Time;
  */
 public class CoreConfig {
 
+    private static final StringConfigValue timezone = new StringConfigValue(
+            "transitclock.core.timezone",
+            "For setting timezone for application. Ideally would get "
+                    + "timezone from the agency db but once a Hibernate "
+                    + "session factory is created, such as for reading "
+                    + "timezone from db, then it is too late to set the "
+                    + "timezone. Therefore this provides ability to set it "
+                    + "manually.");
+    public static String getTimezone() {
+        return timezone.getValue();
+    }
+
     // Database params
     /**
      * How many days data to look back at to fill cache
@@ -27,7 +39,7 @@ public class CoreConfig {
         return daysPopulateHistoricalCache.getValue();
     }
 
-    private static IntegerConfigValue daysPopulateHistoricalCache = new IntegerConfigValue(
+    public static IntegerConfigValue daysPopulateHistoricalCache = new IntegerConfigValue(
             "transitclock.cache.core.daysPopulateHistoricalCache",
             0,
             "How many days data to read in to populate historical cache on start up.");
@@ -42,7 +54,7 @@ public class CoreConfig {
         return storeDataInDatabase.getValue();
     }
 
-    private static BooleanConfigValue storeDataInDatabase = new BooleanConfigValue(
+    public static BooleanConfigValue storeDataInDatabase = new BooleanConfigValue(
             "transitclock.db.storeDataInDatabase",
             true,
             "When in playback mode or some other situations don't "
@@ -729,4 +741,256 @@ public class CoreConfig {
             "Directory where pid file should be written. The pid file "
                     + "can be used by monit to make sure that core process is "
                     + "always running.");
+
+
+
+    //// prediction generator
+    public static final IntegerConfigValue maxPredictionsTimeSecs = new IntegerConfigValue(
+            "transitclock.core.maxPredictionsTimeSecs",
+            30 * Time.SEC_PER_MIN,
+            "How far forward into the future should generate predictions for.");
+
+    public static LongConfigValue generateHoldingTimeWhenPredictionWithin = new LongConfigValue(
+            "transitclock.core.generateHoldingTimeWhenPredictionWithin",
+            0L,
+            "If the prediction is less than this number of milliseconds from current time"
+                    + " then use it to generate a holding time");
+
+    public static BooleanConfigValue useArrivalPredictionsForNormalStops = new BooleanConfigValue(
+            "transitclock.core.useArrivalPredictionsForNormalStops",
+            true,
+            "For specifying whether to use arrival predictions or "
+                    + "departure predictions for normal, non-wait time, stops.");
+
+    public static IntegerConfigValue maxLateCutoffPredsForNextTripsSecs = new IntegerConfigValue(
+            "transitclock.core.maxLateCutoffPredsForNextTripsSecs",
+            Integer.MAX_VALUE,
+            "If a vehicle is further behind schedule than this amount "
+                    + "then predictions for subsequent trips will be marked as "
+                    + "being uncertain. This is useful for when another vehicle "
+                    + "might take over the next trip for the block due to "
+                    + "vehicle being late.");
+
+    public static BooleanConfigValue useExactSchedTimeForWaitStops = new BooleanConfigValue(
+            "transitclock.core.useExactSchedTimeForWaitStops",
+            true,
+            "The predicted time for wait stops includes the historic "
+                    + "wait stop time. This means it will be a bit after the "
+                    + "configured schedule time. But some might not want to "
+                    + "see such adjusted times. Plus just showing the schedule "
+                    + "time is more conservative, and therefore usually better. "
+                    + "If this value is set to true then the actual schedule "
+                    + "time will be used. If false then the schedule time plus "
+                    + "the wait stop time will be used.");
+
+    public static BooleanConfigValue useHoldingTimeInPrediction =
+            new BooleanConfigValue("transitclock.core.useHoldingTimeInPrediction", false, "Add holding time to prediction.");
+
+
+
+    public static int getMaxPredictionsTimeSecs() {
+        return maxPredictionsTimeSecs.getValue();
+    }
+
+
+
+    /// avl processor
+    public static double getTerminalDistanceForRouteMatching() {
+        return terminalDistanceForRouteMatching.getValue();
+    }
+
+    public static final DoubleConfigValue terminalDistanceForRouteMatching = new DoubleConfigValue(
+            "transitclock.core.terminalDistanceForRouteMatching",
+            100.0,
+            "How far vehicle must be away from the terminal before doing "
+                    + "initial matching. This is important because when vehicle is at "
+                    + "terminal don't know which trip it it should be matched to until "
+                    + "vehicle has left the terminal.");
+
+    public static final IntegerConfigValue allowableBadAssignments = new IntegerConfigValue(
+            "transitclock.core.allowableBadAssignments",
+            0,
+            "If get a bad assignment, such as no assignment, but no "
+                    + "more than allowableBadAssignments then will use the "
+                    + "previous assignment. Useful for when assignment part "
+                    + "of AVL feed doesn't always provide a valid assignment.");
+
+    public static BooleanConfigValue emailMessagesWhenAssignmentGrabImproper = new BooleanConfigValue(
+            "transitclock.core.emailMessagesWhenAssignmentGrabImproper",
+            false,
+            "When one vehicle gets assigned by AVL feed but another "
+                    + "vehicle already has that assignment then sometimes the "
+                    + "assignment to the new vehicle would be incorrect. Could "
+                    + "be that vehicle was never logged out or simply got bad "
+                    + "assignment. For this situation it can be useful to "
+                    + "receive error message via e-mail. But can get too many "
+                    + "such e-mails. This property allows one to control those "
+                    + "e-mails.");
+
+    public static final DoubleConfigValue maxDistanceForAssignmentGrab = new DoubleConfigValue(
+            "transitclock.core.maxDistanceForAssignmentGrab",
+            10000.0,
+            "For when another vehicles gets assignment and needs to "
+                    + "grab it from another vehicle. The new vehicle must "
+                    + "match to route within maxDistanceForAssignmentGrab in "
+                    + "order to grab the assignment.");
+
+    public static final DoubleConfigValue maxMatchDistanceFromAVLRecord = new DoubleConfigValue(
+            "transitclock.core.maxMatchDistanceFromAVLRecord",
+            500.0,
+            "For logging distance between spatial match and actual AVL assignment ");
+
+    public static final BooleanConfigValue ignoreInactiveBlocks = new BooleanConfigValue(
+            "transitclock.core.ignoreInactiveBlocks",
+            true,
+            "If the block isn't active at this time then ignore it. This way "
+                    + "don't look at each trip to see if it is active which is important "
+                    + "because looking at each trip means all the trip data including "
+                    + "travel times needs to be lazy loaded, which can be slow.");
+
+    public static double getMaxMatchDistanceFromAVLRecord() {
+        return maxMatchDistanceFromAVLRecord.getValue();
+    }
+
+
+    /// prediction
+    public static BooleanConfigValue storeTravelTimeStopPathPredictions = new BooleanConfigValue(
+            "transitclock.core.storeTravelTimeStopPathPredictions",
+            false,
+            "This is set to true to record all travelTime  predictions for individual"
+                    + " stopPaths generated. Useful for comparing performance of differant"
+                    + " algorithms. (MAPE comparison). Not for normal use as will generate"
+                    + " massive amounts of data.");
+
+    public static BooleanConfigValue storeDwellTimeStopPathPredictions = new BooleanConfigValue(
+            "transitclock.core.storeDwellTimeStopPathPredictions",
+            false,
+            "This is set to true to record all travelTime  predictions for individual dwell"
+                    + " times generated. Useful for comparing performance of differant"
+                    + " algorithms. (MAPE comparison). Not for normal use as will generate"
+                    + " massive amounts of data.");
+
+    /// spatial matcher
+
+    public static BooleanConfigValue spatialMatchToLayoversAllowedForAutoAssignment = new BooleanConfigValue(
+            "transitclock.core.spatialMatchToLayoversAllowedForAutoAssignment",
+            false,
+            "Allow auto assigner consider spatial matches to layovers. Experimental.");
+
+
+
+    public static BooleanConfigValue blockLoading = new BooleanConfigValue(
+            "transitclock.blockLoading.agressive",
+            false,
+            "Set true to eagerly fetch all blocks into memory on startup");
+
+
+
+    /// ExponentialBiasAdjuster
+    public static DoubleConfigValue baseNumber = new DoubleConfigValue(
+            "org.transitclock.core.predictiongenerator.bias.exponential.b",
+            1.1,
+            "Base number to be raised to the power of the horizon minutes. y=a(b^x)+c.");
+
+    public static DoubleConfigValue multiple = new DoubleConfigValue(
+            "org.transitclock.core.predictiongenerator.bias.exponential.a", 0.5, "Multiple.y=a(b^x)+c.");
+
+    public static DoubleConfigValue constant = new DoubleConfigValue(
+            "org.transitclock.core.predictiongenerator.bias.exponential.c", -0.5, "Constant. y=a(b^x)+c.");
+
+    public static IntegerConfigValue updown = new IntegerConfigValue(
+            "org.transitclock.core.predictiongenerator.bias.exponential.updown",
+            -1,
+            "Is the adjustment up or down? Set +1 or -1.");
+
+
+    public static IntegerConfigValue maxDwellTimeAllowedInModel = new IntegerConfigValue(
+            "org.transitclock.core.dataCache.jcs.maxDwellTimeAllowedInModel",
+            2 * Time.MS_PER_MIN,
+            "Max dwell time to be considered in dwell RLS algotithm.");
+    public static LongConfigValue maxHeadwayAllowedInModel = new LongConfigValue(
+            "org.transitclock.core.dataCache.jcs.maxHeadwayAllowedInModel",
+            1 * Time.MS_PER_HOUR,
+            "Max headway to be considered in dwell RLS algotithm.");
+
+    public static DoubleConfigValue lambda = new DoubleConfigValue(
+            "org.transitclock.core.dataCache.jcs.lambda",
+            0.75,
+            "This sets the rate at which the RLS algorithm forgets old values. Value are"
+                    + " between 0 and 1. With 0 being the most forgetful.");
+
+
+
+
+    public static final DoubleConfigValue rateChangePercentage = new DoubleConfigValue(
+            "org.transitclock.core.predictiongenerator.bias.linear.rate",
+            0.0006,
+            "Rate at which percentage adjustment changes with horizon.");
+    public static final IntegerConfigValue linearUpdown = new IntegerConfigValue(
+            "org.transitclock.core.predictiongenerator.bias.linear.updown",
+            -1,
+            "Is the adjustment up or down? Set +1 or -1.");
+
+
+    /// blocksinfo
+    public static IntegerConfigValue blockactiveForTimeBeforeSecs = new IntegerConfigValue(
+            "transitclock.core.blockactiveForTimeBeforeSecs",
+            0,
+            "Now many seconds before the start of a block it will be considered active.");
+    public static IntegerConfigValue blockactiveForTimeAfterSecs = new IntegerConfigValue(
+            "transitclock.core.blockactiveForTimeAfterSecs",
+            -1,
+            "Now many seconds after the end of a block it will be considered active.");
+
+
+    // dwelltimedetails
+    public static final IntegerConfigValue maxDwellTime = new IntegerConfigValue(
+            "transitclock.core.maxDwellTime",
+            10 * Time.MS_PER_MIN,
+            "This is a maximum dwell time at a stop to be taken into account for cache or"
+                    + " prediction calculations.");
+
+
+    /// frequencybasedhistoricalaveragecache
+    public static IntegerConfigValue minTravelTimeFilterValue = new IntegerConfigValue(
+            "transitclock.core.frequency.minTravelTimeFilterValue",
+            0,
+            "The value to be included in average calculation for Travel times must exceed" + " this value.");
+
+    public static IntegerConfigValue maxTravelTimeFilterValue = new IntegerConfigValue(
+            "transitclock.core.frequency.maxTravelTimeFilterValue",
+            600000,
+            "The value to be included in average calculation for Travel times must be less" + " than this value.");
+
+    public static IntegerConfigValue minDwellTimeFilterValue = new IntegerConfigValue(
+            "transitclock.core.frequency.minDwellTimeFilterValue",
+            0,
+            "The value to be included in average calculation for dwell time must exceed" + " this value.");
+
+    public static IntegerConfigValue maxDwellTimeFilterValue = new IntegerConfigValue(
+            "transitclock.core.frequency.maxDwellTimeFilterValue",
+            600000,
+            "The value to be included in average calculation for dwell time must be less" + " this value.");
+
+    public static IntegerConfigValue cacheIncrementsForFrequencyService = new IntegerConfigValue(
+            "transitclock.core.frequency.cacheIncrementsForFrequencyService",
+            180 * 60,
+            "This is the intervals size of the day that the average is applied to. ");
+
+    public static int getCacheIncrementsForFrequencyService() {
+        return cacheIncrementsForFrequencyService.getValue();
+    }
+
+
+
+
+    public static final StringConfigValue cacheReloadStartTimeStr = new StringConfigValue(
+            "transitclock.core.cacheReloadStartTimeStr",
+            "",
+            "Date and time of when to start reading arrivaldepartures to inform caches.");
+
+    public static final StringConfigValue cacheReloadEndTimeStr = new StringConfigValue(
+            "transitclock.core.cacheReloadEndTimeStr",
+            "",
+            "Date and time of when to end reading arrivaldepartures to inform caches.");
 }

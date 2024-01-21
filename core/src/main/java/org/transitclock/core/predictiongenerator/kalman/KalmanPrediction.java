@@ -1,7 +1,7 @@
 /* (C)2023 */
 package org.transitclock.core.predictiongenerator.kalman;
 
-import org.transitclock.config.BooleanConfigValue;
+import org.transitclock.configData.PredictionConfig;
 
 /**
  * @author Sean Óg Crudden
@@ -19,14 +19,8 @@ public class KalmanPrediction {
      *     last_prediction_error to be used in the next prediction calculation.
      * @throws Exception
      */
-    private static final BooleanConfigValue useaverage = new BooleanConfigValue(
-            "transitclock.prediction.kalman.useaverage",
-            true,
-            "Will use average travel time as opposed to last historical vehicle in Kalman"
-                    + " prediction calculation.");
-
     public KalmanPredictionResult predict(
-            TripSegment last_vehicle_segment, TripSegment historical_segments[], double last_prediction_error)
+            TripSegment last_vehicle_segment, TripSegment[] historical_segments, double last_prediction_error)
             throws Exception {
         KalmanPredictionResult result = null;
 
@@ -45,12 +39,11 @@ public class KalmanPrediction {
         return result;
     }
 
-    private double historicalAverage(TripSegment historical_segments[]) throws Exception {
+    private double historicalAverage(TripSegment[] historical_segments) throws Exception {
         if (historical_segments.length > 0) {
             long total = 0;
-            for (int i = 0; i < historical_segments.length; i++) {
-                long duration = historical_segments[i].getDestination().getTime()
-                        - historical_segments[i].getOrigin().getTime();
+            for (TripSegment historicalSegment : historical_segments) {
+                long duration = historicalSegment.getDestination().getTime() - historicalSegment.getOrigin().getTime();
                 total = total + duration;
             }
             return (double) (total / historical_segments.length);
@@ -59,12 +52,12 @@ public class KalmanPrediction {
         }
     }
 
-    private double historicalVariance(TripSegment historical_segments[], double average) {
+    private double historicalVariance(TripSegment[] historical_segments, double average) {
         double total = 0;
 
-        for (int i = 0; i < historical_segments.length; i++) {
-            long duration = historical_segments[i].getDestination().getTime()
-                    - historical_segments[i].getOrigin().getTime();
+        for (TripSegment historicalSegment : historical_segments) {
+            long duration = historicalSegment.getDestination().getTime()
+                    - historicalSegment.getOrigin().getTime();
 
             double diff = duration - average;
 
@@ -86,14 +79,14 @@ public class KalmanPrediction {
     private double prediction(
             double gain,
             double loop_gain,
-            TripSegment historical_segments[],
+            TripSegment[] historical_segments,
             TripSegment last_vechicle_segment,
             double average_duration) {
 
         double historical_duration = average_duration;
 
         /* This may be better use the historical average rather than just the vehicle on previous day. This would damping issues with last days value being dramatically different. */
-        if (!useaverage.getValue()) {
+        if (!PredictionConfig.useaverage.getValue()) {
             historical_duration = historical_segments[historical_segments.length - 1]
                             .getDestination()
                             .getTime()

@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.ToString;
 import org.apache.commons.csv.CSVRecord;
 import org.transitclock.config.StringConfigValue;
+import org.transitclock.configData.GtfsConfig;
 import org.transitclock.utils.csv.CsvBase;
 
 /**
@@ -34,30 +35,6 @@ public class GtfsTrip extends CsvBase {
     private final String shapeId;
     private final Integer wheelchairAccessible;
     private final Integer bikesAllowed;
-
-    // For determining a trip_short_name from the trip_id if the
-    // trip_short_name is not specified in GTFS file.
-    // Default of null means simply use trip_id without any modification.
-    private static StringConfigValue tripShortNameRegEx = new StringConfigValue(
-            "transitclock.gtfs.tripShortNameRegEx",
-            null,
-            "For agencies where trip short name not specified can use this "
-                    + "regular expression to determine the short name from the trip "
-                    + "ID by specifying a grouping. For example, to get name before "
-                    + "a \"-\" would use something like \"(.*?)-\"");
-    private static Pattern tripShortNameRegExPattern = null;
-
-    // For determining proper block_id that corresponds to AVL feed
-    // Default of null means simply use block_id without any modification.
-    private static StringConfigValue blockIdRegEx = new StringConfigValue(
-            "transitclock.gtfs.blockIdRegEx",
-            null,
-            "For agencies where block ID from GTFS datda needs to be modified "
-                    + "to match that of the AVL feed. Can use this "
-                    + "regular expression to determine the proper block ID "
-                    + " by specifying a grouping. For example, to get name after "
-                    + "a \"xx-\" would use something like \"xx-(.*)\"");
-    private static Pattern blockIdRegExPattern = null;
 
     public GtfsTrip(
             String routeId,
@@ -204,14 +181,14 @@ public class GtfsTrip extends CsvBase {
 
         // The tripShortName wasn't provided. If a regular expression specified
         // then use it. If regex not specified then return tripId.
-        if (tripShortNameRegEx.getValue() == null) return tripId;
+        if (GtfsConfig.tripShortNameRegEx.getValue() == null) return tripId;
 
         // Initialize the pattern if need to, but do so just once
-        if (tripShortNameRegExPattern == null)
-            tripShortNameRegExPattern = Pattern.compile(tripShortNameRegEx.getValue());
+        if (GtfsConfig.tripShortNameRegExPattern == null)
+            GtfsConfig.tripShortNameRegExPattern = Pattern.compile(GtfsConfig.tripShortNameRegEx.getValue());
 
         // Create the matcher
-        Matcher m = tripShortNameRegExPattern.matcher(tripId);
+        Matcher m = GtfsConfig.tripShortNameRegExPattern.matcher(tripId);
 
         // If insufficient match then return tripId
         if (!m.find()) return tripId;
@@ -232,13 +209,14 @@ public class GtfsTrip extends CsvBase {
     public static String getBlockId(String originalBlockId) {
         // If nothing to do then return original value
         if (originalBlockId == null) return originalBlockId;
-        if (blockIdRegEx.getValue() == null) return originalBlockId;
+        if (GtfsConfig.blockIdRegEx.getValue() == null) return originalBlockId;
 
         // Initialize the pattern if need to, but do so just once
-        if (blockIdRegExPattern == null) blockIdRegExPattern = Pattern.compile(blockIdRegEx.getValue());
+        if (GtfsConfig.blockIdRegExPattern == null)
+            GtfsConfig.blockIdRegExPattern = Pattern.compile(GtfsConfig.blockIdRegEx.getValue());
 
         // Create the matcher
-        Matcher m = blockIdRegExPattern.matcher(originalBlockId);
+        Matcher m = GtfsConfig.blockIdRegExPattern.matcher(originalBlockId);
 
         // If insufficient match return original value
         if (!m.find() || m.groupCount() < 1) return originalBlockId;

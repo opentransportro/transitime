@@ -1,22 +1,21 @@
 /* (C)2023 */
 package org.transitclock.core.predictiongenerator.scheduled.traveltime.kalman;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.DateUtils;
 import org.transitclock.applications.Core;
-import org.transitclock.config.BooleanConfigValue;
-import org.transitclock.config.DoubleConfigValue;
-import org.transitclock.config.IntegerConfigValue;
+import org.transitclock.configData.CoreConfig;
+import org.transitclock.configData.PredictionConfig;
 import org.transitclock.core.*;
 import org.transitclock.core.dataCache.*;
-import org.transitclock.core.predictiongenerator.PredictionComponentElementsGenerator;
 import org.transitclock.core.predictiongenerator.kalman.*;
 import org.transitclock.db.structs.AvlReport;
 import org.transitclock.db.structs.PredictionEvent;
 import org.transitclock.db.structs.PredictionForStopPath;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @author Sean Óg Crudden This is a prediction generator that uses a Kalman filter to provide
@@ -28,49 +27,6 @@ public class KalmanPredictionGeneratorImpl extends PredictionGeneratorDefaultImp
 
     private final String alternative = "PredictionGeneratorDefaultImpl";
 
-    /*
-     * TODO I think this needs to be a minimum of three and if just two will use
-     * historical value.
-     */
-    private static final IntegerConfigValue minKalmanDays = new IntegerConfigValue(
-            "transitclock.prediction.data.kalman.mindays",
-            3,
-            "Min number of days trip data that needs to be available before Kalman"
-                    + " prediciton is used instead of default transiTime prediction.");
-
-    private static final IntegerConfigValue maxKalmanDays = new IntegerConfigValue(
-            "transitclock.prediction.data.kalman.maxdays",
-            3,
-            "Max number of historical days trips to include in Kalman prediction calculation.");
-
-    private static final IntegerConfigValue maxKalmanDaysToSearch = new IntegerConfigValue(
-            "transitclock.prediction.data.kalman.maxdaystoseach",
-            21,
-            "Max number of days to look back for data. This will also be effected by how"
-                    + " old the data in the cache is.");
-
-    private static final DoubleConfigValue initialErrorValue = new DoubleConfigValue(
-            "transitclock.prediction.data.kalman.initialerrorvalue",
-            100D,
-            "Initial Kalman error value to use to start filter.");
-
-    /* May be better to use the default implementation as it splits things down into segments. */
-    private static final BooleanConfigValue useKalmanForPartialStopPaths = new BooleanConfigValue(
-            "transitclock.prediction.data.kalman.usekalmanforpartialstoppaths",
-            true,
-            "Will use Kalman prediction to get to first stop of prediction.");
-
-    private static final IntegerConfigValue percentagePredictionMethodDifferenceneEventLog = new IntegerConfigValue(
-            "transitclock.prediction.data.kalman.percentagePredictionMethodDifferencene",
-            50,
-            "If the difference in prediction method estimates is greater than this"
-                    + " percentage log a Vehicle Event");
-
-    private static final IntegerConfigValue tresholdForDifferenceEventLog = new IntegerConfigValue(
-            "transitclock.prediction.data.kalman.tresholdForDifferenceEventLog",
-            60000,
-            "This is the threshold in milliseconds that the difference has to be over"
-                    + " before it will consider the percentage difference.");
 
     /*
      * (non-Javadoc)
@@ -110,8 +66,8 @@ public class KalmanPredictionGeneratorImpl extends PredictionGeneratorDefaultImp
                         indices.getStopPathIndex(),
                         nearestDay,
                         currentVehicleState.getTrip().getStartTime(),
-                        maxKalmanDaysToSearch.getValue(),
-                        maxKalmanDays.getValue());
+                        PredictionConfig.maxKalmanDaysToSearch.getValue(),
+                        PredictionConfig.maxKalmanDays.getValue());
 
                 if (lastDaysTimes != null) {
                     logger.debug("Kalman has {} historical values for : {}", lastDaysTimes.size(), indices);
@@ -120,7 +76,7 @@ public class KalmanPredictionGeneratorImpl extends PredictionGeneratorDefaultImp
                  * if we have enough data start using Kalman filter otherwise revert
                  * to extended class for prediction.
                  */
-                if (lastDaysTimes != null && lastDaysTimes.size() >= minKalmanDays.getValue()) {
+                if (lastDaysTimes != null && lastDaysTimes.size() >= PredictionConfig.minKalmanDays.getValue()) {
 
                     logger.debug("Generating Kalman prediction for : {}", indices);
                     try {
@@ -130,7 +86,7 @@ public class KalmanPredictionGeneratorImpl extends PredictionGeneratorDefaultImp
                         VehicleStopDetail originDetail = new VehicleStopDetail(null, 0, vehicle);
                         TripSegment[] historical_segments_k = new TripSegment[lastDaysTimes.size()];
 
-                        for (int i = 0; i < lastDaysTimes.size() && i < maxKalmanDays.getValue(); i++) {
+                        for (int i = 0; i < lastDaysTimes.size() && i < PredictionConfig.maxKalmanDays.getValue(); i++) {
                             logger.debug("Kalman is using historical value : {} for : {}", lastDaysTimes.get(i), indices);
 
                             VehicleStopDetail destinationDetail = new VehicleStopDetail(
@@ -174,8 +130,8 @@ public class KalmanPredictionGeneratorImpl extends PredictionGeneratorDefaultImp
                         double percentageDifferecence =
                                 Math.abs(100 * ((predictionTime - alternatePrediction) / (double) alternatePrediction));
 
-                        if (((percentageDifferecence * alternatePrediction) / 100) > tresholdForDifferenceEventLog.getValue()) {
-                            if (percentageDifferecence > percentagePredictionMethodDifferenceneEventLog.getValue()) {
+                        if (((percentageDifferecence * alternatePrediction) / 100) > PredictionConfig.tresholdForDifferenceEventLog.getValue()) {
+                            if (percentageDifferecence > PredictionConfig.percentagePredictionMethodDifferenceneEventLog.getValue()) {
                                 String description = "Kalman predicts : "
                                         + predictionTime
                                         + " Super predicts : "
@@ -205,7 +161,7 @@ public class KalmanPredictionGeneratorImpl extends PredictionGeneratorDefaultImp
                                 + " for : "
                                 + indices);
 
-                        if (storeTravelTimeStopPathPredictions.getValue()) {
+                        if (CoreConfig.storeTravelTimeStopPathPredictions.getValue()) {
                             PredictionForStopPath predictionForStopPath = new PredictionForStopPath(
                                     vehicleState.getVehicleId(),
                                     new Date(Core.getInstance().getSystemTime()),
@@ -235,7 +191,7 @@ public class KalmanPredictionGeneratorImpl extends PredictionGeneratorDefaultImp
     @Override
     public long expectedTravelTimeFromMatchToEndOfStopPath(AvlReport avlReport, SpatialMatch match) {
 
-        if (useKalmanForPartialStopPaths.getValue()) {
+        if (PredictionConfig.useKalmanForPartialStopPaths.getValue()) {
             VehicleStateManager vehicleStateManager = VehicleStateManager.getInstance();
 
             VehicleState currentVehicleState = vehicleStateManager.getVehicleState(avlReport.getVehicleId());
@@ -267,10 +223,10 @@ public class KalmanPredictionGeneratorImpl extends PredictionGeneratorDefaultImp
             result = cache.getErrorValue(indices);
             if (result == null) {
                 logger.debug("Kalman Error value set to default: "
-                        + initialErrorValue.getValue()
+                        + PredictionConfig.initialErrorValue.getValue()
                         + " for key: "
-                        + new KalmanErrorCacheKey(indices).toString());
-                result = new KalmanError(initialErrorValue.getValue());
+                        + new KalmanErrorCacheKey(indices));
+                result = new KalmanError(PredictionConfig.initialErrorValue.getValue());
             }
             return result;
         } catch (Exception e) {

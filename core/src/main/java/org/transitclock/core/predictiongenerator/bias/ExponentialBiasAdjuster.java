@@ -1,8 +1,7 @@
 /* (C)2023 */
 package org.transitclock.core.predictiongenerator.bias;
 
-import org.transitclock.config.DoubleConfigValue;
-import org.transitclock.config.IntegerConfigValue;
+import org.transitclock.configData.CoreConfig;
 import org.transitclock.utils.Time;
 
 /**
@@ -16,39 +15,20 @@ public class ExponentialBiasAdjuster implements BiasAdjuster {
 
     /*
      * y=a(b^x)+c
-     *
-     *
      */
-
-    private static DoubleConfigValue baseNumber = new DoubleConfigValue(
-            "org.transitclock.core.predictiongenerator.bias.exponential.b",
-            1.1,
-            "Base number to be raised to the power of the horizon minutes. y=a(b^x)+c.");
-
-    private static DoubleConfigValue multiple = new DoubleConfigValue(
-            "org.transitclock.core.predictiongenerator.bias.exponential.a", 0.5, "Multiple.y=a(b^x)+c.");
-
-    private static DoubleConfigValue constant = new DoubleConfigValue(
-            "org.transitclock.core.predictiongenerator.bias.exponential.c", -0.5, "Constant. y=a(b^x)+c.");
-
-    private static IntegerConfigValue updown = new IntegerConfigValue(
-            "org.transitclock.core.predictiongenerator.bias.exponential.updown",
-            -1,
-            "Is the adjustment up or down? Set +1 or -1.");
-
     @Override
     public long adjustPrediction(long prediction) {
 
         double tothepower = (prediction / 1000) / 60;
-        percentage = ((Math.pow(number, tothepower)) * multiple.getValue()) - constant.getValue();
+        percentage = ((Math.pow(number, tothepower)) * CoreConfig.multiple.getValue()) - CoreConfig.constant.getValue();
 
-        double new_prediction = prediction + (updown.getValue() * (((percentage / 100) * prediction)));
+        double new_prediction = prediction + (CoreConfig.updown.getValue() * (((percentage / 100) * prediction)));
         return (long) new_prediction;
     }
 
     public ExponentialBiasAdjuster() {
         super();
-        this.number = baseNumber.getValue();
+        this.number = CoreConfig.baseNumber.getValue();
     }
 
     public static void main(String[] args) {
