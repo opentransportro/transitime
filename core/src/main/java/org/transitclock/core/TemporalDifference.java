@@ -192,11 +192,14 @@ public class TemporalDifference implements Serializable {
     @Override
     public String toString() {
         String str = Time.elapsedTimeStr(temporalDifferenceMsec);
-
         // Add early/ontime/late info
-        if (temporalDifferenceMsec > 0) str += " (wcześniej)";
-        else if (temporalDifferenceMsec == 0) str += " (na czas)";
-        else str += " (później)";
+        if (temporalDifferenceMsec > 0) {
+            str += " (early)";
+        } else if (temporalDifferenceMsec == 0) {
+            str += " (on time)";
+        } else {
+            str += " (late)";
+        }
 
         // Return the results
         return str;

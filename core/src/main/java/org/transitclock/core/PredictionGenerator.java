@@ -35,19 +35,10 @@ import org.transitclock.ipc.data.IpcPrediction;
  * @author SkiBu Smith
  */
 public abstract class PredictionGenerator {
-
-    /**
-     * Generates and returns the predictions for the vehicle.
-     *
-     * @param vehicleState Contains the new match for the vehicle that the predictions are to be
-     *     based on.
-     */
-    public abstract List<IpcPrediction> generate(VehicleState vehicleState);
-
     private static final IntegerConfigValue closestVehicleStopsAhead = new IntegerConfigValue(
             "transitclock.prediction.closestvehiclestopsahead",
-            2,
-            "Num stops ahead a vehicle must be to be considers in the closest vehicle" + " calculation");
+            5,
+            "Num stops ahead a vehicle must be to be considers in the closest vehicle calculation");
 
     protected static BooleanConfigValue storeTravelTimeStopPathPredictions = new BooleanConfigValue(
             "transitclock.core.storeTravelTimeStopPathPredictions",
@@ -65,10 +56,17 @@ public abstract class PredictionGenerator {
                     + " algorithms. (MAPE comparison). Not for normal use as will generate"
                     + " massive amounts of data.");
 
-    private static final Logger logger = LoggerFactory.getLogger(PredictionGenerator.class);
+    /**
+     * Generates and returns the predictions for the vehicle.
+     *
+     * @param vehicleState Contains the new match for the vehicle that the predictions are to be
+     *     based on.
+     */
+    public abstract List<IpcPrediction> generate(VehicleState vehicleState);
 
-    protected TravelTimeDetails getLastVehicleTravelTime(VehicleState currentVehicleState, Indices indices)
-            throws Exception {
+
+
+    protected TravelTimeDetails getLastVehicleTravelTime(VehicleState currentVehicleState, Indices indices) throws Exception {
 
         StopArrivalDepartureCacheKey nextStopKey = new StopArrivalDepartureCacheKey(
                 indices.getStopPath().getStopId(),
@@ -237,14 +235,13 @@ public abstract class PredictionGenerator {
     boolean isAfter(List<String> stops, String stop1, String stop2) {
         if (stops != null && stop1 != null && stop2 != null) {
             if (stops.contains(stop1) && stops.contains(stop2)) {
-                if (stops.indexOf(stop1) > stops.indexOf(stop2)) return true;
-                else return false;
+                return stops.indexOf(stop1) > stops.indexOf(stop2);
             }
         }
         return false;
     }
 
-    Integer numAfter(List<String> stops, String stop1, String stop2) {
+    protected Integer numAfter(List<String> stops, String stop1, String stop2) {
         if (stops != null && stop1 != null && stop2 != null)
             if (stops.contains(stop1) && stops.contains(stop2)) return stops.indexOf(stop1) - stops.indexOf(stop2);
 
@@ -261,8 +258,8 @@ public abstract class PredictionGenerator {
             int num_days_look_back,
             int num_days) {
 
-        List<TravelTimeDetails> times = new ArrayList<TravelTimeDetails>();
-        List<IpcArrivalDeparture> results = null;
+        List<IpcArrivalDeparture> results;
+        List<TravelTimeDetails> times = new ArrayList<>();
         int num_found = 0;
         /*
          * TODO This could be smarter about the dates it looks at by looking at
@@ -270,7 +267,6 @@ public abstract class PredictionGenerator {
          * running
          */
         for (int i = 0; i < num_days_look_back && num_found < num_days; i++) {
-
             Date nearestDay = DateUtils.truncate(DateUtils.addDays(startDate, (i + 1) * -1), Calendar.DAY_OF_MONTH);
 
             TripKey tripKey = new TripKey(tripId, nearestDay, startTime);
@@ -304,7 +300,7 @@ public abstract class PredictionGenerator {
         return times;
     }
 
-    IpcArrivalDeparture getArrival(int stopPathIndex, List<IpcArrivalDeparture> results) {
+    protected IpcArrivalDeparture getArrival(int stopPathIndex, List<IpcArrivalDeparture> results) {
         for (IpcArrivalDeparture result : results) {
             if (result.isArrival() && result.getStopPathIndex() == stopPathIndex) {
                 return result;
@@ -314,11 +310,10 @@ public abstract class PredictionGenerator {
     }
 
     protected long timeBetweenStops(ArrivalDeparture ad1, ArrivalDeparture ad2) {
-
         return Math.abs(ad2.getTime() - ad1.getTime());
     }
 
     protected static <T> Iterable<T> emptyIfNull(Iterable<T> iterable) {
-        return iterable == null ? Collections.<T>emptyList() : iterable;
+        return iterable == null ? Collections.emptyList() : iterable;
     }
 }

@@ -2,6 +2,8 @@
 package org.transitclock.core;
 
 import java.util.List;
+
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.applications.Core;
@@ -21,6 +23,7 @@ import org.transitclock.utils.Time;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class SpatialMatch {
 
     protected final long avlTime;
@@ -33,9 +36,6 @@ public class SpatialMatch {
     protected final VehicleAtStopInfo atStop;
     protected final Location predictedLocation;
 
-    private static final Logger logger = LoggerFactory.getLogger(SpatialMatch.class);
-
-    /********************** Member Functions **************************/
     public SpatialMatch(
             long avlTime,
             Block block,
@@ -192,11 +192,15 @@ public class SpatialMatch {
         double distanceFromFirstTerminal = distanceFromBeginningOfTrip();
 
         // If too close to beginning of trip return false
-        if (distanceFromFirstTerminal < distance) return false;
+        if (distanceFromFirstTerminal < distance) {
+            return false;
+        }
 
         // If too close to end of trip return false
         double distanceFromLastTerminal = getTrip().getLength() - distanceFromFirstTerminal;
-        if (distanceFromLastTerminal < distance) return false;
+        if (distanceFromLastTerminal < distance) {
+            return false;
+        }
 
         // Somewhere in the middle of trip so return true
         return true;

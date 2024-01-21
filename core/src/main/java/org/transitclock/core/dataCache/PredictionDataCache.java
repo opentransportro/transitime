@@ -375,9 +375,8 @@ public class PredictionDataCache {
      *     limit predictions when requesting a large number of them.
      * @return List of IpcPredictionsForRouteStopDest. Can be empty but will not be null.
      */
-    public List<IpcPredictionsForRouteStopDest> getAllPredictions(
-            int maxPredictionsPerStop, long maxSystemTimeForPrediction) {
-        List<IpcPredictionsForRouteStopDest> allPredictions = new ArrayList<IpcPredictionsForRouteStopDest>(5000);
+    public List<IpcPredictionsForRouteStopDest> getAllPredictions(int maxPredictionsPerStop, long maxSystemTimeForPrediction) {
+        List<IpcPredictionsForRouteStopDest> allPredictions = new ArrayList<>(5000);
 
         // Go through all PredictionsForRouteStop objects
         Collection<List<IpcPredictionsForRouteStopDest>> predictionsByRouteStop = predictionsMap.values();
@@ -387,7 +386,9 @@ public class PredictionDataCache {
                         predictionForRouteStopDest.getClone(maxPredictionsPerStop, maxSystemTimeForPrediction);
                 // If there were valid predictions then include it in array to
                 // be returned
-                if (!clonedPrediction.getPredictionsForRouteStop().isEmpty()) allPredictions.add(clonedPrediction);
+                if (!clonedPrediction.getPredictionsForRouteStop().isEmpty()) {
+                    allPredictions.add(clonedPrediction);
+                }
             }
         }
 

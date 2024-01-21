@@ -188,9 +188,10 @@ public class Indices implements Serializable {
                 // time bucket from the GTFS frequency.txt file then continue to
                 // point to the same trip
                 if (timeOfDaySecs > getTrip().getEndTime()) ++tripIndex;
-            } else
+            } else {
                 // Not a looping no schedule assignment so handle normally
                 ++tripIndex;
+            }
         }
 
         // Reset the segment index so that it is always valid (doesn't
@@ -296,7 +297,9 @@ public class Indices implements Serializable {
             if (previousStopPathIndex < 0) {
                 if (!block.isNoSchedule()) --previousTripIndex;
                 // If went past beginning of block then gone to far
-                if (previousTripIndex < 0) return null;
+                if (previousTripIndex < 0) {
+                    return null;
+                }
 
                 TripPattern tripPattern = block.getTrip(previousTripIndex).getTripPattern();
                 previousStopPathIndex = tripPattern.getStopPaths().size() - 1;
@@ -304,8 +307,7 @@ public class Indices implements Serializable {
         }
         // Determine and return the StopPath object
         Trip trip = block.getTrip(previousTripIndex);
-        StopPath path = trip.getTripPattern().getStopPath(previousStopPathIndex);
-        return path;
+        return trip.getTripPattern().getStopPath(previousStopPathIndex);
     }
 
     /**

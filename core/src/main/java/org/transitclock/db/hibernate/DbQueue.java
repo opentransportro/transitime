@@ -241,9 +241,6 @@ public class DbQueue<T> {
             }
 
             // Sometimes useful for debugging via the console
-            // System.err.println(new Date() + " Committing "
-            //		+ objectsForThisBatch.size() + " objects. " + queueSize()
-            //		+ " objects still in queue.");
             logger.debug("Committing {} objects. {} objects still in queue.", objectsForThisBatch.size(), queueSize());
             IntervalTimer timer = new IntervalTimer();
 
@@ -251,8 +248,6 @@ public class DbQueue<T> {
             tx.commit();
 
             // Sometimes useful for debugging via the console
-            // System.err.println(new Date() + " Done committing. Took "
-            //		+ timer.elapsedMsec() + " msec");
             logger.debug("Done committing. Took {} msec", timer.elapsedMsec());
 
             session.close();
@@ -282,7 +277,7 @@ public class DbQueue<T> {
                     if (tx != null) tx.rollback();
                 } catch (HibernateException e2) {
                     logger.error(
-                            "Error rolling back transaction after processing " + "batch of data via DataDbLogger.", e2);
+                            "Error rolling back transaction after processing batch of data via DataDbLogger.", e2);
                 }
 
                 // Close session here so that can process the objects
@@ -291,7 +286,7 @@ public class DbQueue<T> {
                 try {
                     if (session != null) session.close();
                 } catch (HibernateException e2) {
-                    logger.error("Error closing session after processing " + "batch of data via DataDbLogger.", e2);
+                    logger.error("Error closing session after processing batch of data via DataDbLogger.", e2);
                 }
 
                 // If it is a SQLGrammarException then also log the SQL to

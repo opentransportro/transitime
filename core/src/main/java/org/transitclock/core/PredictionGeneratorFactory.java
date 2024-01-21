@@ -14,10 +14,10 @@ import org.transitclock.utils.ClassInstantiator;
 public class PredictionGeneratorFactory {
 
     // The name of the class to instantiate
-    private static StringConfigValue className = new StringConfigValue(
+    private static final StringConfigValue className = new StringConfigValue(
             "transitclock.core.predictionGeneratorClass",
             "org.transitclock.core.PredictionGeneratorDefaultImpl",
-            "Specifies the name of the class used for generating " + "prediction data.");
+            "Specifies the name of the class used for generating prediction data.");
 
     private static PredictionGenerator singleton = null;
 

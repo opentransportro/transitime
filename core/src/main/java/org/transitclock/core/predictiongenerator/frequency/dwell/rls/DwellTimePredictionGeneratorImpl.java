@@ -2,6 +2,8 @@
 package org.transitclock.core.predictiongenerator.frequency.dwell.rls;
 
 import java.util.Date;
+
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.core.Indices;
@@ -20,10 +22,8 @@ import org.transitclock.db.structs.Headway;
  *     stops.
  *     <p>This is for frequency based services.
  */
+@Slf4j
 public class DwellTimePredictionGeneratorImpl extends KalmanPredictionGeneratorImpl {
-
-    private static final Logger logger = LoggerFactory.getLogger(DwellTimePredictionGeneratorImpl.class);
-
     @Override
     public long getStopTimeForPath(Indices indices, AvlReport avlReport, VehicleState vehicleState) {
         Long result = null;
@@ -37,11 +37,9 @@ public class DwellTimePredictionGeneratorImpl extends KalmanPredictionGeneratorI
                  */
                 if (super.getStopTimeForPath(indices, avlReport, vehicleState) > 0) {
                     // TODO Would be more correct to use the start time of the trip.
-                    int time =
-                            FrequencyBasedHistoricalAverageCache.secondsFromMidnight(new Date(avlReport.getTime()), 2);
+                    int time = FrequencyBasedHistoricalAverageCache.secondsFromMidnight(new Date(avlReport.getTime()), 2);
 
-                    time = FrequencyBasedHistoricalAverageCache.round(
-                            time, FrequencyBasedHistoricalAverageCache.getCacheIncrementsForFrequencyService());
+                    time = FrequencyBasedHistoricalAverageCache.round(time, FrequencyBasedHistoricalAverageCache.getCacheIncrementsForFrequencyService());
 
                     StopPathCacheKey cacheKey = new StopPathCacheKey(
                             indices.getTrip().getId(), indices.getStopPathIndex(), false, (long) time);
@@ -76,7 +74,6 @@ public class DwellTimePredictionGeneratorImpl extends KalmanPredictionGeneratorI
             }
 
         } catch (Exception e) {
-
             logger.error(e.getMessage(), e);
             e.printStackTrace();
         }

@@ -371,11 +371,8 @@ public class IpcPredictionsForRouteStopDest implements Serializable {
      * @param distanceToStop For when getting predictions by location
      * @return
      */
-    public IpcPredictionsForRouteStopDest getClone(
-            int maxPredictionsPerStop, long maxSystemTimeForPrediction, double distanceToStop) {
-        IpcPredictionsForRouteStopDest clone = new IpcPredictionsForRouteStopDest(
-                this, maxPredictionsPerStop, maxSystemTimeForPrediction, distanceToStop);
-        return clone;
+    public IpcPredictionsForRouteStopDest getClone(int maxPredictionsPerStop, long maxSystemTimeForPrediction, double distanceToStop) {
+        return new IpcPredictionsForRouteStopDest(this, maxPredictionsPerStop, maxSystemTimeForPrediction, distanceToStop);
     }
 
     /**
@@ -388,8 +385,7 @@ public class IpcPredictionsForRouteStopDest implements Serializable {
      * @return
      */
     public IpcPredictionsForRouteStopDest getClone(int maxPredictionsPerStop, long maxSystemTimeForPrediction) {
-        IpcPredictionsForRouteStopDest clone = getClone(maxPredictionsPerStop, maxSystemTimeForPrediction, Double.NaN);
-        return clone;
+        return getClone(maxPredictionsPerStop, maxSystemTimeForPrediction, Double.NaN);
     }
 
     /**

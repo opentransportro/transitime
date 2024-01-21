@@ -104,7 +104,10 @@ public class GtfsRtTripFeed {
         // Add the trip descriptor information
         IpcPrediction firstPred = predsForTrip.get(0);
         TripDescriptor.Builder tripDescriptor = TripDescriptor.newBuilder();
-        if (firstPred.getRouteId() != null) tripDescriptor.setRouteId(firstPred.getRouteId());
+
+        if (firstPred.getRouteId() != null)
+            tripDescriptor.setRouteId(firstPred.getRouteId());
+
         if (firstPred.getTripId() != null) {
             tripDescriptor.setTripId(firstPred.getTripId());
 
@@ -113,7 +116,7 @@ public class GtfsRtTripFeed {
                     String tripStartTimeStr = gtfsRealtimeTimeFormatter.format(new Date(firstPred.getFreqStartTime()));
                     tripDescriptor.setStartTime(tripStartTimeStr);
                 }
-            } catch (Exception e) {
+            } catch (Exception ignored) {
 
             }
 

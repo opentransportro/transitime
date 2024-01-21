@@ -1,6 +1,7 @@
 /* (C)2023 */
 package org.transitclock.core.predictiongenerator.scheduled.dwell;
 
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.core.Indices;
@@ -20,9 +21,8 @@ import org.transitclock.db.structs.Headway;
  *     schedule?
  *     <p>This has now been changed to work with any DwellModel implementation.
  */
+@Slf4j
 public class DwellTimePredictionGeneratorImpl extends KalmanPredictionGeneratorImpl {
-
-    private static final Logger logger = LoggerFactory.getLogger(DwellTimePredictionGeneratorImpl.class);
 
     @Override
     public long getStopTimeForPath(Indices indices, AvlReport avlReport, VehicleState vehicleState) {

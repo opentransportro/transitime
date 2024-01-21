@@ -17,7 +17,6 @@ public class TemporalMatch extends SpatialMatch {
 
     private final TemporalDifference temporalDifference;
 
-    /********************** Member Functions **************************/
     public TemporalMatch(SpatialMatch spatialMatch, TemporalDifference temporalDifference) {
         super(spatialMatch);
         this.temporalDifference = temporalDifference;

@@ -232,13 +232,15 @@ public class TravelTimes {
         // Sum up the travel times for the remaining full travel time segments
         // in the path.
         int travelTimeMsec = travelTimeRemainingInPartialSegment;
+
         for (int i = timeTravelInfo.indexOfPartialSegment + 1;
                 i < travelTimesForStopPath.getNumberTravelTimeSegments();
                 ++i) {
             sb.append(" seg+=").append(travelTimesForStopPath.getTravelTimeSegmentMsec(i));
             travelTimeMsec += travelTimesForStopPath.getTravelTimeSegmentMsec(i);
         }
-        logger.debug("travelTime={}:{}", Time.elapsedTimeStr(travelTimeMsec), sb.toString());
+
+        logger.debug("travelTime={}:{}", Time.elapsedTimeStr(travelTimeMsec), sb);
         return travelTimeMsec;
     }
 
