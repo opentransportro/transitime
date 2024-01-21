@@ -10,7 +10,7 @@ services:
     ports:
       - "5432:5432"
   transitclock:
-    image: transitclock-server:latest
+    image: otrro/transitclock-server:latest
     build: .
     depends_on:
       - db
