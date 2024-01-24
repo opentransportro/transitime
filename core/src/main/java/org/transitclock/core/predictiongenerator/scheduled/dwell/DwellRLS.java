@@ -1,19 +1,13 @@
 /* (C)2023 */
 package org.transitclock.core.predictiongenerator.scheduled.dwell;
 
-import java.io.Serializable;
-import org.transitclock.config.DoubleConfigValue;
 import org.transitclock.configData.PredictionConfig;
 import org.transitclock.core.predictiongenerator.scheduled.dwell.rls.TransitClockRLS;
 
 /**
  * @author scrudden
  */
-public class DwellRLS implements DwellModel, Serializable {
-
-    /** */
-    private static final long serialVersionUID = -9082591970192068672L;
-
+public class DwellRLS implements DwellModel {
     private TransitClockRLS rls = null;
 
     public TransitClockRLS getRls() {
@@ -25,7 +19,6 @@ public class DwellRLS implements DwellModel, Serializable {
     }
 
     public DwellRLS() {
-        super();
         rls = new TransitClockRLS(PredictionConfig.lambda.getValue());
     }
 
@@ -39,7 +32,6 @@ public class DwellRLS implements DwellModel, Serializable {
 
     @Override
     public void putSample(Integer dwelltime, Integer headway, Integer demand) {
-
         rls.addSample(headway, Math.log10(dwelltime));
     }
 }

@@ -478,12 +478,12 @@ public class PredictionGeneratorDefaultImpl extends PredictionGenerator implemen
                         vehicleState.getVehicleId());
                 break;
             }
-            boolean isCircuitRoute = true;
-            // Add in travel time for the next path to get to predicted
-            // arrival time of this stop
-            if (!lastStopOfNonSchedBasedTrip && isCircuitRoute) {
-                predictionTime += getTravelTimeForPath(indices, avlReport, vehicleState);
-            }
+//            boolean isCircuitRoute = true;
+//            // Add in travel time for the next path to get to predicted
+//            // arrival time of this stop
+//            if (!lastStopOfNonSchedBasedTrip && isCircuitRoute) {
+//                predictionTime += getTravelTimeForPath(indices, avlReport, vehicleState);
+//            }
         }
 
         newPredictions.addAll(filteredPredictions.values());

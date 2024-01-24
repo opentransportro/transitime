@@ -41,10 +41,10 @@ public class DwellTimeDataFilterImpl implements DwellTimeDataFilter {
                         logger.warn("Dwell time {} outside allowable range for {}.", dwelltime, departure);
                     }
                 } else {
-                    logger.warn("Schedule adherence outside allowable range. " + arrival);
+                    logger.warn("Schedule adherence outside allowable range. {}", arrival);
                 }
             } else {
-                logger.warn("Schedule adherence outside allowable range. " + departure);
+                logger.warn("Schedule adherence outside allowable range. {}", departure);
             }
         } else {
             logger.warn("Arrival and/or departure not set.");

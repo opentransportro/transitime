@@ -395,7 +395,8 @@ public class PredictionDataCache {
     public void updatePredictions(
             List<IpcPrediction> oldPredictionsForVehicle, List<IpcPrediction> newPredictionsForVehicle) {
         // Handle null being passed in for newPredictionsForVehicle
-        if (newPredictionsForVehicle == null) newPredictionsForVehicle = new ArrayList<IpcPrediction>();
+        if (newPredictionsForVehicle == null)
+            newPredictionsForVehicle = new ArrayList<>();
 
         // Can have several predictions for a route/stop/dest for a vehicle if
         // the route is a relatively short loop. And if have unscheduled
@@ -406,11 +407,10 @@ public class PredictionDataCache {
         // First step is to group the new predictions by route/stop/dest so
         // can deal with them all at once. Those are put into
         // newPredsForVehicleByRouteStopDestMap.
-        Map<MapKey, List<IpcPrediction>> newPredsForVehicleByRouteStopDestMap =
-                new HashMap<MapKey, List<IpcPrediction>>();
+        Map<MapKey, List<IpcPrediction>> newPredsForVehicleByRouteStopDestMap = new HashMap<>();
 
         for (IpcPrediction newPrediction : newPredictionsForVehicle) {
-            MapKey key = new MapKey(
+            MapKey key = MapKey.create(
                     newPrediction.getRouteShortName(),
                     newPrediction.getStopId(),
                     newPrediction.getTrip().getHeadsign());
@@ -429,7 +429,7 @@ public class PredictionDataCache {
             for (IpcPrediction oldPrediction : oldPredictionsForVehicle) {
                 // If there is no new prediction for the old prediction
                 // route/stop...
-                MapKey key = new MapKey(
+                MapKey key = MapKey.create(
                         oldPrediction.getRouteShortName(),
                         oldPrediction.getStopId(),
                         oldPrediction.getTrip().getHeadsign());
@@ -479,7 +479,9 @@ public class PredictionDataCache {
      */
     private void updatePredictionsForVehicle(List<IpcPrediction> newPredsForVehicleForRouteStopDest) {
         // If no predictions then nothing to do so return.
-        if (newPredsForVehicleForRouteStopDest == null || newPredsForVehicleForRouteStopDest.isEmpty()) return;
+        if (newPredsForVehicleForRouteStopDest == null || newPredsForVehicleForRouteStopDest.isEmpty()) {
+            return;
+        }
 
         logger.debug("Adding predictions for the route/stop/destination: {}", newPredsForVehicleForRouteStopDest);
 
@@ -513,7 +515,7 @@ public class PredictionDataCache {
 
             if (predictionsForStop == null) {
                 // No predictions so return empty array instead of null
-                predictionsForStop = new ArrayList<IpcPredictionsForRouteStopDest>(1);
+                predictionsForStop = new ArrayList<>(1);
 
                 // Need to update the predictions map with the
                 // predictionsForStop list for this route/stop so that
@@ -523,12 +525,13 @@ public class PredictionDataCache {
             }
         } else {
             // No route specified so get predictions for all routes for the stop
-            predictionsForStop = new ArrayList<IpcPredictionsForRouteStopDest>();
+            predictionsForStop = new ArrayList<>();
             Collection<Route> routes = Core.getInstance().getDbConfig().getRoutesForStop(stopId);
             for (Route route : routes) {
                 MapKey key = MapKey.create(route.getShortName(), stopId);
                 List<IpcPredictionsForRouteStopDest> predsForRoute = predictionsMap.get(key);
-                if (predsForRoute != null) predictionsForStop.addAll(predsForRoute);
+                if (predsForRoute != null)
+                    predictionsForStop.addAll(predsForRoute);
             }
         }
 

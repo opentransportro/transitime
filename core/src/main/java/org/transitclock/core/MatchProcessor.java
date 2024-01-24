@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.transitclock.applications.Core;
 import org.transitclock.configData.CoreConfig;
 import org.transitclock.core.dataCache.PredictionDataCache;
+import org.transitclock.db.hibernate.DataDbLogger;
 import org.transitclock.db.structs.Headway;
 import org.transitclock.db.structs.Match;
 import org.transitclock.db.structs.Prediction;
@@ -23,9 +24,11 @@ public class MatchProcessor {
 
     // Singleton class
     private static final MatchProcessor singleton = new MatchProcessor();
-
+    private final DataDbLogger dbLogger;
     /** Constructor declared private because singleton class */
-    private MatchProcessor() {}
+    private MatchProcessor() {
+        dbLogger = Core.getInstance().getDbLogger();
+    }
 
     /**
      * Returns singleton MatchProcessor
@@ -55,10 +58,7 @@ public class MatchProcessor {
                 // If prediction not too far into the future then ...
                 if (prediction.getPredictionTime() - prediction.getAvlTime()
                         < ((long) CoreConfig.getMaxPredictionsTimeForDbSecs() * Time.MS_PER_SEC)) {
-                    // Store the prediction into db
-                    Prediction dbPrediction = new Prediction(prediction);
-
-                    Core.getInstance().getDbLogger().add(dbPrediction);
+                    dbLogger.add(new Prediction(prediction));
 
                 } else {
                     logger.debug(

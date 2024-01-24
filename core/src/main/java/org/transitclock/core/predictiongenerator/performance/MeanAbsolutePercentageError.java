@@ -16,8 +16,8 @@ public class MeanAbsolutePercentageError {
     }
 
     public Long getMAPE() throws Exception {
-        if (actualDuration != null && predictions != null && predictions.size() > 0) {
-            Long totalDifference = 0L;
+        if (actualDuration != null && predictions != null && !predictions.isEmpty()) {
+            long totalDifference = 0L;
 
             for (Long prediction : predictions) {
                 totalDifference = totalDifference + Math.abs(actualDuration - prediction);

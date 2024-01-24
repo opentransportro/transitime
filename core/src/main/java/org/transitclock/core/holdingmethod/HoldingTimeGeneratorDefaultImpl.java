@@ -39,7 +39,7 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
 
         if (event.isArrival() && isControlStop(event.getStopId())) {
 
-            List<IpcPrediction> predictions = new ArrayList<IpcPrediction>();
+            List<IpcPrediction> predictions = new ArrayList<>();
 
             for (IpcVehicleComplete currentVehicle :
                     VehicleDataCache.getInstance().getVehicles()) {
@@ -54,8 +54,8 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
 
             logger.debug(
                     "Calling Holding Generator for event : {} using predictions : {}",
-                    event.toString(),
-                    predictions.toString());
+                    event,
+                    predictions);
 
             // This is to remove a prediction for the current vehicle and stop. Belt and braces.
             if (!predictions.isEmpty() && predictions.get(0).getVehicleId().equals(event.getVehicleId())) {
@@ -71,8 +71,8 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
                     new Date(event.getTime().getTime()));
 
             /* Now get check if there is current holdingTie for the stop and get the next vehicle scheduled to leave and use its holding time as the departure time for calculation. */
-            HoldingTime lastVehicleDepartureByHoldingTime = getNextDepartureByHoldingTime(
-                    event.getVehicleId(), getCurrentHoldingTimesForStop(event.getStopId()));
+            List<HoldingTime> currentHoldingTimesForStop = getCurrentHoldingTimesForStop(event.getStopId());
+            HoldingTime lastVehicleDepartureByHoldingTime = getNextDepartureByHoldingTime(event.getVehicleId(), currentHoldingTimesForStop);
 
             // IF ARRIVAL OF HOLDING VEHICLE IS AFTER CURRENT DO NOT CONSIDER AS DEPARTURE
             /*if(lastVehicleDepartureByHoldingTime.getArrivalTime().getTime()<event.getTime())
@@ -120,7 +120,7 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
                             true,
                             N.length);
 
-                    logger.debug("Holding time for : {} is {}.", event.toString(), holdingTime);
+                    logger.debug("Holding time for : {} is {}.", event, holdingTime);
 
                     if (HoldingConfig.storeHoldingTimes.getValue())
                         Core.getInstance().getDbLogger().add(holdingTime);
@@ -146,7 +146,7 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
                             true,
                             0);
 
-                    logger.debug("Holding time for : {} is {}.", event.toString(), holdingTime);
+                    logger.debug("Holding time for : {} is {}.", event, holdingTime);
 
                     if (HoldingConfig.storeHoldingTimes.getValue())
                         Core.getInstance().getDbLogger().add(holdingTime);
@@ -195,7 +195,7 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
                             true,
                             N.length);
 
-                    logger.debug("Holding time for : {} is {}.", event.toString(), holdingTime);
+                    logger.debug("Holding time for : {} is {}.", event, holdingTime);
 
                     if (HoldingConfig.storeHoldingTimes.getValue())
                         Core.getInstance().getDbLogger().add(holdingTime);
@@ -208,7 +208,7 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
                             current_vehicle_arrival_time,
                             lastVehicleDeparture.getTime().getTime());
 
-                    logger.debug("Holding time for : {} is {}.", event.toString(), holdingTimeValue);
+                    logger.debug("Holding time for : {} is {}.", event, holdingTimeValue);
 
                     HoldingTime holdingTime = new HoldingTime(
                             new Date(current_vehicle_arrival_time + holdingTimeValue),
@@ -278,8 +278,8 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
         if (canorder) {
             ordered = new ArrayList<String>();
 
-            while (((count + 1) > 0) && unordered.size() > 0) {
-                if (ordered.size() == 0) {
+            while (((count + 1) > 0) && !unordered.isEmpty()) {
+                if (ordered.isEmpty()) {
                     String first = unordered.get(0).getVehicleId();
                     String second = unordered.get(0).getHeadway().getOtherVehicleId();
 
@@ -305,8 +305,8 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
         return ordered;
     }
 
-    protected ArrayList<HoldingTime> getCurrentHoldingTimesForStop(String stopId) {
-        ArrayList<HoldingTime> currentHoldingTimes = new ArrayList<HoldingTime>();
+    protected List<HoldingTime> getCurrentHoldingTimesForStop(String stopId) {
+        List<HoldingTime> currentHoldingTimes = new ArrayList<HoldingTime>();
 
         for (IpcVehicleComplete currentVehicle : VehicleDataCache.getInstance().getVehicles()) {
             VehicleState vehicleState = VehicleStateManager.getInstance().getVehicleState(currentVehicle.getId());
@@ -325,10 +325,9 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
         HoldingTime nextDeparture = null;
         for (HoldingTime holdingTime : holdingTimes) {
 
-            if (!holdingTime.getVehicleId().equals(currentVehicleId)
-                    && holdingTime.isArrivalPredictionUsed() == false) {
+            if (!holdingTime.getVehicleId().equals(currentVehicleId) && !holdingTime.isArrivalPredictionUsed()) {
                 // Ignore predicted holding times in calculation
-                if (holdingTime.isArrivalPredictionUsed() == false) {
+                if (!holdingTime.isArrivalPredictionUsed()) {
                     if (nextDeparture == null || holdingTime.getHoldingTime().before(nextDeparture.getHoldingTime())) {
                         nextDeparture = holdingTime;
                     }
@@ -411,10 +410,10 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
         return closestArrivalEvent;
     }
 
-    public ArrayList<IpcArrivalDeparture> addArrivalTimesForVehiclesAtStop(
-            String stopid, String vehicleid, Date time, ArrayList<Long> arrivalTimes) {
+    public List<IpcArrivalDeparture> addArrivalTimesForVehiclesAtStop(
+            String stopid, String vehicleid, Date time, List<Long> arrivalTimes) {
 
-        ArrayList<IpcArrivalDeparture> events = new ArrayList<IpcArrivalDeparture>();
+        List<IpcArrivalDeparture> events = new ArrayList<>();
         for (String othervehicle : getOtherVehiclesAtStop(stopid, vehicleid)) {
             IpcArrivalDeparture event = getLastVehicleArrivalEvent(stopid, othervehicle, time);
 
@@ -423,8 +422,8 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
                 events.add(event);
             }
         }
-        Collections.sort(arrivalTimes);
-        Collections.sort(events, new IpcArrivalDepartureComparator());
+        arrivalTimes.sort(null);
+        events.sort(new IpcArrivalDepartureComparator());
         return events;
     }
 
@@ -464,14 +463,14 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
 
         HoldingTime holdingTime = null;
         if (arrivalPrediction.isArrival() && isControlStop(arrivalPrediction.getStopId())) {
-            logger.debug("Calling Holding Generator for prediction : {}", arrivalPrediction.toString());
+            logger.debug("Calling Holding Generator for prediction : {}", arrivalPrediction);
 
             /* TODO We will also need a holding time based on predictions to inform predictions for later stops. We can swap to arrival one once we have arrival event for vehicle and set a definite hold time.*/
             IpcPrediction forwardDeparturePrediction = getForwardVehicleDeparturePrediction(arrivalPrediction);
             if (forwardDeparturePrediction == null)
-                logger.debug("Cannot find last departure prediction for : {}", arrivalPrediction.toString());
+                logger.debug("Cannot find last departure prediction for : {}", arrivalPrediction);
             else
-                logger.debug("Found last vehicle predicted departure event: {}", forwardDeparturePrediction.toString());
+                logger.debug("Found last vehicle predicted departure event: {}", forwardDeparturePrediction);
 
             IpcArrivalDeparture lastDeparture = getLastVehicleDepartureTime(
                     arrivalPrediction.getVehicleId(),
@@ -479,8 +478,8 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
                     arrivalPrediction.getStopId(),
                     new Date(arrivalPrediction.getPredictionTime()));
             if (lastDeparture == null)
-                logger.debug("Cannot find last departure for : {}", arrivalPrediction.toString());
-            else logger.debug("Found last vehicle departure event: {}", lastDeparture.toString());
+                logger.debug("Cannot find last departure for : {}", arrivalPrediction);
+            else logger.debug("Found last vehicle departure event: {}", lastDeparture);
 
             List<IpcPrediction> backwardArrivalPredictions = getBackwardArrivalPredictions(arrivalPrediction);
             if (backwardArrivalPredictions != null)
@@ -521,7 +520,7 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
                                 true,
                                 N.length);
 
-                        logger.debug("Holding time for : {} is {}.", arrivalPrediction.toString(), holdingTime);
+                        logger.debug("Holding time for : {} is {}.", arrivalPrediction, holdingTime);
                         if (HoldingConfig.storeHoldingTimes.getValue())
                             Core.getInstance().getDbLogger().add(holdingTime);
 
@@ -545,7 +544,7 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
                                 true,
                                 N.length);
 
-                        logger.debug("Holding time for : {} is {}.", arrivalPrediction.toString(), holdingTime);
+                        logger.debug("Holding time for : {} is {}.", arrivalPrediction, holdingTime);
                         if (HoldingConfig.storeHoldingTimes.getValue())
                             Core.getInstance().getDbLogger().add(holdingTime);
                     }
@@ -629,7 +628,7 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
                                 true,
                                 0);
 
-                        logger.debug("Holding time for : {} is {}.", arrivalPrediction.toString(), holdingTime);
+                        logger.debug("Holding time for : {} is {}.", arrivalPrediction, holdingTime);
 
                         if (HoldingConfig.storeHoldingTimes.getValue())
                             Core.getInstance().getDbLogger().add(holdingTime);
@@ -712,7 +711,7 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
             }
             /* now look until after this prediction and it is the next one for same stop but a different vehicle */
             if (found != -1 && i > found) {
-                if (predictions.get(i).isArrival() == false
+                if (!predictions.get(i).isArrival()
                         && predictions.get(i).getStopId().equals(predictionEvent.getStopId())
                         && !predictions.get(i).getTripId().equals(predictionEvent.getTripId())) {
                     closestPrediction = predictions.get(i);

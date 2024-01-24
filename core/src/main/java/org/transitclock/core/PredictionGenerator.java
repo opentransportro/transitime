@@ -35,7 +35,7 @@ public abstract class PredictionGenerator {
 
 
 
-    protected TravelTimeDetails getLastVehicleTravelTime(VehicleState currentVehicleState, Indices indices) throws Exception {
+    protected TravelTimeDetails getLastVehicleTravelTime(VehicleState currentVehicleState, Indices indices) {
 
         StopArrivalDepartureCacheKey nextStopKey = new StopArrivalDepartureCacheKey(
                 indices.getStopPath().getStopId(),

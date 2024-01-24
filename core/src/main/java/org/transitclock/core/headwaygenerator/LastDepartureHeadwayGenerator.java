@@ -121,7 +121,7 @@ public class LastDepartureHeadwayGenerator implements HeadwayGenerator {
     }
 
     private void setSystemVariance(Headway headway) {
-        ArrayList<Headway> headways = new ArrayList<Headway>();
+        List<Headway> headways = new ArrayList<>();
 
         int total_with_headway = 0;
         int total_vehicles = 0;
@@ -168,7 +168,6 @@ public class LastDepartureHeadwayGenerator implements HeadwayGenerator {
 
     private double coefficientOfVariance(List<Headway> headways) {
         double variance = variance(headways);
-        ;
         double average = average(headways);
 
         return variance / (average * average);

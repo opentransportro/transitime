@@ -1,26 +1,20 @@
 /* (C)2023 */
 package org.transitclock.core.dataCache.ehcache;
 
-import java.net.URL;
-import java.util.List;
 import org.ehcache.Cache;
 import org.ehcache.CacheManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.transitclock.core.Indices;
 import org.transitclock.core.dataCache.ErrorCache;
 import org.transitclock.core.dataCache.KalmanError;
 import org.transitclock.core.dataCache.KalmanErrorCacheKey;
+
+import java.util.List;
 
 /**
  * @author Sean Óg Crudden
  */
 public class KalmanErrorCache implements ErrorCache {
     private static final String cacheName = "KalmanErrorCache";
-
-    final URL xmlConfigUrl = getClass().getResource("/ehcache.xml");
-
-    private static final Logger logger = LoggerFactory.getLogger(KalmanErrorCache.class);
 
     private Cache<KalmanErrorCacheKey, KalmanError> cache = null;
 
@@ -36,10 +30,6 @@ public class KalmanErrorCache implements ErrorCache {
         cache = cm.getCache(cacheName, KalmanErrorCacheKey.class, KalmanError.class);
     }
 
-    public void logCache(Logger logger) {
-        logger.debug("Cache content log. Not implemented.");
-    }
-
     /* (non-Javadoc)
      * @see org.transitime.core.dataCache.ErrorCache#getErrorValue(org.transitime.core.Indices)
      */
@@ -49,10 +39,9 @@ public class KalmanErrorCache implements ErrorCache {
 
         KalmanErrorCacheKey key = new KalmanErrorCacheKey(indices);
 
-        KalmanError result = (KalmanError) cache.get(key);
+        KalmanError result = cache.get(key);
 
-        if (result == null) return null;
-        else return result;
+        return result;
     }
 
     /* (non-Javadoc)
@@ -62,10 +51,9 @@ public class KalmanErrorCache implements ErrorCache {
     @SuppressWarnings("unchecked")
     public synchronized KalmanError getErrorValue(KalmanErrorCacheKey key) {
 
-        KalmanError result = (KalmanError) cache.get(key);
+        KalmanError result = cache.get(key);
 
-        if (result == null) return null;
-        else return result;
+        return result;
     }
 
     /* (non-Javadoc)
@@ -81,7 +69,7 @@ public class KalmanErrorCache implements ErrorCache {
     @Override
     public void putErrorValue(KalmanErrorCacheKey key, Double value) {
 
-        KalmanError error = (KalmanError) cache.get(key);
+        KalmanError error = cache.get(key);
 
         if (error == null) {
             error = new KalmanError(value);

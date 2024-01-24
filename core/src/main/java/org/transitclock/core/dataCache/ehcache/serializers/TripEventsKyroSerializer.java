@@ -20,8 +20,7 @@ public class TripEventsKyroSerializer implements Serializer<TripEvents> {
         // no-op
         kryo.register(IpcArrivalDeparture.class);
 
-        FieldSerializer<IpcArrivalDeparture> serializer =
-                new FieldSerializer<IpcArrivalDeparture>(kryo, IpcArrivalDeparture.class);
+        FieldSerializer<IpcArrivalDeparture> serializer = new FieldSerializer<>(kryo, IpcArrivalDeparture.class);
         serializer.setCopyTransient(false);
         kryo.register(IpcArrivalDeparture.class, serializer);
     }

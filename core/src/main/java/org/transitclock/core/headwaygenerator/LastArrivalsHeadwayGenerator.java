@@ -106,7 +106,7 @@ public class LastArrivalsHeadwayGenerator implements HeadwayGenerator {
     }
 
     private void setSystemVariance(Headway headway) {
-        ArrayList<Headway> headways = new ArrayList<Headway>();
+        List<Headway> headways = new ArrayList<>();
         for (IpcVehicleComplete currentVehicle : VehicleDataCache.getInstance().getVehicles()) {
             VehicleState vehicleState = VehicleStateManager.getInstance().getVehicleState(currentVehicle.getId());
             if (vehicleState.getHeadway() != null) {

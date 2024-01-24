@@ -20,8 +20,7 @@ public class StopEventsKyroSerializer implements Serializer<StopEvents> {
         // no-op
         kryo.register(IpcArrivalDeparture.class);
 
-        FieldSerializer<IpcArrivalDeparture> serializer =
-                new FieldSerializer<IpcArrivalDeparture>(kryo, IpcArrivalDeparture.class);
+        FieldSerializer<IpcArrivalDeparture> serializer = new FieldSerializer<>(kryo, IpcArrivalDeparture.class);
         serializer.setCopyTransient(false);
         kryo.register(IpcArrivalDeparture.class, serializer);
     }
@@ -40,8 +39,7 @@ public class StopEventsKyroSerializer implements Serializer<StopEvents> {
     }
 
     @Override
-    public boolean equals(final StopEvents object, final ByteBuffer binary)
-            throws ClassNotFoundException, SerializerException {
+    public boolean equals(final StopEvents object, final ByteBuffer binary) throws ClassNotFoundException, SerializerException {
         return object.equals(read(binary));
     }
 }

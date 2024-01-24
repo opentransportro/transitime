@@ -34,17 +34,12 @@ public class StopArrivalDepartureCache extends StopArrivalDepartureCacheInterfac
     private static final String cacheByStop = "arrivalDeparturesByStop";
 
     private Cache<StopArrivalDepartureCacheKey, StopEvents> cache = null;
-    final URL xmlConfigUrl = getClass().getResource("/ehcache.xml");
 
     public StopArrivalDepartureCache() {
         CacheManager cm = CacheManagerFactory.getInstance();
-
         cache = cm.getCache(cacheByStop, StopArrivalDepartureCacheKey.class, StopEvents.class);
     }
 
-    public void logCache(Logger logger) {
-        logger.debug("Cache content log. Not implemented.");
-    }
 
     /* (non-Javadoc)
      * @see org.transitime.core.dataCache.ehcache.StopArrivalDepartureCacheInterface#getStopHistory(org.transitime.core.dataCache.StopArrivalDepartureCacheKey)
@@ -72,7 +67,7 @@ public class StopArrivalDepartureCache extends StopArrivalDepartureCacheInterfac
 
     public synchronized StopArrivalDepartureCacheKey putArrivalDeparture(ArrivalDeparture arrivalDeparture) {
 
-        logger.debug("Putting :" + arrivalDeparture.toString() + " in StopArrivalDepartureCache cache.");
+        logger.debug("Putting :{} in StopArrivalDepartureCache cache.", arrivalDeparture.toString());
 
         Calendar date = Calendar.getInstance();
         date.setTime(arrivalDeparture.getDate());

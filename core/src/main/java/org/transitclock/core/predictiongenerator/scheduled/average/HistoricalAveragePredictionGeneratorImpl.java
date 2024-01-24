@@ -38,7 +38,7 @@ public class HistoricalAveragePredictionGeneratorImpl extends LastVehiclePredict
     @Override
     public long getTravelTimeForPath(Indices indices, AvlReport avlReport, VehicleState vehicleState) {
 
-        logger.debug("Calling historical average algorithm : " + indices.toString());
+        logger.debug("Calling historical average algorithm : {}", indices.toString());
         /*
          * if we have enough data start using historical average otherwise
          * revert to default. This does not mean that this method of
@@ -65,16 +65,8 @@ public class HistoricalAveragePredictionGeneratorImpl extends LastVehiclePredict
                 StopPathPredictionCache.getInstance().putPrediction(predictionForStopPath);
             }
 
-            logger.debug("Using historical average algorithm for prediction : "
-                    + average.toString()
-                    + " instead of "
-                    + alternative
-                    + " prediction: "
-                    + super.getTravelTimeForPath(indices, avlReport, vehicleState)
-                    + " for : "
-                    + indices.toString());
-            // logger.debug("Instead of transitime value : " + super.getTravelTimeForPath(indices,
-            // avlReport));
+            logger.debug("Using historical average algorithm for prediction : {} instead of {} prediction: {} for : {}", average, alternative, super.getTravelTimeForPath(indices, avlReport, vehicleState), indices);
+
             return (long) average.getAverage();
         }
 
@@ -94,14 +86,7 @@ public class HistoricalAveragePredictionGeneratorImpl extends LastVehiclePredict
                 ScheduleBasedHistoricalAverageCache.getInstance().getAverage(historicalAverageCacheKey);
 
         if (average != null && average.getCount() >= PredictionConfig.minDays.getValue()) {
-            logger.debug("Using historical average alogrithm for dwell time prediction : "
-                    + average.toString()
-                    + " instead of "
-                    + alternative
-                    + " prediction: "
-                    + super.getStopTimeForPath(indices, avlReport, vehicleState)
-                    + " for : "
-                    + indices.toString());
+            logger.debug("Using historical average alogrithm for dwell time prediction : {} instead of {} prediction: {} for : {}", average, alternative, super.getStopTimeForPath(indices, avlReport, vehicleState), indices);
             return (long) average.getAverage();
         }
 

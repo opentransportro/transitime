@@ -29,8 +29,6 @@ public class PredAccuracyPrediction {
     private final String source;
     private final String algorithm;
 
-    /********************** Member Functions **************************/
-
     /**
      * Constructor
      *

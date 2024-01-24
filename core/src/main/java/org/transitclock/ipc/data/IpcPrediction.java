@@ -63,7 +63,7 @@ public class IpcPrediction implements Serializable {
     private final boolean lateAndSubsequentTripSoMarkAsUncertain;
     private final boolean isArrival;
     private final Integer delay;
-    private boolean isCanceled;
+    private final boolean isCanceled;
 
     private final long freqStartTime;
     private final int tripCounter;
@@ -427,38 +427,24 @@ public class IpcPrediction implements Serializable {
     @Override
     public String toString() {
         return "IpcPrediction ["
-                + "vehicleId="
-                + vehicleId
-                + ", predTime="
-                + Time.dateTimeStr(predictionTime)
-                + ", routeId="
-                + routeId
+                + "vehicleId=" + vehicleId
+                + ", predTime=" + Time.dateTimeStr(predictionTime)
+                + ", routeId=" + routeId
                 + (trip != null ? ", rteName=" + trip.getRouteShortName() : "")
-                + ", stop="
-                + stopId
+                + ", stop=" + stopId
                 // stop name taken out because it is too verbose in the
                 // predictions log file
                 // + (stopName!=null ? ", stopNm=\"" + stopName + "\"" : "")
-                + ", gtfsStopSeq="
-                + gtfsStopSeq
-                + ", tripId="
-                + tripId
-                + ", freqStartTime="
-                + Time.timeStrMsecNoTimeZone(freqStartTime)
-                + ", tripPatternId="
-                + tripPatternId
-                + ", blockId="
-                + blockId
-                + ", avlTime="
-                + Time.timeStrMsecNoTimeZone(avlTime)
-                + ", createTime="
-                + Time.timeStrMsecNoTimeZone(creationTime)
-                + ", tripStartEpochTime="
-                + Time.timeStrMsecNoTimeZone(tripStartEpochTime)
-                + ", atEndOfTrip="
-                + (atEndOfTrip ? "t" : "f")
-                + ", waitStop="
-                + (affectedByWaitStop ? "t" : "f")
+                + ", gtfsStopSeq=" + gtfsStopSeq
+                + ", tripId=" + tripId
+                + (freqStartTime != -1L ? (", freqStartTime=" + Time.timeStrMsecNoTimeZone(freqStartTime)) : "")
+                + ", tripPatternId=" + tripPatternId
+                + ", blockId=" + blockId
+                + ", avlTime=" + Time.timeStrMsecNoTimeZone(avlTime)
+                + ", createTime=" + Time.timeStrMsecNoTimeZone(creationTime)
+                + ", tripStartEpochTime=" + Time.timeStrMsecNoTimeZone(tripStartEpochTime)
+                + ", atEndOfTrip=" + (atEndOfTrip ? "t" : "f")
+                + ", waitStop=" + (affectedByWaitStop ? "t" : "f")
                 + (schedBasedPred ? ", schedBasedPred=t" : "")
                 + (isDelayed ? ", delayed=t" : "")
                 + (lateAndSubsequentTripSoMarkAsUncertain ? ", lateAndSubsequentTripSoMarkAsUncertain=t" : "")

@@ -14,15 +14,9 @@ public class StopPathCacheKey implements Serializable {
     /* this is only set for frequency based trips otherwise null. This is seconds from midnight */
     private Long startTime = null;
 
-    private boolean travelTime = true;
-
-    public boolean isTravelTime() {
-        return travelTime;
-    }
+    private boolean travelTime;
 
     public StopPathCacheKey(String tripId, Integer stopPathIndex) {
-        super();
-
         this.tripId = tripId;
         this.stopPathIndex = stopPathIndex;
         this.travelTime = true;
@@ -30,8 +24,6 @@ public class StopPathCacheKey implements Serializable {
     }
 
     public StopPathCacheKey(String tripId, Integer stopPathIndex, boolean travelTime) {
-        super();
-
         this.tripId = tripId;
         this.stopPathIndex = stopPathIndex;
         this.travelTime = travelTime;
@@ -39,8 +31,6 @@ public class StopPathCacheKey implements Serializable {
     }
 
     public StopPathCacheKey(String tripId, Integer stopPathIndex, boolean travelTime, Long startTime) {
-        super();
-
         this.tripId = tripId;
         this.stopPathIndex = stopPathIndex;
         this.travelTime = travelTime;
@@ -67,6 +57,10 @@ public class StopPathCacheKey implements Serializable {
 
     public Long getStartTime() {
         return startTime;
+    }
+
+    public boolean isTravelTime() {
+        return travelTime;
     }
 
     public void setTripId(String tripId) {

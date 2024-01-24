@@ -34,7 +34,7 @@ public class PlaybackPredictionAccuracyModule extends PredictionAccuracyModule {
                     // arrival/departure don't stick around taking up memory.
                     clearStalePredictions();
                 } catch (Exception e) {
-                    logger.error("Error accessing predictions feed :  " + e.getMessage(), e);
+                    logger.error("Error accessing predictions feed :  {}", e.getMessage(), e);
                 }
                 timer.resetTimer();
             }

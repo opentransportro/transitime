@@ -5,16 +5,18 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.db.GenericQuery;
 
+@Slf4j
 public class GenericJsonQuery extends GenericQuery {
 
-    private static final Logger logger = LoggerFactory.getLogger(GenericJsonQuery.class);
-    private StringBuilder strBuilder = new StringBuilder();
-    private List<String> columnNames = new ArrayList<String>();
-    private boolean firstRow = true;
+    private final StringBuilder strBuilder;
+    private final List<String> columnNames;
+    private boolean firstRow;
 
     /**
      * @param agencyId
@@ -22,6 +24,9 @@ public class GenericJsonQuery extends GenericQuery {
      */
     private GenericJsonQuery(String agencyId) throws SQLException {
         super(agencyId);
+        strBuilder = new StringBuilder();
+        columnNames = new ArrayList<>();
+        firstRow = true;
     }
 
     /* (non-Javadoc)
@@ -54,7 +59,9 @@ public class GenericJsonQuery extends GenericQuery {
      */
     @Override
     protected void addRow(List<Object> values) {
-        if (!firstRow) strBuilder.append(",\n");
+        if (!firstRow) {
+            strBuilder.append(",\n");
+        }
         firstRow = false;
 
         strBuilder.append('{');

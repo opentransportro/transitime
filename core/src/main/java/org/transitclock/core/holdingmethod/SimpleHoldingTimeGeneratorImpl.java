@@ -28,7 +28,7 @@ public class SimpleHoldingTimeGeneratorImpl implements HoldingTimeGenerator {
     public HoldingTime generateHoldingTime(VehicleState vehicleState, IpcArrivalDeparture event) {
 
         if (event.isArrival() && isControlStop(event.getStopId(), event.getStopPathIndex())) {
-            logger.debug("Calling Simple Holding Generator for event : {}", event.toString());
+            logger.debug("Calling Simple Holding Generator for event : {}", event);
 
             IpcArrivalDeparture lastVehicleDeparture = getLastVehicleDepartureTime(
                     event.getTripId(),
@@ -36,7 +36,7 @@ public class SimpleHoldingTimeGeneratorImpl implements HoldingTimeGenerator {
                     new Date(event.getTime().getTime()));
 
             if (lastVehicleDeparture != null) {
-                logger.debug("Found last vehicle departure event: {}", lastVehicleDeparture.toString());
+                logger.debug("Found last vehicle departure event: {}", lastVehicleDeparture);
 
                 long current_vehicle_arrival_time = event.getTime().getTime();
 
@@ -44,7 +44,7 @@ public class SimpleHoldingTimeGeneratorImpl implements HoldingTimeGenerator {
                         current_vehicle_arrival_time,
                         lastVehicleDeparture.getTime().getTime());
 
-                logger.debug("Holding time for : {} is {}.", event.toString(), holdingTimeValue);
+                logger.debug("Holding time for : {} is {}.", event, holdingTimeValue);
 
                 HoldingTime holdingTime = new HoldingTime(
                         new Date(current_vehicle_arrival_time + holdingTimeValue),
@@ -66,8 +66,7 @@ public class SimpleHoldingTimeGeneratorImpl implements HoldingTimeGenerator {
 
             } else {
                 logger.debug(
-                        "Did not find last vehicle departure for stop {}. This is required to"
-                                + " calculate holding time.",
+                        "Did not find last vehicle departure for stop {}. This is required to calculate holding time.",
                         event.getStopId());
 
                 long current_vehicle_arrival_time = event.getTime().getTime();
@@ -130,7 +129,7 @@ public class SimpleHoldingTimeGeneratorImpl implements HoldingTimeGenerator {
         long H15 = last_vehicle_departure_time;
 
         if (((E18 - H15) / 3) > ((F17 - H15) / 2)) {
-            holdingTime = (long) (((E18 - H15) / 3 - (B16 - H15)));
+            holdingTime = ((E18 - H15) / 3 - (B16 - H15));
         } else {
             holdingTime = ((F17 - H15) / 2 - (B16 - H15));
         }
@@ -162,17 +161,15 @@ public class SimpleHoldingTimeGeneratorImpl implements HoldingTimeGenerator {
     protected IpcPrediction getForwardVehicleDeparturePrediction(IpcPrediction predictionEvent) {
         PredictionDataCache predictionCache = PredictionDataCache.getInstance();
 
-        List<IpcPrediction> predictions = new ArrayList<IpcPrediction>();
+        List<IpcPrediction> predictions = new ArrayList<>();
 
         List<IpcPredictionsForRouteStopDest> predictionsForRouteStopDests =
                 predictionCache.getPredictions(predictionEvent.getRouteId(), predictionEvent.getStopId());
 
         for (IpcPredictionsForRouteStopDest predictionForRouteStopDest : predictionsForRouteStopDests) {
-            for (IpcPrediction prediction : predictionForRouteStopDest.getPredictionsForRouteStop()) {
-                predictions.add(prediction);
-            }
+            predictions.addAll(predictionForRouteStopDest.getPredictionsForRouteStop());
         }
-        Collections.sort(predictions, new PredictionTimeComparator());
+        predictions.sort(new PredictionTimeComparator());
 
         int found = -1;
 
@@ -185,7 +182,7 @@ public class SimpleHoldingTimeGeneratorImpl implements HoldingTimeGenerator {
             }
             /* now look until after this prediction and it is the next one for same stop but a different vehicle */
             if (found != -1 && i > found) {
-                if (predictions.get(i).isArrival() == false
+                if (!predictions.get(i).isArrival()
                         && predictions.get(i).getStopId().equals(predictionEvent.getStopId())
                         && !predictions.get(i).getTripId().equals(predictionEvent.getTripId())) {
                     return predictions.get(i);
@@ -198,7 +195,7 @@ public class SimpleHoldingTimeGeneratorImpl implements HoldingTimeGenerator {
     protected List<IpcPrediction> getBackwardArrivalPredictions(IpcPrediction predictionEvent) {
         PredictionDataCache predictionCache = PredictionDataCache.getInstance();
 
-        List<IpcPrediction> predictions = new ArrayList<IpcPrediction>();
+        List<IpcPrediction> predictions = new ArrayList<>();
 
         List<IpcPredictionsForRouteStopDest> predictionsForRouteStopDests =
                 predictionCache.getPredictions(predictionEvent.getRouteId(), predictionEvent.getStopId());
@@ -215,7 +212,7 @@ public class SimpleHoldingTimeGeneratorImpl implements HoldingTimeGenerator {
                     predictions.add(prediction);
             }
         }
-        Collections.sort(predictions, new PredictionTimeComparator());
+        predictions.sort(new PredictionTimeComparator());
         /* TODO get the first two of the same type */
         return predictions;
     }

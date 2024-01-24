@@ -1,19 +1,16 @@
 /* (C)2023 */
 package org.transitclock.core.predictiongenerator.scheduled.dwell;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.transitclock.config.DoubleConfigValue;
-import org.transitclock.config.IntegerConfigValue;
 import org.transitclock.configData.PredictionConfig;
 import org.transitclock.statistics.Statistics;
 
 /**
  * @author scrudden This is a running average for dwell times.
  */
-public class DwellAverage implements DwellModel, Serializable {
+public class DwellAverage implements DwellModel {
     private final List<Integer> values = new ArrayList<>();
 
     // For this model headway or demand is not taken into account.

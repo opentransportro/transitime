@@ -33,13 +33,12 @@ import static org.transitclock.configData.CoreConfig.*;
  */
 @Slf4j
 public class AvlProcessor {
+    // Singleton class
+    private static final AvlProcessor singleton = new AvlProcessor();
 
     // For keeping track of how long since received an AVL report so
     // can determine if AVL feed is up.
     private AvlReport lastRegularReportProcessed;
-
-    // Singleton class
-    private static final AvlProcessor singleton = new AvlProcessor();
 
 
     /*
@@ -149,11 +148,13 @@ public class AvlProcessor {
 
         // If this feature disabled then return false
         int noProgressMsec = CoreConfig.getTimeForDeterminingNoProgress();
-        if (noProgressMsec <= 0) return false;
+        if (noProgressMsec <= 0)
+            return false;
 
         // If no previous match then cannot determine if not making progress
         TemporalMatch previousMatch = vehicleState.getPreviousMatch(noProgressMsec);
-        if (previousMatch == null) return false;
+        if (previousMatch == null)
+            return false;
 
         // Determine distance traveled between the matches
         double distanceTraveled = previousMatch.distanceBetweenMatches(bestTemporalMatch);
@@ -1282,7 +1283,8 @@ public class AvlProcessor {
             // If called recursively (because end of block reached) but
             // didn't match to new assignment then don't want to store the
             // vehicle state since already did that.
-            if (recursiveCall && !vehicleState.isPredictable()) return;
+            if (recursiveCall && !vehicleState.isPredictable())
+                return;
 
             // Now that VehicleState has been updated need to update the
             // VehicleDataCache so that when data queried for API the proper
@@ -1291,8 +1293,7 @@ public class AvlProcessor {
 
             // Write out current vehicle state to db so can join it with AVL
             // data from db and get historical context of AVL report.
-            org.transitclock.db.structs.VehicleState dbVehicleState =
-                    new org.transitclock.db.structs.VehicleState(vehicleState);
+            var dbVehicleState = new org.transitclock.db.structs.VehicleState(vehicleState);
             Core.getInstance().getDbLogger().add(dbVehicleState);
         }
     }
@@ -1306,7 +1307,8 @@ public class AvlProcessor {
      * @return The GPS time in msec epoch time of last AVL report, or 0 if no last AVL report
      */
     public long lastAvlReportTime() {
-        if (lastRegularReportProcessed == null) return 0;
+        if (lastRegularReportProcessed == null)
+            return 0;
 
         return lastRegularReportProcessed.getTime();
     }
@@ -1321,7 +1323,8 @@ public class AvlProcessor {
     private void setLastAvlReport(AvlReport avlReport) {
         // Ignore schedule based predictions AVL reports since those are faked
         // and don't represent what is going on with the AVL feed
-        if (avlReport.isForSchedBasedPreds()) return;
+        if (avlReport.isForSchedBasedPreds())
+            return;
 
         // Only store report if it is a newer one. In this way we ignore
         // possibly old data that might come in from the AVL feed.
@@ -1397,7 +1400,7 @@ public class AvlProcessor {
             if (blockId != null) {
                 avlReport.setAssignment(blockId, AssignmentType.BLOCK_ID);
             }
-        } catch (Exception ex) {
+        } catch (Exception ignored) {
         }
 
         // The beginning of processing AVL data is an important milestone

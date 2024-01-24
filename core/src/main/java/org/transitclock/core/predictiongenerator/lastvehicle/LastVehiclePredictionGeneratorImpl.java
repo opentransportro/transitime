@@ -4,6 +4,8 @@ package org.transitclock.core.predictiongenerator.lastvehicle;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.applications.Core;
@@ -34,8 +36,8 @@ import org.transitclock.ipc.data.IpcVehicleComplete;
  *     <p>This works for both schedules based and frequency based services out of the box. Not so
  *     for historical average or Kalman filter.
  */
-public class LastVehiclePredictionGeneratorImpl extends PredictionGeneratorDefaultImpl
-        implements PredictionComponentElementsGenerator {
+@Slf4j
+public class LastVehiclePredictionGeneratorImpl extends PredictionGeneratorDefaultImpl {
     @Override
     protected IpcPrediction generatePredictionForStop(
             AvlReport avlReport,
@@ -62,8 +64,6 @@ public class LastVehiclePredictionGeneratorImpl extends PredictionGeneratorDefau
 
     private String alternative = "PredictionGeneratorDefaultImpl";
 
-    private static final Logger logger = LoggerFactory.getLogger(LastVehiclePredictionGeneratorImpl.class);
-
     /* (non-Javadoc)
      * @see org.transitclock.core.predictiongenerator.KalmanPredictionGeneratorImpl#getTravelTimeForPath(org.transitclock.core.Indices, org.transitclock.db.structs.AvlReport)
      */
@@ -72,7 +72,7 @@ public class LastVehiclePredictionGeneratorImpl extends PredictionGeneratorDefau
 
         VehicleDataCache vehicleCache = VehicleDataCache.getInstance();
 
-        List<VehicleState> vehiclesOnRoute = new ArrayList<VehicleState>();
+        List<VehicleState> vehiclesOnRoute = new ArrayList<>();
 
         VehicleStateManager vehicleStateManager = VehicleStateManager.getInstance();
 
@@ -87,10 +87,7 @@ public class LastVehiclePredictionGeneratorImpl extends PredictionGeneratorDefau
         try {
             TravelTimeDetails travelTimeDetails = null;
             if ((travelTimeDetails = this.getLastVehicleTravelTime(currentVehicleState, indices)) != null) {
-                logger.debug("Using last vehicle algorithm for prediction : "
-                        + travelTimeDetails.toString()
-                        + " for : "
-                        + indices.toString());
+                logger.debug("Using last vehicle algorithm for prediction : {} for : {}", travelTimeDetails, indices);
 
                 if (CoreConfig.storeTravelTimeStopPathPredictions.getValue()) {
                     PredictionForStopPath predictionForStopPath = new PredictionForStopPath(
@@ -114,8 +111,6 @@ public class LastVehiclePredictionGeneratorImpl extends PredictionGeneratorDefau
             e.printStackTrace();
         }
 
-        // logger.debug("No last vehicle data found, generating default prediction : " +
-        // indices.toString());
         /* default to parent method if not enough data. This will be based on schedule if UpdateTravelTimes has not been called. */
         return super.getTravelTimeForPath(indices, avlReport, currentVehicleState);
     }
@@ -124,7 +119,6 @@ public class LastVehiclePredictionGeneratorImpl extends PredictionGeneratorDefau
     public long getStopTimeForPath(Indices indices, AvlReport avlReport, VehicleState vehicleState) {
         // Looking at last vehicle value would be a bad idea for dwell time, so no implementation
         // here.
-
         return super.getStopTimeForPath(indices, avlReport, vehicleState);
     }
 }
