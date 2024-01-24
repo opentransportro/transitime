@@ -14,7 +14,7 @@ import org.transitclock.ipc.rmi.ClientFactory;
 public class PredictionsInterfaceFactory {
 
     // Keyed by agencyId
-    private static Map<String, PredictionsInterface> predictionsInterfaceMap =
+    private static final Map<String, PredictionsInterface> predictionsInterfaceMap =
             new HashMap<String, PredictionsInterface>();
 
     /********************** Member Functions **************************/

@@ -167,7 +167,7 @@ public class StringUtils {
 
         // Create the result. First add the leading non digits
         StringBuilder builder = new StringBuilder();
-        builder.append(name.substring(0, startOfNumber));
+        builder.append(name, 0, startOfNumber);
         // Add necessary 0 padding to make numbers the same length
         for (int i = 0; i < NUMBER_DIGITS_WHEN_PADDED - numberOfDigits; ++i) builder.append('0');
         // Add the number and any remaining part of the string

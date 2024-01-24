@@ -50,7 +50,7 @@ public class DwellTimeModelCache implements org.transitclock.core.dataCache.Dwel
         DwellModel model = null;
 
         if (cache.get(key) != null) {
-            model = (DwellModel) cache.get(key);
+            model = cache.get(key);
 
             model.putSample((int) dwellTime, (int) headway.getHeadway(), null);
         } else {
@@ -113,13 +113,11 @@ public class DwellTimeModelCache implements org.transitclock.core.dataCache.Dwel
                                                 "Dwell time {} outside allowable range for {}.", dwelltime, departure);
                                     }
                                 } else {
-                                    logger.warn("Schedule adherence outside allowable range. "
-                                            + previousArrival.getScheduledAdherence());
+                                    logger.warn("Schedule adherence outside allowable range. {}", previousArrival.getScheduledAdherence());
                                 }
 
                             } else {
-                                logger.warn("Schedule adherence outside allowable range. "
-                                        + departure.getScheduleAdherence());
+                                logger.warn("Schedule adherence outside allowable range. {}", departure.getScheduleAdherence());
                             }
                         }
                     }

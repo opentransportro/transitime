@@ -27,7 +27,7 @@ public class TravelTimeInfoMap {
     // For keeping track of the historic data such that if no data is
     // available for a trip then can find closest trip. Keyed by trip pattern
     // ID.
-    private Map<String, TravelTimesByStopMap> travelTimesByTripPatternMap = new HashMap<String, TravelTimesByStopMap>();
+    private final Map<String, TravelTimesByStopMap> travelTimesByTripPatternMap = new HashMap<String, TravelTimesByStopMap>();
 
     /********************** Member Functions **************************/
 

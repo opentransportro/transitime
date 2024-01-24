@@ -29,7 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class FrequencyBasedHistoricalAverageCache {
 
-    private static FrequencyBasedHistoricalAverageCache singleton = new FrequencyBasedHistoricalAverageCache();
+    private static final FrequencyBasedHistoricalAverageCache singleton = new FrequencyBasedHistoricalAverageCache();
 
 
 
@@ -49,7 +49,7 @@ public class FrequencyBasedHistoricalAverageCache {
 
     public String toString() {
 
-        String totalsString = new String();
+        String totalsString = "";
         for (StopPathKey key : m.keySet()) {
             TreeMap<Long, HistoricalAverage> values = new TreeMap<Long, HistoricalAverage>();
 
@@ -74,7 +74,7 @@ public class FrequencyBasedHistoricalAverageCache {
             }
         }
 
-        return totalsString + "\nDetails\n" + m.toString();
+        return totalsString + "\nDetails\n" + m;
     }
 
     public synchronized HistoricalAverage getAverage(StopPathCacheKey key) {
@@ -249,8 +249,7 @@ public class FrequencyBasedHistoricalAverageCache {
         Date nearestDay = DateUtils.truncate(new Date(arrivalDeparture.getTime().getTime()), Calendar.DAY_OF_MONTH);
         TripKey tripKey = new TripKey(arrivalDeparture.getTripId(), nearestDay, trip.getStartTime());
 
-        List<IpcArrivalDeparture> arrivalDepartures = (List<IpcArrivalDeparture>)
-                TripDataHistoryCacheFactory.getInstance().getTripHistory(tripKey);
+        List<IpcArrivalDeparture> arrivalDepartures = TripDataHistoryCacheFactory.getInstance().getTripHistory(tripKey);
 
         if (arrivalDepartures != null && !arrivalDepartures.isEmpty() && arrivalDeparture.isArrival()) {
             IpcArrivalDeparture previousEvent = findPreviousDepartureEvent(arrivalDepartures, arrivalDeparture);
@@ -314,7 +313,7 @@ public class FrequencyBasedHistoricalAverageCache {
     }
 
     private static <T> Iterable<T> emptyIfNull(Iterable<T> iterable) {
-        return iterable == null ? Collections.<T>emptyList() : iterable;
+        return iterable == null ? Collections.emptyList() : iterable;
     }
 
     private class StopPathKey {
@@ -342,9 +341,8 @@ public class FrequencyBasedHistoricalAverageCache {
             } else if (!stopPathIndex.equals(other.stopPathIndex)) return false;
             if (travelTime != other.travelTime) return false;
             if (tripId == null) {
-                if (other.tripId != null) return false;
-            } else if (!tripId.equals(other.tripId)) return false;
-            return true;
+                return other.tripId == null;
+            } else return tripId.equals(other.tripId);
         }
 
         @Override
@@ -406,8 +404,8 @@ public class FrequencyBasedHistoricalAverageCache {
             return Math.abs(arrival.getTime() - departure.getTime());
         }
 
-        private ArrivalDeparture arrival = null;
-        private ArrivalDeparture departure = null;
+        private final ArrivalDeparture arrival = null;
+        private final ArrivalDeparture departure = null;
     }
 
     private class DwellTimeResult {

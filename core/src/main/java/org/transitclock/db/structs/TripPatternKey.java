@@ -72,14 +72,13 @@ public class TripPatternKey {
     public boolean equals(Object obj) {
         if (this == obj) return true;
         if (obj == null) return false;
-        if (!(obj instanceof TripPatternKey)) return false;
+        if (!(obj instanceof TripPatternKey other)) return false;
         if (getClass() != obj.getClass()) return false;
-        TripPatternKey other = (TripPatternKey) obj;
         if (shapeId == null) {
             if (other.shapeId != null) return false;
         } else if (!shapeId.equals(other.shapeId)) return false;
         if (stopPaths == null) {
-            if (other.stopPaths != null) return false;
+            return other.stopPaths == null;
         } else {
             if (stopPaths.size() != other.stopPaths.size()) return false;
             for (int i = 0; i < stopPaths.size(); ++i) {

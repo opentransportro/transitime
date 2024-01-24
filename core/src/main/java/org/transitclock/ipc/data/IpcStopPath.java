@@ -25,8 +25,8 @@ public class IpcStopPath implements Serializable {
     private final boolean waitStop;
     private final boolean scheduleAdherenceStop;
     private final Integer breakTime;
-    private List<Location> locations;
-    private double pathLength;
+    private final List<Location> locations;
+    private final double pathLength;
 
     public IpcStopPath(StopPath dbStopPath) {
         this.configRev = dbStopPath.getConfigRev();

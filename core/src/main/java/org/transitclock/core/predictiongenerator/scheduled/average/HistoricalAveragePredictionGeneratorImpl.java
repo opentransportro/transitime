@@ -30,7 +30,7 @@ import org.transitclock.db.structs.PredictionForStopPath;
 @Slf4j
 public class HistoricalAveragePredictionGeneratorImpl extends LastVehiclePredictionGeneratorImpl
         implements PredictionComponentElementsGenerator {
-    private String alternative = "LastVehiclePredictionGeneratorImpl";
+    private final String alternative = "LastVehiclePredictionGeneratorImpl";
 
     /* (non-Javadoc)
      * @see org.transitclock.core.predictiongenerator.KalmanPredictionGeneratorImpl#getTravelTimeForPath(org.transitclock.core.Indices, org.transitclock.db.structs.AvlReport)

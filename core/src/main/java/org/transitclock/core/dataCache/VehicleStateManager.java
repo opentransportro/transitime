@@ -19,10 +19,10 @@ public class VehicleStateManager {
     // since getVehiclesState() returns values() of the map which can be
     // accessed while the map is being modified with new data via another
     // thread. Otherwise could get a ConcurrentModificationException.
-    private Map<String, VehicleState> vehicleMap = new ConcurrentHashMap<String, VehicleState>();
+    private final Map<String, VehicleState> vehicleMap = new ConcurrentHashMap<String, VehicleState>();
 
     // This is a singleton class
-    private static VehicleStateManager singleton = new VehicleStateManager();
+    private static final VehicleStateManager singleton = new VehicleStateManager();
 
     /********************** Member Functions **************************/
 

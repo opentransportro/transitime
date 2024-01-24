@@ -85,7 +85,7 @@ public class TripPattern implements Serializable, Lifecycle {
 
     // So know which trips use this trip pattern
     @Transient
-    private List<Trip> trips = new ArrayList<>();
+    private final List<Trip> trips = new ArrayList<>();
 
     // For quickly finding a StopPath using a stop ID.
     // Keyed on stop ID. Since this member is transient this
@@ -502,9 +502,8 @@ public class TripPattern implements Serializable, Lifecycle {
             if (other.routeId != null) return false;
         } else if (!routeId.equals(other.routeId)) return false;
         if (trips == null) {
-            if (other.trips != null) return false;
-        } else if (!trips.equals(other.trips)) return false;
-        return true;
+            return other.trips == null;
+        } else return trips.equals(other.trips);
     }
 
     /**

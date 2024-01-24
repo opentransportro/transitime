@@ -141,7 +141,6 @@ public class LastArrivalsHeadwayGenerator implements HeadwayGenerator {
 
     private double coefficientOfVariance(List<Headway> headways) {
         double variance = variance(headways);
-        ;
         double average = average(headways);
 
         return variance / (average * average);

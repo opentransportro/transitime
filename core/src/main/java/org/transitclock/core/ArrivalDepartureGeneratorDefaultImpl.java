@@ -423,7 +423,7 @@ public class ArrivalDepartureGeneratorDefaultImpl implements ArrivalDepartureGen
                     + "\" for route \""
                     + route.getName()
                     + "\" "
-                    + schAdh.toString()
+                    + schAdh
                     + ". Scheduled departure time was "
                     + Time.timeStr(departure.getScheduledTime());
 
@@ -452,7 +452,7 @@ public class ArrivalDepartureGeneratorDefaultImpl implements ArrivalDepartureGen
                     + "\" for route \""
                     + route.getName()
                     + "\" "
-                    + schAdh.toString()
+                    + schAdh
                     + ". Scheduled departure time was "
                     + Time.timeStr(departure.getScheduledTime());
 

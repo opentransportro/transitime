@@ -181,7 +181,7 @@ public class Statistics {
     public static int[] toArray(List<Integer> list) {
         if (list == null) return new int[0];
 
-        int result[] = new int[list.size()];
+        int[] result = new int[list.size()];
         for (int i = 0; i < list.size(); ++i) result[i] = list.get(i);
         return result;
     }
@@ -193,8 +193,8 @@ public class Statistics {
      * @param array
      * @return
      */
-    public static double[] toDoubleArray(int array[]) {
-        double result[] = new double[array.length];
+    public static double[] toDoubleArray(int[] array) {
+        double[] result = new double[array.length];
         for (int i = 0; i < array.length; ++i) result[i] = array[i];
         return result;
     }
@@ -209,7 +209,7 @@ public class Statistics {
     public static double[] toDoubleArray(List<Integer> list) {
         if (list == null) return new double[0];
 
-        double result[] = new double[list.size()];
+        double[] result = new double[list.size()];
         for (int i = 0; i < list.size(); ++i) result[i] = list.get(i);
         return result;
     }
@@ -286,11 +286,11 @@ public class Statistics {
     }
 
     /** Just for testing */
-    public static void main(String args[]) {
-        Integer a[] = {56449, 45916, 33983, 1237582, 32739};
+    public static void main(String[] args) {
+        Integer[] a = {56449, 45916, 33983, 1237582, 32739};
         Statistics.filteredMean(Arrays.asList(a), 0.7);
 
-        Integer array[] = {2, 4, 3}; // , 4, 4, 4, 5, 5, 7, 9};
+        Integer[] array = {2, 4, 3}; // , 4, 4, 4, 5, 5, 7, 9};
         List<Integer> values = Arrays.asList(array);
 
         double[] doubleValues = toDoubleArray(toArray(values));

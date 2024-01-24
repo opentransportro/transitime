@@ -15,7 +15,7 @@ import org.transitclock.utils.csv.CsvWriterBase;
  */
 public class GtfsShapesWriter extends CsvWriterBase {
 
-    private static DecimalFormat sixDigitFormatter = new DecimalFormat("0.000000");
+    private static final DecimalFormat sixDigitFormatter = new DecimalFormat("0.000000");
 
     /********************** Member Functions **************************/
 

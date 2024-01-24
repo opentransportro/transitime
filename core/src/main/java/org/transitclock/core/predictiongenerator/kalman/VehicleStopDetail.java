@@ -61,9 +61,8 @@ public class VehicleStopDetail {
         } else if (!stop.equals(other.stop)) return false;
         if (time != other.time) return false;
         if (vehicle == null) {
-            if (other.vehicle != null) return false;
-        } else if (!vehicle.equals(other.vehicle)) return false;
-        return true;
+            return other.vehicle == null;
+        } else return vehicle.equals(other.vehicle);
     }
 
     /**

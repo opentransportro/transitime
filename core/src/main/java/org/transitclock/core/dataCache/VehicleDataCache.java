@@ -38,31 +38,31 @@ import org.transitclock.utils.Time;
 public class VehicleDataCache {
 
     // Make this class available as a singleton
-    private static VehicleDataCache singleton = new VehicleDataCache();
+    private static final VehicleDataCache singleton = new VehicleDataCache();
 
     // Keyed by vehicle ID
-    private Map<String, IpcVehicleComplete> vehiclesMap = new ConcurrentHashMap<String, IpcVehicleComplete>();
+    private final Map<String, IpcVehicleComplete> vehiclesMap = new ConcurrentHashMap<String, IpcVehicleComplete>();
 
     // Keyed by route_short_name. Key is null for vehicles that have not
     // been successfully associated with a route. For each route there is a
     // submap that is keyed by vehicle.
-    private Map<String, Map<String, IpcVehicleComplete>> vehiclesByRouteMap =
+    private final Map<String, Map<String, IpcVehicleComplete>> vehiclesByRouteMap =
             new ConcurrentHashMapNullKeyOk<String, Map<String, IpcVehicleComplete>>();
 
     // So can determine vehicles associated with a block ID. Keyed on
     // block ID. Each block can have a list of vehicle IDs. Though rare
     // there are situations where multiple vehicles might have the
     // same assignment, such as for unscheduled assignments.
-    private Map<String, List<String>> vehicleIdsByBlockMap = new ConcurrentHashMapNullKeyOk<String, List<String>>();
+    private final Map<String, List<String>> vehicleIdsByBlockMap = new ConcurrentHashMapNullKeyOk<String, List<String>>();
 
     // Keeps track of vehicle static config info. If new vehicle encountered
     // in AVL feed then this map is updated and the new VehicleConfig is also
     // written to the database. Using HashMap instead of ConcurrentHashMap
     // since synchronizing puts anyways.
-    private ConcurrentHashMap<String, VehicleConfig> vehicleConfigsMap = new ConcurrentHashMap<String, VehicleConfig>();
+    private final ConcurrentHashMap<String, VehicleConfig> vehicleConfigsMap = new ConcurrentHashMap<String, VehicleConfig>();
 
     // So can quickly look up vehicle config using tracker ID
-    private Map<String, VehicleConfig> vehicleConfigByTrackerIdMap = new HashMap<String, VehicleConfig>();
+    private final Map<String, VehicleConfig> vehicleConfigByTrackerIdMap = new HashMap<String, VehicleConfig>();
 
     // So can determine how long since data was read from db
     private long dbReadTime;

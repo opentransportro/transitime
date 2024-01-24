@@ -148,7 +148,7 @@ public class Core {
              logger.info("No optional modules to start up.");
          } else {
              for (Class<?> moduleName : optionalModuleNames) {
-                 logger.info("Starting up optional module " + moduleName);
+                 logger.info("Starting up optional module {}", moduleName);
                  try {
                      Module module = createModule(moduleName, agencyId);
                      modules.put(module.getClass(), module);

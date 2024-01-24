@@ -15,10 +15,10 @@ import org.transitclock.db.structs.Vector;
  */
 public class IpcShape implements Serializable {
 
-    private String tripPatternId;
-    private String headsign;
-    private List<Location> locations;
-    private boolean isUiShape;
+    private final String tripPatternId;
+    private final String headsign;
+    private final List<Location> locations;
+    private final boolean isUiShape;
     private double length;
     private String directionId;
 

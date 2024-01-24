@@ -16,10 +16,10 @@ public class KCMTranslator implements GTFSRealtimeTranslator {
 
     @Override
     public String parseStopId(String stopId) {
-        if (stopId.startsWith("100000")) return stopId.substring("100000".length(), stopId.length());
-        if (stopId.startsWith("10000")) return stopId.substring("10000".length(), stopId.length());
-        if (stopId.startsWith("1000")) return stopId.substring("1000".length(), stopId.length());
-        if (stopId.startsWith("100")) return stopId.substring("100".length(), stopId.length());
+        if (stopId.startsWith("100000")) return stopId.substring("100000".length());
+        if (stopId.startsWith("10000")) return stopId.substring("10000".length());
+        if (stopId.startsWith("1000")) return stopId.substring("1000".length());
+        if (stopId.startsWith("100")) return stopId.substring("100".length());
         return stopId;
     }
 
@@ -27,7 +27,7 @@ public class KCMTranslator implements GTFSRealtimeTranslator {
     public Date parseFeedHeaderTimestamp(FeedHeader header) {
         // KCM feed is three hours behind!
         Date feedDate = new Date(header.getTimestamp() * 1000 + (3 * 60 * 60 * 1000));
-        if (Math.abs(System.currentTimeMillis() - feedDate.getTime()) > 1 * 60 * 1000) {
+        if (Math.abs(System.currentTimeMillis() - feedDate.getTime()) > 60 * 1000) {
             // if the feed is reporting a date of more than a minute ago, we have significant clock
             // skew
             // this will ruin reports, so pretend the feed is up-to-date

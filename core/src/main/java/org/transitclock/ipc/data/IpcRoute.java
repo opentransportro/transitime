@@ -25,9 +25,9 @@ import org.transitclock.db.structs.TripPattern;
 public class IpcRoute extends IpcRouteSummary {
 
     // Note that there are additional members in IpcRouteSummary superclass.
-    private IpcDirectionsForRoute stops;
-    private Collection<IpcShape> shapes;
-    private Location locationOfNextPredictedVehicle;
+    private final IpcDirectionsForRoute stops;
+    private final Collection<IpcShape> shapes;
+    private final Location locationOfNextPredictedVehicle;
 
     /**
      * Create an IpcRoute that contains all stops and paths but separates out information for the

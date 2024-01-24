@@ -342,7 +342,7 @@ public class WebAgency {
         // the db if an agency doesn't exist anymore. Therefore if want to
         // update the WebAgency cache should only do so once in a while, which
         // is rereadTimeIfWebAgencyNotFoundMsecs is set to 1 minute.
-        long rereadTimeIfWebAgencyNotFoundMsecs = 1 * Time.MIN_IN_MSECS;
+        long rereadTimeIfWebAgencyNotFoundMsecs = Time.MIN_IN_MSECS;
         if (webAgency == null && rereadTimeIfWebAgencyNotFoundMsecs < rereadIfOlderThanMsecs) {
             webAgency = getWebAgencyMapCache(rereadTimeIfWebAgencyNotFoundMsecs).get(agencyId);
         }

@@ -34,7 +34,7 @@ public class DbQueue<T> {
     private static final Logger logger = LoggerFactory.getLogger(DbQueue.class);
 
     // For when cannot connect to data the length of time in msec between retries
-    private static final long TIME_BETWEEN_RETRIES = 1 * 1000; // msec
+    private static final long TIME_BETWEEN_RETRIES = 1000; // msec
 
     private static final int QUEUE_CAPACITY = 500000;
 
@@ -126,15 +126,7 @@ public class DbQueue<T> {
 
         // If losing data then log such
         if (!success) {
-            logger.error("DataDbLogger queue is now completely full for "
-                    + "projectId="
-                    + projectId
-                    + "and type "
-                    + shortType
-                    + ". LOSING DATA!!! Failed to "
-                    + "store object=["
-                    + t
-                    + "]");
+            logger.error("DataDbLogger queue is now completely full for projectId={}and type {}. LOSING DATA!!! Failed to store object=[{}]", projectId, shortType, t);
         }
 
         // Keep track of max queue level so can log it when queue level
@@ -177,18 +169,7 @@ public class DbQueue<T> {
         double level = queueLevel();
         int levelIndexIncludingMargin = indexOfLevel(level + 0.10);
         if (levelIndexIncludingMargin < indexOfLevelWhenMessageLogged) {
-            logger.error("DataDbLogger queue emptying out somewhat "
-                    + " for projectId="
-                    + projectId
-                    + " and type "
-                    + shortType
-                    + ". It is now at "
-                    + String.format("%.1f", level * 100)
-                    + "% capacity with "
-                    + queue.size()
-                    + " elements already in the queue. The maximum capacity was "
-                    + String.format("%.1f", maxQueueLevel * 100)
-                    + "%.");
+            logger.error("DataDbLogger queue emptying out somewhat  for projectId={} and type {}. It is now at {}% capacity with {} elements already in the queue. The maximum capacity was {}%.", projectId, shortType, String.format("%.1f", level * 100), queue.size(), String.format("%.1f", maxQueueLevel * 100));
             indexOfLevelWhenMessageLogged = levelIndexIncludingMargin;
 
             // Reset the maxQueueLevel so can determine what next peak is
@@ -335,13 +316,7 @@ public class DbQueue<T> {
                         }
                         // Output message on what is going on
                         Throwable cause2 = HibernateUtils.getRootCause(e2);
-                        logger.error(e2.getClass().getSimpleName()
-                                + " when individually writing object "
-                                + o
-                                + ". "
-                                + (shouldKeepTrying ? "Will keep trying. " : "")
-                                + "msg="
-                                + cause2.getMessage());
+                        logger.error("{} when individually writing object {}. {}msg={}", e2.getClass().getSimpleName(), o, shouldKeepTrying ? "Will keep trying. " : "", cause2.getMessage());
                     }
                 } while (shouldKeepTrying);
             }
@@ -359,10 +334,7 @@ public class DbQueue<T> {
                 logger.debug("DataDbLogger.processData() processing batch of " + "data to be stored in database.");
                 processBatchOfData();
             } catch (Exception e) {
-                logger.error("Error writing data to database via DataDbLogger. "
-                        + "Look for ERROR in log file to see if the database classes "
-                        + "were configured correctly. Error: "
-                        + e);
+                logger.error("Error writing data to database via DataDbLogger. Look for ERROR in log file to see if the database classes were configured correctly. Error: {}", e);
 
                 // Don't try again right away because that would be wasteful
                 Time.sleep(TIME_BETWEEN_RETRIES);
@@ -474,7 +446,7 @@ public class DbQueue<T> {
     }
 
     private class ThroughputMonitor implements Runnable {
-        private static final long INTERVAL = 1l; // minutes
+        private static final long INTERVAL = 1L; // minutes
 
         @Override
         public void run() {

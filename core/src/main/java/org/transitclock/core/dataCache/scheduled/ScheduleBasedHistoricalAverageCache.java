@@ -29,7 +29,7 @@ import java.util.List;
  */
 public class ScheduleBasedHistoricalAverageCache {
     private static final String cacheName = "HistoricalAverageCache";
-    private static ScheduleBasedHistoricalAverageCache singleton = new ScheduleBasedHistoricalAverageCache();
+    private static final ScheduleBasedHistoricalAverageCache singleton = new ScheduleBasedHistoricalAverageCache();
     private static final Logger logger = LoggerFactory.getLogger(ScheduleBasedHistoricalAverageCache.class);
     final URL xmlConfigUrl = getClass().getResource("/ehcache.xml");
     private Cache<StopPathCacheKey, HistoricalAverage> cache = null;
@@ -65,7 +65,7 @@ public class ScheduleBasedHistoricalAverageCache {
 
     public synchronized void putAverage(StopPathCacheKey key, HistoricalAverage average) {
 
-        logger.debug("Putting: " + key.toString() + " in cache with values : " + average);
+        logger.debug("Putting: {} in cache with values : {}", key.toString(), average);
 
         cache.put(key, average);
         // logCache(logger);
@@ -77,7 +77,7 @@ public class ScheduleBasedHistoricalAverageCache {
         Trip trip = dbConfig.getTrip(arrivalDeparture.getTripId());
 
         if (trip != null && !trip.isNoSchedule()) {
-            logger.debug("Putting :" + arrivalDeparture.toString() + " in HistoricalAverageCache cache.");
+            logger.debug("Putting :{} in HistoricalAverageCache cache.", arrivalDeparture);
 
             TravelTimeDetails travelTimeDetails =
                     getLastTravelTimeDetails(new IpcArrivalDeparture(arrivalDeparture), trip);

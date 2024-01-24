@@ -78,10 +78,10 @@ public class DbConfig {
     // For when reading in all trips from db. Keyed on tripId
     private Map<String, Trip> tripsMap;
     // For trips that have been read in individually. Keyed on tripId.
-    private Map<String, Trip> individualTripsMap = new HashMap<>();
+    private final Map<String, Trip> individualTripsMap = new HashMap<>();
     // For trips that have been read in individually. Keyed on trip short name.
     // Contains
-    private Map<String, List<Trip>> individualTripsByShortNameMap = new HashMap<>();
+    private final Map<String, List<Trip>> individualTripsByShortNameMap = new HashMap<>();
 
     private List<Agency> agencies;
     private List<Calendar> calendars;
@@ -165,13 +165,6 @@ public class DbConfig {
                     e);
 
             System.exit(-1);
-        } finally {
-            // Usually would always make sure session gets closed. But
-            // don't close session for now so can use lazy initialization
-            // for Blocks->Trips. This way app starts up much faster which is
-            // great
-            // for testing.
-            // session.close();
         }
 
         // Let user know what is going on

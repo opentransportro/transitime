@@ -9,7 +9,7 @@ import org.transitclock.utils.ClassInstantiator;
  *     for each stop.
  */
 public class DwellTimeModelCacheFactory {
-    private static StringConfigValue className = new StringConfigValue(
+    private static final StringConfigValue className = new StringConfigValue(
             "transitclock.core.cache.dwellTimeModelCache",
             null,
             "Specifies the class used to cache RLS data for a stop.");

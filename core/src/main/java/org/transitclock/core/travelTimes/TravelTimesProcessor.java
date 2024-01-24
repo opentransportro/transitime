@@ -57,13 +57,13 @@ public class TravelTimesProcessor {
     // with the departure time for each stop for each trip. There is one
     // entry per data point, hence a List of Integers with one Integer
     // per data point.
-    private static Map<ProcessedDataMapKey, List<Integer>> stopTimesMap =
+    private static final Map<ProcessedDataMapKey, List<Integer>> stopTimesMap =
             new HashMap<ProcessedDataMapKey, List<Integer>>();
     // Values are List of List of times where outer List is by single trip and
     // inner List is by travel time segment. For every trip that has historical
     // data we get a single entry in the outer List. For every travel time
     // segment we have historical data for we get an entry in the inner List.
-    private static Map<ProcessedDataMapKey, List<List<Integer>>> travelTimesMap =
+    private static final Map<ProcessedDataMapKey, List<List<Integer>>> travelTimesMap =
             new HashMap<ProcessedDataMapKey, List<List<Integer>>>();
 
     private boolean isEmpty = true;
@@ -236,7 +236,7 @@ public class TravelTimesProcessor {
             DEPARTURE,
             MATCH,
             ARRIVAL
-        };
+        }
 
         private MatchPoint(Date time, float distance, MatchPointReason reason) {
             this.time = time;
@@ -592,7 +592,6 @@ public class TravelTimesProcessor {
 
             addTravelTimesToMap(mapKeyForTravelTimes, travelTimesForStopPath);
 
-            return;
         }
     }
 

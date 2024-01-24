@@ -8,7 +8,7 @@ import org.transitclock.utils.ClassInstantiator;
  * @author Sean Óg Crudden Factory that will provide cache to hold Kalman error values.
  */
 public class ErrorCacheFactory {
-    private static StringConfigValue className = new StringConfigValue(
+    private static final StringConfigValue className = new StringConfigValue(
             "transitclock.core.cache.errorCacheClass",
             "org.transitclock.core.dataCache.ehcache.KalmanErrorCache",
             "Specifies the class used to cache the Kalamn error values.");

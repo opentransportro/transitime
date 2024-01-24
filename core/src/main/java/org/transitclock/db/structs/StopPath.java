@@ -241,8 +241,7 @@ public class StopPath implements Serializable, Lifecycle {
         if (stopId == null) {
             if (other.stopId != null) return false;
         } else if (!stopId.equals(other.stopId)) return false;
-        if (gtfsStopSeq != other.gtfsStopSeq) return false;
-        return true;
+        return gtfsStopSeq == other.gtfsStopSeq;
     }
 
     /**

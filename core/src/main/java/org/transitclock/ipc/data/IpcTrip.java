@@ -18,8 +18,8 @@ public class IpcTrip implements Serializable {
     private final int configRev;
     private final String id;
     private final String shortName;
-    private Integer startTime;
-    private Integer endTime;
+    private final Integer startTime;
+    private final Integer endTime;
     private final String directionId;
     private final String routeId;
     private final String routeShortName;

@@ -14,7 +14,7 @@ import org.transitclock.ipc.rmi.ClientFactory;
 public class HoldingTimeInterfaceFactory {
 
     // Keyed by agencyId
-    private static Map<String, HoldingTimeInterface> holdingtimeInterfaceMap =
+    private static final Map<String, HoldingTimeInterface> holdingtimeInterfaceMap =
             new HashMap<String, HoldingTimeInterface>();
 
     /********************** Member Functions **************************/

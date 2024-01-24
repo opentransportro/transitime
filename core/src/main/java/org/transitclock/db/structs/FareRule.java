@@ -75,7 +75,6 @@ public class FareRule implements Serializable {
         this.originId = gfr.getOriginId() == null ? "" : gfr.getOriginId();
         this.destinationId = gfr.getDestinationId() == null ? "" : gfr.getDestinationId();
         this.containsId = gfr.getContainsId() == null ? "" : gfr.getContainsId();
-        ;
     }
 
     /** Needed because Hibernate requires no-arg constructor */

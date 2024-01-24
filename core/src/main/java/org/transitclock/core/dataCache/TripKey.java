@@ -10,9 +10,9 @@ public class TripKey implements java.io.Serializable {
     /** Needs to be serializable to add to cache */
     private static final long serialVersionUID = 5029823633051153715L;
 
-    private String tripId;
+    private final String tripId;
 
-    private Date tripStartDate;
+    private final Date tripStartDate;
     private Integer startTime;
 
     /**
@@ -67,9 +67,8 @@ public class TripKey implements java.io.Serializable {
             if (other.tripId != null) return false;
         } else if (!tripId.equals(other.tripId)) return false;
         if (tripStartDate == null) {
-            if (other.tripStartDate != null) return false;
-        } else if (!tripStartDate.equals(other.tripStartDate)) return false;
-        return true;
+            return other.tripStartDate == null;
+        } else return tripStartDate.equals(other.tripStartDate);
     }
 
     @Override

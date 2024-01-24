@@ -37,9 +37,8 @@ public class TripEvents implements Serializable {
         if (getClass() != obj.getClass()) return false;
         TripEvents other = (TripEvents) obj;
         if (events == null) {
-            if (other.events != null) return false;
-        } else if (!events.equals(other.events)) return false;
-        return true;
+            return other.events == null;
+        } else return events.equals(other.events);
     }
 
     public TripEvents() {

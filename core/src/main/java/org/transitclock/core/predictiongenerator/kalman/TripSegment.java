@@ -49,9 +49,8 @@ public class TripSegment {
             if (other.destination != null) return false;
         } else if (!destination.equals(other.destination)) return false;
         if (origin == null) {
-            if (other.origin != null) return false;
-        } else if (!origin.equals(other.origin)) return false;
-        return true;
+            return other.origin == null;
+        } else return origin.equals(other.origin);
     }
 
     @Override

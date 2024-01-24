@@ -31,7 +31,7 @@ import java.util.List;
 public class KalmanPredictionGeneratorImpl extends HistoricalAveragePredictionGeneratorImpl
         implements PredictionComponentElementsGenerator {
 
-    private String alternative = "LastVehiclePredictionGeneratorImpl";
+    private final String alternative = "LastVehiclePredictionGeneratorImpl";
 
     /*
      * (non-Javadoc)
@@ -43,7 +43,7 @@ public class KalmanPredictionGeneratorImpl extends HistoricalAveragePredictionGe
     @Override
     public long getTravelTimeForPath(Indices indices, AvlReport avlReport, VehicleState vehicleState) {
 
-        logger.debug("Calling frequency based Kalman prediction algorithm for : " + indices.toString());
+        logger.debug("Calling frequency based Kalman prediction algorithm for : {}", indices.toString());
 
         long alternatePrediction = super.getTravelTimeForPath(indices, avlReport, vehicleState);
 
@@ -70,7 +70,7 @@ public class KalmanPredictionGeneratorImpl extends HistoricalAveragePredictionGe
              */
             if (travelTimeDetails != null) {
 
-                logger.debug("Kalman has last vehicle info for : " + indices.toString() + " : " + travelTimeDetails);
+                logger.debug("Kalman has last vehicle info for : {} : {}", indices, travelTimeDetails);
 
                 Date nearestDay = DateUtils.truncate(avlReport.getDate(), Calendar.DAY_OF_MONTH);
 
@@ -85,8 +85,7 @@ public class KalmanPredictionGeneratorImpl extends HistoricalAveragePredictionGe
                         PredictionConfig.maxKalmanDays.getValue());
 
                 if (lastDaysTimes != null && !lastDaysTimes.isEmpty()) {
-                    logger.debug(
-                            "Kalman has " + lastDaysTimes.size() + " historical values for : " + indices.toString());
+                    logger.debug("Kalman has {} historical values for : {}", lastDaysTimes.size(), indices);
                 }
                 /*
                  * if we have enough data start using Kalman filter otherwise revert
@@ -94,7 +93,7 @@ public class KalmanPredictionGeneratorImpl extends HistoricalAveragePredictionGe
                  */
                 if (lastDaysTimes != null && lastDaysTimes.size() >= PredictionConfig.minKalmanDays.getValue()) {
 
-                    logger.debug("Generating Kalman prediction for : " + indices.toString());
+                    logger.debug("Generating Kalman prediction for : {}", indices);
 
                     try {
 
@@ -108,10 +107,7 @@ public class KalmanPredictionGeneratorImpl extends HistoricalAveragePredictionGe
                         TripSegment[] historical_segments_k = new TripSegment[lastDaysTimes.size()];
                         for (int i = 0; i < lastDaysTimes.size() && i < PredictionConfig.maxKalmanDays.getValue(); i++) {
 
-                            logger.debug("Kalman is using historical value : "
-                                    + lastDaysTimes.get(i)
-                                    + " for : "
-                                    + indices.toString());
+                            logger.debug("Kalman is using historical value : {} for : {}", lastDaysTimes.get(i), indices);
 
                             VehicleStopDetail destinationDetail = new VehicleStopDetail(
                                     null, lastDaysTimes.get(i).getTravelTime(), vehicle);
@@ -130,40 +126,25 @@ public class KalmanPredictionGeneratorImpl extends HistoricalAveragePredictionGe
                         KalmanError last_prediction_error =
                                 lastVehiclePredictionError(kalmanErrorCache, previousVehicleIndices);
 
-                        logger.debug("Using error value: "
-                                + last_prediction_error
-                                + " found with vehicle id "
-                                + travelTimeDetails.getArrival().getVehicleId()
-                                + " from: "
-                                + new KalmanErrorCacheKey(previousVehicleIndices).toString());
+                        logger.debug("Using error value: {} found with vehicle id {} from: {}", last_prediction_error, travelTimeDetails.getArrival().getVehicleId(), new KalmanErrorCacheKey(previousVehicleIndices));
 
                         kalmanPredictionResult = kalmanPrediction.predict(
                                 last_vehicle_segment, historical_segments_k, last_prediction_error.getError());
 
                         long predictionTime = (long) kalmanPredictionResult.getResult();
 
-                        logger.debug("Setting Kalman error value: "
-                                + kalmanPredictionResult.getFilterError()
-                                + " for : "
-                                + new KalmanErrorCacheKey(indices).toString());
+                        logger.debug("Setting Kalman error value: {} for : {}", kalmanPredictionResult.getFilterError(), new KalmanErrorCacheKey(indices));
 
                         kalmanErrorCache.putErrorValue(indices, kalmanPredictionResult.getFilterError());
 
-                        logger.debug("Using Kalman prediction: "
-                                + predictionTime
-                                + " instead of "
-                                + alternative
-                                + " prediction: "
-                                + alternatePrediction
-                                + " for : "
-                                + indices.toString());
+                        logger.debug("Using Kalman prediction: {} instead of {} prediction: {} for : {}", predictionTime, alternative, alternatePrediction, indices);
 
                         double percentageDifferecence =
                                 100 * ((predictionTime - alternatePrediction) / (double) alternatePrediction);
 
                         if (Math.abs(percentageDifferecence) > PredictionConfig.percentagePredictionMethodDifferenceneEventLog.getValue()) {
                             String description = "Predictions for "
-                                    + indices.toString()
+                                    + indices
                                     + " have more that a "
                                     + PredictionConfig.percentagePredictionMethodDifferenceneEventLog.getValue()
                                     + " difference. Kalman predicts : "
@@ -239,10 +220,7 @@ public class KalmanPredictionGeneratorImpl extends HistoricalAveragePredictionGe
 
         KalmanError result = cache.getErrorValue(indices);
         if (result == null) {
-            logger.debug("Kalman Error value set to default: "
-                    + PredictionConfig.initialErrorValue.getValue()
-                    + " for key: "
-                    + new KalmanErrorCacheKey(indices));
+            logger.debug("Kalman Error value set to default: {} for key: {}", PredictionConfig.initialErrorValue.getValue(), new KalmanErrorCacheKey(indices));
             result = new KalmanError(PredictionConfig.initialErrorValue.getValue());
         }
         return result;

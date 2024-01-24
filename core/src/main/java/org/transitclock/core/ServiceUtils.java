@@ -260,7 +260,7 @@ public class ServiceUtils {
         if (time.getSecondsIntoDay(epochTime)
                 > minutesIntoMorningToIncludePreviousServiceIds.getValue() * Time.MIN_IN_SECS) return serviceIdsForDay;
 
-        List<String> serviceIdsForPreviousDay = getServiceIdsForDay(epochTime.getTime() - 1 * Time.DAY_IN_MSECS);
+        List<String> serviceIdsForPreviousDay = getServiceIdsForDay(epochTime.getTime() - Time.DAY_IN_MSECS);
 
         Set<String> set = new HashSet<String>(serviceIdsForDay);
         set.addAll(serviceIdsForPreviousDay);

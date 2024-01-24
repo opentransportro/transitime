@@ -15,9 +15,9 @@ import org.transitclock.db.structs.TripPattern;
  */
 public class IpcDirection implements Serializable {
 
-    private String directionId;
-    private String directionTitle;
-    private Collection<IpcStop> stops;
+    private final String directionId;
+    private final String directionTitle;
+    private final Collection<IpcStop> stops;
 
     /**
      * Constructor. All IpcStops are marked as being a normal UiMode stop.

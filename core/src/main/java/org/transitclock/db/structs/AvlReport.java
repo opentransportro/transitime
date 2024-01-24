@@ -113,7 +113,7 @@ public class AvlReport implements Serializable {
         TRIP_SHORT_NAME,
         // For when get bad assignment info from AVL feed
         PREVIOUS
-    };
+    }
 
     @Getter
     @Column(length = 40)

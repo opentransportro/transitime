@@ -34,9 +34,9 @@ import java.util.List;
  */
 @Slf4j
 public class TripDataHistoryCache implements TripDataHistoryCacheInterface {
-    private static TripDataHistoryCacheInterface singleton = new TripDataHistoryCache();
+    private static final TripDataHistoryCacheInterface singleton = new TripDataHistoryCache();
 
-    private static boolean debug = false;
+    private static final boolean debug = false;
 
     private static final String cacheByTrip = "arrivalDeparturesByTrip";
 
@@ -81,7 +81,7 @@ public class TripDataHistoryCache implements TripDataHistoryCacheInterface {
     @Override
     public synchronized TripKey putArrivalDeparture(ArrivalDeparture arrivalDeparture) {
 
-        logger.debug("Putting :" + arrivalDeparture.toString() + " in TripDataHistoryCache cache.");
+        logger.debug("Putting :{} in TripDataHistoryCache cache.", arrivalDeparture.toString());
         /* just put todays time in for last three days to aid development. This means it will kick in in 1 days rather than 3. Perhaps be a good way to start rather than using default transiTime method but I doubt it. */
         int days_back = 1;
         if (debug) days_back = 3;
@@ -109,7 +109,7 @@ public class TripDataHistoryCache implements TripDataHistoryCacheInterface {
                     result.addEvent(new IpcArrivalDeparture(arrivalDeparture));
 
                 } catch (Exception e) {
-                    logger.error("Error adding " + arrivalDeparture + " event to TripDataHistoryCache.", e);
+                    logger.error("Error adding {} event to TripDataHistoryCache.", arrivalDeparture, e);
                 }
 
                 cache.put(tripKey, result);
@@ -174,7 +174,7 @@ public class TripDataHistoryCache implements TripDataHistoryCacheInterface {
     }
 
     private static <T> Iterable<T> emptyIfNull(Iterable<T> iterable) {
-        return iterable == null ? Collections.<T>emptyList() : iterable;
+        return iterable == null ? Collections.emptyList() : iterable;
     }
 
     @Override

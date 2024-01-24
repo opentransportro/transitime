@@ -741,7 +741,7 @@ public class IpcVehicle implements Serializable {
     /*
      * Just for testing.
      */
-    public static void main(String args[]) {
+    public static void main(String[] args) {
         IpcAvl avl = new IpcAvl(
                 "avlVehicleId",
                 10,

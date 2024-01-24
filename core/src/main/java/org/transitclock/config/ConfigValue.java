@@ -188,7 +188,7 @@ public abstract class ConfigValue<T> {
         // System properties override config files or defaults
         String systemPropertyStr = System.getProperty(id);
         if (systemPropertyStr != null) {
-            String dataArray[] = systemPropertyStr.split(LIST_SEPARATOR);
+            String[] dataArray = systemPropertyStr.split(LIST_SEPARATOR);
             dataList = Arrays.asList(dataArray);
         }
 

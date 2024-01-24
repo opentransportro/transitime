@@ -156,7 +156,7 @@ public class AvlReportProcessorQueue extends ArrayBlockingQueue<AvlReportProcess
         } while (runnable != null && isObsolete(runnable));
 
         if (runnable != null) {
-            logger.debug("poll(t,u) in AvlQueue returned {}", ((AvlReportProcessor) runnable).getAvlReport());
+            logger.debug("poll(t,u) in AvlQueue returned {}", runnable.getAvlReport());
         }
         return runnable;
     }

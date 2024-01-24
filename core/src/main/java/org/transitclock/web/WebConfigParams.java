@@ -14,7 +14,7 @@ public class WebConfigParams {
         return mapTileUrl.getValue();
     }
 
-    private static StringConfigValue mapTileUrl = new StringConfigValue(
+    private static final StringConfigValue mapTileUrl = new StringConfigValue(
             "transitclock.web.mapTileUrl",
             "http://otile4.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png",
             "Specifies the URL used by Leaflet maps to fetch map " + "tiles.");
@@ -23,7 +23,7 @@ public class WebConfigParams {
         return mapTileCopyright.getValue();
     }
 
-    private static StringConfigValue mapTileCopyright = new StringConfigValue(
+    private static final StringConfigValue mapTileCopyright = new StringConfigValue(
             "transitclock.web.mapTileCopyright",
             "MapQuest",
             "For displaying as map attributing for the where map tiles " + "from.");

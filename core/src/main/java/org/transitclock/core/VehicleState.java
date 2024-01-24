@@ -39,9 +39,9 @@ public class VehicleState {
 
     private boolean predictable;
     // First is most recent
-    private LinkedList<TemporalMatch> temporalMatchHistory = new LinkedList<TemporalMatch>();
+    private final LinkedList<TemporalMatch> temporalMatchHistory = new LinkedList<TemporalMatch>();
     // First is most recent
-    private LinkedList<AvlReport> avlReportHistory = new LinkedList<AvlReport>();
+    private final LinkedList<AvlReport> avlReportHistory = new LinkedList<AvlReport>();
     private List<IpcPrediction> predictions;
     private TemporalDifference realTimeSchedAdh;
 
@@ -173,11 +173,9 @@ public class VehicleState {
             // If being assigned to same block it had previously...
             if (previousBlockBeforeUnassigned == getBlock()) {
                 // If didn't get unassigned that long ago
-                if (getAvlReport().getTime() < this.unassignedTime.getTime() + 20 * Time.MS_PER_MIN) {
-                    // It is being newly assigned to the same block it was
-                    // recently unassigned from
-                    return true;
-                }
+                // It is being newly assigned to the same block it was
+                // recently unassigned from
+                return getAvlReport().getTime() < this.unassignedTime.getTime() + 20 * Time.MS_PER_MIN;
             }
         }
 

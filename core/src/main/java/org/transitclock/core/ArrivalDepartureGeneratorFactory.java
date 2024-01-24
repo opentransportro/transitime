@@ -14,7 +14,7 @@ import org.transitclock.utils.ClassInstantiator;
 public class ArrivalDepartureGeneratorFactory {
 
     // The name of the class to instantiate
-    private static StringConfigValue className = new StringConfigValue(
+    private static final StringConfigValue className = new StringConfigValue(
             "transitclock.core.arrivalDepartureGeneratorClass",
             "org.transitclock.core.ArrivalDepartureGeneratorDefaultImpl",
             "Specifies the name of the class used for generating " + "arrival/departure data.");

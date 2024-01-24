@@ -23,7 +23,7 @@ import org.transitclock.utils.Time;
 public class TemporalMatcher {
 
     // Singleton class
-    private static TemporalMatcher singleton = new TemporalMatcher();
+    private static final TemporalMatcher singleton = new TemporalMatcher();
 
     /** Declaring constructor as private since singleton class */
     private TemporalMatcher() {}
@@ -290,10 +290,9 @@ public class TemporalMatcher {
                 break;
             }
         }
-        if (!foundSubsequentNonLayoverMatch) return false;
+        return foundSubsequentNonLayoverMatch;
 
         // Met all the conditions as a problem layover so return true
-        return true;
     }
 
     /**

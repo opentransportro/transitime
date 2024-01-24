@@ -89,7 +89,7 @@ public class StopArrivalDepartureCache extends StopArrivalDepartureCacheInterfac
             try {
                 element.addEvent(new IpcArrivalDeparture(arrivalDeparture));
             } catch (Exception e) {
-                logger.error("Error adding " + arrivalDeparture + " event to StopArrivalDepartureCache.", e);
+                logger.error("Error adding {} event to StopArrivalDepartureCache.", arrivalDeparture, e);
             }
 
             cache.put(key, element);
@@ -101,7 +101,7 @@ public class StopArrivalDepartureCache extends StopArrivalDepartureCacheInterfac
     }
 
     private static <T> Iterable<T> emptyIfNull(Iterable<T> iterable) {
-        return iterable == null ? Collections.<T>emptyList() : iterable;
+        return iterable == null ? Collections.emptyList() : iterable;
     }
 
     public void populateCacheFromDb(Session session, Date startDate, Date endDate) {

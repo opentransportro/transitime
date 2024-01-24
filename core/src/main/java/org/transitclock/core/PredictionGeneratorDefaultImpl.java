@@ -187,8 +187,8 @@ public class PredictionGeneratorDefaultImpl extends PredictionGenerator implemen
                 // then driver just starting assignment or already got break
                 // elsewhere, so won't take a break at this layover.
                 if (!deadheadingSoNoDriverBreak) {
-                    if (expectedDepartureTime < predictionTime + path.getBreakTimeSec() * Time.MS_PER_SEC) {
-                        expectedDepartureTime = predictionTime + path.getBreakTimeSec() * Time.MS_PER_SEC;
+                    if (expectedDepartureTime < predictionTime + (long) path.getBreakTimeSec() * Time.MS_PER_SEC) {
+                        expectedDepartureTime = predictionTime + (long) path.getBreakTimeSec() * Time.MS_PER_SEC;
                         logger.info(
                                 "For vehicleId={} adjusted departure time "
                                         + "for wait stop stopId={} tripId={} blockId={} "
@@ -216,7 +216,7 @@ public class PredictionGeneratorDefaultImpl extends PredictionGenerator implemen
                     long expectedDepartureTimeWithoutStopWaitTime = Math.max(arrivalTime, scheduledDepartureTime);
                     if (!deadheadingSoNoDriverBreak) {
                         expectedDepartureTimeWithoutStopWaitTime = Math.max(
-                                expectedDepartureTimeWithoutStopWaitTime, path.getBreakTimeSec() * Time.MS_PER_SEC);
+                                expectedDepartureTimeWithoutStopWaitTime, (long) path.getBreakTimeSec() * Time.MS_PER_SEC);
                     }
 
                     long predictionForNextStopCalculation = expectedDepartureTime;

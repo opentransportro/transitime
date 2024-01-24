@@ -183,7 +183,7 @@ public class TitleFormatter {
         // Delimiters specify word dividers. The text at beginning or  after a
         // whitespace or to the right of a delimiter is capitalized. Otherwise
         // it will be in lower case.
-        char delimiters[] = {'-', '/', '.', '&', '@', '(', ':', ';'};
+        char[] delimiters = {'-', '/', '.', '&', '@', '(', ':', ';'};
         return capitalize(str, delimiters);
     }
 
@@ -297,9 +297,7 @@ public class TitleFormatter {
         }
 
         if (!sb.isEmpty()) {
-            logger.info("Regexs that did not affect any titles and could "
-                    + "be removed to possibly speed up processing are: "
-                    + sb);
+            logger.info("Regexs that did not affect any titles and could be removed to possibly speed up processing are: {}", sb);
         } else {
             logger.info("All regexs that were configured made a difference. " + "None need to be removed.");
         }

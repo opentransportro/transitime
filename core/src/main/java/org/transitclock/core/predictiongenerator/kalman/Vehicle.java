@@ -30,9 +30,8 @@ public class Vehicle {
         if (getClass() != obj.getClass()) return false;
         Vehicle other = (Vehicle) obj;
         if (licence == null) {
-            if (other.licence != null) return false;
-        } else if (!licence.equals(other.licence)) return false;
-        return true;
+            return other.licence == null;
+        } else return licence.equals(other.licence);
     }
 
     /**

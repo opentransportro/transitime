@@ -133,7 +133,7 @@ public final class Block implements Serializable {
 
     /** Hibernate requires no-arg constructor */
     @SuppressWarnings("unused")
-    protected Block() {
+    private Block() {
         this.configRev = -1;
         this.blockId = null;
         this.serviceId = null;
@@ -320,9 +320,8 @@ public final class Block implements Serializable {
         } else if (!serviceId.equals(other.serviceId)) return false;
         if (startTime != other.startTime) return false;
         if (trips == null) {
-            if (other.trips != null) return false;
-        } else if (!trips.equals(other.trips)) return false;
-        return true;
+            return other.trips == null;
+        } else return trips.equals(other.trips);
     }
 
     /**
@@ -452,9 +451,7 @@ public final class Block implements Serializable {
         boolean serviceClassValidTomorrow = serviceClassIsValidForDay(date, Time.DAY_IN_MSECS);
         if (serviceClassValidTomorrow) {
             int secsInDayBeforeMidnight = secsInDay - Time.SEC_PER_DAY;
-            if (secsInDayBeforeMidnight > allowableStartTime && secsInDayBeforeMidnight < allowableEndTime) {
-                return true;
-            }
+            return secsInDayBeforeMidnight > allowableStartTime && secsInDayBeforeMidnight < allowableEndTime;
         }
 
         // It simply ain't active

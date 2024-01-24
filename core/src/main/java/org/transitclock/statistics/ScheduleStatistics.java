@@ -59,10 +59,10 @@ public class ScheduleStatistics {
         // The arrival/departure times. Ones from the db that are far from the
         // schedule time or the mean time are filtered out and therefore not
         // included.
-        public int filteredTimesArray[];
+        public int[] filteredTimesArray;
         // The arrival/departure times from the db. Includes even the filtered
         // times.
-        public int unfilteredTimesArray[];
+        public int[] unfilteredTimesArray;
         // The average of the filtered times
         public float mean;
         // Will be NaN if there was only a single data point for the trip/stop
@@ -165,7 +165,7 @@ public class ScheduleStatistics {
         }
 
         // Determine the standard deviation using the filtered times
-        double doubleArray[] = Statistics.toDoubleArray(results.filteredTimesArray);
+        double[] doubleArray = Statistics.toDoubleArray(results.filteredTimesArray);
         results.standardDeviation = (float) Statistics.getSampleStandardDeviation(doubleArray, mean);
 
         // Determine min and max using the filtered times

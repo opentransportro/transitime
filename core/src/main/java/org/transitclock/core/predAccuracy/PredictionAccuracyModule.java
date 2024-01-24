@@ -5,6 +5,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
@@ -41,9 +42,7 @@ public class PredictionAccuracyModule extends Module {
     private static final ConcurrentHashMap<PredictionKey, List<PredAccuracyPrediction>> predictionMap = new ConcurrentHashMap<>();
 
 
-    @ToString
-    @Getter
-    @AllArgsConstructor
+    @Data
     public static class RouteAndStops {
         private final String routeId;
         // Keyed on direction ID

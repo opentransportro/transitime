@@ -14,7 +14,7 @@ import org.transitclock.ipc.rmi.ClientFactory;
 public class CommandsInterfaceFactory {
 
     // Keyed by agencyId
-    private static Map<String, CommandsInterface> commandsInterfaceMap = new HashMap<String, CommandsInterface>();
+    private static final Map<String, CommandsInterface> commandsInterfaceMap = new HashMap<String, CommandsInterface>();
 
     /********************** Member Functions **************************/
 

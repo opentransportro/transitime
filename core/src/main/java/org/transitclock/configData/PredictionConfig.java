@@ -130,7 +130,7 @@ public class PredictionConfig {
             "Min dwell time to be considered in dwell RLS algotithm.");
     public static LongConfigValue maxHeadwayAllowedInModel = new LongConfigValue(
             "transitclock.prediction.rls.maxHeadwayAllowedInModel",
-            1 * Time.MS_PER_HOUR,
+            Time.MS_PER_HOUR,
             "Max headway to be considered in dwell RLS algotithm.");
     public static LongConfigValue minHeadwayAllowedInModel = new LongConfigValue(
             "transitclock.prediction.rls.minHeadwayAllowedInModel",
@@ -138,11 +138,11 @@ public class PredictionConfig {
             "Min headway to be considered in dwell RLS algotithm.");
     public static IntegerConfigValue minSceheduleAdherence = new IntegerConfigValue(
             "transitclock.prediction.rls.minSceheduleAdherence",
-            (int) (10 * Time.SEC_PER_MIN),
+            10 * Time.SEC_PER_MIN,
             "If schedule adherence of vehicle is outside this then not considerd in dwell" + " RLS algorithm.");
     public static IntegerConfigValue maxSceheduleAdherence = new IntegerConfigValue(
             "transitclock.prediction.rls.maxSceheduleAdherence",
-            (int) (10 * Time.SEC_PER_MIN),
+            10 * Time.SEC_PER_MIN,
             "If schedule adherence of vehicle is outside this then not considerd in dwell" + " RLS algorithm.");
 
     public static DoubleConfigValue lambda = new DoubleConfigValue(

@@ -126,7 +126,7 @@ public class GTFSRealtimePredictionAccuracyModule extends PredictionAccuracyModu
 
                             logger.debug("Trip loaded.");
 
-                            logger.debug("Processing : \n" + stopTime);
+                            logger.debug("Processing : \n{}", stopTime);
                             /* use stop as means for getting scheduled time */
 
                             int stopPathIndex = -1;
@@ -149,12 +149,11 @@ public class GTFSRealtimePredictionAccuracyModule extends PredictionAccuracyModu
                                 stopPathIndex = getStopPathIndex(gtfsTrip, stopPath);
 
                             } else {
-                                logger.error(
-                                        "StopTimeUpdate must have stop id or stop sequence set:" + stopTime.toString());
+                                logger.error("StopTimeUpdate must have stop id or stop sequence set:{}", stopTime);
                             }
                             if (stopPathIndex >= 0) {
 
-                                logger.debug("StopPathIndex : " + stopPathIndex);
+                                logger.debug("StopPathIndex : {}", stopPathIndex);
                                 int nextStopIndexIncrement = 0;
 
                                 StopTimeUpdate nextStopTime = null;
@@ -198,8 +197,8 @@ public class GTFSRealtimePredictionAccuracyModule extends PredictionAccuracyModu
                                                 calendar.add(Calendar.SECOND, timeInSeconds);
 
                                                 eventTime = calendar.getTime();
-                                                logger.debug("Event Time : " + eventTime);
-                                                logger.debug("Time in seconds :" + timeInSeconds);
+                                                logger.debug("Event Time : {}", eventTime);
+                                                logger.debug("Time in seconds :{}", timeInSeconds);
 
                                             } else if (update.hasDelay()) {
 
@@ -218,8 +217,8 @@ public class GTFSRealtimePredictionAccuracyModule extends PredictionAccuracyModu
                                                 calendar.add(Calendar.SECOND, timeInSeconds);
 
                                                 eventTime = calendar.getTime();
-                                                logger.debug("Event Time : " + eventTime);
-                                                logger.debug("Time in seconds :" + timeInSeconds);
+                                                logger.debug("Event Time : {}", eventTime);
+                                                logger.debug("Time in seconds :{}", timeInSeconds);
                                             }
                                             if (eventTime != null) {
                                                 /*
@@ -307,7 +306,7 @@ public class GTFSRealtimePredictionAccuracyModule extends PredictionAccuracyModu
                                                 eventTime = new Date(
                                                         stopTime.getDeparture().getTime() * 1000);
 
-                                                logger.debug("Event Time : " + eventTime);
+                                                logger.debug("Event Time : {}", eventTime);
                                             } else if (stopTime.getDeparture().hasDelay()) {
 
                                                 int timeInSeconds =
@@ -326,8 +325,8 @@ public class GTFSRealtimePredictionAccuracyModule extends PredictionAccuracyModu
                                                 calendar.add(Calendar.SECOND, timeInSeconds);
 
                                                 eventTime = calendar.getTime();
-                                                logger.debug("Event Time : " + eventTime);
-                                                logger.debug("Time in seconds :" + timeInSeconds);
+                                                logger.debug("Event Time : {}", eventTime);
+                                                logger.debug("Time in seconds :{}", timeInSeconds);
                                             } else if (update.hasDelay()) {
 
                                                 int timeInSeconds = update.getDelay();
@@ -345,8 +344,8 @@ public class GTFSRealtimePredictionAccuracyModule extends PredictionAccuracyModu
                                                 calendar.add(Calendar.SECOND, timeInSeconds);
 
                                                 eventTime = calendar.getTime();
-                                                logger.debug("Event Time : " + eventTime);
-                                                logger.debug("Time in seconds :" + timeInSeconds);
+                                                logger.debug("Event Time : {}", eventTime);
+                                                logger.debug("Time in seconds :{}", timeInSeconds);
                                             }
                                             if (eventTime != null) {
                                                 /*
@@ -444,11 +443,9 @@ public class GTFSRealtimePredictionAccuracyModule extends PredictionAccuracyModu
 
     private boolean stopTimeMatchesStopPath(StopTimeUpdate stopTimeUpdate, StopPath stopPath) {
         if (stopTimeUpdate.hasStopSequence()) {
-            if (stopTimeUpdate.getStopSequence() == stopPath.getGtfsStopSeq()) return true;
-            else return false;
+            return stopTimeUpdate.getStopSequence() == stopPath.getGtfsStopSeq();
         } else if (stopTimeUpdate.hasStopId()) {
-            if (stopTimeUpdate.getStopId().equals(stopPath.getStopId())) return true;
-            else return false;
+            return stopTimeUpdate.getStopId().equals(stopPath.getStopId());
         } else return false;
     }
 
@@ -523,9 +520,8 @@ public class GTFSRealtimePredictionAccuracyModule extends PredictionAccuracyModu
                 if (other.stopId != null) return false;
             } else if (!stopId.equals(other.stopId)) return false;
             if (vehicleId == null) {
-                if (other.vehicleId != null) return false;
-            } else if (!vehicleId.equals(other.vehicleId)) return false;
-            return true;
+                return other.vehicleId == null;
+            } else return vehicleId.equals(other.vehicleId);
         }
 
         public PredictionReadTimeKey(String stopId, String vehicleId, long predictedTime) {

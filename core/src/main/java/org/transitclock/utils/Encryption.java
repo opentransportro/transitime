@@ -42,7 +42,7 @@ public class Encryption {
         try {
             return getEncryptor().decrypt(encryptedStr);
         } catch (EncryptionOperationNotPossibleException e) {
-            logger.error("Problem decrypting the encrypted string " + encryptedStr);
+            logger.error("Problem decrypting the encrypted string {}", encryptedStr);
             throw e;
         }
     }

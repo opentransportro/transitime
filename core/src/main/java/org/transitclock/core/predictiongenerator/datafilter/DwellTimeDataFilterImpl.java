@@ -15,7 +15,7 @@ import org.transitclock.utils.Time;
  */
 @Slf4j
 public class DwellTimeDataFilterImpl implements DwellTimeDataFilter {
-    private static LongConfigValue minDwellTimeAllowedInModel = new LongConfigValue(
+    private static final LongConfigValue minDwellTimeAllowedInModel = new LongConfigValue(
             "transitclock.prediction.dwell.minDwellTimeAllowedInModel",
             (long) 0,
             "Min dwell time to be considered in algorithm.");

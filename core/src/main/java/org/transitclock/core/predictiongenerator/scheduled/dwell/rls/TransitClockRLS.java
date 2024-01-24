@@ -18,7 +18,7 @@ public class TransitClockRLS implements Serializable {
         return rls;
     }
 
-    private double lambda;
+    private final double lambda;
     Double firstx = null;
     Double firsty = null;
     private Integer samples = 0;
@@ -36,8 +36,8 @@ public class TransitClockRLS implements Serializable {
         } else {
 
             if (rls == null) {
-                double samplex[][] = new double[2][1];
-                double sampley[] = new double[2];
+                double[][] samplex = new double[2][1];
+                double[] sampley = new double[2];
 
                 samplex[0][0] = firstx;
                 sampley[0] = firsty;
@@ -46,8 +46,8 @@ public class TransitClockRLS implements Serializable {
                 sampley[1] = e;
                 rls = new RLS(samplex, sampley, lambda);
             } else {
-                double samplex[][] = new double[1][1];
-                double sampley[] = new double[1];
+                double[][] samplex = new double[1][1];
+                double[] sampley = new double[1];
 
                 samplex[0][0] = d;
                 sampley[0] = e;

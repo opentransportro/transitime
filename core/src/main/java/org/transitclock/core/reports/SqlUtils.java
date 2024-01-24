@@ -176,7 +176,7 @@ public class SqlUtils {
         String dateRange = request.getParameter("dateRange");
         throwOnSqlInjection(dateRange);
         if (dateRange != null) {
-            String fromToDates[] = dateRange.split(" to ");
+            String[] fromToDates = dateRange.split(" to ");
             String beginDateStr, endDateStr;
             if (fromToDates.length == 1) {
                 beginDateStr = endDateStr = fromToDates[0];
@@ -326,7 +326,7 @@ public class SqlUtils {
         String dateRange = null;
         throwOnSqlInjection(dateRange);
         if (dateRange != null) {
-            String fromToDates[] = dateRange.split(" to ");
+            String[] fromToDates = dateRange.split(" to ");
             String beginDateStr, endDateStr;
             if (fromToDates.length == 1) {
                 beginDateStr = endDateStr = fromToDates[0];

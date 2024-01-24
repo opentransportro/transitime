@@ -14,7 +14,7 @@ import org.transitclock.ipc.rmi.ClientFactory;
 public class ServerStatusInterfaceFactory {
 
     // Keyed by agencyId
-    private static Map<String, ServerStatusInterface> serverStatusInterfaceMap =
+    private static final Map<String, ServerStatusInterface> serverStatusInterfaceMap =
             new HashMap<String, ServerStatusInterface>();
 
     /********************** Member Functions **************************/

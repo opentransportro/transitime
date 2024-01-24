@@ -189,19 +189,15 @@ public class TravelTimesProcessorForGtfsUpdates {
             // stop times into account. An agency might
             // mistakenly only provide a few seconds of travel time and
             // that could be completely eaten away by expected stop times.
-            if (msecForTravelBetweenScheduleTimes == 0
-                    || distanceBetweenScheduleStops / msecForTravelBetweenScheduleTimes > maxSpeedMetersPerMsec) {
+            if (msecForTravelBetweenScheduleTimes == 0 || distanceBetweenScheduleStops / msecForTravelBetweenScheduleTimes > maxSpeedMetersPerMsec) {
                 // It might be that for a non-rush hour bus route the agency
                 // doesn't expect the bus to stop at a stop. So first see if
                 // travel time is reasonable if there is no wait time.
-                if (elapsedScheduleTimeInSecs * Time.MS_PER_SEC > 0
-                        && distanceBetweenScheduleStops / (elapsedScheduleTimeInSecs * Time.MS_PER_SEC)
-                                <= maxSpeedMetersPerMsec) {
+                if (elapsedScheduleTimeInSecs * Time.MS_PER_SEC > 0 && distanceBetweenScheduleStops / (elapsedScheduleTimeInSecs * Time.MS_PER_SEC) <= maxSpeedMetersPerMsec) {
                     // Travel speed is OK if wait time is considered to
                     // be less than the default time. So reduce wait time
                     // such that travel speed limit is not violated.
-                    msecSpentStopped = elapsedScheduleTimeInSecs * Time.MS_PER_SEC
-                            - (int) (distanceBetweenScheduleStops / maxSpeedMetersPerMsec);
+                    msecSpentStopped = elapsedScheduleTimeInSecs * Time.MS_PER_SEC - (int) (distanceBetweenScheduleStops / maxSpeedMetersPerMsec);
 
                     logger.warn(
                             "When determining schedule based travel "

@@ -14,7 +14,7 @@ public class StopPathCacheKey implements Serializable {
     /* this is only set for frequency based trips otherwise null. This is seconds from midnight */
     private Long startTime = null;
 
-    private boolean travelTime;
+    private final boolean travelTime;
 
     public StopPathCacheKey(String tripId, Integer stopPathIndex) {
         this.tripId = tripId;

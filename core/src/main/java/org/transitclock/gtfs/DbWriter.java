@@ -39,10 +39,10 @@ public class DbWriter {
         // batching to make sure don't run out memory.
         counter++;
         if (counter % DbSetupConfig.getBatchSize() == 0) {
-            logger.info("flushing with " + counter + " % " + DbSetupConfig.getBatchSize());
+            logger.info("flushing with {} % {}", counter, DbSetupConfig.getBatchSize());
             session.flush();
             session.clear();
-            logger.info("flushed with " + counter + " % " + DbSetupConfig.getBatchSize());
+            logger.info("flushed with {} % {}", counter, DbSetupConfig.getBatchSize());
         }
     }
 
@@ -92,7 +92,7 @@ public class DbWriter {
                     block.getId());
             writeObject(session, block, false);
             if (c % 1000 == 0) {
-                logger.info("wrote " + c + " blocks in " + (System.currentTimeMillis() - startTime) / 1000 + "s");
+                logger.info("wrote {} blocks in {}s", c, (System.currentTimeMillis() - startTime) / 1000);
             }
         }
 

@@ -293,9 +293,8 @@ public class IpcArrivalDeparture implements Serializable {
         } else if (!tripId.equals(other.tripId)) return false;
         if (tripIndex != other.tripIndex) return false;
         if (vehicleId == null) {
-            if (other.vehicleId != null) return false;
-        } else if (!vehicleId.equals(other.vehicleId)) return false;
-        return true;
+            return other.vehicleId == null;
+        } else return vehicleId.equals(other.vehicleId);
     }
 
     @Override

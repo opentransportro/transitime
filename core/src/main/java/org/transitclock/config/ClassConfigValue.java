@@ -13,7 +13,7 @@ public class ClassConfigValue extends ConfigValue<Class> {
     @Override
     protected Class convertFromString(List<String> dataStr) {
         try {
-            return getClass().forName(dataStr.get(0).trim());
+            return Class.forName(dataStr.get(0).trim());
         } catch (ClassNotFoundException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

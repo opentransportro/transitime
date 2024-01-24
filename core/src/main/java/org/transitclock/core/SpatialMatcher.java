@@ -41,7 +41,7 @@ public class SpatialMatcher {
     public enum MatchingType {
         STANDARD_MATCHING,
         AUTO_ASSIGNING_MATCHING
-    };
+    }
 
 
     /**
@@ -190,11 +190,10 @@ public class SpatialMatcher {
 
         // If vehicle heading in right direction then return false
         // since there is no problem with the heading for the match
-        if (previousNonLayoverSpatialMatch.lessThanOrEqualTo(spatialMatch)) return false;
+        return !previousNonLayoverSpatialMatch.lessThanOrEqualTo(spatialMatch);
 
         // Couldn't verify that vehicle making forward progress
         // for the spatial matches for the trip so return true.
-        return true;
     }
 
     /**

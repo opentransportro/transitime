@@ -61,7 +61,7 @@ public class Zip {
 
                 FileOutputStream fos = new FileOutputStream(f);
                 int len;
-                byte buffer[] = new byte[BUFFER_SIZE];
+                byte[] buffer = new byte[BUFFER_SIZE];
                 while ((len = zis.read(buffer)) > 0) {
                     fos.write(buffer, 0, len);
                 }
@@ -173,7 +173,7 @@ public class Zip {
         File file = new File(fullFileOrDirName);
         if (file.isDirectory()) {
             // It is a directory so handle recursively
-            String fileNamesForDir[] = file.list();
+            String[] fileNamesForDir = file.list();
             // For each file in the directory...
             for (String subDirFileName : fileNamesForDir) {
                 // Call this method recursively

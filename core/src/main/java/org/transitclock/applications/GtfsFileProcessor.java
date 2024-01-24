@@ -56,8 +56,8 @@ public class GtfsFileProcessor {
     private final boolean shouldStoreNewRevs;
     private final boolean shouldDeleteRevs;
     private final boolean trimPathBeforeFirstStopOfTrip;
-    private double maxDistanceBetweenStops;
-    private boolean disableSpecialLoopBackToBeginningCase;
+    private final double maxDistanceBetweenStops;
+    private final boolean disableSpecialLoopBackToBeginningCase;
 
     // Read in configuration files. This should be done statically before
     // the logback LoggerFactory.getLogger() is called so that logback can

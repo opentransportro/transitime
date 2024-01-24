@@ -692,6 +692,6 @@ public class Reports {
 
         String json = null;
         json = GenericJsonQuery.getJsonString(agencyId, sql);
-        return json.length() > 50 ? true : false;
+        return json.length() > 50;
     }
 }

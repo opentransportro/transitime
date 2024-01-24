@@ -155,9 +155,8 @@ public class CalendarDate implements Serializable {
             if (other.exceptionType != null) return false;
         } else if (!exceptionType.equals(other.exceptionType)) return false;
         if (serviceId == null) {
-            if (other.serviceId != null) return false;
-        } else if (!serviceId.equals(other.serviceId)) return false;
-        return true;
+            return other.serviceId == null;
+        } else return serviceId.equals(other.serviceId);
     }
 
     /**

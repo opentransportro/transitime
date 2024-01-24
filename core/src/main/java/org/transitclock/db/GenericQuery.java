@@ -59,7 +59,7 @@ public class GenericQuery {
     public GenericQuery(String agencyId) throws SQLException {
         // Get the web agency. If it is really old, older than an hour then
         // update the cache in case the db was moved.
-        WebAgency agency = WebAgency.getCachedWebAgency(agencyId, 1 * Time.HOUR_IN_MSECS);
+        WebAgency agency = WebAgency.getCachedWebAgency(agencyId, Time.HOUR_IN_MSECS);
         connection = getConnection(
                 agency.getDbType(),
                 agency.getDbHost(),

@@ -140,7 +140,7 @@ public class GtfsUpdatedModule extends Module {
         Path source = Paths.get(fullFileName);
         Path target = source.getParent().getParent().resolve(dirName).resolve(source.getFileName());
 
-        logger.info("Archiving file {} to {}", source.toString(), target.toString());
+        logger.info("Archiving file {} to {}", source, target);
 
         try {
             // Create the directory where file is to go
@@ -150,7 +150,7 @@ public class GtfsUpdatedModule extends Module {
             // Copy the file to the directory
             Files.copy(source, target, StandardCopyOption.COPY_ATTRIBUTES);
         } catch (IOException e) {
-            logger.error("Was not able to archive GTFS file {} to {}", source.toString(), target);
+            logger.error("Was not able to archive GTFS file {} to {}", source, target);
         }
     }
 

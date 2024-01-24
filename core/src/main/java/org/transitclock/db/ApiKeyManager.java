@@ -32,7 +32,7 @@ public class ApiKeyManager {
     // For preventing too frequent db reads
     private long lastTimeKeysReadIntoCache = 0;
 
-    private static IntegerConfigValue lastTimeKeysReadLimitSec = new IntegerConfigValue(
+    private static final IntegerConfigValue lastTimeKeysReadLimitSec = new IntegerConfigValue(
             "transitclock.api.apiKeyLastUpdateLimitSec",
             3,
             "Amount of time to wait in sec before updating the apiKeyCache");

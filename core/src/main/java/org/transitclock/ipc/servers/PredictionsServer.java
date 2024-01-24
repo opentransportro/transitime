@@ -100,21 +100,21 @@ public class PredictionsServer extends AbstractServer implements PredictionsInte
     public List<IpcPredictionsForRouteStopDest> getAllPredictions(int predictionMaxFutureSecs) {
         // How far in future in absolute time should get predictions for
         long maxSystemTimeForPrediction =
-                Core.getInstance().getSystemTime() + predictionMaxFutureSecs * Time.MS_PER_SEC;
+                Core.getInstance().getSystemTime() + (long) predictionMaxFutureSecs * Time.MS_PER_SEC;
 
         return predictionDataCache.getAllPredictions(Integer.MAX_VALUE, maxSystemTimeForPrediction);
     }
 
     // If stops are relatively close then should order routes based on route
     // order instead of distance.
-    private static double DISTANCE_AT_WHICH_ROUTES_GROUPED = 80.0;
+    private static final double DISTANCE_AT_WHICH_ROUTES_GROUPED = 80.0;
 
     /**
      * For sorting resulting predictions so that they are by how close the stop is away, and then by
      * route order, and then by direction. This way the most likely useful stops are displayed
      * first.
      */
-    private static Comparator<IpcPredictionsForRouteStopDest> predsByLocComparator =
+    private static final Comparator<IpcPredictionsForRouteStopDest> predsByLocComparator =
             new Comparator<IpcPredictionsForRouteStopDest>() {
 
                 public int compare(IpcPredictionsForRouteStopDest pred1, IpcPredictionsForRouteStopDest pred2) {

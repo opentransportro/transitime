@@ -14,7 +14,7 @@ import org.transitclock.ipc.rmi.ClientFactory;
 public class CacheQueryInterfaceFactory {
 
     // Keyed by agencyId
-    private static Map<String, CacheQueryInterface> cachequeryInterfaceMap = new HashMap<String, CacheQueryInterface>();
+    private static final Map<String, CacheQueryInterface> cachequeryInterfaceMap = new HashMap<String, CacheQueryInterface>();
 
     /********************** Member Functions **************************/
 

@@ -9,7 +9,7 @@ import org.transitclock.utils.ClassInstantiator;
  */
 public class DwellTimeModelFactory {
     // The name of the class to instantiate
-    private static StringConfigValue className = new StringConfigValue(
+    private static final StringConfigValue className = new StringConfigValue(
             "transitclock.core.dwelltime.model",
             "org.transitclock.core.predictiongenerator.scheduled.dwell.DwellAverage",
             "Specifies the name of the class used to predict dwell.");

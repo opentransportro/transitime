@@ -293,9 +293,7 @@ public class VehiclesServer extends AbstractServer implements VehiclesInterface 
                         new IpcActiveBlock(ipcBlock, activeTripIndex, new ArrayList<IpcVehicle>(), tripForSorting);
                 results.add(ipcBlockAndVehicle);
             } catch (Exception e) {
-                logger.warn("Error while fecthing active blocks data (probably hibernate still loading"
-                        + " data): "
-                        + e.getMessage());
+                logger.warn("Error while fecthing active blocks data (probably hibernate still loading data): {}", e.getMessage());
             }
         }
         // Sort the results so that ordered by route and then block start time

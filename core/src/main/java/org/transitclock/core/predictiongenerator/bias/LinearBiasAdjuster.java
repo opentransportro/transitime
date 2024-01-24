@@ -65,7 +65,7 @@ public class LinearBiasAdjuster implements BiasAdjuster {
                 + " giving a result to :"
                 + Math.round((float) result / Time.MS_PER_SEC));
 
-        result = adjuster.adjustPrediction(1 * Time.MS_PER_MIN);
+        result = adjuster.adjustPrediction(Time.MS_PER_MIN);
         System.out.println("Percentage is :"
                 + adjuster.getPercentage()
                 + " giving a result to :"

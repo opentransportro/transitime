@@ -8,7 +8,7 @@ import org.transitclock.utils.ClassInstantiator;
  * @author Sean Óg Crudden
  */
 public class StopArrivalDepartureCacheFactory {
-    private static StringConfigValue className = new StringConfigValue(
+    private static final StringConfigValue className = new StringConfigValue(
             "transitclock.core.cache.stopArrivalDepartureCache",
             "org.transitclock.core.dataCache.ehcache.StopArrivalDepartureCache",
             "Specifies the class used to cache the arrival and departures for a stop.");

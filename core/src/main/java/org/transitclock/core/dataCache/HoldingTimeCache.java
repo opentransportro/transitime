@@ -17,7 +17,7 @@ import org.transitclock.db.structs.HoldingTime;
  */
 public class HoldingTimeCache {
     private static final String cacheName = "HoldingTimeCache";
-    private static HoldingTimeCache singleton = new HoldingTimeCache();
+    private static final HoldingTimeCache singleton = new HoldingTimeCache();
     private static final Logger logger = LoggerFactory.getLogger(HoldingTimeCache.class);
     final URL xmlConfigUrl = getClass().getResource("/ehcache.xml");
     private Cache<HoldingTimeCacheKey, HoldingTime> cache = null;

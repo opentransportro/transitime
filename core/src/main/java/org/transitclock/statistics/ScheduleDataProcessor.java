@@ -308,7 +308,6 @@ public class ScheduleDataProcessor {
 
         return gtfsFrequencyTrips;
     }
-    ;
 
     /**
      * Returns trip if trip specified is frequency based as defined by the GTFS frequencies.txt

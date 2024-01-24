@@ -15,7 +15,7 @@ import org.transitclock.db.structs.PredictionForStopPath;
 
 public class StopPathPredictionCache {
     private static final String cacheName = "StopPathPredictionCache";
-    private static StopPathPredictionCache singleton = new StopPathPredictionCache();
+    private static final StopPathPredictionCache singleton = new StopPathPredictionCache();
     private static final Logger logger = LoggerFactory.getLogger(StopPathPredictionCache.class);
 
     private Cache<StopPathCacheKey, StopPredictions> cache = null;
@@ -45,7 +45,7 @@ public class StopPathPredictionCache {
         StopPredictions result = cache.get(key);
         logCache(logger);
         if (result == null) return null;
-        else return (List<PredictionForStopPath>) result.getPredictions();
+        else return result.getPredictions();
     }
 
     public void putPrediction(PredictionForStopPath prediction) {
@@ -60,7 +60,7 @@ public class StopPathPredictionCache {
         StopPredictions element = cache.get(key);
 
         if (element != null && element.getPredictions() != null) {
-            list = (List<PredictionForStopPath>) element.getPredictions();
+            list = element.getPredictions();
             cache.remove(key);
         } else {
             list = new ArrayList<PredictionForStopPath>();

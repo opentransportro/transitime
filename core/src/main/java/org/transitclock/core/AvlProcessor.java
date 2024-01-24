@@ -689,7 +689,7 @@ public class AvlProcessor {
         // with the assignment and the new match is actually far away from the
         // route, indicating driver might have entered wrong ID or never
         // logged out. For this situation ignore the match.
-        if (bestMatch != null && matchProblematicDueOtherVehicleHavingAssignment(bestMatch, vehicleState)) {
+        if (matchProblematicDueOtherVehicleHavingAssignment(bestMatch, vehicleState)) {
             logger.error(
                     "Got a match for vehicleId={} but that assignment is "
                             + "already taken by another vehicle and the new match "
@@ -801,7 +801,7 @@ public class AvlProcessor {
     // Keyed on vehicleId. Contains last time problem grabbing assignment
     // message sent for the vehicle. For reducing number of emails sent
     // when there is a problem.
-    private Map<String, Long> problemGrabbingAssignmentMap = new HashMap<>();
+    private final Map<String, Long> problemGrabbingAssignmentMap = new HashMap<>();
 
     /**
      * For reducing e-mail logging messages when problem grabbing assignment. Java property
@@ -1114,7 +1114,7 @@ public class AvlProcessor {
                     + "\" for route \""
                     + route.getName()
                     + "\" "
-                    + scheduleAdherence.toString()
+                    + scheduleAdherence
                     + ". Scheduled departure time was "
                     + Time.timeOfDayStr(scheduledDepartureTime);
 

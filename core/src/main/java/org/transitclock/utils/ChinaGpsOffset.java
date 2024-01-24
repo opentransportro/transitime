@@ -26,8 +26,8 @@ public class ChinaGpsOffset {
      * db.
      */
     public static class LatLon {
-        private double lat;
-        private double lon;
+        private final double lat;
+        private final double lon;
 
         public LatLon(double lat, double lon) {
             this.lat = lat;
@@ -116,8 +116,7 @@ public class ChinaGpsOffset {
      */
     public static boolean outOfChina(double lat, double lon) {
         if (lon < 72.004 || lon > 137.8347) return true;
-        if (lat < 0.8293 || lat > 55.8271) return true;
-        return false;
+        return lat < 0.8293 || lat > 55.8271;
     }
 
     /**

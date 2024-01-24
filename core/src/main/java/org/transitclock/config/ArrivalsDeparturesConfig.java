@@ -47,7 +47,7 @@ public class ArrivalsDeparturesConfig {
             "transitclock.arrivalsDepartures.allowableDifferenceBetweenAvlTimeSecs",
             // Default is to only log problem if arrival time is more
             // than a day off
-            1 * Time.SEC_PER_DAY,
+            Time.SEC_PER_DAY,
             "If the time of a determine arrival/departure is really "
                     + "different from the AVL time then something must be "
                     + "wrong and the situation will be logged.");

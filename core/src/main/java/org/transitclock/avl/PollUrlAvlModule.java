@@ -187,11 +187,7 @@ public abstract class PollUrlAvlModule extends AvlModule {
             long elapsedMsec = timer.elapsedMsec();
             long sleepTime = AvlConfig.getSecondsBetweenAvlFeedPolling() * Time.MS_PER_SEC - elapsedMsec;
             if (sleepTime < 0) {
-                logger.warn("Supposed to have a polling rate of "
-                        + AvlConfig.getSecondsBetweenAvlFeedPolling() * Time.MS_PER_SEC
-                        + " msec but processing previous data took "
-                        + elapsedMsec
-                        + " msec so polling again immediately.");
+                logger.warn("Supposed to have a polling rate of {} msec but processing previous data took {} msec so polling again immediately.", AvlConfig.getSecondsBetweenAvlFeedPolling() * Time.MS_PER_SEC, elapsedMsec);
             } else {
                 Time.sleep(sleepTime);
             }

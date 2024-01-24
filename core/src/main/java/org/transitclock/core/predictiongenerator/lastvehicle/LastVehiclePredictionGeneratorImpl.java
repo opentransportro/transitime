@@ -62,7 +62,7 @@ public class LastVehiclePredictionGeneratorImpl extends PredictionGeneratorDefau
                 scheduleDeviation);
     }
 
-    private String alternative = "PredictionGeneratorDefaultImpl";
+    private final String alternative = "PredictionGeneratorDefaultImpl";
 
     /* (non-Javadoc)
      * @see org.transitclock.core.predictiongenerator.KalmanPredictionGeneratorImpl#getTravelTimeForPath(org.transitclock.core.Indices, org.transitclock.db.structs.AvlReport)

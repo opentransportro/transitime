@@ -22,7 +22,7 @@ public class RmiConfig {
         return rmiHost.getValue();
     }
 
-    private static StringConfigValue rmiHost = new StringConfigValue(
+    private static final StringConfigValue rmiHost = new StringConfigValue(
             "transitclock.rmi.rmiHost",
             null,
             "For a client that needs to connect to an agency server. "
@@ -41,7 +41,7 @@ public class RmiConfig {
         return rmiPort.getValue();
     }
 
-    private static IntegerConfigValue rmiPort = new IntegerConfigValue(
+    private static final IntegerConfigValue rmiPort = new IntegerConfigValue(
             "transitclock.rmi.rmiPort",
             2099,
             "Which port to use for RMI calls. Usually RMI uses port "
@@ -60,7 +60,7 @@ public class RmiConfig {
         return secondaryRmiPort.getValue();
     }
 
-    private static IntegerConfigValue secondaryRmiPort = new IntegerConfigValue(
+    private static final IntegerConfigValue secondaryRmiPort = new IntegerConfigValue(
             "transitclock.rmi.secondaryRmiPort",
             2098,
             "Which secondary port to use for RMI calls, for once "

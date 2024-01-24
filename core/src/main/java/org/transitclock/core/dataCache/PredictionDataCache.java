@@ -40,7 +40,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class PredictionDataCache {
 
     // This is a singleton class
-    private static PredictionDataCache singleton = new PredictionDataCache();
+    private static final PredictionDataCache singleton = new PredictionDataCache();
 
 
     // Contains lists of predictions per route/stop. Also want to group
@@ -157,7 +157,7 @@ public class PredictionDataCache {
         // schedule based predictions then generating predictions far into the
         // future.
         long maxPredictionEpochTime = Core.getInstance().getSystemTime()
-                + CoreConfig.getMaxPredictionsTimeSecs() * Time.SEC_IN_MSECS;
+                + (long) CoreConfig.getMaxPredictionsTimeSecs() * Time.SEC_IN_MSECS;
 
         // Want to filter out arrivals at terminal if also getting departures
         // for that stop. Otherwise if user selects a terminal stop they could

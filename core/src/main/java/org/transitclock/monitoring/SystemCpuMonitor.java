@@ -61,7 +61,7 @@ public class SystemCpuMonitor extends MonitorBase {
                         "CPU load was {} which is higher than threshold " + "of {} so taking another reading.",
                         StringUtils.twoDigitFormat(cpuLoad),
                         StringUtils.twoDigitFormat(MonitoringConfig.cpuThreshold.getValue()));
-                Time.sleep(1 * Time.MS_PER_MIN);
+                Time.sleep(Time.MS_PER_MIN);
                 resultObject = SystemMemoryMonitor.getOperatingSystemValue("getSystemCpuLoad");
                 double cpuLoad2 = (Double) resultObject;
 

@@ -47,9 +47,8 @@ public class HoldingTimeCacheKey implements java.io.Serializable {
             if (other.stopid != null) return false;
         } else if (!stopid.equals(other.stopid)) return false;
         if (vehicleId == null) {
-            if (other.vehicleId != null) return false;
-        } else if (!vehicleId.equals(other.vehicleId)) return false;
-        return true;
+            return other.vehicleId == null;
+        } else return vehicleId.equals(other.vehicleId);
     }
 
     public String getStopid() {

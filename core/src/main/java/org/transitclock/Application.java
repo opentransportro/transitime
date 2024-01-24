@@ -1,9 +1,6 @@
 package org.transitclock;
 
 import lombok.extern.slf4j.Slf4j;
-import org.quartz.Scheduler;
-import org.quartz.SchedulerException;
-import org.quartz.impl.StdSchedulerFactory;
 import org.transitclock.applications.Core;
 import org.transitclock.applications.GtfsFileProcessor;
 import org.transitclock.configData.AgencyConfig;
@@ -26,20 +23,20 @@ public class Application {
                 .build();
     }
 
-    public void init() throws SchedulerException {
+    public void init() {
         // Grab the Scheduler instance from the Factory
-        StdSchedulerFactory schedulerFactory = new StdSchedulerFactory();
-        Scheduler scheduler = schedulerFactory.getScheduler();
-
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            try {
-                if (scheduler.isStarted()) scheduler.shutdown();
-            } catch (SchedulerException e) {
-                throw new RuntimeException(e);
-            }
-        }));
-
-        scheduler.start();
+//        StdSchedulerFactory schedulerFactory = new StdSchedulerFactory();
+//        Scheduler scheduler = schedulerFactory.getScheduler();
+//
+//        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+//            try {
+//                if (scheduler.isStarted()) scheduler.shutdown();
+//            } catch (SchedulerException e) {
+//                throw new RuntimeException(e);
+//            }
+//        }));
+//
+//        scheduler.start();
 
         //DataSource dataSource = factory.dataSource();
     }

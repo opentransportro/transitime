@@ -13,7 +13,7 @@ import org.transitclock.db.structs.Block;
  */
 public class ActiveBlocksMonitor extends MonitorBase {
 
-    private long reportingIntervalInMillis = 60l * 1000l;
+    private final long reportingIntervalInMillis = 60L * 1000L;
 
     private Date lastUpdate = new Date();
 

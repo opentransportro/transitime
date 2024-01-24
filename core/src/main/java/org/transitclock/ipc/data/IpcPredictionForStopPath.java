@@ -71,9 +71,8 @@ public class IpcPredictionForStopPath implements Serializable {
             if (other.stopPathIndex != null) return false;
         } else if (!stopPathIndex.equals(other.stopPathIndex)) return false;
         if (tripId == null) {
-            if (other.tripId != null) return false;
-        } else if (!tripId.equals(other.tripId)) return false;
-        return true;
+            return other.tripId == null;
+        } else return tripId.equals(other.tripId);
     }
 
     public Date getCreationTime() {

@@ -115,7 +115,6 @@ public class CommandsServer extends AbstractServer implements CommandsInterface 
 
         String vehicleEvent = "Command called to make vehicleId unpredicable. ";
         String eventDescription = "Command called to make vehicleId unpredicable. ";
-        ;
         VehicleEvent.create(
                 avlReport,
                 lastMatch,

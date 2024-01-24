@@ -38,15 +38,15 @@ import java.util.*;
  */
 @Slf4j
 public class TripDataHistoryCache implements TripDataHistoryCacheInterface {
-    private static TripDataHistoryCacheInterface singleton = new TripDataHistoryCache();
+    private static final TripDataHistoryCacheInterface singleton = new TripDataHistoryCache();
 
-    private static boolean debug = false;
+    private static final boolean debug = false;
 
     private static final String cacheByTrip = "arrivalDeparturesByTrip";
 
     final URL xmlConfigUrl = getClass().getResource("/ehcache.xml");
 
-    private Cache<TripKey, TripEvents> cache;
+    private final Cache<TripKey, TripEvents> cache;
 
     /**
      * Gets the singleton instance of this class.
@@ -212,7 +212,7 @@ public class TripDataHistoryCache implements TripDataHistoryCacheInterface {
     }
 
     private static <T> Iterable<T> emptyIfNull(Iterable<T> iterable) {
-        return iterable == null ? Collections.<T>emptyList() : iterable;
+        return iterable == null ? Collections.emptyList() : iterable;
     }
 
     @Override
