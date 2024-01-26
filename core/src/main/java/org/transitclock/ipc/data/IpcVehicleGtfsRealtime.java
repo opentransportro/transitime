@@ -11,6 +11,7 @@ import org.transitclock.core.TemporalMatch;
 import org.transitclock.core.VehicleState;
 import org.transitclock.db.structs.StopPath;
 import org.transitclock.db.structs.Trip;
+import org.transitclock.utils.SystemTime;
 import org.transitclock.utils.Time;
 
 /**
@@ -75,7 +76,7 @@ public class IpcVehicleGtfsRealtime extends IpcVehicle {
             // Note: the trip start date is created on server side so that
             // proper timezone is used. This unfortunately is a bit expensive.
             int time = vs.getTrip().getStartTime();
-            Date currentTime = Core.getInstance().getSystemDate();
+            Date currentTime = SystemTime.getDate();
             this.tripStartEpochTime = Core.getInstance().getTime().getEpochTime(time, currentTime);
             Trip trip = vs.getTrip();
             this.isTripUnscheduled = trip != null && trip.isNoSchedule() && !trip.isExactTimesHeadway();

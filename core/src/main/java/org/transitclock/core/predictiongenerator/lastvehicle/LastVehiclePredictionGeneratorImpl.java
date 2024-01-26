@@ -6,8 +6,6 @@ import java.util.Date;
 import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.transitclock.applications.Core;
 import org.transitclock.configData.CoreConfig;
 import org.transitclock.core.Indices;
@@ -17,11 +15,11 @@ import org.transitclock.core.VehicleState;
 import org.transitclock.core.dataCache.StopPathPredictionCache;
 import org.transitclock.core.dataCache.VehicleDataCache;
 import org.transitclock.core.dataCache.VehicleStateManager;
-import org.transitclock.core.predictiongenerator.PredictionComponentElementsGenerator;
 import org.transitclock.db.structs.AvlReport;
 import org.transitclock.db.structs.PredictionForStopPath;
 import org.transitclock.ipc.data.IpcPrediction;
 import org.transitclock.ipc.data.IpcVehicleComplete;
+import org.transitclock.utils.SystemTime;
 
 /**
  * @author Sean Óg Crudden This provides a prediction based on the time it took the previous vehicle
@@ -92,7 +90,7 @@ public class LastVehiclePredictionGeneratorImpl extends PredictionGeneratorDefau
                 if (CoreConfig.storeTravelTimeStopPathPredictions.getValue()) {
                     PredictionForStopPath predictionForStopPath = new PredictionForStopPath(
                             vehicleState.getVehicleId(),
-                            new Date(Core.getInstance().getSystemTime()),
+                            SystemTime.getDate(),
                             (double) Long.valueOf(travelTimeDetails.getTravelTime()).intValue(),
                             indices.getTrip().getId(),
                             indices.getStopPathIndex(),

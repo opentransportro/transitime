@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.transitclock.applications.Core;
 import org.transitclock.configData.PredictionAccuracyConfig;
 import org.transitclock.utils.PlaybackIntervalTimer;
+import org.transitclock.utils.SystemTime;
 
 @Slf4j
 public class PlaybackPredictionAccuracyModule extends PredictionAccuracyModule {
@@ -28,7 +29,7 @@ public class PlaybackPredictionAccuracyModule extends PredictionAccuracyModule {
             if (timer.elapsedMsec() > PredictionAccuracyConfig.timeBetweenPollingPredictionsMsec.getValue()) {
                 try {
                     // Process data
-                    getAndProcessData(getRoutesAndStops(), Core.getInstance().getSystemDate());
+                    getAndProcessData(getRoutesAndStops(), SystemTime.getDate());
 
                     // Make sure old predictions that were never matched to an
                     // arrival/departure don't stick around taking up memory.

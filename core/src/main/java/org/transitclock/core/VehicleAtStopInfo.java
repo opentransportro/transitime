@@ -5,6 +5,7 @@ import org.transitclock.applications.Core;
 import org.transitclock.configData.CoreConfig;
 import org.transitclock.db.structs.Block;
 import org.transitclock.db.structs.Trip;
+import org.transitclock.utils.SystemTime;
 
 /**
  * So that VehicleState can keep track of whether vehicle is matched to a stop.
@@ -66,7 +67,7 @@ public class VehicleAtStopInfo extends Indices {
             int secondsBeforeTrip = CoreConfig.getAllowableEarlySeconds();
             int secondsAfterTrip = CoreConfig.getAllowableLateSeconds();
             return !block.isActive(
-                    Core.getInstance().getSystemDate(),
+                    SystemTime.getDate(),
                     secondsBeforeTrip,
                     blockDuration + tripDuration + secondsAfterTrip);
         } else {

@@ -23,6 +23,7 @@ import org.transitclock.db.structs.Route;
 import org.transitclock.db.structs.VehicleConfig;
 import org.transitclock.ipc.data.IpcVehicleComplete;
 import org.transitclock.utils.ConcurrentHashMapNullKeyOk;
+import org.transitclock.utils.SystemTime;
 import org.transitclock.utils.Time;
 
 /**
@@ -219,9 +220,9 @@ public class VehicleDataCache {
      * @return
      */
     private Collection<IpcVehicleComplete> filterOldAvlReports(Collection<IpcVehicleComplete> vehicles) {
-        Collection<IpcVehicleComplete> filteredVehicles = new ArrayList<IpcVehicleComplete>(vehicles.size());
+        Collection<IpcVehicleComplete> filteredVehicles = new ArrayList<>(vehicles.size());
 
-        long timeCutoff = Core.getInstance().getSystemTime() - MAX_AGE_MSEC;
+        long timeCutoff = SystemTime.getMillis() - MAX_AGE_MSEC;
         for (IpcVehicleComplete vehicle : vehicles) {
             if (vehicle.isLayover() || vehicle.getAvl().getTime() > timeCutoff) {
                 filteredVehicles.add(vehicle);

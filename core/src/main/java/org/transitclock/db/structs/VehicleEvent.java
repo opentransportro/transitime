@@ -19,6 +19,7 @@ import org.transitclock.applications.Core;
 import org.transitclock.core.TemporalMatch;
 import org.transitclock.db.hibernate.HibernateUtils;
 import org.transitclock.utils.IntervalTimer;
+import org.transitclock.utils.SystemTime;
 
 /**
  * For storing events associated with vehicles into log file and into database. Used for situations
@@ -246,7 +247,7 @@ public class VehicleEvent implements Serializable {
 
         // Create and return the VehicleEvent
         return create(
-                Core.getInstance().getSystemDate(),
+                SystemTime.getDate(),
                 avlReport.getDate(),
                 avlReport.getVehicleId(),
                 eventType,

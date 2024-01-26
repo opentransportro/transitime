@@ -4,10 +4,7 @@ package org.transitclock.core.predictiongenerator.scheduled.average;
 import java.util.Date;
 
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.transitclock.applications.Core;
-import org.transitclock.config.IntegerConfigValue;
 import org.transitclock.configData.CoreConfig;
 import org.transitclock.configData.PredictionConfig;
 import org.transitclock.core.Indices;
@@ -20,6 +17,7 @@ import org.transitclock.core.predictiongenerator.PredictionComponentElementsGene
 import org.transitclock.core.predictiongenerator.lastvehicle.LastVehiclePredictionGeneratorImpl;
 import org.transitclock.db.structs.AvlReport;
 import org.transitclock.db.structs.PredictionForStopPath;
+import org.transitclock.utils.SystemTime;
 
 /**
  * @author Sean Óg Crudden This provides a prediction based on the average of historical data for
@@ -54,7 +52,7 @@ public class HistoricalAveragePredictionGeneratorImpl extends LastVehiclePredict
             if (CoreConfig.storeTravelTimeStopPathPredictions.getValue()) {
                 PredictionForStopPath predictionForStopPath = new PredictionForStopPath(
                         vehicleState.getVehicleId(),
-                        new Date(Core.getInstance().getSystemTime()),
+                        SystemTime.getDate(),
                         average.getAverage(),
                         indices.getTrip().getId(),
                         indices.getStopPathIndex(),

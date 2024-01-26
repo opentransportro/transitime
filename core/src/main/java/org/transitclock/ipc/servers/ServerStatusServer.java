@@ -5,11 +5,11 @@ import java.rmi.RemoteException;
 import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.transitclock.applications.Core;
 import org.transitclock.ipc.data.IpcServerStatus;
 import org.transitclock.ipc.interfaces.ServerStatusInterface;
 import org.transitclock.ipc.rmi.AbstractServer;
 import org.transitclock.monitoring.AgencyMonitor;
+import org.transitclock.utils.SystemTime;
 
 /**
  * Runs on the server side and receives IPC calls and returns results.
@@ -81,6 +81,6 @@ public class ServerStatusServer extends AbstractServer implements ServerStatusIn
 
     @Override
     public Date getCurrentServerTime() throws RemoteException {
-        return new Date(Core.getInstance().getSystemTime());
+        return SystemTime.getDate();
     }
 }

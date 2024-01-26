@@ -18,6 +18,7 @@ import org.transitclock.core.predictiongenerator.kalman.*;
 import org.transitclock.db.structs.AvlReport;
 import org.transitclock.db.structs.PredictionForStopPath;
 import org.transitclock.db.structs.VehicleEvent;
+import org.transitclock.utils.SystemTime;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -164,7 +165,7 @@ public class KalmanPredictionGeneratorImpl extends HistoricalAveragePredictionGe
                         if (CoreConfig.storeTravelTimeStopPathPredictions.getValue()) {
                             PredictionForStopPath predictionForStopPath = new PredictionForStopPath(
                                     vehicleState.getVehicleId(),
-                                    new Date(Core.getInstance().getSystemTime()),
+                                    SystemTime.getDate(),
                                     (double) Long.valueOf(predictionTime).intValue(),
                                     indices.getTrip().getId(),
                                     indices.getStopPathIndex(),

@@ -15,10 +15,7 @@ import org.transitclock.core.dataCache.VehicleStateManager;
 import org.transitclock.db.hibernate.HibernateUtils;
 import org.transitclock.db.structs.*;
 import org.transitclock.db.structs.AvlReport.AssignmentType;
-import org.transitclock.utils.Geo;
-import org.transitclock.utils.IntervalTimer;
-import org.transitclock.utils.StringUtils;
-import org.transitclock.utils.Time;
+import org.transitclock.utils.*;
 
 import java.util.*;
 
@@ -477,7 +474,7 @@ public class AvlProcessor {
 
         long tripStartTime = bestMatch.getTrip().getStartTime() * 1000 + Time.getStartOfDay(new Date());
         // ignore future trips as we are deadheading
-        if (tripStartTime > Core.getInstance().getSystemTime()) return;
+        if (tripStartTime > SystemTime.getMillis()) return;
 
         // difference
         double deltaDistance = Math.abs(Geo.distance(avlLocation, matchLocation));

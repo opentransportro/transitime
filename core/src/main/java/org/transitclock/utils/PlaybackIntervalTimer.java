@@ -1,9 +1,6 @@
 /* (C)2023 */
 package org.transitclock.utils;
 
-import java.text.DecimalFormat;
-import org.transitclock.applications.Core;
-
 /**
  * Very simple class for timing duration of events. Main use is at the beginning of the process to
  * construct an IntervalTimer and then at the end to call <code>elapsedMsec()</code> to determine
@@ -18,12 +15,12 @@ public class PlaybackIntervalTimer {
 
     /** Records the current time so that elapsed time can later be determined. */
     public PlaybackIntervalTimer() {
-        initialtime = Core.getInstance().getSystemTime();
+        initialtime = SystemTime.getMillis();
     }
 
     /** Resets the timer to the current time. */
     public void resetTimer() {
-        initialtime = Core.getInstance().getSystemTime();
+        initialtime = SystemTime.getMillis();
     }
 
     /**
@@ -32,7 +29,7 @@ public class PlaybackIntervalTimer {
      * @return elapsed time in msec
      */
     public long elapsedMsec() {
-        return Math.abs(Core.getInstance().getSystemTime() - initialtime);
+        return Math.abs(SystemTime.getMillis() - initialtime);
     }
 
     /**
@@ -41,8 +38,7 @@ public class PlaybackIntervalTimer {
      * @return String of elapsed time in milliseconds
      */
     private String elapsedMsecStr() {
-
-        return "" + (Core.getInstance().getSystemTime() - initialtime);
+        return "" + (SystemTime.getMillis() - initialtime);
     }
 
     /**

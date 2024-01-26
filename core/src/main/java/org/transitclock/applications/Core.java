@@ -8,7 +8,6 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.hibernate.Session;
 import org.transitclock.Module;
 import org.transitclock.config.ConfigFileReader;
-import org.transitclock.config.StringConfigValue;
 import org.transitclock.configData.AgencyConfig;
 import org.transitclock.configData.CoreConfig;
 import org.transitclock.core.ServiceUtils;
@@ -26,8 +25,6 @@ import org.transitclock.db.structs.ActiveRevisions;
 import org.transitclock.db.structs.Agency;
 import org.transitclock.gtfs.DbConfig;
 import org.transitclock.ipc.servers.*;
-import org.transitclock.utils.SettableSystemTime;
-import org.transitclock.utils.SystemCurrentTime;
 import org.transitclock.utils.SystemTime;
 import org.transitclock.utils.Time;
 import org.transitclock.utils.threading.NamedThreadFactory;
@@ -68,9 +65,6 @@ public class Core {
      */
     @Getter
     private final Time time;
-
-    // So that can access the current time, even when in playback mode
-    private SystemTime systemTime = new SystemCurrentTime();
 
     // Read in configuration files. This should be done statically before
     // the logback LoggerFactory.getLogger() is called so that logback can
@@ -232,35 +226,6 @@ public class Core {
      */
     public ServiceUtils getServiceUtils() {
         return service;
-    }
-
-    /**
-     * For when need system time but might be in playback mode. If not in playback mode then the
-     * time will be the time of the system clock. But if in playback mode then will be using a
-     * SettableSystemTime and the time will be that of the last AVL report.
-     *
-     * @return The system epoch time
-     */
-    public long getSystemTime() {
-        return systemTime.get();
-    }
-
-    /**
-     * For when need system time but might be in playback mode. If not in playback mode then the
-     * time will be the time of the system clock. But if in playback mode then will be using a
-     * SettableSystemTime and the time will be that of the last AVL report.
-     *
-     * @return The system epoch time
-     */
-    public Date getSystemDate() {
-        return new Date(getSystemTime());
-    }
-
-    /**
-     * For setting the system time when in playback or batch mode.
-     */
-    public void setSystemTime(long systemEpochTime) {
-        this.systemTime = new SettableSystemTime(systemEpochTime);
     }
 
     /**

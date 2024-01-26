@@ -11,7 +11,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Date;
-import org.transitclock.applications.Core;
+
 import org.transitclock.core.BlockAssignmentMethod;
 import org.transitclock.core.SpatialMatch;
 import org.transitclock.core.TemporalDifference;
@@ -20,6 +20,7 @@ import org.transitclock.core.dataCache.PredictionDataCache;
 import org.transitclock.db.structs.AvlReport.AssignmentType;
 import org.transitclock.db.structs.Location;
 import org.transitclock.db.structs.Trip;
+import org.transitclock.utils.SystemTime;
 import org.transitclock.utils.Time;
 
 /**
@@ -143,12 +144,14 @@ public class IpcVehicle implements Serializable {
         this.realTimeSchedAdh = vs.getRealTimeSchedAdh();
         this.isDelayed = vs.isDelayed();
 
-        if (vs.getMatch() != null) this.isAtStop = vs.getMatch().isAtStop();
-        else this.isAtStop = false;
+        if (vs.getMatch() != null)
+            this.isAtStop = vs.getMatch().isAtStop();
+        else
+            this.isAtStop = false;
 
         if (vs.getHoldingTime() != null) {
             this.holdingTime = new IpcHoldingTime(vs.getHoldingTime());
-            this.holdingTime.setCurrentTime(new Date(Core.getInstance().getSystemTime()));
+            this.holdingTime.setCurrentTime(SystemTime.getDate());
         } else {
             this.holdingTime = null;
         }

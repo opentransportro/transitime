@@ -14,10 +14,8 @@ import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.applications.Core;
-import org.transitclock.config.StringConfigValue;
 import org.transitclock.core.ServiceUtils;
 import org.transitclock.db.hibernate.HibernateUtils;
-import org.transitclock.db.structs.ActiveRevisions;
 import org.transitclock.db.structs.Agency;
 import org.transitclock.db.structs.Block;
 import org.transitclock.db.structs.Calendar;
@@ -27,14 +25,12 @@ import org.transitclock.db.structs.FareRule;
 import org.transitclock.db.structs.Frequency;
 import org.transitclock.db.structs.Route;
 import org.transitclock.db.structs.Stop;
-import org.transitclock.db.structs.StopPath;
 import org.transitclock.db.structs.Transfer;
-import org.transitclock.db.structs.TravelTimesForStopPath;
-import org.transitclock.db.structs.TravelTimesForTrip;
 import org.transitclock.db.structs.Trip;
 import org.transitclock.db.structs.TripPattern;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.MapKey;
+import org.transitclock.utils.SystemTime;
 import org.transitclock.utils.Time;
 
 /**
@@ -478,9 +474,8 @@ public class DbConfig {
      * @return trip whose service ID is currently valid
      */
     private static Trip getTripForCurrentService(List<Trip> trips) {
-        Date now = Core.getInstance().getSystemDate();
-        Collection<String> currentServiceIds =
-                Core.getInstance().getServiceUtils().getServiceIds(now);
+        Date now = SystemTime.getDate();
+        Collection<String> currentServiceIds = Core.getInstance().getServiceUtils().getServiceIds(now);
         for (Trip trip : trips) {
             for (String serviceId : currentServiceIds) {
                 if (trip.getServiceId().equals(serviceId)) {
@@ -673,7 +668,7 @@ public class DbConfig {
             return blocksMap.get(blockId);
         } else {
             // Service ID was not specified so determine current ones for now
-            Date now = Core.getInstance().getSystemDate();
+            Date now = SystemTime.getDate();
 
             Collection<String> currentServiceIds =
                     Core.getInstance().getServiceUtils().getServiceIds(now);
@@ -826,7 +821,7 @@ public class DbConfig {
     public List<Calendar> getCurrentCalendars() {
         // Get list of currently active calendars
         ServiceUtils serviceUtils = Core.getInstance().getServiceUtils();
-        return serviceUtils.getCurrentCalendars(Core.getInstance().getSystemTime());
+        return serviceUtils.getCurrentCalendars(SystemTime.getMillis());
     }
 
     /**
@@ -845,7 +840,7 @@ public class DbConfig {
      * @return CalendarDate for current day if there is one, otherwise null.
      */
     public List<CalendarDate> getCalendarDatesForNow() {
-        long startOfDay = Time.getStartOfDay(Core.getInstance().getSystemDate());
+        long startOfDay = Time.getStartOfDay(SystemTime.getDate());
         return calendarDatesMap.get(startOfDay);
     }
 

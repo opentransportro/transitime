@@ -3,7 +3,6 @@ package org.transitclock.core;
 
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.Module;
-import org.transitclock.applications.Core;
 import org.transitclock.configData.AgencyConfig;
 import org.transitclock.configData.TimeoutConfig;
 import org.transitclock.core.dataCache.VehicleStateManager;
@@ -11,6 +10,7 @@ import org.transitclock.core.schedBasedPreds.SchedBasedPredsModule;
 import org.transitclock.db.structs.AvlReport;
 import org.transitclock.db.structs.VehicleEvent;
 import org.transitclock.utils.IntervalTimer;
+import org.transitclock.utils.SystemTime;
 import org.transitclock.utils.Time;
 
 import java.util.HashMap;
@@ -228,7 +228,7 @@ public class TimeoutHandlerModule extends Module {
     public void handlePossibleTimeouts() {
         // Determine what now is. Don't use System.currentTimeMillis() since
         // that doesn't work for playback.
-        long now = Core.getInstance().getSystemTime();
+        long now = SystemTime.getMillis();
 
         // Sync access to avlReportsMap since it can be simultaneously
         // modified elsewhere

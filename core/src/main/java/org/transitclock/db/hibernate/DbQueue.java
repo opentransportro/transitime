@@ -433,15 +433,11 @@ public class DbQueue<T> {
      * @param objectToBeStored
      */
     private void processSingleObject(Object objectToBeStored) {
-        Session session = null;
-        try {
-            session = sessionFactory.openSession();
+        try (Session session = sessionFactory.openSession()) {
             Transaction tx = session.beginTransaction();
             logger.debug("Individually saving object {}", objectToBeStored);
-            session.save(objectToBeStored);
+            session.persist(objectToBeStored);
             tx.commit();
-        } finally {
-            if (session != null) session.close();
         }
     }
 

@@ -8,7 +8,6 @@ import java.util.Comparator;
 import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
-import org.transitclock.applications.Core;
 import org.transitclock.core.dataCache.PredictionDataCache;
 import org.transitclock.db.structs.Location;
 import org.transitclock.gtfs.StopsByLocation;
@@ -17,6 +16,7 @@ import org.transitclock.ipc.data.IpcPredictionsForRouteStopDest;
 import org.transitclock.ipc.interfaces.PredictionsInterface;
 import org.transitclock.ipc.rmi.AbstractServer;
 import org.transitclock.utils.IntervalTimer;
+import org.transitclock.utils.SystemTime;
 import org.transitclock.utils.Time;
 
 /**
@@ -100,7 +100,7 @@ public class PredictionsServer extends AbstractServer implements PredictionsInte
     public List<IpcPredictionsForRouteStopDest> getAllPredictions(int predictionMaxFutureSecs) {
         // How far in future in absolute time should get predictions for
         long maxSystemTimeForPrediction =
-                Core.getInstance().getSystemTime() + (long) predictionMaxFutureSecs * Time.MS_PER_SEC;
+                SystemTime.getMillis() + (long) predictionMaxFutureSecs * Time.MS_PER_SEC;
 
         return predictionDataCache.getAllPredictions(Integer.MAX_VALUE, maxSystemTimeForPrediction);
     }

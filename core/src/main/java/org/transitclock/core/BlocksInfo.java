@@ -8,10 +8,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.transitclock.applications.Core;
-import org.transitclock.config.IntegerConfigValue;
 import org.transitclock.configData.CoreConfig;
 import org.transitclock.db.structs.Block;
 import org.transitclock.gtfs.DbConfig;
+import org.transitclock.utils.SystemTime;
 import org.transitclock.utils.Time;
 
 /**
@@ -40,7 +40,7 @@ public class BlocksInfo {
 
         // Determine which service IDs are currently active.
         // Yes, there can be multiple ones active at once.
-        Date now = core.getSystemDate();
+        Date now = SystemTime.getDate();
         Collection<String> currentServiceIds = core.getServiceUtils().getServiceIds(now);
 
         // For each service ID ...
@@ -96,7 +96,7 @@ public class BlocksInfo {
         if (core == null) return activeBlocks;
 
         // Determine which service IDs are currently active
-        long now = core.getSystemTime();
+        long now = SystemTime.getMillis();
         List<String> currentServiceIds = core.getServiceUtils().getServiceIdsForDay(now);
         Set<String> serviceIds = new HashSet<>(currentServiceIds);
 

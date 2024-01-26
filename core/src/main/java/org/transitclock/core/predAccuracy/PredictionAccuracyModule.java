@@ -4,14 +4,10 @@ package org.transitclock.core.predAccuracy;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Getter;
-import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.Module;
 import org.transitclock.applications.Core;
-import org.transitclock.config.IntegerConfigValue;
 import org.transitclock.configData.PredictionAccuracyConfig;
 import org.transitclock.core.dataCache.PredictionDataCache;
 import org.transitclock.db.structs.ArrivalDeparture;
@@ -22,6 +18,7 @@ import org.transitclock.ipc.data.IpcPrediction;
 import org.transitclock.ipc.data.IpcPredictionsForRouteStopDest;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.MapKey;
+import org.transitclock.utils.SystemTime;
 import org.transitclock.utils.Time;
 
 /**
@@ -82,7 +79,7 @@ public class PredictionAccuracyModule extends Module {
             IntervalTimer timer = new IntervalTimer();
 
             try {
-                getAndProcessData(getRoutesAndStops(), Core.getInstance().getSystemDate());
+                getAndProcessData(getRoutesAndStops(), SystemTime.getDate());
 
                 // Make sure old predictions that were never matched to an
                 // arrival/departure don't stick around taking up memory.
@@ -161,7 +158,7 @@ public class PredictionAccuracyModule extends Module {
         // memory. This is important because need to limit how much
         // memory is used for prediction accuracy data collecting.
         if (pred.getPredictedTime().getTime()
-                > Core.getInstance().getSystemTime() + PredictionAccuracyConfig.maxPredTimeMinutes.getValue() * Time.MS_PER_MIN) {
+                > SystemTime.getMillis() + PredictionAccuracyConfig.maxPredTimeMinutes.getValue() * Time.MS_PER_MIN) {
             logger.debug(
                     "Prediction is too far into future so not storing "
                             + "it in memory for prediction accuracy analysis. {}",
@@ -199,7 +196,7 @@ public class PredictionAccuracyModule extends Module {
             while (iter.hasNext()) {
                 PredAccuracyPrediction pred = iter.next();
                 if (pred.getPredictedTime().getTime()
-                        < Core.getInstance().getSystemTime() - PredictionAccuracyConfig.maxPredStalenessMinutes.getValue() * Time.MS_PER_MIN) {
+                        < SystemTime.getMillis() - PredictionAccuracyConfig.maxPredStalenessMinutes.getValue() * Time.MS_PER_MIN) {
                     // Prediction was too old so remove it from memory
                     ++numPredictionsRemoved;
                     logger.info(

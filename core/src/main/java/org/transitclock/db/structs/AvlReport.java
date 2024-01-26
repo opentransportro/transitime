@@ -10,11 +10,11 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Immutable;
-import org.transitclock.applications.Core;
 import org.transitclock.configData.AvlConfig;
 import org.transitclock.db.hibernate.HibernateUtils;
 import org.transitclock.ipc.data.IpcAvl;
 import org.transitclock.utils.Geo;
+import org.transitclock.utils.SystemTime;
 import org.transitclock.utils.Time;
 
 import java.io.Serializable;
@@ -729,7 +729,7 @@ public class AvlReport implements Serializable {
      * processed.
      */
     public void setTimeProcessed() {
-        timeProcessed = new Date(Core.getInstance().getSystemTime());
+        timeProcessed = SystemTime.getDate();
     }
 
     /**

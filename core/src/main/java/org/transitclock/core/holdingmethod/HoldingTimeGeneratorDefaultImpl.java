@@ -12,6 +12,7 @@ import org.transitclock.ipc.data.IpcArrivalDeparture;
 import org.transitclock.ipc.data.IpcPrediction;
 import org.transitclock.ipc.data.IpcPredictionsForRouteStopDest;
 import org.transitclock.ipc.data.IpcVehicleComplete;
+import org.transitclock.utils.SystemTime;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -109,7 +110,7 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
 
                     HoldingTime holdingTime = new HoldingTime(
                             new Date(current_vehicle_arrival_time + holdingTimeValue),
-                            new Date(Core.getInstance().getSystemTime()),
+                            SystemTime.getDate(),
                             event.getVehicleId(),
                             event.getStopId(),
                             event.getTripId(),
@@ -135,7 +136,7 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
 
                     HoldingTime holdingTime = new HoldingTime(
                             new Date(current_vehicle_arrival_time + holdingTimeValue),
-                            new Date(Core.getInstance().getSystemTime()),
+                            SystemTime.getDate(),
                             event.getVehicleId(),
                             event.getStopId(),
                             event.getTripId(),
@@ -184,7 +185,7 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
 
                     HoldingTime holdingTime = new HoldingTime(
                             new Date(current_vehicle_arrival_time + holdingTimeValue),
-                            new Date(Core.getInstance().getSystemTime()),
+                            SystemTime.getDate(),
                             event.getVehicleId(),
                             event.getStopId(),
                             event.getTripId(),
@@ -212,7 +213,7 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
 
                     HoldingTime holdingTime = new HoldingTime(
                             new Date(current_vehicle_arrival_time + holdingTimeValue),
-                            new Date(Core.getInstance().getSystemTime()),
+                            SystemTime.getDate(),
                             event.getVehicleId(),
                             event.getStopId(),
                             event.getTripId(),
@@ -237,7 +238,7 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
                 // TODO WHY BOTHER?
                 HoldingTime holdingTime = new HoldingTime(
                         new Date(current_vehicle_arrival_time),
-                        new Date(Core.getInstance().getSystemTime()),
+                        SystemTime.getDate(),
                         event.getVehicleId(),
                         event.getStopId(),
                         event.getTripId(),
@@ -509,7 +510,7 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
 
                         holdingTime = new HoldingTime(
                                 new Date(arrivalPrediction.getPredictionTime() + holdingTimeValue),
-                                new Date(Core.getInstance().getSystemTime()),
+                                SystemTime.getDate(),
                                 arrivalPrediction.getVehicleId(),
                                 arrivalPrediction.getStopId(),
                                 arrivalPrediction.getTripId(),
@@ -533,7 +534,7 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
 
                         holdingTime = new HoldingTime(
                                 new Date(arrivalPrediction.getPredictionTime() + holdingTimeValue),
-                                new Date(Core.getInstance().getSystemTime()),
+                                SystemTime.getDate(),
                                 arrivalPrediction.getVehicleId(),
                                 arrivalPrediction.getStopId(),
                                 arrivalPrediction.getTripId(),
@@ -557,7 +558,7 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
 
                     holdingTime = new HoldingTime(
                             new Date(arrivalPrediction.getPredictionTime() + holdingTimeValue),
-                            new Date(Core.getInstance().getSystemTime()),
+                            SystemTime.getDate(),
                             arrivalPrediction.getVehicleId(),
                             arrivalPrediction.getStopId(),
                             arrivalPrediction.getTripId(),
@@ -581,7 +582,7 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
 
                     holdingTime = new HoldingTime(
                             new Date(arrivalPrediction.getPredictionTime() + holdingTimeValue),
-                            new Date(Core.getInstance().getSystemTime()),
+                            SystemTime.getDate(),
                             arrivalPrediction.getVehicleId(),
                             arrivalPrediction.getStopId(),
                             arrivalPrediction.getTripId(),
@@ -617,7 +618,7 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
                     if (holdingTimeValue != null) {
                         holdingTime = new HoldingTime(
                                 new Date(arrivalPrediction.getPredictionTime() + holdingTimeValue),
-                                new Date(Core.getInstance().getSystemTime()),
+                                SystemTime.getDate(),
                                 arrivalPrediction.getVehicleId(),
                                 arrivalPrediction.getStopId(),
                                 arrivalPrediction.getTripId(),
@@ -640,7 +641,7 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
                                 arrivalPrediction.getStopId());
                         holdingTime = new HoldingTime(
                                 new Date(arrivalPrediction.getPredictionTime()),
-                                new Date(Core.getInstance().getSystemTime()),
+                                SystemTime.getDate(),
                                 arrivalPrediction.getVehicleId(),
                                 arrivalPrediction.getStopId(),
                                 arrivalPrediction.getTripId(),
@@ -664,7 +665,7 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
                     long current_vehicle_arrival_time = arrivalPrediction.getPredictionTime();
                     holdingTime = new HoldingTime(
                             new Date(current_vehicle_arrival_time),
-                            new Date(Core.getInstance().getSystemTime()),
+                            SystemTime.getDate(),
                             arrivalPrediction.getVehicleId(),
                             arrivalPrediction.getStopId(),
                             arrivalPrediction.getTripId(),

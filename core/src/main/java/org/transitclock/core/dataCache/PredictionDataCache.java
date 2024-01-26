@@ -14,6 +14,7 @@ import org.transitclock.ipc.data.IpcPrediction;
 import org.transitclock.ipc.data.IpcPredictionsForRouteStopDest;
 import org.transitclock.ipc.interfaces.PredictionsInterface.RouteStop;
 import org.transitclock.utils.MapKey;
+import org.transitclock.utils.SystemTime;
 import org.transitclock.utils.Time;
 
 import java.util.*;
@@ -80,7 +81,7 @@ public class PredictionDataCache {
      * @return
      */
     private long getSystemTime() {
-        return Core.getInstance().getSystemTime();
+        return SystemTime.getMillis();
     }
 
     /**
@@ -155,7 +156,7 @@ public class PredictionDataCache {
         // Want to limit predictions to max time in future since if using
         // schedule based predictions then generating predictions far into the
         // future.
-        long maxPredictionEpochTime = Core.getInstance().getSystemTime()
+        long maxPredictionEpochTime = SystemTime.getMillis()
                 + (long) CoreConfig.getMaxPredictionsTimeSecs() * Time.SEC_IN_MSECS;
 
         // Want to filter out arrivals at terminal if also getting departures

@@ -13,9 +13,9 @@ import org.transitclock.db.structs.HoldingTime;
 import org.transitclock.ipc.data.IpcArrivalDeparture;
 import org.transitclock.ipc.data.IpcPrediction;
 import org.transitclock.ipc.data.IpcPredictionsForRouteStopDest;
+import org.transitclock.utils.SystemTime;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -48,7 +48,7 @@ public class SimpleHoldingTimeGeneratorImpl implements HoldingTimeGenerator {
 
                 HoldingTime holdingTime = new HoldingTime(
                         new Date(current_vehicle_arrival_time + holdingTimeValue),
-                        new Date(Core.getInstance().getSystemTime()),
+                        SystemTime.getDate(),
                         event.getVehicleId(),
                         event.getStopId(),
                         event.getTripId(),
@@ -72,7 +72,7 @@ public class SimpleHoldingTimeGeneratorImpl implements HoldingTimeGenerator {
                 long current_vehicle_arrival_time = event.getTime().getTime();
                 HoldingTime holdingTime = new HoldingTime(
                         new Date(current_vehicle_arrival_time),
-                        new Date(Core.getInstance().getSystemTime()),
+                        SystemTime.getDate(),
                         event.getVehicleId(),
                         event.getStopId(),
                         event.getTripId(),

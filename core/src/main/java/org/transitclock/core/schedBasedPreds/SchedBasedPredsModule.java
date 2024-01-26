@@ -17,6 +17,7 @@ import org.transitclock.db.structs.Location;
 import org.transitclock.ipc.data.IpcVehicle;
 import org.transitclock.ipc.data.IpcVehicleComplete;
 import org.transitclock.utils.IntervalTimer;
+import org.transitclock.utils.SystemTime;
 import org.transitclock.utils.Time;
 
 import java.util.Collection;
@@ -81,7 +82,7 @@ public class SchedBasedPredsModule extends Module {
                 // schedule based one. First create a fake AVL report that
                 // corresponds to the first stop of the block.
                 String vehicleId = "block_" + block.getId() + "_schedBasedVehicle";
-                long referenceTime = Core.getInstance().getSystemTime();
+                long referenceTime = SystemTime.getMillis();
                 long blockStartEpochTime =
                         Core.getInstance().getTime().getEpochTime(block.getStartTime(), referenceTime);
                 Location location = block.getStartLoc();

@@ -13,6 +13,7 @@ import org.transitclock.db.structs.TripPattern;
 import org.transitclock.db.structs.VectorWithHeading;
 import org.transitclock.gtfs.DbConfig;
 import org.transitclock.ipc.data.IpcArrivalDeparture;
+import org.transitclock.utils.SystemTime;
 
 /**
  * This private class is for keeping track of the trip, path, and segment indices that specify where
@@ -227,7 +228,7 @@ public class Indices implements Serializable {
      * @return Indices for the next StopPath for the assignment
      */
     public Indices incrementStopPath() {
-        return incrementStopPath(Core.getInstance().getSystemTime());
+        return incrementStopPath(SystemTime.getMillis());
     }
 
     /**

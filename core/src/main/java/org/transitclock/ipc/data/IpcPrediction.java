@@ -11,6 +11,7 @@ import org.transitclock.applications.Core;
 import org.transitclock.db.structs.AvlReport;
 import org.transitclock.db.structs.Trip;
 import org.transitclock.utils.StringUtils;
+import org.transitclock.utils.SystemTime;
 import org.transitclock.utils.Time;
 
 /**
@@ -134,7 +135,7 @@ public class IpcPrediction implements Serializable {
         this.avlTime = avlReport.getTime();
         this.creationTime = avlReport.getTimeProcessed();
 
-        Date currentTime = Core.getInstance().getSystemDate();
+        Date currentTime = SystemTime.getDate();
         this.tripStartEpochTime = Core.getInstance().getTime().getEpochTime(trip.getStartTime(), currentTime);
 
         this.affectedByWaitStop = affectedByWaitStop;

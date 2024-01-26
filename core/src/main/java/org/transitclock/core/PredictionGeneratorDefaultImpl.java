@@ -14,6 +14,7 @@ import org.transitclock.db.structs.*;
 import org.transitclock.ipc.data.IpcPrediction;
 import org.transitclock.ipc.data.IpcPrediction.ArrivalOrDeparture;
 import org.transitclock.utils.Geo;
+import org.transitclock.utils.SystemTime;
 import org.transitclock.utils.Time;
 
 import java.util.*;
@@ -333,7 +334,7 @@ public class PredictionGeneratorDefaultImpl extends PredictionGenerator implemen
 
         // For filtering out predictions that are before now, which can
         // happen for schedule based predictions
-        final long now = Core.getInstance().getSystemTime();
+        final long now = SystemTime.getMillis();
 
         // indices.incrementStopPath(predictionTime);
         Integer tripCounter = vehicleState.getTripCounter();
@@ -372,11 +373,8 @@ public class PredictionGeneratorDefaultImpl extends PredictionGenerator implemen
                     tripCounter,
                     delay);
 
-            if ((predictionForStop.getPredictionTime() - Core.getInstance().getSystemTime())
-                            < generateHoldingTimeWhenPredictionWithin.getValue()
-                    && (predictionForStop.getPredictionTime()
-                                    - Core.getInstance().getSystemTime())
-                            > 0) {
+            if ((predictionForStop.getPredictionTime() - SystemTime.getMillis()) < generateHoldingTimeWhenPredictionWithin.getValue()
+                    && (predictionForStop.getPredictionTime() - SystemTime.getMillis()) > 0) {
                 if (HoldingTimeGeneratorFactory.getInstance() != null) {
                     HoldingTime holdingTime = HoldingTimeGeneratorFactory.getInstance()
                             .generateHoldingTime(vehicleState, predictionForStop);
@@ -498,7 +496,7 @@ public class PredictionGeneratorDefaultImpl extends PredictionGenerator implemen
         if (storeTravelTimeStopPathPredictions.getValue()) {
             PredictionForStopPath predictionForStopPath = new PredictionForStopPath(
                     vehicleState.getVehicleId(),
-                    new Date(Core.getInstance().getSystemTime()),
+                    SystemTime.getDate(),
                     (double)(indices.getTravelTimeForPath()),
                     indices.getTrip().getId(),
                     indices.getStopPathIndex(),
