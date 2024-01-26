@@ -53,15 +53,13 @@ public class PredictionConfig {
     public static final IntegerConfigValue percentagePredictionMethodDifferenceneEventLog = new IntegerConfigValue(
             "transitclock.prediction.data.kalman.percentagePredictionMethodDifferencene",
             50,
-            "If the difference in prediction method estimates is greater than this"
-                    + " percentage log a Vehicle Event");
+            "If the difference in prediction method estimates is greater than this percentage log a Vehicle Event");
 
 
     public static final BooleanConfigValue useaverage = new BooleanConfigValue(
             "transitclock.prediction.kalman.useaverage",
             true,
-            "Will use average travel time as opposed to last historical vehicle in Kalman"
-                    + " prediction calculation.");
+            "Will use average travel time as opposed to last historical vehicle in Kalman prediction calculation.");
 
 
     public static final IntegerConfigValue tresholdForDifferenceEventLog = new IntegerConfigValue(
@@ -75,7 +73,7 @@ public class PredictionConfig {
     public static final IntegerConfigValue timeBetweenPollingMsec = new IntegerConfigValue(
             "transitclock.schedBasedPreds.pollingRateMsec",
             4 * Time.MS_PER_MIN,
-            "How frequently to look for blocks that do not have " + "associated vehicle.");
+            "How frequently to look for blocks that do not have associated vehicle.");
 
     public static final BooleanConfigValue processImmediatelyAtStartup = new BooleanConfigValue(
             "transitclock.schedBasedPreds.processImmediatelyAtStartup",
@@ -90,7 +88,7 @@ public class PredictionConfig {
     public static final IntegerConfigValue beforeStartTimeMinutes = new IntegerConfigValue(
             "transitclock.schedBasedPreds.beforeStartTimeMinutes",
             60,
-            "How many minutes before a block start time should create " + "a schedule based vehicle for that block.");
+            "How many minutes before a block start time should create a schedule based vehicle for that block.");
 
     public static final IntegerConfigValue afterStartTimeMinutes = new IntegerConfigValue(
             "transitclock.schedBasedPreds.afterStartTimeMinutes",

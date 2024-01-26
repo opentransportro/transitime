@@ -9,6 +9,10 @@ services:
 #      POSTGRES_USER:
     ports:
       - "5432:5432"
+  gtfsrt-validator:
+    image: ghcr.io/mobilitydata/gtfs-realtime-validator:latest
+    ports:
+      - "9090:8080"
   transitclock:
     image: otrro/transitclock-server:latest
     build: .

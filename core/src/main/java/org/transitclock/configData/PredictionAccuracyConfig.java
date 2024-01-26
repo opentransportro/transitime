@@ -27,7 +27,7 @@ public class PredictionAccuracyConfig {
     public static final IntegerConfigValue stopsPerTrip = new IntegerConfigValue(
             "transitclock.predAccuracy.stopsPerTrip",
             5,
-            "Number of stops per trip pattern that should collect " + "prediction data for each polling cycle.");
+            "Number of stops per trip pattern that should collect prediction data for each polling cycle.");
 
     public static final IntegerConfigValue maxRandomStopSelectionsPerTrip = new IntegerConfigValue(
             "transitclock.predAccuracy.maxRandomStopSelectionsPerTrip",

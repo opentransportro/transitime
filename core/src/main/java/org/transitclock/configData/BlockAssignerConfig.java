@@ -36,12 +36,12 @@ public class BlockAssignerConfig {
     public static final IntegerConfigValue allowableEarlySeconds = new IntegerConfigValue(
             "transitclock.autoBlockAssigner.allowableEarlySeconds",
             3 * Time.SEC_PER_MIN,
-            "How early a vehicle can be in seconds and still be " + "automatically assigned to a block");
+            "How early a vehicle can be in seconds and still be automatically assigned to a block");
 
     public static final IntegerConfigValue allowableLateSeconds = new IntegerConfigValue(
             "transitclock.autoBlockAssigner.allowableLateSeconds",
             5 * Time.SEC_PER_MIN,
-            "How late a vehicle can be in seconds and still be " + "automatically assigned to a block");
+            "How late a vehicle can be in seconds and still be automatically assigned to a block");
 
     public static final IntegerConfigValue minTimeBetweenAutoAssigningSecs = new IntegerConfigValue(
             "transitclock.autoBlockAssigner.minTimeBetweenAutoAssigningSecs",

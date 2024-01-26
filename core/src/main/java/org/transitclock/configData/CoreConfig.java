@@ -583,7 +583,7 @@ public class CoreConfig {
     private static final DoubleConfigValue afterStopDistance = new DoubleConfigValue(
             "transitclock.core.afterStopDistance",
             50.0,
-            "How far a vehicle can be past a stop in meters and " + "still be considered at the stop.");
+            "How far a vehicle can be past a stop in meters and still be considered at the stop.");
 
     /**
      * Returns how long driver is expected to have a break for a stop.

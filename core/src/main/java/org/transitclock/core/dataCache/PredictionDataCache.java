@@ -60,7 +60,7 @@ public class PredictionDataCache {
     // access to it so if multiple threads are making changes on a route/stop
     // those changes will be coherent and information will not be lost.
     private final ConcurrentHashMap<MapKey, List<IpcPredictionsForRouteStopDest>> predictionsMap =
-            new ConcurrentHashMap<MapKey, List<IpcPredictionsForRouteStopDest>>(1000);
+            new ConcurrentHashMap<>(1000);
 
 
     /**
@@ -144,8 +144,7 @@ public class PredictionDataCache {
         }
 
         // Get the predictions from the map
-        List<IpcPredictionsForRouteStopDest> predictionsForRouteStop =
-                getPredictionsForRouteStop(routeShortName, stopId);
+        List<IpcPredictionsForRouteStopDest> predictionsForRouteStop = getPredictionsForRouteStop(routeShortName, stopId);
 
         // Remove old predictions so that they are not provided through the
         // API and such
@@ -180,8 +179,7 @@ public class PredictionDataCache {
         // modified by another thread while they are being accessed. This
         // is important because when the predictions are modified they are
         // temporarily not coherent.
-        List<IpcPredictionsForRouteStopDest> clonedPredictions =
-                new ArrayList<IpcPredictionsForRouteStopDest>(predictionsForRouteStop.size());
+        List<IpcPredictionsForRouteStopDest> clonedPredictions = new ArrayList<>(predictionsForRouteStop.size());
         for (IpcPredictionsForRouteStopDest predictions : predictionsForRouteStop) {
             // If supposed to return only predictions for specific direction and
             // the current predictions are for the wrong direction then simply
@@ -192,7 +190,7 @@ public class PredictionDataCache {
             // do so if all of the predictions for this stop are end of trip
             // predictions. Yes, this is a bit complicated.
             if (shouldFilterOutEndOfTripPreds) {
-                if (predictions.getPredictionsForRouteStop().size() > 0) {
+                if (!predictions.getPredictionsForRouteStop().isEmpty()) {
                     boolean allPredsForEndOfTrip = true;
                     for (IpcPrediction preds : predictions.getPredictionsForRouteStop()) {
                         if (!preds.isAtEndOfTrip()) {
@@ -213,7 +211,7 @@ public class PredictionDataCache {
         // If no predictions should still return a IpcPredictionsForRouteStopDest
         // object so that the client can get route, stop, and direction info to
         // display in the UI.
-        if (clonedPredictions.size() == 0) {
+        if (clonedPredictions.isEmpty()) {
             IpcPredictionsForRouteStopDest pred =
                     new IpcPredictionsForRouteStopDest(routeShortName, directionId, stopIdOrCode, distanceToStop);
             clonedPredictions.add(pred);
@@ -229,7 +227,7 @@ public class PredictionDataCache {
         boolean hasDestinationWithPredictions = false;
         for (IpcPredictionsForRouteStopDest pred : clonedPredictions) {
             // If at least one of the destinations has predictions...
-            if (pred.getPredictionsForRouteStop().size() > 0) {
+            if (!pred.getPredictionsForRouteStop().isEmpty()) {
                 hasDestinationWithPredictions = true;
                 break;
             }
@@ -552,8 +550,7 @@ public class PredictionDataCache {
      */
     private IpcPredictionsForRouteStopDest getPredictionsForRouteStopDestination(Trip trip, String stopId) {
         // Determine the predictions for all destinations for the route/stop
-        List<IpcPredictionsForRouteStopDest> predictionsForRouteStop =
-                getPredictionsForRouteStop(trip.getRouteShortName(), stopId);
+        List<IpcPredictionsForRouteStopDest> predictionsForRouteStop = getPredictionsForRouteStop(trip.getRouteShortName(), stopId);
 
         // Sync on the array so that it can't change between when check to
         // find out if the PredictionsForRouteStopDest already exists for
@@ -562,7 +559,8 @@ public class PredictionDataCache {
             // From the list of predictions return the one that is for the
             // specified destination.
             for (IpcPredictionsForRouteStopDest preds : predictionsForRouteStop) {
-                if (preds.getHeadsign() == null || preds.getHeadsign().equals(trip.getHeadsign())) return preds;
+                if (preds.getHeadsign() == null || preds.getHeadsign().equals(trip.getHeadsign()))
+                    return preds;
             }
 
             // The PredictionsForRouteStopDest was not yet created for the

@@ -69,7 +69,7 @@ public class IpcPredictionsForRouteStopDest implements Serializable {
         this.headsign = trip != null ? trip.getHeadsign() : null;
         this.directionId = trip != null ? trip.getDirectionId() : null;
         this.distanceToStop = distanceToStop;
-        this.predictionsForRouteStopDest = new TrimmableArrayList<IpcPrediction>(INITIAL_CAPACITY);
+        this.predictionsForRouteStopDest = new TrimmableArrayList<>(INITIAL_CAPACITY);
     }
 
     /**
@@ -96,7 +96,7 @@ public class IpcPredictionsForRouteStopDest implements Serializable {
         this.headsign = tripPattern.getHeadsign();
         this.directionId = tripPattern.getDirectionId();
         this.distanceToStop = distanceToStop;
-        this.predictionsForRouteStopDest = new TrimmableArrayList<IpcPrediction>(0);
+        this.predictionsForRouteStopDest = new TrimmableArrayList<>(0);
     }
 
     /**
@@ -128,7 +128,7 @@ public class IpcPredictionsForRouteStopDest implements Serializable {
         // thread could otherwise be changing the data.
         synchronized (toClone) {
             int size = Math.min(toClone.predictionsForRouteStopDest.size(), maxPredictionsPerStop);
-            this.predictionsForRouteStopDest = new ArrayList<IpcPrediction>(size);
+            this.predictionsForRouteStopDest = new ArrayList<>(size);
             for (int i = 0; i < size; ++i) {
                 IpcPrediction prediction = toClone.predictionsForRouteStopDest.get(i);
                 // If prediction exceeds max time then done
@@ -208,7 +208,7 @@ public class IpcPredictionsForRouteStopDest implements Serializable {
         this.headsign = null;
         this.directionId = directionId;
         this.distanceToStop = distanceToStop;
-        this.predictionsForRouteStopDest = new TrimmableArrayList<IpcPrediction>(0);
+        this.predictionsForRouteStopDest = new TrimmableArrayList<>(0);
     }
 
     /**

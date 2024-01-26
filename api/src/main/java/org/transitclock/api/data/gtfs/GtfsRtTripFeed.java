@@ -20,6 +20,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.api.data.IpcPredictionComparator;
@@ -48,14 +50,8 @@ import org.transitclock.utils.Time;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class GtfsRtTripFeed {
-
-    private final String agencyId;
-
-    // For outputting date in GTFS-realtime format
-    private final SimpleDateFormat gtfsRealtimeDateFormatter = new SimpleDateFormat("yyyyMMdd");
-
-    private final SimpleDateFormat gtfsRealtimeTimeFormatter = new SimpleDateFormat("HH:mm:ss");
     private static final int PREDICTION_MAX_FUTURE_SECS = ApiConfig.predictionMaxFutureSecs.getValue();
 
     private static final boolean INCLUDE_TRIP_UPDATE_DELAY = ApiConfig.includeTripUpdateDelay.getValue();
@@ -73,11 +69,16 @@ public class GtfsRtTripFeed {
     // precedence over SCHED_BASED_PRED_UNCERTAINTY_VALUE.
     private static final int LATE_AND_SUBSEQUENT_TRIP_UNCERTAINTY_VALUE = DELAYED_UNCERTAINTY_VALUE + 1;
 
-    private static final Logger logger = LoggerFactory.getLogger(GtfsRtTripFeed.class);
+
+    private final String agencyId;
+
+    // For outputting date in GTFS-realtime format
+    private final SimpleDateFormat gtfsRealtimeDateFormatter = new SimpleDateFormat("yyyyMMdd");
+
+    private final SimpleDateFormat gtfsRealtimeTimeFormatter = new SimpleDateFormat("HH:mm:ss");
 
     public GtfsRtTripFeed(String agencyId) {
         this.agencyId = agencyId;
-
         this.gtfsRealtimeDateFormatter.setTimeZone(AgencyTimezoneCache.get(agencyId));
     }
 
@@ -132,8 +133,7 @@ public class GtfsRtTripFeed {
 
         // Set trip as canceled if it is mark as that from schedBasePreds
         if (firstPred.isCanceled())
-            tripDescriptor.setScheduleRelationship(
-                    com.google.transit.realtime.GtfsRealtime.TripDescriptor.ScheduleRelationship.CANCELED);
+            tripDescriptor.setScheduleRelationship(TripDescriptor.ScheduleRelationship.CANCELED);
 
         tripUpdate.setTrip(tripDescriptor);
         if (firstPred.getDelay() != null && INCLUDE_TRIP_UPDATE_DELAY)
@@ -173,7 +173,8 @@ public class GtfsRtTripFeed {
 
                 // If schedule based prediction then set the uncertainty to special
                 // value so that client can tell
-                if (pred.isSchedBasedPred()) stopTimeEvent.setUncertainty(SCHED_BASED_PRED_UNCERTAINTY_VALUE);
+                if (pred.isSchedBasedPred())
+                    stopTimeEvent.setUncertainty(SCHED_BASED_PRED_UNCERTAINTY_VALUE);
 
                 // If vehicle is late and prediction is for a subsequent trip then
                 // the predictions are not as certain because it is reasonably likely
@@ -185,10 +186,13 @@ public class GtfsRtTripFeed {
                 // If vehicle not making forward progress then set uncertainty to
                 // special value so that client can tell. Takes precedence over
                 // LATE_AND_SUBSEQUENT_TRIP_UNCERTAINTY_VALUE.
-                if (pred.isDelayed()) stopTimeEvent.setUncertainty(DELAYED_UNCERTAINTY_VALUE);
+                if (pred.isDelayed())
+                    stopTimeEvent.setUncertainty(DELAYED_UNCERTAINTY_VALUE);
 
-                if (pred.isArrival()) stopTimeUpdate.setArrival(stopTimeEvent);
-                else stopTimeUpdate.setDeparture(stopTimeEvent);
+                if (pred.isArrival())
+                    stopTimeUpdate.setArrival(stopTimeEvent);
+                else
+                    stopTimeUpdate.setDeparture(stopTimeEvent);
 
                 // The relationship should always be SCHEDULED if departure or arrival time is
                 // given.
