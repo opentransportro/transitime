@@ -13,13 +13,7 @@ import com.google.transit.realtime.GtfsRealtime.TripUpdate.StopTimeUpdate.Schedu
 import com.google.transit.realtime.GtfsRealtime.VehicleDescriptor;
 import java.rmi.RemoteException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -168,8 +162,8 @@ public class GtfsRtTripFeed {
                         .setStopSequence(pred.getGtfsStopSeq())
                         .setStopId(pred.getStopId());
 
-                StopTimeEvent.Builder stopTimeEvent = StopTimeEvent.newBuilder();
-                stopTimeEvent.setTime(pred.getPredictionTime() / Time.MS_PER_SEC);
+                StopTimeEvent.Builder stopTimeEvent = StopTimeEvent.newBuilder()
+                        .setTime(pred.getPredictionTime() / Time.MS_PER_SEC);
 
                 // If schedule based prediction then set the uncertainty to special
                 // value so that client can tell
@@ -222,13 +216,10 @@ public class GtfsRtTripFeed {
                 .setIncrementality(Incrementality.FULL_DATASET)
                 .setTimestamp(System.currentTimeMillis() / Time.MS_PER_SEC);
         message.setHeader(feedheader);
-        // Create a comparator to sort each trip data
-        Comparator<IpcPrediction> comparator = new IpcPredictionComparator();
+
         // For each trip...
         for (List<IpcPrediction> predsForTrip : predsByTripMap.values()) {
-            // Sort trip data according to sequnece
 
-            predsForTrip.sort(comparator);
             //  Need to check if predictions for frequency based trip and group by start time if
             // they are.
             if (isFrequencyBasedTrip(predsForTrip)) {
@@ -245,16 +236,16 @@ public class GtfsRtTripFeed {
                         }
                     }
                 } catch (Exception e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    logger.warn("{}", e.getMessage(), e);
                 }
             } else {
                 // Create feed entity for each schedule trip
-                FeedEntity.Builder feedEntity =
-                        FeedEntity.newBuilder().setId(predsForTrip.get(0).getTripId());
+                FeedEntity.Builder feedEntity = FeedEntity.newBuilder()
+                                .setId(predsForTrip.get(0).getTripId());
                 try {
                     TripUpdate tripUpdate = createTripUpdate(predsForTrip);
                     feedEntity.setTripUpdate(tripUpdate);
+
                     message.addEntity(feedEntity);
                 } catch (Exception e) {
                     logger.error("Error parsing trip update data. {}", predsForTrip, e);
@@ -300,8 +291,8 @@ public class GtfsRtTripFeed {
         // Get all the predictions, grouped by vehicle, from the server
         List<IpcPredictionsForRouteStopDest> allPredictionsByStop;
         try {
-            allPredictionsByStop =
-                    PredictionsInterfaceFactory.get(agencyId).getAllPredictions(PREDICTION_MAX_FUTURE_SECS);
+            allPredictionsByStop = PredictionsInterfaceFactory.get(agencyId)
+                            .getAllPredictions(PREDICTION_MAX_FUTURE_SECS);
         } catch (RemoteException e) {
             logger.error("Exception when getting vehicles from RMI", e);
             return new HashMap<>();
@@ -311,13 +302,17 @@ public class GtfsRtTripFeed {
         Map<String, List<IpcPrediction>> predictionsByTrip = new HashMap<>();
         for (IpcPredictionsForRouteStopDest predictionsForStop : allPredictionsByStop) {
             for (IpcPrediction prediction : predictionsForStop.getPredictionsForRouteStop()) {
-                String tripId = prediction.getTripId();
-                List<IpcPrediction> predsForTrip = predictionsByTrip.computeIfAbsent(tripId, k -> new ArrayList<>());
-
-                predsForTrip.add(prediction);
+                predictionsByTrip
+                        .computeIfAbsent(prediction.getTripId(), k -> new ArrayList<>())
+                        .add(prediction);
             }
         }
 
+        var comparator = Comparator.comparingInt(IpcPrediction::getGtfsStopSeq);
+        predictionsByTrip.forEach((s, ipcPredictions) -> {
+            // Sort trip data according to sequence
+            ipcPredictions.sort(comparator);
+        });
         // Return results
         return predictionsByTrip;
     }

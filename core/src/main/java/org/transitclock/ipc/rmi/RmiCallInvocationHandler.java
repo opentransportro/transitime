@@ -54,7 +54,7 @@ public class RmiCallInvocationHandler implements InvocationHandler {
     // garbage collection want to make sure that a web server doesn't
     // keep on creating new connections. Keyed on agencyId.
     private static final ConcurrentHashMap<String, Counts> currentCallsByAgencyMap =
-            new ConcurrentHashMap<String, Counts>();
+            new ConcurrentHashMap<>();
     private static int maxConcurrentCallsPerProject =
             RmiConfig.maxConcurrentCallsPerProjectConfig.getValue();
 

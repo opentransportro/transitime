@@ -40,6 +40,16 @@ import org.transitclock.utils.Timer;
 @Slf4j
 public abstract class AbstractServer {
 
+    // How frequently should rebind to rmiregistry in case
+    // it is restarted.
+    private static final long REBIND_RATE_SEC = 30;
+
+    // Cache the registry. Only need one for entire application.
+    private static Registry registry = null;
+
+    // Share the timer. Don't want separate thread for every RMI class
+    private static final ScheduledThreadPoolExecutor rebindTimer = Timer.get();
+
     /**
      *  Specifies if this object was successfully constructed and is ready for use.
      */
@@ -63,16 +73,6 @@ public abstract class AbstractServer {
     // should send out another message when successful again so
     // that supervisors know that situation handled.
     private boolean errorEmailedSoAlsoNotifyWhenSuccessful = false;
-
-    // How frequently should rebind to rmiregistry in case
-    // it is restarted.
-    private static final long REBIND_RATE_SEC = 30;
-
-    // Cache the registry. Only need one for entire application.
-    private static Registry registry = null;
-
-    // Share the timer. Don't want separate thread for every RMI class
-    private static final ScheduledThreadPoolExecutor rebindTimer = Timer.get();
 
 
     /**
@@ -104,14 +104,13 @@ public abstract class AbstractServer {
             // of Remote.
             if (!(this instanceof Remote remoteThis)) {
                 logger.error(
-                        "Class {} is not a subclass of Remote. Therefore " + "it cannot be used with {}",
+                        "Class {} is not a subclass of Remote. Therefore it cannot be used with {}",
                         this.getClass().getName(),
                         getClass().getSimpleName());
                 return;
             }
 
-            logger.info(
-                    "Setting up AbstractServer for RMI using secondary " + "port={}", RmiParams.getSecondaryRmiPort());
+            logger.info("Setting up AbstractServer for RMI using secondary port={}", RmiParams.getSecondaryRmiPort());
             // Export the RMI stub. Specify that should use special port for
             // secondary RMI communication.
             stub = UnicastRemoteObject.exportObject(remoteThis, RmiParams.getSecondaryRmiPort());
