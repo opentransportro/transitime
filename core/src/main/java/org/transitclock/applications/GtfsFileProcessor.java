@@ -4,7 +4,6 @@ package org.transitclock.applications;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.transitclock.CommandLineParameters;
 import org.transitclock.config.ConfigFileReader;
 import org.transitclock.configData.AgencyConfig;

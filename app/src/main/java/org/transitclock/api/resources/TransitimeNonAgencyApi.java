@@ -2,17 +2,7 @@
 package org.transitclock.api.resources;
 
 import io.swagger.v3.oas.annotations.Operation;
-import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import jakarta.ws.rs.BeanParam;
-import jakarta.ws.rs.DefaultValue;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.QueryParam;
-import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.transitclock.api.data.ApiAgencies;
@@ -25,11 +15,16 @@ import org.transitclock.api.utils.WebUtils;
 import org.transitclock.db.structs.Agency;
 import org.transitclock.db.structs.Location;
 import org.transitclock.db.webstructs.WebAgency;
-import org.transitclock.ipc.clients.ConfigInterfaceFactory;
-import org.transitclock.ipc.clients.PredictionsInterfaceFactory;
 import org.transitclock.ipc.data.IpcPredictionsForRouteStopDest;
 import org.transitclock.ipc.interfaces.ConfigInterface;
 import org.transitclock.ipc.interfaces.PredictionsInterface;
+import org.transitclock.ipc.servers.ConfigServer;
+import org.transitclock.ipc.servers.PredictionsServer;
+
+import java.rmi.RemoteException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * Contains the API commands for the Transitime API for system wide commands, such as determining
@@ -71,7 +66,7 @@ public class TransitimeNonAgencyApi {
             Collection<WebAgency> webAgencies = WebAgency.getCachedOrderedListOfWebAgencies();
             for (WebAgency webAgency : webAgencies) {
                 String agencyId = webAgency.getAgencyId();
-                ConfigInterface inter = ConfigInterfaceFactory.get(agencyId);
+                ConfigInterface inter = ConfigServer.instance();
 
                 // If can't communicate with IPC with that agency then move on
                 // to the next one. This is important because some agencies
@@ -142,7 +137,7 @@ public class TransitimeNonAgencyApi {
             List<String> nearbyAgencies = PredsByLoc.getNearbyAgencies(lat, lon, maxDistance);
             for (String agencyId : nearbyAgencies) {
                 // Get predictions by location for the agency
-                PredictionsInterface predictionsInterface = PredictionsInterfaceFactory.get(agencyId);
+                PredictionsInterface predictionsInterface = PredictionsServer.instance();
                 List<IpcPredictionsForRouteStopDest> predictions =
                         predictionsInterface.get(new Location(lat, lon), maxDistance, numberPredictions);
 

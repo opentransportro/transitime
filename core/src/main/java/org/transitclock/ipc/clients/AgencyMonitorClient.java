@@ -8,6 +8,8 @@ import org.slf4j.LoggerFactory;
 import org.transitclock.db.webstructs.WebAgency;
 import org.transitclock.ipc.interfaces.ConfigInterface;
 import org.transitclock.ipc.interfaces.ServerStatusInterface;
+import org.transitclock.ipc.servers.ConfigServer;
+import org.transitclock.ipc.servers.ServerStatusServer;
 
 /**
  * Makes the ServerStatusInterface.monitor() RMI call easy to access. Intended to be used on client,
@@ -23,7 +25,7 @@ public class AgencyMonitorClient {
     public static String pingAgency(String agencyId) {
         String msg = null;
 
-        ConfigInterface configInterface = ConfigInterfaceFactory.get(agencyId);
+        ConfigInterface configInterface = ConfigServer.instance();
         if (configInterface == null) {
             msg = "Could not create ConfigInterface for RMI";
             logger.error(msg);
@@ -77,7 +79,7 @@ public class AgencyMonitorClient {
      * @return Error message if problem, or null
      */
     public static String monitor(String agencyId) {
-        ServerStatusInterface serverStatusInterface = ServerStatusInterfaceFactory.get(agencyId);
+        ServerStatusInterface serverStatusInterface = ServerStatusServer.instance();
         if (serverStatusInterface == null) {
             logger.error("Could not create ServerStatusInterface for RMI for " + "agencyId={}", agencyId);
             return null;

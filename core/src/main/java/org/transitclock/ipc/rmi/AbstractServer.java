@@ -98,148 +98,148 @@ public abstract class AbstractServer {
     protected AbstractServer(String agencyId, String objectName) {
         this.agencyId = agencyId;
 
-        try {
-            // First make sure that this object is a subclass of Remote
-            // since this class is only intended to be a parent class
-            // of Remote.
-            if (!(this instanceof Remote remoteThis)) {
-                logger.error(
-                        "Class {} is not a subclass of Remote. Therefore it cannot be used with {}",
-                        this.getClass().getName(),
-                        getClass().getSimpleName());
-                return;
-            }
-
-            logger.info("Setting up AbstractServer for RMI using secondary port={}", RmiParams.getSecondaryRmiPort());
-            // Export the RMI stub. Specify that should use special port for
-            // secondary RMI communication.
-            stub = UnicastRemoteObject.exportObject(remoteThis, RmiParams.getSecondaryRmiPort());
-
-            // Make sure the registry exists
-            if (registry == null) {
-                try {
-                    // Start up the RMI registry. If it has already been
-                    // started manually or by another process then will
-                    // get an exception, which is fine.
-                    LocateRegistry.createRegistry(RmiParams.getRmiPort());
-                } catch (Exception e) {
-                    // Most likely registry was already running
-                    logger.debug(
-                            "Exception occurred when trying to create "
-                                    + "RMI registry. Most likely the registry was "
-                                    + "already running, which is fine. Message={}",
-                            e.getMessage());
-                }
-                registry = LocateRegistry.getRegistry(RmiParams.getRmiPort());
-            }
-
-            // Bind the stub to the RMI registry so that it can be accessed by
-            // name by the client.
-            bindName = getBindName(agencyId, objectName);
-
-            // Bind the stub to the RMI registry in a loop so that even if
-            // rmiregistry is restarted the stub will quickly get bound to it.
-            // rebind() is called immediately and then again every
-            // REBIND_RATE_SEC seconds.
-            rebindTimer.scheduleAtFixedRate(
-                    // Call rebind() using anonymous class
-                    this::rebind,
-                    0,
-                    REBIND_RATE_SEC,
-                    TimeUnit.SECONDS);
-
-            constructed = true;
-        } catch (Exception e) {
-            // Log the error. Since RMI is critical send out e-mail as well so
-            // that the issue is taken care of.
-            logger.error(
-                    "For agencyId={} error occurred when constructing a RMI {}",
-                    AgencyConfig.getAgencyId(),
-                    getClass().getSimpleName(),
-                    e);
-        }
+//        try {
+//            // First make sure that this object is a subclass of Remote
+//            // since this class is only intended to be a parent class
+//            // of Remote.
+//            if (!(this instanceof Remote remoteThis)) {
+//                logger.error(
+//                        "Class {} is not a subclass of Remote. Therefore it cannot be used with {}",
+//                        this.getClass().getName(),
+//                        getClass().getSimpleName());
+//                return;
+//            }
+//
+//            logger.info("Setting up AbstractServer for RMI using secondary port={}", RmiParams.getSecondaryRmiPort());
+//            // Export the RMI stub. Specify that should use special port for
+//            // secondary RMI communication.
+//            stub = UnicastRemoteObject.exportObject(remoteThis, RmiParams.getSecondaryRmiPort());
+//
+//            // Make sure the registry exists
+//            if (registry == null) {
+//                try {
+//                    // Start up the RMI registry. If it has already been
+//                    // started manually or by another process then will
+//                    // get an exception, which is fine.
+//                    LocateRegistry.createRegistry(RmiParams.getRmiPort());
+//                } catch (Exception e) {
+//                    // Most likely registry was already running
+//                    logger.debug(
+//                            "Exception occurred when trying to create "
+//                                    + "RMI registry. Most likely the registry was "
+//                                    + "already running, which is fine. Message={}",
+//                            e.getMessage());
+//                }
+//                registry = LocateRegistry.getRegistry(RmiParams.getRmiPort());
+//            }
+//
+//            // Bind the stub to the RMI registry so that it can be accessed by
+//            // name by the client.
+//            bindName = getBindName(agencyId, objectName);
+//
+//            // Bind the stub to the RMI registry in a loop so that even if
+//            // rmiregistry is restarted the stub will quickly get bound to it.
+//            // rebind() is called immediately and then again every
+//            // REBIND_RATE_SEC seconds.
+//            rebindTimer.scheduleAtFixedRate(
+//                    // Call rebind() using anonymous class
+//                    this::rebind,
+//                    0,
+//                    REBIND_RATE_SEC,
+//                    TimeUnit.SECONDS);
+//
+//            constructed = true;
+//        } catch (Exception e) {
+//            // Log the error. Since RMI is critical send out e-mail as well so
+//            // that the issue is taken care of.
+//            logger.error(
+//                    "For agencyId={} error occurred when constructing a RMI {}",
+//                    AgencyConfig.getAgencyId(),
+//                    getClass().getSimpleName(),
+//                    e);
+//        }
     }
 
-    /**
-     * Rebinds the stub object to the RMI registry. This is important because the RMI registry could
-     * be terminated and restarted, losing the information on what has been bound.
-     */
-    private void rebind() {
-        logger.debug("Trying to rebind {} to RMI registry.", bindName);
+//    /**
+//     * Rebinds the stub object to the RMI registry. This is important because the RMI registry could
+//     * be terminated and restarted, losing the information on what has been bound.
+//     */
+//    private void rebind() {
+//        logger.debug("Trying to rebind {} to RMI registry.", bindName);
+//
+//        try {
+//            try {
+//                // Use rebind() instead of bind() for frequent case where
+//                // object already bound
+//                registry.rebind(bindName, stub);
+//            } catch (Exception e) {
+//                // An error occurred, likely because rmiregistry not running. This
+//                // can happen if a process started the RMI registry internally but
+//                // then the process died.
+//                logger.warn(
+//                        "Error occurred when trying to rebind RMI to {}. "
+//                                + "Therefore trying to automatically restart the "
+//                                + "rmiregistry. {}",
+//                        bindName,
+//                        e.getMessage());
+//                LocateRegistry.createRegistry(RmiParams.getRmiPort());
+//                // Now that registry has restarted try rebinding again
+//                registry.rebind(bindName, stub);
+//            }
+//
+//            logger.debug("Successfully rebound {} to RMI registry.", bindName);
+//
+//            // Was successful rebinding so remember that for next time
+//            // try to rebind.
+//            firstRebindTrySoLogError = true;
+//
+//            // If e-mailed error message indicating problem then e-mail
+//            // another notification indicating problem has been resolved
+//            if (errorEmailedSoAlsoNotifyWhenSuccessful) {
+//                String hostname = null;
+//                try {
+//                    hostname = InetAddress.getLocalHost().getHostName();
+//                } catch (UnknownHostException ignored) {
+//                }
+//                logger.error(
+//                        "For agencyId={} problem with rmiregistry on host {} " + "has been resolved.",
+//                        AgencyConfig.getAgencyId(),
+//                        hostname);
+//                errorEmailedSoAlsoNotifyWhenSuccessful = false;
+//            }
+//        } catch (Exception e) {
+//            if (firstRebindTrySoLogError) {
+//                // This isn't the first try so remember that so don't send out
+//                // a flood of error e-mails.
+//                firstRebindTrySoLogError = false;
+//
+//                // Log error. This is an important one because someone needs to
+//                // start up the rmiregistry for the host. Therefore send out
+//                // an e-mail alerting appropriate people.
+//                String msg = rebindErrorMessage(e);
+//                logger.error(msg, e);
+//
+//                errorEmailedSoAlsoNotifyWhenSuccessful = true;
+//            } else {
+//                // Have already logged and sent out e-mail so this time
+//                // just log it as a warning (and don't send e-mail).
+//                logger.warn(rebindErrorMessage(e));
+//            }
+//        }
+//    }
 
-        try {
-            try {
-                // Use rebind() instead of bind() for frequent case where
-                // object already bound
-                registry.rebind(bindName, stub);
-            } catch (Exception e) {
-                // An error occurred, likely because rmiregistry not running. This
-                // can happen if a process started the RMI registry internally but
-                // then the process died.
-                logger.warn(
-                        "Error occurred when trying to rebind RMI to {}. "
-                                + "Therefore trying to automatically restart the "
-                                + "rmiregistry. {}",
-                        bindName,
-                        e.getMessage());
-                LocateRegistry.createRegistry(RmiParams.getRmiPort());
-                // Now that registry has restarted try rebinding again
-                registry.rebind(bindName, stub);
-            }
-
-            logger.debug("Successfully rebound {} to RMI registry.", bindName);
-
-            // Was successful rebinding so remember that for next time
-            // try to rebind.
-            firstRebindTrySoLogError = true;
-
-            // If e-mailed error message indicating problem then e-mail
-            // another notification indicating problem has been resolved
-            if (errorEmailedSoAlsoNotifyWhenSuccessful) {
-                String hostname = null;
-                try {
-                    hostname = InetAddress.getLocalHost().getHostName();
-                } catch (UnknownHostException ignored) {
-                }
-                logger.error(
-                        "For agencyId={} problem with rmiregistry on host {} " + "has been resolved.",
-                        AgencyConfig.getAgencyId(),
-                        hostname);
-                errorEmailedSoAlsoNotifyWhenSuccessful = false;
-            }
-        } catch (Exception e) {
-            if (firstRebindTrySoLogError) {
-                // This isn't the first try so remember that so don't send out
-                // a flood of error e-mails.
-                firstRebindTrySoLogError = false;
-
-                // Log error. This is an important one because someone needs to
-                // start up the rmiregistry for the host. Therefore send out
-                // an e-mail alerting appropriate people.
-                String msg = rebindErrorMessage(e);
-                logger.error(msg, e);
-
-                errorEmailedSoAlsoNotifyWhenSuccessful = true;
-            } else {
-                // Have already logged and sent out e-mail so this time
-                // just log it as a warning (and don't send e-mail).
-                logger.warn(rebindErrorMessage(e));
-            }
-        }
-    }
-
-    /**
-     * Returns appropriate error message for when rebind error occurs.
-     */
-    private String rebindErrorMessage(Exception e) {
-        String hostname = null;
-        try {
-            hostname = InetAddress.getLocalHost().getHostName();
-        } catch (UnknownHostException ignored) {
-        }
-
-        return MessageFormat.format("It appears that the rmiregistry is not running on host {0}. Make sure it is started immediately. Exception occurred when rebinding {1}: {2}", hostname, bindName, e.getMessage());
-    }
+//    /**
+//     * Returns appropriate error message for when rebind error occurs.
+//     */
+//    private String rebindErrorMessage(Exception e) {
+//        String hostname = null;
+//        try {
+//            hostname = InetAddress.getLocalHost().getHostName();
+//        } catch (UnknownHostException ignored) {
+//        }
+//
+//        return MessageFormat.format("It appears that the rmiregistry is not running on host {0}. Make sure it is started immediately. Exception occurred when rebinding {1}: {2}", hostname, bindName, e.getMessage());
+//    }
 
     /**
      * The name that the server object is bound to needs both the classname to identify the object

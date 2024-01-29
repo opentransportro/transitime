@@ -26,6 +26,10 @@ public class PredictionAnalysisServer extends AbstractServer implements Predicti
     // Should only be accessed as singleton class
     private static PredictionAnalysisServer singleton;
 
+    public static PredictionAnalysisInterface instance() {
+        return singleton;
+    }
+
     protected PredictionAnalysisServer(String agencyId) {
         super(agencyId, PredictionAnalysisInterface.class.getSimpleName());
     }

@@ -2,6 +2,7 @@
 package org.transitclock.ipc.servers;
 
 import com.querydsl.jpa.impl.JPAQuery;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,17 +28,19 @@ import java.util.List;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class VehiclesServer extends AbstractServer implements VehiclesInterface {
 
     // Should only be accessed as singleton class
     private static VehiclesServer singleton;
 
+    public static VehiclesInterface instance() {
+        return singleton;
+    }
+
     // The VehicleDataCache associated with the singleton.
     private VehicleDataCache vehicleDataCache;
 
-    private static final Logger logger = LoggerFactory.getLogger(VehiclesServer.class);
-
-    /********************** Member Functions **************************/
 
     /**
      * Starts up the VehiclesServer so that RMI calls can query for predictions. This will

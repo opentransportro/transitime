@@ -8,13 +8,11 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.annotations.DynamicUpdate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.transitclock.configData.DbSetupConfig;
 import org.transitclock.db.hibernate.HibernateUtils;
 import org.transitclock.db.structs.Agency;
-import org.transitclock.ipc.clients.ConfigInterfaceFactory;
 import org.transitclock.ipc.interfaces.ConfigInterface;
+import org.transitclock.ipc.servers.ConfigServer;
 import org.transitclock.utils.Encryption;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.Time;
@@ -147,7 +145,7 @@ public class WebAgency {
     public Agency getAgency() {
         // If agency hasn't been accessed yet do so now...
         if (agency == null) {
-            ConfigInterface inter = ConfigInterfaceFactory.get(agencyId);
+            ConfigInterface inter = ConfigServer.instance();
 
             if (inter == null) {
                 logger.error(

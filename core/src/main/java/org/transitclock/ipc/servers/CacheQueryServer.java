@@ -42,6 +42,10 @@ public class CacheQueryServer extends AbstractServer implements CacheQueryInterf
     // Should only be accessed as singleton class
     private static CacheQueryServer singleton;
 
+    public static CacheQueryInterface instance() {
+        return singleton;
+    }
+
     protected CacheQueryServer(String agencyId) {
         super(agencyId, CacheQueryInterface.class.getSimpleName());
     }

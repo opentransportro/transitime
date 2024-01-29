@@ -31,6 +31,10 @@ public class CommandsServer extends AbstractServer implements CommandsInterface 
     // Should only be accessed as singleton class
     private static CommandsServer singleton;
 
+    public static CommandsInterface instance() {
+        return singleton;
+    }
+
 
     /**
      * Starts up the CommandsServer so that RMI calls can be used to control the server. This will

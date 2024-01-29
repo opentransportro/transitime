@@ -1,37 +1,27 @@
 /* (C)2023 */
 package org.transitclock.api.data.gtfs;
 
-import com.google.transit.realtime.GtfsRealtime.FeedEntity;
-import com.google.transit.realtime.GtfsRealtime.FeedHeader;
+import com.google.transit.realtime.GtfsRealtime.*;
 import com.google.transit.realtime.GtfsRealtime.FeedHeader.Incrementality;
-import com.google.transit.realtime.GtfsRealtime.FeedMessage;
-import com.google.transit.realtime.GtfsRealtime.TripDescriptor;
-import com.google.transit.realtime.GtfsRealtime.TripUpdate;
 import com.google.transit.realtime.GtfsRealtime.TripUpdate.StopTimeEvent;
 import com.google.transit.realtime.GtfsRealtime.TripUpdate.StopTimeUpdate;
 import com.google.transit.realtime.GtfsRealtime.TripUpdate.StopTimeUpdate.ScheduleRelationship;
-import com.google.transit.realtime.GtfsRealtime.VehicleDescriptor;
-import java.rmi.RemoteException;
-import java.text.SimpleDateFormat;
-import java.util.*;
-
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.transitclock.api.data.IpcPredictionComparator;
 import org.transitclock.api.utils.AgencyTimezoneCache;
-import org.transitclock.config.BooleanConfigValue;
-import org.transitclock.config.IntegerConfigValue;
 import org.transitclock.configData.ApiConfig;
 import org.transitclock.core.holdingmethod.PredictionTimeComparator;
-import org.transitclock.ipc.clients.PredictionsInterfaceFactory;
-import org.transitclock.ipc.clients.VehiclesInterfaceFactory;
 import org.transitclock.ipc.data.IpcPrediction;
 import org.transitclock.ipc.data.IpcPredictionsForRouteStopDest;
 import org.transitclock.ipc.data.IpcVehicleConfig;
 import org.transitclock.ipc.interfaces.VehiclesInterface;
+import org.transitclock.ipc.servers.PredictionsServer;
+import org.transitclock.ipc.servers.VehiclesServer;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.Time;
+
+import java.rmi.RemoteException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * For creating GTFS-realtime trip feed. The data is obtained from the server via RMI.
@@ -86,7 +76,7 @@ public class GtfsRtTripFeed {
         // Create the parent TripUpdate object that is returned.
         TripUpdate.Builder tripUpdate = TripUpdate.newBuilder();
 
-        VehiclesInterface vehiclesInterface = VehiclesInterfaceFactory.get(agencyId);
+        VehiclesInterface vehiclesInterface = VehiclesServer.instance();
 
         // Add the trip descriptor information
         IpcPrediction firstPred = predsForTrip.get(0);
@@ -291,7 +281,7 @@ public class GtfsRtTripFeed {
         // Get all the predictions, grouped by vehicle, from the server
         List<IpcPredictionsForRouteStopDest> allPredictionsByStop;
         try {
-            allPredictionsByStop = PredictionsInterfaceFactory.get(agencyId)
+            allPredictionsByStop = PredictionsServer.instance()
                             .getAllPredictions(PREDICTION_MAX_FUTURE_SECS);
         } catch (RemoteException e) {
             logger.error("Exception when getting vehicles from RMI", e);

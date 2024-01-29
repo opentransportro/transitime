@@ -2,6 +2,8 @@
 package org.transitclock.ipc.servers;
 
 import java.rmi.RemoteException;
+
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.core.dataCache.HoldingTimeCache;
@@ -16,11 +18,14 @@ import org.transitclock.ipc.rmi.AbstractServer;
  * @author Sean Og Crudden Server to allow stored travel time predictions to be queried. TODO May
  *     not be set to run by default as really only for analysis of predictions.
  */
+@Slf4j
 public class HoldingTimeServer extends AbstractServer implements HoldingTimeInterface {
     // Should only be accessed as singleton class
     private static HoldingTimeServer singleton;
 
-    private static final Logger logger = LoggerFactory.getLogger(HoldingTimeServer.class);
+    public static HoldingTimeInterface instance() {
+        return singleton;
+    }
 
     protected HoldingTimeServer(String agencyId) {
         super(agencyId, HoldingTimeInterface.class.getSimpleName());

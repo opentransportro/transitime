@@ -44,6 +44,10 @@ public class ConfigServer extends AbstractServer implements ConfigInterface {
     private static ConfigServer singleton;
 
 
+    public static ConfigInterface instance() {
+        return singleton;
+    }
+
     /**
      * Starts up the ConfigServer so that RMI calls can query for configuration data. This will
      * automatically cause the object to continue to run and serve requests.

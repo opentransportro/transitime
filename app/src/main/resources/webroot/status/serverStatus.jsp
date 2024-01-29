@@ -1,7 +1,6 @@
 <%@page import="org.transitclock.db.webstructs.WebAgency" %>
 <%@page import="java.rmi.RemoteException" %>
 <%@page import="org.transitclock.ipc.interfaces.ServerStatusInterface" %>
-<%@page import="org.transitclock.ipc.clients.ServerStatusInterfaceFactory" %>
 <%@page import="org.transitclock.monitoring.*" %>
 <%@page import="java.util.List" %>
 
@@ -36,7 +35,7 @@
 
 <%
     ServerStatusInterface serverStatusInterface =
-            org.transitclock.ipc.clients.ServerStatusInterfaceFactory.get(agencyId);
+            org.transitclock.ipc.servers.ServerStatusServer.instance();
     try {
         List<MonitorResult> monitorResults = serverStatusInterface.get().getMonitorResults();
         for (MonitorResult monitorResult : monitorResults) {

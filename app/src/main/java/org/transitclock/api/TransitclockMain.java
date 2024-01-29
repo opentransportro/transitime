@@ -1,10 +1,10 @@
-package org.transitclock;
+package org.transitclock.api;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.transitclock.applications.GtfsFileProcessor;
+import org.transitclock.CommandLineParameters;
 
 @Slf4j
 public class TransitclockMain {
@@ -49,7 +49,6 @@ public class TransitclockMain {
     @SneakyThrows
     private static void startTransitClock(CommandLineParameters cli) {
         var application = new Application(cli);
-        application.init();
         application.loadGtfs();
         application.createApiKey();
         application.createWebAgency();

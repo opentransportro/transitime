@@ -8,7 +8,7 @@
         <version>${revision}</version>
     </parent>
 
-    <artifactId>api</artifactId>
+    <artifactId>app</artifactId>
     <version>${revision}</version>
     <packaging>jar</packaging>
 
@@ -90,29 +90,49 @@
     </dependencies>
 
     <build>
-        <!-- Set the name of the war file -->
-        <finalName>api</finalName>
-
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
             </plugin>
             <!-- copy project dependencies -->
+<!--            <plugin>-->
+<!--                <groupId>org.apache.maven.plugins</groupId>-->
+<!--                <artifactId>maven-dependency-plugin</artifactId>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <id>copy-dependencies</id>-->
+<!--                        <phase>package</phase>-->
+<!--                        <goals>-->
+<!--                            <goal>copy-dependencies</goal>-->
+<!--                        </goals>-->
+<!--                        <configuration>-->
+<!--                            &lt;!&ndash; exclude junit, we need runtime dependency only &ndash;&gt;-->
+<!--                            <includeScope>runtime</includeScope>-->
+<!--                            <outputDirectory>${project.build.directory}/lib/</outputDirectory>-->
+<!--                        </configuration>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--            </plugin>-->
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
+                <artifactId>maven-shade-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>copy-dependencies</id>
-                        <phase>package</phase>
+                        <id>shade</id>
                         <goals>
-                            <goal>copy-dependencies</goal>
+                            <goal>shade</goal>
                         </goals>
+                        <phase>package</phase>
                         <configuration>
-                            <!-- exclude junit, we need runtime dependency only -->
-                            <includeScope>runtime</includeScope>
-                            <outputDirectory>${project.build.directory}/lib/</outputDirectory>
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>org.transitclock.api.TransitclockMain</mainClass>
+                                </transformer>
+                            </transformers>
+                            <outputFile>target/transitclock.jar</outputFile>
                         </configuration>
                     </execution>
                 </executions>

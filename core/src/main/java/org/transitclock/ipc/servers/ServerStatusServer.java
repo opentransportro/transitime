@@ -3,6 +3,8 @@ package org.transitclock.ipc.servers;
 
 import java.rmi.RemoteException;
 import java.util.Date;
+
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.ipc.data.IpcServerStatus;
@@ -16,14 +18,15 @@ import org.transitclock.utils.SystemTime;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class ServerStatusServer extends AbstractServer implements ServerStatusInterface {
 
     // Should only be accessed as singleton class
     private static ServerStatusServer singleton;
 
-    private static final Logger logger = LoggerFactory.getLogger(ServerStatusServer.class);
-
-    /********************** Member Functions **************************/
+    public static ServerStatusInterface instance() {
+        return singleton;
+    }
 
     /**
      * @param agencyId

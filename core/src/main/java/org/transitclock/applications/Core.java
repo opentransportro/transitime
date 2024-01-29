@@ -161,7 +161,7 @@ public class Core {
 
          // Start the RMI Servers so that clients can obtain data
          // on predictions, vehicles locations, etc.
-         startRmiServers(agencyId);
+          startRmiServers(agencyId);
      }
 
     /**

@@ -32,6 +32,10 @@ public class PredictionsServer extends AbstractServer implements PredictionsInte
     // Should only be accessed as singleton class
     private static PredictionsServer singleton;
 
+    public static PredictionsInterface instance() {
+        return singleton;
+    }
+
     // The PredictionDataCache associated with the singleton.
     private PredictionDataCache predictionDataCache;
 

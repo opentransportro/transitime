@@ -1,31 +1,25 @@
 /* (C)2023 */
 package org.transitclock.api.data.gtfs;
 
-import com.google.transit.realtime.GtfsRealtime.FeedEntity;
-import com.google.transit.realtime.GtfsRealtime.FeedHeader;
+import com.google.transit.realtime.GtfsRealtime.*;
 import com.google.transit.realtime.GtfsRealtime.FeedHeader.Incrementality;
-import com.google.transit.realtime.GtfsRealtime.FeedMessage;
-import com.google.transit.realtime.GtfsRealtime.Position;
-import com.google.transit.realtime.GtfsRealtime.TripDescriptor;
 import com.google.transit.realtime.GtfsRealtime.TripDescriptor.ScheduleRelationship;
-import com.google.transit.realtime.GtfsRealtime.VehicleDescriptor;
-import com.google.transit.realtime.GtfsRealtime.VehiclePosition;
 import com.google.transit.realtime.GtfsRealtime.VehiclePosition.VehicleStopStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.transitclock.api.utils.AgencyTimezoneCache;
+import org.transitclock.ipc.data.IpcAvl;
+import org.transitclock.ipc.data.IpcVehicleConfig;
+import org.transitclock.ipc.data.IpcVehicleGtfsRealtime;
+import org.transitclock.ipc.interfaces.VehiclesInterface;
+import org.transitclock.ipc.servers.VehiclesServer;
+import org.transitclock.utils.Time;
+
 import java.rmi.RemoteException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.transitclock.api.utils.AgencyTimezoneCache;
-import org.transitclock.ipc.clients.VehiclesInterfaceFactory;
-import org.transitclock.ipc.data.IpcAvl;
-import org.transitclock.ipc.data.IpcVehicleConfig;
-import org.transitclock.ipc.data.IpcVehicleGtfsRealtime;
-import org.transitclock.ipc.interfaces.VehiclesInterface;
-import org.transitclock.utils.Time;
 
 /**
  * For creating GTFS-realtime Vehicle feed. The data is obtained via RMI.
@@ -219,7 +213,7 @@ public class GtfsRtVehicleFeed {
      * @return Collection of Vehicle objects, or null if not available.
      */
     private Collection<IpcVehicleGtfsRealtime> getVehicles() {
-        VehiclesInterface vehiclesInterface = VehiclesInterfaceFactory.get(agencyId);
+        VehiclesInterface vehiclesInterface = VehiclesServer.instance();
         Collection<IpcVehicleGtfsRealtime> vehicles = null;
         try {
             vehicles = vehiclesInterface.getGtfsRealtime();
