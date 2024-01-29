@@ -1,7 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
          pageEncoding="UTF-8" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-<%@page import="org.transitclock.web.WebConfigParams" %>
+<%@page import="org.transitclock.configData.WebConfig" %>
 
 <!--
 Query String parameters:
@@ -866,11 +866,11 @@ showUnassignedVehicles=true (optional, for showing unassigned vehicles)
     L.control.scale({metric: false}).addTo(map);
     L.control.zoom({position: 'bottomleft'}).addTo(map);
 
-    var mapTileUrl = '<%= WebConfigParams.getMapTileUrl() %>';
+    var mapTileUrl = '<%= WebConfig.getMapTileUrl() %>';
     L.tileLayer(mapTileUrl, {
         // Specifying a shorter version of attribution. Original really too long.
         //attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery � <a href="http://mapbox.com">Mapbox</a>',
-        attribution: '&copy; <a href="http://openstreetmap.org">OpenStreetMap</a> &amp; <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery �<%= WebConfigParams.getMapTileCopyright() %>',
+        attribution: '&copy; <a href="http://openstreetmap.org">OpenStreetMap</a> &amp; <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery �<%= WebConfig.getMapTileCopyright() %>',
         maxZoom: 19
     }).addTo(map);
 

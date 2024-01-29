@@ -1,4 +1,4 @@
-<%@page import="org.transitclock.web.WebConfigParams" %>
+<%@page import="org.transitclock.configData.WebConfig" %>
 <!-- NOTE: this file is obsolete. Should only be using smartphoneMap.jsp.
 But this smartphoneMap.html needs to be kept around because is being
 used for VTA smartphone app. -->
@@ -201,7 +201,7 @@ used for VTA smartphone app. -->
     };
 
     // Create the leaflet map
-    createMap('<%= WebConfigParams.getMapTileUrl() %>', '<%= WebConfigParams.getMapTileCopyright() %>');
+    createMap('<%= WebConfig.getMapTileUrl() %>', '<%= WebConfig.getMapTileCopyright() %>');
 
     // Get the parameters from query string and display the route
     var agencyId = getQueryVariable("a");

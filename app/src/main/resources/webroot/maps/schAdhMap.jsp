@@ -2,7 +2,7 @@
          pageEncoding="UTF-8" %>
 <%-- Shows real-time schedule adherence, for all vehicles, in a map.  --%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-<%@page import="org.transitclock.web.WebConfigParams" %>
+<%@page import="org.transitclock.configData.WebConfig" %>
 
 <html>
 <head>
@@ -257,7 +257,7 @@
             L.tileLayer(mapTileUrl, {
                 // Specifying a shorter version of attribution. Original really too long.
                 //attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery � <a href="http://mapbox.com">Mapbox</a>',
-                attribution: '&copy; <a href="http://openstreetmap.org">OpenStreetMap</a> &amp; <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery �<%= WebConfigParams.getMapTileCopyright() %>',
+                attribution: '&copy; <a href="http://openstreetmap.org">OpenStreetMap</a> &amp; <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery �<%= WebConfig.getMapTileCopyright() %>',
                 maxZoom: 19
             }).addTo(map);
 
@@ -290,8 +290,8 @@
          * When page finishes loading then create map
          */
         $(document).ready(function () {
-            createMap('<%= WebConfigParams.getMapTileUrl() %>',
-                '<%= WebConfigParams.getMapTileCopyright() %>');
+            createMap('<%= WebConfig.getMapTileUrl() %>',
+                '<%= WebConfig.getMapTileCopyright() %>');
         });
 
     </script>

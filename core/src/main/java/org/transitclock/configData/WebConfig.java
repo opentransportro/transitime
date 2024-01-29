@@ -1,5 +1,5 @@
 /* (C)2023 */
-package org.transitclock.web;
+package org.transitclock.configData;
 
 import org.transitclock.config.StringConfigValue;
 
@@ -9,7 +9,7 @@ import org.transitclock.config.StringConfigValue;
  *
  * @author Michael Smith
  */
-public class WebConfigParams {
+public class WebConfig {
     public static String getMapTileUrl() {
         return mapTileUrl.getValue();
     }

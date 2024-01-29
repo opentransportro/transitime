@@ -4,7 +4,7 @@
      It is kept here for now only in case want to look at creating another heatmap
      in the future. --%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-<%@page import="org.transitclock.web.WebConfigParams" %>
+<%@page import="org.transitclock.configData.WebConfig" %>
 
 <html>
 <head>
@@ -182,8 +182,8 @@
          * When page finishes loading then create map
          */
         $(document).ready(function () {
-            createMap('<%= WebConfigParams.getMapTileUrl() %>',
-                '<%= WebConfigParams.getMapTileCopyright() %>');
+            createMap('<%= WebConfig.getMapTileUrl() %>',
+                '<%= WebConfig.getMapTileCopyright() %>');
 
             // FIXME getAndProcessData();
         });

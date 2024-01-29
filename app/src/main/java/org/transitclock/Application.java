@@ -23,7 +23,6 @@ import org.transitclock.configData.DbSetupConfig;
 import org.transitclock.core.dataCache.ehcache.CacheManagerFactory;
 import org.transitclock.db.ApiKeyManager;
 import org.transitclock.db.webstructs.WebAgency;
-import org.transitclock.web.ReadConfigListener;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -167,9 +166,7 @@ public class Application {
         URI baseUri = getWebRootResourceUri();
 
         ServletContextHandler servletContextHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);
-        servletContextHandler.setInitParameter("transitime_config_file_location", System.getProperty("transitclock.configFiles"));
         servletContextHandler.setErrorHandler(new ErrorHandler());
-        servletContextHandler.addEventListener(new ReadConfigListener());
         servletContextHandler.setContextPath("/");
         servletContextHandler.addFilter(new XSSFilter(), "/*", EnumSet.allOf(DispatcherType.class));
         servletContextHandler.addFilter(new ApiLoggingFilter(), "/api/*", EnumSet.allOf(DispatcherType.class));
