@@ -1,4 +1,4 @@
-package org.transitclock.api;
+package org.transitclock;
 
 import jakarta.servlet.DispatcherType;
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +12,7 @@ import org.eclipse.jetty.ee10.servlet.ServletHolder;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.glassfish.jersey.servlet.ServletContainer;
-import org.transitclock.CommandLineParameters;
+import org.transitclock.api.EmbeddedJspStarter;
 import org.transitclock.api.utils.ApiLoggingFilter;
 import org.transitclock.api.utils.WebLoggingFilter;
 import org.transitclock.api.utils.XSSFilter;

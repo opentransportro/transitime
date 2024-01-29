@@ -1,10 +1,9 @@
-package org.transitclock.api;
+package org.transitclock;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.transitclock.CommandLineParameters;
 
 @Slf4j
 public class TransitclockMain {
@@ -34,7 +33,7 @@ public class TransitclockMain {
 
             if (params.help) {
 //                System.out.println("transitime " + projectInfo().getVersionString());
-                jc.setProgramName("java -Xmx4G -jar transitime.jar");
+                jc.setProgramName("java -Xmx4G -jar transitclock.jar");
                 jc.usage();
                 System.exit(0);
             }
