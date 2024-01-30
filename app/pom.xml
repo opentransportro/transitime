@@ -125,17 +125,28 @@
                         </platforms>
                     </from>
                     <to>
-                        <image>${env.CONTAINER_REPO}</image>
-                        <auth>
-                            <username>${env.CONTAINER_REGISTRY_USER}</username>
-                            <password>${env.CONTAINER_REGISTRY_PASSWORD}</password>
-                        </auth>
+                        <image>otrro/transitclock-server</image>
                     </to>
+<!--                    <to>-->
+<!--                        <image>${env.CONTAINER_REPO}</image>-->
+<!--                        <auth>-->
+<!--                            <username>${env.CONTAINER_REGISTRY_USER}</username>-->
+<!--                            <password>${env.CONTAINER_REGISTRY_PASSWORD}</password>-->
+<!--                        </auth>-->
+<!--                    </to>-->
                     <extraDirectories>
                         <permissions>
                             <permission>
                                 <file>/docker-entrypoint.sh</file>
                                 <mode>755</mode>
+                            </permission>
+                            <permission>
+                                <file>/waitforit</file>
+                                <mode>755</mode>
+                            </permission>
+                            <permission>
+                                <file>/app/config/</file>
+                                <mode>777</mode>
                             </permission>
                             <permission>
                                 <file>/var/transitclock/</file>

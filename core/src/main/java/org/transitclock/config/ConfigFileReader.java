@@ -1,6 +1,7 @@
 /* (C)2023 */
 package org.transitclock.config;
 
+import lombok.extern.slf4j.Slf4j;
 import org.transitclock.config.ConfigValue.ConfigParamException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -57,6 +58,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class ConfigFileReader {
     /**
      * Need to be able to synchronize reads and writes. Since this class is static need static
@@ -240,7 +242,7 @@ public class ConfigFileReader {
                     // Set the system property with the value
                     System.setProperty(propertyName, value);
 
-                    System.out.println("Setting property name " + propertyName + " to value " + value);
+                    logger.debug("Setting property name " + propertyName + " to value " + value);
                 }
             }
         } catch (IOException e) {
@@ -258,7 +260,7 @@ public class ConfigFileReader {
         try (FileInputStream file = new FileInputStream(fileName)) {
             readPropertiesConfigFile(file);
         } catch (IOException e) {
-            System.err.println("Exception occurred reading in fileName " + fileName + " . " + e.getMessage());
+            logger.error("Exception occurred reading in fileName " + fileName + " . " + e.getMessage(), e);
         }
     }
 
@@ -307,7 +309,7 @@ public class ConfigFileReader {
         // Don't want reading while writing so lock access
         writeLock.lock();
 
-        System.out.println("Processing configuration file " + fileName);
+        logger.info("Processing configuration file " + fileName);
 
         try {
             // Read in the data from config file
@@ -337,6 +339,7 @@ public class ConfigFileReader {
         // Determine from the Java system property transitclock.configFiles
         // the configuration files to be read
         String configFilesStr = System.getProperty("transitclock.configFiles");
+
         if (configFilesStr != null) {
             String[] configFiles = configFilesStr.split(";");
             for (String fileName : configFiles) {

@@ -6,7 +6,6 @@ services:
     environment:
       POSTGRES_PASSWORD: transitclock
       POSTGRES_DB: STPT
-#      POSTGRES_USER:
     ports:
       - "5432:5432"
   gtfsrt-validator:
@@ -15,7 +14,6 @@ services:
       - "9090:8080"
   transitclock:
     image: otrro/transitclock-server:latest
-    build: .
     depends_on:
       - db
     environment:
@@ -29,3 +27,6 @@ services:
 
     ports:
       - "8080:8080"
+    command:
+      - --gtfs-url
+      - https://data.opentransport.ro/routing/gtfs/gtfs-stpt.zip

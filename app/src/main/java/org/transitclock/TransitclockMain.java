@@ -4,12 +4,13 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.transitclock.config.ConfigFileReader;
 
 @Slf4j
 public class TransitclockMain {
     public static void main(String[] args) {
         Thread.currentThread().setName("main");
-
+        ConfigFileReader.processConfig();
         CommandLineParameters cli = parseAndValidateCmdLine(args);
 
         startTransitClock(cli);
