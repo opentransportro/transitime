@@ -1,5 +1,5 @@
 /* (C)2023 */
-package org.transitclock.avl;
+package org.transitclock.core.avl;
 
 import java.util.Collection;
 import org.transitclock.Module;

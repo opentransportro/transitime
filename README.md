@@ -115,7 +115,7 @@ transitclock.prediction.rls.lambda=0.9
 
 transitclock.timeout.pollingRateSecs=60
 
-transitclock.modules.optionalModulesList=org.transitclock.avl.GtfsRealtimeModule;org.transitclock.core.predAccuracy.PredictionAccuracyModule;org.transitclock.gtfs.GtfsUpdatedModule
+transitclock.modules.optionalModulesList=org.transitclock.core.avl.GtfsRealtimeModule;org.transitclock.core.predAccuracy.PredictionAccuracyModule;org.transitclock.gtfs.GtfsUpdatedModule
 ##!!! absolute location to the hibernate.cfg.xml file
 transitclock.hibernate.configFile=
 transitclock.logging.dir=/var/transitclock/logs

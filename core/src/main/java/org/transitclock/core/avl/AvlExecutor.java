@@ -1,5 +1,5 @@
 /* (C)2023 */
-package org.transitclock.avl;
+package org.transitclock.core.avl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.config.data.AgencyConfig;

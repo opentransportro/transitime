@@ -1,4 +1,4 @@
-package org.transitclock.avl;
+package org.transitclock.core.avl;
 
 import org.transitclock.domain.structs.AvlReport;
 

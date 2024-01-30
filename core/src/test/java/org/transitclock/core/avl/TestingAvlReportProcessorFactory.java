@@ -1,6 +1,8 @@
-package org.transitclock.avl;
+package org.transitclock.core.avl;
 
 import lombok.extern.slf4j.Slf4j;
+import org.transitclock.core.avl.AvlReportProcessor;
+import org.transitclock.core.avl.AvlReportProcessorFactory;
 import org.transitclock.domain.structs.AvlReport;
 import org.transitclock.utils.Time;
 

@@ -3,7 +3,7 @@ package org.transitclock.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
-import org.transitclock.avl.AvlExecutor;
+import org.transitclock.core.avl.AvlExecutor;
 import org.transitclock.core.AvlProcessor;
 import org.transitclock.core.TemporalMatch;
 import org.transitclock.core.VehicleState;
