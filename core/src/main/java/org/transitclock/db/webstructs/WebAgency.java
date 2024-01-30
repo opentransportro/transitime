@@ -8,7 +8,7 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.annotations.DynamicUpdate;
-import org.transitclock.configData.DbSetupConfig;
+import org.transitclock.config.data.DbSetupConfig;
 import org.transitclock.db.hibernate.HibernateUtils;
 import org.transitclock.db.structs.Agency;
 import org.transitclock.service.contract.ConfigInterface;

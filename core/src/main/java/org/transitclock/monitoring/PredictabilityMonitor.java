@@ -4,10 +4,8 @@ package org.transitclock.monitoring;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import org.transitclock.config.DoubleConfigValue;
-import org.transitclock.config.IntegerConfigValue;
-import org.transitclock.configData.MonitoringConfig;
-import org.transitclock.configData.PredictionConfig;
+
+import org.transitclock.config.data.MonitoringConfig;
 import org.transitclock.core.BlocksInfo;
 import org.transitclock.core.dataCache.VehicleDataCache;
 import org.transitclock.db.structs.Block;

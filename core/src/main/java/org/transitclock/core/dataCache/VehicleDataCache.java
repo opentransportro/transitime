@@ -15,7 +15,7 @@ import org.hibernate.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.applications.Core;
-import org.transitclock.configData.AgencyConfig;
+import org.transitclock.config.data.AgencyConfig;
 import org.transitclock.core.VehicleState;
 import org.transitclock.db.hibernate.HibernateUtils;
 import org.transitclock.db.structs.AvlReport;

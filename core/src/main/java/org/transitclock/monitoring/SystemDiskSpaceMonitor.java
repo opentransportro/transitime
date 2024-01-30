@@ -2,8 +2,8 @@
 package org.transitclock.monitoring;
 
 import java.io.File;
-import org.transitclock.config.LongConfigValue;
-import org.transitclock.configData.MonitoringConfig;
+
+import org.transitclock.config.data.MonitoringConfig;
 import org.transitclock.utils.StringUtils;
 
 /**

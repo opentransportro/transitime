@@ -1,7 +1,7 @@
 /* (C)2023 */
 package org.transitclock.core.predictiongenerator.kalman;
 
-import org.transitclock.configData.PredictionConfig;
+import org.transitclock.config.data.PredictionConfig;
 
 /**
  * @author Sean Óg Crudden

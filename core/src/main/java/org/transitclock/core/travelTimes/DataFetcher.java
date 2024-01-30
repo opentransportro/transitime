@@ -2,7 +2,7 @@
 package org.transitclock.core.travelTimes;
 
 import lombok.extern.slf4j.Slf4j;
-import org.transitclock.configData.UpdatesConfig;
+import org.transitclock.config.data.UpdatesConfig;
 import org.transitclock.db.structs.ActiveRevisions;
 import org.transitclock.db.structs.Agency;
 import org.transitclock.db.structs.ArrivalDeparture;

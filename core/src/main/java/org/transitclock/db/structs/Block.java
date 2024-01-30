@@ -14,7 +14,7 @@ import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.collection.spi.PersistentList;
 import org.hibernate.internal.SessionImpl;
 import org.transitclock.applications.Core;
-import org.transitclock.configData.CoreConfig;
+import org.transitclock.config.data.CoreConfig;
 import org.transitclock.core.SpatialMatch;
 import org.transitclock.db.hibernate.HibernateUtils;
 import org.transitclock.gtfs.DbConfig;
@@ -26,8 +26,6 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static org.transitclock.configData.CoreConfig.blockLoading;
 
 /**
  * Represents assignment for a vehicle for a day. Obtained by combining data from multiple GTFS

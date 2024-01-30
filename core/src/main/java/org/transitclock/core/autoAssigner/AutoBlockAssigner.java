@@ -3,8 +3,8 @@ package org.transitclock.core.autoAssigner;
 
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.applications.Core;
-import org.transitclock.configData.BlockAssignerConfig;
-import org.transitclock.configData.CoreConfig;
+import org.transitclock.config.data.BlockAssignerConfig;
+import org.transitclock.config.data.CoreConfig;
 import org.transitclock.core.*;
 import org.transitclock.core.dataCache.VehicleDataCache;
 import org.transitclock.core.dataCache.VehicleStateManager;
@@ -16,8 +16,8 @@ import org.transitclock.utils.Time;
 
 import java.util.*;
 
-import static org.transitclock.configData.BlockAssignerConfig.allowableEarlySeconds;
-import static org.transitclock.configData.BlockAssignerConfig.allowableLateSeconds;
+import static org.transitclock.config.data.BlockAssignerConfig.allowableEarlySeconds;
+import static org.transitclock.config.data.BlockAssignerConfig.allowableLateSeconds;
 
 /**
  * For automatically assigning a vehicle to an available block by determining both spatial and

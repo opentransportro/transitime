@@ -2,7 +2,7 @@
 package org.transitclock.core;
 
 import java.io.Serializable;
-import org.transitclock.configData.CoreConfig;
+import org.transitclock.config.data.CoreConfig;
 import org.transitclock.utils.Time;
 
 /**

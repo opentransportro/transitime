@@ -6,7 +6,7 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.transitclock.CommandLineParameters;
 import org.transitclock.config.ConfigFileReader;
-import org.transitclock.configData.AgencyConfig;
+import org.transitclock.config.data.AgencyConfig;
 import org.transitclock.db.hibernate.HibernateUtils;
 import org.transitclock.gtfs.DbWriter;
 import org.transitclock.gtfs.GtfsData;

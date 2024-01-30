@@ -3,9 +3,7 @@ package org.transitclock.core.predictiongenerator.bias;
 
 import lombok.Getter;
 import lombok.ToString;
-import org.transitclock.config.DoubleConfigValue;
-import org.transitclock.config.IntegerConfigValue;
-import org.transitclock.configData.CoreConfig;
+import org.transitclock.config.data.CoreConfig;
 import org.transitclock.utils.Time;
 
 /**

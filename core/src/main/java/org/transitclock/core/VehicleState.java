@@ -4,7 +4,7 @@ package org.transitclock.core;
 import java.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.transitclock.configData.CoreConfig;
+import org.transitclock.config.data.CoreConfig;
 import org.transitclock.core.dataCache.VehicleStateManager;
 import org.transitclock.db.structs.Arrival;
 import org.transitclock.db.structs.ArrivalDeparture;

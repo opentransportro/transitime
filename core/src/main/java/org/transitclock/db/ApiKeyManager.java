@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.transitclock.config.IntegerConfigValue;
-import org.transitclock.configData.DbSetupConfig;
+import org.transitclock.config.data.DbSetupConfig;
 import org.transitclock.db.hibernate.HibernateUtils;
 import org.transitclock.db.webstructs.ApiKey;
 import org.transitclock.utils.Time;

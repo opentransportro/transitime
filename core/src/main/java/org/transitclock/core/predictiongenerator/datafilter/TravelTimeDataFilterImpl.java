@@ -2,7 +2,7 @@
 package org.transitclock.core.predictiongenerator.datafilter;
 
 import lombok.extern.slf4j.Slf4j;
-import org.transitclock.configData.PredictionConfig;
+import org.transitclock.config.data.PredictionConfig;
 import org.transitclock.service.dto.IpcArrivalDeparture;
 
 /**

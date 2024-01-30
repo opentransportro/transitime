@@ -2,7 +2,7 @@
 package org.transitclock.core.holdingmethod;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.transitclock.configData.HoldingConfig.maxPredictionsForHoldingTimeCalculation;
+import static org.transitclock.config.data.HoldingConfig.maxPredictionsForHoldingTimeCalculation;
 import static org.transitclock.core.holdingmethod.HoldingTimeGeneratorDefaultImpl.calculateHoldingTime;
 
 import org.junit.jupiter.api.Test;

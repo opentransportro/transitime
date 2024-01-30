@@ -5,7 +5,7 @@ import java.util.Date;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.applications.Core;
-import org.transitclock.configData.CoreConfig;
+import org.transitclock.config.data.CoreConfig;
 import org.transitclock.db.structs.AvlReport;
 import org.transitclock.db.structs.Location;
 import org.transitclock.db.structs.Trip;

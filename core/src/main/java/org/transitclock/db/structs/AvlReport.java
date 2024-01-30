@@ -10,7 +10,7 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Immutable;
-import org.transitclock.configData.AvlConfig;
+import org.transitclock.config.data.AvlConfig;
 import org.transitclock.db.hibernate.HibernateUtils;
 import org.transitclock.service.dto.IpcAvl;
 import org.transitclock.utils.Geo;

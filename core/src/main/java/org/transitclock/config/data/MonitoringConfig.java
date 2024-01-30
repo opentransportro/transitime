@@ -1,4 +1,4 @@
-package org.transitclock.configData;
+package org.transitclock.config.data;
 
 import org.transitclock.config.DoubleConfigValue;
 import org.transitclock.config.IntegerConfigValue;

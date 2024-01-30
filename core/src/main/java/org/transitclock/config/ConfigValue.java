@@ -4,9 +4,8 @@ package org.transitclock.config;
 import java.util.Arrays;
 import java.util.List;
 import lombok.Getter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.transitclock.configData.AgencyConfig;
+import lombok.extern.slf4j.Slf4j;
+import org.transitclock.config.data.AgencyConfig;
 
 /**
  * Abstract class for storing a single param. These params are read from the command line as Java
@@ -16,6 +15,7 @@ import org.transitclock.configData.AgencyConfig;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public abstract class ConfigValue<T> {
     // Name of the param. Also used as Java property name
     // (e.g. -Dtransitclock.limit=2)
@@ -53,9 +53,6 @@ public abstract class ConfigValue<T> {
     // Separator used for when a parameter specified by a Java property
     // has multiple elements.
     private static final String LIST_SEPARATOR = ";";
-
-    // Use the main Config logger since don't to have two separate ones.
-    private static final Logger logger = LoggerFactory.getLogger(ConfigFileReader.class);
 
     /**
      * An exception for when a parameter is being read in

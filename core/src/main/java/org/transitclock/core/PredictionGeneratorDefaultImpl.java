@@ -19,7 +19,7 @@ import org.transitclock.utils.Time;
 
 import java.util.*;
 
-import static org.transitclock.configData.CoreConfig.*;
+import static org.transitclock.config.data.CoreConfig.*;
 
 /**
  * When a new match based on AVL data is made for a vehicle the methods in this class are used to

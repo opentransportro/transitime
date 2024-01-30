@@ -1,5 +1,5 @@
 /* (C)2023 */
-package org.transitclock.configData;
+package org.transitclock.config.data;
 
 import org.transitclock.config.StringConfigValue;
 

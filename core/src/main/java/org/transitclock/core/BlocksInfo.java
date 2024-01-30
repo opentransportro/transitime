@@ -8,7 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.transitclock.applications.Core;
-import org.transitclock.configData.CoreConfig;
+import org.transitclock.config.data.CoreConfig;
 import org.transitclock.db.structs.Block;
 import org.transitclock.gtfs.DbConfig;
 import org.transitclock.utils.SystemTime;

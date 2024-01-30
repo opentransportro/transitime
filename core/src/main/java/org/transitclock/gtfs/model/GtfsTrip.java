@@ -6,8 +6,7 @@ import java.util.regex.Pattern;
 import lombok.Getter;
 import lombok.ToString;
 import org.apache.commons.csv.CSVRecord;
-import org.transitclock.config.StringConfigValue;
-import org.transitclock.configData.GtfsConfig;
+import org.transitclock.config.data.GtfsConfig;
 import org.transitclock.utils.csv.CsvBase;
 
 /**

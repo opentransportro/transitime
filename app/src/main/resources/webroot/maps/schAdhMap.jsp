@@ -2,7 +2,7 @@
          pageEncoding="UTF-8" %>
 <%-- Shows real-time schedule adherence, for all vehicles, in a map.  --%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-<%@page import="org.transitclock.configData.WebConfig" %>
+<%@page import="org.transitclock.config.data.WebConfig" %>
 
 <html>
 <head>

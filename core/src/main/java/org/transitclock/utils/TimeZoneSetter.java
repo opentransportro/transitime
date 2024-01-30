@@ -1,7 +1,7 @@
 /* (C)2023 */
 package org.transitclock.utils;
 
-import org.transitclock.configData.CoreConfig;
+import org.transitclock.config.data.CoreConfig;
 
 import java.util.TimeZone;
 

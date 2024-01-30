@@ -4,7 +4,7 @@ package org.transitclock.core.predictiongenerator.scheduled.dwell;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.transitclock.configData.PredictionConfig;
+import org.transitclock.config.data.PredictionConfig;
 import org.transitclock.statistics.Statistics;
 
 /**

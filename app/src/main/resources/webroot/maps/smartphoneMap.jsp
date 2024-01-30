@@ -1,4 +1,4 @@
-<%@page import="org.transitclock.configData.WebConfig" %>
+<%@page import="org.transitclock.config.data.WebConfig" %>
 <!-- NOTE: this file is obsolete. Should only be using smartphoneMap.jsp.
 But this smartphoneMap.html needs to be kept around because is being
 used for VTA smartphone app. -->

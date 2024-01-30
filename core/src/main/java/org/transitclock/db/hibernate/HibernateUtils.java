@@ -8,7 +8,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.service.ServiceRegistry;
-import org.transitclock.configData.DbSetupConfig;
+import org.transitclock.config.data.DbSetupConfig;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;

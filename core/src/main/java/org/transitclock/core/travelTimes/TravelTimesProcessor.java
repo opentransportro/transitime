@@ -2,7 +2,7 @@
 package org.transitclock.core.travelTimes;
 
 import lombok.extern.slf4j.Slf4j;
-import org.transitclock.configData.TraveltimesConfig;
+import org.transitclock.config.data.TraveltimesConfig;
 import org.transitclock.core.TemporalDifference;
 import org.transitclock.core.travelTimes.DataFetcher.DbDataMapKey;
 import org.transitclock.db.structs.ArrivalDeparture;

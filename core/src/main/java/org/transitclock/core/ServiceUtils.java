@@ -12,17 +12,14 @@ import java.util.Map;
 import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.transitclock.applications.Core;
-import org.transitclock.config.IntegerConfigValue;
 import org.transitclock.db.structs.Agency;
 import org.transitclock.db.structs.Calendar;
 import org.transitclock.db.structs.CalendarDate;
 import org.transitclock.gtfs.DbConfig;
 import org.transitclock.utils.Time;
 
-import static org.transitclock.configData.ServiceConfig.minutesIntoMorningToIncludePreviousServiceIds;
+import static org.transitclock.config.data.ServiceConfig.minutesIntoMorningToIncludePreviousServiceIds;
 
 /**
  * For working with service types, such as determining serviceId or appropriate block to use for a

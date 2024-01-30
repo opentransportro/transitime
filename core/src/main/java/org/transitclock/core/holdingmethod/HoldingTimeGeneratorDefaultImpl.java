@@ -3,7 +3,7 @@ package org.transitclock.core.holdingmethod;
 
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.applications.Core;
-import org.transitclock.configData.HoldingConfig;
+import org.transitclock.config.data.HoldingConfig;
 import org.transitclock.core.VehicleState;
 import org.transitclock.core.dataCache.*;
 import org.transitclock.db.structs.ArrivalDeparture;

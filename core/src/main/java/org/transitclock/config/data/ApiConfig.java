@@ -1,4 +1,4 @@
-package org.transitclock.configData;
+package org.transitclock.config.data;
 
 import org.transitclock.config.BooleanConfigValue;
 import org.transitclock.config.IntegerConfigValue;

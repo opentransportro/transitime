@@ -6,7 +6,7 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.Semaphore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.transitclock.configData.AgencyConfig;
+import org.transitclock.config.data.AgencyConfig;
 
 /**
  * An Executor but limits how many tasks can be queued. If queue is full and attempt to execute an

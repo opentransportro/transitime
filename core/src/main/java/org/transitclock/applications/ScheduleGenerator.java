@@ -14,7 +14,7 @@
 //import org.slf4j.Logger;
 //import org.slf4j.LoggerFactory;
 //import org.transitclock.config.ConfigFileReader;
-//import org.transitclock.configData.AgencyConfig;
+//import org.transitclock.config.data.AgencyConfig;
 //import org.transitclock.gtfs.readers.GtfsAgencyReader;
 //import org.transitclock.statistics.ScheduleDataProcessor;
 //import org.transitclock.utils.Time;

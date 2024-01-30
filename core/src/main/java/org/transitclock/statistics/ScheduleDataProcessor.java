@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.transitclock.configData.DbSetupConfig;
+import org.transitclock.config.data.DbSetupConfig;
 import org.transitclock.db.structs.ArrivalDeparture;
 import org.transitclock.db.structs.ArrivalDeparture.ArrivalsOrDepartures;
 import org.transitclock.gtfs.model.GtfsExtendedStopTime;

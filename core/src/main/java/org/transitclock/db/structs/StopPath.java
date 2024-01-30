@@ -15,7 +15,7 @@ import org.hibernate.classic.Lifecycle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.applications.Core;
-import org.transitclock.configData.CoreConfig;
+import org.transitclock.config.data.CoreConfig;
 
 /**
  * A StopPath is a set of points that defines how a vehicle gets from one stop to another. The stops

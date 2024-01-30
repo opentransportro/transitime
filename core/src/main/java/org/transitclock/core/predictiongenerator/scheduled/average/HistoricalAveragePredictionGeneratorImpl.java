@@ -1,12 +1,10 @@
 /* (C)2023 */
 package org.transitclock.core.predictiongenerator.scheduled.average;
 
-import java.util.Date;
-
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.applications.Core;
-import org.transitclock.configData.CoreConfig;
-import org.transitclock.configData.PredictionConfig;
+import org.transitclock.config.data.CoreConfig;
+import org.transitclock.config.data.PredictionConfig;
 import org.transitclock.core.Indices;
 import org.transitclock.core.VehicleState;
 import org.transitclock.core.dataCache.HistoricalAverage;

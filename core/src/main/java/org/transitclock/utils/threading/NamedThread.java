@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.transitclock.configData.AgencyConfig;
+import org.transitclock.config.data.AgencyConfig;
 
 /**
  * Creates a Thread but sets the name of it and sets the UncaughtExceptionHandler so that uncaught

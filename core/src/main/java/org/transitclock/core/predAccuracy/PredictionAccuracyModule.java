@@ -8,7 +8,7 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.Module;
 import org.transitclock.applications.Core;
-import org.transitclock.configData.PredictionAccuracyConfig;
+import org.transitclock.config.data.PredictionAccuracyConfig;
 import org.transitclock.core.dataCache.PredictionDataCache;
 import org.transitclock.db.structs.ArrivalDeparture;
 import org.transitclock.db.structs.PredictionAccuracy;

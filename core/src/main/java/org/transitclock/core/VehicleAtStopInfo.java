@@ -1,8 +1,7 @@
 /* (C)2023 */
 package org.transitclock.core;
 
-import org.transitclock.applications.Core;
-import org.transitclock.configData.CoreConfig;
+import org.transitclock.config.data.CoreConfig;
 import org.transitclock.db.structs.Block;
 import org.transitclock.db.structs.Trip;
 import org.transitclock.utils.SystemTime;

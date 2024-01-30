@@ -5,10 +5,7 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.transitclock.config.DoubleConfigValue;
-import org.transitclock.configData.MonitoringConfig;
+import org.transitclock.config.data.MonitoringConfig;
 import org.transitclock.utils.StringUtils;
 import org.transitclock.utils.Time;
 

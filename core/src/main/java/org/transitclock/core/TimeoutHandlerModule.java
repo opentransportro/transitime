@@ -3,8 +3,8 @@ package org.transitclock.core;
 
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.Module;
-import org.transitclock.configData.AgencyConfig;
-import org.transitclock.configData.TimeoutConfig;
+import org.transitclock.config.data.AgencyConfig;
+import org.transitclock.config.data.TimeoutConfig;
 import org.transitclock.core.dataCache.VehicleStateManager;
 import org.transitclock.core.schedBasedPreds.SchedBasedPredsModule;
 import org.transitclock.db.structs.AvlReport;

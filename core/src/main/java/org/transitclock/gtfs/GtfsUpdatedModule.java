@@ -4,8 +4,8 @@ package org.transitclock.gtfs;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpStatus;
 import org.transitclock.Module;
-import org.transitclock.configData.AgencyConfig;
-import org.transitclock.configData.GtfsConfig;
+import org.transitclock.config.data.AgencyConfig;
+import org.transitclock.config.data.GtfsConfig;
 import org.transitclock.utils.HttpGetFile;
 import org.transitclock.utils.Time;
 

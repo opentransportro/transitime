@@ -2,8 +2,7 @@
 package org.transitclock.core.predAccuracy;
 
 import lombok.extern.slf4j.Slf4j;
-import org.transitclock.applications.Core;
-import org.transitclock.configData.PredictionAccuracyConfig;
+import org.transitclock.config.data.PredictionAccuracyConfig;
 import org.transitclock.utils.PlaybackIntervalTimer;
 import org.transitclock.utils.SystemTime;
 

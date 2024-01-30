@@ -1,7 +1,7 @@
 /* (C)2023 */
 package org.transitclock.core.predictiongenerator.scheduled.dwell;
 
-import org.transitclock.configData.PredictionConfig;
+import org.transitclock.config.data.PredictionConfig;
 import org.transitclock.core.predictiongenerator.scheduled.dwell.rls.TransitClockRLS;
 
 /**

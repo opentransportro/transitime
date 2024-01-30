@@ -2,7 +2,7 @@
 package org.transitclock.gtfs;
 
 import lombok.extern.slf4j.Slf4j;
-import org.transitclock.configData.FormattingConfig;
+import org.transitclock.config.data.FormattingConfig;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;

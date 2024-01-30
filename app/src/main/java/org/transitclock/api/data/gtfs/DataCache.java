@@ -4,9 +4,7 @@ package org.transitclock.api.data.gtfs;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.transit.realtime.GtfsRealtime.FeedMessage;
-import org.transitclock.config.IntegerConfigValue;
-import org.transitclock.configData.ApiConfig;
-import org.transitclock.utils.Time;
+import org.transitclock.config.data.ApiConfig;
 
 import java.util.concurrent.TimeUnit;
 

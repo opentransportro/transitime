@@ -4,9 +4,9 @@ package org.transitclock.core;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
 import org.transitclock.applications.Core;
-import org.transitclock.configData.AgencyConfig;
-import org.transitclock.configData.BlockAssignerConfig;
-import org.transitclock.configData.CoreConfig;
+import org.transitclock.config.data.AgencyConfig;
+import org.transitclock.config.data.BlockAssignerConfig;
+import org.transitclock.config.data.CoreConfig;
 import org.transitclock.core.SpatialMatcher.MatchingType;
 import org.transitclock.core.autoAssigner.AutoBlockAssigner;
 import org.transitclock.core.dataCache.PredictionDataCache;
@@ -19,7 +19,7 @@ import org.transitclock.utils.*;
 
 import java.util.*;
 
-import static org.transitclock.configData.CoreConfig.*;
+import static org.transitclock.config.data.CoreConfig.*;
 
 /**
  * This is a very important high-level class. It takes the AVL data and processes it. Matches
