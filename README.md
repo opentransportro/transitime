@@ -1,16 +1,16 @@
-# TransitTime :fire: :fire: :fire:
+# :fire::fire: TransitTime :fire::fire:
 
 The complete core Java software for the Transitime real-time transit information project. The goal is to use any type of real-time GPS data to generate useful public transportation information. The system is for both letting passengers know the status of their vehicles and helping agencies more effectively manage their systems. By providing a complete open-source system, agencies can have a cost effective system and have full ownership of it. 
 
 The software is currently being used in a production environment for MBTA Commuter Rail and for several smaller agencies.
 
-## Setup :hammer:
+## :hammer: Setup
 In order to build & run the application make sure you have the following requirements fulfilled:
 - [ ] you have maven installed
 - [ ] you have java 17 or later installed
 - [ ] you have docker installed
 
-### Building :wrench:
+### :wrench: Building
 The software is made up of multiple modules which can each be built with maven.
 The core functionality is in the [core](core) project. The REST api & webapp is in [app](app) folder.
 
@@ -19,13 +19,13 @@ The core functionality is in the [core](core) project. The REST api & webapp is 
 mvn clean install
 ```
 
-### Running
+### :runner: Running
 In order to run the application you need a postgres database available, or you could use docker to start an instance
 ```shell
 docker run --rm -e POSTGRES_PASSWORD=transitclock -e POSTGRES_DB=transitclock -p 5432:5432 postgres:15-alpine
 ```
 
-#### Configuration :open_file_folder:
+#### :blue_book: Configuration
 - **Properties file**
 
 After docker has started, and you have postgress running you need to fine tune the application properties
@@ -155,7 +155,7 @@ transitclock.web.mapTileUrl=http://tile.openstreetmap.org/{z}/{x}/{y}.png
 </hibernate-configuration>
 ```
 
-### Starting the application :bomb:
+### :bomb: Starting the application
 ```shell
 JAVA_OPTS="-Dtransitclock.configFiles=/location-to-properties-file/transitclock.properties -Dtransitclock.apikey=f78a2e9a"
 GTFS_TO_IMPORT="url to gtfs you want to import"
