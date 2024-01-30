@@ -416,7 +416,12 @@ public class PredictionGeneratorDefaultImpl extends PredictionGenerator implemen
             // prediction if it is in the past since those are not needed.
             // Can get predictions in the past for schedule based predictions.
             if (!lastStopOfNonSchedBasedTrip && predictionForStop.getPredictionTime() > now) {
-                logger.info("Generated {} based on {}.", predictionForStop, avlReport);
+                logger.info("Generated IpcPrediction [vehicle={}, route={}, stop={}, eta={}] based on {}.",
+                        predictionForStop.getVehicleId(),
+                        predictionForStop.getRouteShortName() != null ? predictionForStop.getRouteShortName() : predictionForStop.getRouteId(),
+                        predictionForStop.getStopId(),
+                        Time.dateTimeStr(predictionForStop.getPredictionTime()),
+                        avlReport);
 
                 if (indices.atEndOfTrip() || indices.atBeginningOfTrip()) {
                     // Deals with case where a vehicle transitions from one trip to another and the lastStop then becomes the firstSTop

@@ -3,10 +3,12 @@ package org.transitclock.core.avl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.config.StringConfigValue;
+import org.transitclock.config.data.GtfsConfig;
 import org.transitclock.domain.structs.AvlReport;
 import org.transitclock.gtfs.realtime.GtfsRtVehiclePositionsReader;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -18,11 +20,6 @@ import java.util.List;
  */
 @Slf4j
 public class GtfsRealtimeModule extends PollUrlAvlModule {
-    private static final StringConfigValue GTFS_REALTIME_URI = new StringConfigValue(
-            "transitclock.avl.gtfsRealtimeFeedURI",
-            null,
-            "The URI of the GTFS-realtime feed to use.");
-
     public GtfsRealtimeModule(String projectId) {
         super(projectId);
         // GTFS-realtime is already binary so don't want to get compressed
@@ -36,7 +33,7 @@ public class GtfsRealtimeModule extends PollUrlAvlModule {
      */
     @Override
     protected void getAndProcessData() {
-        String[] urls = GTFS_REALTIME_URI.getValue().split(",");
+        String[] urls = GtfsConfig.GTFS_REALTIME_URI.getValue().split(",");
 
         for (String urlStr : urls) {
             try {
@@ -52,6 +49,6 @@ public class GtfsRealtimeModule extends PollUrlAvlModule {
 
     @Override
     protected Collection<AvlReport> processData(InputStream inputStream) throws Exception {
-        return null; // we've overridden getAndProcessData so this need not do anything
+        return new ArrayList<>(); // we've overridden getAndProcessData so this need not do anything
     }
 }
