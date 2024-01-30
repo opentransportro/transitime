@@ -5,11 +5,8 @@ import java.rmi.RemoteException;
 import java.util.Date;
 
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.transitclock.ipc.data.IpcServerStatus;
 import org.transitclock.ipc.interfaces.ServerStatusInterface;
-import org.transitclock.ipc.rmi.AbstractServer;
 import org.transitclock.monitoring.AgencyMonitor;
 import org.transitclock.utils.SystemTime;
 
@@ -19,10 +16,10 @@ import org.transitclock.utils.SystemTime;
  * @author SkiBu Smith
  */
 @Slf4j
-public class ServerStatusServer extends AbstractServer implements ServerStatusInterface {
+public class ServerStatusServiceImpl implements ServerStatusInterface {
 
     // Should only be accessed as singleton class
-    private static ServerStatusServer singleton;
+    private static ServerStatusServiceImpl singleton;
 
     public static ServerStatusInterface instance() {
         return singleton;
@@ -32,31 +29,23 @@ public class ServerStatusServer extends AbstractServer implements ServerStatusIn
      * @param agencyId
      * @return
      */
-    public static ServerStatusServer start(String agencyId) {
+    public static ServerStatusServiceImpl start(String agencyId) {
         if (singleton == null) {
-            singleton = new ServerStatusServer(agencyId);
-        }
-
-        if (!singleton.getAgencyId().equals(agencyId)) {
-            logger.error(
-                    "Tried calling ServerStatusServer.start() for "
-                            + "agencyId={} but the singleton was created for projectId={}",
-                    agencyId,
-                    singleton.getAgencyId());
-            return null;
+            singleton = new ServerStatusServiceImpl(agencyId);
         }
 
         return singleton;
     }
 
+    private final String agencyId;
     /**
      * Constructor is private because singleton class
      *
      * @param projectId
      * @param objectName
      */
-    private ServerStatusServer(String projectId) {
-        super(projectId, ServerStatusInterface.class.getSimpleName());
+    private ServerStatusServiceImpl(String projectId) {
+        agencyId = projectId;
     }
 
     /* (non-Javadoc)
@@ -64,7 +53,7 @@ public class ServerStatusServer extends AbstractServer implements ServerStatusIn
      */
     @Override
     public IpcServerStatus get() throws RemoteException {
-        AgencyMonitor agencyMonitor = AgencyMonitor.getInstance(getAgencyId());
+        AgencyMonitor agencyMonitor = AgencyMonitor.getInstance(agencyId);
         return new IpcServerStatus(agencyMonitor.getMonitorResults());
     }
 
@@ -76,10 +65,9 @@ public class ServerStatusServer extends AbstractServer implements ServerStatusIn
         // Monitor everything having to do with an agency server. Send
         // out any notifications if necessary. Return any resulting
         // error message.
-        AgencyMonitor agencyMonitor = AgencyMonitor.getInstance(getAgencyId());
-        String resultStr = agencyMonitor.checkAll();
+        AgencyMonitor agencyMonitor = AgencyMonitor.getInstance(agencyId);
 
-        return resultStr;
+        return agencyMonitor.checkAll();
     }
 
     @Override

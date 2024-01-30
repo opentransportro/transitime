@@ -4,52 +4,39 @@ package org.transitclock.ipc.servers;
 import java.rmi.RemoteException;
 
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.transitclock.core.dataCache.HoldingTimeCache;
 import org.transitclock.core.dataCache.HoldingTimeCacheKey;
 import org.transitclock.core.dataCache.VehicleDataCache;
 import org.transitclock.db.structs.HoldingTime;
 import org.transitclock.ipc.data.IpcHoldingTime;
 import org.transitclock.ipc.interfaces.HoldingTimeInterface;
-import org.transitclock.ipc.rmi.AbstractServer;
 
 /**
  * @author Sean Og Crudden Server to allow stored travel time predictions to be queried. TODO May
  *     not be set to run by default as really only for analysis of predictions.
  */
 @Slf4j
-public class HoldingTimeServer extends AbstractServer implements HoldingTimeInterface {
+public class HoldingTimeServiceImpl implements HoldingTimeInterface {
     // Should only be accessed as singleton class
-    private static HoldingTimeServer singleton;
+    private static HoldingTimeServiceImpl singleton;
 
     public static HoldingTimeInterface instance() {
         return singleton;
     }
 
-    protected HoldingTimeServer(String agencyId) {
-        super(agencyId, HoldingTimeInterface.class.getSimpleName());
+    protected HoldingTimeServiceImpl() {
     }
 
     /**
      * Starts up the HoldingTimeServer so that RMI calls can be used to query holding times stored
      * in he cache. This will automatically cause the object to continue to run and serve requests.
      *
-     * @param agencyId
      * @return the singleton PredictionAnalysisServer object. Usually does not need to used since
      *     the server will be fully running.
      */
-    public static HoldingTimeServer start(String agencyId) {
+    public static HoldingTimeServiceImpl start() {
         if (singleton == null) {
-            singleton = new HoldingTimeServer(agencyId);
-        }
-        if (!singleton.getAgencyId().equals(agencyId)) {
-            logger.error(
-                    "Tried calling HoldingTimeServer.start() for "
-                            + "agencyId={} but the singleton was created for agencyId={}",
-                    agencyId,
-                    singleton.getAgencyId());
-            return null;
+            singleton = new HoldingTimeServiceImpl();
         }
         return singleton;
     }

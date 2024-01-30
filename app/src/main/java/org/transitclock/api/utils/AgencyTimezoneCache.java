@@ -4,7 +4,7 @@ package org.transitclock.api.utils;
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.db.structs.Agency;
 import org.transitclock.ipc.interfaces.ConfigInterface;
-import org.transitclock.ipc.servers.ConfigServer;
+import org.transitclock.ipc.servers.ConfigServiceImpl;
 
 import java.rmi.RemoteException;
 import java.util.HashMap;
@@ -35,7 +35,7 @@ public class AgencyTimezoneCache {
 
         // If timezone not already in cache then get it and cache it
         if (timezone == null) {
-            ConfigInterface inter = ConfigServer.instance();
+            ConfigInterface inter = ConfigServiceImpl.instance();
             List<Agency> agencies;
             try {
                 agencies = inter.getAgencies();

@@ -14,8 +14,8 @@ import org.transitclock.ipc.data.IpcPrediction;
 import org.transitclock.ipc.data.IpcPredictionsForRouteStopDest;
 import org.transitclock.ipc.data.IpcVehicleConfig;
 import org.transitclock.ipc.interfaces.VehiclesInterface;
-import org.transitclock.ipc.servers.PredictionsServer;
-import org.transitclock.ipc.servers.VehiclesServer;
+import org.transitclock.ipc.servers.PredictionsServiceImpl;
+import org.transitclock.ipc.servers.VehiclesServiceImpl;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.Time;
 
@@ -76,7 +76,7 @@ public class GtfsRtTripFeed {
         // Create the parent TripUpdate object that is returned.
         TripUpdate.Builder tripUpdate = TripUpdate.newBuilder();
 
-        VehiclesInterface vehiclesInterface = VehiclesServer.instance();
+        VehiclesInterface vehiclesInterface = VehiclesServiceImpl.instance();
 
         // Add the trip descriptor information
         IpcPrediction firstPred = predsForTrip.get(0);
@@ -281,7 +281,7 @@ public class GtfsRtTripFeed {
         // Get all the predictions, grouped by vehicle, from the server
         List<IpcPredictionsForRouteStopDest> allPredictionsByStop;
         try {
-            allPredictionsByStop = PredictionsServer.instance()
+            allPredictionsByStop = PredictionsServiceImpl.instance()
                             .getAllPredictions(PREDICTION_MAX_FUTURE_SECS);
         } catch (RemoteException e) {
             logger.error("Exception when getting vehicles from RMI", e);

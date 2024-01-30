@@ -140,7 +140,7 @@ public class StandardParameters {
      * @return The VehiclesInterface
      */
     public VehiclesInterface getVehiclesInterface() throws WebApplicationException {
-        VehiclesInterface vehiclesInterface = VehiclesServer.instance();
+        VehiclesInterface vehiclesInterface = VehiclesServiceImpl.instance();
         if (vehiclesInterface == null) throw WebUtils.badRequestException("Agency ID " + agencyId + " is not valid");
 
         return vehiclesInterface;
@@ -153,7 +153,7 @@ public class StandardParameters {
      * @return The CommandsInterface
      */
     public CommandsInterface getCommandsInterface() throws WebApplicationException {
-        CommandsInterface commandsInterface = CommandsServer.instance();
+        CommandsInterface commandsInterface = CommandsServiceImpl.instance();
         if (commandsInterface == null) throw WebUtils.badRequestException("Agency ID " + agencyId + " is not valid");
 
         return commandsInterface;
@@ -166,7 +166,7 @@ public class StandardParameters {
      * @return The VehiclesInterface
      */
     public PredictionsInterface getPredictionsInterface() throws WebApplicationException {
-        PredictionsInterface predictionsInterface = PredictionsServer.instance();
+        PredictionsInterface predictionsInterface = PredictionsServiceImpl.instance();
         if (predictionsInterface == null) throw WebUtils.badRequestException("Agency ID " + agencyId + " is not valid");
 
         return predictionsInterface;
@@ -179,7 +179,7 @@ public class StandardParameters {
      * @return The VehiclesInterface
      */
     public ConfigInterface getConfigInterface() throws WebApplicationException {
-        ConfigInterface configInterface = ConfigServer.instance();
+        ConfigInterface configInterface = ConfigServiceImpl.instance();
         if (configInterface == null) {
             throw WebUtils.badRequestException("Agency ID " + agencyId + " is not valid");
         }
@@ -194,7 +194,7 @@ public class StandardParameters {
      * @return The VehiclesInterface
      */
     public ServerStatusInterface getServerStatusInterface() throws WebApplicationException {
-        ServerStatusInterface serverStatusInterface = ServerStatusServer.instance();
+        ServerStatusInterface serverStatusInterface = ServerStatusServiceImpl.instance();
         if (serverStatusInterface == null)
             throw WebUtils.badRequestException("Agency ID " + agencyId + " is not valid");
 
@@ -208,7 +208,7 @@ public class StandardParameters {
      * @return The CacheQueryInterface
      */
     public CacheQueryInterface getCacheQueryInterface() throws WebApplicationException {
-        CacheQueryInterface cachequeryInterface = CacheQueryServer.instance();
+        CacheQueryInterface cachequeryInterface = CacheQueryServiceImpl.instance();
         if (cachequeryInterface == null) throw WebUtils.badRequestException("Agency ID " + agencyId + " is not valid");
 
         return cachequeryInterface;
@@ -221,7 +221,7 @@ public class StandardParameters {
      * @return The PredictionAnalysisInterface
      */
     public PredictionAnalysisInterface getPredictionAnalysisInterface() throws WebApplicationException {
-        PredictionAnalysisInterface predictionAnalysisInterface = PredictionAnalysisServer.instance();
+        PredictionAnalysisInterface predictionAnalysisInterface = PredictionAnalysisServiceImpl.instance();
         if (predictionAnalysisInterface == null)
             throw WebUtils.badRequestException("Agency ID " + agencyId + " is not valid");
 
@@ -235,7 +235,7 @@ public class StandardParameters {
      * @return The PredictionAnalysisInterface
      */
     public HoldingTimeInterface getHoldingTimeInterface() {
-        HoldingTimeInterface holdingTimeInterface = HoldingTimeServer.instance();
+        HoldingTimeInterface holdingTimeInterface = HoldingTimeServiceImpl.instance();
         if (holdingTimeInterface == null) throw WebUtils.badRequestException("Agency ID " + agencyId + " is not valid");
 
         return holdingTimeInterface;

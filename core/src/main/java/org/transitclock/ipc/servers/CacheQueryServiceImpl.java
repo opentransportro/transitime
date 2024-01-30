@@ -6,13 +6,10 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.transitclock.core.dataCache.ErrorCacheFactory;
 import org.transitclock.core.dataCache.HistoricalAverage;
 import org.transitclock.core.dataCache.HoldingTimeCache;
@@ -32,22 +29,20 @@ import org.transitclock.ipc.data.IpcHistoricalAverageCacheKey;
 import org.transitclock.ipc.data.IpcHoldingTimeCacheKey;
 import org.transitclock.ipc.data.IpcKalmanErrorCacheKey;
 import org.transitclock.ipc.interfaces.CacheQueryInterface;
-import org.transitclock.ipc.rmi.AbstractServer;
 
 /**
  * @author Sean Og Crudden Server to allow cache content to be queried.
  */
 @Slf4j
-public class CacheQueryServer extends AbstractServer implements CacheQueryInterface {
+public class CacheQueryServiceImpl implements CacheQueryInterface {
     // Should only be accessed as singleton class
-    private static CacheQueryServer singleton;
+    private static CacheQueryServiceImpl singleton;
 
     public static CacheQueryInterface instance() {
         return singleton;
     }
 
-    protected CacheQueryServer(String agencyId) {
-        super(agencyId, CacheQueryInterface.class.getSimpleName());
+    protected CacheQueryServiceImpl() {
     }
 
     /**
@@ -58,18 +53,9 @@ public class CacheQueryServer extends AbstractServer implements CacheQueryInterf
      * @return the singleton CacheQueryServer object. Usually does not need to used since the server
      *     will be fully running.
      */
-    public static CacheQueryServer start(String agencyId) {
+    public static CacheQueryServiceImpl start() {
         if (singleton == null) {
-            singleton = new CacheQueryServer(agencyId);
-        }
-
-        if (!singleton.getAgencyId().equals(agencyId)) {
-            logger.error(
-                    "Tried calling CacheQueryServer.start() for "
-                            + "agencyId={} but the singleton was created for agencyId={}",
-                    agencyId,
-                    singleton.getAgencyId());
-            return null;
+            singleton = new CacheQueryServiceImpl();
         }
 
         return singleton;

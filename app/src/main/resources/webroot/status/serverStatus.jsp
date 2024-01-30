@@ -3,6 +3,7 @@
 <%@page import="org.transitclock.ipc.interfaces.ServerStatusInterface" %>
 <%@page import="org.transitclock.monitoring.*" %>
 <%@page import="java.util.List" %>
+<%@ page import="org.transitclock.ipc.servers.ServerStatusServiceImpl" %>
 
 <%@ page language="java" contentType="text/html; charset=UTF-8"
          pageEncoding="UTF-8" %>
@@ -35,7 +36,7 @@
 
 <%
     ServerStatusInterface serverStatusInterface =
-            org.transitclock.ipc.servers.ServerStatusServer.instance();
+            ServerStatusServiceImpl.instance();
     try {
         List<MonitorResult> monitorResults = serverStatusInterface.get().getMonitorResults();
         for (MonitorResult monitorResult : monitorResults) {

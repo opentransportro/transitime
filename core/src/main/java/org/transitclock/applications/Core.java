@@ -25,7 +25,6 @@ import org.transitclock.db.structs.ActiveRevisions;
 import org.transitclock.db.structs.Agency;
 import org.transitclock.gtfs.DbConfig;
 import org.transitclock.ipc.servers.*;
-import org.transitclock.utils.SystemTime;
 import org.transitclock.utils.Time;
 import org.transitclock.utils.threading.NamedThreadFactory;
 
@@ -161,7 +160,7 @@ public class Core {
 
          // Start the RMI Servers so that clients can obtain data
          // on predictions, vehicles locations, etc.
-          startRmiServers(agencyId);
+          startServices(agencyId);
      }
 
     /**
@@ -242,15 +241,15 @@ public class Core {
      * Start the RMI Servers so that clients can obtain data on predictions, vehicles locations,
      * etc.
      */
-    public void startRmiServers(String agencyId) {
-        PredictionsServer.start(agencyId, PredictionDataCache.getInstance());
-        VehiclesServer.start(agencyId, VehicleDataCache.getInstance());
-        ConfigServer.start(agencyId);
-        ServerStatusServer.start(agencyId);
-        CommandsServer.start(agencyId);
-        CacheQueryServer.start(agencyId);
-        PredictionAnalysisServer.start(agencyId);
-        HoldingTimeServer.start(agencyId);
+    public void startServices(String agencyId) {
+        PredictionsServiceImpl.start(PredictionDataCache.getInstance());
+        VehiclesServiceImpl.start(VehicleDataCache.getInstance());
+        ConfigServiceImpl.start();
+        ServerStatusServiceImpl.start(agencyId);
+        CommandsServiceImpl.start();
+        CacheQueryServiceImpl.start();
+        PredictionAnalysisServiceImpl.start();
+        HoldingTimeServiceImpl.start();
     }
 
     public static void populateCaches() throws Exception {

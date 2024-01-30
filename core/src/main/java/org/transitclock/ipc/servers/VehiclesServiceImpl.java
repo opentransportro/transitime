@@ -4,15 +4,12 @@ package org.transitclock.ipc.servers;
 import com.querydsl.jpa.impl.JPAQuery;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.transitclock.core.BlocksInfo;
 import org.transitclock.core.dataCache.VehicleDataCache;
 import org.transitclock.db.hibernate.HibernateUtils;
 import org.transitclock.db.structs.*;
 import org.transitclock.ipc.data.*;
 import org.transitclock.ipc.interfaces.VehiclesInterface;
-import org.transitclock.ipc.rmi.AbstractServer;
 
 import java.io.Serializable;
 import java.rmi.RemoteException;
@@ -29,10 +26,10 @@ import java.util.List;
  * @author SkiBu Smith
  */
 @Slf4j
-public class VehiclesServer extends AbstractServer implements VehiclesInterface {
+public class VehiclesServiceImpl implements VehiclesInterface {
 
     // Should only be accessed as singleton class
-    private static VehiclesServer singleton;
+    private static VehiclesServiceImpl singleton;
 
     public static VehiclesInterface instance() {
         return singleton;
@@ -46,24 +43,15 @@ public class VehiclesServer extends AbstractServer implements VehiclesInterface 
      * Starts up the VehiclesServer so that RMI calls can query for predictions. This will
      * automatically cause the object to continue to run and serve requests.
      *
-     * @param agencyId
-     * @param predictionManager
+     * @param vehicleManager
      * @return the singleton PredictionsServer object
      */
-    public static VehiclesServer start(String agencyId, VehicleDataCache vehicleManager) {
+    public static VehiclesServiceImpl start(VehicleDataCache vehicleManager) {
         if (singleton == null) {
-            singleton = new VehiclesServer(agencyId);
+            singleton = new VehiclesServiceImpl();
             singleton.vehicleDataCache = vehicleManager;
         }
 
-        if (!singleton.getAgencyId().equals(agencyId)) {
-            logger.error(
-                    "Tried calling VehiclesServer.start() for "
-                            + "agencyId={} but the singleton was created for agencyId={}",
-                    agencyId,
-                    singleton.getAgencyId());
-            return null;
-        }
 
         return singleton;
     }
@@ -76,8 +64,7 @@ public class VehiclesServer extends AbstractServer implements VehiclesInterface 
      * @param projectId
      *            for registering this object with the rmiregistry
      */
-    private VehiclesServer(String projectId) {
-        super(projectId, VehiclesInterface.class.getSimpleName());
+    private VehiclesServiceImpl() {
     }
 
     /* (non-Javadoc)
@@ -177,9 +164,10 @@ public class VehiclesServer extends AbstractServer implements VehiclesInterface 
      */
     private Collection<IpcVehicle> getSerializableCollection(Collection<IpcVehicleComplete> vehicles) {
         // If vehicles is null then return empty array
-        if (vehicles == null) return new ArrayList<IpcVehicle>();
+        if (vehicles == null)
+            return new ArrayList<>();
 
-        return new ArrayList<IpcVehicle>(vehicles);
+        return new ArrayList<>(vehicles);
     }
 
     /**

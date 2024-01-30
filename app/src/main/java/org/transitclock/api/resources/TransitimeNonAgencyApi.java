@@ -18,8 +18,8 @@ import org.transitclock.db.webstructs.WebAgency;
 import org.transitclock.ipc.data.IpcPredictionsForRouteStopDest;
 import org.transitclock.ipc.interfaces.ConfigInterface;
 import org.transitclock.ipc.interfaces.PredictionsInterface;
-import org.transitclock.ipc.servers.ConfigServer;
-import org.transitclock.ipc.servers.PredictionsServer;
+import org.transitclock.ipc.servers.ConfigServiceImpl;
+import org.transitclock.ipc.servers.PredictionsServiceImpl;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;
@@ -66,7 +66,7 @@ public class TransitimeNonAgencyApi {
             Collection<WebAgency> webAgencies = WebAgency.getCachedOrderedListOfWebAgencies();
             for (WebAgency webAgency : webAgencies) {
                 String agencyId = webAgency.getAgencyId();
-                ConfigInterface inter = ConfigServer.instance();
+                ConfigInterface inter = ConfigServiceImpl.instance();
 
                 // If can't communicate with IPC with that agency then move on
                 // to the next one. This is important because some agencies
@@ -137,7 +137,7 @@ public class TransitimeNonAgencyApi {
             List<String> nearbyAgencies = PredsByLoc.getNearbyAgencies(lat, lon, maxDistance);
             for (String agencyId : nearbyAgencies) {
                 // Get predictions by location for the agency
-                PredictionsInterface predictionsInterface = PredictionsServer.instance();
+                PredictionsInterface predictionsInterface = PredictionsServiceImpl.instance();
                 List<IpcPredictionsForRouteStopDest> predictions =
                         predictionsInterface.get(new Location(lat, lon), maxDistance, numberPredictions);
 

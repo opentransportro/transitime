@@ -1,12 +1,6 @@
 /* (C)2023 */
 package org.transitclock.ipc.servers;
 
-import java.rmi.RemoteException;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.Collection;
-import java.util.Date;
-
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
 import org.transitclock.avl.AvlExecutor;
@@ -23,13 +17,18 @@ import org.transitclock.db.structs.VehicleToBlockConfig;
 import org.transitclock.ipc.data.IpcAvl;
 import org.transitclock.ipc.data.IpcVehicleComplete;
 import org.transitclock.ipc.interfaces.CommandsInterface;
-import org.transitclock.ipc.rmi.AbstractServer;
+
+import java.rmi.RemoteException;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Collection;
+import java.util.Date;
 
 @Slf4j
-public class CommandsServer extends AbstractServer implements CommandsInterface {
+public class CommandsServiceImpl implements CommandsInterface {
 
     // Should only be accessed as singleton class
-    private static CommandsServer singleton;
+    private static CommandsServiceImpl singleton;
 
     public static CommandsInterface instance() {
         return singleton;
@@ -40,22 +39,12 @@ public class CommandsServer extends AbstractServer implements CommandsInterface 
      * Starts up the CommandsServer so that RMI calls can be used to control the server. This will
      * automatically cause the object to continue to run and serve requests.
      *
-     * @param agencyId
      * @return the singleton CommandsServer object. Usually does not need to used since the server
      *     will be fully running.
      */
-    public static CommandsServer start(String agencyId) {
+    public static CommandsServiceImpl start() {
         if (singleton == null) {
-            singleton = new CommandsServer(agencyId);
-        }
-
-        if (!singleton.getAgencyId().equals(agencyId)) {
-            logger.error(
-                    "Tried calling CommandsServer.start() for "
-                            + "agencyId={} but the singleton was created for agencyId={}",
-                    agencyId,
-                    singleton.getAgencyId());
-            return null;
+            singleton = new CommandsServiceImpl();
         }
 
         return singleton;
@@ -67,8 +56,7 @@ public class CommandsServer extends AbstractServer implements CommandsInterface 
      *
      * @param agencyId for registering this object with the rmiregistry
      */
-    private CommandsServer(String agencyId) {
-        super(agencyId, CommandsInterface.class.getSimpleName());
+    private CommandsServiceImpl() {
     }
 
     /**

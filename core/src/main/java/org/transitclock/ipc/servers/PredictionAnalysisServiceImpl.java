@@ -7,14 +7,11 @@ import java.util.Date;
 import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.transitclock.core.dataCache.StopPathCacheKey;
 import org.transitclock.core.dataCache.StopPathPredictionCache;
 import org.transitclock.db.structs.PredictionForStopPath;
 import org.transitclock.ipc.data.IpcPredictionForStopPath;
 import org.transitclock.ipc.interfaces.PredictionAnalysisInterface;
-import org.transitclock.ipc.rmi.AbstractServer;
 
 /**
  * @author Sean Óg Crudden Server to allow stored travel time predictions to be queried. TODO May
@@ -22,16 +19,15 @@ import org.transitclock.ipc.rmi.AbstractServer;
  *     be changed to also work with frequency based services.
  */
 @Slf4j
-public class PredictionAnalysisServer extends AbstractServer implements PredictionAnalysisInterface {
+public class PredictionAnalysisServiceImpl implements PredictionAnalysisInterface {
     // Should only be accessed as singleton class
-    private static PredictionAnalysisServer singleton;
+    private static PredictionAnalysisServiceImpl singleton;
 
     public static PredictionAnalysisInterface instance() {
         return singleton;
     }
 
-    protected PredictionAnalysisServer(String agencyId) {
-        super(agencyId, PredictionAnalysisInterface.class.getSimpleName());
+    protected PredictionAnalysisServiceImpl() {
     }
 
     /**
@@ -39,21 +35,12 @@ public class PredictionAnalysisServer extends AbstractServer implements Predicti
      * prediction stored. This will automatically cause the object to continue to run and serve
      * requests.
      *
-     * @param agencyId
      * @return the singleton PredictionAnalysisServer object. Usually does not need to used since
      *     the server will be fully running.
      */
-    public static synchronized PredictionAnalysisServer start(String agencyId) {
+    public static synchronized PredictionAnalysisServiceImpl start() {
         if (singleton == null) {
-            singleton = new PredictionAnalysisServer(agencyId);
-        }
-        if (!singleton.getAgencyId().equals(agencyId)) {
-            logger.error(
-                    "Tried calling PredictionAnalysisInterface.start() for "
-                            + "agencyId={} but the singleton was created for agencyId={}",
-                    agencyId,
-                    singleton.getAgencyId());
-            return null;
+            singleton = new PredictionAnalysisServiceImpl();
         }
         return singleton;
     }

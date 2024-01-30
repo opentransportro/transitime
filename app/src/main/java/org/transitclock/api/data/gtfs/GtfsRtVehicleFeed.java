@@ -12,7 +12,7 @@ import org.transitclock.ipc.data.IpcAvl;
 import org.transitclock.ipc.data.IpcVehicleConfig;
 import org.transitclock.ipc.data.IpcVehicleGtfsRealtime;
 import org.transitclock.ipc.interfaces.VehiclesInterface;
-import org.transitclock.ipc.servers.VehiclesServer;
+import org.transitclock.ipc.servers.VehiclesServiceImpl;
 import org.transitclock.utils.Time;
 
 import java.rmi.RemoteException;
@@ -213,7 +213,7 @@ public class GtfsRtVehicleFeed {
      * @return Collection of Vehicle objects, or null if not available.
      */
     private Collection<IpcVehicleGtfsRealtime> getVehicles() {
-        VehiclesInterface vehiclesInterface = VehiclesServer.instance();
+        VehiclesInterface vehiclesInterface = VehiclesServiceImpl.instance();
         Collection<IpcVehicleGtfsRealtime> vehicles = null;
         try {
             vehicles = vehiclesInterface.getGtfsRealtime();

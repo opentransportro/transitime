@@ -14,7 +14,6 @@ import org.transitclock.gtfs.StopsByLocation;
 import org.transitclock.gtfs.StopsByLocation.StopInfo;
 import org.transitclock.ipc.data.IpcPredictionsForRouteStopDest;
 import org.transitclock.ipc.interfaces.PredictionsInterface;
-import org.transitclock.ipc.rmi.AbstractServer;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.SystemTime;
 import org.transitclock.utils.Time;
@@ -27,10 +26,10 @@ import org.transitclock.utils.Time;
  * @author SkiBu Smith
  */
 @Slf4j
-public class PredictionsServer extends AbstractServer implements PredictionsInterface {
+public class PredictionsServiceImpl implements PredictionsInterface {
 
     // Should only be accessed as singleton class
-    private static PredictionsServer singleton;
+    private static PredictionsServiceImpl singleton;
 
     public static PredictionsInterface instance() {
         return singleton;
@@ -44,24 +43,14 @@ public class PredictionsServer extends AbstractServer implements PredictionsInte
      * Starts up the PredictionsServer so that RMI calls can query for predictions. This will
      * automatically cause the object to continue to run and serve requests.
      *
-     * @param agencyId
      * @param predictionDataCache
      * @return the singleton PredictionsServer object. Usually does not need to used since the
      *     server will be fully running.
      */
-    public static PredictionsServer start(String agencyId, PredictionDataCache predictionDataCache) {
+    public static PredictionsServiceImpl start(PredictionDataCache predictionDataCache) {
         if (singleton == null) {
-            singleton = new PredictionsServer(agencyId);
+            singleton = new PredictionsServiceImpl();
             singleton.predictionDataCache = predictionDataCache;
-        }
-
-        if (!singleton.getAgencyId().equals(agencyId)) {
-            logger.error(
-                    "Tried calling PredictionsServer.start() for "
-                            + "agencyId={} but the singleton was created for agencyId={}",
-                    agencyId,
-                    singleton.getAgencyId());
-            return null;
         }
 
         return singleton;
@@ -75,8 +64,7 @@ public class PredictionsServer extends AbstractServer implements PredictionsInte
      * @param projectId
      *            for registering this object with the rmiregistry
      */
-    private PredictionsServer(String projectId) {
-        super(projectId, PredictionsInterface.class.getSimpleName());
+    private PredictionsServiceImpl() {
     }
 
     /* (non-Javadoc)

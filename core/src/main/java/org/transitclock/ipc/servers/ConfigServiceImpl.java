@@ -4,13 +4,10 @@ package org.transitclock.ipc.servers;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.transitclock.applications.Core;
 import org.transitclock.core.dataCache.VehicleDataCache;
 import org.transitclock.db.structs.Agency;
@@ -30,7 +27,6 @@ import org.transitclock.ipc.data.IpcSchedule;
 import org.transitclock.ipc.data.IpcTrip;
 import org.transitclock.ipc.data.IpcTripPattern;
 import org.transitclock.ipc.interfaces.ConfigInterface;
-import org.transitclock.ipc.rmi.AbstractServer;
 
 /**
  * Implements ConfigInterface to serve up configuration information to RMI clients.
@@ -38,10 +34,10 @@ import org.transitclock.ipc.rmi.AbstractServer;
  * @author SkiBu Smith
  */
 @Slf4j
-public class ConfigServer extends AbstractServer implements ConfigInterface {
+public class ConfigServiceImpl implements ConfigInterface {
 
     // Should only be accessed as singleton class
-    private static ConfigServer singleton;
+    private static ConfigServiceImpl singleton;
 
 
     public static ConfigInterface instance() {
@@ -52,22 +48,12 @@ public class ConfigServer extends AbstractServer implements ConfigInterface {
      * Starts up the ConfigServer so that RMI calls can query for configuration data. This will
      * automatically cause the object to continue to run and serve requests.
      *
-     * @param agencyId
      * @return the singleton ConfigServer object. Usually does not need to used since the server
      *     will be fully running.
      */
-    public static ConfigServer start(String agencyId) {
+    public static ConfigServiceImpl start() {
         if (singleton == null) {
-            singleton = new ConfigServer(agencyId);
-        }
-
-        if (!singleton.getAgencyId().equals(agencyId)) {
-            logger.error(
-                    "Tried calling ConfigServer.start() for "
-                            + "agencyId={} but the singleton was created for agencyId={}",
-                    agencyId,
-                    singleton.getAgencyId());
-            return null;
+            singleton = new ConfigServiceImpl();
         }
 
         return singleton;
@@ -77,10 +63,8 @@ public class ConfigServer extends AbstractServer implements ConfigInterface {
      * Constructor. Made private so that can only be instantiated by get(). Doesn't actually do
      * anything since all the work is done in the superclass constructor.
      *
-     * @param agencyId for registering this object with the rmiregistry
      */
-    private ConfigServer(String agencyId) {
-        super(agencyId, ConfigInterface.class.getSimpleName());
+    private ConfigServiceImpl() {
     }
 
     /**

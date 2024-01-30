@@ -12,7 +12,7 @@ import org.transitclock.configData.DbSetupConfig;
 import org.transitclock.db.hibernate.HibernateUtils;
 import org.transitclock.db.structs.Agency;
 import org.transitclock.ipc.interfaces.ConfigInterface;
-import org.transitclock.ipc.servers.ConfigServer;
+import org.transitclock.ipc.servers.ConfigServiceImpl;
 import org.transitclock.utils.Encryption;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.Time;
@@ -145,7 +145,7 @@ public class WebAgency {
     public Agency getAgency() {
         // If agency hasn't been accessed yet do so now...
         if (agency == null) {
-            ConfigInterface inter = ConfigServer.instance();
+            ConfigInterface inter = ConfigServiceImpl.instance();
 
             if (inter == null) {
                 logger.error(
