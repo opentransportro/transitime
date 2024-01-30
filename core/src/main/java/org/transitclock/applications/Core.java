@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.DateUtils;
 import org.hibernate.Session;
 import org.transitclock.Module;
-import org.transitclock.config.ConfigFileReader;
 import org.transitclock.config.data.AgencyConfig;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.core.ServiceUtils;
@@ -65,13 +64,6 @@ public class Core {
     @Getter
     private final Time time;
 
-    // Read in configuration files. This should be done statically before
-    // the logback LoggerFactory.getLogger() is called so that logback can
-    // also be configured using a transitime config file. The files are
-    // specified using the java system property -Dtransitclock.configFiles .
-    static {
-        ConfigFileReader.processConfig();
-    }
 
     /**
      * Construct the Core object and read in the config data. This is private so that the
@@ -174,23 +166,23 @@ public class Core {
      *
      * @return The Core singleton, or null if could not create it
      */
-    public static synchronized void createCore() {
-        String agencyId = AgencyConfig.getAgencyId();
-
+    public static synchronized Core createCore(String agencyId) {
         // If agencyId not set then can't create a Core. This can happen
         // when doing testing.
         if (agencyId == null) {
             logger.error("No agencyId specified for when creating Core.");
-            return;
+            return null;
         }
 
         // Make sure only can have a single Core object
         if (SINGLETON != null) {
             logger.error("Core singleton already created. Cannot create another one.");
-            return;
+            return SINGLETON;
         }
 
         SINGLETON = new Core(agencyId);
+
+        return SINGLETON;
     }
 
 
@@ -250,134 +242,6 @@ public class Core {
         CacheQueryServiceImpl.start();
         PredictionAnalysisServiceImpl.start();
         HoldingTimeServiceImpl.start();
-    }
-
-    public static void populateCaches() throws Exception {
-        Session session = HibernateUtils.getSession();
-
-        Date endDate = Calendar.getInstance().getTime();
-
-        if (!CoreConfig.cacheReloadStartTimeStr.getValue().isEmpty() && !CoreConfig.cacheReloadEndTimeStr.getValue().isEmpty()) {
-            if (TripDataHistoryCacheFactory.getInstance() != null) {
-                logger.debug(
-                        "Populating TripDataHistoryCache cache for period {} to {}",
-                        CoreConfig.cacheReloadStartTimeStr.getValue(),
-                        CoreConfig.cacheReloadEndTimeStr.getValue());
-                TripDataHistoryCacheFactory.getInstance()
-                        .populateCacheFromDb(
-                                session,
-                                new Date(Time.parse(CoreConfig.cacheReloadStartTimeStr.getValue()).getTime()),
-                                new Date(Time.parse(CoreConfig.cacheReloadEndTimeStr.getValue()).getTime())
-                        );
-            }
-
-            if (FrequencyBasedHistoricalAverageCache.getInstance() != null) {
-                logger.debug(
-                        "Populating FrequencyBasedHistoricalAverageCache cache for period {} to {}",
-                        CoreConfig.cacheReloadStartTimeStr.getValue(),
-                        CoreConfig.cacheReloadEndTimeStr.getValue());
-                FrequencyBasedHistoricalAverageCache.getInstance()
-                        .populateCacheFromDb(
-                                session,
-                                new Date(Time.parse(CoreConfig.cacheReloadStartTimeStr.getValue()).getTime()),
-                                new Date(Time.parse(CoreConfig.cacheReloadEndTimeStr.getValue()).getTime())
-                        );
-            }
-
-            if (StopArrivalDepartureCacheFactory.getInstance() != null) {
-                logger.debug(
-                        "Populating StopArrivalDepartureCache cache for period {} to {}",
-                        CoreConfig.cacheReloadStartTimeStr.getValue(),
-                        CoreConfig.cacheReloadEndTimeStr.getValue());
-                StopArrivalDepartureCacheFactory.getInstance()
-                        .populateCacheFromDb(
-                                session,
-                                new Date(Time.parse(CoreConfig.cacheReloadStartTimeStr.getValue()).getTime()),
-                                new Date(Time.parse(CoreConfig.cacheReloadEndTimeStr.getValue()).getTime())
-                        );
-            }
-            /*
-            if(ScheduleBasedHistoricalAverageCache.getInstance()!=null)
-            {
-            	logger.debug("Populating ScheduleBasedHistoricalAverageCache cache for period {} to {}",cacheReloadStartTimeStr.getValue(),cacheReloadEndTimeStr.getValue());
-            	ScheduleBasedHistoricalAverageCache.getInstance().populateCacheFromDb(session, new Date(Time.parse(cacheReloadStartTimeStr.getValue()).getTime()), new Date(Time.parse(cacheReloadEndTimeStr.getValue()).getTime()));
-            }
-            */
-        } else {
-            for (int i = 0; i < CoreConfig.getDaysPopulateHistoricalCache(); i++) {
-                Date startDate = DateUtils.addDays(endDate, -1);
-
-                if (TripDataHistoryCacheFactory.getInstance() != null) {
-                    logger.debug("Populating TripDataHistoryCache cache for period {} to {}", startDate, endDate);
-                    TripDataHistoryCacheFactory.getInstance().populateCacheFromDb(session, startDate, endDate);
-                }
-
-                if (FrequencyBasedHistoricalAverageCache.getInstance() != null) {
-                    logger.debug(
-                            "Populating FrequencyBasedHistoricalAverageCache cache for period {} to" + " {}",
-                            startDate,
-                            endDate);
-                    FrequencyBasedHistoricalAverageCache.getInstance().populateCacheFromDb(session, startDate, endDate);
-                }
-
-                endDate = startDate;
-            }
-
-            endDate = Calendar.getInstance().getTime();
-
-            /* populate one day at a time to avoid memory issue */
-            for (int i = 0; i < CoreConfig.getDaysPopulateHistoricalCache(); i++) {
-                Date startDate = DateUtils.addDays(endDate, -1);
-                if (StopArrivalDepartureCacheFactory.getInstance() != null) {
-                    logger.debug("Populating StopArrivalDepartureCache cache for period {} to {}", startDate, endDate);
-                    StopArrivalDepartureCacheFactory.getInstance().populateCacheFromDb(session, startDate, endDate);
-                }
-
-                endDate = startDate;
-            }
-            endDate = Calendar.getInstance().getTime();
-
-            for (int i = 0; i < CoreConfig.getDaysPopulateHistoricalCache(); i++) {
-                Date startDate = DateUtils.addDays(endDate, -1);
-
-                if (ScheduleBasedHistoricalAverageCache.getInstance() != null) {
-                    logger.debug(
-                            "Populating ScheduleBasedHistoricalAverageCache cache for period {} to" + " {}",
-                            startDate,
-                            endDate);
-                    ScheduleBasedHistoricalAverageCache.getInstance().populateCacheFromDb(session, startDate, endDate);
-                }
-
-                endDate = startDate;
-            }
-        }
-    }
-
-    public static void main(String[] args) {
-        try {
-            try {
-                populateCaches();
-            } catch (Exception e) {
-                logger.error("Failed to populate cache.", e);
-            }
-
-            // Close cache if shutting down.
-            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-                try {
-                    logger.info("Closing cache.");
-                    CacheManagerFactory.getInstance().close();
-                    logger.info("Cache closed.");
-                } catch (Exception e) {
-                    logger.error("Cache close failed...", e);
-                }
-            }));
-
-            // Initialize the core now
-            createCore();
-
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-        }
     }
 
     @NonNull

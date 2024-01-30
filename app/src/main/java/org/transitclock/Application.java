@@ -2,6 +2,7 @@ package org.transitclock;
 
 import jakarta.servlet.DispatcherType;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.time.DateUtils;
 import org.apache.tomcat.InstanceManager;
 import org.apache.tomcat.SimpleInstanceManager;
 import org.eclipse.jetty.ee10.jsp.JettyJspServlet;
@@ -12,6 +13,7 @@ import org.eclipse.jetty.ee10.servlet.ServletHolder;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.glassfish.jersey.servlet.ServletContainer;
+import org.hibernate.Session;
 import org.transitclock.api.EmbeddedJspStarter;
 import org.transitclock.api.utils.ApiLoggingFilter;
 import org.transitclock.api.utils.WebLoggingFilter;
@@ -19,10 +21,17 @@ import org.transitclock.api.utils.XSSFilter;
 import org.transitclock.applications.Core;
 import org.transitclock.applications.GtfsFileProcessor;
 import org.transitclock.config.data.AgencyConfig;
+import org.transitclock.config.data.CoreConfig;
 import org.transitclock.config.data.DbSetupConfig;
+import org.transitclock.core.dataCache.StopArrivalDepartureCacheFactory;
+import org.transitclock.core.dataCache.TripDataHistoryCacheFactory;
 import org.transitclock.core.dataCache.ehcache.CacheManagerFactory;
+import org.transitclock.core.dataCache.frequency.FrequencyBasedHistoricalAverageCache;
+import org.transitclock.core.dataCache.scheduled.ScheduleBasedHistoricalAverageCache;
 import org.transitclock.domain.ApiKeyManager;
+import org.transitclock.domain.hibernate.HibernateUtils;
 import org.transitclock.domain.webstructs.WebAgency;
+import org.transitclock.utils.Time;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -31,6 +40,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.EnumSet;
 
 @Slf4j
@@ -55,9 +66,10 @@ public class Application {
     }
 
     public void run() {
+        String agencyId = AgencyConfig.getAgencyId();
         try {
             try {
-                Core.populateCaches();
+                populateCaches();
             } catch (Exception e) {
                 logger.error("Failed to populate cache.", e);
             }
@@ -74,12 +86,12 @@ public class Application {
             }));
 
             // Initialize the core now
-            Core.createCore();
+            Core core = Core.createCore(agencyId);
 
-            createWebserver();
-            server.start();
+            var serverInstance = createWebserver();
+            serverInstance.start();
             logger.info("Go to http://localhost:" + cli.port + " in your browser");
-            server.join();
+            serverInstance.join();
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
@@ -107,6 +119,109 @@ public class Application {
 
         // Store the WebAgency
         webAgency.store("web");
+    }
+
+
+
+    private void populateCaches() throws Exception {
+        Session session = HibernateUtils.getSession();
+
+        Date endDate = Calendar.getInstance().getTime();
+
+        if (!CoreConfig.cacheReloadStartTimeStr.getValue().isEmpty() && !CoreConfig.cacheReloadEndTimeStr.getValue().isEmpty()) {
+            if (TripDataHistoryCacheFactory.getInstance() != null) {
+                logger.debug(
+                        "Populating TripDataHistoryCache cache for period {} to {}",
+                        CoreConfig.cacheReloadStartTimeStr.getValue(),
+                        CoreConfig.cacheReloadEndTimeStr.getValue());
+                TripDataHistoryCacheFactory.getInstance()
+                        .populateCacheFromDb(
+                                session,
+                                new Date(Time.parse(CoreConfig.cacheReloadStartTimeStr.getValue()).getTime()),
+                                new Date(Time.parse(CoreConfig.cacheReloadEndTimeStr.getValue()).getTime())
+                        );
+            }
+
+            if (FrequencyBasedHistoricalAverageCache.getInstance() != null) {
+                logger.debug(
+                        "Populating FrequencyBasedHistoricalAverageCache cache for period {} to {}",
+                        CoreConfig.cacheReloadStartTimeStr.getValue(),
+                        CoreConfig.cacheReloadEndTimeStr.getValue());
+                FrequencyBasedHistoricalAverageCache.getInstance()
+                        .populateCacheFromDb(
+                                session,
+                                new Date(Time.parse(CoreConfig.cacheReloadStartTimeStr.getValue()).getTime()),
+                                new Date(Time.parse(CoreConfig.cacheReloadEndTimeStr.getValue()).getTime())
+                        );
+            }
+
+            if (StopArrivalDepartureCacheFactory.getInstance() != null) {
+                logger.debug(
+                        "Populating StopArrivalDepartureCache cache for period {} to {}",
+                        CoreConfig.cacheReloadStartTimeStr.getValue(),
+                        CoreConfig.cacheReloadEndTimeStr.getValue());
+                StopArrivalDepartureCacheFactory.getInstance()
+                        .populateCacheFromDb(
+                                session,
+                                new Date(Time.parse(CoreConfig.cacheReloadStartTimeStr.getValue()).getTime()),
+                                new Date(Time.parse(CoreConfig.cacheReloadEndTimeStr.getValue()).getTime())
+                        );
+            }
+            /*
+            if(ScheduleBasedHistoricalAverageCache.getInstance()!=null)
+            {
+            	logger.debug("Populating ScheduleBasedHistoricalAverageCache cache for period {} to {}",cacheReloadStartTimeStr.getValue(),cacheReloadEndTimeStr.getValue());
+            	ScheduleBasedHistoricalAverageCache.getInstance().populateCacheFromDb(session, new Date(Time.parse(cacheReloadStartTimeStr.getValue()).getTime()), new Date(Time.parse(cacheReloadEndTimeStr.getValue()).getTime()));
+            }
+            */
+        } else {
+            for (int i = 0; i < CoreConfig.getDaysPopulateHistoricalCache(); i++) {
+                Date startDate = DateUtils.addDays(endDate, -1);
+
+                if (TripDataHistoryCacheFactory.getInstance() != null) {
+                    logger.debug("Populating TripDataHistoryCache cache for period {} to {}", startDate, endDate);
+                    TripDataHistoryCacheFactory.getInstance().populateCacheFromDb(session, startDate, endDate);
+                }
+
+                if (FrequencyBasedHistoricalAverageCache.getInstance() != null) {
+                    logger.debug(
+                            "Populating FrequencyBasedHistoricalAverageCache cache for period {} to" + " {}",
+                            startDate,
+                            endDate);
+                    FrequencyBasedHistoricalAverageCache.getInstance().populateCacheFromDb(session, startDate, endDate);
+                }
+
+                endDate = startDate;
+            }
+
+            endDate = Calendar.getInstance().getTime();
+
+            /* populate one day at a time to avoid memory issue */
+            for (int i = 0; i < CoreConfig.getDaysPopulateHistoricalCache(); i++) {
+                Date startDate = DateUtils.addDays(endDate, -1);
+                if (StopArrivalDepartureCacheFactory.getInstance() != null) {
+                    logger.debug("Populating StopArrivalDepartureCache cache for period {} to {}", startDate, endDate);
+                    StopArrivalDepartureCacheFactory.getInstance().populateCacheFromDb(session, startDate, endDate);
+                }
+
+                endDate = startDate;
+            }
+            endDate = Calendar.getInstance().getTime();
+
+            for (int i = 0; i < CoreConfig.getDaysPopulateHistoricalCache(); i++) {
+                Date startDate = DateUtils.addDays(endDate, -1);
+
+                if (ScheduleBasedHistoricalAverageCache.getInstance() != null) {
+                    logger.debug(
+                            "Populating ScheduleBasedHistoricalAverageCache cache for period {} to" + " {}",
+                            startDate,
+                            endDate);
+                    ScheduleBasedHistoricalAverageCache.getInstance().populateCacheFromDb(session, startDate, endDate);
+                }
+
+                endDate = startDate;
+            }
+        }
     }
 
     /**
@@ -155,8 +270,7 @@ public class Application {
         servletContextHandler.setAttribute(InstanceManager.class.getName(), new SimpleInstanceManager());
     }
 
-    public void createWebserver() throws IOException, URISyntaxException {
-
+    public Server createWebserver() throws IOException, URISyntaxException {
         // Define ServerConnector
         ServerConnector connector = new ServerConnector(server);
         connector.setPort(cli.port);
@@ -193,6 +307,8 @@ public class Application {
         servletContextHandler.addServlet(apiServlet, "/api/v1/*");
 
         server.setHandler(servletContextHandler);
+
+        return server;
     }
 
     private URI getWebRootResourceUri() throws FileNotFoundException, URISyntaxException {
