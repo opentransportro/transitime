@@ -19,11 +19,11 @@ import org.transitclock.api.data.siri.SiriStopMonitoring;
 import org.transitclock.api.data.siri.SiriVehiclesMonitoring;
 import org.transitclock.api.utils.StandardParameters;
 import org.transitclock.api.utils.WebUtils;
-import org.transitclock.ipc.data.IpcPrediction;
-import org.transitclock.ipc.data.IpcPredictionsForRouteStopDest;
-import org.transitclock.ipc.data.IpcVehicleComplete;
-import org.transitclock.ipc.interfaces.PredictionsInterface;
-import org.transitclock.ipc.interfaces.VehiclesInterface;
+import org.transitclock.service.dto.IpcPrediction;
+import org.transitclock.service.dto.IpcPredictionsForRouteStopDest;
+import org.transitclock.service.dto.IpcVehicleComplete;
+import org.transitclock.service.contract.PredictionsInterface;
+import org.transitclock.service.contract.VehiclesInterface;
 
 /**
  * The Siri API

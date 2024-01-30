@@ -6,7 +6,7 @@ import java.util.List;
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import org.transitclock.ipc.data.IpcServerStatus;
+import org.transitclock.service.dto.IpcServerStatus;
 import org.transitclock.monitoring.MonitorResult;
 
 /**

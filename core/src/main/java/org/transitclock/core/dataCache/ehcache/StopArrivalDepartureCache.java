@@ -6,16 +6,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.ehcache.Cache;
 import org.ehcache.CacheManager;
 import org.hibernate.Session;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.transitclock.config.IntegerConfigValue;
 import org.transitclock.core.dataCache.*;
 import org.transitclock.db.structs.ArrivalDeparture;
 import org.transitclock.db.structs.QArrivalDeparture;
-import org.transitclock.ipc.data.IpcArrivalDeparture;
-import org.transitclock.utils.Time;
+import org.transitclock.service.dto.IpcArrivalDeparture;
 
-import java.net.URL;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;

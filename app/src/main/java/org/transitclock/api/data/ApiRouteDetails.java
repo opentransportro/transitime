@@ -7,10 +7,10 @@ import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import org.transitclock.db.structs.Location;
-import org.transitclock.ipc.data.IpcDirection;
-import org.transitclock.ipc.data.IpcDirectionsForRoute;
-import org.transitclock.ipc.data.IpcRoute;
-import org.transitclock.ipc.data.IpcShape;
+import org.transitclock.service.dto.IpcDirection;
+import org.transitclock.service.dto.IpcDirectionsForRoute;
+import org.transitclock.service.dto.IpcRoute;
+import org.transitclock.service.dto.IpcShape;
 
 /**
  * Provides detailed information for a route include stops and shape info.

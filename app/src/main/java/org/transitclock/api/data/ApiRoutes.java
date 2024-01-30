@@ -7,8 +7,8 @@ import java.util.List;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import org.transitclock.db.structs.Agency;
-import org.transitclock.ipc.data.IpcRoute;
-import org.transitclock.ipc.data.IpcRouteSummary;
+import org.transitclock.service.dto.IpcRoute;
+import org.transitclock.service.dto.IpcRouteSummary;
 
 /**
  * An ordered list of routes.

@@ -5,12 +5,9 @@ import java.io.Serializable;
 import java.util.Date;
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
 import org.hibernate.annotations.DynamicUpdate;
 import org.transitclock.applications.Core;
-import org.transitclock.ipc.data.IpcPrediction;
+import org.transitclock.service.dto.IpcPrediction;
 
 /**
  * For persisting a prediction.

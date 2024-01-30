@@ -10,12 +10,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.transitclock.api.utils.AgencyTimezoneCache;
 import org.transitclock.configData.ApiConfig;
 import org.transitclock.core.holdingmethod.PredictionTimeComparator;
-import org.transitclock.ipc.data.IpcPrediction;
-import org.transitclock.ipc.data.IpcPredictionsForRouteStopDest;
-import org.transitclock.ipc.data.IpcVehicleConfig;
-import org.transitclock.ipc.interfaces.VehiclesInterface;
-import org.transitclock.ipc.servers.PredictionsServiceImpl;
-import org.transitclock.ipc.servers.VehiclesServiceImpl;
+import org.transitclock.service.dto.IpcPrediction;
+import org.transitclock.service.dto.IpcPredictionsForRouteStopDest;
+import org.transitclock.service.dto.IpcVehicleConfig;
+import org.transitclock.service.contract.VehiclesInterface;
+import org.transitclock.service.PredictionsServiceImpl;
+import org.transitclock.service.VehiclesServiceImpl;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.Time;
 

@@ -11,8 +11,8 @@ import org.transitclock.core.predictiongenerator.PredictionComponentElementsGene
 import org.transitclock.core.predictiongenerator.bias.BiasAdjuster;
 import org.transitclock.core.predictiongenerator.bias.BiasAdjusterFactory;
 import org.transitclock.db.structs.*;
-import org.transitclock.ipc.data.IpcPrediction;
-import org.transitclock.ipc.data.IpcPrediction.ArrivalOrDeparture;
+import org.transitclock.service.dto.IpcPrediction;
+import org.transitclock.service.dto.IpcPrediction.ArrivalOrDeparture;
 import org.transitclock.utils.Geo;
 import org.transitclock.utils.SystemTime;
 import org.transitclock.utils.Time;

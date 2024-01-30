@@ -6,7 +6,7 @@ import java.util.List;
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
 import org.transitclock.db.structs.Location;
-import org.transitclock.ipc.data.IpcStopPath;
+import org.transitclock.service.dto.IpcStopPath;
 import org.transitclock.utils.MathUtils;
 
 /**

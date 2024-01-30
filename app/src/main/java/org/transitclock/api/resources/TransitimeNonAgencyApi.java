@@ -15,11 +15,11 @@ import org.transitclock.api.utils.WebUtils;
 import org.transitclock.db.structs.Agency;
 import org.transitclock.db.structs.Location;
 import org.transitclock.db.webstructs.WebAgency;
-import org.transitclock.ipc.data.IpcPredictionsForRouteStopDest;
-import org.transitclock.ipc.interfaces.ConfigInterface;
-import org.transitclock.ipc.interfaces.PredictionsInterface;
-import org.transitclock.ipc.servers.ConfigServiceImpl;
-import org.transitclock.ipc.servers.PredictionsServiceImpl;
+import org.transitclock.service.dto.IpcPredictionsForRouteStopDest;
+import org.transitclock.service.contract.ConfigInterface;
+import org.transitclock.service.contract.PredictionsInterface;
+import org.transitclock.service.ConfigServiceImpl;
+import org.transitclock.service.PredictionsServiceImpl;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;

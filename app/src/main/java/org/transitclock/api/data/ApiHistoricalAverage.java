@@ -3,7 +3,7 @@ package org.transitclock.api.data;
 
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import org.transitclock.ipc.data.IpcHistoricalAverage;
+import org.transitclock.service.dto.IpcHistoricalAverage;
 
 /**
  * Describes an historical average

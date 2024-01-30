@@ -2,7 +2,7 @@
 package org.transitclock.api.data;
 
 import jakarta.xml.bind.annotation.XmlAttribute;
-import org.transitclock.ipc.data.IpcCalendar;
+import org.transitclock.service.dto.IpcCalendar;
 
 /**
  * A GTFS calendar

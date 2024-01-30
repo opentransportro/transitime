@@ -3,8 +3,8 @@ package org.transitclock.api.utils;
 
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.db.structs.Agency;
-import org.transitclock.ipc.interfaces.ConfigInterface;
-import org.transitclock.ipc.servers.ConfigServiceImpl;
+import org.transitclock.service.contract.ConfigInterface;
+import org.transitclock.service.ConfigServiceImpl;
 
 import java.rmi.RemoteException;
 import java.util.HashMap;

@@ -1,7 +1,7 @@
 /* (C)2023 */
 package org.transitclock.core.predictiongenerator.datafilter;
 
-import org.transitclock.ipc.data.IpcArrivalDeparture;
+import org.transitclock.service.dto.IpcArrivalDeparture;
 
 /**
  * @author scrudden Interface to implement to filter out unwanted travel time data.

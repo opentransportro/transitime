@@ -6,7 +6,7 @@ import java.util.List;
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import org.transitclock.ipc.data.IpcPredictionsForRouteStopDest;
+import org.transitclock.service.dto.IpcPredictionsForRouteStopDest;
 
 /**
  * Contains predictions for multiple routes/stops. Can also contain info for the agency.

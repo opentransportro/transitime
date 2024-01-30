@@ -6,7 +6,7 @@ import java.util.Collection;
 import java.util.List;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import org.transitclock.ipc.data.IpcHistoricalAverageCacheKey;
+import org.transitclock.service.dto.IpcHistoricalAverageCacheKey;
 
 /**
  * @author Sean Og Crudden

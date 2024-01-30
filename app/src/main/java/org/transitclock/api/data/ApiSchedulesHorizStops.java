@@ -6,7 +6,7 @@ import java.util.List;
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import org.transitclock.ipc.data.IpcSchedule;
+import org.transitclock.service.dto.IpcSchedule;
 
 @XmlRootElement(name = "schedules")
 public class ApiSchedulesHorizStops {

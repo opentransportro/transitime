@@ -4,7 +4,7 @@ package org.transitclock.api.data;
 import java.util.Date;
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlTransient;
-import org.transitclock.ipc.data.IpcVehicleToBlockConfig;
+import org.transitclock.service.dto.IpcVehicleToBlockConfig;
 
 /**
  * This class exists so that can have multiple subclasses that inherent from each other while still

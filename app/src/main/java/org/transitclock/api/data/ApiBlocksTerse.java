@@ -6,7 +6,7 @@ import java.util.Collection;
 import java.util.List;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import org.transitclock.ipc.data.IpcBlock;
+import org.transitclock.service.dto.IpcBlock;
 
 /**
  * A list of terse blocks, without trip pattern or schedule info

@@ -3,7 +3,7 @@ package org.transitclock.api.data;
 
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlType;
-import org.transitclock.ipc.data.IpcStop;
+import org.transitclock.service.dto.IpcStop;
 
 /**
  * Full description of a stop.

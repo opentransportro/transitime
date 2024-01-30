@@ -2,7 +2,7 @@
 package org.transitclock.api.data;
 
 import jakarta.xml.bind.annotation.XmlAttribute;
-import org.transitclock.ipc.data.IpcRouteSummary;
+import org.transitclock.service.dto.IpcRouteSummary;
 
 /**
  * A short description of a route. For when outputting list of routes for agency.

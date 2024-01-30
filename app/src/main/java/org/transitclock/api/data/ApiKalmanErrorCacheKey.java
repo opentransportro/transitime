@@ -3,7 +3,7 @@ package org.transitclock.api.data;
 
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import org.transitclock.ipc.data.IpcKalmanErrorCacheKey;
+import org.transitclock.service.dto.IpcKalmanErrorCacheKey;
 
 /**
  * Describes an kalman error key which is used to refer to data elements in the kalman error cache

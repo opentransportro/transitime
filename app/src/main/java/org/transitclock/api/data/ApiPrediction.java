@@ -3,7 +3,7 @@ package org.transitclock.api.data;
 
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import org.transitclock.ipc.data.IpcPrediction;
+import org.transitclock.service.dto.IpcPrediction;
 import org.transitclock.utils.Time;
 
 /**

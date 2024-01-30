@@ -2,7 +2,7 @@
 package org.transitclock.api.data;
 
 import jakarta.xml.bind.annotation.XmlAttribute;
-import org.transitclock.ipc.data.IpcSchedTrip;
+import org.transitclock.service.dto.IpcSchedTrip;
 
 /**
  * Represents a single trip for an ApiSchedule

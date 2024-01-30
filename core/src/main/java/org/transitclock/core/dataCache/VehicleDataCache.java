@@ -21,7 +21,7 @@ import org.transitclock.db.hibernate.HibernateUtils;
 import org.transitclock.db.structs.AvlReport;
 import org.transitclock.db.structs.Route;
 import org.transitclock.db.structs.VehicleConfig;
-import org.transitclock.ipc.data.IpcVehicleComplete;
+import org.transitclock.service.dto.IpcVehicleComplete;
 import org.transitclock.utils.ConcurrentHashMapNullKeyOk;
 import org.transitclock.utils.SystemTime;
 import org.transitclock.utils.Time;

@@ -6,7 +6,7 @@ import java.util.Collection;
 import java.util.List;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import org.transitclock.ipc.data.IpcKalmanErrorCacheKey;
+import org.transitclock.service.dto.IpcKalmanErrorCacheKey;
 
 /**
  * @author Sean Og Crudden

@@ -6,8 +6,8 @@ import java.util.Collection;
 import java.util.List;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import org.transitclock.ipc.data.IpcDirection;
-import org.transitclock.ipc.data.IpcDirectionsForRoute;
+import org.transitclock.service.dto.IpcDirection;
+import org.transitclock.service.dto.IpcDirectionsForRoute;
 
 /**
  * A list of directions.

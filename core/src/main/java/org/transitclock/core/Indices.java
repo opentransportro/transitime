@@ -12,7 +12,7 @@ import org.transitclock.db.structs.Trip;
 import org.transitclock.db.structs.TripPattern;
 import org.transitclock.db.structs.VectorWithHeading;
 import org.transitclock.gtfs.DbConfig;
-import org.transitclock.ipc.data.IpcArrivalDeparture;
+import org.transitclock.service.dto.IpcArrivalDeparture;
 import org.transitclock.utils.SystemTime;
 
 /**

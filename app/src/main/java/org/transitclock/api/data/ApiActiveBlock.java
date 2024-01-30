@@ -8,9 +8,9 @@ import java.util.List;
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
 import org.transitclock.db.webstructs.WebAgency;
-import org.transitclock.ipc.data.IpcActiveBlock;
-import org.transitclock.ipc.data.IpcTrip;
-import org.transitclock.ipc.data.IpcVehicle;
+import org.transitclock.service.dto.IpcActiveBlock;
+import org.transitclock.service.dto.IpcTrip;
+import org.transitclock.service.dto.IpcVehicle;
 import org.transitclock.utils.Time;
 
 /**

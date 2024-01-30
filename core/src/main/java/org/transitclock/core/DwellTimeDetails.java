@@ -4,12 +4,8 @@ package org.transitclock.core;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.transitclock.config.IntegerConfigValue;
 import org.transitclock.configData.CoreConfig;
-import org.transitclock.ipc.data.IpcArrivalDeparture;
-import org.transitclock.utils.Time;
+import org.transitclock.service.dto.IpcArrivalDeparture;
 
 @Slf4j
 @Getter

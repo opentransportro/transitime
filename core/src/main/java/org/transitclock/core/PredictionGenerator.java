@@ -11,8 +11,8 @@ import org.transitclock.db.structs.ArrivalDeparture;
 import org.transitclock.db.structs.Block;
 import org.transitclock.db.structs.PredictionEvent;
 import org.transitclock.gtfs.DbConfig;
-import org.transitclock.ipc.data.IpcArrivalDeparture;
-import org.transitclock.ipc.data.IpcPrediction;
+import org.transitclock.service.dto.IpcArrivalDeparture;
+import org.transitclock.service.dto.IpcPrediction;
 
 import java.util.*;
 

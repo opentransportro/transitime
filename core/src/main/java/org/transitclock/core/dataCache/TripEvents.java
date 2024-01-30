@@ -5,7 +5,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.transitclock.ipc.data.IpcArrivalDeparture;
+import org.transitclock.service.dto.IpcArrivalDeparture;
 
 public class TripEvents implements Serializable {
     /** */

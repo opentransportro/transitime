@@ -5,7 +5,7 @@ import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlTransient;
 import org.transitclock.api.resources.TransitimeApi.UiMode;
-import org.transitclock.ipc.data.IpcVehicle;
+import org.transitclock.service.dto.IpcVehicle;
 
 /**
  * This class exists so that can have multiple subclasses that inherent from each other while still

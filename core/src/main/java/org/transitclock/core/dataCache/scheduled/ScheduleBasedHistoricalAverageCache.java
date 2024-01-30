@@ -17,7 +17,7 @@ import org.transitclock.db.structs.ArrivalDeparture;
 import org.transitclock.db.structs.QArrivalDeparture;
 import org.transitclock.db.structs.Trip;
 import org.transitclock.gtfs.DbConfig;
-import org.transitclock.ipc.data.IpcArrivalDeparture;
+import org.transitclock.service.dto.IpcArrivalDeparture;
 
 import java.net.URL;
 import java.util.Calendar;

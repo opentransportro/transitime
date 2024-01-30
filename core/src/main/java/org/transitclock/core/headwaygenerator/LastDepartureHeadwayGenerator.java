@@ -11,8 +11,8 @@ import org.transitclock.core.dataCache.StopArrivalDepartureCacheKey;
 import org.transitclock.core.dataCache.VehicleDataCache;
 import org.transitclock.core.dataCache.VehicleStateManager;
 import org.transitclock.db.structs.Headway;
-import org.transitclock.ipc.data.IpcArrivalDeparture;
-import org.transitclock.ipc.data.IpcVehicleComplete;
+import org.transitclock.service.dto.IpcArrivalDeparture;
+import org.transitclock.service.dto.IpcVehicleComplete;
 
 /**
  * @author Sean Óg Crudden

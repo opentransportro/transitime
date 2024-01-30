@@ -10,7 +10,7 @@ import org.transitclock.db.hibernate.DataDbLogger;
 import org.transitclock.db.structs.Headway;
 import org.transitclock.db.structs.Match;
 import org.transitclock.db.structs.Prediction;
-import org.transitclock.ipc.data.IpcPrediction;
+import org.transitclock.service.dto.IpcPrediction;
 import org.transitclock.utils.Time;
 
 /**

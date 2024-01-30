@@ -17,7 +17,7 @@ import org.transitclock.db.structs.Location;
 import org.transitclock.db.structs.StopPath;
 import org.transitclock.db.structs.Trip;
 import org.transitclock.db.structs.VectorWithHeading;
-import org.transitclock.ipc.data.IpcPrediction;
+import org.transitclock.service.dto.IpcPrediction;
 import org.transitclock.utils.StringUtils;
 import org.transitclock.utils.Time;
 

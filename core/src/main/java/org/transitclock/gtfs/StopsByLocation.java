@@ -9,7 +9,7 @@ import org.transitclock.db.structs.Location;
 import org.transitclock.db.structs.Route;
 import org.transitclock.db.structs.StopPath;
 import org.transitclock.db.structs.TripPattern;
-import org.transitclock.ipc.data.IpcPredictionsForRouteStopDest;
+import org.transitclock.service.dto.IpcPredictionsForRouteStopDest;
 import org.transitclock.utils.Geo;
 
 /**

@@ -6,7 +6,7 @@ import java.util.List;
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import org.transitclock.ipc.data.IpcSchedule;
+import org.transitclock.service.dto.IpcSchedule;
 
 /**
  * Represents a collection of ApiScheduleVertStops objects for a route. There is one

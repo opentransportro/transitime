@@ -5,8 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
-import org.transitclock.ipc.data.IpcDirection;
-import org.transitclock.ipc.data.IpcStop;
+import org.transitclock.service.dto.IpcDirection;
+import org.transitclock.service.dto.IpcStop;
 
 /**
  * A single direction, containing stops

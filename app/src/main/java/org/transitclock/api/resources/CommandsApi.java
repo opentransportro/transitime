@@ -36,10 +36,10 @@ import org.transitclock.db.structs.AvlReport;
 import org.transitclock.db.structs.AvlReport.AssignmentType;
 import org.transitclock.db.structs.ExportTable;
 import org.transitclock.db.structs.MeasuredArrivalTime;
-import org.transitclock.ipc.data.IpcAvl;
-import org.transitclock.ipc.data.IpcTrip;
-import org.transitclock.ipc.interfaces.CommandsInterface;
-import org.transitclock.ipc.interfaces.ConfigInterface;
+import org.transitclock.service.dto.IpcAvl;
+import org.transitclock.service.dto.IpcTrip;
+import org.transitclock.service.contract.CommandsInterface;
+import org.transitclock.service.contract.ConfigInterface;
 
 @Path("/key/{key}/agency/{agency}")
 public class CommandsApi {

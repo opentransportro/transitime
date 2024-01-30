@@ -1,9 +1,9 @@
 <%@page import="org.transitclock.db.webstructs.WebAgency" %>
 <%@page import="java.rmi.RemoteException" %>
-<%@page import="org.transitclock.ipc.interfaces.ServerStatusInterface" %>
+<%@page import="org.transitclock.service.contract.ServerStatusInterface" %>
 <%@page import="org.transitclock.monitoring.*" %>
 <%@page import="java.util.List" %>
-<%@ page import="org.transitclock.ipc.servers.ServerStatusServiceImpl" %>
+<%@ page import="org.transitclock.service.ServerStatusServiceImpl" %>
 
 <%@ page language="java" contentType="text/html; charset=UTF-8"
          pageEncoding="UTF-8" %>

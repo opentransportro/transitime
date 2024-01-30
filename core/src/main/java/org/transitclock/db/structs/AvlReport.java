@@ -12,7 +12,7 @@ import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Immutable;
 import org.transitclock.configData.AvlConfig;
 import org.transitclock.db.hibernate.HibernateUtils;
-import org.transitclock.ipc.data.IpcAvl;
+import org.transitclock.service.dto.IpcAvl;
 import org.transitclock.utils.Geo;
 import org.transitclock.utils.SystemTime;
 import org.transitclock.utils.Time;

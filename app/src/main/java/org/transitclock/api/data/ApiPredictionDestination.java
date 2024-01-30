@@ -6,8 +6,8 @@ import java.util.List;
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import org.transitclock.ipc.data.IpcPrediction;
-import org.transitclock.ipc.data.IpcPredictionsForRouteStopDest;
+import org.transitclock.service.dto.IpcPrediction;
+import org.transitclock.service.dto.IpcPredictionsForRouteStopDest;
 
 /**
  * Contains list of predictions for a particular headsign.

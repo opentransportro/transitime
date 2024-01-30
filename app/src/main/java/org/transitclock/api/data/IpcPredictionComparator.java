@@ -2,7 +2,7 @@
 package org.transitclock.api.data;
 
 import java.util.Comparator;
-import org.transitclock.ipc.data.IpcPrediction;
+import org.transitclock.service.dto.IpcPrediction;
 
 /**
  * A simple comparator for ordering IpcPrediction. In this way, the main class IcpPrediction is not

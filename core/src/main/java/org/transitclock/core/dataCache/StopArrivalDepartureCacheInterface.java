@@ -5,7 +5,7 @@ import com.querydsl.jpa.impl.JPAQuery;
 import org.hibernate.Session;
 import org.transitclock.db.structs.ArrivalDeparture;
 import org.transitclock.db.structs.QArrivalDeparture;
-import org.transitclock.ipc.data.IpcArrivalDeparture;
+import org.transitclock.service.dto.IpcArrivalDeparture;
 
 import java.util.Date;
 import java.util.List;

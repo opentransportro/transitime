@@ -27,16 +27,16 @@ import org.transitclock.api.data.ApiKalmanErrorCacheKeys;
 import org.transitclock.api.data.ApiPredictionsForStopPath;
 import org.transitclock.api.utils.StandardParameters;
 import org.transitclock.api.utils.WebUtils;
-import org.transitclock.ipc.data.IpcArrivalDeparture;
-import org.transitclock.ipc.data.IpcHistoricalAverage;
-import org.transitclock.ipc.data.IpcHistoricalAverageCacheKey;
-import org.transitclock.ipc.data.IpcHoldingTime;
-import org.transitclock.ipc.data.IpcHoldingTimeCacheKey;
-import org.transitclock.ipc.data.IpcKalmanErrorCacheKey;
-import org.transitclock.ipc.data.IpcPredictionForStopPath;
-import org.transitclock.ipc.interfaces.CacheQueryInterface;
-import org.transitclock.ipc.interfaces.HoldingTimeInterface;
-import org.transitclock.ipc.interfaces.PredictionAnalysisInterface;
+import org.transitclock.service.dto.IpcArrivalDeparture;
+import org.transitclock.service.dto.IpcHistoricalAverage;
+import org.transitclock.service.dto.IpcHistoricalAverageCacheKey;
+import org.transitclock.service.dto.IpcHoldingTime;
+import org.transitclock.service.dto.IpcHoldingTimeCacheKey;
+import org.transitclock.service.dto.IpcKalmanErrorCacheKey;
+import org.transitclock.service.dto.IpcPredictionForStopPath;
+import org.transitclock.service.contract.CacheQueryInterface;
+import org.transitclock.service.contract.HoldingTimeInterface;
+import org.transitclock.service.contract.PredictionAnalysisInterface;
 
 /**
  * Contains the API commands for the Transitime API for getting info on data that is cached.

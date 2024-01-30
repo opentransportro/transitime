@@ -8,7 +8,7 @@ import java.util.Map;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import org.transitclock.api.resources.TransitimeApi.UiMode;
-import org.transitclock.ipc.data.IpcVehicle;
+import org.transitclock.service.dto.IpcVehicle;
 
 /**
  * For when have list of Vehicles. By using this class can control the element name when data is

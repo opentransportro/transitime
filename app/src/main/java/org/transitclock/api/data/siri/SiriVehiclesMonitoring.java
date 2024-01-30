@@ -13,7 +13,7 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlTransient;
 import jakarta.xml.bind.annotation.XmlType;
 import org.transitclock.api.utils.AgencyTimezoneCache;
-import org.transitclock.ipc.data.IpcVehicleComplete;
+import org.transitclock.service.dto.IpcVehicleComplete;
 import org.transitclock.utils.Time;
 
 /**

@@ -5,7 +5,7 @@ import java.util.Date;
 import java.util.List;
 import org.hibernate.Session;
 import org.transitclock.db.structs.ArrivalDeparture;
-import org.transitclock.ipc.data.IpcArrivalDeparture;
+import org.transitclock.service.dto.IpcArrivalDeparture;
 
 public interface TripDataHistoryCacheInterface {
 

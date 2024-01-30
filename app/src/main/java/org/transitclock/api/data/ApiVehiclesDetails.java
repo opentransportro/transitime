@@ -11,7 +11,7 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 import org.transitclock.api.resources.TransitimeApi.UiMode;
 import org.transitclock.db.structs.Agency;
 import org.transitclock.db.webstructs.WebAgency;
-import org.transitclock.ipc.data.IpcVehicle;
+import org.transitclock.service.dto.IpcVehicle;
 import org.transitclock.utils.Time;
 
 /**

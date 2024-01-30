@@ -9,8 +9,6 @@ import org.ehcache.Cache;
 import org.ehcache.CacheManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.transitclock.config.IntegerConfigValue;
-import org.transitclock.config.LongConfigValue;
 import org.transitclock.configData.PredictionConfig;
 import org.transitclock.core.dataCache.StopArrivalDepartureCacheFactory;
 import org.transitclock.core.dataCache.StopArrivalDepartureCacheKey;
@@ -20,8 +18,7 @@ import org.transitclock.core.predictiongenerator.scheduled.dwell.DwellModel;
 import org.transitclock.core.predictiongenerator.scheduled.dwell.DwellTimeModelFactory;
 import org.transitclock.db.structs.ArrivalDeparture;
 import org.transitclock.db.structs.Headway;
-import org.transitclock.ipc.data.IpcArrivalDeparture;
-import org.transitclock.utils.Time;
+import org.transitclock.service.dto.IpcArrivalDeparture;
 
 /**
  * @author scrudden This stores DwellModel instances in the cache. TODO We should abstract the

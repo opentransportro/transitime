@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
-import org.transitclock.ipc.data.IpcActiveBlock;
+import org.transitclock.service.dto.IpcActiveBlock;
 
 /**
  * A route for when outputting active blocks

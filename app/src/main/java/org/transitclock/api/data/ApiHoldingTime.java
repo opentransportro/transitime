@@ -5,7 +5,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Date;
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import org.transitclock.ipc.data.IpcHoldingTime;
+import org.transitclock.service.dto.IpcHoldingTime;
 
 @XmlRootElement(name = "holdingtime")
 public class ApiHoldingTime {

@@ -3,7 +3,7 @@ package org.transitclock.api.data;
 
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import org.transitclock.ipc.data.IpcTrip;
+import org.transitclock.service.dto.IpcTrip;
 
 /**
  * Specifies how trip data along with travel times is formatted for the API.

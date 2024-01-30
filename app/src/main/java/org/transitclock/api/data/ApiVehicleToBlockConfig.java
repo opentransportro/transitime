@@ -3,7 +3,7 @@ package org.transitclock.api.data;
 
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlType;
-import org.transitclock.ipc.data.IpcVehicleToBlockConfig;
+import org.transitclock.service.dto.IpcVehicleToBlockConfig;
 
 /**
  * Contains the data for a single vehicle.

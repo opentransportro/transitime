@@ -4,7 +4,7 @@ package org.transitclock.api.data;
 import java.util.Date;
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import org.transitclock.ipc.data.IpcPredictionForStopPath;
+import org.transitclock.service.dto.IpcPredictionForStopPath;
 
 @XmlRootElement(name = "traveltimepredictionforstoppath")
 public class ApiPredictionForStopPath {

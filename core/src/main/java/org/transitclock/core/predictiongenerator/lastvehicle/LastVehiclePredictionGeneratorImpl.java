@@ -2,7 +2,6 @@
 package org.transitclock.core.predictiongenerator.lastvehicle;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
@@ -17,8 +16,8 @@ import org.transitclock.core.dataCache.VehicleDataCache;
 import org.transitclock.core.dataCache.VehicleStateManager;
 import org.transitclock.db.structs.AvlReport;
 import org.transitclock.db.structs.PredictionForStopPath;
-import org.transitclock.ipc.data.IpcPrediction;
-import org.transitclock.ipc.data.IpcVehicleComplete;
+import org.transitclock.service.dto.IpcPrediction;
+import org.transitclock.service.dto.IpcVehicleComplete;
 import org.transitclock.utils.SystemTime;
 
 /**

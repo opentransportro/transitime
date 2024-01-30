@@ -7,7 +7,7 @@ import java.util.Collection;
 import java.util.List;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import org.transitclock.ipc.data.IpcVehicleToBlockConfig;
+import org.transitclock.service.dto.IpcVehicleToBlockConfig;
 
 /**
  * For when have list of VehicleDetails. By using this class can control the element name when data

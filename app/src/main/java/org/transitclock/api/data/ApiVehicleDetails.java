@@ -8,8 +8,8 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlType;
 import org.transitclock.api.resources.TransitimeApi.UiMode;
 import org.transitclock.core.BlockAssignmentMethod;
-import org.transitclock.ipc.data.IpcVehicle;
-import org.transitclock.ipc.data.IpcVehicleComplete;
+import org.transitclock.service.dto.IpcVehicle;
+import org.transitclock.service.dto.IpcVehicleComplete;
 import org.transitclock.utils.Time;
 
 /**

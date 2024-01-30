@@ -2,7 +2,7 @@
 package org.transitclock.core.holdingmethod;
 
 import java.util.Comparator;
-import org.transitclock.ipc.data.IpcPrediction;
+import org.transitclock.service.dto.IpcPrediction;
 
 /**
  * @author Sean Óg Crudden Compare the time of two predictions. Used to put predictions in order.

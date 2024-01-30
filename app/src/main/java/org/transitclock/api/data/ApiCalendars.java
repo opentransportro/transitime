@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import org.transitclock.ipc.data.IpcCalendar;
+import org.transitclock.service.dto.IpcCalendar;
 
 /**
  * List of GTFS calendars

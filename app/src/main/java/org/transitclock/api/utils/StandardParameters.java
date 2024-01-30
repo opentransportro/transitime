@@ -10,8 +10,8 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.ResponseBuilder;
 import jakarta.ws.rs.core.Response.Status;
 import org.transitclock.db.ApiKeyManager;
-import org.transitclock.ipc.interfaces.*;
-import org.transitclock.ipc.servers.*;
+import org.transitclock.service.*;
+import org.transitclock.service.contract.*;
 
 /**
  * For getting the standard parameters from the URI used to access the feed. Includes the key,

@@ -10,7 +10,7 @@ import java.nio.ByteBuffer;
 import org.ehcache.spi.serialization.Serializer;
 import org.ehcache.spi.serialization.SerializerException;
 import org.transitclock.core.dataCache.StopEvents;
-import org.transitclock.ipc.data.IpcArrivalDeparture;
+import org.transitclock.service.dto.IpcArrivalDeparture;
 
 public class StopEventsKyroSerializer implements Serializer<StopEvents> {
 

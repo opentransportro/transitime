@@ -10,9 +10,9 @@ import org.transitclock.core.dataCache.StopArrivalDepartureCacheFactory;
 import org.transitclock.core.dataCache.StopArrivalDepartureCacheKey;
 import org.transitclock.db.structs.ArrivalDeparture;
 import org.transitclock.db.structs.HoldingTime;
-import org.transitclock.ipc.data.IpcArrivalDeparture;
-import org.transitclock.ipc.data.IpcPrediction;
-import org.transitclock.ipc.data.IpcPredictionsForRouteStopDest;
+import org.transitclock.service.dto.IpcArrivalDeparture;
+import org.transitclock.service.dto.IpcPrediction;
+import org.transitclock.service.dto.IpcPredictionsForRouteStopDest;
 import org.transitclock.utils.SystemTime;
 
 import java.util.ArrayList;

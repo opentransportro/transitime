@@ -6,7 +6,6 @@ import java.util.Date;
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.applications.Core;
 import org.transitclock.config.ArrivalsDeparturesConfig;
-import org.transitclock.config.IntegerConfigValue;
 import org.transitclock.configData.AgencyConfig;
 import org.transitclock.configData.CoreConfig;
 import org.transitclock.core.dataCache.*;
@@ -15,7 +14,7 @@ import org.transitclock.core.dataCache.scheduled.ScheduleBasedHistoricalAverageC
 import org.transitclock.core.holdingmethod.HoldingTimeGeneratorFactory;
 import org.transitclock.core.predAccuracy.PredictionAccuracyModule;
 import org.transitclock.db.structs.*;
-import org.transitclock.ipc.data.IpcArrivalDeparture;
+import org.transitclock.service.dto.IpcArrivalDeparture;
 import org.transitclock.utils.Time;
 
 /**

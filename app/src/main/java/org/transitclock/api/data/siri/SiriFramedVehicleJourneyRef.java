@@ -4,7 +4,7 @@ package org.transitclock.api.data.siri;
 import java.text.DateFormat;
 import java.util.Date;
 import jakarta.xml.bind.annotation.XmlElement;
-import org.transitclock.ipc.data.IpcVehicle;
+import org.transitclock.service.dto.IpcVehicle;
 
 /**
  * Describes the trip

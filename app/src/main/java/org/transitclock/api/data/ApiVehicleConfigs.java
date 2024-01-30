@@ -8,7 +8,7 @@ import java.util.Comparator;
 import java.util.List;
 import jakarta.xml.bind.annotation.XmlElementRef;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import org.transitclock.ipc.data.IpcVehicleConfig;
+import org.transitclock.service.dto.IpcVehicleConfig;
 
 /**
  * For when have collection of ApiVehicleConfig

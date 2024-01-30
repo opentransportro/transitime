@@ -3,7 +3,7 @@ package org.transitclock.core;
 
 import java.util.concurrent.TimeUnit;
 import org.transitclock.db.structs.ArrivalDeparture;
-import org.transitclock.ipc.data.IpcPrediction;
+import org.transitclock.service.dto.IpcPrediction;
 
 /**
  * @author Sean Óg Crudden Class to hold details of a single headway.

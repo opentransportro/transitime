@@ -8,11 +8,11 @@ import com.google.transit.realtime.GtfsRealtime.VehiclePosition.VehicleStopStatu
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.api.utils.AgencyTimezoneCache;
-import org.transitclock.ipc.data.IpcAvl;
-import org.transitclock.ipc.data.IpcVehicleConfig;
-import org.transitclock.ipc.data.IpcVehicleGtfsRealtime;
-import org.transitclock.ipc.interfaces.VehiclesInterface;
-import org.transitclock.ipc.servers.VehiclesServiceImpl;
+import org.transitclock.service.dto.IpcAvl;
+import org.transitclock.service.dto.IpcVehicleConfig;
+import org.transitclock.service.dto.IpcVehicleGtfsRealtime;
+import org.transitclock.service.contract.VehiclesInterface;
+import org.transitclock.service.VehiclesServiceImpl;
 import org.transitclock.utils.Time;
 
 import java.rmi.RemoteException;
