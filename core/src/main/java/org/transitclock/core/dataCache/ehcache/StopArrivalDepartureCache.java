@@ -8,7 +8,7 @@ import org.ehcache.CacheManager;
 import org.hibernate.Session;
 import org.transitclock.core.dataCache.*;
 import org.transitclock.domain.structs.ArrivalDeparture;
-import org.transitclock.db.structs.QArrivalDeparture;
+import org.transitclock.domain.structs.QArrivalDeparture;
 import org.transitclock.service.dto.IpcArrivalDeparture;
 
 import java.util.Calendar;

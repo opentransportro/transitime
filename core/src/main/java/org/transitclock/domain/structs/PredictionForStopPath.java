@@ -6,7 +6,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
 import org.transitclock.domain.hibernate.HibernateUtils;
-import org.transitclock.db.structs.QPredictionForStopPath;
+import org.transitclock.domain.structs.QPredictionForStopPath;
 
 import java.io.Serializable;
 import java.util.Date;

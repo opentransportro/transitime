@@ -11,7 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.domain.hibernate.HibernateUtils;
 import org.transitclock.domain.structs.PredictionAccuracy;
-import org.transitclock.db.structs.QPredictionAccuracy;
+import org.transitclock.domain.structs.QPredictionAccuracy;
 
 import java.util.Calendar;
 import java.util.Date;

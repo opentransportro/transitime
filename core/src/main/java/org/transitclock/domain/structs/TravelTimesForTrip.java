@@ -12,7 +12,7 @@ import org.hibernate.Session;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.DynamicUpdate;
-import org.transitclock.db.structs.QTravelTimesForTrip;
+import org.transitclock.domain.structs.QTravelTimesForTrip;
 
 import java.io.Serializable;
 import java.util.ArrayList;

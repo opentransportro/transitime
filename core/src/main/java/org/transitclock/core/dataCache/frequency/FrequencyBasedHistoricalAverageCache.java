@@ -9,7 +9,7 @@ import org.transitclock.applications.Core;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.core.dataCache.*;
 import org.transitclock.domain.structs.ArrivalDeparture;
-import org.transitclock.db.structs.QArrivalDeparture;
+import org.transitclock.domain.structs.QArrivalDeparture;
 import org.transitclock.domain.structs.Trip;
 import org.transitclock.gtfs.DbConfig;
 import org.transitclock.gtfs.GtfsData;

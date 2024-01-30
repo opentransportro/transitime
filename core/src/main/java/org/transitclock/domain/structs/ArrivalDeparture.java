@@ -17,7 +17,7 @@ import org.transitclock.config.data.AgencyConfig;
 import org.transitclock.config.data.DbSetupConfig;
 import org.transitclock.core.TemporalDifference;
 import org.transitclock.domain.hibernate.HibernateUtils;
-import org.transitclock.db.structs.QArrivalDeparture;
+import org.transitclock.domain.structs.QArrivalDeparture;
 import org.transitclock.utils.Geo;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.Time;

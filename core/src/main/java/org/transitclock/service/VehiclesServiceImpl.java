@@ -7,10 +7,9 @@ import org.hibernate.Session;
 import org.transitclock.core.BlocksInfo;
 import org.transitclock.core.dataCache.VehicleDataCache;
 import org.transitclock.domain.hibernate.HibernateUtils;
-import org.transitclock.db.structs.*;
 import org.transitclock.domain.structs.*;
-import org.transitclock.service.dto.*;
 import org.transitclock.service.contract.VehiclesInterface;
+import org.transitclock.service.dto.*;
 
 import java.io.Serializable;
 import java.rmi.RemoteException;
