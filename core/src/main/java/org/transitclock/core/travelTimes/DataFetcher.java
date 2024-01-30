@@ -3,10 +3,10 @@ package org.transitclock.core.travelTimes;
 
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.config.data.UpdatesConfig;
-import org.transitclock.db.structs.ActiveRevisions;
-import org.transitclock.db.structs.Agency;
-import org.transitclock.db.structs.ArrivalDeparture;
-import org.transitclock.db.structs.Match;
+import org.transitclock.domain.structs.ActiveRevisions;
+import org.transitclock.domain.structs.Agency;
+import org.transitclock.domain.structs.ArrivalDeparture;
+import org.transitclock.domain.structs.Match;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.MapKey;
 import org.transitclock.utils.Time;

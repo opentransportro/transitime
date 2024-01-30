@@ -2,7 +2,7 @@
 package org.transitclock.core;
 
 import java.util.concurrent.TimeUnit;
-import org.transitclock.db.structs.ArrivalDeparture;
+import org.transitclock.domain.structs.ArrivalDeparture;
 import org.transitclock.service.dto.IpcPrediction;
 
 /**

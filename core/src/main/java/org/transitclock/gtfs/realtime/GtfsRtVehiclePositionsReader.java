@@ -3,7 +3,7 @@ package org.transitclock.gtfs.realtime;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.transitclock.db.structs.AvlReport;
+import org.transitclock.domain.structs.AvlReport;
 
 /**
  * Reads in GTFS-realtime Vehicle Positions file and converts them into List of AvlReport objects.

@@ -3,7 +3,7 @@ package org.transitclock.monitoring;
 
 import org.transitclock.applications.Core;
 import org.transitclock.config.data.MonitoringConfig;
-import org.transitclock.db.hibernate.DataDbLogger;
+import org.transitclock.domain.hibernate.DataDbLogger;
 import org.transitclock.utils.StringUtils;
 
 /**

@@ -3,7 +3,7 @@ package org.transitclock.avl;
 
 import java.util.Collection;
 import org.transitclock.Module;
-import org.transitclock.db.structs.AvlReport;
+import org.transitclock.domain.structs.AvlReport;
 
 /**
  * Low-level abstract AVL module class that handles the processing of the data. Uses JMS to queue

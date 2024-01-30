@@ -4,7 +4,7 @@ package org.transitclock.core.reports;
 import java.text.ParseException;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.transitclock.db.webstructs.WebAgency;
+import org.transitclock.domain.webstructs.WebAgency;
 import org.transitclock.utils.Time;
 
 public class Reports {

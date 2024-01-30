@@ -6,7 +6,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import org.transitclock.db.structs.Trip;
+import org.transitclock.domain.structs.Trip;
 
 /**
  * For IPC for obtaining currently active blocks. Contains both block information plus info on

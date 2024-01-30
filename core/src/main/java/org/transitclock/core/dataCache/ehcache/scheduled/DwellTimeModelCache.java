@@ -16,8 +16,8 @@ import org.transitclock.core.dataCache.StopPathCacheKey;
 import org.transitclock.core.dataCache.ehcache.CacheManagerFactory;
 import org.transitclock.core.predictiongenerator.scheduled.dwell.DwellModel;
 import org.transitclock.core.predictiongenerator.scheduled.dwell.DwellTimeModelFactory;
-import org.transitclock.db.structs.ArrivalDeparture;
-import org.transitclock.db.structs.Headway;
+import org.transitclock.domain.structs.ArrivalDeparture;
+import org.transitclock.domain.structs.Headway;
 import org.transitclock.service.dto.IpcArrivalDeparture;
 
 /**

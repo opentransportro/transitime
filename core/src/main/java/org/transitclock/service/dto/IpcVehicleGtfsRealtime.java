@@ -9,8 +9,8 @@ import org.transitclock.core.SpatialMatch;
 import org.transitclock.core.TemporalDifference;
 import org.transitclock.core.TemporalMatch;
 import org.transitclock.core.VehicleState;
-import org.transitclock.db.structs.StopPath;
-import org.transitclock.db.structs.Trip;
+import org.transitclock.domain.structs.StopPath;
+import org.transitclock.domain.structs.Trip;
 import org.transitclock.utils.SystemTime;
 import org.transitclock.utils.Time;
 

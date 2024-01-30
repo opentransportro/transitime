@@ -1,4 +1,4 @@
-<%@page import="org.transitclock.db.webstructs.WebAgency" %>
+<%@page import="org.transitclock.domain.webstructs.WebAgency" %>
 <%@page import="java.rmi.RemoteException" %>
 <%@page import="org.transitclock.service.contract.ServerStatusInterface" %>
 <%@page import="org.transitclock.monitoring.*" %>

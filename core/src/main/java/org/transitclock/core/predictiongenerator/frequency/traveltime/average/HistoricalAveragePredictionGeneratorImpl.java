@@ -16,8 +16,8 @@ import org.transitclock.core.dataCache.StopPathPredictionCache;
 import org.transitclock.core.dataCache.frequency.FrequencyBasedHistoricalAverageCache;
 import org.transitclock.core.predictiongenerator.PredictionComponentElementsGenerator;
 import org.transitclock.core.predictiongenerator.lastvehicle.LastVehiclePredictionGeneratorImpl;
-import org.transitclock.db.structs.AvlReport;
-import org.transitclock.db.structs.PredictionForStopPath;
+import org.transitclock.domain.structs.AvlReport;
+import org.transitclock.domain.structs.PredictionForStopPath;
 import org.transitclock.utils.SystemTime;
 
 /**

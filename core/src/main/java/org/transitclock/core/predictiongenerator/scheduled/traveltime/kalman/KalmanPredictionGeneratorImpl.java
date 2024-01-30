@@ -9,9 +9,9 @@ import org.transitclock.config.data.PredictionConfig;
 import org.transitclock.core.*;
 import org.transitclock.core.dataCache.*;
 import org.transitclock.core.predictiongenerator.kalman.*;
-import org.transitclock.db.structs.AvlReport;
-import org.transitclock.db.structs.PredictionEvent;
-import org.transitclock.db.structs.PredictionForStopPath;
+import org.transitclock.domain.structs.AvlReport;
+import org.transitclock.domain.structs.PredictionEvent;
+import org.transitclock.domain.structs.PredictionForStopPath;
 import org.transitclock.utils.SystemTime;
 
 import java.util.Calendar;

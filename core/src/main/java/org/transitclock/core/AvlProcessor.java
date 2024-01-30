@@ -12,9 +12,9 @@ import org.transitclock.core.autoAssigner.AutoBlockAssigner;
 import org.transitclock.core.dataCache.PredictionDataCache;
 import org.transitclock.core.dataCache.VehicleDataCache;
 import org.transitclock.core.dataCache.VehicleStateManager;
-import org.transitclock.db.hibernate.HibernateUtils;
-import org.transitclock.db.structs.*;
-import org.transitclock.db.structs.AvlReport.AssignmentType;
+import org.transitclock.domain.hibernate.HibernateUtils;
+import org.transitclock.domain.structs.*;
+import org.transitclock.domain.structs.AvlReport.AssignmentType;
 import org.transitclock.utils.*;
 
 import java.util.*;
@@ -1290,7 +1290,7 @@ public class AvlProcessor {
 
             // Write out current vehicle state to db so can join it with AVL
             // data from db and get historical context of AVL report.
-            var dbVehicleState = new org.transitclock.db.structs.VehicleState(vehicleState);
+            var dbVehicleState = new org.transitclock.domain.structs.VehicleState(vehicleState);
             Core.getInstance().getDbLogger().add(dbVehicleState);
         }
     }

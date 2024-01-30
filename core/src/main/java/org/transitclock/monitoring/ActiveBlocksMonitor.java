@@ -5,7 +5,7 @@ import java.util.Date;
 import java.util.List;
 import org.transitclock.applications.Core;
 import org.transitclock.core.BlocksInfo;
-import org.transitclock.db.structs.Block;
+import org.transitclock.domain.structs.Block;
 
 /**
  * For monitoring active blocks. Unlike the other monitors, this one never triggers an alarm, it

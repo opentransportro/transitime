@@ -82,7 +82,7 @@
 
  	<ehcache:cache alias="HoldingTimeCache">
 		<ehcache:key-type>org.transitclock.core.dataCache.HoldingTimeCacheKey</ehcache:key-type>
-		<ehcache:value-type>org.transitclock.db.structs.HoldingTime</ehcache:value-type>
+		<ehcache:value-type>org.transitclock.domain.structs.HoldingTime</ehcache:value-type>
 		<ehcache:expiry>
 			<ehcache:ttl unit="hours">1</ehcache:ttl>
 		</ehcache:expiry>

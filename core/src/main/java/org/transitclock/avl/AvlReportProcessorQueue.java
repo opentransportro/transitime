@@ -7,7 +7,7 @@ import java.util.concurrent.TimeUnit;
 
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.transitclock.db.structs.AvlReport;
+import org.transitclock.domain.structs.AvlReport;
 
 /**
  * A queue of {@link AvlReportProcessor} runnables that can be used with a ThreadPoolExecutor. Implements by

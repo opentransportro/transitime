@@ -3,8 +3,8 @@ package org.transitclock.service.dto;
 
 import java.io.Serializable;
 import org.transitclock.applications.Core;
-import org.transitclock.db.structs.ScheduleTime;
-import org.transitclock.db.structs.Stop;
+import org.transitclock.domain.structs.ScheduleTime;
+import org.transitclock.domain.structs.Stop;
 import org.transitclock.utils.Time;
 
 /**

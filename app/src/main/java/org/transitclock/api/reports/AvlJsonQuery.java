@@ -1,7 +1,7 @@
 /* (C)2023 */
 package org.transitclock.api.reports;
 
-import org.transitclock.db.webstructs.WebAgency;
+import org.transitclock.domain.webstructs.WebAgency;
 import org.transitclock.utils.Time;
 
 import java.text.ParseException;

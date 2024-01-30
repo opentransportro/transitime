@@ -1,7 +1,7 @@
 /* (C)2023 */
 package org.transitclock.core.dataCache;
 
-import org.transitclock.db.structs.HoldingTime;
+import org.transitclock.domain.structs.HoldingTime;
 
 /**
  * @author Sean Óg Crudden

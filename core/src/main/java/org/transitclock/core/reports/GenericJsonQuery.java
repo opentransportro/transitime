@@ -7,9 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.transitclock.db.GenericQuery;
+import org.transitclock.domain.GenericQuery;
 
 @Slf4j
 public class GenericJsonQuery extends GenericQuery {

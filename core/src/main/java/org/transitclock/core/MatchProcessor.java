@@ -6,10 +6,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.transitclock.applications.Core;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.core.dataCache.PredictionDataCache;
-import org.transitclock.db.hibernate.DataDbLogger;
-import org.transitclock.db.structs.Headway;
-import org.transitclock.db.structs.Match;
-import org.transitclock.db.structs.Prediction;
+import org.transitclock.domain.hibernate.DataDbLogger;
+import org.transitclock.domain.structs.Headway;
+import org.transitclock.domain.structs.Match;
+import org.transitclock.domain.structs.Prediction;
 import org.transitclock.service.dto.IpcPrediction;
 import org.transitclock.utils.Time;
 

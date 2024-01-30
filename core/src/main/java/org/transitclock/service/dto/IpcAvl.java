@@ -5,8 +5,8 @@ import java.io.IOException;
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
-import org.transitclock.db.structs.AvlReport;
-import org.transitclock.db.structs.AvlReport.AssignmentType;
+import org.transitclock.domain.structs.AvlReport;
+import org.transitclock.domain.structs.AvlReport.AssignmentType;
 import org.transitclock.utils.Geo;
 import org.transitclock.utils.Time;
 

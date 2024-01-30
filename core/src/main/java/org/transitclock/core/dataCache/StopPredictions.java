@@ -4,7 +4,7 @@ package org.transitclock.core.dataCache;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import org.transitclock.db.structs.PredictionForStopPath;
+import org.transitclock.domain.structs.PredictionForStopPath;
 
 public class StopPredictions implements Serializable {
     /** */

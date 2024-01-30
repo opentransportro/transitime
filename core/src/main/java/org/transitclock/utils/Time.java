@@ -9,7 +9,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
-import org.transitclock.db.structs.Agency;
+import org.transitclock.domain.structs.Agency;
 import org.transitclock.gtfs.DbConfig;
 
 /**

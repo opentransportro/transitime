@@ -5,7 +5,7 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.Collection;
 import java.util.List;
-import org.transitclock.db.structs.Agency;
+import org.transitclock.domain.structs.Agency;
 import org.transitclock.service.dto.IpcBlock;
 import org.transitclock.service.dto.IpcCalendar;
 import org.transitclock.service.dto.IpcDirectionsForRoute;

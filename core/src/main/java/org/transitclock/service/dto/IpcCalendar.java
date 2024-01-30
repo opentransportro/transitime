@@ -2,7 +2,7 @@
 package org.transitclock.service.dto;
 
 import java.io.Serializable;
-import org.transitclock.db.structs.Calendar;
+import org.transitclock.domain.structs.Calendar;
 
 /**
  * A calendar object for IPC via RMI

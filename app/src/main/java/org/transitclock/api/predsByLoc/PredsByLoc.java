@@ -6,10 +6,10 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.transitclock.db.structs.Agency;
-import org.transitclock.db.structs.Extent;
-import org.transitclock.db.structs.Location;
-import org.transitclock.db.webstructs.WebAgency;
+import org.transitclock.domain.structs.Agency;
+import org.transitclock.domain.structs.Extent;
+import org.transitclock.domain.structs.Location;
+import org.transitclock.domain.webstructs.WebAgency;
 import org.transitclock.utils.Time;
 
 /**

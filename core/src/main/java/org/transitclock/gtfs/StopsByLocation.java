@@ -5,10 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 import org.transitclock.applications.Core;
 import org.transitclock.core.dataCache.PredictionDataCache;
-import org.transitclock.db.structs.Location;
-import org.transitclock.db.structs.Route;
-import org.transitclock.db.structs.StopPath;
-import org.transitclock.db.structs.TripPattern;
+import org.transitclock.domain.structs.Location;
+import org.transitclock.domain.structs.Route;
+import org.transitclock.domain.structs.StopPath;
+import org.transitclock.domain.structs.TripPattern;
 import org.transitclock.service.dto.IpcPredictionsForRouteStopDest;
 import org.transitclock.utils.Geo;
 

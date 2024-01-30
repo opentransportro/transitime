@@ -1,4 +1,4 @@
-<%@ page import="org.transitclock.db.webstructs.WebAgency" %>
+<%@ page import="org.transitclock.domain.webstructs.WebAgency" %>
 <%@ page import="org.transitclock.api.reports.ChartGenericJsonQuery" %>
 <%@ page import="org.transitclock.utils.Time" %>
 <%@ page import="java.text.ParseException" %>

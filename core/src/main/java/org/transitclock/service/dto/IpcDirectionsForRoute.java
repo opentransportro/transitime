@@ -4,7 +4,7 @@ package org.transitclock.service.dto;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import org.transitclock.db.structs.Route;
+import org.transitclock.domain.structs.Route;
 
 /**
  * Contains each direction for route, along with each stop for each direction.

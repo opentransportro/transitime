@@ -4,7 +4,7 @@ package org.transitclock.api.data;
 import java.util.Date;
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import org.transitclock.db.structs.ExportTable;
+import org.transitclock.domain.structs.ExportTable;
 
 /**
  * For storing static configuration for vehicle in block.

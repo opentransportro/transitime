@@ -5,9 +5,9 @@ import java.util.Date;
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.applications.Core;
 import org.transitclock.config.data.CoreConfig;
-import org.transitclock.db.structs.Location;
-import org.transitclock.db.structs.ScheduleTime;
-import org.transitclock.db.structs.TravelTimesForStopPath;
+import org.transitclock.domain.structs.Location;
+import org.transitclock.domain.structs.ScheduleTime;
+import org.transitclock.domain.structs.TravelTimesForStopPath;
 import org.transitclock.utils.Time;
 
 /**

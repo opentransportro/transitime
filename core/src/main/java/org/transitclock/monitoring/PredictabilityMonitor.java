@@ -8,7 +8,7 @@ import java.util.List;
 import org.transitclock.config.data.MonitoringConfig;
 import org.transitclock.core.BlocksInfo;
 import org.transitclock.core.dataCache.VehicleDataCache;
-import org.transitclock.db.structs.Block;
+import org.transitclock.domain.structs.Block;
 import org.transitclock.utils.StringUtils;
 
 /**

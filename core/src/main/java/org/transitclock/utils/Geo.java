@@ -2,8 +2,8 @@
 package org.transitclock.utils;
 
 import java.text.DecimalFormat;
-import org.transitclock.db.structs.Location;
-import org.transitclock.db.structs.Vector;
+import org.transitclock.domain.structs.Location;
+import org.transitclock.domain.structs.Vector;
 
 /**
  * Some possibly handle geometric conversions.

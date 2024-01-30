@@ -5,8 +5,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.transitclock.db.structs.TravelTimesForStopPath.HowSet;
-import org.transitclock.db.structs.Trip;
+import org.transitclock.domain.structs.TravelTimesForStopPath.HowSet;
+import org.transitclock.domain.structs.Trip;
 import org.transitclock.utils.Time;
 
 /**

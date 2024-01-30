@@ -4,7 +4,7 @@ package org.transitclock.gtfs.model;
 import lombok.Getter;
 import lombok.ToString;
 import org.apache.commons.csv.CSVRecord;
-import org.transitclock.db.structs.Location;
+import org.transitclock.domain.structs.Location;
 import org.transitclock.utils.csv.CsvBase;
 
 /**

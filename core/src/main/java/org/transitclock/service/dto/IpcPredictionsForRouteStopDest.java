@@ -11,10 +11,10 @@ import java.util.List;
 import org.transitclock.applications.Core;
 import org.transitclock.core.VehicleState;
 import org.transitclock.core.dataCache.VehicleStateManager;
-import org.transitclock.db.structs.Route;
-import org.transitclock.db.structs.Stop;
-import org.transitclock.db.structs.Trip;
-import org.transitclock.db.structs.TripPattern;
+import org.transitclock.domain.structs.Route;
+import org.transitclock.domain.structs.Stop;
+import org.transitclock.domain.structs.Trip;
+import org.transitclock.domain.structs.TripPattern;
 import org.transitclock.utils.Geo;
 import org.transitclock.utils.TrimmableArrayList;
 

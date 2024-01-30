@@ -6,7 +6,7 @@ import java.util.List;
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import org.transitclock.db.structs.Location;
+import org.transitclock.domain.structs.Location;
 import org.transitclock.service.dto.IpcDirection;
 import org.transitclock.service.dto.IpcDirectionsForRoute;
 import org.transitclock.service.dto.IpcRoute;

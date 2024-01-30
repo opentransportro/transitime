@@ -10,7 +10,7 @@ import org.transitclock.core.holdingmethod.HoldingTimeGeneratorFactory;
 import org.transitclock.core.predictiongenerator.PredictionComponentElementsGenerator;
 import org.transitclock.core.predictiongenerator.bias.BiasAdjuster;
 import org.transitclock.core.predictiongenerator.bias.BiasAdjusterFactory;
-import org.transitclock.db.structs.*;
+import org.transitclock.domain.structs.*;
 import org.transitclock.service.dto.IpcPrediction;
 import org.transitclock.service.dto.IpcPrediction.ArrivalOrDeparture;
 import org.transitclock.utils.Geo;

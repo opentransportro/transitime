@@ -9,7 +9,7 @@ import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.core.dataCache.StopPathCacheKey;
 import org.transitclock.core.dataCache.StopPathPredictionCache;
-import org.transitclock.db.structs.PredictionForStopPath;
+import org.transitclock.domain.structs.PredictionForStopPath;
 import org.transitclock.service.dto.IpcPredictionForStopPath;
 import org.transitclock.service.contract.PredictionAnalysisInterface;
 

@@ -13,9 +13,9 @@ import org.transitclock.core.DwellTimeDetails;
 import org.transitclock.core.TravelTimeDetails;
 import org.transitclock.core.dataCache.*;
 import org.transitclock.core.dataCache.ehcache.CacheManagerFactory;
-import org.transitclock.db.structs.ArrivalDeparture;
+import org.transitclock.domain.structs.ArrivalDeparture;
 import org.transitclock.db.structs.QArrivalDeparture;
-import org.transitclock.db.structs.Trip;
+import org.transitclock.domain.structs.Trip;
 import org.transitclock.gtfs.DbConfig;
 import org.transitclock.service.dto.IpcArrivalDeparture;
 

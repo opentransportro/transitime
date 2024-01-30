@@ -3,7 +3,7 @@ package org.transitclock.core.dataCache;
 
 import com.querydsl.jpa.impl.JPAQuery;
 import org.hibernate.Session;
-import org.transitclock.db.structs.ArrivalDeparture;
+import org.transitclock.domain.structs.ArrivalDeparture;
 import org.transitclock.db.structs.QArrivalDeparture;
 import org.transitclock.service.dto.IpcArrivalDeparture;
 

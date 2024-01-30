@@ -2,7 +2,7 @@
 package org.transitclock.api.reports;
 
 import jakarta.servlet.http.HttpServletRequest;
-import org.transitclock.db.webstructs.WebAgency;
+import org.transitclock.domain.webstructs.WebAgency;
 import org.transitclock.utils.Time;
 
 import java.text.ParseException;

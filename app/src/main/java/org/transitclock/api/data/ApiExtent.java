@@ -2,7 +2,7 @@
 package org.transitclock.api.data;
 
 import jakarta.xml.bind.annotation.XmlAttribute;
-import org.transitclock.db.structs.Extent;
+import org.transitclock.domain.structs.Extent;
 import org.transitclock.utils.MathUtils;
 
 /**

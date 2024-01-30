@@ -1,7 +1,7 @@
 /* (C)2023 */
 package org.transitclock.core.predictiongenerator.kalman;
 
-import org.transitclock.db.structs.Stop;
+import org.transitclock.domain.structs.Stop;
 
 public class VehicleStopDetail {
     @Override

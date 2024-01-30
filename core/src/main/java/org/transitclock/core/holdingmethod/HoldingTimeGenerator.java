@@ -3,8 +3,8 @@ package org.transitclock.core.holdingmethod;
 
 import java.util.List;
 import org.transitclock.core.VehicleState;
-import org.transitclock.db.structs.ArrivalDeparture;
-import org.transitclock.db.structs.HoldingTime;
+import org.transitclock.domain.structs.ArrivalDeparture;
+import org.transitclock.domain.structs.HoldingTime;
 import org.transitclock.service.dto.IpcArrivalDeparture;
 import org.transitclock.service.dto.IpcPrediction;
 

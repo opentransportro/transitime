@@ -9,13 +9,11 @@ import java.util.List;
 import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.transitclock.db.structs.Location;
-import org.transitclock.db.structs.Stop;
-import org.transitclock.db.structs.StopPath;
-import org.transitclock.db.structs.TripPattern;
-import org.transitclock.db.structs.Vector;
+import org.transitclock.domain.structs.Location;
+import org.transitclock.domain.structs.Stop;
+import org.transitclock.domain.structs.StopPath;
+import org.transitclock.domain.structs.TripPattern;
+import org.transitclock.domain.structs.Vector;
 import org.transitclock.gtfs.model.GtfsShape;
 import org.transitclock.utils.Geo;
 import org.transitclock.utils.IntervalTimer;

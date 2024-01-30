@@ -9,8 +9,8 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.transitclock.db.hibernate.HibernateUtils;
-import org.transitclock.db.structs.PredictionAccuracy;
+import org.transitclock.domain.hibernate.HibernateUtils;
+import org.transitclock.domain.structs.PredictionAccuracy;
 import org.transitclock.db.structs.QPredictionAccuracy;
 
 import java.util.Calendar;

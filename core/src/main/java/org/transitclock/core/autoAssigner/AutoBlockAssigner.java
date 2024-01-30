@@ -8,9 +8,9 @@ import org.transitclock.config.data.CoreConfig;
 import org.transitclock.core.*;
 import org.transitclock.core.dataCache.VehicleDataCache;
 import org.transitclock.core.dataCache.VehicleStateManager;
-import org.transitclock.db.structs.AvlReport;
-import org.transitclock.db.structs.Block;
-import org.transitclock.db.structs.Trip;
+import org.transitclock.domain.structs.AvlReport;
+import org.transitclock.domain.structs.Block;
+import org.transitclock.domain.structs.Trip;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.Time;
 

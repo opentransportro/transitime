@@ -1,7 +1,7 @@
 package org.transitclock.avl;
 
 import org.junit.jupiter.api.Test;
-import org.transitclock.db.structs.AvlReport;
+import org.transitclock.domain.structs.AvlReport;
 
 class AvlExecutorTest {
     @Test

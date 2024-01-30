@@ -2,8 +2,8 @@
 package org.transitclock.service.dto;
 
 import java.io.Serializable;
-import org.transitclock.db.structs.Extent;
-import org.transitclock.db.structs.Route;
+import org.transitclock.domain.structs.Extent;
+import org.transitclock.domain.structs.Route;
 
 /**
  * Contains configuration information for a single route. For providing info to client. This class

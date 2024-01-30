@@ -9,7 +9,7 @@ import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.core.dataCache.PredictionDataCache;
-import org.transitclock.db.structs.Location;
+import org.transitclock.domain.structs.Location;
 import org.transitclock.gtfs.StopsByLocation;
 import org.transitclock.gtfs.StopsByLocation.StopInfo;
 import org.transitclock.service.dto.IpcPredictionsForRouteStopDest;

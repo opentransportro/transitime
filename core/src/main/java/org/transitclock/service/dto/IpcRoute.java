@@ -10,11 +10,11 @@ import java.util.Set;
 import org.transitclock.applications.Core;
 import org.transitclock.core.dataCache.PredictionDataCache;
 import org.transitclock.core.dataCache.VehicleDataCache;
-import org.transitclock.db.structs.Location;
-import org.transitclock.db.structs.Route;
-import org.transitclock.db.structs.Stop;
-import org.transitclock.db.structs.StopPath;
-import org.transitclock.db.structs.TripPattern;
+import org.transitclock.domain.structs.Location;
+import org.transitclock.domain.structs.Route;
+import org.transitclock.domain.structs.Stop;
+import org.transitclock.domain.structs.StopPath;
+import org.transitclock.domain.structs.TripPattern;
 
 /**
  * Describes a route such that it can e displayed in a UI. Consists of all the info in a

@@ -5,7 +5,7 @@ import java.io.Serializable;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.List;
-import org.transitclock.db.structs.Location;
+import org.transitclock.domain.structs.Location;
 import org.transitclock.service.dto.IpcPredictionsForRouteStopDest;
 
 /**

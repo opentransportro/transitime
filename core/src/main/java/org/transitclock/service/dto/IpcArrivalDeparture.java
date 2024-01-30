@@ -6,7 +6,7 @@ import java.util.Date;
 
 import jakarta.xml.bind.annotation.XmlAttribute;
 import org.transitclock.core.TemporalDifference;
-import org.transitclock.db.structs.ArrivalDeparture;
+import org.transitclock.domain.structs.ArrivalDeparture;
 
 /**
  * For IPC for obtaining arrival and departure events for a stop that are in the cache.

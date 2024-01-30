@@ -4,7 +4,7 @@ package org.transitclock.avl;
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.config.data.AgencyConfig;
 import org.transitclock.config.data.AvlConfig;
-import org.transitclock.db.structs.AvlReport;
+import org.transitclock.domain.structs.AvlReport;
 import org.transitclock.utils.threading.NamedThreadFactory;
 
 import java.util.concurrent.BlockingQueue;

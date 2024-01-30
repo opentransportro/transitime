@@ -11,8 +11,8 @@ import org.transitclock.core.dataCache.DwellTimeModelCacheFactory;
 import org.transitclock.core.dataCache.StopPathCacheKey;
 import org.transitclock.core.dataCache.frequency.FrequencyBasedHistoricalAverageCache;
 import org.transitclock.core.predictiongenerator.frequency.traveltime.kalman.KalmanPredictionGeneratorImpl;
-import org.transitclock.db.structs.AvlReport;
-import org.transitclock.db.structs.Headway;
+import org.transitclock.domain.structs.AvlReport;
+import org.transitclock.domain.structs.Headway;
 
 /**
  * @author Sean Og Crudden

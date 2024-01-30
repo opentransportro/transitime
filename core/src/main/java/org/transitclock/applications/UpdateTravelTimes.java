@@ -16,12 +16,12 @@ import org.transitclock.config.data.AgencyConfig;
 import org.transitclock.core.travelTimes.TravelTimeInfoMap;
 import org.transitclock.core.travelTimes.TravelTimeInfoWithHowSet;
 import org.transitclock.core.travelTimes.TravelTimesProcessor;
-import org.transitclock.db.hibernate.HibernateUtils;
-import org.transitclock.db.structs.ActiveRevisions;
-import org.transitclock.db.structs.Agency;
-import org.transitclock.db.structs.TravelTimesForStopPath;
-import org.transitclock.db.structs.TravelTimesForTrip;
-import org.transitclock.db.structs.Trip;
+import org.transitclock.domain.hibernate.HibernateUtils;
+import org.transitclock.domain.structs.ActiveRevisions;
+import org.transitclock.domain.structs.Agency;
+import org.transitclock.domain.structs.TravelTimesForStopPath;
+import org.transitclock.domain.structs.TravelTimesForTrip;
+import org.transitclock.domain.structs.Trip;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.Time;
 

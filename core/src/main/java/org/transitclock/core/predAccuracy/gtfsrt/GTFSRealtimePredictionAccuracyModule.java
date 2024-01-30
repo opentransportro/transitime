@@ -10,9 +10,9 @@ import org.transitclock.applications.Core;
 import org.transitclock.config.data.GtfsConfig;
 import org.transitclock.core.predAccuracy.PredAccuracyPrediction;
 import org.transitclock.core.predAccuracy.PredictionAccuracyModule;
-import org.transitclock.db.structs.ScheduleTime;
-import org.transitclock.db.structs.StopPath;
-import org.transitclock.db.structs.Trip;
+import org.transitclock.domain.structs.ScheduleTime;
+import org.transitclock.domain.structs.StopPath;
+import org.transitclock.domain.structs.Trip;
 import org.transitclock.gtfs.DbConfig;
 
 import java.net.URL;

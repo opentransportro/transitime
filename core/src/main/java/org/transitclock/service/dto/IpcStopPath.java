@@ -4,9 +4,9 @@ package org.transitclock.service.dto;
 import java.io.Serializable;
 import java.util.List;
 import org.transitclock.applications.Core;
-import org.transitclock.db.structs.Location;
-import org.transitclock.db.structs.Stop;
-import org.transitclock.db.structs.StopPath;
+import org.transitclock.domain.structs.Location;
+import org.transitclock.domain.structs.Stop;
+import org.transitclock.domain.structs.StopPath;
 import org.transitclock.utils.Geo;
 
 /**

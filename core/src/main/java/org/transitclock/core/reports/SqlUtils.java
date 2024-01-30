@@ -4,7 +4,7 @@ package org.transitclock.core.reports;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import jakarta.servlet.http.HttpServletRequest;
-import org.transitclock.db.webstructs.WebAgency;
+import org.transitclock.domain.webstructs.WebAgency;
 import org.transitclock.utils.Time;
 
 /**

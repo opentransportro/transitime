@@ -4,7 +4,7 @@
 <%@page import="org.transitclock.api.utils.WebUtils" %>
 <%@page import="java.util.ResourceBundle" %>
 <%@page import="java.util.Locale" %>
-<%@page import="org.transitclock.db.webstructs.WebAgency" %>
+<%@page import="org.transitclock.domain.webstructs.WebAgency" %>
 
 <%
     // Determine all the parameters from the query string

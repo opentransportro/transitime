@@ -11,10 +11,10 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.transitclock.db.structs.Block;
-import org.transitclock.db.structs.Route;
-import org.transitclock.db.structs.ScheduleTime;
-import org.transitclock.db.structs.Trip;
+import org.transitclock.domain.structs.Block;
+import org.transitclock.domain.structs.Route;
+import org.transitclock.domain.structs.ScheduleTime;
+import org.transitclock.domain.structs.Trip;
 import org.transitclock.utils.MapKey;
 
 /**

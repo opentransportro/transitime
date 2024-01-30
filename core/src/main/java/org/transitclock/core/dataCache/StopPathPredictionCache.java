@@ -11,7 +11,7 @@ import org.ehcache.config.builders.CacheManagerBuilder;
 import org.ehcache.xml.XmlConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.transitclock.db.structs.PredictionForStopPath;
+import org.transitclock.domain.structs.PredictionForStopPath;
 
 public class StopPathPredictionCache {
     private static final String cacheName = "StopPathPredictionCache";

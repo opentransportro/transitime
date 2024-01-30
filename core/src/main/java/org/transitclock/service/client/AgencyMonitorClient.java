@@ -5,7 +5,7 @@ import java.rmi.RemoteException;
 import java.util.Collection;
 
 import lombok.extern.slf4j.Slf4j;
-import org.transitclock.db.webstructs.WebAgency;
+import org.transitclock.domain.webstructs.WebAgency;
 import org.transitclock.service.contract.ConfigInterface;
 import org.transitclock.service.contract.ServerStatusInterface;
 import org.transitclock.service.ConfigServiceImpl;

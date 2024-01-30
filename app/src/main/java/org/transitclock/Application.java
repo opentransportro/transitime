@@ -21,8 +21,8 @@ import org.transitclock.applications.GtfsFileProcessor;
 import org.transitclock.config.data.AgencyConfig;
 import org.transitclock.config.data.DbSetupConfig;
 import org.transitclock.core.dataCache.ehcache.CacheManagerFactory;
-import org.transitclock.db.ApiKeyManager;
-import org.transitclock.db.webstructs.WebAgency;
+import org.transitclock.domain.ApiKeyManager;
+import org.transitclock.domain.webstructs.WebAgency;
 
 import java.io.File;
 import java.io.FileNotFoundException;

@@ -2,15 +2,13 @@
 package org.transitclock.core.predictiongenerator.scheduled.dwell;
 
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.transitclock.core.Indices;
 import org.transitclock.core.VehicleState;
 import org.transitclock.core.dataCache.DwellTimeModelCacheFactory;
 import org.transitclock.core.dataCache.StopPathCacheKey;
 import org.transitclock.core.predictiongenerator.scheduled.traveltime.kalman.KalmanPredictionGeneratorImpl;
-import org.transitclock.db.structs.AvlReport;
-import org.transitclock.db.structs.Headway;
+import org.transitclock.domain.structs.AvlReport;
+import org.transitclock.domain.structs.Headway;
 
 /**
  * @author Sean Og Crudden

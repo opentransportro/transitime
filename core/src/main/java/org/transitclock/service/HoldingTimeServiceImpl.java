@@ -7,7 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.transitclock.core.dataCache.HoldingTimeCache;
 import org.transitclock.core.dataCache.HoldingTimeCacheKey;
 import org.transitclock.core.dataCache.VehicleDataCache;
-import org.transitclock.db.structs.HoldingTime;
+import org.transitclock.domain.structs.HoldingTime;
 import org.transitclock.service.dto.IpcHoldingTime;
 import org.transitclock.service.contract.HoldingTimeInterface;
 

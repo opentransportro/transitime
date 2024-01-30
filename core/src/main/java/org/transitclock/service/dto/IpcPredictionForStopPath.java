@@ -3,7 +3,7 @@ package org.transitclock.service.dto;
 
 import java.io.Serializable;
 import java.util.Date;
-import org.transitclock.db.structs.PredictionForStopPath;
+import org.transitclock.domain.structs.PredictionForStopPath;
 
 public class IpcPredictionForStopPath implements Serializable {
 

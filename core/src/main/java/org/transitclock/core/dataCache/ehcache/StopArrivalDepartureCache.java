@@ -7,7 +7,7 @@ import org.ehcache.Cache;
 import org.ehcache.CacheManager;
 import org.hibernate.Session;
 import org.transitclock.core.dataCache.*;
-import org.transitclock.db.structs.ArrivalDeparture;
+import org.transitclock.domain.structs.ArrivalDeparture;
 import org.transitclock.db.structs.QArrivalDeparture;
 import org.transitclock.service.dto.IpcArrivalDeparture;
 

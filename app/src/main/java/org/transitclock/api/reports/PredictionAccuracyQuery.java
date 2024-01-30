@@ -3,8 +3,8 @@ package org.transitclock.api.reports;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.transitclock.db.GenericQuery;
-import org.transitclock.db.webstructs.WebAgency;
+import org.transitclock.domain.GenericQuery;
+import org.transitclock.domain.webstructs.WebAgency;
 import org.transitclock.utils.Time;
 
 import java.sql.*;

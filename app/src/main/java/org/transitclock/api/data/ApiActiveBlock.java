@@ -7,7 +7,7 @@ import java.util.Collection;
 import java.util.List;
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
-import org.transitclock.db.webstructs.WebAgency;
+import org.transitclock.domain.webstructs.WebAgency;
 import org.transitclock.service.dto.IpcActiveBlock;
 import org.transitclock.service.dto.IpcTrip;
 import org.transitclock.service.dto.IpcVehicle;

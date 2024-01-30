@@ -10,13 +10,13 @@ import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.applications.Core;
 import org.transitclock.core.dataCache.VehicleDataCache;
-import org.transitclock.db.structs.Agency;
-import org.transitclock.db.structs.Block;
-import org.transitclock.db.structs.Calendar;
-import org.transitclock.db.structs.Route;
-import org.transitclock.db.structs.Trip;
-import org.transitclock.db.structs.TripPattern;
-import org.transitclock.db.structs.VehicleConfig;
+import org.transitclock.domain.structs.Agency;
+import org.transitclock.domain.structs.Block;
+import org.transitclock.domain.structs.Calendar;
+import org.transitclock.domain.structs.Route;
+import org.transitclock.domain.structs.Trip;
+import org.transitclock.domain.structs.TripPattern;
+import org.transitclock.domain.structs.VehicleConfig;
 import org.transitclock.gtfs.DbConfig;
 import org.transitclock.service.dto.IpcBlock;
 import org.transitclock.service.dto.IpcCalendar;
@@ -127,7 +127,7 @@ public class ConfigServiceImpl implements ConfigInterface {
         // If no route specified then return data for all routes
         if (routeIdsOrShortNames == null || routeIdsOrShortNames.isEmpty()) {
             DbConfig dbConfig = Core.getInstance().getDbConfig();
-            List<org.transitclock.db.structs.Route> dbRoutes = dbConfig.getRoutes();
+            List<Route> dbRoutes = dbConfig.getRoutes();
             for (Route dbRoute : dbRoutes) {
                 IpcRoute ipcRoute = new IpcRoute(dbRoute, null, null, null);
                 routes.add(ipcRoute);

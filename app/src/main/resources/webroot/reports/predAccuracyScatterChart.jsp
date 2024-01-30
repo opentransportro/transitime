@@ -1,5 +1,5 @@
 <%@ page import="org.transitclock.api.utils.WebUtils" %>
-<%@page import="org.transitclock.db.webstructs.WebAgency" %>
+<%@page import="org.transitclock.domain.webstructs.WebAgency" %>
 <%
     // Create title for chart
     String agencyId = request.getParameter("a");

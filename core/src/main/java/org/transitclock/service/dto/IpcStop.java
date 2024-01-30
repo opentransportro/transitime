@@ -2,8 +2,8 @@
 package org.transitclock.service.dto;
 
 import java.io.Serializable;
-import org.transitclock.db.structs.Location;
-import org.transitclock.db.structs.Stop;
+import org.transitclock.domain.structs.Location;
+import org.transitclock.domain.structs.Stop;
 
 /**
  * Contains information for a single route. Since Stop objects do not change dynamically this class

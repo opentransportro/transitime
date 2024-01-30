@@ -3,7 +3,7 @@ package org.transitclock.avl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.config.StringConfigValue;
-import org.transitclock.db.structs.AvlReport;
+import org.transitclock.domain.structs.AvlReport;
 import org.transitclock.gtfs.realtime.GtfsRtVehiclePositionsReader;
 
 import java.io.InputStream;

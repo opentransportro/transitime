@@ -3,7 +3,7 @@ package org.transitclock.service.dto;
 
 import java.io.Serializable;
 import java.util.Date;
-import org.transitclock.db.structs.VehicleToBlockConfig;
+import org.transitclock.domain.structs.VehicleToBlockConfig;
 
 /**
  * For transmitting via Interprocess Communication vehicle configuration info.

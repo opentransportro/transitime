@@ -6,8 +6,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
 import org.transitclock.core.BlocksInfo;
 import org.transitclock.core.dataCache.VehicleDataCache;
-import org.transitclock.db.hibernate.HibernateUtils;
+import org.transitclock.domain.hibernate.HibernateUtils;
 import org.transitclock.db.structs.*;
+import org.transitclock.domain.structs.*;
 import org.transitclock.service.dto.*;
 import org.transitclock.service.contract.VehiclesInterface;
 

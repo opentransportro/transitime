@@ -1,7 +1,7 @@
 /* (C)2023 */
 package org.transitclock.core;
 
-import org.transitclock.db.structs.Headway;
+import org.transitclock.domain.structs.Headway;
 
 /**
  * Defines the interface for generating headway information. To create headway info using an

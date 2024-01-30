@@ -16,9 +16,9 @@ import org.transitclock.core.SpatialMatch;
 import org.transitclock.core.TemporalDifference;
 import org.transitclock.core.VehicleState;
 import org.transitclock.core.dataCache.PredictionDataCache;
-import org.transitclock.db.structs.AvlReport.AssignmentType;
-import org.transitclock.db.structs.Location;
-import org.transitclock.db.structs.Trip;
+import org.transitclock.domain.structs.AvlReport.AssignmentType;
+import org.transitclock.domain.structs.Location;
+import org.transitclock.domain.structs.Trip;
 import org.transitclock.utils.SystemTime;
 import org.transitclock.utils.Time;
 

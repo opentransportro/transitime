@@ -5,7 +5,7 @@ import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.config.data.MonitoringConfig;
-import org.transitclock.db.structs.MonitoringEvent;
+import org.transitclock.domain.structs.MonitoringEvent;
 import org.transitclock.utils.Time;
 
 /**

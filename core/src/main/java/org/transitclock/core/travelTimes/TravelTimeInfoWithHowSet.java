@@ -2,8 +2,8 @@
 package org.transitclock.core.travelTimes;
 
 import java.util.List;
-import org.transitclock.db.structs.TravelTimesForStopPath.HowSet;
-import org.transitclock.db.structs.Trip;
+import org.transitclock.domain.structs.TravelTimesForStopPath.HowSet;
+import org.transitclock.domain.structs.Trip;
 
 /**
  * Extends TravelTimeInfo class but adds how the travel time was set. This way can see if travel

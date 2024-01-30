@@ -2,7 +2,7 @@
 package org.transitclock.core.dataCache;
 
 import java.util.Comparator;
-import org.transitclock.db.structs.ArrivalDeparture;
+import org.transitclock.domain.structs.ArrivalDeparture;
 
 public class ArrivalDepartureComparator implements Comparator<ArrivalDeparture> {
 

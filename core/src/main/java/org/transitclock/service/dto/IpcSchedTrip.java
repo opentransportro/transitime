@@ -5,9 +5,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import org.transitclock.applications.Core;
-import org.transitclock.db.structs.ScheduleTime;
-import org.transitclock.db.structs.StopPath;
-import org.transitclock.db.structs.Trip;
+import org.transitclock.domain.structs.ScheduleTime;
+import org.transitclock.domain.structs.StopPath;
+import org.transitclock.domain.structs.Trip;
 
 /**
  * For describing a trip as part of a schedule

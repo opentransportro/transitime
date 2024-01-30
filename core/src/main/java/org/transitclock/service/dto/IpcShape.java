@@ -4,9 +4,9 @@ package org.transitclock.service.dto;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import org.transitclock.db.structs.Location;
-import org.transitclock.db.structs.TripPattern;
-import org.transitclock.db.structs.Vector;
+import org.transitclock.domain.structs.Location;
+import org.transitclock.domain.structs.TripPattern;
+import org.transitclock.domain.structs.Vector;
 
 /**
  * Represents a shape for Inter Process Communication (IPC)

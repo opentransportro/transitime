@@ -2,8 +2,8 @@
 package org.transitclock.core;
 
 import org.transitclock.config.data.CoreConfig;
-import org.transitclock.db.structs.Block;
-import org.transitclock.db.structs.Trip;
+import org.transitclock.domain.structs.Block;
+import org.transitclock.domain.structs.Trip;
 import org.transitclock.utils.SystemTime;
 
 /**

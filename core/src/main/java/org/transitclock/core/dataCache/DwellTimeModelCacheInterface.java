@@ -1,8 +1,8 @@
 /* (C)2023 */
 package org.transitclock.core.dataCache;
 
-import org.transitclock.db.structs.ArrivalDeparture;
-import org.transitclock.db.structs.Headway;
+import org.transitclock.domain.structs.ArrivalDeparture;
+import org.transitclock.domain.structs.Headway;
 
 public interface DwellTimeModelCacheInterface {
 

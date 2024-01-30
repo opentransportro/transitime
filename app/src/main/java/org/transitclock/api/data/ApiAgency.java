@@ -4,7 +4,7 @@ package org.transitclock.api.data;
 import java.util.TimeZone;
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
-import org.transitclock.db.structs.Agency;
+import org.transitclock.domain.structs.Agency;
 
 /**
  * Contains API info for an agency.

@@ -4,8 +4,8 @@ package org.transitclock.service.dto;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import org.transitclock.db.structs.TravelTimesForTrip;
-import org.transitclock.db.structs.Trip;
+import org.transitclock.domain.structs.TravelTimesForTrip;
+import org.transitclock.domain.structs.Trip;
 import org.transitclock.utils.Time;
 
 /**

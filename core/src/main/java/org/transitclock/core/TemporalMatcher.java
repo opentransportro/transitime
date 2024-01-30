@@ -6,9 +6,9 @@ import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.applications.Core;
 import org.transitclock.config.data.CoreConfig;
-import org.transitclock.db.structs.AvlReport;
-import org.transitclock.db.structs.Location;
-import org.transitclock.db.structs.Trip;
+import org.transitclock.domain.structs.AvlReport;
+import org.transitclock.domain.structs.Location;
+import org.transitclock.domain.structs.Trip;
 import org.transitclock.utils.Geo;
 import org.transitclock.utils.Time;
 

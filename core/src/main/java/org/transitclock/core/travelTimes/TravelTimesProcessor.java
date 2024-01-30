@@ -5,10 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.transitclock.config.data.TraveltimesConfig;
 import org.transitclock.core.TemporalDifference;
 import org.transitclock.core.travelTimes.DataFetcher.DbDataMapKey;
-import org.transitclock.db.structs.ArrivalDeparture;
-import org.transitclock.db.structs.Match;
-import org.transitclock.db.structs.StopPath;
-import org.transitclock.db.structs.Trip;
+import org.transitclock.domain.structs.ArrivalDeparture;
+import org.transitclock.domain.structs.Match;
+import org.transitclock.domain.structs.StopPath;
+import org.transitclock.domain.structs.Trip;
 import org.transitclock.statistics.Statistics;
 import org.transitclock.utils.*;
 

@@ -8,8 +8,8 @@ import java.net.URL;
 import com.google.protobuf.CodedInputStream;
 import com.google.transit.realtime.GtfsRealtime.*;
 import lombok.extern.slf4j.Slf4j;
-import org.transitclock.db.structs.AvlReport;
-import org.transitclock.db.structs.AvlReport.AssignmentType;
+import org.transitclock.domain.structs.AvlReport;
+import org.transitclock.domain.structs.AvlReport.AssignmentType;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.MathUtils;
 

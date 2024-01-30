@@ -6,7 +6,7 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.transitclock.config.data.DbSetupConfig;
-import org.transitclock.db.structs.*;
+import org.transitclock.domain.structs.*;
 import org.transitclock.utils.IntervalTimer;
 
 /**

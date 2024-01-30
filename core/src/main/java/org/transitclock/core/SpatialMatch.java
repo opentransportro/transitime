@@ -4,17 +4,15 @@ package org.transitclock.core;
 import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.transitclock.applications.Core;
-import org.transitclock.db.structs.Block;
-import org.transitclock.db.structs.Location;
-import org.transitclock.db.structs.Route;
-import org.transitclock.db.structs.ScheduleTime;
-import org.transitclock.db.structs.StopPath;
-import org.transitclock.db.structs.Trip;
-import org.transitclock.db.structs.Vector;
-import org.transitclock.db.structs.VectorWithHeading;
+import org.transitclock.domain.structs.Block;
+import org.transitclock.domain.structs.Location;
+import org.transitclock.domain.structs.Route;
+import org.transitclock.domain.structs.ScheduleTime;
+import org.transitclock.domain.structs.StopPath;
+import org.transitclock.domain.structs.Trip;
+import org.transitclock.domain.structs.Vector;
+import org.transitclock.domain.structs.VectorWithHeading;
 import org.transitclock.utils.Geo;
 import org.transitclock.utils.Time;
 

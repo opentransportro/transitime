@@ -2,7 +2,7 @@
 package org.transitclock.api.reports;
 
 import lombok.extern.slf4j.Slf4j;
-import org.transitclock.db.GenericQuery;
+import org.transitclock.domain.GenericQuery;
 import org.transitclock.api.reports.ChartJsonBuilder.RowBuilder;
 
 import java.sql.SQLException;

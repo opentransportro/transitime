@@ -1,4 +1,4 @@
-<%@page import="org.transitclock.db.webstructs.WebAgency" %>
+<%@page import="org.transitclock.domain.webstructs.WebAgency" %>
 <%@page import="java.util.Collection" %>
 <%@page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 

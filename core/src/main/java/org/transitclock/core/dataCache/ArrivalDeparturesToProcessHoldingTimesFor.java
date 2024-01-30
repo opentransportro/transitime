@@ -4,7 +4,7 @@ package org.transitclock.core.dataCache;
 import java.util.ArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.transitclock.db.structs.ArrivalDeparture;
+import org.transitclock.domain.structs.ArrivalDeparture;
 
 /**
  * @author Sean Óg Crudden

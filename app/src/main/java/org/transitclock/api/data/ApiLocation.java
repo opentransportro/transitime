@@ -1,7 +1,7 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import org.transitclock.db.structs.Location;
+import org.transitclock.domain.structs.Location;
 
 /**
  * A simple latitude/longitude.

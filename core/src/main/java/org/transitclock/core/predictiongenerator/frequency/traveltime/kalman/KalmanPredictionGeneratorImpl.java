@@ -15,9 +15,9 @@ import org.transitclock.core.dataCache.frequency.FrequencyBasedHistoricalAverage
 import org.transitclock.core.predictiongenerator.PredictionComponentElementsGenerator;
 import org.transitclock.core.predictiongenerator.frequency.traveltime.average.HistoricalAveragePredictionGeneratorImpl;
 import org.transitclock.core.predictiongenerator.kalman.*;
-import org.transitclock.db.structs.AvlReport;
-import org.transitclock.db.structs.PredictionForStopPath;
-import org.transitclock.db.structs.VehicleEvent;
+import org.transitclock.domain.structs.AvlReport;
+import org.transitclock.domain.structs.PredictionForStopPath;
+import org.transitclock.domain.structs.VehicleEvent;
 import org.transitclock.utils.SystemTime;
 
 import java.util.Calendar;

@@ -9,7 +9,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.ResponseBuilder;
 import jakarta.ws.rs.core.Response.Status;
-import org.transitclock.db.ApiKeyManager;
+import org.transitclock.domain.ApiKeyManager;
 import org.transitclock.service.*;
 import org.transitclock.service.contract.*;
 

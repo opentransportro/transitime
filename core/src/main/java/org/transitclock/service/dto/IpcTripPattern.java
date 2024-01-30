@@ -4,9 +4,9 @@ package org.transitclock.service.dto;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import org.transitclock.db.structs.Extent;
-import org.transitclock.db.structs.StopPath;
-import org.transitclock.db.structs.TripPattern;
+import org.transitclock.domain.structs.Extent;
+import org.transitclock.domain.structs.StopPath;
+import org.transitclock.domain.structs.TripPattern;
 
 /**
  * Configuration information for a TripPattern. For IPC.

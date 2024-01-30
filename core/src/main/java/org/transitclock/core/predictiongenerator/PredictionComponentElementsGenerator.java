@@ -4,7 +4,7 @@ package org.transitclock.core.predictiongenerator;
 import org.transitclock.core.Indices;
 import org.transitclock.core.SpatialMatch;
 import org.transitclock.core.VehicleState;
-import org.transitclock.db.structs.AvlReport;
+import org.transitclock.domain.structs.AvlReport;
 
 public interface PredictionComponentElementsGenerator {
     /* this generates a prediction for travel time between stops */

@@ -8,7 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import org.transitclock.db.structs.ExportTable;
+import org.transitclock.domain.structs.ExportTable;
 
 /**
  * For when have list of exports. By using this class can control the element name when data is

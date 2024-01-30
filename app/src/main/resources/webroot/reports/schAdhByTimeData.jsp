@@ -19,7 +19,7 @@
 --%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
          pageEncoding="UTF-8" %>
-<%@ page import="org.transitclock.db.webstructs.WebAgency" %>
+<%@ page import="org.transitclock.domain.webstructs.WebAgency" %>
 <%@ page import="org.transitclock.api.reports.GenericJsonQuery" %>
 <%@ page import="org.transitclock.api.reports.SqlUtils" %>
 <%

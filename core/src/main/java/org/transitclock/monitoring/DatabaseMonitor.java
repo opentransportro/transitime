@@ -3,7 +3,7 @@ package org.transitclock.monitoring;
 
 import java.util.List;
 import org.hibernate.HibernateException;
-import org.transitclock.db.structs.DbTest;
+import org.transitclock.domain.structs.DbTest;
 
 /**
  * For monitoring access to database. Makes sure can read and write to database.

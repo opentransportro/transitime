@@ -5,9 +5,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import org.transitclock.applications.Core;
-import org.transitclock.db.structs.Block;
-import org.transitclock.db.structs.Route;
-import org.transitclock.db.structs.Trip;
+import org.transitclock.domain.structs.Block;
+import org.transitclock.domain.structs.Route;
+import org.transitclock.domain.structs.Trip;
 import org.transitclock.utils.Time;
 
 /**

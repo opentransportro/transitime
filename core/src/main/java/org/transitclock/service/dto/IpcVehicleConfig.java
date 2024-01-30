@@ -2,7 +2,7 @@
 package org.transitclock.service.dto;
 
 import java.io.Serializable;
-import org.transitclock.db.structs.VehicleConfig;
+import org.transitclock.domain.structs.VehicleConfig;
 
 /**
  * For transmitting via Interprocess Communication vehicle configuration info.
