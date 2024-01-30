@@ -4,7 +4,7 @@ package org.transitclock.core;
 import java.util.ArrayList;
 import java.util.Date;
 import lombok.extern.slf4j.Slf4j;
-import org.transitclock.applications.Core;
+import org.transitclock.Core;
 import org.transitclock.config.ArrivalsDeparturesConfig;
 import org.transitclock.config.data.AgencyConfig;
 import org.transitclock.config.data.CoreConfig;

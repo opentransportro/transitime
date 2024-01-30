@@ -6,7 +6,7 @@ import java.util.Date;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.DynamicUpdate;
-import org.transitclock.applications.Core;
+import org.transitclock.Core;
 import org.transitclock.service.dto.IpcPrediction;
 
 /**

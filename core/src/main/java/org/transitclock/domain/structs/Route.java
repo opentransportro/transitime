@@ -10,7 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
-import org.transitclock.applications.Core;
+import org.transitclock.Core;
 import org.transitclock.gtfs.TitleFormatter;
 import org.transitclock.gtfs.model.GtfsRoute;
 import org.transitclock.utils.OrderedCollection;

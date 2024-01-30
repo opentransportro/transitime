@@ -7,7 +7,7 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.ehcache.Cache;
 import org.ehcache.CacheManager;
 import org.hibernate.Session;
-import org.transitclock.applications.Core;
+import org.transitclock.Core;
 import org.transitclock.core.dataCache.*;
 import org.transitclock.core.dataCache.ehcache.CacheManagerFactory;
 import org.transitclock.domain.structs.ArrivalDeparture;

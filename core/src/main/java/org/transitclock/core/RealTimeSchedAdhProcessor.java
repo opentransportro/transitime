@@ -2,7 +2,7 @@
 package org.transitclock.core;
 
 import lombok.extern.slf4j.Slf4j;
-import org.transitclock.applications.Core;
+import org.transitclock.Core;
 import org.transitclock.domain.structs.ScheduleTime;
 import org.transitclock.domain.structs.Trip;
 import org.transitclock.utils.Time;

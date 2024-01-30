@@ -7,7 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.Module;
-import org.transitclock.applications.Core;
+import org.transitclock.Core;
 import org.transitclock.config.data.PredictionAccuracyConfig;
 import org.transitclock.core.dataCache.PredictionDataCache;
 import org.transitclock.domain.structs.ArrivalDeparture;

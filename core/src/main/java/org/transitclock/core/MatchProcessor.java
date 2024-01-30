@@ -3,7 +3,7 @@ package org.transitclock.core;
 
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.transitclock.applications.Core;
+import org.transitclock.Core;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.core.dataCache.PredictionDataCache;
 import org.transitclock.domain.hibernate.DataDbLogger;

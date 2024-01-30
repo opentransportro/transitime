@@ -3,7 +3,7 @@ package org.transitclock.core;
 
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
-import org.transitclock.applications.Core;
+import org.transitclock.Core;
 import org.transitclock.config.data.AgencyConfig;
 import org.transitclock.config.data.BlockAssignerConfig;
 import org.transitclock.config.data.CoreConfig;

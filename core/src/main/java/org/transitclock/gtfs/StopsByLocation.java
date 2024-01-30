@@ -3,7 +3,7 @@ package org.transitclock.gtfs;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.transitclock.applications.Core;
+import org.transitclock.Core;
 import org.transitclock.core.dataCache.PredictionDataCache;
 import org.transitclock.domain.structs.Location;
 import org.transitclock.domain.structs.Route;

@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
-import org.transitclock.applications.Core;
+import org.transitclock.Core;
 import org.transitclock.core.dataCache.VehicleDataCache;
 import org.transitclock.domain.structs.Agency;
 import org.transitclock.domain.structs.Block;

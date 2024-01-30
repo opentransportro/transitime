@@ -2,7 +2,7 @@
 package org.transitclock.core;
 
 import org.apache.commons.lang3.time.DateUtils;
-import org.transitclock.applications.Core;
+import org.transitclock.Core;
 import org.transitclock.config.data.PredictionConfig;
 import org.transitclock.core.dataCache.*;
 import org.transitclock.core.predictiongenerator.datafilter.TravelTimeDataFilter;

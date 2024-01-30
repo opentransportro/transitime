@@ -3,7 +3,7 @@ package org.transitclock.service.dto;
 
 import java.io.IOException;
 import java.util.Date;
-import org.transitclock.applications.Core;
+import org.transitclock.Core;
 import org.transitclock.core.BlockAssignmentMethod;
 import org.transitclock.core.SpatialMatch;
 import org.transitclock.core.TemporalDifference;

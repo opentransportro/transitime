@@ -18,8 +18,6 @@ import org.transitclock.api.EmbeddedJspStarter;
 import org.transitclock.api.utils.ApiLoggingFilter;
 import org.transitclock.api.utils.WebLoggingFilter;
 import org.transitclock.api.utils.XSSFilter;
-import org.transitclock.applications.Core;
-import org.transitclock.applications.GtfsFileProcessor;
 import org.transitclock.config.data.AgencyConfig;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.config.data.DbSetupConfig;

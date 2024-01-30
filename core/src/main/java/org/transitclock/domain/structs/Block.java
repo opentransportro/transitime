@@ -13,7 +13,7 @@ import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.collection.spi.PersistentList;
 import org.hibernate.internal.SessionImpl;
-import org.transitclock.applications.Core;
+import org.transitclock.Core;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.core.SpatialMatch;
 import org.transitclock.domain.hibernate.HibernateUtils;

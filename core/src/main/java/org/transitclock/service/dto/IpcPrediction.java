@@ -7,7 +7,7 @@ import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.Date;
 
-import org.transitclock.applications.Core;
+import org.transitclock.Core;
 import org.transitclock.domain.structs.AvlReport;
 import org.transitclock.domain.structs.Trip;
 import org.transitclock.utils.StringUtils;

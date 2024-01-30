@@ -1,5 +1,5 @@
 /* (C)2023 */
-package org.transitclock.applications;
+package org.transitclock;
 
 import java.text.ParseException;
 import java.util.Date;

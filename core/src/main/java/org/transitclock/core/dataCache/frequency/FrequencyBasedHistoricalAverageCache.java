@@ -5,7 +5,7 @@ import com.querydsl.jpa.impl.JPAQuery;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.DateUtils;
 import org.hibernate.Session;
-import org.transitclock.applications.Core;
+import org.transitclock.Core;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.core.dataCache.*;
 import org.transitclock.domain.structs.ArrivalDeparture;

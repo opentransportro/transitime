@@ -4,7 +4,7 @@ package org.transitclock.core;
 import java.util.Date;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.transitclock.applications.Core;
+import org.transitclock.Core;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.domain.structs.AvlReport;
 import org.transitclock.domain.structs.Location;

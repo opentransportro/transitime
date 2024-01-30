@@ -6,7 +6,7 @@ import java.util.Date;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
-import org.transitclock.applications.Core;
+import org.transitclock.Core;
 
 @Entity
 @Data

@@ -8,7 +8,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import org.transitclock.applications.Core;
+import org.transitclock.Core;
 import org.transitclock.core.VehicleState;
 import org.transitclock.core.dataCache.VehicleStateManager;
 import org.transitclock.domain.structs.Route;

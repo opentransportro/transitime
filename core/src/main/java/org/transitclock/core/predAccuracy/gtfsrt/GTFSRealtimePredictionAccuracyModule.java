@@ -6,7 +6,7 @@ import com.google.transit.realtime.GtfsRealtime.FeedMessage;
 import com.google.transit.realtime.GtfsRealtime.TripUpdate;
 import com.google.transit.realtime.GtfsRealtime.TripUpdate.StopTimeUpdate;
 import lombok.extern.slf4j.Slf4j;
-import org.transitclock.applications.Core;
+import org.transitclock.Core;
 import org.transitclock.config.data.GtfsConfig;
 import org.transitclock.core.predAccuracy.PredAccuracyPrediction;
 import org.transitclock.core.predAccuracy.PredictionAccuracyModule;

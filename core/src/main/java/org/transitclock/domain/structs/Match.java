@@ -14,7 +14,7 @@ import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Immutable;
 import org.hibernate.classic.Lifecycle;
-import org.transitclock.applications.Core;
+import org.transitclock.Core;
 import org.transitclock.core.TemporalMatch;
 import org.transitclock.core.VehicleState;
 import org.transitclock.domain.hibernate.HibernateUtils;

@@ -8,7 +8,7 @@ import org.ehcache.CacheManager;
 import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.transitclock.applications.Core;
+import org.transitclock.Core;
 import org.transitclock.core.DwellTimeDetails;
 import org.transitclock.core.TravelTimeDetails;
 import org.transitclock.core.dataCache.*;

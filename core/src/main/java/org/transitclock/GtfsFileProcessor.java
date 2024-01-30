@@ -1,10 +1,9 @@
 /* (C)2023 */
-package org.transitclock.applications;
+package org.transitclock;
 
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.transitclock.CommandLineParameters;
 import org.transitclock.config.ConfigFileReader;
 import org.transitclock.config.data.AgencyConfig;
 import org.transitclock.domain.hibernate.HibernateUtils;

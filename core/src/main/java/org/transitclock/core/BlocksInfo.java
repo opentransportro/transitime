@@ -7,7 +7,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.transitclock.applications.Core;
+import org.transitclock.Core;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.domain.structs.Block;
 import org.transitclock.gtfs.DbConfig;

@@ -3,7 +3,7 @@ package org.transitclock.monitoring;
 
 import java.util.Date;
 import java.util.List;
-import org.transitclock.applications.Core;
+import org.transitclock.Core;
 import org.transitclock.core.BlocksInfo;
 import org.transitclock.domain.structs.Block;
 

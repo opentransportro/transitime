@@ -2,7 +2,7 @@
 package org.transitclock.core.autoAssigner;
 
 import lombok.extern.slf4j.Slf4j;
-import org.transitclock.applications.Core;
+import org.transitclock.Core;
 import org.transitclock.config.data.BlockAssignerConfig;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.core.*;
