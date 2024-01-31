@@ -155,10 +155,59 @@ transitclock.web.mapTileUrl=http://tile.openstreetmap.org/{z}/{x}/{y}.png
 </hibernate-configuration>
 ```
 
-### :bomb: Starting the application
+#### :bomb: Starting the application
 ```shell
 JAVA_OPTS="-Dtransitclock.configFiles=/location-to-properties-file/transitclock.properties -Dtransitclock.apikey=f78a2e9a"
 GTFS_TO_IMPORT="url to gtfs you want to import"
 
 java $JAVA_OPTS -jar app/target/transitclock.jar --gtfs-url $GTFS_TO_IMPORT
+```
+
+### :whale: Running using Docker
+Simplest way to run the transitclock would be using ```docker```, actually ```docker compose```. For it to happen you would be to map your config into the transitclock container using a configuration as follows:
+```yaml
+version: "3.18"
+services:
+  db:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: transitclock
+      POSTGRES_DB: transitclock
+    ports:
+      - "5432:5432"
+  gtfsrt-validator:
+    image: ghcr.io/mobilitydata/gtfs-realtime-validator:latest
+    ports:
+      - "9090:8080"
+  transitclock:
+    image: otrro/transitclock-server:latest
+    depends_on:
+      - db
+    environment:
+      AGENCYID: transitclock # not that relevant anymore since will be coming from your file
+      AGENCYNAME: transitclock # has to match what is configured in the file for transitclock.db.dbName and should match POSTGRES_DB specified for postgress
+      GTFS_URL: https://your feed location
+      GTFSRTVEHICLEPOSITIONS: https://rt feed location # can be configured in the file directly
+      PGPASSWORD: transitclock
+      POSTGRES_PORT_5432_TCP_ADDR: db
+      POSTGRES_PORT_5432_TCP_PORT: 5432
+    volumes:
+      # this mapps the transitclock.properties file that is near to docker-compose file to the one in container that is used by the app
+      ### IMPORTANT NOTE: make sure you have this config transitclock.hibernate.configFile=/app/config/hibernate.cfg.xml
+      - ./transitclock.properties:/app/config/transitclock.properties
+    ports:
+      - "8080:8080"
+    command:
+      - --gtfs-url
+      - https://your feed location
+```
+
+After doing this you just simply need to:
+```shell
+# if you have compose plugin for docker installed
+docker compose up # in the folder where you have save the previous content as docker-compose.yaml
+
+# if you have the actual docker-compose application
+docker-compose up
 ```
