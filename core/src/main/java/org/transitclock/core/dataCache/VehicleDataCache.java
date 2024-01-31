@@ -9,12 +9,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.Core;
+import org.transitclock.annotations.Component;
 import org.transitclock.config.data.AgencyConfig;
 import org.transitclock.core.VehicleState;
 import org.transitclock.domain.hibernate.HibernateUtils;
@@ -36,6 +39,8 @@ import org.transitclock.utils.Time;
  *
  * @author SkiBu Smith
  */
+@Slf4j
+@Component
 public class VehicleDataCache {
 
     // Make this class available as a singleton
@@ -72,10 +77,6 @@ public class VehicleDataCache {
     // is
     // obsolete and shouldn't be displayed.
     private static final int MAX_AGE_MSEC = 15 * Time.MS_PER_MIN;
-
-    private static final Logger logger = LoggerFactory.getLogger(VehicleDataCache.class);
-
-    /********************** Member Functions **************************/
 
     /**
      * Gets the singleton instance of this class.

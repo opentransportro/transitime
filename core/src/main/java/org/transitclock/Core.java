@@ -4,6 +4,7 @@ package org.transitclock;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.transitclock.annotations.Component;
 import org.transitclock.config.data.AgencyConfig;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.core.ServiceUtils;
@@ -32,6 +33,7 @@ import java.util.concurrent.ThreadFactory;
  * @author SkiBu Smith
  */
 @Slf4j
+@Component
 public class Core {
     private static Core SINGLETON;
 

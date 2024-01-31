@@ -4,6 +4,7 @@ package org.transitclock.core;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
 import org.transitclock.Core;
+import org.transitclock.annotations.Component;
 import org.transitclock.config.data.AgencyConfig;
 import org.transitclock.config.data.BlockAssignerConfig;
 import org.transitclock.config.data.CoreConfig;
@@ -29,6 +30,7 @@ import static org.transitclock.config.data.CoreConfig.*;
  * @author SkiBu Smith
  */
 @Slf4j
+@Component
 public class AvlProcessor {
     // Singleton class
     private static final AvlProcessor singleton = new AvlProcessor();

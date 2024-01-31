@@ -8,6 +8,7 @@ import org.ehcache.Cache;
 import org.ehcache.CacheManager;
 import org.hibernate.Session;
 import org.transitclock.Core;
+import org.transitclock.annotations.Component;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.core.dataCache.*;
 import org.transitclock.core.dataCache.ehcache.CacheManagerFactory;
@@ -33,6 +34,7 @@ import java.util.*;
  *     perhaps using Infinispan.
  */
 @Slf4j
+@Component
 public class TripDataHistoryCache implements TripDataHistoryCacheInterface {
     private static final TripDataHistoryCacheInterface singleton = new TripDataHistoryCache();
 

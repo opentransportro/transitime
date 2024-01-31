@@ -4,6 +4,7 @@ package org.transitclock.core;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.Core;
+import org.transitclock.annotations.Component;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.core.dataCache.PredictionDataCache;
 import org.transitclock.domain.hibernate.DataDbLogger;
@@ -20,6 +21,7 @@ import org.transitclock.utils.Time;
  * @author SkiBu Smith
  */
 @Slf4j
+@Component
 public class MatchProcessor {
 
     // Singleton class

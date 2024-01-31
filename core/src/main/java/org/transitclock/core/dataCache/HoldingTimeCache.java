@@ -10,11 +10,13 @@ import org.ehcache.config.builders.CacheManagerBuilder;
 import org.ehcache.xml.XmlConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.transitclock.annotations.Component;
 import org.transitclock.domain.structs.HoldingTime;
 
 /**
  * @author Sean Óg Crudden
  */
+@Component
 public class HoldingTimeCache {
     private static final String cacheName = "HoldingTimeCache";
     private static final HoldingTimeCache singleton = new HoldingTimeCache();

@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.Core;
+import org.transitclock.annotations.Component;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.domain.structs.AvlReport;
 import org.transitclock.domain.structs.Location;
@@ -20,6 +21,7 @@ import org.transitclock.utils.Time;
  * @author SkiBu Smith
  */
 @Slf4j
+@Component
 public class TemporalMatcher {
 
     // Singleton class

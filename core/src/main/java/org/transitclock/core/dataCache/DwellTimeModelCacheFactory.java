@@ -19,9 +19,7 @@ public class DwellTimeModelCacheFactory {
     public static DwellTimeModelCacheInterface getInstance() {
 
         if (singleton == null) {
-            if (className != null
-                    && className.getValue() != null
-                    && className.getValue().length() > 0) {
+            if (className.getValue() != null && !className.getValue().isEmpty()) {
                 singleton = ClassInstantiator.instantiate(className.getValue(), DwellTimeModelCacheInterface.class);
             }
         }

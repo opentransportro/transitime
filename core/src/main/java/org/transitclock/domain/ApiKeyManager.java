@@ -4,6 +4,7 @@ package org.transitclock.domain;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
+import org.transitclock.annotations.Component;
 import org.transitclock.config.IntegerConfigValue;
 import org.transitclock.config.data.DbSetupConfig;
 import org.transitclock.domain.hibernate.HibernateUtils;
@@ -20,6 +21,7 @@ import java.util.Map;
  * @author SkiBu Smith
  */
 @Slf4j
+@Component
 public class ApiKeyManager {
 
     // Cache of the ApiKeys loaded from database.

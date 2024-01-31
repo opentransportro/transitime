@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.DateUtils;
 import org.hibernate.Session;
 import org.transitclock.Core;
+import org.transitclock.annotations.Component;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.core.dataCache.*;
 import org.transitclock.domain.structs.ArrivalDeparture;
@@ -24,6 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *     trip is used to decide which bucket to apply the data to or which average to retrieve.
  */
 @Slf4j
+@Component
 public class FrequencyBasedHistoricalAverageCache {
 
     private static final FrequencyBasedHistoricalAverageCache singleton = new FrequencyBasedHistoricalAverageCache();

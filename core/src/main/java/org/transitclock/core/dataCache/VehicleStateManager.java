@@ -4,6 +4,8 @@ package org.transitclock.core.dataCache;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import org.transitclock.annotations.Component;
 import org.transitclock.core.VehicleState;
 
 /**
@@ -13,6 +15,7 @@ import org.transitclock.core.VehicleState;
  *
  * @author SkiBu Smith
  */
+@Component
 public class VehicleStateManager {
 
     // Keyed by vehicle ID. Need to use ConcurrentHashMap instead of HashMap
@@ -23,8 +26,6 @@ public class VehicleStateManager {
 
     // This is a singleton class
     private static final VehicleStateManager singleton = new VehicleStateManager();
-
-    /********************** Member Functions **************************/
 
     /**
      * Constructor made private because this is singleton class where getInstance() should be used

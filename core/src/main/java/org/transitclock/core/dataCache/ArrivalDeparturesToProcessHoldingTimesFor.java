@@ -2,19 +2,22 @@
 package org.transitclock.core.dataCache;
 
 import java.util.ArrayList;
+
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.transitclock.annotations.Component;
 import org.transitclock.domain.structs.ArrivalDeparture;
 
 /**
  * @author Sean Óg Crudden
  */
+@Slf4j
+@Component
 public class ArrivalDeparturesToProcessHoldingTimesFor {
 
     private static final ArrivalDeparturesToProcessHoldingTimesFor singleton =
             new ArrivalDeparturesToProcessHoldingTimesFor();
-
-    private static final Logger logger = LoggerFactory.getLogger(ArrivalDeparturesToProcessHoldingTimesFor.class);
 
     private final ArrayList<ArrivalDeparture> m = new ArrayList<ArrivalDeparture>();
 

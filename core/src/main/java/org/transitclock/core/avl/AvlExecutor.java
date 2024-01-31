@@ -2,6 +2,7 @@
 package org.transitclock.core.avl;
 
 import lombok.extern.slf4j.Slf4j;
+import org.transitclock.annotations.Component;
 import org.transitclock.config.data.AgencyConfig;
 import org.transitclock.config.data.AvlConfig;
 import org.transitclock.domain.structs.AvlReport;
@@ -25,6 +26,7 @@ import java.util.concurrent.TimeUnit;
  * @author SkiBu Smith
  */
 @Slf4j
+@Component
 public class AvlExecutor {
 
     private static final int MAX_THREADS = 25;

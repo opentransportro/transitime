@@ -8,6 +8,7 @@ import org.ehcache.Cache;
 import org.ehcache.CacheManager;
 import org.hibernate.Session;
 import org.transitclock.Core;
+import org.transitclock.annotations.Component;
 import org.transitclock.core.dataCache.*;
 import org.transitclock.core.dataCache.ehcache.CacheManagerFactory;
 import org.transitclock.domain.structs.ArrivalDeparture;
@@ -29,6 +30,7 @@ import java.util.List;
  *     in cache for use in generating predictions based on a Kalman filter.
  */
 @Slf4j
+@Component
 public class TripDataHistoryCache implements TripDataHistoryCacheInterface {
     private static final TripDataHistoryCacheInterface singleton = new TripDataHistoryCache();
 

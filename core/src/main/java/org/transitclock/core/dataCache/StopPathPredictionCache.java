@@ -11,8 +11,10 @@ import org.ehcache.config.builders.CacheManagerBuilder;
 import org.ehcache.xml.XmlConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.transitclock.annotations.Component;
 import org.transitclock.domain.structs.PredictionForStopPath;
 
+@Component
 public class StopPathPredictionCache {
     private static final String cacheName = "StopPathPredictionCache";
     private static final StopPathPredictionCache singleton = new StopPathPredictionCache();

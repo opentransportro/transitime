@@ -4,6 +4,7 @@ package org.transitclock.core;
 import java.util.Collection;
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.Core;
+import org.transitclock.annotations.Component;
 import org.transitclock.domain.structs.AvlReport;
 import org.transitclock.domain.structs.Block;
 import org.transitclock.domain.structs.Trip;
@@ -16,6 +17,7 @@ import org.transitclock.utils.Time;
  * @author SkiBu Smith
  */
 @Slf4j
+@Component
 public class BlockAssigner {
 
     // Singleton class
