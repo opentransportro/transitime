@@ -4,35 +4,24 @@ package org.transitclock.core.dataCache;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.transitclock.domain.structs.PredictionForStopPath;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class StopPredictions implements Serializable {
-    /** */
-    private static final long serialVersionUID = -6487148805894879790L;
-
-    public List<PredictionForStopPath> predictions = null;
-
-    public StopPredictions(List<PredictionForStopPath> predictions) {
-        super();
-        this.predictions = predictions;
-    }
-
-    public List<PredictionForStopPath> getPredictions() {
-        return predictions;
-    }
-
-    public void setPredictions(List<PredictionForStopPath> predictions) {
-        this.predictions = predictions;
-    }
+    public List<PredictionForStopPath> predictions;
 
     public void addPrediction(PredictionForStopPath prediction) {
         if (this.predictions == null) {
-            predictions = new ArrayList<PredictionForStopPath>();
+            predictions = new ArrayList<>();
         }
         predictions.add(prediction);
-    }
-
-    public StopPredictions() {
-        super();
     }
 }

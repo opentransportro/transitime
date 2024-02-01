@@ -33,6 +33,7 @@ public class ScheduleBasedHistoricalAverageCache {
     private static final String cacheName = "HistoricalAverageCache";
     private Cache<StopPathCacheKey, HistoricalAverage> cache = null;
     private final DbConfig dbConfig;
+
     public ScheduleBasedHistoricalAverageCache() {
         CacheManager cm = SingletonContainer.getInstance(CacheManager.class);
         cache = cm.getCache(cacheName, StopPathCacheKey.class, HistoricalAverage.class);

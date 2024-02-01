@@ -33,7 +33,6 @@ import java.util.*;
  *     perhaps using Infinispan.
  */
 @Slf4j
-@Component
 public class TripDataHistoryCache implements TripDataHistoryCacheInterface {
     private static final boolean debug = false;
 

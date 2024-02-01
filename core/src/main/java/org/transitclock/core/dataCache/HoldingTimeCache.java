@@ -19,8 +19,8 @@ public class HoldingTimeCache {
 
 
     public HoldingTimeCache() {
-        cache = SingletonContainer.getInstance(CacheManager.class)
-                .getCache(cacheName, HoldingTimeCacheKey.class, HoldingTime.class);
+        CacheManager cm = SingletonContainer.getInstance(CacheManager.class);
+        cache = cm.getCache(cacheName, HoldingTimeCacheKey.class, HoldingTime.class);
     }
 
     public void putHoldingTime(HoldingTime holdingTime) {

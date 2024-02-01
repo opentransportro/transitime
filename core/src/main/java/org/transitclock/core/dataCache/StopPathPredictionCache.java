@@ -47,7 +47,7 @@ public class StopPathPredictionCache {
             list = element.getPredictions();
             cache.remove(key);
         } else {
-            list = new ArrayList<PredictionForStopPath>();
+            list = new ArrayList<>();
         }
         list.add(prediction);
 

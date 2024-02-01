@@ -32,7 +32,6 @@ public class DwellTimeModelCache implements org.transitclock.core.dataCache.Dwel
     private Cache<StopPathCacheKey, DwellModel> cache = null;
 
     public DwellTimeModelCache() throws IOException {
-
         CacheManager cm = SingletonContainer.getInstance(CacheManager.class);
 
         cache = cm.getCache(cacheName, StopPathCacheKey.class, DwellModel.class);

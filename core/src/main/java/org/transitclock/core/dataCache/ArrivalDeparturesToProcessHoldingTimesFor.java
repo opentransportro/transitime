@@ -2,6 +2,7 @@
 package org.transitclock.core.dataCache;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -16,9 +17,11 @@ import org.transitclock.domain.structs.ArrivalDeparture;
 @Component
 public class ArrivalDeparturesToProcessHoldingTimesFor {
 
-    private final ArrayList<ArrivalDeparture> m = new ArrayList<ArrivalDeparture>();
+    private final ArrayList<ArrivalDeparture> m;
 
-    public ArrivalDeparturesToProcessHoldingTimesFor() {}
+    public ArrivalDeparturesToProcessHoldingTimesFor() {
+        m = new ArrayList<>();
+    }
 
     public void empty() {
         m.clear();
@@ -28,7 +31,7 @@ public class ArrivalDeparturesToProcessHoldingTimesFor {
         m.add(ad);
     }
 
-    public ArrayList<ArrivalDeparture> getList() {
+    public List<ArrivalDeparture> getList() {
         return m;
     }
 }

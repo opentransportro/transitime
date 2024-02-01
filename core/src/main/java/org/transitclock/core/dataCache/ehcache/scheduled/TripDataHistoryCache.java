@@ -31,10 +31,7 @@ import java.util.List;
  *     in cache for use in generating predictions based on a Kalman filter.
  */
 @Slf4j
-@Component
 public class TripDataHistoryCache implements TripDataHistoryCacheInterface {
-    private static final TripDataHistoryCacheInterface singleton = new TripDataHistoryCache();
-
     private static final boolean debug = false;
 
     private static final String cacheByTrip = "arrivalDeparturesByTrip";
@@ -43,7 +40,7 @@ public class TripDataHistoryCache implements TripDataHistoryCacheInterface {
     private final DbConfig dbConfig = SingletonContainer.getInstance(DbConfig.class);
 
     public TripDataHistoryCache() {
-        CacheManager cm = CacheManagerFactory.getInstance();
+        CacheManager cm = SingletonContainer.getInstance(CacheManager.class);
         cache = cm.getCache(cacheByTrip, TripKey.class, TripEvents.class);
     }
 
