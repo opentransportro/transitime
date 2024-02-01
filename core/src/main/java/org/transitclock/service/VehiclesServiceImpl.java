@@ -313,15 +313,20 @@ public class VehiclesServiceImpl implements VehiclesInterface {
     public Collection<IpcActiveBlock> getActiveBlocksAndVehiclesByRouteName(
             String routeName, int allowableBeforeTimeSecs) throws RemoteException {
 
-        Session session = HibernateUtils.getSession();
-        JPAQuery<Route> query = new JPAQuery<>(session);
-        var qentity = QRoute.route;
-        List<String> routeIds = query.from(qentity)
-                .select(qentity.id)
-                .where(qentity.name.eq(routeName))
-                .groupBy(qentity.id)
-                .fetch();
-        session.close();
+        List<String> routeIds;
+        try (Session session = HibernateUtils.getSession()) {
+            JPAQuery<String> query = new JPAQuery<>(session);
+            var qentity = QRoute.route;
+            query = query
+                    .from(qentity)
+                    .select(qentity.id);
+            if (routeName != null && !routeName.isEmpty()) {
+                query.where(qentity.name.eq(routeName));
+            }
+            routeIds = query
+                    .groupBy(qentity.id)
+                    .fetch();
+        }
 
         return getActiveBlocksAndVehiclesByRouteId(routeIds, allowableBeforeTimeSecs);
     }
