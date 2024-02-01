@@ -1,6 +1,7 @@
 /* (C)2023 */
 package org.transitclock.core.dataCache;
 
+import org.transitclock.annotations.Configuration;
 import org.transitclock.config.StringConfigValue;
 import org.transitclock.utils.ClassInstantiator;
 
@@ -8,6 +9,7 @@ import org.transitclock.utils.ClassInstantiator;
  * @author Sean Óg Crudden Factory that will provide cache to hold dwell time model class instances
  *     for each stop.
  */
+@Configuration
 public class DwellTimeModelCacheFactory {
     private static final StringConfigValue className = new StringConfigValue(
             "transitclock.core.cache.dwellTimeModelCache",

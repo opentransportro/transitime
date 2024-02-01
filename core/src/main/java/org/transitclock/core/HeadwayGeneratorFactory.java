@@ -1,6 +1,8 @@
 /* (C)2023 */
 package org.transitclock.core;
 
+import org.transitclock.annotations.Bean;
+import org.transitclock.annotations.Configuration;
 import org.transitclock.config.StringConfigValue;
 import org.transitclock.utils.ClassInstantiator;
 
@@ -11,6 +13,7 @@ import org.transitclock.utils.ClassInstantiator;
  *
  * @author SkiBu Smith
  */
+@Configuration
 public class HeadwayGeneratorFactory {
 
     // The name of the class to instantiate
@@ -21,6 +24,7 @@ public class HeadwayGeneratorFactory {
 
     private static HeadwayGenerator singleton = null;
 
+    @Bean
     public static synchronized HeadwayGenerator getInstance() {
         // If the PredictionGenerator hasn't been created yet then do so now
         if (singleton == null) {

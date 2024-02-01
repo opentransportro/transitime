@@ -1,12 +1,15 @@
 /* (C)2023 */
 package org.transitclock.core.holdingmethod;
 
+import org.transitclock.annotations.Bean;
+import org.transitclock.annotations.Configuration;
 import org.transitclock.config.StringConfigValue;
 import org.transitclock.utils.ClassInstantiator;
 
 /**
  * @author Sean Óg Crudden
  */
+@Configuration
 public class HoldingTimeGeneratorFactory {
     // The name of the class to instantiate
     private static final StringConfigValue className = new StringConfigValue(
@@ -16,6 +19,7 @@ public class HoldingTimeGeneratorFactory {
 
     private static HoldingTimeGenerator singleton = null;
 
+    @Bean
     public static HoldingTimeGenerator getInstance() {
         // If the HoldingTimeGenerator hasn't been created yet then do so now
         if (singleton == null) {

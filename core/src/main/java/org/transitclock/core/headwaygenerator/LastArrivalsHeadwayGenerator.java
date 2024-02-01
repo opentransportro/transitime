@@ -29,6 +29,7 @@ public class LastArrivalsHeadwayGenerator implements HeadwayGenerator {
 
     private final VehicleDataCache vehicleDataCache = SingletonContainer.getInstance(VehicleDataCache.class);
     private final VehicleStateManager vehicleStateManager = SingletonContainer.getInstance(VehicleStateManager.class);
+
     @Override
     public Headway generate(VehicleState vehicleState) {
 

@@ -10,13 +10,13 @@ import org.transitclock.service.dto.IpcArrivalDeparture;
 import java.util.Date;
 import java.util.List;
 
-public abstract class StopArrivalDepartureCacheInterface {
+public interface StopArrivalDepartureCacheInterface {
 
-    public abstract List<IpcArrivalDeparture> getStopHistory(StopArrivalDepartureCacheKey key);
+    List<IpcArrivalDeparture> getStopHistory(StopArrivalDepartureCacheKey key);
 
-    public abstract StopArrivalDepartureCacheKey putArrivalDeparture(ArrivalDeparture arrivalDeparture);
+    StopArrivalDepartureCacheKey putArrivalDeparture(ArrivalDeparture arrivalDeparture);
 
-    public void populateCacheFromDb(Session session, Date startDate, Date endDate) {
+    default void populateCacheFromDb(Session session, Date startDate, Date endDate) {
         JPAQuery<ArrivalDeparture> query = new JPAQuery<>(session);
         var qentity = QArrivalDeparture.arrivalDeparture;
         List<ArrivalDeparture> results = query.from(qentity)
