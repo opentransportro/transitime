@@ -1076,7 +1076,7 @@ public class GtfsData {
 
             if (!isTripFrequencyBasedWithoutExactTimes(trip.getId())) {
                 scheduleAdherenceStop = (depTime != null
-                                && (firstStopInTrip || gtfsStopTime.getTimepointStop() || stop.isTimepointStop()))
+                                && (firstStopInTrip || gtfsStopTime.isTimepointStop() || stop.isTimepointStop()))
                         || (arrTime != null && lastStopInTrip);
             }
 

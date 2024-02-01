@@ -246,6 +246,9 @@ public class GtfsStopTime extends CsvBase implements Comparable<GtfsStopTime> {
         return isWaitStop != null && isWaitStop;
     }
 
+    public boolean isTimepointStop() {
+        return timepointStop != null && timepointStop;
+    }
     /**
      * So can use Collections.sort() to sort an Array of GtfsStopTime objects by stop sequence.
      *
