@@ -10,6 +10,8 @@ import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.classic.Lifecycle;
 import org.transitclock.Core;
+import org.transitclock.SingletonContainer;
+import org.transitclock.gtfs.DbConfig;
 
 /**
  * A database object for persisting information on how accurate a prediction was compared to the
@@ -116,7 +118,7 @@ public class PredictionAccuracy implements Lifecycle, Serializable {
             Boolean affectedByWaitStop) {
         this.routeId = routeId;
 
-        Route route = Core.getInstance().getDbConfig().getRouteById(routeId);
+        Route route = SingletonContainer.getInstance(DbConfig.class).getRouteById(routeId);
         this.routeShortName = route.getShortName();
         this.directionId = directionId;
         this.stopId = stopId;

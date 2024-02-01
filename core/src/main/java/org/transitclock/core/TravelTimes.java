@@ -4,6 +4,7 @@ package org.transitclock.core;
 import java.util.Date;
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.Core;
+import org.transitclock.SingletonContainer;
 import org.transitclock.annotations.Component;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.domain.structs.Location;
@@ -148,7 +149,7 @@ public class TravelTimes {
         }
 
         // Get and return the scheduled departure time as an epoch time
-        Time timeUtil = Core.getInstance().getTime();
+        Time timeUtil = SingletonContainer.getInstance(Time.class);
         return timeUtil.getEpochTime(scheduledDepartureTimeSecs, new Date(referenceTime));
     }
 
@@ -466,7 +467,7 @@ public class TravelTimes {
      * @return travel time in msec between matches. Returns 0 if match2 is before match1
      */
     public int expectedTravelTimeBetweenMatches(String vehicleId, Date time, SpatialMatch match1, SpatialMatch match2) {
-        int timeOfDaySecs = Core.getInstance().getTime().getSecondsIntoDay(time);
+        int timeOfDaySecs = SingletonContainer.getInstance(Time.class).getSecondsIntoDay(time);
         return expectedTravelTimeBetweenMatches(vehicleId, timeOfDaySecs, match1, match2);
     }
 }

@@ -14,7 +14,9 @@ import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.collection.spi.PersistentList;
 import org.hibernate.internal.SessionImpl;
 import org.transitclock.Core;
+import org.transitclock.SingletonContainer;
 import org.transitclock.config.data.CoreConfig;
+import org.transitclock.core.ServiceUtils;
 import org.transitclock.core.SpatialMatch;
 import org.transitclock.domain.hibernate.HibernateUtils;
 import org.transitclock.gtfs.DbConfig;
@@ -363,7 +365,7 @@ public final class Block implements Serializable {
      */
     public int activeTripIndex(Date date, int allowableBeforeTimeSecs) {
         // Find matching trip
-        int secondsIntoDay = Core.getInstance().getTime().getSecondsIntoDay(date);
+        int secondsIntoDay = SingletonContainer.getInstance(Time.class).getSecondsIntoDay(date);
         int index = activeTripIndex(secondsIntoDay);
 
         // If match not found check a day into future and day into past
@@ -394,7 +396,9 @@ public final class Block implements Serializable {
      */
     private boolean serviceClassIsValidForDay(Date date, long offset) {
         long dateToCheck = date.getTime() + offset;
-        List<String> currentServiceIds = Core.getInstance().getServiceUtils().getServiceIdsForDay(dateToCheck);
+
+        List<String> currentServiceIds = SingletonContainer.getInstance(ServiceUtils.class)
+                .getServiceIdsForDay(dateToCheck);
 
         return currentServiceIds.contains(serviceId);
     }
@@ -415,7 +419,7 @@ public final class Block implements Serializable {
      * @return True if the block is active for the specified date
      */
     public boolean isActive(Date date, int allowableBeforeTimeSecs, int allowableAfterStartTimeSecs) {
-        int secsInDay = Core.getInstance().getTime().getSecondsIntoDay(date);
+        int secsInDay = SingletonContainer.getInstance(Time.class).getSecondsIntoDay(date);
 
         // Determine the allowable start and end times for when the block
         // is to be considered active
@@ -522,7 +526,7 @@ public final class Block implements Serializable {
      * @return true if within allowableBeforeTimeSecs before the start time of the block
      */
     public boolean isBeforeStartTime(Date date, int allowableBeforeTimeSecs) {
-        int secsInDayForAvlReport = Core.getInstance().getTime().getSecondsIntoDay(date);
+        int secsInDayForAvlReport = SingletonContainer.getInstance(Time.class).getSecondsIntoDay(date);
 
         return (secsInDayForAvlReport > startTime - allowableBeforeTimeSecs && secsInDayForAvlReport < startTime)
                 // also handle where date before midnight but start time is after
@@ -605,7 +609,7 @@ public final class Block implements Serializable {
         for (Trip trip : trips) {
             // If time of avlReport is within reasonable time of the trip
             // time then this trip should be returned.
-            int secsInDayForAvlReport = Core.getInstance().getTime().getSecondsIntoDay(avlReport.getDate());
+            int secsInDayForAvlReport = SingletonContainer.getInstance(Time.class).getSecondsIntoDay(avlReport.getDate());
 
             // If the trip is active then add it to the list of active trips
             boolean tripIsActive = addTripIfActive(vehicleId, secsInDayForAvlReport, trip, tripsThatMatchTime);
@@ -705,7 +709,7 @@ public final class Block implements Serializable {
                     // If the session is different from the global
                     // session then need to attach the new session to the
                     // object.
-                    DbConfig dbConfig = Core.getInstance().getDbConfig();
+                    DbConfig dbConfig = SingletonContainer.getInstance(DbConfig.class);
                     Session globalLazyLoadSession = dbConfig.getGlobalSession();
                     if (session != globalLazyLoadSession) {
                         // The persistent object is using an old session so
@@ -777,7 +781,7 @@ public final class Block implements Serializable {
                     // sure that the session used for the Block.trips is the same
                     // as the current session. Therefore if made it here then it
                     // means that definitely need to create new session.
-                    DbConfig dbConfig = Core.getInstance().getDbConfig();
+                    DbConfig dbConfig = SingletonContainer.getInstance(DbConfig.class);
                     logger.info("CREATING NEW SESSION");
                     dbConfig.createNewGlobalSession();
                     Session globalLazyLoadSession = dbConfig.getGlobalSession();

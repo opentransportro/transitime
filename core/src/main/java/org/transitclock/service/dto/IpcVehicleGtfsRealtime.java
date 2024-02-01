@@ -4,6 +4,7 @@ package org.transitclock.service.dto;
 import java.io.IOException;
 import java.util.Date;
 import org.transitclock.Core;
+import org.transitclock.SingletonContainer;
 import org.transitclock.core.BlockAssignmentMethod;
 import org.transitclock.core.SpatialMatch;
 import org.transitclock.core.TemporalDifference;
@@ -77,7 +78,7 @@ public class IpcVehicleGtfsRealtime extends IpcVehicle {
             // proper timezone is used. This unfortunately is a bit expensive.
             int time = vs.getTrip().getStartTime();
             Date currentTime = SystemTime.getDate();
-            this.tripStartEpochTime = Core.getInstance().getTime().getEpochTime(time, currentTime);
+            this.tripStartEpochTime = SingletonContainer.getInstance(Time.class).getEpochTime(time, currentTime);
             Trip trip = vs.getTrip();
             this.isTripUnscheduled = trip != null && trip.isNoSchedule() && !trip.isExactTimesHeadway();
         } else {

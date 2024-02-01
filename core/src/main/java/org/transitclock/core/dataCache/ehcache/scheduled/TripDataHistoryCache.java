@@ -8,6 +8,7 @@ import org.ehcache.Cache;
 import org.ehcache.CacheManager;
 import org.hibernate.Session;
 import org.transitclock.Core;
+import org.transitclock.SingletonContainer;
 import org.transitclock.annotations.Component;
 import org.transitclock.core.dataCache.*;
 import org.transitclock.core.dataCache.ehcache.CacheManagerFactory;
@@ -38,15 +39,11 @@ public class TripDataHistoryCache implements TripDataHistoryCacheInterface {
 
     private static final String cacheByTrip = "arrivalDeparturesByTrip";
 
-    final URL xmlConfigUrl = getClass().getResource("/ehcache.xml");
-
     private Cache<TripKey, TripEvents> cache = null;
-
+    private final DbConfig dbConfig = SingletonContainer.getInstance(DbConfig.class);
 
     public TripDataHistoryCache() {
-
         CacheManager cm = CacheManagerFactory.getInstance();
-
         cache = cm.getCache(cacheByTrip, TripKey.class, TripEvents.class);
     }
 
@@ -78,10 +75,7 @@ public class TripDataHistoryCache implements TripDataHistoryCacheInterface {
 
         for (int i = 0; i < days_back; i++) {
             Date nearestDay = DateUtils.truncate(new Date(arrivalDeparture.getTime()), Calendar.DAY_OF_MONTH);
-
             nearestDay = DateUtils.addDays(nearestDay, i * -1);
-
-            DbConfig dbConfig = Core.getInstance().getDbConfig();
 
             Trip trip = dbConfig.getTrip(arrivalDeparture.getTripId());
 

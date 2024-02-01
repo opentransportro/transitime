@@ -7,6 +7,7 @@ import com.google.transit.realtime.GtfsRealtime.TripUpdate;
 import com.google.transit.realtime.GtfsRealtime.TripUpdate.StopTimeUpdate;
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.Core;
+import org.transitclock.SingletonContainer;
 import org.transitclock.config.data.GtfsConfig;
 import org.transitclock.core.predAccuracy.PredAccuracyPrediction;
 import org.transitclock.core.predAccuracy.PredictionAccuracyModule;
@@ -29,7 +30,7 @@ import java.util.List;
 @Slf4j
 public class GTFSRealtimePredictionAccuracyModule extends PredictionAccuracyModule {
 
-
+    private final DbConfig dbConfig = SingletonContainer.getInstance(DbConfig.class);
     /**
      * @param agencyId
      * @throws Exception
@@ -72,9 +73,6 @@ public class GTFSRealtimePredictionAccuracyModule extends PredictionAccuracyModu
 
         // If couldn't read data from feed then can't process it
         if (feed == null) return;
-
-        // So can look up direction in database
-        DbConfig dbConfig = Core.getInstance().getDbConfig();
 
         logger.info("Processing GTFS-rt feed.....");
 

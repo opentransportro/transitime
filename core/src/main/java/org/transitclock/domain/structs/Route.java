@@ -11,6 +11,8 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
 import org.transitclock.Core;
+import org.transitclock.SingletonContainer;
+import org.transitclock.gtfs.DbConfig;
 import org.transitclock.gtfs.TitleFormatter;
 import org.transitclock.gtfs.model.GtfsRoute;
 import org.transitclock.utils.OrderedCollection;
@@ -346,7 +348,7 @@ public class Route implements Serializable {
         // is transient it is not stored in the db and therefore not
         // available to this client application. But it can be obtained
         // from the DbConfig.
-        List<TripPattern> tripPatternsForRoute = Core.getInstance().getDbConfig().getTripPatternsForRoute(id);
+        List<TripPattern> tripPatternsForRoute = SingletonContainer.getInstance(DbConfig.class).getTripPatternsForRoute(id);
 
         // Stop list not yet determined so determine it now using
         // trip patterns.
@@ -358,7 +360,7 @@ public class Route implements Serializable {
                 // If already added this stop then continue to next one
                 if (stopMap.containsKey(stopId)) continue;
 
-                Stop stop = Core.getInstance().getDbConfig().getStop(stopId);
+                Stop stop = SingletonContainer.getInstance(DbConfig.class).getStop(stopId);
                 stopMap.put(stopId, stop);
             }
         }
@@ -376,7 +378,7 @@ public class Route implements Serializable {
      */
     public TripPattern getTripPattern(String tripPatternId) {
         List<TripPattern> tripPatternsForRoute =
-                Core.getInstance().getDbConfig().getTripPatternsForRoute(getId());
+                SingletonContainer.getInstance(DbConfig.class).getTripPatternsForRoute(getId());
         for (TripPattern tripPattern : tripPatternsForRoute) {
             if (tripPattern.getId().equals(tripPatternId)) return tripPattern;
         }
@@ -394,7 +396,7 @@ public class Route implements Serializable {
      */
     public TripPattern getLongestTripPatternForDirection(String directionId) {
         List<TripPattern> tripPatternsForRoute =
-                Core.getInstance().getDbConfig().getTripPatternsForRoute(getId());
+                SingletonContainer.getInstance(DbConfig.class).getTripPatternsForRoute(getId());
         TripPattern longestTripPatternForDir = null;
         for (TripPattern tripPattern : tripPatternsForRoute) {
             if (Objects.equals(tripPattern.getDirectionId(), directionId)) {
@@ -431,7 +433,7 @@ public class Route implements Serializable {
      */
     public List<TripPattern> getTripPatterns(String directionId) {
         List<TripPattern> tripPatternsForRoute =
-                Core.getInstance().getDbConfig().getTripPatternsForRoute(getId());
+                SingletonContainer.getInstance(DbConfig.class).getTripPatternsForRoute(getId());
         List<TripPattern> tripPatternsForDir = new ArrayList<>();
         for (TripPattern tripPattern : tripPatternsForRoute) {
             if (Objects.equals(tripPattern.getDirectionId(), directionId)) tripPatternsForDir.add(tripPattern);
@@ -446,7 +448,7 @@ public class Route implements Serializable {
      * @return
      */
     public List<String> getDirectionIds() {
-        List<TripPattern> tripPatternsForRoute = Core.getInstance().getDbConfig().getTripPatternsForRoute(getId());
+        List<TripPattern> tripPatternsForRoute = SingletonContainer.getInstance(DbConfig.class).getTripPatternsForRoute(getId());
         if (tripPatternsForRoute == null) {
             return new ArrayList<>();
         }
@@ -474,7 +476,7 @@ public class Route implements Serializable {
         // available to this client application. But it can be obtained
         // from the DbConfig.
         List<TripPattern> tripPatternsForRoute =
-                Core.getInstance().getDbConfig().getTripPatternsForRoute(id);
+                SingletonContainer.getInstance(DbConfig.class).getTripPatternsForRoute(id);
 
         Map<String, StopPath> stopPathMap = new HashMap<>();
         for (TripPattern tripPattern : tripPatternsForRoute) {

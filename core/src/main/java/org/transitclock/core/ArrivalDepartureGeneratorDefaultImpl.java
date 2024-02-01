@@ -16,6 +16,7 @@ import org.transitclock.core.holdingmethod.HoldingTimeGeneratorFactory;
 import org.transitclock.core.predAccuracy.PredictionAccuracyModule;
 import org.transitclock.domain.hibernate.DataDbLogger;
 import org.transitclock.domain.structs.*;
+import org.transitclock.gtfs.DbConfig;
 import org.transitclock.service.dto.IpcArrivalDeparture;
 import org.transitclock.utils.Time;
 
@@ -63,6 +64,7 @@ public class ArrivalDepartureGeneratorDefaultImpl implements ArrivalDepartureGen
     private final VehicleStateManager vehicleStateManager = SingletonContainer.getInstance(VehicleStateManager.class);
     private final TravelTimes travelTimes = SingletonContainer.getInstance(TravelTimes.class);
     private final DataDbLogger dataDbLogger = SingletonContainer.getInstance(DataDbLogger.class);
+    private final DbConfig dbConfig = SingletonContainer.getInstance(DbConfig.class);
 
     /**
      * Returns whether going from oldMatch to newMatch traverses so many stops during the elapsed
@@ -419,8 +421,8 @@ public class ArrivalDepartureGeneratorDefaultImpl implements ArrivalDepartureGen
         // If vehicle left too early then record an event
         if (schAdh.isEarlierThan(CoreConfig.getAllowableEarlyDepartureTimeForLoggingEvent())) {
             // Create description for VehicleEvent
-            Stop stop = Core.getInstance().getDbConfig().getStop(departure.getStopId());
-            Route route = Core.getInstance().getDbConfig().getRouteById(departure.getRouteId());
+            Stop stop = dbConfig.getStop(departure.getStopId());
+            Route route = dbConfig.getRouteById(departure.getRouteId());
             String description = "Vehicle "
                     + departure.getVehicleId()
                     + " left stop "
@@ -448,8 +450,8 @@ public class ArrivalDepartureGeneratorDefaultImpl implements ArrivalDepartureGen
         // If vehicle left too late then record an event
         if (schAdh.isLaterThan(CoreConfig.getAllowableLateDepartureTimeForLoggingEvent())) {
             // Create description for VehicleEvent
-            Stop stop = Core.getInstance().getDbConfig().getStop(departure.getStopId());
-            Route route = Core.getInstance().getDbConfig().getRouteById(departure.getRouteId());
+            Stop stop = dbConfig.getStop(departure.getStopId());
+            Route route = dbConfig.getRouteById(departure.getRouteId());
             String description = "Vehicle "
                     + departure.getVehicleId()
                     + " left stop "

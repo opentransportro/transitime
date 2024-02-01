@@ -35,27 +35,6 @@ import java.util.concurrent.ThreadFactory;
 @Slf4j
 @Component
 public class Core {
-    private static Core SINGLETON;
-
-    // Contains the configuration data read from database
-    private final DbConfig configData;
-
-    // For logging data such as AVL reports and arrival times to database
-    @Getter
-    private final TimeoutHandlerModule timeoutHandlerModule;
-
-    private final ServiceUtils service;
-
-    private final Map<Class<?>, Module> modules = new HashMap<>();
-
-    /**
-     *  For when want to use methods in Time. This is important when need methods that access a
-     *  Calendar a lot. By putting the Calendar in Time it can be shared.
-     */
-    @Getter
-    private final Time time;
-
-
     /**
      * Construct the Core object and read in the config data. This is private so that the
      * createCore() factory method must be used.
@@ -92,8 +71,13 @@ public class Core {
          // HibernateUtils.clearSessionFactory();
 
          // Read in all GTFS based config data from the database
-         configData = new DbConfig(agencyId);
-         configData.read(configRev);
+         // Contains the configuration data read from database
+         DbConfig configData = new DbConfig(agencyId, configRev);
+
+         // to be removed later
+         SingletonContainer.registerInstance(DbConfig.class, configData);
+         SingletonContainer.registerInstance(ServiceUtils.class, configData.getServiceUtils());
+         SingletonContainer.registerInstance(Time.class, configData.getTime());
 
          // Create the DataDBLogger so that generated data can be stored
          // to database via a robust queue. But don't actually log data
@@ -108,12 +92,9 @@ public class Core {
          ThreadFactory threadFactory = new NamedThreadFactory("module-thread-pool");
          Executor executor = Executors.newFixedThreadPool(10, threadFactory);
 
-         timeoutHandlerModule = new TimeoutHandlerModule(AgencyConfig.getAgencyId());
+         TimeoutHandlerModule timeoutHandlerModule = new TimeoutHandlerModule(AgencyConfig.getAgencyId());
          executor.execute(timeoutHandlerModule);
-         modules.put(timeoutHandlerModule.getClass(), timeoutHandlerModule);
-
-         service = new ServiceUtils(configData);
-         time = new Time(configData);
+         ModuleRegistry.registerInstance(TimeoutHandlerModule.class, timeoutHandlerModule);
 
          // Start any optional modules.
          var optionalModuleNames = CoreConfig.getOptionalModules();
@@ -125,7 +106,7 @@ public class Core {
                  logger.info("Starting up optional module {}", moduleName);
                  try {
                      Module module = createModule(moduleName, agencyId);
-                     modules.put(module.getClass(), module);
+                     ModuleRegistry.registerInstance(module.getClass(), module);
                      executor.execute(module);
                  } catch (NoSuchMethodException e) {
                      logger.error("Failed to start {} because could not find constructor with agencyId arg", moduleName, e);
@@ -155,7 +136,7 @@ public class Core {
      *
      * @return The Core singleton, or null if could not create it
      */
-    public static synchronized Core createCore(String agencyId) {
+    public static Core createCore(String agencyId) {
         // If agencyId not set then can't create a Core. This can happen
         // when doing testing.
         if (agencyId == null) {
@@ -163,49 +144,7 @@ public class Core {
             return null;
         }
 
-        // Make sure only can have a single Core object
-        if (SINGLETON != null) {
-            logger.error("Core singleton already created. Cannot create another one.");
-            return SINGLETON;
-        }
-
-        SINGLETON = new Core(agencyId);
-
-        return SINGLETON;
-    }
-
-
-    public static synchronized Core getInstance() {
-        if (SINGLETON == null) {
-            throw new RuntimeException();
-        }
-        return SINGLETON;
-    }
-
-    /**
-     * Returns true if core application. If GTFS processing or other application then not a Core
-     * application and should't try to read in data such as route names for a trip.
-     *
-     * @return true if core application
-     */
-    public static boolean isCoreApplication() {
-        return SINGLETON != null;
-    }
-
-    /**
-     * Makes the config data available to all
-     *
-     * @return
-     */
-    public DbConfig getDbConfig() {
-        return configData;
-    }
-
-    /**
-     * Returns the ServiceUtils object that can be reused for efficiency.
-     */
-    public ServiceUtils getServiceUtils() {
-        return service;
+        return new Core(agencyId);
     }
 
 

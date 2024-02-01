@@ -15,9 +15,11 @@ import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Immutable;
 import org.hibernate.classic.Lifecycle;
 import org.transitclock.Core;
+import org.transitclock.SingletonContainer;
 import org.transitclock.core.TemporalMatch;
 import org.transitclock.core.VehicleState;
 import org.transitclock.domain.hibernate.HibernateUtils;
+import org.transitclock.gtfs.DbConfig;
 import org.transitclock.utils.IntervalTimer;
 
 /**
@@ -104,7 +106,7 @@ public class Match implements Lifecycle, Serializable {
     public Match(VehicleState vehicleState) {
         this.vehicleId = vehicleState.getVehicleId();
         this.avlTime = vehicleState.getAvlReport().getDate();
-        this.configRev = Core.getInstance().getDbConfig().getConfigRev();
+        this.configRev = SingletonContainer.getInstance(DbConfig.class).getConfigRev();
         this.serviceId = vehicleState.getBlock().getServiceId();
         this.blockId = vehicleState.getBlock().getId();
 

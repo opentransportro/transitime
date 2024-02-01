@@ -16,6 +16,7 @@ import org.transitclock.domain.structs.Route;
 import org.transitclock.domain.structs.Stop;
 import org.transitclock.domain.structs.Trip;
 import org.transitclock.domain.structs.TripPattern;
+import org.transitclock.gtfs.DbConfig;
 import org.transitclock.utils.Geo;
 import org.transitclock.utils.TrimmableArrayList;
 
@@ -63,7 +64,7 @@ public class IpcPredictionsForRouteStopDest implements Serializable {
         this.routeOrder = trip != null ? trip.getRoute().getRouteOrder() : -1;
         this.stopId = stopId;
 
-        Stop stop = Core.getInstance().getDbConfig().getStop(stopId);
+        Stop stop = SingletonContainer.getInstance(DbConfig.class).getStop(stopId);
         this.stopName = stop != null ? stop.getName() : null;
         this.stopCode = stop != null ? stop.getCode() : null;
 
@@ -83,14 +84,14 @@ public class IpcPredictionsForRouteStopDest implements Serializable {
     public IpcPredictionsForRouteStopDest(TripPattern tripPattern, String stopId, double distanceToStop) {
         this.routeId = tripPattern.getRouteId();
         this.routeShortName = tripPattern.getRouteShortName();
-        Route route = Core.getInstance().getDbConfig().getRouteById(tripPattern.getRouteId());
+        Route route = SingletonContainer.getInstance(DbConfig.class).getRouteById(tripPattern.getRouteId());
         if (route == null) {
             throw new IllegalArgumentException("RouteId=" + tripPattern.getRouteId() + " does not exist.");
         }
         this.routeName = route.getName();
         this.routeOrder = route.getRouteOrder();
         this.stopId = stopId;
-        Stop stop = Core.getInstance().getDbConfig().getStop(stopId);
+        Stop stop = SingletonContainer.getInstance(DbConfig.class).getStop(stopId);
         this.stopName = stop != null ? stop.getName() : null;
         this.stopCode = stop != null ? stop.getCode() : null;
 
@@ -190,11 +191,11 @@ public class IpcPredictionsForRouteStopDest implements Serializable {
      */
     public IpcPredictionsForRouteStopDest(
             String routeShortName, String directionId, String stopId, double distanceToStop) {
-        Route route = Core.getInstance().getDbConfig().getRouteByShortName(routeShortName);
+        Route route = SingletonContainer.getInstance(DbConfig.class).getRouteByShortName(routeShortName);
         if (route == null) {
             throw new IllegalArgumentException("routeShortName=" + routeShortName + " does not exist.");
         }
-        Stop stop = Core.getInstance().getDbConfig().getStop(stopId);
+        Stop stop = SingletonContainer.getInstance(DbConfig.class).getStop(stopId);
         if (stop == null) {
             throw new IllegalArgumentException("stopId=" + stopId + " does not exist.");
         }

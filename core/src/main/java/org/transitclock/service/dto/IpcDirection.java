@@ -6,9 +6,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import org.transitclock.Core;
+import org.transitclock.SingletonContainer;
 import org.transitclock.domain.structs.Route;
 import org.transitclock.domain.structs.Stop;
 import org.transitclock.domain.structs.TripPattern;
+import org.transitclock.gtfs.DbConfig;
 
 /**
  * @author SkiBu Smith
@@ -39,7 +41,7 @@ public class IpcDirection implements Serializable {
         this.stops = new ArrayList<IpcStop>();
         List<String> stopIds = dbRoute.getOrderedStopsByDirection().get(directionId);
         for (String stopId : stopIds) {
-            Stop stop = Core.getInstance().getDbConfig().getStop(stopId);
+            Stop stop = SingletonContainer.getInstance(DbConfig.class).getStop(stopId);
             this.stops.add(new IpcStop(stop, directionId));
         }
     }

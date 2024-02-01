@@ -5,9 +5,11 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import org.transitclock.Core;
+import org.transitclock.SingletonContainer;
 import org.transitclock.domain.structs.ScheduleTime;
 import org.transitclock.domain.structs.StopPath;
 import org.transitclock.domain.structs.Trip;
+import org.transitclock.gtfs.DbConfig;
 
 /**
  * For describing a trip as part of a schedule
@@ -152,7 +154,7 @@ public class IpcSchedTrip implements Serializable {
     private void addNullScheduleTime(String stopId) {
         // Create a IpcScheduleTime with a time of null so can still
         // be added to the schedule trip.
-        String stopName = Core.getInstance().getDbConfig().getStop(stopId).getName();
+        String stopName = SingletonContainer.getInstance(DbConfig.class).getStop(stopId).getName();
         IpcSchedTime ipcScheduleTime = new IpcSchedTime(stopId, stopName, null);
         scheduleTimes.add(ipcScheduleTime);
     }

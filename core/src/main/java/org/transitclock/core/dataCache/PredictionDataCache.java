@@ -3,6 +3,7 @@ package org.transitclock.core.dataCache;
 
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.Core;
+import org.transitclock.SingletonContainer;
 import org.transitclock.annotations.Component;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.config.data.PredictionConfig;
@@ -61,6 +62,8 @@ public class PredictionDataCache {
     private final ConcurrentHashMap<MapKey, List<IpcPredictionsForRouteStopDest>> predictionsMap =
             new ConcurrentHashMap<>(1000);
 
+    private final DbConfig dbConfig = SingletonContainer.getInstance(DbConfig.class);
+
 
     /**
      * Returns the current time. Can be based on the systems clock but when in playback mode will be
@@ -94,8 +97,6 @@ public class PredictionDataCache {
             String stopIdOrCode,
             int maxPredictionsPerStop,
             double distanceToStop) {
-        DbConfig dbConfig = Core.getInstance().getDbConfig();
-
         // Determine the routeShortName so can be used for maps in
         // the low-level methods of this class. Can be null to specify
         // getting data for all routes.
@@ -120,7 +121,7 @@ public class PredictionDataCache {
         if (dbConfig.getStop(stopIdOrCode) == null) {
             try {
                 Integer stopCode = Integer.parseInt(stopIdOrCode);
-                Stop stop = Core.getInstance().getDbConfig().getStop(stopCode);
+                Stop stop = dbConfig.getStop(stopCode);
 
                 // If no such stop then complain
                 if (stop == null) throw new IllegalArgumentException("Stop " + stopIdOrCode + " not valid");
@@ -507,7 +508,7 @@ public class PredictionDataCache {
         } else {
             // No route specified so get predictions for all routes for the stop
             predictionsForStop = new ArrayList<>();
-            Collection<Route> routes = Core.getInstance().getDbConfig().getRoutesForStop(stopId);
+            Collection<Route> routes = dbConfig.getRoutesForStop(stopId);
             for (Route route : routes) {
                 MapKey key = MapKey.create(route.getShortName(), stopId);
                 List<IpcPredictionsForRouteStopDest> predsForRoute = predictionsMap.get(key);

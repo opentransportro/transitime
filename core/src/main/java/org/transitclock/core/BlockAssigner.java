@@ -4,6 +4,7 @@ package org.transitclock.core;
 import java.util.Collection;
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.Core;
+import org.transitclock.SingletonContainer;
 import org.transitclock.annotations.Component;
 import org.transitclock.domain.structs.AvlReport;
 import org.transitclock.domain.structs.Block;
@@ -20,8 +21,13 @@ import org.transitclock.utils.Time;
 @Component
 public class BlockAssigner {
 
+    private final ServiceUtils serviceUtils;
+    private final DbConfig dbConfig;
     /** Constructor private since singleton class */
-    public BlockAssigner() {}
+    public BlockAssigner() {
+        serviceUtils = SingletonContainer.getInstance(ServiceUtils.class);
+        dbConfig = SingletonContainer.getInstance(DbConfig.class);
+    }
 
     /**
      * Gets the appropriate block associated with the AvlReport. If the assignment is a block
@@ -41,17 +47,15 @@ public class BlockAssigner {
     public Block getBlockAssignment(AvlReport avlReport) {
         // If vehicle has assignment...
         if (avlReport != null && avlReport.getAssignmentId() != null) {
-            DbConfig config = Core.getInstance().getDbConfig();
 
             // If using block assignment...
             if (avlReport.isBlockIdAssignmentType()) {
-                ServiceUtils serviceUtis = Core.getInstance().getServiceUtils();
-                Collection<String> serviceIds = serviceUtis.getServiceIds(avlReport.getDate());
+                Collection<String> serviceIds = serviceUtils.getServiceIds(avlReport.getDate());
                 // Go through all current service IDs to find the block
                 // that is currently active
                 Block activeBlock = null;
                 for (String serviceId : serviceIds) {
-                    Block blockForServiceId = config.getBlock(serviceId, avlReport.getAssignmentId());
+                    Block blockForServiceId = dbConfig.getBlock(serviceId, avlReport.getAssignmentId());
                     // If there is a block for the current service ID
                     if (blockForServiceId != null) {
                         // If found a best match so far then remember it
@@ -80,7 +84,7 @@ public class BlockAssigner {
                 return activeBlock;
             } else if (avlReport.isTripIdAssignmentType()) {
                 // Using trip ID
-                Trip trip = config.getTrip(avlReport.getAssignmentId());
+                Trip trip = dbConfig.getTrip(avlReport.getAssignmentId());
                 if (trip != null && trip.getBlock() != null) {
                     Block block = trip.getBlock();
                     logger.debug(
@@ -101,7 +105,7 @@ public class BlockAssigner {
             } else if (avlReport.isTripShortNameAssignmentType()) {
                 // Using trip short name
                 String tripShortName = avlReport.getAssignmentId();
-                Trip trip = config.getTripUsingTripShortName(tripShortName);
+                Trip trip = dbConfig.getTripUsingTripShortName(tripShortName);
                 if (trip != null) {
                     Block block = trip.getBlock();
                     logger.debug(

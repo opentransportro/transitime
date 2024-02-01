@@ -56,7 +56,7 @@ public class AutoBlockAssigner {
     private final VehicleStateManager vehicleStateManager = SingletonContainer.getInstance(VehicleStateManager.class);
     private final TravelTimes travelTimes = SingletonContainer.getInstance(TravelTimes.class);
     private final TemporalMatcher temporalMatcher = SingletonContainer.getInstance(TemporalMatcher.class);
-
+    private final Time time = SingletonContainer.getInstance(Time.class);
     /**
      * Constructor
      *
@@ -171,7 +171,7 @@ public class AutoBlockAssigner {
         }
 
         // Determine params needed in the following for loop
-        int timeOfDayInSecs = Core.getInstance().getTime().getSecondsIntoDay(previousAvlReport.getTime());
+        int timeOfDayInSecs = time.getSecondsIntoDay(previousAvlReport.getTime());
         long avlTimeDifferenceMsec = avlReport.getTime() - previousAvlReport.getTime();
 
         // Go through each spatial match for both the current AVL report and

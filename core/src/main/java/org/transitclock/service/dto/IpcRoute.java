@@ -16,6 +16,7 @@ import org.transitclock.domain.structs.Route;
 import org.transitclock.domain.structs.Stop;
 import org.transitclock.domain.structs.StopPath;
 import org.transitclock.domain.structs.TripPattern;
+import org.transitclock.gtfs.DbConfig;
 
 /**
  * Describes a route such that it can e displayed in a UI. Consists of all the info in a
@@ -199,7 +200,7 @@ public class IpcRoute extends IpcRouteSummary {
                 }
                 // Create the IpcStop and add it to the list of stops for the
                 // current direction
-                Stop stop = Core.getInstance().getDbConfig().getStop(currentStopId);
+                Stop stop = SingletonContainer.getInstance(DbConfig.class).getStop(currentStopId);
                 IpcStop ipcStop = new IpcStop(stop, isUiStop, currentDirectionId, stopPathLength);
                 ipcStopsForDirection.add(ipcStop);
             }
@@ -276,7 +277,7 @@ public class IpcRoute extends IpcRouteSummary {
         // Add all the non-UI paths for the route
         IpcShape ipcShape = null;
         List<TripPattern> tripPatternsForRoute =
-                Core.getInstance().getDbConfig().getTripPatternsForRoute(dbRoute.getId());
+                SingletonContainer.getInstance(DbConfig.class).getTripPatternsForRoute(dbRoute.getId());
         for (TripPattern tripPattern : tripPatternsForRoute) {
             boolean begginingOfSpan = true;
             for (StopPath stopPath : tripPattern.getStopPaths()) {

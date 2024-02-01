@@ -13,10 +13,12 @@ import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.classic.Lifecycle;
 import org.transitclock.Core;
+import org.transitclock.SingletonContainer;
 import org.transitclock.config.data.AgencyConfig;
 import org.transitclock.config.data.DbSetupConfig;
 import org.transitclock.core.TemporalDifference;
 import org.transitclock.domain.hibernate.HibernateUtils;
+import org.transitclock.gtfs.DbConfig;
 import org.transitclock.utils.Geo;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.Time;
@@ -233,10 +235,10 @@ public class ArrivalDeparture implements Lifecycle, Serializable {
             if (!trip.isNoSchedule()) {
                 ScheduleTime scheduleTime = trip.getScheduleTime(stopPathIndex);
                 if (stopPath.isLastStopInTrip() && scheduleTime.getArrivalTime() != null && isArrival) {
-                    long epochTime = Core.getInstance().getTime().getEpochTime(scheduleTime.getArrivalTime(), time);
+                    long epochTime = SingletonContainer.getInstance(Time.class).getEpochTime(scheduleTime.getArrivalTime(), time);
                     scheduledEpochTime = new Date(epochTime);
                 } else if (!stopPath.isLastStopInTrip() && scheduleTime.getDepartureTime() != null && !isArrival) {
-                    long epochTime = Core.getInstance().getTime().getEpochTime(scheduleTime.getDepartureTime(), time);
+                    long epochTime = SingletonContainer.getInstance(Time.class).getEpochTime(scheduleTime.getDepartureTime(), time);
                     scheduledEpochTime = new Date(epochTime);
                 }
             }
@@ -274,7 +276,7 @@ public class ArrivalDeparture implements Lifecycle, Serializable {
             Date freqStartTime) {
 
         this(
-                Core.getInstance().getDbConfig().getConfigRev(),
+                SingletonContainer.getInstance(DbConfig.class).getConfigRev(),
                 vehicleId,
                 time,
                 avlTime,
@@ -675,14 +677,7 @@ public class ArrivalDeparture implements Lifecycle, Serializable {
      *     is a problem
      */
     public String getTripShortName() {
-        if (!Core.isCoreApplication()) {
-            logger.error(
-                    "For agencyId={} align ArrivalDeparture.getTripShortName() but it is not part of core application",
-                    AgencyConfig.getAgencyId());
-            return null;
-        }
-
-        Trip trip = Core.getInstance().getDbConfig().getTrip(tripId);
+        Trip trip = SingletonContainer.getInstance(DbConfig.class).getTrip(tripId);
         if (trip != null) {
             return trip.getShortName();
         }
@@ -736,7 +731,7 @@ public class ArrivalDeparture implements Lifecycle, Serializable {
      * @return The Stop associated with the arrival/departure
      */
     public Stop getStop() {
-        return Core.getInstance().getDbConfig().getStop(stopId);
+        return SingletonContainer.getInstance(DbConfig.class).getStop(stopId);
     }
 
     /**

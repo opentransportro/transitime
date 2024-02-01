@@ -1,37 +1,20 @@
 /* (C)2023 */
 package org.transitclock.gtfs;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.transitclock.Core;
 import org.transitclock.core.ServiceUtils;
 import org.transitclock.domain.hibernate.HibernateUtils;
-import org.transitclock.domain.structs.Agency;
-import org.transitclock.domain.structs.Block;
 import org.transitclock.domain.structs.Calendar;
-import org.transitclock.domain.structs.CalendarDate;
-import org.transitclock.domain.structs.FareAttribute;
-import org.transitclock.domain.structs.FareRule;
-import org.transitclock.domain.structs.Frequency;
-import org.transitclock.domain.structs.Route;
-import org.transitclock.domain.structs.Stop;
-import org.transitclock.domain.structs.Transfer;
-import org.transitclock.domain.structs.Trip;
-import org.transitclock.domain.structs.TripPattern;
+import org.transitclock.domain.structs.*;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.MapKey;
 import org.transitclock.utils.SystemTime;
 import org.transitclock.utils.Time;
+
+import java.util.*;
 
 /**
  * Reads all the configuration data from the database. The data is based on GTFS but is heavily
@@ -43,6 +26,7 @@ import org.transitclock.utils.Time;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class DbConfig {
 
     private final String agencyId;
@@ -79,15 +63,15 @@ public class DbConfig {
     // Contains
     private final Map<String, List<Trip>> individualTripsByShortNameMap = new HashMap<>();
 
-    private List<Agency> agencies;
-    private List<Calendar> calendars;
-    private List<CalendarDate> calendarDates;
+    private List<Agency> agencies = new ArrayList<>();
+    private List<Calendar> calendars = new ArrayList<>();
+    private List<CalendarDate> calendarDates = new ArrayList<>();
     // So can efficiently look up calendar dates
-    private Map<Long, List<CalendarDate>> calendarDatesMap;
-    private List<FareAttribute> fareAttributes;
-    private List<FareRule> fareRules;
-    private List<Frequency> frequencies;
-    private List<Transfer> transfers;
+    private Map<Long, List<CalendarDate>> calendarDatesMap = new HashMap<>();
+    private List<FareAttribute> fareAttributes = new ArrayList<>();
+    private List<FareRule> fareRules = new ArrayList<>();
+    private List<Frequency> frequencies = new ArrayList<>();
+    private List<Transfer> transfers = new ArrayList<>();
 
     // Keyed by stop_id.
     private Map<String, Stop> stopsMap;
@@ -99,15 +83,42 @@ public class DbConfig {
     // and so that can read in TripPatterns later using the same session.
     private Session globalSession;
 
-    private static final Logger logger = LoggerFactory.getLogger(DbConfig.class);
+    @Getter
+    private final ServiceUtils serviceUtils;
 
+    @Getter
+    private final Time time;
     /**
      * Constructor
      *
      * @param agencyId
+     * @param configRev
      */
-    public DbConfig(String agencyId) {
+    public DbConfig(String agencyId, int configRev) {
         this.agencyId = agencyId;
+        this.configRev = configRev;
+        // For logging how long things take
+        IntervalTimer timer = new IntervalTimer();
+
+        // Let user know what is going on
+        logger.info("Reading configuration database for configRev={}...", configRev);
+
+
+        // Do the low-level processing
+        try {
+            actuallyReadData(configRev);
+        } catch (HibernateException e) {
+            logger.error("Error reading configuration data from db for configRev={}. NOTE: Exiting because could not read in data!!!!",
+                    configRev,
+                    e);
+
+            System.exit(-1);
+        } finally {
+            logger.info("Finished reading configuration data from database . Took {} msec.", timer.elapsedMsec());
+        }
+
+        this.serviceUtils = new ServiceUtils(this);
+        this.time = new Time(this);
     }
 
     /**
@@ -130,42 +141,6 @@ public class DbConfig {
         globalSession = HibernateUtils.getSession(agencyId);
     }
 
-    /**
-     * Initiates the reading of the configuration data from the database. Calls actuallyReadData()
-     * which does all the work.
-     *
-     * <p>NOTE: exits system if config data could not be read in. This is done so that action will
-     * be taken to fix this issue.
-     *
-     * @param configRev
-     */
-    public void read(int configRev) {
-        // For logging how long things take
-        IntervalTimer timer = new IntervalTimer();
-
-        // Let user know what is going on
-        logger.info("Reading configuration database for configRev={}...", configRev);
-
-        // Remember which revision of data is being used
-        this.configRev = configRev;
-
-        // Do the low-level processing
-        try {
-            actuallyReadData(configRev);
-        } catch (HibernateException e) {
-            logger.error(
-                    "Error reading configuration data from db for "
-                            + "configRev={}. NOTE: Exiting because could not read in "
-                            + "data!!!!",
-                    configRev,
-                    e);
-
-            System.exit(-1);
-        }
-
-        // Let user know what is going on
-        logger.info("Finished reading configuration data from database . " + "Took {} msec.", timer.elapsedMsec());
-    }
 
     /**
      * Creates a map of a map so that blocks can be looked up easily by service and block IDs.
@@ -473,9 +448,9 @@ public class DbConfig {
      * @param trips
      * @return trip whose service ID is currently valid
      */
-    private static Trip getTripForCurrentService(List<Trip> trips) {
+    private Trip getTripForCurrentService(List<Trip> trips) {
         Date now = SystemTime.getDate();
-        Collection<String> currentServiceIds = Core.getInstance().getServiceUtils().getServiceIds(now);
+        Collection<String> currentServiceIds = serviceUtils.getServiceIds(now);
         for (Trip trip : trips) {
             for (String serviceId : currentServiceIds) {
                 if (trip.getServiceId().equals(serviceId)) {
@@ -629,7 +604,7 @@ public class DbConfig {
         calendars = Calendar.getCalendars(globalSession, configRev);
         calendarDates = CalendarDate.getCalendarDates(globalSession, configRev);
 
-        calendarDatesMap = new HashMap<Long, List<CalendarDate>>();
+        calendarDatesMap = new HashMap<>();
         for (CalendarDate calendarDate : calendarDates) {
             Long time = calendarDate.getTime();
             List<CalendarDate> calendarDatesForDate = calendarDatesMap.computeIfAbsent(time, k -> new ArrayList<>(1));
@@ -670,8 +645,7 @@ public class DbConfig {
             // Service ID was not specified so determine current ones for now
             Date now = SystemTime.getDate();
 
-            Collection<String> currentServiceIds =
-                    Core.getInstance().getServiceUtils().getServiceIds(now);
+            Collection<String> currentServiceIds = serviceUtils.getServiceIds(now);
             for (String currentServiceId : currentServiceIds) {
                 Block block = getBlock(currentServiceId, blockId);
                 if (block != null) return block;
@@ -820,7 +794,6 @@ public class DbConfig {
      */
     public List<Calendar> getCurrentCalendars() {
         // Get list of currently active calendars
-        ServiceUtils serviceUtils = Core.getInstance().getServiceUtils();
         return serviceUtils.getCurrentCalendars(SystemTime.getMillis());
     }
 

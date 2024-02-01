@@ -3,6 +3,7 @@ package org.transitclock.core;
 
 import org.apache.commons.lang3.time.DateUtils;
 import org.transitclock.Core;
+import org.transitclock.SingletonContainer;
 import org.transitclock.config.data.PredictionConfig;
 import org.transitclock.core.dataCache.*;
 import org.transitclock.core.predictiongenerator.datafilter.TravelTimeDataFilter;
@@ -25,6 +26,7 @@ import java.util.*;
  */
 public abstract class PredictionGenerator {
 
+    private final DbConfig dbConfig = SingletonContainer.getInstance(DbConfig.class);
     /**
      * Generates and returns the predictions for the vehicle.
      *
@@ -134,8 +136,6 @@ public abstract class PredictionGenerator {
                                     > 0) {
                                 Block currentBlock = null;
                                 /* block is transient in arrival departure so when read from database need to get from dbconfig. */
-
-                                DbConfig dbConfig = Core.getInstance().getDbConfig();
 
                                 currentBlock = dbConfig.getBlock(
                                         currentArrivalDeparture.getServiceId(), currentArrivalDeparture.getBlockId());

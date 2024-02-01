@@ -16,6 +16,7 @@ import org.transitclock.domain.structs.ArrivalDeparture;
 import org.transitclock.domain.structs.PredictionAccuracy;
 import org.transitclock.domain.structs.Route;
 import org.transitclock.domain.structs.TripPattern;
+import org.transitclock.gtfs.DbConfig;
 import org.transitclock.service.dto.IpcPrediction;
 import org.transitclock.service.dto.IpcPredictionsForRouteStopDest;
 import org.transitclock.utils.IntervalTimer;
@@ -40,7 +41,6 @@ public class PredictionAccuracyModule extends Module {
     // class by using the static method handleArrivalDeparture().
     private static final ConcurrentHashMap<PredictionKey, List<PredAccuracyPrediction>> predictionMap = new ConcurrentHashMap<>();
 
-
     @Data
     public static class RouteAndStops {
         private final String routeId;
@@ -60,6 +60,7 @@ public class PredictionAccuracyModule extends Module {
     }
 
     private final PredictionDataCache predictionDataCache = SingletonContainer.getInstance(PredictionDataCache.class);
+    private final DbConfig dbConfig = SingletonContainer.getInstance(DbConfig.class);
 
     public PredictionAccuracyModule(String agencyId) {
         super(agencyId);
@@ -115,7 +116,7 @@ public class PredictionAccuracyModule extends Module {
         List<RouteAndStops> list = new ArrayList<>();
 
         // For each route...
-        List<Route> routes = Core.getInstance().getDbConfig().getRoutes();
+        List<Route> routes = dbConfig.getRoutes();
         for (Route route : routes) {
             RouteAndStops routeStopInfo = new RouteAndStops(route.getId());
             list.add(routeStopInfo);

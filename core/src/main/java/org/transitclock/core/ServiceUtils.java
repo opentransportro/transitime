@@ -40,10 +40,8 @@ public class ServiceUtils {
      * @param timezoneName See http://en.wikipedia.org/wiki/List_of_tz_zones
      */
     public ServiceUtils(DbConfig dbConfig) {
-
         Agency agency = dbConfig.getFirstAgency();
         this.calendar = agency != null ? new GregorianCalendar(agency.getTimeZone()) : new GregorianCalendar();
-
         this.dbConfig = dbConfig;
     }
 
@@ -96,7 +94,7 @@ public class ServiceUtils {
         // latest GTFS data was never processed. To handle this kind
         // of situation use the most recent Calendars if none are
         // configured to be active.
-        if (activeCalendarList.size() == 0) {
+        if (activeCalendarList.isEmpty()) {
             // Use most recent calendar to keep system running
             long earliestStartTime = Long.MAX_VALUE;
             for (Calendar calendar : originalCalendarList) {
@@ -253,7 +251,7 @@ public class ServiceUtils {
      */
     public Collection<String> getServiceIds(Date epochTime) {
         List<String> serviceIdsForDay = getServiceIdsForDay(epochTime);
-        Time time = Core.getInstance().getTime();
+        Time time = dbConfig.getTime();
         if (time.getSecondsIntoDay(epochTime)
                 > minutesIntoMorningToIncludePreviousServiceIds.getValue() * Time.MIN_IN_SECS) return serviceIdsForDay;
 

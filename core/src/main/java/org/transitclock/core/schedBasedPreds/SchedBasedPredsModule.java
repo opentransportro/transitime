@@ -48,6 +48,7 @@ import java.util.Set;
 public class SchedBasedPredsModule extends Module {
     private static final VehicleDataCache vehicleDataCache = SingletonContainer.getInstance(VehicleDataCache.class);
     private static final AvlProcessor avlProcessor = SingletonContainer.getInstance(AvlProcessor.class);
+    private static final Time time = SingletonContainer.getInstance(Time.class);
 
     public SchedBasedPredsModule(String agencyId) {
         super(agencyId);
@@ -85,8 +86,7 @@ public class SchedBasedPredsModule extends Module {
                 // corresponds to the first stop of the block.
                 String vehicleId = "block_" + block.getId() + "_schedBasedVehicle";
                 long referenceTime = SystemTime.getMillis();
-                long blockStartEpochTime =
-                        Core.getInstance().getTime().getEpochTime(block.getStartTime(), referenceTime);
+                long blockStartEpochTime = time.getEpochTime(block.getStartTime(), referenceTime);
                 Location location = block.getStartLoc();
                 if (location != null) {
                     AvlReport avlReport = new AvlReport(vehicleId, blockStartEpochTime, location, "Schedule");

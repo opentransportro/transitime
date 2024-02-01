@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.DateUtils;
 import org.hibernate.Session;
 import org.transitclock.Core;
+import org.transitclock.SingletonContainer;
 import org.transitclock.annotations.Component;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.core.dataCache.*;
@@ -30,6 +31,7 @@ public class FrequencyBasedHistoricalAverageCache {
 
     private final ConcurrentHashMap<StopPathKey, TreeMap<Long, HistoricalAverage>> m =
             new ConcurrentHashMap<StopPathKey, TreeMap<Long, HistoricalAverage>>();
+    private final DbConfig dbConfig = SingletonContainer.getInstance(DbConfig.class);
 
     public FrequencyBasedHistoricalAverageCache() {}
 
@@ -107,8 +109,6 @@ public class FrequencyBasedHistoricalAverageCache {
     }
 
     public synchronized void putArrivalDeparture(ArrivalDeparture arrivalDeparture) throws Exception {
-        DbConfig dbConfig = Core.getInstance().getDbConfig();
-
         Trip trip = dbConfig.getTrip(arrivalDeparture.getTripId());
 
         if (trip != null && trip.isNoSchedule()) {

@@ -29,6 +29,9 @@ public class SingletonContainer {
     }
 
     public <T> T registerInstance(Class<T> tClass, T object) {
+        if (singletons.containsKey(tClass)) {
+            throw new RuntimeException("Singleton already registered for " + tClass);
+        }
         return (T) singletons.computeIfAbsent(tClass, k -> object);
     }
 }

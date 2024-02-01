@@ -158,7 +158,7 @@ public class StopsByLocation {
         List<StopInfo> results = new ArrayList<StopInfo>();
 
         // Find closest stops for every route...
-        DbConfig dbConfig = Core.getInstance().getDbConfig();
+        DbConfig dbConfig = SingletonContainer.getInstance(DbConfig.class);
         for (Route route : dbConfig.getRoutes()) {
             // If the specified location is not within the distance of the route
             // then can skip this route

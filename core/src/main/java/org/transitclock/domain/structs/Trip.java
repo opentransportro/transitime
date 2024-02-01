@@ -23,6 +23,7 @@ import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.classic.Lifecycle;
 import org.hibernate.collection.spi.PersistentList;
 import org.transitclock.Core;
+import org.transitclock.SingletonContainer;
 import org.transitclock.gtfs.DbConfig;
 import org.transitclock.gtfs.TitleFormatter;
 import org.transitclock.gtfs.model.GtfsTrip;
@@ -621,13 +622,9 @@ public class Trip implements Lifecycle, Serializable {
      */
     public Route getRoute() {
         if (route == null) {
-            if (Core.isCoreApplication()) {
-                DbConfig dbConfig = Core.getInstance().getDbConfig();
-                if (dbConfig == null) return null;
-                route = dbConfig.getRouteById(routeId);
-            } else {
-                return null;
-            }
+            DbConfig dbConfig = SingletonContainer.getInstance(DbConfig.class);
+            if (dbConfig == null) return null;
+            route = dbConfig.getRouteById(routeId);
         }
         return route;
     }
@@ -670,9 +667,7 @@ public class Trip implements Lifecycle, Serializable {
     public Block getBlock() {
         // If not part of the core project where DbConfig is available
         // then just return null.
-        Core core = Core.getInstance();
-        if (core == null) return null;
-        DbConfig dbConfig = core.getDbConfig();
+        DbConfig dbConfig = SingletonContainer.getInstance(DbConfig.class);
         if (dbConfig == null) return null;
 
         // Part of core project so return the Block
@@ -710,7 +705,7 @@ public class Trip implements Lifecycle, Serializable {
             // instead find a way to manage sessions more consistently
             var session = persistentListTimes.getSession();
             if (session == null) {
-                Session globalLazyLoadSession = Core.getInstance().getDbConfig().getGlobalSession();
+                Session globalLazyLoadSession = SingletonContainer.getInstance(DbConfig.class).getGlobalSession();
                 globalLazyLoadSession.merge(this);
             }
         }

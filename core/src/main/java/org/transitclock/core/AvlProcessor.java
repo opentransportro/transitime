@@ -4,6 +4,7 @@ package org.transitclock.core;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
 import org.transitclock.Core;
+import org.transitclock.ModuleRegistry;
 import org.transitclock.SingletonContainer;
 import org.transitclock.annotations.Component;
 import org.transitclock.config.data.AgencyConfig;
@@ -18,6 +19,7 @@ import org.transitclock.domain.hibernate.DataDbLogger;
 import org.transitclock.domain.hibernate.HibernateUtils;
 import org.transitclock.domain.structs.*;
 import org.transitclock.domain.structs.AvlReport.AssignmentType;
+import org.transitclock.gtfs.DbConfig;
 import org.transitclock.utils.*;
 
 import java.util.*;
@@ -46,6 +48,8 @@ public class AvlProcessor {
     private final BlockAssigner blockAssigner = SingletonContainer.getInstance(BlockAssigner.class);
     private final MatchProcessor matchProcessor = SingletonContainer.getInstance(MatchProcessor.class);
     private final DataDbLogger dataDbLogger = SingletonContainer.getInstance(DataDbLogger.class);
+    private final ServiceUtils serviceUtils = SingletonContainer.getInstance(ServiceUtils.class);
+    private final DbConfig dbConfig = SingletonContainer.getInstance(DbConfig.class);
     /*
      * Singleton class so shouldn't use constructor so declared private
      */
@@ -518,10 +522,9 @@ public class AvlProcessor {
         // Multiple services can be active on a given day. Therefore need
         // to look at all the active ones to find out what blocks are active...
         List<Block> allBlocksForRoute = new ArrayList<Block>();
-        ServiceUtils serviceUtils = Core.getInstance().getServiceUtils();
         Collection<String> serviceIds = serviceUtils.getServiceIds(avlReport.getDate());
         for (String serviceId : serviceIds) {
-            List<Block> blocksForService = Core.getInstance().getDbConfig().getBlocksForRoute(serviceId, routeId);
+            List<Block> blocksForService = dbConfig.getBlocksForRoute(serviceId, routeId);
             if (blocksForService != null) {
                 allBlocksForRoute.addAll(blocksForService);
             }
@@ -1094,7 +1097,7 @@ public class AvlProcessor {
                 && vehicleState.getMatch().getAtStop() != null) {
             // Create description for VehicleEvent
             String stopId = vehicleState.getMatch().getStopPath().getStopId();
-            Stop stop = Core.getInstance().getDbConfig().getStop(stopId);
+            Stop stop = dbConfig.getStop(stopId);
             Route route = vehicleState.getMatch().getRoute();
             VehicleAtStopInfo stopInfo = vehicleState.getMatch().getAtStop();
             Integer scheduledDepartureTime = stopInfo.getScheduleTime().getDepartureTime();
@@ -1420,7 +1423,7 @@ public class AvlProcessor {
         // If any vehicles have timed out then handle them. This is done
         // here instead of using a regular timer so that it will work
         // even when in playback mode or when reading batch data.
-        Core.getInstance().getTimeoutHandlerModule().storeAvlReport(avlReport);
+        ModuleRegistry.getTimeoutModule().storeAvlReport(avlReport);
 
         // Do the low level work of matching vehicle and then generating results
         lowLevelProcessAvlReport(avlReport, false);

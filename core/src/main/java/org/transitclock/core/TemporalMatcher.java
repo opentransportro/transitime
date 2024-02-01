@@ -75,7 +75,7 @@ public class TemporalMatcher {
         int msecIntoDayVehicleExpectedToBeAtMatch = tripStartTimeSecs * 1000 + travelTimeForCurrentTrip;
 
         // Need to convert everything to Date or to secsInDay so can do comparison
-        int avlTimeIntoDayMsec = Core.getInstance().getTime().getMsecsIntoDay(date);
+        int avlTimeIntoDayMsec = SingletonContainer.getInstance(Time.class).getMsecsIntoDay(date);
         int earlyMsec = msecIntoDayVehicleExpectedToBeAtMatch - avlTimeIntoDayMsec;
 
         // Also check if 24 hours early late so that can work even for when
@@ -133,7 +133,7 @@ public class TemporalMatcher {
      * instead late since the layover time has already passed.
      *
      * @param vehicleState
-     * @param spatialMatches
+     * @param spatialMatch
      * @return
      */
     private TemporalDifference temporalDifferenceForSpecialLayover(
@@ -152,7 +152,7 @@ public class TemporalMatcher {
             // difference should be 0. But if it is after the departure
             // time then the vehicle is behind where it should be.
             int departureTimeSecs = spatialMatch.getScheduledWaitStopTimeSecs();
-            long scheduledDepartureTime = Core.getInstance().getTime().getEpochTime(departureTimeSecs, avlTime);
+            long scheduledDepartureTime = SingletonContainer.getInstance(Time.class).getEpochTime(departureTimeSecs, avlTime);
             if (avlTime.getTime() > scheduledDepartureTime) {
                 // Vehicle should have already left so it is late
                 logger.debug(
@@ -518,7 +518,7 @@ public class TemporalMatcher {
      */
     private static boolean canDeadheadToBeginningOfTripInTime(AvlReport avlReport, Trip trip) {
         long tripStartTimeMsecs = trip.getStartTime() * 1000;
-        long msecsIntoDay = Core.getInstance().getTime().getMsecsIntoDay(avlReport.getDate(), tripStartTimeMsecs);
+        long msecsIntoDay = SingletonContainer.getInstance(Time.class).getMsecsIntoDay(avlReport.getDate(), tripStartTimeMsecs);
         // If AVL report is from before the start time of the trip
         // then see if have enough time to travel there.
         if (msecsIntoDay < tripStartTimeMsecs) {

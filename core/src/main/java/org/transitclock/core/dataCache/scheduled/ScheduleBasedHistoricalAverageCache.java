@@ -32,10 +32,11 @@ import java.util.List;
 public class ScheduleBasedHistoricalAverageCache {
     private static final String cacheName = "HistoricalAverageCache";
     private Cache<StopPathCacheKey, HistoricalAverage> cache = null;
-
+    private final DbConfig dbConfig;
     public ScheduleBasedHistoricalAverageCache() {
         CacheManager cm = SingletonContainer.getInstance(CacheManager.class);
         cache = cm.getCache(cacheName, StopPathCacheKey.class, HistoricalAverage.class);
+        dbConfig = SingletonContainer.getInstance(DbConfig.class);
     }
 
     public void logCache(Logger logger) {
@@ -61,8 +62,6 @@ public class ScheduleBasedHistoricalAverageCache {
     }
 
     public synchronized void putArrivalDeparture(ArrivalDeparture arrivalDeparture) throws Exception {
-        DbConfig dbConfig = Core.getInstance().getDbConfig();
-
         Trip trip = dbConfig.getTrip(arrivalDeparture.getTripId());
 
         if (trip != null && !trip.isNoSchedule()) {

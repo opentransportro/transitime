@@ -7,6 +7,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.DynamicUpdate;
 import org.transitclock.Core;
+import org.transitclock.SingletonContainer;
+import org.transitclock.gtfs.DbConfig;
 import org.transitclock.service.dto.IpcPrediction;
 
 /**
@@ -83,7 +85,7 @@ public class Prediction implements Serializable {
             boolean isArrival,
             boolean schedBasedPred,
             int gtfsStopSeq) {
-        this.configRev = Core.getInstance().getDbConfig().getConfigRev();
+        this.configRev = SingletonContainer.getInstance(DbConfig.class).getConfigRev();
         this.predictionTime = new Date(predictionTime);
         this.avlTime = new Date(avlTime);
         this.creationTime = new Date(creationTime);
@@ -98,7 +100,7 @@ public class Prediction implements Serializable {
     }
 
     public Prediction(IpcPrediction prediction) {
-        this.configRev = Core.getInstance().getDbConfig().getConfigRev();
+        this.configRev = SingletonContainer.getInstance(DbConfig.class).getConfigRev();
         this.predictionTime = new Date(prediction.getPredictionTime());
         this.avlTime = new Date(prediction.getAvlTime());
         this.creationTime = new Date(prediction.getCreationTime());

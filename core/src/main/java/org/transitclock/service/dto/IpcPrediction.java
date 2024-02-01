@@ -8,6 +8,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 import org.transitclock.Core;
+import org.transitclock.SingletonContainer;
 import org.transitclock.domain.structs.AvlReport;
 import org.transitclock.domain.structs.Trip;
 import org.transitclock.utils.StringUtils;
@@ -136,7 +137,8 @@ public class IpcPrediction implements Serializable {
         this.creationTime = avlReport.getTimeProcessed();
 
         Date currentTime = SystemTime.getDate();
-        this.tripStartEpochTime = Core.getInstance().getTime().getEpochTime(trip.getStartTime(), currentTime);
+        this.tripStartEpochTime = SingletonContainer.getInstance(Time.class)
+                .getEpochTime(trip.getStartTime(), currentTime);
 
         this.affectedByWaitStop = affectedByWaitStop;
         this.driverId = avlReport.getDriverId();

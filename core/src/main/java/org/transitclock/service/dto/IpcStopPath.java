@@ -4,9 +4,11 @@ package org.transitclock.service.dto;
 import java.io.Serializable;
 import java.util.List;
 import org.transitclock.Core;
+import org.transitclock.SingletonContainer;
 import org.transitclock.domain.structs.Location;
 import org.transitclock.domain.structs.Stop;
 import org.transitclock.domain.structs.StopPath;
+import org.transitclock.gtfs.DbConfig;
 import org.transitclock.utils.Geo;
 
 /**
@@ -32,7 +34,7 @@ public class IpcStopPath implements Serializable {
         this.configRev = dbStopPath.getConfigRev();
         this.stopPathId = dbStopPath.getStopPathId();
         this.stopId = dbStopPath.getStopId();
-        Stop stop = Core.getInstance().getDbConfig().getStop(dbStopPath.getStopId());
+        Stop stop = SingletonContainer.getInstance(DbConfig.class).getStop(dbStopPath.getStopId());
         this.stopName = stop.getName();
         this.gtfsStopSeq = dbStopPath.getGtfsStopSeq();
         this.layoverStop = dbStopPath.isLayoverStop();

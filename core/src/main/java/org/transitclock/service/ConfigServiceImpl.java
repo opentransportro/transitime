@@ -61,6 +61,7 @@ public class ConfigServiceImpl implements ConfigInterface {
     }
 
     private final VehicleDataCache vehicleDataCache = SingletonContainer.getInstance(VehicleDataCache.class);
+    private final DbConfig dbConfig = SingletonContainer.getInstance(DbConfig.class);
     /**
      * Constructor. Made private so that can only be instantiated by get(). Doesn't actually do
      * anything since all the work is done in the superclass constructor.
@@ -78,7 +79,6 @@ public class ConfigServiceImpl implements ConfigInterface {
      * @return The Route, or null if no such route
      */
     private Route getRoute(String routeIdOrShortName) {
-        DbConfig dbConfig = Core.getInstance().getDbConfig();
         Route dbRoute = dbConfig.getRouteByShortName(routeIdOrShortName);
         if (dbRoute == null) {
             dbRoute = dbConfig.getRouteById(routeIdOrShortName);
@@ -93,7 +93,6 @@ public class ConfigServiceImpl implements ConfigInterface {
     @Override
     public Collection<IpcRouteSummary> getRoutes() throws RemoteException {
         // Get the db route info
-        DbConfig dbConfig = Core.getInstance().getDbConfig();
         var dbRoutes = dbConfig.getRoutes();
 
         return dbRoutes
@@ -128,7 +127,6 @@ public class ConfigServiceImpl implements ConfigInterface {
 
         // If no route specified then return data for all routes
         if (routeIdsOrShortNames == null || routeIdsOrShortNames.isEmpty()) {
-            DbConfig dbConfig = Core.getInstance().getDbConfig();
             List<Route> dbRoutes = dbConfig.getRoutes();
             for (Route dbRoute : dbRoutes) {
                 IpcRoute ipcRoute = new IpcRoute(dbRoute, null, null, null);
@@ -167,7 +165,7 @@ public class ConfigServiceImpl implements ConfigInterface {
      */
     @Override
     public IpcBlock getBlock(String blockId, String serviceId) throws RemoteException {
-        Block dbBlock = Core.getInstance().getDbConfig().getBlock(serviceId, blockId);
+        Block dbBlock = dbConfig.getBlock(serviceId, blockId);
 
         // If no such block then return null since can't create a IpcBlock
         if (dbBlock == null) {
@@ -186,7 +184,7 @@ public class ConfigServiceImpl implements ConfigInterface {
         List<IpcBlock> ipcBlocks = new ArrayList<>();
 
         // Get the blocks with specified ID
-        Collection<Block> dbBlocks = Core.getInstance().getDbConfig().getBlocksForAllServiceIds(blockId);
+        Collection<Block> dbBlocks = dbConfig.getBlocksForAllServiceIds(blockId);
 
         // Convert blocks from DB into IpcBlocks
         for (Block dbBlock : dbBlocks) {
@@ -202,12 +200,12 @@ public class ConfigServiceImpl implements ConfigInterface {
      */
     @Override
     public IpcTrip getTrip(String tripId) throws RemoteException {
-        Trip dbTrip = Core.getInstance().getDbConfig().getTrip(tripId);
+        Trip dbTrip = dbConfig.getTrip(tripId);
 
         // If couldn't find a trip with the specified trip_id then see if a
         // trip has the trip_short_name specified.
         if (dbTrip == null) {
-            dbTrip = Core.getInstance().getDbConfig().getTripUsingTripShortName(tripId);
+            dbTrip = dbConfig.getTripUsingTripShortName(tripId);
         }
 
         // If no such trip then return null since can't create a IpcTrip
@@ -223,8 +221,6 @@ public class ConfigServiceImpl implements ConfigInterface {
      */
     @Override
     public List<IpcTripPattern> getTripPatterns(String routeIdOrShortName) throws RemoteException {
-        DbConfig dbConfig = Core.getInstance().getDbConfig();
-
         Route dbRoute = getRoute(routeIdOrShortName);
         if (dbRoute == null) return null;
 
@@ -243,7 +239,7 @@ public class ConfigServiceImpl implements ConfigInterface {
      */
     @Override
     public List<Agency> getAgencies() throws RemoteException {
-        return Core.getInstance().getDbConfig().getAgencies();
+        return dbConfig.getAgencies();
     }
 
     /* (non-Javadoc)
@@ -256,7 +252,7 @@ public class ConfigServiceImpl implements ConfigInterface {
         if (dbRoute == null) return null;
 
         // Determine the blocks for the route for all service IDs
-        List<Block> blocksForRoute = Core.getInstance().getDbConfig().getBlocksForRoute(dbRoute.getId());
+        List<Block> blocksForRoute = dbConfig.getBlocksForRoute(dbRoute.getId());
 
         // Convert blocks to list of IpcSchedule objects and return
         return IpcSchedule.createSchedules(dbRoute, blocksForRoute);
@@ -268,7 +264,7 @@ public class ConfigServiceImpl implements ConfigInterface {
     @Override
     public List<IpcCalendar> getCurrentCalendars() {
         // Get list of currently active calendars
-        List<Calendar> calendarList = Core.getInstance().getDbConfig().getCurrentCalendars();
+        List<Calendar> calendarList = dbConfig.getCurrentCalendars();
 
         // Convert Calendar list to IpcCalendar list
         List<IpcCalendar> ipcCalendarList = new ArrayList<>();
@@ -285,7 +281,7 @@ public class ConfigServiceImpl implements ConfigInterface {
     @Override
     public List<IpcCalendar> getAllCalendars() {
         // Get list of currently active calendars
-        List<Calendar> calendarList = Core.getInstance().getDbConfig().getCalendars();
+        List<Calendar> calendarList = dbConfig.getCalendars();
 
         // Convert Calendar list to IpcCalendar list
         List<IpcCalendar> ipcCalendarList = new ArrayList<>();
@@ -316,7 +312,7 @@ public class ConfigServiceImpl implements ConfigInterface {
     public List<String> getServiceIds() throws RemoteException {
         // Convert the Set from getServiceIds() to a List since need
         // to use a List for IPC due to serialization.
-        return new ArrayList<>(Core.getInstance().getDbConfig().getServiceIds());
+        return new ArrayList<>(dbConfig.getServiceIds());
     }
 
     /* (non-Javadoc)
@@ -326,7 +322,7 @@ public class ConfigServiceImpl implements ConfigInterface {
     public List<String> getCurrentServiceIds() throws RemoteException {
         // Convert the Set from getCurrentServiceIds() to a List since need
         // to use a List for IPC due to serialization.
-        return new ArrayList<>(Core.getInstance().getDbConfig().getCurrentServiceIds());
+        return new ArrayList<>(dbConfig.getCurrentServiceIds());
     }
 
     /* (non-Javadoc)
@@ -334,7 +330,7 @@ public class ConfigServiceImpl implements ConfigInterface {
      */
     @Override
     public List<String> getTripIds() throws RemoteException {
-        var trips = Core.getInstance().getDbConfig().getTrips().values();
+        var trips = dbConfig.getTrips().values();
         return trips.stream()
                 .map(Trip::getId)
                 .collect(Collectors.toList());
@@ -345,7 +341,7 @@ public class ConfigServiceImpl implements ConfigInterface {
      */
     @Override
     public List<String> getBlockIds() throws RemoteException {
-        var blocks = Core.getInstance().getDbConfig().getBlocks();
+        var blocks = dbConfig.getBlocks();
         return blocks.stream()
                 .map(Block::getId)
                 .distinct()
@@ -361,7 +357,7 @@ public class ConfigServiceImpl implements ConfigInterface {
             return getBlockIds();
         }
 
-        var blocks = Core.getInstance().getDbConfig().getBlocks(serviceId);
+        var blocks = dbConfig.getBlocks(serviceId);
         return blocks.stream()
                 .map(Block::getId)
                 .distinct()

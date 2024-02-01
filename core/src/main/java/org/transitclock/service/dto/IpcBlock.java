@@ -5,9 +5,11 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import org.transitclock.Core;
+import org.transitclock.SingletonContainer;
 import org.transitclock.domain.structs.Block;
 import org.transitclock.domain.structs.Route;
 import org.transitclock.domain.structs.Trip;
+import org.transitclock.gtfs.DbConfig;
 import org.transitclock.utils.Time;
 
 /**
@@ -40,7 +42,7 @@ public class IpcBlock implements Serializable {
 
         routeSummaries = new ArrayList<IpcRouteSummary>();
         for (String routeId : dbBlock.getRouteIds()) {
-            Route dbRoute = Core.getInstance().getDbConfig().getRouteById(routeId);
+            Route dbRoute = SingletonContainer.getInstance(DbConfig.class).getRouteById(routeId);
             routeSummaries.add(new IpcRouteSummary(dbRoute));
         }
     }

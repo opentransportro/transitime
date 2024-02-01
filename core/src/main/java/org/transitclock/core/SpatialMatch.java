@@ -5,6 +5,7 @@ import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.Core;
+import org.transitclock.SingletonContainer;
 import org.transitclock.domain.structs.Block;
 import org.transitclock.domain.structs.Location;
 import org.transitclock.domain.structs.Route;
@@ -544,7 +545,7 @@ public class SpatialMatch {
         int secondsIntoDay = getScheduledWaitStopTimeSecs();
         if (secondsIntoDay < 0) return -1;
 
-        long scheduledDepartureTime = Core.getInstance().getTime().getEpochTime(secondsIntoDay, avlTime);
+        long scheduledDepartureTime = SingletonContainer.getInstance(Time.class).getEpochTime(secondsIntoDay, avlTime);
         return scheduledDepartureTime;
     }
 

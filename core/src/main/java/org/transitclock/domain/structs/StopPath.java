@@ -15,7 +15,9 @@ import org.hibernate.classic.Lifecycle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.Core;
+import org.transitclock.SingletonContainer;
 import org.transitclock.config.data.CoreConfig;
+import org.transitclock.gtfs.DbConfig;
 
 /**
  * A StopPath is a set of points that defines how a vehicle gets from one stop to another. The stops
@@ -258,7 +260,7 @@ public class StopPath implements Serializable, Lifecycle {
      * @return the name of the stop
      */
     public String getStopName() {
-        return Core.getInstance().getDbConfig().getStop(stopId).getName();
+        return SingletonContainer.getInstance(DbConfig.class).getStop(stopId).getName();
     }
 
     /**

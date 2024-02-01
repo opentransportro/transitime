@@ -39,7 +39,7 @@ public class TripDataHistoryCache implements TripDataHistoryCacheInterface {
 
     private static final String cacheByTrip = "arrivalDeparturesByTrip";
     private final Cache<TripKey, TripEvents> cache;
-
+    private final DbConfig dbConfig = SingletonContainer.getInstance(DbConfig.class);
     public TripDataHistoryCache() {
         CacheManager cm = SingletonContainer.getInstance(CacheManager.class);
         cache = cm.getCache(cacheByTrip, TripKey.class, TripEvents.class);
@@ -51,8 +51,6 @@ public class TripDataHistoryCache implements TripDataHistoryCacheInterface {
     @Override
     @SuppressWarnings("unchecked")
     public List<IpcArrivalDeparture> getTripHistory(TripKey tripKey) {
-
-        // logger.debug(cache.toString());
         logger.debug("Looking for TripDataHistoryCache cache element using key {}.", tripKey);
 
         TripEvents result = cache.get(tripKey);
@@ -72,8 +70,7 @@ public class TripDataHistoryCache implements TripDataHistoryCacheInterface {
     public synchronized TripKey putArrivalDeparture(ArrivalDeparture arrivalDeparture) {
 
         Block block = null;
-        if (arrivalDeparture.getBlock() == null) {
-            DbConfig dbConfig = Core.getInstance().getDbConfig();
+        if (arrivalDeparture.getBlock() == null) {;
             block = dbConfig.getBlock(arrivalDeparture.getServiceId(), arrivalDeparture.getBlockId());
         } else {
             block = arrivalDeparture.getBlock();
@@ -88,8 +85,6 @@ public class TripDataHistoryCache implements TripDataHistoryCacheInterface {
             Date nearestDay = DateUtils.truncate(new Date(arrivalDeparture.getTime()), Calendar.DAY_OF_MONTH);
 
             nearestDay = DateUtils.addDays(nearestDay, i * -1);
-
-            DbConfig dbConfig = Core.getInstance().getDbConfig();
 
             Trip trip = dbConfig.getTrip(arrivalDeparture.getTripId());
 

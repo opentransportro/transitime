@@ -7,6 +7,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
 import org.transitclock.Core;
+import org.transitclock.SingletonContainer;
+import org.transitclock.gtfs.DbConfig;
 
 @Entity
 @Data
@@ -89,7 +91,7 @@ public class HoldingTime implements Serializable {
             Date arrivalTime,
             boolean hasD1,
             int numberPredictionsUsed) {
-        this.configRev = Core.getInstance().getDbConfig().getConfigRev();
+        this.configRev = SingletonContainer.getInstance(DbConfig.class).getConfigRev();
         this.holdingTime = holdingTime;
         this.creationTime = creationTime;
         this.vehicleId = vehicleId;
@@ -104,7 +106,7 @@ public class HoldingTime implements Serializable {
     }
 
     public HoldingTime(HoldingTime holdingTimeToCopy, Date holdingTime) {
-        this.configRev = Core.getInstance().getDbConfig().getConfigRev();
+        this.configRev = SingletonContainer.getInstance(DbConfig.class).getConfigRev();
         this.holdingTime = holdingTime;
         this.creationTime = holdingTimeToCopy.creationTime;
         this.vehicleId = holdingTimeToCopy.vehicleId;

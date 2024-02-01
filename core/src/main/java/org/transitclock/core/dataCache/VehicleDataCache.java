@@ -27,6 +27,7 @@ import org.transitclock.domain.hibernate.HibernateUtils;
 import org.transitclock.domain.structs.AvlReport;
 import org.transitclock.domain.structs.Route;
 import org.transitclock.domain.structs.VehicleConfig;
+import org.transitclock.gtfs.DbConfig;
 import org.transitclock.service.dto.IpcVehicleComplete;
 import org.transitclock.utils.ConcurrentHashMapNullKeyOk;
 import org.transitclock.utils.SystemTime;
@@ -73,6 +74,7 @@ public class VehicleDataCache {
     private final Map<String, VehicleConfig> vehicleConfigByTrackerIdMap = new HashMap<String, VehicleConfig>();
 
     private final DataDbLogger dataDbLogger = SingletonContainer.getInstance(DataDbLogger.class);
+    private final DbConfig dbConfig = SingletonContainer.getInstance(DbConfig.class);
 
     // So can determine how long since data was read from db
     private long dbReadTime;
@@ -272,7 +274,7 @@ public class VehicleDataCache {
         // If couldn't get vehicles by route short name try using
         // the route ID.
         if (vehicleMapForRoute == null) {
-            Route route = Core.getInstance().getDbConfig().getRouteById(routeIdOrShortName);
+            Route route = dbConfig.getRouteById(routeIdOrShortName);
             if (route != null) {
                 vehicleMapForRoute = vehiclesByRouteMap.get(route.getShortName());
             }

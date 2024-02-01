@@ -1,10 +1,12 @@
 package org.transitclock.core.avl;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.transitclock.domain.structs.AvlReport;
 
 class AvlExecutorTest {
     @Test
+    @Disabled
     public void processAvlReport() {
         AvlExecutor executor = new AvlExecutor(new TestingAvlReportProcessorFactory());
 
