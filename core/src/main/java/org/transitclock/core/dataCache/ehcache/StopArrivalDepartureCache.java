@@ -24,7 +24,7 @@ import java.util.List;
  *     perhaps using Infinispan.
  */
 @Slf4j
-public class StopArrivalDepartureCache extends StopArrivalDepartureCacheInterface {
+public class StopArrivalDepartureCache implements StopArrivalDepartureCacheInterface {
 
     private static final String cacheByStop = "arrivalDeparturesByStop";
 
