@@ -24,23 +24,11 @@ public class VehicleStateManager {
     // thread. Otherwise could get a ConcurrentModificationException.
     private final Map<String, VehicleState> vehicleMap = new ConcurrentHashMap<String, VehicleState>();
 
-    // This is a singleton class
-    private static final VehicleStateManager singleton = new VehicleStateManager();
-
     /**
      * Constructor made private because this is singleton class where getInstance() should be used
      * to get the VehicleStateManager.
      */
-    private VehicleStateManager() {}
-
-    /**
-     * Returns the singleton VehicleStateManager
-     *
-     * @return
-     */
-    public static VehicleStateManager getInstance() {
-        return singleton;
-    }
+    public VehicleStateManager() {}
 
     /**
      * Adds VehicleState for the vehicle to the map so that it can be retrieved later.

@@ -3,6 +3,7 @@ package org.transitclock.core;
 
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.Core;
+import org.transitclock.SingletonContainer;
 import org.transitclock.domain.structs.ScheduleTime;
 import org.transitclock.domain.structs.Trip;
 import org.transitclock.utils.Time;
@@ -118,7 +119,7 @@ public class RealTimeSchedAdhProcessor {
 
         // Determine how long it is expected to take for vehicle to get to
         // that stop
-        int travelTimeToStopMsec = TravelTimes.getInstance()
+        int travelTimeToStopMsec = SingletonContainer.getInstance(TravelTimes.class)
                 .expectedTravelTimeBetweenMatches(vehicleId, avlTime, match, matchAtStopWithScheduleTime);
 
         // If using departure time then add in expected stop wait time

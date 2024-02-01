@@ -9,6 +9,9 @@ import org.hibernate.annotations.DynamicUpdate;
 import org.transitclock.Core;
 
 import jakarta.persistence.*;
+import org.transitclock.SingletonContainer;
+import org.transitclock.domain.hibernate.DataDbLogger;
+
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
@@ -60,7 +63,8 @@ public class ExportTable implements Serializable {
         logger.info(exportElement.toString());
 
         // Queue to write object to database
-        Core.getInstance().getDbLogger().add(exportElement);
+        SingletonContainer.getInstance(DataDbLogger.class)
+                .add(exportElement);
 
         // Return new VehicleToBlockConfig
         return exportElement;

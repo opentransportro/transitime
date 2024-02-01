@@ -4,6 +4,8 @@ package org.transitclock.core.headwaygenerator;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import org.transitclock.SingletonContainer;
 import org.transitclock.core.HeadwayGenerator;
 import org.transitclock.core.VehicleState;
 import org.transitclock.core.dataCache.StopArrivalDepartureCacheFactory;
@@ -25,6 +27,8 @@ import org.transitclock.service.dto.IpcVehicleComplete;
  */
 public class LastArrivalsHeadwayGenerator implements HeadwayGenerator {
 
+    private final VehicleDataCache vehicleDataCache = SingletonContainer.getInstance(VehicleDataCache.class);
+    private final VehicleStateManager vehicleStateManager = SingletonContainer.getInstance(VehicleStateManager.class);
     @Override
     public Headway generate(VehicleState vehicleState) {
 
@@ -107,14 +111,14 @@ public class LastArrivalsHeadwayGenerator implements HeadwayGenerator {
 
     private void setSystemVariance(Headway headway) {
         List<Headway> headways = new ArrayList<>();
-        for (IpcVehicleComplete currentVehicle : VehicleDataCache.getInstance().getVehicles()) {
-            VehicleState vehicleState = VehicleStateManager.getInstance().getVehicleState(currentVehicle.getId());
+        for (IpcVehicleComplete currentVehicle : vehicleDataCache.getVehicles()) {
+            VehicleState vehicleState = vehicleStateManager.getVehicleState(currentVehicle.getId());
             if (vehicleState.getHeadway() != null) {
                 headways.add(vehicleState.getHeadway());
             }
         }
         // ONLY SET IF HAVE VALES FOR ALL VEHICLES ON ROUTE.
-        if (VehicleDataCache.getInstance().getVehicles().size() == headways.size()) {
+        if (vehicleDataCache.getVehicles().size() == headways.size()) {
             headway.setAverage(average(headways));
             headway.setVariance(variance(headways));
             headway.setCoefficientOfVariation(coefficientOfVariance(headways));

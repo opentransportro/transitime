@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.transitclock.SingletonContainer;
 import org.transitclock.config.data.AgencyConfig;
 import org.transitclock.config.data.AvlConfig;
 import org.transitclock.core.AvlProcessor;
@@ -28,7 +29,7 @@ public class AvlReportProcessor implements Runnable {
     // The AVL report being processed
     private final AvlReport avlReport;
 
-    private final AvlProcessor avlProcessor = AvlProcessor.getInstance();
+    private final AvlProcessor avlProcessor = SingletonContainer.getInstance(AvlProcessor.class);
 
     public AvlReportProcessor(AvlReport avlReport) {
         this.avlReport = avlReport;

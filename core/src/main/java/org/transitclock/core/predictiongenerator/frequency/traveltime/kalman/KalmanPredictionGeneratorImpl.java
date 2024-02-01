@@ -4,6 +4,7 @@ package org.transitclock.core.predictiongenerator.frequency.traveltime.kalman;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.DateUtils;
 import org.transitclock.Core;
+import org.transitclock.SingletonContainer;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.config.data.PredictionConfig;
 import org.transitclock.core.Indices;
@@ -15,6 +16,7 @@ import org.transitclock.core.dataCache.frequency.FrequencyBasedHistoricalAverage
 import org.transitclock.core.predictiongenerator.PredictionComponentElementsGenerator;
 import org.transitclock.core.predictiongenerator.frequency.traveltime.average.HistoricalAveragePredictionGeneratorImpl;
 import org.transitclock.core.predictiongenerator.kalman.*;
+import org.transitclock.domain.hibernate.DataDbLogger;
 import org.transitclock.domain.structs.AvlReport;
 import org.transitclock.domain.structs.PredictionForStopPath;
 import org.transitclock.domain.structs.VehicleEvent;
@@ -33,6 +35,11 @@ public class KalmanPredictionGeneratorImpl extends HistoricalAveragePredictionGe
         implements PredictionComponentElementsGenerator {
 
     private final String alternative = "LastVehiclePredictionGeneratorImpl";
+
+
+    private final VehicleStateManager vehicleStateManager = SingletonContainer.getInstance(VehicleStateManager.class);
+    private final StopPathPredictionCache stopPathPredictionCache = SingletonContainer.getInstance(StopPathPredictionCache.class);
+    private final DataDbLogger dataDbLogger = SingletonContainer.getInstance(DataDbLogger.class);
 
     /*
      * (non-Javadoc)
@@ -57,7 +64,6 @@ public class KalmanPredictionGeneratorImpl extends HistoricalAveragePredictionGe
 
         ErrorCache kalmanErrorCache = ErrorCacheFactory.getInstance();
 
-        VehicleStateManager vehicleStateManager = VehicleStateManager.getInstance();
 
         VehicleState currentVehicleState = vehicleStateManager.getVehicleState(avlReport.getVehicleId());
 
@@ -172,8 +178,8 @@ public class KalmanPredictionGeneratorImpl extends HistoricalAveragePredictionGe
                                     "KALMAN",
                                     true,
                                     null);
-                            Core.getInstance().getDbLogger().add(predictionForStopPath);
-                            StopPathPredictionCache.getInstance().putPrediction(predictionForStopPath);
+                            dataDbLogger.add(predictionForStopPath);
+                            stopPathPredictionCache.putPrediction(predictionForStopPath);
                         }
                         return predictionTime;
 
@@ -193,8 +199,6 @@ public class KalmanPredictionGeneratorImpl extends HistoricalAveragePredictionGe
     public long expectedTravelTimeFromMatchToEndOfStopPath(AvlReport avlReport, SpatialMatch match) {
 
         if (PredictionConfig.useKalmanForPartialStopPaths.getValue()) {
-            VehicleStateManager vehicleStateManager = VehicleStateManager.getInstance();
-
             VehicleState currentVehicleState = vehicleStateManager.getVehicleState(avlReport.getVehicleId());
 
             long fulltime = this.getTravelTimeForPath(match.getIndices(), avlReport, currentVehicleState);

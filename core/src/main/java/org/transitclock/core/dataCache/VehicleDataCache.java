@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -17,9 +18,11 @@ import org.hibernate.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.Core;
+import org.transitclock.SingletonContainer;
 import org.transitclock.annotations.Component;
 import org.transitclock.config.data.AgencyConfig;
 import org.transitclock.core.VehicleState;
+import org.transitclock.domain.hibernate.DataDbLogger;
 import org.transitclock.domain.hibernate.HibernateUtils;
 import org.transitclock.domain.structs.AvlReport;
 import org.transitclock.domain.structs.Route;
@@ -28,6 +31,8 @@ import org.transitclock.service.dto.IpcVehicleComplete;
 import org.transitclock.utils.ConcurrentHashMapNullKeyOk;
 import org.transitclock.utils.SystemTime;
 import org.transitclock.utils.Time;
+
+import javax.xml.datatype.DatatypeConstants;
 
 /**
  * For storing and retrieving vehicle information that can be used by clients. Is updated every time
@@ -42,9 +47,6 @@ import org.transitclock.utils.Time;
 @Slf4j
 @Component
 public class VehicleDataCache {
-
-    // Make this class available as a singleton
-    private static final VehicleDataCache singleton = new VehicleDataCache();
 
     // Keyed by vehicle ID
     private final Map<String, IpcVehicleComplete> vehiclesMap = new ConcurrentHashMap<String, IpcVehicleComplete>();
@@ -70,6 +72,8 @@ public class VehicleDataCache {
     // So can quickly look up vehicle config using tracker ID
     private final Map<String, VehicleConfig> vehicleConfigByTrackerIdMap = new HashMap<String, VehicleConfig>();
 
+    private final DataDbLogger dataDbLogger = SingletonContainer.getInstance(DataDbLogger.class);
+
     // So can determine how long since data was read from db
     private long dbReadTime;
 
@@ -78,20 +82,11 @@ public class VehicleDataCache {
     // obsolete and shouldn't be displayed.
     private static final int MAX_AGE_MSEC = 15 * Time.MS_PER_MIN;
 
-    /**
-     * Gets the singleton instance of this class.
-     *
-     * @return
-     */
-    public static VehicleDataCache getInstance() {
-        return singleton;
-    }
-
     /*
      * Constructor declared private to enforce only access to this singleton
      * class being getInstance()
      */
-    private VehicleDataCache() {}
+    public VehicleDataCache() {}
 
     /**
      * Reads in vehicle config data from db. Unsynchronized since the calling methods are expected
@@ -160,7 +155,7 @@ public class VehicleDataCache {
                             + "VehicleConfig to database.",
                     vehicleId);
             // Write the vehicle to the database
-            Core.getInstance().getDbLogger().add(vehicleConfig);
+            dataDbLogger.add(vehicleConfig);
         } else {
             if (vehicleName != null) {
                 if (!vehicleName.equals(absent.getName())) {

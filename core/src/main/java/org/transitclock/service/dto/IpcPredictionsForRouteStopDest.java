@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import org.transitclock.Core;
+import org.transitclock.SingletonContainer;
 import org.transitclock.core.VehicleState;
 import org.transitclock.core.dataCache.VehicleStateManager;
 import org.transitclock.domain.structs.Route;
@@ -416,7 +417,7 @@ public class IpcPredictionsForRouteStopDest implements Serializable {
             // Remove predictions that are expired. It makes sense to do this
             // here when adding predictions since only need to take out
             // predictions if more are being added.
-            VehicleStateManager vehicleStateManager = VehicleStateManager.getInstance();
+            VehicleStateManager vehicleStateManager = SingletonContainer.getInstance(VehicleStateManager.class);
             if (currentPrediction.getPredictionTime() < currentTime) {
                 // TODO This is a change for VIA. This needs to be in HoldingTimeGenerator.
                 VehicleState vehicleState = vehicleStateManager.getVehicleState(currentPrediction.getVehicleId());

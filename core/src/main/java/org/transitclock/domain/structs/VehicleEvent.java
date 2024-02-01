@@ -16,7 +16,9 @@ import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Immutable;
 import org.transitclock.Core;
+import org.transitclock.SingletonContainer;
 import org.transitclock.core.TemporalMatch;
+import org.transitclock.domain.hibernate.DataDbLogger;
 import org.transitclock.domain.hibernate.HibernateUtils;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.SystemTime;
@@ -216,7 +218,7 @@ public class VehicleEvent implements Serializable {
                 stopId);
 
         // Queue to write object to database
-        Core.getInstance().getDbLogger().add(vehicleEvent);
+        SingletonContainer.getInstance(DataDbLogger.class).add(vehicleEvent);
 
         // Return new VehicleEvent
         return vehicleEvent;

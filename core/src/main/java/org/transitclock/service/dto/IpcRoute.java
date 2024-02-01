@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.transitclock.Core;
+import org.transitclock.SingletonContainer;
 import org.transitclock.core.dataCache.PredictionDataCache;
 import org.transitclock.core.dataCache.VehicleDataCache;
 import org.transitclock.domain.structs.Location;
@@ -58,17 +59,19 @@ public class IpcRoute extends IpcRouteSummary {
      *
      * @param dbRoute
      * @param directionId Set if want to know which part of route is major and which is minor.
-     *     Otherwise set to null.
+     * Otherwise set to null.
      * @param stopId
      * @return
      */
+    private static final PredictionDataCache predictionDataCache = SingletonContainer.getInstance(PredictionDataCache.class);
+    private static final VehicleDataCache vehicleDataCache = SingletonContainer.getInstance(VehicleDataCache.class);
+
     private static Location getLocationOfNextPredictedVehicle(Route dbRoute, String directionId, String stopId) {
         // If no stop specified then can't determine next predicted vehicle
         if (stopId == null) return null;
 
         // Determine the first IpcPrediction for the stop
-        List<IpcPredictionsForRouteStopDest> predsList =
-                PredictionDataCache.getInstance().getPredictions(dbRoute.getShortName(), directionId, stopId);
+        List<IpcPredictionsForRouteStopDest> predsList = predictionDataCache.getPredictions(dbRoute.getShortName(), directionId, stopId);
         if (predsList.isEmpty()) return null;
 
         List<IpcPrediction> ipcPreds = predsList.get(0).getPredictionsForRouteStop();
@@ -77,7 +80,7 @@ public class IpcRoute extends IpcRouteSummary {
         // Based on the first prediction determine the current IpcVehicle info
         String vehicleId = ipcPreds.get(0).getVehicleId();
 
-        IpcVehicleComplete vehicle = VehicleDataCache.getInstance().getVehicle(vehicleId);
+        IpcVehicleComplete vehicle = vehicleDataCache.getVehicle(vehicleId);
 
         return new Location(vehicle.getLatitude(), vehicle.getLongitude());
     }

@@ -20,20 +20,8 @@ import org.transitclock.utils.Time;
 @Component
 public class BlockAssigner {
 
-    // Singleton class
-    private static final BlockAssigner singleton = new BlockAssigner();
-
     /** Constructor private since singleton class */
-    private BlockAssigner() {}
-
-    /**
-     * Returns the BlockAssigner singleton
-     *
-     * @return
-     */
-    public static synchronized BlockAssigner getInstance() {
-        return singleton;
-    }
+    public BlockAssigner() {}
 
     /**
      * Gets the appropriate block associated with the AvlReport. If the assignment is a block

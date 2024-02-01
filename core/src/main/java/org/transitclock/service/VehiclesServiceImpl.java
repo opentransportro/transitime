@@ -43,13 +43,13 @@ public class VehiclesServiceImpl implements VehiclesInterface {
      * Starts up the VehiclesServer so that RMI calls can query for predictions. This will
      * automatically cause the object to continue to run and serve requests.
      *
-     * @param vehicleManager
+     * @param vehicleDataCache
      * @return the singleton PredictionsServer object
      */
-    public static VehiclesServiceImpl start(VehicleDataCache vehicleManager) {
+    public static VehiclesServiceImpl start(VehicleDataCache vehicleDataCache) {
         if (singleton == null) {
             singleton = new VehiclesServiceImpl();
-            singleton.vehicleDataCache = vehicleManager;
+            singleton.vehicleDataCache = vehicleDataCache;
         }
 
 
@@ -235,7 +235,7 @@ public class VehiclesServiceImpl implements VehiclesInterface {
 
             // Determine vehicles associated with the block if there are any
             Collection<String> vehicleIdsForBlock =
-                    VehicleDataCache.getInstance().getVehiclesByBlockId(block.getId());
+                    vehicleDataCache.getVehiclesByBlockId(block.getId());
             Collection<IpcVehicle> ipcVehiclesForBlock = get(vehicleIdsForBlock);
 
             // Create and add the IpcActiveBlock
@@ -351,7 +351,7 @@ public class VehiclesServiceImpl implements VehiclesInterface {
 
             // Determine vehicles associated with the block if there are any
             Collection<String> vehicleIdsForBlock =
-                    VehicleDataCache.getInstance().getVehiclesByBlockId(block.getId());
+                    vehicleDataCache.getVehiclesByBlockId(block.getId());
             Collection<IpcVehicle> ipcVehiclesForBlock = get(vehicleIdsForBlock);
 
             // Create and add the IpcActiveBlock
@@ -372,7 +372,7 @@ public class VehiclesServiceImpl implements VehiclesInterface {
     @Override
     public Collection<IpcVehicleConfig> getVehicleConfigs() throws RemoteException {
         Collection<IpcVehicleConfig> result = new ArrayList<>();
-        for (VehicleConfig vehicleConfig : VehicleDataCache.getInstance().getVehicleConfigs()) {
+        for (VehicleConfig vehicleConfig : vehicleDataCache.getVehicleConfigs()) {
             result.add(new IpcVehicleConfig(vehicleConfig));
         }
 
@@ -388,7 +388,7 @@ public class VehiclesServiceImpl implements VehiclesInterface {
         List<Block> blocks = BlocksInfo.getCurrentlyActiveBlocks();
         for (Block block : blocks) {
             Collection<String> vehicleIdsForBlock =
-                    VehicleDataCache.getInstance().getVehiclesByBlockId(block.getId());
+                    vehicleDataCache.getVehiclesByBlockId(block.getId());
             vehicleIds.addAll(vehicleIdsForBlock);
         }
         return get(vehicleIds);

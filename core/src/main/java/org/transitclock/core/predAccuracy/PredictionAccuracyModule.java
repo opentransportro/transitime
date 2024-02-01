@@ -8,8 +8,10 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.Module;
 import org.transitclock.Core;
+import org.transitclock.SingletonContainer;
 import org.transitclock.config.data.PredictionAccuracyConfig;
 import org.transitclock.core.dataCache.PredictionDataCache;
+import org.transitclock.domain.hibernate.DataDbLogger;
 import org.transitclock.domain.structs.ArrivalDeparture;
 import org.transitclock.domain.structs.PredictionAccuracy;
 import org.transitclock.domain.structs.Route;
@@ -56,6 +58,8 @@ public class PredictionAccuracyModule extends Module {
             return "PredictionKey [" + "vehicleId=" + o1 + ", directionId=" + o2 + ", stopId=" + o3 + "]";
         }
     }
+
+    private final PredictionDataCache predictionDataCache = SingletonContainer.getInstance(PredictionDataCache.class);
 
     public PredictionAccuracyModule(String agencyId) {
         super(agencyId);
@@ -242,7 +246,7 @@ public class PredictionAccuracyModule extends Module {
                 Collection<String> stopIds = routeAndStop.stopIds.get(directionId);
                 for (String stopId : stopIds) {
                     List<IpcPredictionsForRouteStopDest> predictions =
-                            PredictionDataCache.getInstance().getPredictions(routeId, directionId, stopId);
+                            predictionDataCache.getPredictions(routeId, directionId, stopId);
                     boolean predictionsFound = false;
                     for (IpcPredictionsForRouteStopDest predList : predictions) {
                         for (IpcPrediction pred : predList.getPredictionsForRouteStop()) {
@@ -371,6 +375,6 @@ public class PredictionAccuracyModule extends Module {
         // Add the prediction accuracy object to the db logger so that
         // it gets written to database
         logger.debug("Storing prediction accuracy object to db. {}", predAccuracy);
-        Core.getInstance().getDbLogger().add(predAccuracy);
+        SingletonContainer.getInstance(DataDbLogger.class).add(predAccuracy);
     }
 }

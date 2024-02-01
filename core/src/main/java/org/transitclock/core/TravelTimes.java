@@ -22,20 +22,8 @@ import org.transitclock.utils.Time;
 @Component
 public class TravelTimes {
 
-    // Singleton class
-    private static final TravelTimes singleton = new TravelTimes();
-
     /** Constructor declared private because singleton class */
-    private TravelTimes() {}
-
-    /**
-     * Returns singleton MatchProcessor
-     *
-     * @return
-     */
-    public static TravelTimes getInstance() {
-        return singleton;
-    }
+    public TravelTimes() {}
 
     /**
      * Determines travel time as the crows flies to cover the distance. Intended to be used for

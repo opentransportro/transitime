@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.Core;
+import org.transitclock.SingletonContainer;
 import org.transitclock.core.dataCache.VehicleDataCache;
 import org.transitclock.domain.structs.Agency;
 import org.transitclock.domain.structs.Block;
@@ -59,6 +60,7 @@ public class ConfigServiceImpl implements ConfigInterface {
         return singleton;
     }
 
+    private final VehicleDataCache vehicleDataCache = SingletonContainer.getInstance(VehicleDataCache.class);
     /**
      * Constructor. Made private so that can only be instantiated by get(). Doesn't actually do
      * anything since all the work is done in the superclass constructor.
@@ -299,8 +301,7 @@ public class ConfigServiceImpl implements ConfigInterface {
      */
     @Override
     public List<String> getVehicleIds() throws RemoteException {
-        Collection<VehicleConfig> vehicleConfigs =
-                VehicleDataCache.getInstance().getVehicleConfigs();
+        Collection<VehicleConfig> vehicleConfigs = vehicleDataCache.getVehicleConfigs();
         List<String> vehicleIds = new ArrayList<>(vehicleConfigs.size());
         for (VehicleConfig vehicleConfig : vehicleConfigs) {
             vehicleIds.add(vehicleConfig.getId());

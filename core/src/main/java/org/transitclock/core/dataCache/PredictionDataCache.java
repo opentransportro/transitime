@@ -42,10 +42,6 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class PredictionDataCache {
 
-    // This is a singleton class
-    private static final PredictionDataCache singleton = new PredictionDataCache();
-
-
     // Contains lists of predictions per route/stop. Also want to group
     // predictions by destination/trip head sign together so that can
     // show such predictions separately. This is important for routes
@@ -65,16 +61,6 @@ public class PredictionDataCache {
     private final ConcurrentHashMap<MapKey, List<IpcPredictionsForRouteStopDest>> predictionsMap =
             new ConcurrentHashMap<>(1000);
 
-
-    /**
-     * Returns singleton object for this class. It will use the regular SystemCurrentTime class for
-     * determining the time and whether any predictions are obsolete.
-     *
-     * @return
-     */
-    public static PredictionDataCache getInstance() {
-        return singleton;
-    }
 
     /**
      * Returns the current time. Can be based on the systems clock but when in playback mode will be
@@ -238,14 +224,8 @@ public class PredictionDataCache {
         if (hasDestinationWithPredictions) {
             // Filter out destination info where there are no predictions.
             // Use iterator since possibly removing elements in loop
-            Iterator<IpcPredictionsForRouteStopDest> iterator = clonedPredictions.iterator();
-            while (iterator.hasNext()) {
-                IpcPredictionsForRouteStopDest predsForRouteStopDest = iterator.next();
-                // If found destination with no predictions remove it
-                if (predsForRouteStopDest.getPredictionsForRouteStop().isEmpty()) {
-                    iterator.remove();
-                }
-            }
+            // If found destination with no predictions remove it
+            clonedPredictions.removeIf(predsForRouteStopDest -> predsForRouteStopDest.getPredictionsForRouteStop().isEmpty());
         }
 
         // Return the safe cloned predictions

@@ -15,6 +15,8 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.annotations.DynamicUpdate;
 import org.transitclock.Core;
+import org.transitclock.SingletonContainer;
+import org.transitclock.domain.hibernate.DataDbLogger;
 
 /**
  * For storing static configuration for vehicle in block.
@@ -77,7 +79,8 @@ public class VehicleToBlockConfig implements Serializable {
                 new VehicleToBlockConfig(vehicleId, blockId, tripId, assignmentDate, validFrom, validTo);
 
         // Queue to write object to database
-        Core.getInstance().getDbLogger().add(vehicleToBlockConfig);
+        SingletonContainer.getInstance(DataDbLogger.class)
+                .add(vehicleToBlockConfig);
 
         // Return new VehicleToBlockConfig
         return vehicleToBlockConfig;

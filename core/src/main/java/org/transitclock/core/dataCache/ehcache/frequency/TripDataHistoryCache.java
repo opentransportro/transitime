@@ -8,10 +8,10 @@ import org.ehcache.Cache;
 import org.ehcache.CacheManager;
 import org.hibernate.Session;
 import org.transitclock.Core;
+import org.transitclock.SingletonContainer;
 import org.transitclock.annotations.Component;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.core.dataCache.*;
-import org.transitclock.core.dataCache.ehcache.CacheManagerFactory;
 import org.transitclock.core.dataCache.frequency.FrequencyBasedHistoricalAverageCache;
 import org.transitclock.domain.structs.ArrivalDeparture;
 import org.transitclock.domain.structs.Block;
@@ -21,7 +21,6 @@ import org.transitclock.gtfs.DbConfig;
 import org.transitclock.gtfs.GtfsData;
 import org.transitclock.service.dto.IpcArrivalDeparture;
 
-import java.net.URL;
 import java.util.*;
 
 /**
@@ -36,27 +35,13 @@ import java.util.*;
 @Slf4j
 @Component
 public class TripDataHistoryCache implements TripDataHistoryCacheInterface {
-    private static final TripDataHistoryCacheInterface singleton = new TripDataHistoryCache();
-
     private static final boolean debug = false;
 
     private static final String cacheByTrip = "arrivalDeparturesByTrip";
-
-    final URL xmlConfigUrl = getClass().getResource("/ehcache.xml");
-
     private final Cache<TripKey, TripEvents> cache;
 
-    /**
-     * Gets the singleton instance of this class.
-     *
-     * @return
-     */
-    public static TripDataHistoryCacheInterface getInstance() {
-        return singleton;
-    }
-
     public TripDataHistoryCache() {
-        CacheManager cm = CacheManagerFactory.getInstance();
+        CacheManager cm = SingletonContainer.getInstance(CacheManager.class);
         cache = cm.getCache(cacheByTrip, TripKey.class, TripEvents.class);
     }
 

@@ -2,25 +2,24 @@
 package org.transitclock.core.dataCache.scheduled;
 
 import com.querydsl.jpa.impl.JPAQuery;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.DateUtils;
 import org.ehcache.Cache;
 import org.ehcache.CacheManager;
 import org.hibernate.Session;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.transitclock.Core;
+import org.transitclock.SingletonContainer;
 import org.transitclock.annotations.Component;
 import org.transitclock.core.DwellTimeDetails;
 import org.transitclock.core.TravelTimeDetails;
 import org.transitclock.core.dataCache.*;
-import org.transitclock.core.dataCache.ehcache.CacheManagerFactory;
 import org.transitclock.domain.structs.ArrivalDeparture;
 import org.transitclock.domain.structs.QArrivalDeparture;
 import org.transitclock.domain.structs.Trip;
 import org.transitclock.gtfs.DbConfig;
 import org.transitclock.service.dto.IpcArrivalDeparture;
 
-import java.net.URL;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -28,26 +27,14 @@ import java.util.List;
 /**
  * @author Sean Óg Crudden
  */
+@Slf4j
 @Component
 public class ScheduleBasedHistoricalAverageCache {
     private static final String cacheName = "HistoricalAverageCache";
-    private static final ScheduleBasedHistoricalAverageCache singleton = new ScheduleBasedHistoricalAverageCache();
-    private static final Logger logger = LoggerFactory.getLogger(ScheduleBasedHistoricalAverageCache.class);
-    final URL xmlConfigUrl = getClass().getResource("/ehcache.xml");
     private Cache<StopPathCacheKey, HistoricalAverage> cache = null;
 
-    /**
-     * Gets the singleton instance of this class.
-     *
-     * @return
-     */
-    public static ScheduleBasedHistoricalAverageCache getInstance() {
-        return singleton;
-    }
-
-    private ScheduleBasedHistoricalAverageCache() {
-        CacheManager cm = CacheManagerFactory.getInstance();
-
+    public ScheduleBasedHistoricalAverageCache() {
+        CacheManager cm = SingletonContainer.getInstance(CacheManager.class);
         cache = cm.getCache(cacheName, StopPathCacheKey.class, HistoricalAverage.class);
     }
 
@@ -89,8 +76,7 @@ public class ScheduleBasedHistoricalAverageCache {
                     StopPathCacheKey historicalAverageCacheKey =
                             new StopPathCacheKey(trip.getId(), arrivalDeparture.getStopPathIndex(), true);
 
-                    HistoricalAverage average =
-                            ScheduleBasedHistoricalAverageCache.getInstance().getAverage(historicalAverageCacheKey);
+                    HistoricalAverage average = getAverage(historicalAverageCacheKey);
 
                     if (average == null) average = new HistoricalAverage();
                     logger.debug(
@@ -99,7 +85,7 @@ public class ScheduleBasedHistoricalAverageCache {
                             travelTimeDetails);
                     average.update(travelTimeDetails.getTravelTime());
 
-                    ScheduleBasedHistoricalAverageCache.getInstance().putAverage(historicalAverageCacheKey, average);
+                    putAverage(historicalAverageCacheKey, average);
                 }
             }
 
@@ -109,8 +95,7 @@ public class ScheduleBasedHistoricalAverageCache {
                 StopPathCacheKey historicalAverageCacheKey =
                         new StopPathCacheKey(trip.getId(), arrivalDeparture.getStopPathIndex(), false);
 
-                HistoricalAverage average =
-                        ScheduleBasedHistoricalAverageCache.getInstance().getAverage(historicalAverageCacheKey);
+                HistoricalAverage average = getAverage(historicalAverageCacheKey);
 
                 if (average == null) average = new HistoricalAverage();
 
@@ -118,7 +103,7 @@ public class ScheduleBasedHistoricalAverageCache {
                         "Updating historical averege for : {} with {}", historicalAverageCacheKey, dwellTimeDetails);
                 average.update(dwellTimeDetails.getDwellTime());
 
-                ScheduleBasedHistoricalAverageCache.getInstance().putAverage(historicalAverageCacheKey, average);
+                putAverage(historicalAverageCacheKey, average);
             }
         }
     }
@@ -168,7 +153,7 @@ public class ScheduleBasedHistoricalAverageCache {
         results.sort(new ArrivalDepartureComparator());
 
         for (ArrivalDeparture result : results) {
-            ScheduleBasedHistoricalAverageCache.getInstance().putArrivalDeparture(result);
+            putArrivalDeparture(result);
         }
     }
 

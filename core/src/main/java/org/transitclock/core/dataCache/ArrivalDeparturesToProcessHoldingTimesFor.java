@@ -16,21 +16,9 @@ import org.transitclock.domain.structs.ArrivalDeparture;
 @Component
 public class ArrivalDeparturesToProcessHoldingTimesFor {
 
-    private static final ArrivalDeparturesToProcessHoldingTimesFor singleton =
-            new ArrivalDeparturesToProcessHoldingTimesFor();
-
     private final ArrayList<ArrivalDeparture> m = new ArrayList<ArrivalDeparture>();
 
-    /**
-     * Gets the singleton instance of this class.
-     *
-     * @return
-     */
-    public static ArrivalDeparturesToProcessHoldingTimesFor getInstance() {
-        return singleton;
-    }
-
-    private ArrivalDeparturesToProcessHoldingTimesFor() {}
+    public ArrivalDeparturesToProcessHoldingTimesFor() {}
 
     public void empty() {
         m.clear();

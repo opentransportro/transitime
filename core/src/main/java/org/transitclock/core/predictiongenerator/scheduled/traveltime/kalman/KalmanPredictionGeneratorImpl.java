@@ -4,16 +4,19 @@ package org.transitclock.core.predictiongenerator.scheduled.traveltime.kalman;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.DateUtils;
 import org.transitclock.Core;
+import org.transitclock.SingletonContainer;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.config.data.PredictionConfig;
 import org.transitclock.core.*;
 import org.transitclock.core.dataCache.*;
 import org.transitclock.core.predictiongenerator.kalman.*;
+import org.transitclock.domain.hibernate.DataDbLogger;
 import org.transitclock.domain.structs.AvlReport;
 import org.transitclock.domain.structs.PredictionEvent;
 import org.transitclock.domain.structs.PredictionForStopPath;
 import org.transitclock.utils.SystemTime;
 
+import javax.cache.configuration.FactoryBuilder;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -29,6 +32,11 @@ public class KalmanPredictionGeneratorImpl extends PredictionGeneratorDefaultImp
     private final String alternative = "PredictionGeneratorDefaultImpl";
 
 
+    private final TripDataHistoryCacheInterface tripCache = TripDataHistoryCacheFactory.getInstance();
+    private final ErrorCache kalmanErrorCache = ErrorCacheFactory.getInstance();
+    private final StopPathPredictionCache stopPathPredictionCache = SingletonContainer.getInstance(StopPathPredictionCache.class);
+    private final VehicleStateManager vehicleStateManager = SingletonContainer.getInstance(VehicleStateManager.class);
+    private final DataDbLogger dataDbLogger = SingletonContainer.getInstance(DataDbLogger.class);
     /*
      * (non-Javadoc)
      *
@@ -42,9 +50,6 @@ public class KalmanPredictionGeneratorImpl extends PredictionGeneratorDefaultImp
         logger.debug("Calling Kalman prediction algorithm for : {}", indices);
 
         long alternatePrediction = super.getTravelTimeForPath(indices, avlReport, vehicleState);
-        var tripCache = TripDataHistoryCacheFactory.getInstance();
-        var kalmanErrorCache = ErrorCacheFactory.getInstance();
-        var vehicleStateManager = VehicleStateManager.getInstance();
         var currentVehicleState = vehicleStateManager.getVehicleState(avlReport.getVehicleId());
 
         try {
@@ -155,8 +160,8 @@ public class KalmanPredictionGeneratorImpl extends PredictionGeneratorDefaultImp
                                     "KALMAN",
                                     true,
                                     null);
-                            Core.getInstance().getDbLogger().add(predictionForStopPath);
-                            StopPathPredictionCache.getInstance().putPrediction(predictionForStopPath);
+                            dataDbLogger.add(predictionForStopPath);
+                            stopPathPredictionCache.putPrediction(predictionForStopPath);
                         }
                         return predictionTime;
 
@@ -176,8 +181,6 @@ public class KalmanPredictionGeneratorImpl extends PredictionGeneratorDefaultImp
     public long expectedTravelTimeFromMatchToEndOfStopPath(AvlReport avlReport, SpatialMatch match) {
 
         if (PredictionConfig.useKalmanForPartialStopPaths.getValue()) {
-            VehicleStateManager vehicleStateManager = VehicleStateManager.getInstance();
-
             VehicleState currentVehicleState = vehicleStateManager.getVehicleState(avlReport.getVehicleId());
 
             long fulltime = this.getTravelTimeForPath(match.getIndices(), avlReport, currentVehicleState);

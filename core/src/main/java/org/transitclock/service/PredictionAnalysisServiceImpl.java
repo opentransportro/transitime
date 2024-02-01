@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
+import org.transitclock.SingletonContainer;
 import org.transitclock.core.dataCache.StopPathCacheKey;
 import org.transitclock.core.dataCache.StopPathPredictionCache;
 import org.transitclock.domain.structs.PredictionForStopPath;
@@ -29,6 +30,8 @@ public class PredictionAnalysisServiceImpl implements PredictionAnalysisInterfac
 
     protected PredictionAnalysisServiceImpl() {
     }
+
+    private final StopPathPredictionCache stopPathPredictionCache = SingletonContainer.getInstance(StopPathPredictionCache.class);
 
     /**
      * Starts up the PredictionAnalysisServer so that RMI calls can be used to query travel times
@@ -65,8 +68,7 @@ public class PredictionAnalysisServiceImpl implements PredictionAnalysisInterfac
             String tripId, Integer stopPathIndex, Date startdate, Date enddate, String algorithm)
             throws RemoteException {
         StopPathCacheKey key = new StopPathCacheKey(tripId, stopPathIndex, true);
-        List<PredictionForStopPath> predictions =
-                StopPathPredictionCache.getInstance().getPredictions(key);
+        List<PredictionForStopPath> predictions = stopPathPredictionCache.getPredictions(key);
         List<IpcPredictionForStopPath> results = new ArrayList<IpcPredictionForStopPath>();
         if (predictions != null) {
             for (PredictionForStopPath prediction : predictions) {

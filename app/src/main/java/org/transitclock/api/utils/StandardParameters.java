@@ -9,6 +9,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.ResponseBuilder;
 import jakarta.ws.rs.core.Response.Status;
+import org.transitclock.SingletonContainer;
 import org.transitclock.domain.ApiKeyManager;
 import org.transitclock.service.*;
 import org.transitclock.service.contract.*;
@@ -104,9 +105,9 @@ public class StandardParameters {
      */
     public void validate() throws WebApplicationException {
         // Make sure the application key is valid
-        if (!ApiKeyManager.getInstance().isKeyValid(getKey())) {
-            ApiKeyManager manager = ApiKeyManager.getInstance();
-            boolean test = manager.isKeyValid(getKey());
+        ApiKeyManager apiKeyManager = SingletonContainer.getInstance(ApiKeyManager.class);
+        if (!apiKeyManager.isKeyValid(getKey())) {
+            boolean test = apiKeyManager.isKeyValid(getKey());
             throw WebUtils.badRequestException(
                     Status.UNAUTHORIZED.getStatusCode(), "Application key \"" + getKey() + "\" is not valid.");
         }

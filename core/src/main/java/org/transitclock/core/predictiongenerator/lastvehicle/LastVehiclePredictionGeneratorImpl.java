@@ -6,6 +6,7 @@ import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.Core;
+import org.transitclock.SingletonContainer;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.core.Indices;
 import org.transitclock.core.PredictionGeneratorDefaultImpl;
@@ -14,6 +15,7 @@ import org.transitclock.core.VehicleState;
 import org.transitclock.core.dataCache.StopPathPredictionCache;
 import org.transitclock.core.dataCache.VehicleDataCache;
 import org.transitclock.core.dataCache.VehicleStateManager;
+import org.transitclock.domain.hibernate.DataDbLogger;
 import org.transitclock.domain.structs.AvlReport;
 import org.transitclock.domain.structs.PredictionForStopPath;
 import org.transitclock.service.dto.IpcPrediction;
@@ -35,6 +37,10 @@ import org.transitclock.utils.SystemTime;
  */
 @Slf4j
 public class LastVehiclePredictionGeneratorImpl extends PredictionGeneratorDefaultImpl {
+    private final VehicleDataCache vehicleDataCache = SingletonContainer.getInstance(VehicleDataCache.class);
+    private final VehicleStateManager vehicleStateManager = SingletonContainer.getInstance(VehicleStateManager.class);
+    private final StopPathPredictionCache stopPathPredictionCache = SingletonContainer.getInstance(StopPathPredictionCache.class);
+    private final DataDbLogger dataDbLogger = SingletonContainer.getInstance(DataDbLogger.class);
     @Override
     protected IpcPrediction generatePredictionForStop(
             AvlReport avlReport,
@@ -66,17 +72,12 @@ public class LastVehiclePredictionGeneratorImpl extends PredictionGeneratorDefau
      */
     @Override
     public long getTravelTimeForPath(Indices indices, AvlReport avlReport, VehicleState vehicleState) {
-
-        VehicleDataCache vehicleCache = VehicleDataCache.getInstance();
-
         List<VehicleState> vehiclesOnRoute = new ArrayList<>();
-
-        VehicleStateManager vehicleStateManager = VehicleStateManager.getInstance();
 
         VehicleState currentVehicleState = vehicleStateManager.getVehicleState(avlReport.getVehicleId());
 
         for (IpcVehicleComplete vehicle :
-                emptyIfNull(vehicleCache.getVehiclesForRoute(currentVehicleState.getRouteId()))) {
+                emptyIfNull(vehicleDataCache.getVehiclesForRoute(currentVehicleState.getRouteId()))) {
             VehicleState vehicleOnRouteState = vehicleStateManager.getVehicleState(vehicle.getId());
             vehiclesOnRoute.add(vehicleOnRouteState);
         }
@@ -97,8 +98,8 @@ public class LastVehiclePredictionGeneratorImpl extends PredictionGeneratorDefau
                             true,
                             null);
 
-                    Core.getInstance().getDbLogger().add(predictionForStopPath);
-                    StopPathPredictionCache.getInstance().putPrediction(predictionForStopPath);
+                    dataDbLogger.add(predictionForStopPath);
+                    stopPathPredictionCache.putPrediction(predictionForStopPath);
                 }
 
                 return travelTimeDetails.getTravelTime();

@@ -11,6 +11,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
+import org.transitclock.SingletonContainer;
 import org.transitclock.core.BlockAssignmentMethod;
 import org.transitclock.core.SpatialMatch;
 import org.transitclock.core.TemporalDifference;
@@ -69,6 +70,7 @@ public class IpcVehicle implements Serializable {
     private final double predictedLatitude;
     private final double predictedLongitude;
 
+    private final PredictionDataCache predictionDataCache = SingletonContainer.getInstance(PredictionDataCache.class);
     /**
      * Constructs a new Vehicle object from data in a VehicleState object.
      *
@@ -103,7 +105,7 @@ public class IpcVehicle implements Serializable {
             // for layover.
             this.isLayover = match.isLayover();
             if (this.isLayover) {
-                IpcPrediction predsForVehicle = PredictionDataCache.getInstance()
+                IpcPrediction predsForVehicle = predictionDataCache
                         .getPredictionForVehicle(
                                 vs.getAvlReport().getVehicleId(),
                                 vs.getRouteShortName(),

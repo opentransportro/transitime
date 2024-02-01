@@ -4,6 +4,7 @@ package org.transitclock.gtfs;
 import java.util.ArrayList;
 import java.util.List;
 import org.transitclock.Core;
+import org.transitclock.SingletonContainer;
 import org.transitclock.core.dataCache.PredictionDataCache;
 import org.transitclock.domain.structs.Location;
 import org.transitclock.domain.structs.Route;
@@ -98,6 +99,7 @@ public class StopsByLocation {
         return new StopInfo(tripPattern, tripPattern.getRouteShortName(), bestStopPath.getStopId(), bestDistance);
     }
 
+    private static final PredictionDataCache predictionDataCache = SingletonContainer.getInstance(PredictionDataCache.class);
     /**
      * Determines from the matchesForDirection parameter the stop that is nearest that actually hash
      * predictions. This way won't return a stop for a trip pattern that is not currently in
@@ -112,8 +114,7 @@ public class StopsByLocation {
         // There are multiple trip matches with a match so
         // determine best one by looking at the predictions
         for (StopInfo stopInfo : matchesForDirection) {
-            List<IpcPredictionsForRouteStopDest> predictionsForStop =
-                    PredictionDataCache.getInstance().getPredictions(stopInfo.routeShortName, stopInfo.stopId);
+            List<IpcPredictionsForRouteStopDest> predictionsForStop = predictionDataCache.getPredictions(stopInfo.routeShortName, stopInfo.stopId);
 
             // Is this the nearest stop with a prediction?
             if (!predictionsForStop.isEmpty()

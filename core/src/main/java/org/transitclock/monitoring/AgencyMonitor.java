@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,21 +16,18 @@ import org.slf4j.LoggerFactory;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class AgencyMonitor {
-
-    // List of all the monitoring to do
-    private final List<MonitorBase> monitors;
 
     // For being able to reuse AgencyMonitors. This is important because
     // each monitor maintains state, such as if notification e-mail sent out.
     // Keyed on agencyId.
-    private static final Map<String, AgencyMonitor> agencyMonitorMap = new HashMap<String, AgencyMonitor>();
-
-    private static final Logger logger = LoggerFactory.getLogger(AgencyMonitor.class);
+    private static final Map<String, AgencyMonitor> agencyMonitorMap = new HashMap<>();
 
     private static final String enableSystemMonitoring = System.getProperty("transitclock.enableSystemMonitoring");
 
-    /********************** Member Functions **************************/
+    // List of all the monitoring to do
+    private final List<MonitorBase> monitors;
 
     /**
      * Constructor declared private so have to use getInstance() to get an AgencyMonitor. Like a
@@ -105,12 +104,15 @@ public class AgencyMonitor {
 
         // Check all the monitors.
         for (MonitorBase monitor : monitors) {
-            if (monitor.checkAndNotify()) errorMessage += " " + monitor.getMessage();
+            if (monitor.checkAndNotify())
+                errorMessage += " " + monitor.getMessage();
         }
 
         // Return the concatenated error message if there were any
-        if (errorMessage.length() > 0) return errorMessage;
-        else return null;
+        if (!errorMessage.isEmpty())
+            return errorMessage;
+
+        return null;
     }
 
     public static void main(String[] args) {

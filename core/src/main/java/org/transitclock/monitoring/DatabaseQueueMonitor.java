@@ -2,6 +2,7 @@
 package org.transitclock.monitoring;
 
 import org.transitclock.Core;
+import org.transitclock.SingletonContainer;
 import org.transitclock.config.data.MonitoringConfig;
 import org.transitclock.domain.hibernate.DataDbLogger;
 import org.transitclock.utils.StringUtils;
@@ -14,7 +15,7 @@ import org.transitclock.utils.StringUtils;
  */
 public class DatabaseQueueMonitor extends MonitorBase {
 
-
+    private final DataDbLogger dataDbLogger = SingletonContainer.getInstance(DataDbLogger.class);
     /**
      * Simple constructor
      *
@@ -29,20 +30,15 @@ public class DatabaseQueueMonitor extends MonitorBase {
      */
     @Override
     protected boolean triggered() {
-        Core core = Core.getInstance();
-        if (core == null) return false;
-
-        DataDbLogger dbLogger = core.getDbLogger();
-
         setMessage(
                 "Database queue fraction="
-                        + StringUtils.twoDigitFormat(dbLogger.queueLevel())
+                        + StringUtils.twoDigitFormat(dataDbLogger.queueLevel())
                         + " while max allowed fraction="
                         + StringUtils.twoDigitFormat(MonitoringConfig.maxQueueFraction.getValue())
                         + ", and items in queue="
-                        + dbLogger.queueSize()
+                        + dataDbLogger.queueSize()
                         + ".",
-                dbLogger.queueLevel());
+                dataDbLogger.queueLevel());
 
         // Determine the threshold for triggering. If already triggered
         // then lower the threshold by maxQueueFractionGap in order
@@ -51,7 +47,7 @@ public class DatabaseQueueMonitor extends MonitorBase {
         double threshold = MonitoringConfig.maxQueueFraction.getValue();
         if (wasTriggered()) threshold -= MonitoringConfig.maxQueueFractionGap.getValue();
 
-        return dbLogger.queueLevel() > threshold;
+        return dataDbLogger.queueLevel() > threshold;
     }
 
     /* (non-Javadoc)

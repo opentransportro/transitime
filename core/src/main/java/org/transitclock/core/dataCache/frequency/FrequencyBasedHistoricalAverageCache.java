@@ -28,23 +28,10 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 public class FrequencyBasedHistoricalAverageCache {
 
-    private static final FrequencyBasedHistoricalAverageCache singleton = new FrequencyBasedHistoricalAverageCache();
-
-
-
     private final ConcurrentHashMap<StopPathKey, TreeMap<Long, HistoricalAverage>> m =
             new ConcurrentHashMap<StopPathKey, TreeMap<Long, HistoricalAverage>>();
 
-    /**
-     * Gets the singleton instance of this class.
-     *
-     * @return
-     */
-    public static FrequencyBasedHistoricalAverageCache getInstance() {
-        return singleton;
-    }
-
-    private FrequencyBasedHistoricalAverageCache() {}
+    public FrequencyBasedHistoricalAverageCache() {}
 
     public String toString() {
 
@@ -139,8 +126,7 @@ public class FrequencyBasedHistoricalAverageCache {
                     StopPathCacheKey historicalAverageCacheKey = new StopPathCacheKey(
                             trip.getId(), pathDuration.getArrival().getStopPathIndex(), true, (long) time);
 
-                    HistoricalAverage average =
-                            FrequencyBasedHistoricalAverageCache.getInstance().getAverage(historicalAverageCacheKey);
+                    HistoricalAverage average = getAverage(historicalAverageCacheKey);
 
                     if (average == null) average = new HistoricalAverage();
 
@@ -153,7 +139,7 @@ public class FrequencyBasedHistoricalAverageCache {
                             historicalAverageCacheKey,
                             average);
 
-                    FrequencyBasedHistoricalAverageCache.getInstance().putAverage(historicalAverageCacheKey, average);
+                    putAverage(historicalAverageCacheKey, average);
                 }
             }
             DwellTimeResult stopDuration = getLastStopDuration(new IpcArrivalDeparture(arrivalDeparture), trip);
@@ -163,8 +149,7 @@ public class FrequencyBasedHistoricalAverageCache {
                 StopPathCacheKey historicalAverageCacheKey = new StopPathCacheKey(
                         trip.getId(), stopDuration.getDeparture().getStopPathIndex(), false, (long) time);
 
-                HistoricalAverage average =
-                        FrequencyBasedHistoricalAverageCache.getInstance().getAverage(historicalAverageCacheKey);
+                HistoricalAverage average = getAverage(historicalAverageCacheKey);
 
                 if (average == null) average = new HistoricalAverage();
 
@@ -177,7 +162,7 @@ public class FrequencyBasedHistoricalAverageCache {
                         historicalAverageCacheKey,
                         average);
 
-                FrequencyBasedHistoricalAverageCache.getInstance().putAverage(historicalAverageCacheKey, average);
+                putAverage(historicalAverageCacheKey, average);
             }
             if (stopDuration == null && pathDuration == null) {
                 logger.debug(
@@ -288,7 +273,7 @@ public class FrequencyBasedHistoricalAverageCache {
         for (ArrivalDeparture result : results) {
             // TODO this might be better done in the database.
             if (GtfsData.routeNotFiltered(result.getRouteId())) {
-                FrequencyBasedHistoricalAverageCache.getInstance().putArrivalDeparture(result);
+                putArrivalDeparture(result);
             }
         }
     }

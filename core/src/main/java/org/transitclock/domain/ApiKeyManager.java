@@ -39,12 +39,9 @@ public class ApiKeyManager {
             3,
             "Amount of time to wait in sec before updating the apiKeyCache");
 
-    // This is a singleton class
-    private static final ApiKeyManager singleton = new ApiKeyManager();
-
 
     /** Constructor private because singleton class */
-    private ApiKeyManager() {
+    public ApiKeyManager() {
         // Set the name of the db to get the data from.
         // Use the db name, such as "web".
         dbName = DbSetupConfig.getDbName();
@@ -54,14 +51,6 @@ public class ApiKeyManager {
         apiKeyCache = new HashMap<String, ApiKey>();
     }
 
-    /**
-     * Get singleton instance.
-     *
-     * @return
-     */
-    public static ApiKeyManager getInstance() {
-        return singleton;
-    }
 
     /**
      * Returns true if key is valid. Uses cache of keys so doesn't have to access database each

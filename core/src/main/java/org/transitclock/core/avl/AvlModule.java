@@ -3,6 +3,7 @@ package org.transitclock.core.avl;
 
 import java.util.Collection;
 import org.transitclock.Module;
+import org.transitclock.SingletonContainer;
 import org.transitclock.domain.structs.AvlReport;
 
 /**
@@ -12,6 +13,7 @@ import org.transitclock.domain.structs.AvlReport;
  * @author SkiBu Smith
  */
 abstract class AvlModule extends Module {
+    private final AvlExecutor avlExecutor = SingletonContainer.getInstance(AvlExecutor.class);
     protected AvlModule(String agencyId) {
         super(agencyId);
     }
@@ -22,7 +24,7 @@ abstract class AvlModule extends Module {
      */
     protected void processAvlReport(AvlReport avlReport) {
         // Use AvlExecutor to actually process the data using a thread executor
-        AvlExecutor.getInstance().processAvlReport(avlReport);
+        avlExecutor.processAvlReport(avlReport);
     }
 
     /**

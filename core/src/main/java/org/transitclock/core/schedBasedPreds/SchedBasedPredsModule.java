@@ -4,6 +4,7 @@ package org.transitclock.core.schedBasedPreds;
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.Module;
 import org.transitclock.Core;
+import org.transitclock.SingletonContainer;
 import org.transitclock.config.data.AgencyConfig;
 import org.transitclock.config.data.PredictionConfig;
 import org.transitclock.core.AvlProcessor;
@@ -45,7 +46,8 @@ import java.util.Set;
  */
 @Slf4j
 public class SchedBasedPredsModule extends Module {
-
+    private static final VehicleDataCache vehicleDataCache = SingletonContainer.getInstance(VehicleDataCache.class);
+    private static final AvlProcessor avlProcessor = SingletonContainer.getInstance(AvlProcessor.class);
 
     public SchedBasedPredsModule(String agencyId) {
         super(agencyId);
@@ -60,7 +62,7 @@ public class SchedBasedPredsModule extends Module {
         // when doing the somewhat expensive searching for currently active
         // blocks.
         Set<String> blockIdsAlreadyAssigned = new HashSet<>();
-        Collection<IpcVehicleComplete> vehicles = VehicleDataCache.getInstance().getVehiclesIncludingSchedBasedOnes();
+        Collection<IpcVehicleComplete> vehicles = vehicleDataCache.getVehiclesIncludingSchedBasedOnes();
         for (IpcVehicle vehicle : vehicles) {
             String blockId = vehicle.getBlockId();
             if (blockId != null) blockIdsAlreadyAssigned.add(blockId);
@@ -76,7 +78,7 @@ public class SchedBasedPredsModule extends Module {
         // For each block about to start see if no associated vehicle
         for (Block block : activeBlocks) {
             // Is there a vehicle associated with the block?
-            Collection<String> vehiclesForBlock = VehicleDataCache.getInstance().getVehiclesByBlockId(block.getId());
+            Collection<String> vehiclesForBlock = vehicleDataCache.getVehiclesByBlockId(block.getId());
             if (vehiclesForBlock == null || vehiclesForBlock.isEmpty()) {
                 // No vehicle associated with the active block so create a
                 // schedule based one. First create a fake AVL report that
@@ -101,7 +103,7 @@ public class SchedBasedPredsModule extends Module {
                             block.toShortString());
 
                     // Process that AVL report to generate predictions and such
-                    AvlProcessor.getInstance().processAvlReport(avlReport);
+                    avlProcessor.processAvlReport(avlReport);
                 }
             }
         }
@@ -174,9 +176,9 @@ public class SchedBasedPredsModule extends Module {
                     {
                         logger.info("Canceling trip...");
                         vehicleState.setCanceled(true);
-                        VehicleDataCache.getInstance().updateVehicle(vehicleState);
+                        vehicleDataCache.updateVehicle(vehicleState);
                         AvlReport avlReport = vehicleState.getAvlReport();
-                        AvlProcessor.getInstance().processAvlReport(avlReport);
+                        avlProcessor.processAvlReport(avlReport);
                     }
                 }
             }

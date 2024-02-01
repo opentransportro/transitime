@@ -4,6 +4,8 @@ package org.transitclock.domain.hibernate;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.transitclock.config.data.AgencyConfig;
+import org.transitclock.config.data.CoreConfig;
 import org.transitclock.domain.structs.ArrivalDeparture;
 import org.transitclock.domain.structs.AvlReport;
 import org.transitclock.domain.structs.Match;
@@ -71,6 +73,10 @@ public class DataDbLogger {
         synchronized (dataDbLoggerMap) {
             return dataDbLoggerMap.computeIfAbsent(agencyId, i -> new DataDbLogger(i, shouldStoreToDb, shouldPauseToReduceQueue));
         }
+    }
+
+    public DataDbLogger() {
+        this(AgencyConfig.getAgencyId(), CoreConfig.storeDataInDatabase(), CoreConfig.pauseIfDbQueueFilling());
     }
 
     /**

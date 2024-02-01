@@ -4,6 +4,8 @@ package org.transitclock.core.headwaygenerator;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import org.transitclock.SingletonContainer;
 import org.transitclock.core.HeadwayGenerator;
 import org.transitclock.core.VehicleState;
 import org.transitclock.core.dataCache.StopArrivalDepartureCacheFactory;
@@ -24,6 +26,9 @@ import org.transitclock.service.dto.IpcVehicleComplete;
  *     for headway could be (stop, vehicle, trip, start_time).
  */
 public class LastDepartureHeadwayGenerator implements HeadwayGenerator {
+
+    private final VehicleDataCache vehicleDataCache = SingletonContainer.getInstance(VehicleDataCache.class);
+    private final VehicleStateManager vehicleStateManager = SingletonContainer.getInstance(VehicleStateManager.class);
 
     @Override
     public Headway generate(VehicleState vehicleState) {
@@ -126,8 +131,8 @@ public class LastDepartureHeadwayGenerator implements HeadwayGenerator {
         int total_with_headway = 0;
         int total_vehicles = 0;
         boolean error = false;
-        for (IpcVehicleComplete currentVehicle : VehicleDataCache.getInstance().getVehicles()) {
-            VehicleState vehicleState = VehicleStateManager.getInstance().getVehicleState(currentVehicle.getId());
+        for (IpcVehicleComplete currentVehicle : vehicleDataCache.getVehicles()) {
+            VehicleState vehicleState = vehicleStateManager.getVehicleState(currentVehicle.getId());
             if (vehicleState.getHeadway() != null) {
                 headways.add(vehicleState.getHeadway());
                 total_with_headway++;
@@ -135,7 +140,7 @@ public class LastDepartureHeadwayGenerator implements HeadwayGenerator {
             total_vehicles++;
         }
         // ONLY SET IF HAVE VALES FOR ALL VEHICLES ON ROUTE.
-        if (VehicleDataCache.getInstance().getVehicles().size() == headways.size()
+        if (vehicleDataCache.getVehicles().size() == headways.size()
                 && total_vehicles == total_with_headway) {
             headway.setAverage(average(headways));
             headway.setVariance(variance(headways));

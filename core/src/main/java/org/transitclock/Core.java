@@ -41,8 +41,6 @@ public class Core {
     private final DbConfig configData;
 
     // For logging data such as AVL reports and arrival times to database
-    private final DataDbLogger dataDbLogger;
-
     @Getter
     private final TimeoutHandlerModule timeoutHandlerModule;
 
@@ -107,8 +105,6 @@ public class Core {
          // This is strange since setting TimeZone.setDefault() is supposed
          // to work across all threads it appears that sometimes it wouldn't
          // work if Db logger started first.
-         dataDbLogger = DataDbLogger.getDataDbLogger(agencyId, CoreConfig.storeDataInDatabase(), CoreConfig.pauseIfDbQueueFilling());
-
          ThreadFactory threadFactory = new NamedThreadFactory("module-thread-pool");
          Executor executor = Executors.newFixedThreadPool(10, threadFactory);
 
@@ -212,23 +208,17 @@ public class Core {
         return service;
     }
 
-    /**
-     * Returns the DataDbLogger for logging data to db.
-     *
-     * @return
-     */
-    public DataDbLogger getDbLogger() {
-        return dataDbLogger;
-    }
-
 
     /**
      * Start the RMI Servers so that clients can obtain data on predictions, vehicles locations,
      * etc.
      */
     public void startServices(String agencyId) {
-        PredictionsServiceImpl.start(PredictionDataCache.getInstance());
-        VehiclesServiceImpl.start(VehicleDataCache.getInstance());
+        PredictionDataCache predictionDataCache = SingletonContainer.getInstance(PredictionDataCache.class);
+        VehicleDataCache vehicleDataCache = SingletonContainer.getInstance(VehicleDataCache.class);
+
+        PredictionsServiceImpl.start(predictionDataCache);
+        VehiclesServiceImpl.start(vehicleDataCache);
         ConfigServiceImpl.start();
         ServerStatusServiceImpl.start(agencyId);
         CommandsServiceImpl.start();

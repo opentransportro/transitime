@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
+import org.transitclock.SingletonContainer;
 import org.transitclock.core.dataCache.ErrorCacheFactory;
 import org.transitclock.core.dataCache.HistoricalAverage;
 import org.transitclock.core.dataCache.HoldingTimeCache;
@@ -42,14 +43,20 @@ public class CacheQueryServiceImpl implements CacheQueryInterface {
         return singleton;
     }
 
-    protected CacheQueryServiceImpl() {
+    private final ScheduleBasedHistoricalAverageCache scheduleBasedHistoricalAverageCache;
+    private final HoldingTimeCache holdingTimeCache;
+    private final FrequencyBasedHistoricalAverageCache frequencyBasedHistoricalAverageCache;
+
+    public CacheQueryServiceImpl() {
+        scheduleBasedHistoricalAverageCache = SingletonContainer.getInstance(ScheduleBasedHistoricalAverageCache.class);
+        holdingTimeCache = SingletonContainer.getInstance(HoldingTimeCache.class);
+        frequencyBasedHistoricalAverageCache = SingletonContainer.getInstance(FrequencyBasedHistoricalAverageCache.class);
     }
 
     /**
      * Starts up the CacheQueryServer so that RMI calls can be used to query cache. This will
      * automatically cause the object to continue to run and serve requests.
      *
-     * @param agencyId
      * @return the singleton CacheQueryServer object. Usually does not need to used since the server
      *     will be fully running.
      */
@@ -93,8 +100,7 @@ public class CacheQueryServiceImpl implements CacheQueryInterface {
     public IpcHistoricalAverage getHistoricalAverage(String tripId, Integer stopPathIndex) throws RemoteException {
         StopPathCacheKey key = new StopPathCacheKey(tripId, stopPathIndex);
 
-        HistoricalAverage average =
-                ScheduleBasedHistoricalAverageCache.getInstance().getAverage(key);
+        HistoricalAverage average = scheduleBasedHistoricalAverageCache.getAverage(key);
         return new IpcHistoricalAverage(average);
     }
 
@@ -150,7 +156,7 @@ public class CacheQueryServiceImpl implements CacheQueryInterface {
     public List<IpcHistoricalAverageCacheKey> getScheduledBasedHistoricalAverageCacheKeys() throws RemoteException {
 
         List<StopPathCacheKey> keys =
-                ScheduleBasedHistoricalAverageCache.getInstance().getKeys();
+                scheduleBasedHistoricalAverageCache.getKeys();
         List<IpcHistoricalAverageCacheKey> ipcResultList = new ArrayList<IpcHistoricalAverageCacheKey>();
 
         for (StopPathCacheKey key : keys) {
@@ -178,7 +184,7 @@ public class CacheQueryServiceImpl implements CacheQueryInterface {
 
     @Override
     public List<IpcHoldingTimeCacheKey> getHoldingTimeCacheKeys() throws RemoteException {
-        List<HoldingTimeCacheKey> keys = HoldingTimeCache.getInstance().getKeys();
+        List<HoldingTimeCacheKey> keys = holdingTimeCache.getKeys();
         List<IpcHoldingTimeCacheKey> ipcResultList = new ArrayList<IpcHoldingTimeCacheKey>();
 
         for (HoldingTimeCacheKey key : keys) {
@@ -190,7 +196,6 @@ public class CacheQueryServiceImpl implements CacheQueryInterface {
     @Override
     public List<IpcHistoricalAverageCacheKey> getFrequencyBasedHistoricalAverageCacheKeys() throws RemoteException {
         // TODO Auto-generated method stub
-        FrequencyBasedHistoricalAverageCache.getInstance();
         return null;
     }
 }

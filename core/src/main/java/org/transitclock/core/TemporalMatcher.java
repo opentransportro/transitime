@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.Core;
+import org.transitclock.SingletonContainer;
 import org.transitclock.annotations.Component;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.domain.structs.AvlReport;
@@ -23,21 +24,9 @@ import org.transitclock.utils.Time;
 @Slf4j
 @Component
 public class TemporalMatcher {
+    private static final TravelTimes travelTimes = SingletonContainer.getInstance(TravelTimes.class);
 
-    // Singleton class
-    private static final TemporalMatcher singleton = new TemporalMatcher();
-
-    /** Declaring constructor as private since singleton class */
-    private TemporalMatcher() {}
-
-    /**
-     * Returns the TemporalMatcher singleton
-     *
-     * @return
-     */
-    public static TemporalMatcher getInstance() {
-        return singleton;
-    }
+    public TemporalMatcher() {}
 
     /**
      * For the spatial match, determines how far off in time the vehicle is from what is expected
@@ -80,7 +69,7 @@ public class TemporalMatcher {
                 0.0, // distanceToSegment
                 0.0); // distanceAlongSegment
         int tripStartTimeSecs = spatialMatch.getTrip().getStartTime();
-        int travelTimeForCurrentTrip = TravelTimes.getInstance()
+        int travelTimeForCurrentTrip = travelTimes
                 .expectedTravelTimeBetweenMatches(vehicleId, tripStartTimeSecs, beginningOfTrip, spatialMatch);
 
         int msecIntoDayVehicleExpectedToBeAtMatch = tripStartTimeSecs * 1000 + travelTimeForCurrentTrip;
@@ -347,10 +336,10 @@ public class TemporalMatcher {
 
             // Determine how long would expect it to take to get from previous
             // match to the new match.
-            int expectedTravelTimeMsecForward = TravelTimes.getInstance()
+            int expectedTravelTimeMsecForward = travelTimes
                     .expectedTravelTimeBetweenMatches(
                             vehicleState.getVehicleId(), previousAvlTime, previousMatch, spatialMatch);
-            int expectedTravelTimeMsecBackward = TravelTimes.getInstance()
+            int expectedTravelTimeMsecBackward = travelTimes
                     .expectedTravelTimeBetweenMatches(
                             vehicleState.getVehicleId(), previousAvlTime, spatialMatch, previousMatch);
 

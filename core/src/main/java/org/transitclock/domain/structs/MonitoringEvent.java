@@ -8,6 +8,8 @@ import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Immutable;
 import org.transitclock.Core;
+import org.transitclock.SingletonContainer;
+import org.transitclock.domain.hibernate.DataDbLogger;
 import org.transitclock.domain.hibernate.HibernateUtils;
 import org.transitclock.utils.IntervalTimer;
 
@@ -73,7 +75,8 @@ public class MonitoringEvent implements Serializable {
         MonitoringEvent monitoringEvent = new MonitoringEvent(time, type, triggered, message, value);
 
         // Queue to write object to database
-        Core.getInstance().getDbLogger().add(monitoringEvent);
+        SingletonContainer.getInstance(DataDbLogger.class)
+                .add(monitoringEvent);
 
         // Return new MonitoringEvent
         return monitoringEvent;

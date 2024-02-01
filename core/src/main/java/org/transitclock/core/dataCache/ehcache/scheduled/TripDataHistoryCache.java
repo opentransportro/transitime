@@ -43,15 +43,6 @@ public class TripDataHistoryCache implements TripDataHistoryCacheInterface {
     private Cache<TripKey, TripEvents> cache = null;
 
 
-    /**
-     * Gets the singleton instance of this class.
-     *
-     * @return
-     */
-    public static TripDataHistoryCacheInterface getInstance() {
-        return singleton;
-    }
-
     public TripDataHistoryCache() {
 
         CacheManager cm = CacheManagerFactory.getInstance();

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.transitclock.SingletonContainer;
 import org.transitclock.config.data.MonitoringConfig;
 import org.transitclock.core.BlocksInfo;
 import org.transitclock.core.dataCache.VehicleDataCache;
@@ -18,6 +19,8 @@ import org.transitclock.utils.StringUtils;
  * @author SkiBu Smith
  */
 public class PredictabilityMonitor extends MonitorBase {
+
+    private final VehicleDataCache vehicleDataCache = SingletonContainer.getInstance(VehicleDataCache.class);
 
     public PredictabilityMonitor(String agencyId) {
         super(agencyId);
@@ -47,7 +50,7 @@ public class PredictabilityMonitor extends MonitorBase {
         for (Block block : activeBlocks) {
             // Determine vehicles associated with the block if there are any
             Collection<String> vehicleIdsForBlock =
-                    VehicleDataCache.getInstance().getVehiclesByBlockId(block.getId());
+                    vehicleDataCache.getVehiclesByBlockId(block.getId());
             predictableVehicleCount += vehicleIdsForBlock.size();
 
             // Keep track of active blocks without vehicles

@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.transitclock.annotations.Component;
 import org.transitclock.config.data.AgencyConfig;
 import org.transitclock.config.data.AvlConfig;
+import org.transitclock.core.AvlProcessor;
 import org.transitclock.domain.structs.AvlReport;
 import org.transitclock.utils.threading.NamedThreadFactory;
 
@@ -30,9 +31,12 @@ import java.util.concurrent.TimeUnit;
 public class AvlExecutor {
 
     private static final int MAX_THREADS = 25;
-    private static AvlExecutor singleton;
     private final ThreadPoolExecutor avlClientExecutor;
     private final AvlReportProcessorFactory avlReportProcessorFactory;
+
+    public AvlExecutor() {
+        this(new DefaultAvlReportProcessorFactory());
+    }
 
     public AvlExecutor(AvlReportProcessorFactory avlReportProcessorFactory) {
         this.avlReportProcessorFactory = avlReportProcessorFactory;
@@ -71,19 +75,6 @@ public class AvlExecutor {
                 (BlockingQueue) workQueue,
                 avlClientThreadFactory,
                 rejectedHandler);
-    }
-
-    /**
-     * Returns singleton instance. Not synchronized since it is OK if an executor is replaced by a
-     * new one.
-     *
-     * @return the singleton AvlExecutor
-     */
-    public static synchronized AvlExecutor getInstance() {
-        if (singleton == null) {
-            singleton = new AvlExecutor(new DefaultAvlReportProcessorFactory());
-        }
-        return singleton;
     }
 
     /**

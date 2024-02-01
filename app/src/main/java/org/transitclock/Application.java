@@ -96,7 +96,7 @@ public class Application {
     }
 
     public void createApiKey() {
-        ApiKeyManager.getInstance()
+        SingletonContainer.getInstance(ApiKeyManager.class)
                 .generateApiKey(
                         "Sean Og Crudden",
                         "http://www.transitclock.org",
@@ -126,6 +126,9 @@ public class Application {
 
         Date endDate = Calendar.getInstance().getTime();
 
+        FrequencyBasedHistoricalAverageCache frequencyBasedHistoricalAverageCache = SingletonContainer.getInstance(FrequencyBasedHistoricalAverageCache.class);
+        ScheduleBasedHistoricalAverageCache scheduleBasedHistoricalAverageCache = SingletonContainer.getInstance(ScheduleBasedHistoricalAverageCache.class);
+
         if (!CoreConfig.cacheReloadStartTimeStr.getValue().isEmpty() && !CoreConfig.cacheReloadEndTimeStr.getValue().isEmpty()) {
             if (TripDataHistoryCacheFactory.getInstance() != null) {
                 logger.debug(
@@ -139,13 +142,12 @@ public class Application {
                                 new Date(Time.parse(CoreConfig.cacheReloadEndTimeStr.getValue()).getTime())
                         );
             }
-
-            if (FrequencyBasedHistoricalAverageCache.getInstance() != null) {
+            if (frequencyBasedHistoricalAverageCache != null) {
                 logger.debug(
                         "Populating FrequencyBasedHistoricalAverageCache cache for period {} to {}",
                         CoreConfig.cacheReloadStartTimeStr.getValue(),
                         CoreConfig.cacheReloadEndTimeStr.getValue());
-                FrequencyBasedHistoricalAverageCache.getInstance()
+                frequencyBasedHistoricalAverageCache
                         .populateCacheFromDb(
                                 session,
                                 new Date(Time.parse(CoreConfig.cacheReloadStartTimeStr.getValue()).getTime()),
@@ -181,12 +183,12 @@ public class Application {
                     TripDataHistoryCacheFactory.getInstance().populateCacheFromDb(session, startDate, endDate);
                 }
 
-                if (FrequencyBasedHistoricalAverageCache.getInstance() != null) {
+                if (frequencyBasedHistoricalAverageCache != null) {
                     logger.debug(
                             "Populating FrequencyBasedHistoricalAverageCache cache for period {} to" + " {}",
                             startDate,
                             endDate);
-                    FrequencyBasedHistoricalAverageCache.getInstance().populateCacheFromDb(session, startDate, endDate);
+                    frequencyBasedHistoricalAverageCache.populateCacheFromDb(session, startDate, endDate);
                 }
 
                 endDate = startDate;
@@ -209,12 +211,12 @@ public class Application {
             for (int i = 0; i < CoreConfig.getDaysPopulateHistoricalCache(); i++) {
                 Date startDate = DateUtils.addDays(endDate, -1);
 
-                if (ScheduleBasedHistoricalAverageCache.getInstance() != null) {
+                if (scheduleBasedHistoricalAverageCache != null) {
                     logger.debug(
                             "Populating ScheduleBasedHistoricalAverageCache cache for period {} to" + " {}",
                             startDate,
                             endDate);
-                    ScheduleBasedHistoricalAverageCache.getInstance().populateCacheFromDb(session, startDate, endDate);
+                    scheduleBasedHistoricalAverageCache.populateCacheFromDb(session, startDate, endDate);
                 }
 
                 endDate = startDate;

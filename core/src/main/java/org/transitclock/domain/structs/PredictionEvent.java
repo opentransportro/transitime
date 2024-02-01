@@ -11,7 +11,9 @@ import lombok.ToString;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Immutable;
 import org.transitclock.Core;
+import org.transitclock.SingletonContainer;
 import org.transitclock.core.TemporalMatch;
+import org.transitclock.domain.hibernate.DataDbLogger;
 import org.transitclock.utils.SystemTime;
 
 /**
@@ -139,7 +141,6 @@ public class PredictionEvent implements Serializable {
             String referenceVehicleId,
             Date arrivalTime,
             Date departureTime) {
-        super();
         this.time = time;
         this.avlTime = avlTime;
         this.vehicleId = vehicleId;
@@ -199,7 +200,7 @@ public class PredictionEvent implements Serializable {
                 departureTime);
 
         // Queue to write object to database
-        Core.getInstance().getDbLogger().add(predictionEvent);
+        SingletonContainer.getInstance(DataDbLogger.class).add(predictionEvent);
 
         // Return new predictionEvent
         return predictionEvent;

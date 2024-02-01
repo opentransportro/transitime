@@ -4,6 +4,7 @@ package org.transitclock.core;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.Core;
+import org.transitclock.SingletonContainer;
 import org.transitclock.annotations.Component;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.core.dataCache.PredictionDataCache;
@@ -24,21 +25,12 @@ import org.transitclock.utils.Time;
 @Component
 public class MatchProcessor {
 
-    // Singleton class
-    private static final MatchProcessor singleton = new MatchProcessor();
-    private final DataDbLogger dbLogger;
-    /** Constructor declared private because singleton class */
-    private MatchProcessor() {
-        dbLogger = Core.getInstance().getDbLogger();
-    }
+    private final DataDbLogger dataDbLogger;
+    private final PredictionDataCache predictionDataCache;
 
-    /**
-     * Returns singleton MatchProcessor
-     *
-     * @return
-     */
-    public static MatchProcessor getInstance() {
-        return singleton;
+    public MatchProcessor() {
+        dataDbLogger = SingletonContainer.getInstance(DataDbLogger.class);
+        predictionDataCache = SingletonContainer.getInstance(PredictionDataCache.class);
     }
 
     /**
@@ -60,7 +52,7 @@ public class MatchProcessor {
                 // If prediction not too far into the future then ...
                 if (prediction.getPredictionTime() - prediction.getAvlTime()
                         < ((long) CoreConfig.getMaxPredictionsTimeForDbSecs() * Time.MS_PER_SEC)) {
-                    dbLogger.add(new Prediction(prediction));
+                    dataDbLogger.add(new Prediction(prediction));
 
                 } else {
                     logger.debug(
@@ -75,7 +67,7 @@ public class MatchProcessor {
         // Update the predictions cache to use the new predictions for the
         // vehicle
         List<IpcPrediction> oldPredictions = vehicleState.getPredictions();
-        PredictionDataCache.getInstance().updatePredictions(oldPredictions, newPredictions);
+        predictionDataCache.updatePredictions(oldPredictions, newPredictions);
 
         // Update predictions for vehicle
         vehicleState.setPredictions(newPredictions);
@@ -93,7 +85,7 @@ public class MatchProcessor {
 
         if (headway != null) {
             vehicleState.setHeadway(headway);
-            Core.getInstance().getDbLogger().add(headway);
+            dataDbLogger.add(headway);
         }
     }
 
@@ -128,7 +120,8 @@ public class MatchProcessor {
         // matches at stops only confuse things since they will be before
         // the departure time or after the arrival time. Plus not storing
         // the matches at the stops means there is less data to store.
-        if (!match.isAtStop()) Core.getInstance().getDbLogger().add(match);
+        if (!match.isAtStop())
+            dataDbLogger.add(match);
     }
 
     /**

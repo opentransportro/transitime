@@ -70,8 +70,8 @@
 	 </ehcache:cache>
 
 	 <ehcache:cache alias="StopPathPredictionCache">
-		 <ehcache:key-type>java.lang.Long</ehcache:key-type>
-		 <ehcache:value-type>java.lang.String</ehcache:value-type>
+		 <ehcache:key-type>org.transitclock.core.dataCache.StopPathCacheKey</ehcache:key-type>
+		 <ehcache:value-type>org.transitclock.core.dataCache.StopPredictions</ehcache:value-type>
 		 <ehcache:expiry>
 			 <ehcache:ttl unit="hours">1</ehcache:ttl>
 		 </ehcache:expiry>

@@ -3,6 +3,7 @@ package org.transitclock.core;
 
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.Module;
+import org.transitclock.SingletonContainer;
 import org.transitclock.config.data.AgencyConfig;
 import org.transitclock.config.data.TimeoutConfig;
 import org.transitclock.core.dataCache.VehicleStateManager;
@@ -36,6 +37,9 @@ public class TimeoutHandlerModule extends Module {
     // can be removed from the map.
     private final Map<String, AvlReport> avlReportsMap = new HashMap<>();
 
+    private final AvlProcessor avlProcessor = SingletonContainer.getInstance(AvlProcessor.class);
+    private final VehicleStateManager vehicleStateManager = SingletonContainer.getInstance(VehicleStateManager.class);
+
     /** Constructor */
     public TimeoutHandlerModule(String agencyId) {
         super(agencyId);
@@ -63,7 +67,7 @@ public class TimeoutHandlerModule extends Module {
     public void removeFromVehicleDataCache(String vehicleId) {
         if (TimeoutConfig.removeTimedOutVehiclesFromVehicleDataCache.getValue()) {
             logger.info("Removing vehicleId={} from VehicleDataCache", vehicleId);
-            AvlProcessor.getInstance().removeFromVehicleDataCache(vehicleId);
+            avlProcessor.removeFromVehicleDataCache(vehicleId);
         }
     }
 
@@ -84,7 +88,7 @@ public class TimeoutHandlerModule extends Module {
                     + " while allowable time without an AVL report is "
                     + Time.elapsedTimeStr(maxNoAvl)
                     + " and so was made unpredictable.";
-            AvlProcessor.getInstance()
+            avlProcessor
                     .makeVehicleUnpredictable(vehicleState.getVehicleId(), eventDescription, VehicleEvent.TIMEOUT);
 
             // Also log the situation
@@ -141,7 +145,7 @@ public class TimeoutHandlerModule extends Module {
         // If should timeout the schedule based vehicle...
         String shouldTimeoutEventDescription = SchedBasedPredsModule.shouldTimeoutVehicle(vehicleState, now);
         if (shouldTimeoutEventDescription != null) {
-            AvlProcessor.getInstance()
+            avlProcessor
                     .makeVehicleUnpredictable(
                             vehicleState.getVehicleId(), shouldTimeoutEventDescription, VehicleEvent.TIMEOUT);
 
@@ -210,7 +214,7 @@ public class TimeoutHandlerModule extends Module {
                         + "time without AVL is "
                         + Time.elapsedTimeStr(maxNoAvlAfterSchedDepartSecs)
                         + ". Therefore vehicle was made unpredictable.";
-                AvlProcessor.getInstance()
+                avlProcessor
                         .makeVehicleUnpredictable(vehicleState.getVehicleId(), eventDescription, VehicleEvent.TIMEOUT);
 
                 // Also log the situation
@@ -241,7 +245,7 @@ public class TimeoutHandlerModule extends Module {
                 AvlReport avlReport = mapIterator.next();
 
                 // Get state of vehicle and handle based on it
-                VehicleState vehicleState = VehicleStateManager.getInstance().getVehicleState(avlReport.getVehicleId());
+                VehicleState vehicleState = vehicleStateManager.getVehicleState(avlReport.getVehicleId());
 
                 // Need to synchronize on vehicleState since it might be getting
                 // modified via a separate main AVL processing executor thread.

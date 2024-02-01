@@ -4,6 +4,7 @@ package org.transitclock.service;
 import java.rmi.RemoteException;
 
 import lombok.extern.slf4j.Slf4j;
+import org.transitclock.SingletonContainer;
 import org.transitclock.core.dataCache.HoldingTimeCache;
 import org.transitclock.core.dataCache.HoldingTimeCacheKey;
 import org.transitclock.core.dataCache.VehicleDataCache;
@@ -23,7 +24,8 @@ public class HoldingTimeServiceImpl implements HoldingTimeInterface {
     public static HoldingTimeInterface instance() {
         return singleton;
     }
-
+    private final VehicleDataCache vehicleDataCache = SingletonContainer.getInstance(VehicleDataCache.class);
+    private final HoldingTimeCache holdingTimeCache = SingletonContainer.getInstance(HoldingTimeCache.class);
     protected HoldingTimeServiceImpl() {
     }
 
@@ -45,13 +47,13 @@ public class HoldingTimeServiceImpl implements HoldingTimeInterface {
     public IpcHoldingTime getHoldTime(String stopId, String vehicleId, String tripId) throws RemoteException {
 
         if (tripId == null) {
-            if (VehicleDataCache.getInstance().getVehicle(vehicleId) != null) {
-                tripId = VehicleDataCache.getInstance().getVehicle(vehicleId).getTripId();
+            if (vehicleDataCache.getVehicle(vehicleId) != null) {
+                tripId = vehicleDataCache.getVehicle(vehicleId).getTripId();
             }
         }
         if (stopId != null && vehicleId != null && tripId != null) {
             HoldingTimeCacheKey key = new HoldingTimeCacheKey(stopId, vehicleId, tripId);
-            HoldingTime result = HoldingTimeCache.getInstance().getHoldingTime(key);
+            HoldingTime result = holdingTimeCache.getHoldingTime(key);
             if (result != null) return new IpcHoldingTime(result);
         }
         return null;
@@ -61,12 +63,12 @@ public class HoldingTimeServiceImpl implements HoldingTimeInterface {
     public IpcHoldingTime getHoldTime(String stopId, String vehicleId) throws RemoteException {
 
         String tripId = null;
-        if (VehicleDataCache.getInstance().getVehicle(vehicleId) != null) {
-            tripId = VehicleDataCache.getInstance().getVehicle(vehicleId).getTripId();
+        if (vehicleDataCache.getVehicle(vehicleId) != null) {
+            tripId = vehicleDataCache.getVehicle(vehicleId).getTripId();
         }
         if (stopId != null && vehicleId != null && tripId != null) {
             HoldingTimeCacheKey key = new HoldingTimeCacheKey(stopId, vehicleId, tripId);
-            HoldingTime result = HoldingTimeCache.getInstance().getHoldingTime(key);
+            HoldingTime result = holdingTimeCache.getHoldingTime(key);
             if (result != null) return new IpcHoldingTime(result);
         }
         return null;

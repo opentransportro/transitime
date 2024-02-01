@@ -2,8 +2,11 @@
 package org.transitclock.core;
 
 import java.util.*;
+
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.transitclock.SingletonContainer;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.core.dataCache.VehicleStateManager;
 import org.transitclock.domain.structs.Arrival;
@@ -27,6 +30,7 @@ import org.transitclock.utils.Time;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class VehicleState {
 
     private final String vehicleId;
@@ -77,6 +81,17 @@ public class VehicleState {
     // Used for schedPred AVL. Identify if trip is canceled.
     private boolean isCanceled;
 
+    public VehicleState(String vehicleId) {
+        this.vehicleId = vehicleId;
+    }
+
+    public VehicleState(String vehicleId, String vehicleName) {
+        this.vehicleId = vehicleId;
+        this.vehicleName = vehicleName;
+    }
+
+
+
     public Headway getHeadway() {
         return headway;
     }
@@ -99,18 +114,6 @@ public class VehicleState {
 
     public void incrementTripCounter() {
         tripCounter = tripCounter + 1;
-    }
-
-    private static final Logger logger = LoggerFactory.getLogger(VehicleState.class);
-
-    /********************** Member Functions **************************/
-    public VehicleState(String vehicleId) {
-        this.vehicleId = vehicleId;
-    }
-
-    public VehicleState(String vehicleId, String vehicleName) {
-        this.vehicleId = vehicleId;
-        this.vehicleName = vehicleName;
     }
 
     /**
@@ -360,7 +363,8 @@ public class VehicleState {
      * @param event
      */
     public void incrementTripCounter(ArrivalDeparture event) {
-        VehicleState vehicleState = VehicleStateManager.getInstance().getVehicleState(event.getVehicleId());
+        VehicleStateManager instance = SingletonContainer.getInstance(VehicleStateManager.class);
+        VehicleState vehicleState = instance.getVehicleState(event.getVehicleId());
 
         if (event.getStopPathIndex() == 0) {
             if (event.isArrival()) {
@@ -577,16 +581,17 @@ public class VehicleState {
             // the AVL report assignment can be null
             return !Objects.equals(assignmentId, avlReport.getAssignmentId());
         }
+        BlockAssigner blockAssigner = SingletonContainer.getInstance(BlockAssigner.class);
 
         // Not block assignment so try trip ID or trip short name assignment
         if (avlReport.isTripIdAssignmentType() || avlReport.isTripShortNameAssignmentType()) {
-            Block avlBlock = BlockAssigner.getInstance().getBlockAssignment(avlReport);
+            Block avlBlock = blockAssigner.getBlockAssignment(avlReport);
             return block != avlBlock;
         }
 
         // Not block or trip assignment so try route assignment
         if (avlReport.isRouteIdAssignmentType()) {
-            String routeId = BlockAssigner.getInstance().getRouteIdAssignment(avlReport);
+            String routeId = blockAssigner.getRouteIdAssignment(avlReport);
             if (routeId != null) {
                 String newAssignment = routeId;
                 // Use Objects.equals() since either the existing assignment or
