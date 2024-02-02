@@ -8,10 +8,14 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.StreamingOutput;
+import org.springframework.web.bind.annotation.RestController;
 import org.transitclock.api.data.gtfs.GtfsRtTripFeed;
 import org.transitclock.api.data.gtfs.GtfsRtVehicleFeed;
 import org.transitclock.api.utils.StandardParameters;
 import org.transitclock.gtfs.realtime.OctalDecoder;
+import org.transitclock.service.contract.ConfigInterface;
+import org.transitclock.service.contract.PredictionsInterface;
+import org.transitclock.service.contract.VehiclesInterface;
 
 /**
  * Contains API commands for the GTFS-realtime API.
@@ -19,7 +23,18 @@ import org.transitclock.gtfs.realtime.OctalDecoder;
  * @author SkiBu Smith
  */
 @Path("/key/{key}/agency/{agency}")
+@RestController
 public class GtfsRealtimeApi {
+    private final VehiclesInterface vehiclesInterface;
+    private final PredictionsInterface predictionsInterface;
+    private final ConfigInterface configInterface;
+
+    public GtfsRealtimeApi(VehiclesInterface vehiclesInterface, PredictionsInterface predictionsInterface, ConfigInterface configInterface) {
+        this.vehiclesInterface = vehiclesInterface;
+        this.predictionsInterface = predictionsInterface;
+        this.configInterface = configInterface;
+    }
+
     /**
      * For getting GTFS-realtime Vehicle Positions data for all vehicles.
      *
@@ -59,7 +74,7 @@ public class GtfsRealtimeApi {
         StreamingOutput stream = outputStream -> {
             try {
                 FeedMessage message = GtfsRtVehicleFeed.getPossiblyCachedMessage(
-                        stdParameters.getAgencyId());
+                        stdParameters.getAgencyId(), vehiclesInterface, configInterface);
 
                 // Output in human-readable format or in standard binary
                 // format
@@ -120,7 +135,7 @@ public class GtfsRealtimeApi {
         StreamingOutput stream = outputStream -> {
             try {
                 FeedMessage message = GtfsRtTripFeed.getPossiblyCachedMessage(
-                        stdParameters.getAgencyId());
+                        stdParameters.getAgencyId(), vehiclesInterface, predictionsInterface, configInterface);
 
                 // Output in human-readable format or in standard binary
                 // format

@@ -10,16 +10,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.transitclock.Core;
+import org.springframework.stereotype.Component;
 import org.transitclock.SingletonContainer;
-import org.transitclock.annotations.Component;
 import org.transitclock.config.data.AgencyConfig;
 import org.transitclock.core.VehicleState;
 import org.transitclock.domain.hibernate.DataDbLogger;
@@ -32,8 +28,6 @@ import org.transitclock.service.dto.IpcVehicleComplete;
 import org.transitclock.utils.ConcurrentHashMapNullKeyOk;
 import org.transitclock.utils.SystemTime;
 import org.transitclock.utils.Time;
-
-import javax.xml.datatype.DatatypeConstants;
 
 /**
  * For storing and retrieving vehicle information that can be used by clients. Is updated every time

@@ -1,8 +1,8 @@
 /* (C)2023 */
 package org.transitclock.core.predictiongenerator.datafilter;
 
-import org.transitclock.annotations.Bean;
-import org.transitclock.annotations.Configuration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.transitclock.config.StringConfigValue;
 import org.transitclock.utils.ClassInstantiator;
 
@@ -17,7 +17,7 @@ public class DwellTimeFilterFactory {
             "Specifies the name of the class used to filter dwell times.");
 
     @Bean
-    public static DwellTimeDataFilter getInstance() {
+    public DwellTimeDataFilter dwellTimeDataFilter() {
         if (singleton == null)
             singleton = ClassInstantiator.instantiate(className.getValue(), DwellTimeDataFilter.class);
         return singleton;

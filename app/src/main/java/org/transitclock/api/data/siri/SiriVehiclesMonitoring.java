@@ -13,6 +13,7 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlTransient;
 import jakarta.xml.bind.annotation.XmlType;
 import org.transitclock.api.utils.AgencyTimezoneCache;
+import org.transitclock.service.contract.ConfigInterface;
 import org.transitclock.service.dto.IpcVehicleComplete;
 import org.transitclock.utils.Time;
 
@@ -136,15 +137,13 @@ public class SiriVehiclesMonitoring {
         }
     }
 
-    /********************** Member Functions **************************/
-
     // No-args needed because this class is an XML root element
     protected SiriVehiclesMonitoring() {}
 
-    public SiriVehiclesMonitoring(Collection<IpcVehicleComplete> vehicles, String agencyId) {
+    public SiriVehiclesMonitoring(Collection<IpcVehicleComplete> vehicles, String agencyId, ConfigInterface configInterface) {
         // Set the time zones for the date formatters
-        siriDateTimeFormat.setTimeZone(AgencyTimezoneCache.get(agencyId));
-        siriDateFormat.setTimeZone(AgencyTimezoneCache.get(agencyId));
+        siriDateTimeFormat.setTimeZone(AgencyTimezoneCache.get(agencyId, configInterface));
+        siriDateFormat.setTimeZone(AgencyTimezoneCache.get(agencyId, configInterface));
 
         delivery = new SiriServiceDelivery(vehicles, agencyId, siriDateTimeFormat, siriDateFormat);
     }

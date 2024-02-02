@@ -9,19 +9,11 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 import org.transitclock.SingletonContainer;
-import org.transitclock.core.dataCache.ErrorCacheFactory;
-import org.transitclock.core.dataCache.HistoricalAverage;
-import org.transitclock.core.dataCache.HoldingTimeCache;
-import org.transitclock.core.dataCache.HoldingTimeCacheKey;
-import org.transitclock.core.dataCache.IpcArrivalDepartureComparator;
-import org.transitclock.core.dataCache.KalmanErrorCacheKey;
-import org.transitclock.core.dataCache.StopArrivalDepartureCacheFactory;
-import org.transitclock.core.dataCache.StopArrivalDepartureCacheKey;
-import org.transitclock.core.dataCache.StopPathCacheKey;
-import org.transitclock.core.dataCache.TripDataHistoryCacheFactory;
-import org.transitclock.core.dataCache.TripKey;
+import org.transitclock.core.dataCache.*;
 import org.transitclock.core.dataCache.frequency.FrequencyBasedHistoricalAverageCache;
 import org.transitclock.core.dataCache.scheduled.ScheduleBasedHistoricalAverageCache;
 import org.transitclock.service.dto.IpcArrivalDeparture;
@@ -34,39 +26,16 @@ import org.transitclock.service.contract.CacheQueryInterface;
 /**
  * @author Sean Og Crudden Server to allow cache content to be queried.
  */
+@Service
 @Slf4j
+@RequiredArgsConstructor
 public class CacheQueryServiceImpl implements CacheQueryInterface {
-    // Should only be accessed as singleton class
-    private static CacheQueryServiceImpl singleton;
-
-    public static CacheQueryInterface instance() {
-        return singleton;
-    }
-
     private final ScheduleBasedHistoricalAverageCache scheduleBasedHistoricalAverageCache;
     private final HoldingTimeCache holdingTimeCache;
     private final FrequencyBasedHistoricalAverageCache frequencyBasedHistoricalAverageCache;
-
-    public CacheQueryServiceImpl() {
-        scheduleBasedHistoricalAverageCache = SingletonContainer.getInstance(ScheduleBasedHistoricalAverageCache.class);
-        holdingTimeCache = SingletonContainer.getInstance(HoldingTimeCache.class);
-        frequencyBasedHistoricalAverageCache = SingletonContainer.getInstance(FrequencyBasedHistoricalAverageCache.class);
-    }
-
-    /**
-     * Starts up the CacheQueryServer so that RMI calls can be used to query cache. This will
-     * automatically cause the object to continue to run and serve requests.
-     *
-     * @return the singleton CacheQueryServer object. Usually does not need to used since the server
-     *     will be fully running.
-     */
-    public static CacheQueryServiceImpl start() {
-        if (singleton == null) {
-            singleton = new CacheQueryServiceImpl();
-        }
-
-        return singleton;
-    }
+    private final StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface;
+    private final TripDataHistoryCacheInterface tripDataHistoryCacheInterface;
+    private final ErrorCache errorCache;
 
     /*
      * (non-Javadoc)
@@ -81,7 +50,7 @@ public class CacheQueryServiceImpl implements CacheQueryInterface {
             StopArrivalDepartureCacheKey nextStopKey = new StopArrivalDepartureCacheKey(
                     stopId, Calendar.getInstance().getTime());
 
-            return StopArrivalDepartureCacheFactory.getInstance().getStopHistory(nextStopKey);
+            return stopArrivalDepartureCacheInterface.getStopHistory(nextStopKey);
 
         } catch (Exception e) {
 
@@ -117,27 +86,27 @@ public class CacheQueryServiceImpl implements CacheQueryInterface {
                         Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
                 TripKey tripKey = new TripKey(tripId, date, starttime);
 
-                result = TripDataHistoryCacheFactory.getInstance().getTripHistory(tripKey);
+                result = tripDataHistoryCacheInterface.getTripHistory(tripKey);
             } else if (tripId != null && localDate != null && starttime == null) {
                 Date date =
                         Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
-                for (TripKey key : TripDataHistoryCacheFactory.getInstance().getKeys()) {
+                for (TripKey key : tripDataHistoryCacheInterface.getKeys()) {
                     if (key.getTripId().equals(tripId) && date.compareTo(key.getTripStartDate()) == 0) {
-                        result.addAll(TripDataHistoryCacheFactory.getInstance().getTripHistory(key));
+                        result.addAll(tripDataHistoryCacheInterface.getTripHistory(key));
                     }
                 }
             } else if (tripId != null && localDate == null && starttime == null) {
-                for (TripKey key : TripDataHistoryCacheFactory.getInstance().getKeys()) {
+                for (TripKey key : tripDataHistoryCacheInterface.getKeys()) {
                     if (key.getTripId().equals(tripId)) {
-                        result.addAll(TripDataHistoryCacheFactory.getInstance().getTripHistory(key));
+                        result.addAll(tripDataHistoryCacheInterface.getTripHistory(key));
                     }
                 }
             } else if (tripId == null && localDate != null && starttime == null) {
                 Date date =
                         Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
-                for (TripKey key : TripDataHistoryCacheFactory.getInstance().getKeys()) {
+                for (TripKey key : tripDataHistoryCacheInterface.getKeys()) {
                     if (date.compareTo(key.getTripStartDate()) == 0) {
-                        result.addAll(TripDataHistoryCacheFactory.getInstance().getTripHistory(key));
+                        result.addAll(tripDataHistoryCacheInterface.getTripHistory(key));
                     }
                 }
             }
@@ -168,12 +137,12 @@ public class CacheQueryServiceImpl implements CacheQueryInterface {
     @Override
     public Double getKalmanErrorValue(String tripId, Integer stopPathIndex) throws RemoteException {
         KalmanErrorCacheKey key = new KalmanErrorCacheKey(tripId, stopPathIndex);
-        return ErrorCacheFactory.getInstance().getErrorValue(key).getError();
+        return errorCache.getErrorValue(key).getError();
     }
 
     @Override
     public List<IpcKalmanErrorCacheKey> getKalmanErrorCacheKeys() throws RemoteException {
-        List<KalmanErrorCacheKey> keys = ErrorCacheFactory.getInstance().getKeys();
+        List<KalmanErrorCacheKey> keys = errorCache.getKeys();
         List<IpcKalmanErrorCacheKey> ipcResultList = new ArrayList<>();
 
         for (KalmanErrorCacheKey key : keys) {

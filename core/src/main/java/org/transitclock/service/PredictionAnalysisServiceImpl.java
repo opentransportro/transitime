@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 import org.transitclock.SingletonContainer;
 import org.transitclock.core.dataCache.StopPathCacheKey;
 import org.transitclock.core.dataCache.StopPathPredictionCache;
@@ -19,34 +20,15 @@ import org.transitclock.service.contract.PredictionAnalysisInterface;
  *     not be set to run by default as really only for analysis of predictions. TODO This needs to
  *     be changed to also work with frequency based services.
  */
+@Service
 @Slf4j
 public class PredictionAnalysisServiceImpl implements PredictionAnalysisInterface {
-    // Should only be accessed as singleton class
-    private static PredictionAnalysisServiceImpl singleton;
+    private final StopPathPredictionCache stopPathPredictionCache;
 
-    public static PredictionAnalysisInterface instance() {
-        return singleton;
+    public PredictionAnalysisServiceImpl(StopPathPredictionCache stopPathPredictionCache) {
+        this.stopPathPredictionCache = stopPathPredictionCache;
     }
 
-    protected PredictionAnalysisServiceImpl() {
-    }
-
-    private final StopPathPredictionCache stopPathPredictionCache = SingletonContainer.getInstance(StopPathPredictionCache.class);
-
-    /**
-     * Starts up the PredictionAnalysisServer so that RMI calls can be used to query travel times
-     * prediction stored. This will automatically cause the object to continue to run and serve
-     * requests.
-     *
-     * @return the singleton PredictionAnalysisServer object. Usually does not need to used since
-     *     the server will be fully running.
-     */
-    public static synchronized PredictionAnalysisServiceImpl start() {
-        if (singleton == null) {
-            singleton = new PredictionAnalysisServiceImpl();
-        }
-        return singleton;
-    }
 
     @Override
     public List<IpcPredictionForStopPath> getRecordedTravelTimePredictions(

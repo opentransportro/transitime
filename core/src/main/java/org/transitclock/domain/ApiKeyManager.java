@@ -4,7 +4,7 @@ package org.transitclock.domain;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.transitclock.annotations.Component;
+import org.springframework.stereotype.Component;
 import org.transitclock.config.IntegerConfigValue;
 import org.transitclock.config.data.DbSetupConfig;
 import org.transitclock.domain.hibernate.HibernateUtils;
@@ -48,7 +48,7 @@ public class ApiKeyManager {
 
         // Create the cache. Cache will actually be populated when first
         // checking if key is valid. This way don't do a db read at startup.
-        apiKeyCache = new HashMap<String, ApiKey>();
+        apiKeyCache = new HashMap<>();
     }
 
 

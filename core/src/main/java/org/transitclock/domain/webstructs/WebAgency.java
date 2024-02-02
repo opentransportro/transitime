@@ -144,33 +144,33 @@ public class WebAgency {
      */
     public Agency getAgency() {
         // If agency hasn't been accessed yet do so now...
-        if (agency == null) {
-            ConfigInterface inter = ConfigServiceImpl.instance();
-
-            if (inter == null) {
-                logger.error(
-                        "Could not access via RMI agencyId={}. The "
-                                + "ConfigInterfaceFactory returned null for the "
-                                + "agency ID.",
-                        agencyId);
-            } else {
-                IntervalTimer timer = new IntervalTimer();
-
-                try {
-                    // Get the agencies via RMI
-                    List<Agency> agencies = inter.getAgencies();
-
-                    // Use the first agency if there are multiple ones
-                    agency = agencies.isEmpty() ? null : agencies.get(0);
-                } catch (RemoteException e) {
-                    logger.error(
-                            "Could not get Agency object for agencyId={}. " + "Exception occurred after {} msec. {}",
-                            agencyId,
-                            timer.elapsedMsec(),
-                            e.getMessage());
-                }
-            }
-        }
+//        if (agency == null) {
+//            ConfigInterface inter = ConfigServiceImpl.instance();
+//
+//            if (inter == null) {
+//                logger.error(
+//                        "Could not access via RMI agencyId={}. The "
+//                                + "ConfigInterfaceFactory returned null for the "
+//                                + "agency ID.",
+//                        agencyId);
+//            } else {
+//                IntervalTimer timer = new IntervalTimer();
+//
+//                try {
+//                    // Get the agencies via RMI
+//                    List<Agency> agencies = inter.getAgencies();
+//
+//                    // Use the first agency if there are multiple ones
+//                    agency = agencies.isEmpty() ? null : agencies.get(0);
+//                } catch (RemoteException e) {
+//                    logger.error(
+//                            "Could not get Agency object for agencyId={}. " + "Exception occurred after {} msec. {}",
+//                            agencyId,
+//                            timer.elapsedMsec(),
+//                            e.getMessage());
+//                }
+//            }
+//        }
 
         // Return the RMI based agency object
         return agency;

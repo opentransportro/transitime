@@ -3,20 +3,22 @@ package org.transitclock.core.predictiongenerator.scheduled.traveltime.kalman;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.DateUtils;
-import org.transitclock.Core;
-import org.transitclock.SingletonContainer;
+import org.springframework.stereotype.Component;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.config.data.PredictionConfig;
 import org.transitclock.core.*;
 import org.transitclock.core.dataCache.*;
+import org.transitclock.core.holdingmethod.HoldingTimeGenerator;
+import org.transitclock.core.predictiongenerator.bias.BiasAdjuster;
+import org.transitclock.core.predictiongenerator.datafilter.TravelTimeDataFilter;
 import org.transitclock.core.predictiongenerator.kalman.*;
 import org.transitclock.domain.hibernate.DataDbLogger;
 import org.transitclock.domain.structs.AvlReport;
 import org.transitclock.domain.structs.PredictionEvent;
 import org.transitclock.domain.structs.PredictionForStopPath;
+import org.transitclock.gtfs.DbConfig;
 import org.transitclock.utils.SystemTime;
 
-import javax.cache.configuration.FactoryBuilder;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -31,12 +33,25 @@ public class KalmanPredictionGeneratorImpl extends PredictionGeneratorDefaultImp
 
     private final String alternative = "PredictionGeneratorDefaultImpl";
 
+    protected final ErrorCache kalmanErrorCache;
 
-    private final TripDataHistoryCacheInterface tripCache = TripDataHistoryCacheFactory.getInstance();
-    private final ErrorCache kalmanErrorCache = ErrorCacheFactory.getInstance();
-    private final StopPathPredictionCache stopPathPredictionCache = SingletonContainer.getInstance(StopPathPredictionCache.class);
-    private final VehicleStateManager vehicleStateManager = SingletonContainer.getInstance(VehicleStateManager.class);
-    private final DataDbLogger dataDbLogger = SingletonContainer.getInstance(DataDbLogger.class);
+    public KalmanPredictionGeneratorImpl(DbConfig dbConfig,
+                                         StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface,
+                                         TripDataHistoryCacheInterface tripDataHistoryCacheInterface,
+                                         HoldingTimeCache holdingTimeCache,
+                                         ErrorCache kalmanErrorCache,
+                                         StopPathPredictionCache stopPathPredictionCache,
+                                         VehicleStateManager vehicleStateManager,
+                                         TravelTimes travelTimes,
+                                         DataDbLogger dataDbLogger,
+                                         HoldingTimeGenerator holdingTimeGenerator,
+                                         BiasAdjuster biasAdjuster,
+                                         TravelTimeDataFilter travelTimeDataFilter) {
+        super(dbConfig, stopArrivalDepartureCacheInterface, tripDataHistoryCacheInterface, vehicleStateManager, holdingTimeCache, stopPathPredictionCache, travelTimes, dataDbLogger, holdingTimeGenerator, biasAdjuster, travelTimeDataFilter);
+        this.kalmanErrorCache = kalmanErrorCache;
+    }
+
+
     /*
      * (non-Javadoc)
      *
@@ -65,7 +80,7 @@ public class KalmanPredictionGeneratorImpl extends PredictionGeneratorDefaultImp
                 Date nearestDay = DateUtils.truncate(avlReport.getDate(), Calendar.DAY_OF_MONTH);
 
                 List<TravelTimeDetails> lastDaysTimes = lastDaysTimes(
-                        tripCache,
+                        tripDataHistoryCacheInterface,
                         currentVehicleState.getTrip().getId(),
                         currentVehicleState.getTrip().getDirectionId(),
                         indices.getStopPathIndex(),

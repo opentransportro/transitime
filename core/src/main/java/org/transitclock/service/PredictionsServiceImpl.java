@@ -8,6 +8,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 import org.transitclock.core.dataCache.PredictionDataCache;
 import org.transitclock.domain.structs.Location;
 import org.transitclock.gtfs.StopsByLocation;
@@ -25,36 +26,12 @@ import org.transitclock.utils.Time;
  *
  * @author SkiBu Smith
  */
+@Service
 @Slf4j
 public class PredictionsServiceImpl implements PredictionsInterface {
-
-    // Should only be accessed as singleton class
-    private static PredictionsServiceImpl singleton;
-
-    public static PredictionsInterface instance() {
-        return singleton;
-    }
-
     // The PredictionDataCache associated with the singleton.
-    private PredictionDataCache predictionDataCache;
+    private final PredictionDataCache predictionDataCache;
 
-
-    /**
-     * Starts up the PredictionsServer so that RMI calls can query for predictions. This will
-     * automatically cause the object to continue to run and serve requests.
-     *
-     * @param predictionDataCache
-     * @return the singleton PredictionsServer object. Usually does not need to used since the
-     *     server will be fully running.
-     */
-    public static PredictionsServiceImpl start(PredictionDataCache predictionDataCache) {
-        if (singleton == null) {
-            singleton = new PredictionsServiceImpl();
-            singleton.predictionDataCache = predictionDataCache;
-        }
-
-        return singleton;
-    }
 
     /*
      * Constructor. Made private so that can only be instantiated by
@@ -64,7 +41,8 @@ public class PredictionsServiceImpl implements PredictionsInterface {
      * @param projectId
      *            for registering this object with the rmiregistry
      */
-    private PredictionsServiceImpl() {
+    public PredictionsServiceImpl(PredictionDataCache predictionDataCache) {
+        this.predictionDataCache = predictionDataCache;
     }
 
     /* (non-Javadoc)

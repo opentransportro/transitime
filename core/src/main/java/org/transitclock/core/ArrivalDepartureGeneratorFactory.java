@@ -1,8 +1,8 @@
 /* (C)2023 */
 package org.transitclock.core;
 
-import org.transitclock.annotations.Bean;
-import org.transitclock.annotations.Configuration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.transitclock.config.StringConfigValue;
 import org.transitclock.utils.ClassInstantiator;
 
@@ -20,7 +20,7 @@ public class ArrivalDepartureGeneratorFactory {
     private static final StringConfigValue className = new StringConfigValue(
             "transitclock.core.arrivalDepartureGeneratorClass",
             "org.transitclock.core.ArrivalDepartureGeneratorDefaultImpl",
-            "Specifies the name of the class used for generating " + "arrival/departure data.");
+            "Specifies the name of the class used for generating arrival/departure data.");
 
     private static ArrivalDepartureGenerator singleton = null;
 

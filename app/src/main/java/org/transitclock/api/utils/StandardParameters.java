@@ -43,6 +43,14 @@ public class StandardParameters {
     @Context
     HttpServletRequest request;
 
+    CommandsInterface commandsInterface;
+    VehiclesInterface vehiclesInterface;
+    PredictionsInterface predictionsInterface;
+    ConfigInterface configInterface;
+    ServerStatusInterface serverStatusInterface;
+    CacheQueryInterface cachequeryInterface;
+    PredictionAnalysisInterface predictionAnalysisInterface;
+    HoldingTimeInterface holdingTimeInterface;
 
     /**
      * Returns the media type to use for the response based on optional accept header and the
@@ -65,8 +73,10 @@ public class StandardParameters {
         // If mediaType specified (to something besides "*/*") in accept
         // header then start with it.
         if (acceptHeader != null && !acceptHeader.contains("*/*")) {
-            if (acceptHeader.contains(MediaType.APPLICATION_JSON)) mediaType = MediaType.APPLICATION_JSON;
-            else if (acceptHeader.contains(MediaType.APPLICATION_XML)) mediaType = MediaType.APPLICATION_XML;
+            if (acceptHeader.contains(MediaType.APPLICATION_JSON))
+                mediaType = MediaType.APPLICATION_JSON;
+            else if (acceptHeader.contains(MediaType.APPLICATION_XML))
+                mediaType = MediaType.APPLICATION_XML;
             else
                 throw WebUtils.badRequestException("Accept header \"Accept: "
                         + acceptHeader
@@ -84,14 +94,15 @@ public class StandardParameters {
             formatOverride = formatOverride.toLowerCase();
 
             // If mediaType override set properly then use it
-            if (formatOverride.equals("json")) mediaType = MediaType.APPLICATION_JSON;
-            else if (formatOverride.equals("xml")) mediaType = MediaType.APPLICATION_XML;
-            else if (formatOverride.equals("human")) mediaType = MediaType.TEXT_PLAIN;
-            else
-                throw WebUtils.badRequestException("Format \"format="
+            mediaType = switch (formatOverride) {
+                case "json" -> MediaType.APPLICATION_JSON;
+                case "xml" -> MediaType.APPLICATION_XML;
+                case "human" -> MediaType.TEXT_PLAIN;
+                default -> throw WebUtils.badRequestException("Format \"format="
                         + formatOverride
                         + "\" from query string not valid. "
                         + "Format must be \"json\" or \"xml\"");
+            };
         }
 
         return mediaType;
@@ -134,113 +145,105 @@ public class StandardParameters {
         return responseBuilder.build();
     }
 
-    /**
-     * Gets the VehiclesInterface for the specified agencyId. If not valid then throws
-     * WebApplicationException.
-     *
-     * @return The VehiclesInterface
-     */
-    public VehiclesInterface getVehiclesInterface() throws WebApplicationException {
-        VehiclesInterface vehiclesInterface = VehiclesServiceImpl.instance();
-        if (vehiclesInterface == null) throw WebUtils.badRequestException("Agency ID " + agencyId + " is not valid");
-
-        return vehiclesInterface;
-    }
-
-    /**
-     * Gets the CommandsInterface for the specified agencyId. If not valid then throws
-     * WebApplicationException.
-     *
-     * @return The CommandsInterface
-     */
-    public CommandsInterface getCommandsInterface() throws WebApplicationException {
-        CommandsInterface commandsInterface = CommandsServiceImpl.instance();
-        if (commandsInterface == null) throw WebUtils.badRequestException("Agency ID " + agencyId + " is not valid");
-
-        return commandsInterface;
-    }
-
-    /**
-     * Gets the PredictionsInterface for the agencyId specified as part of the standard parameters.
-     * If not valid then throws WebApplicationException.
-     *
-     * @return The VehiclesInterface
-     */
-    public PredictionsInterface getPredictionsInterface() throws WebApplicationException {
-        PredictionsInterface predictionsInterface = PredictionsServiceImpl.instance();
-        if (predictionsInterface == null) throw WebUtils.badRequestException("Agency ID " + agencyId + " is not valid");
-
-        return predictionsInterface;
-    }
-
-    /**
-     * Gets the ConfigInterface for the specified agencyId. If not valid then throws
-     * WebApplicationException.
-     *
-     * @return The VehiclesInterface
-     */
-    public ConfigInterface getConfigInterface() throws WebApplicationException {
-        ConfigInterface configInterface = ConfigServiceImpl.instance();
-        if (configInterface == null) {
-            throw WebUtils.badRequestException("Agency ID " + agencyId + " is not valid");
-        }
-
-        return configInterface;
-    }
-
-    /**
-     * Gets the ServerStatusInterface for the specified agencyId. If not valid then throws
-     * WebApplicationException.
-     *
-     * @return The VehiclesInterface
-     */
-    public ServerStatusInterface getServerStatusInterface() throws WebApplicationException {
-        ServerStatusInterface serverStatusInterface = ServerStatusServiceImpl.instance();
-        if (serverStatusInterface == null)
-            throw WebUtils.badRequestException("Agency ID " + agencyId + " is not valid");
-
-        return serverStatusInterface;
-    }
-
-    /**
-     * Gets the CacheQueryInterface for the specified agencyId. If not valid then throws
-     * WebApplicationException.
-     *
-     * @return The CacheQueryInterface
-     */
-    public CacheQueryInterface getCacheQueryInterface() throws WebApplicationException {
-        CacheQueryInterface cachequeryInterface = CacheQueryServiceImpl.instance();
-        if (cachequeryInterface == null) throw WebUtils.badRequestException("Agency ID " + agencyId + " is not valid");
-
-        return cachequeryInterface;
-    }
-
-    /**
-     * Gets the PredictionAnalysisInterface for the specified agencyId. If not valid then throws
-     * WebApplicationException.
-     *
-     * @return The PredictionAnalysisInterface
-     */
-    public PredictionAnalysisInterface getPredictionAnalysisInterface() throws WebApplicationException {
-        PredictionAnalysisInterface predictionAnalysisInterface = PredictionAnalysisServiceImpl.instance();
-        if (predictionAnalysisInterface == null)
-            throw WebUtils.badRequestException("Agency ID " + agencyId + " is not valid");
-
-        return predictionAnalysisInterface;
-    }
-
-    /**
-     * Gets the HoldingTimeInterface for the specified agencyId. If not valid then throws
-     * WebApplicationException.
-     *
-     * @return The PredictionAnalysisInterface
-     */
-    public HoldingTimeInterface getHoldingTimeInterface() {
-        HoldingTimeInterface holdingTimeInterface = HoldingTimeServiceImpl.instance();
-        if (holdingTimeInterface == null) throw WebUtils.badRequestException("Agency ID " + agencyId + " is not valid");
-
-        return holdingTimeInterface;
-    }
+//    /**
+//     * Gets the VehiclesInterface for the specified agencyId. If not valid then throws
+//     * WebApplicationException.
+//     *
+//     * @return The VehiclesInterface
+//     */
+//    public VehiclesInterface getVehiclesInterface() throws WebApplicationException {
+//        if (vehiclesInterface == null) throw WebUtils.badRequestException("Agency ID " + agencyId + " is not valid");
+//
+//        return vehiclesInterface;
+//    }
+//
+//    /**
+//     * Gets the CommandsInterface for the specified agencyId. If not valid then throws
+//     * WebApplicationException.
+//     *
+//     * @return The CommandsInterface
+//     */
+//    public CommandsInterface getCommandsInterface() throws WebApplicationException {
+//        if (commandsInterface == null) throw WebUtils.badRequestException("Agency ID " + agencyId + " is not valid");
+//
+//        return commandsInterface;
+//    }
+//
+//    /**
+//     * Gets the PredictionsInterface for the agencyId specified as part of the standard parameters.
+//     * If not valid then throws WebApplicationException.
+//     *
+//     * @return The VehiclesInterface
+//     */
+//    public PredictionsInterface getPredictionsInterface() throws WebApplicationException {
+//        if (predictionsInterface == null) throw WebUtils.badRequestException("Agency ID " + agencyId + " is not valid");
+//
+//        return predictionsInterface;
+//    }
+//
+//    /**
+//     * Gets the ConfigInterface for the specified agencyId. If not valid then throws
+//     * WebApplicationException.
+//     *
+//     * @return The VehiclesInterface
+//     */
+//    public ConfigInterface getConfigInterface() throws WebApplicationException {
+//        if (configInterface == null) {
+//            throw WebUtils.badRequestException("Agency ID " + agencyId + " is not valid");
+//        }
+//
+//        return configInterface;
+//    }
+//
+//    /**
+//     * Gets the ServerStatusInterface for the specified agencyId. If not valid then throws
+//     * WebApplicationException.
+//     *
+//     * @return The VehiclesInterface
+//     */
+//    public ServerStatusInterface getServerStatusInterface() throws WebApplicationException {
+//        if (serverStatusInterface == null)
+//            throw WebUtils.badRequestException("Agency ID " + agencyId + " is not valid");
+//
+//        return serverStatusInterface;
+//    }
+//
+//    /**
+//     * Gets the CacheQueryInterface for the specified agencyId. If not valid then throws
+//     * WebApplicationException.
+//     *
+//     * @return The CacheQueryInterface
+//     */
+//    public CacheQueryInterface getCacheQueryInterface() throws WebApplicationException {
+//        if (cachequeryInterface == null) throw WebUtils.badRequestException("Agency ID " + agencyId + " is not valid");
+//
+//        return cachequeryInterface;
+//    }
+//
+//    /**
+//     * Gets the PredictionAnalysisInterface for the specified agencyId. If not valid then throws
+//     * WebApplicationException.
+//     *
+//     * @return The PredictionAnalysisInterface
+//     */
+//    public PredictionAnalysisInterface getPredictionAnalysisInterface() throws WebApplicationException {
+//        if (predictionAnalysisInterface == null)
+//            throw WebUtils.badRequestException("Agency ID " + agencyId + " is not valid");
+//
+//        return predictionAnalysisInterface;
+//    }
+//
+//    /**
+//     * Gets the HoldingTimeInterface for the specified agencyId. If not valid then throws
+//     * WebApplicationException.
+//     *
+//     * @return The PredictionAnalysisInterface
+//     */
+//    public HoldingTimeInterface getHoldingTimeInterface() {
+//        if (holdingTimeInterface == null) throw WebUtils.badRequestException("Agency ID " + agencyId + " is not valid");
+//
+//        return holdingTimeInterface;
+//    }
 
     /**
      * Simple getter for the key

@@ -4,6 +4,7 @@ package org.transitclock.service;
 import java.rmi.RemoteException;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 import org.transitclock.SingletonContainer;
 import org.transitclock.core.dataCache.HoldingTimeCache;
 import org.transitclock.core.dataCache.HoldingTimeCacheKey;
@@ -16,32 +17,17 @@ import org.transitclock.service.contract.HoldingTimeInterface;
  * @author Sean Og Crudden Server to allow stored travel time predictions to be queried. TODO May
  *     not be set to run by default as really only for analysis of predictions.
  */
+@Service
 @Slf4j
 public class HoldingTimeServiceImpl implements HoldingTimeInterface {
-    // Should only be accessed as singleton class
-    private static HoldingTimeServiceImpl singleton;
+    private final VehicleDataCache vehicleDataCache;
+    private final HoldingTimeCache holdingTimeCache;
 
-    public static HoldingTimeInterface instance() {
-        return singleton;
-    }
-    private final VehicleDataCache vehicleDataCache = SingletonContainer.getInstance(VehicleDataCache.class);
-    private final HoldingTimeCache holdingTimeCache = SingletonContainer.getInstance(HoldingTimeCache.class);
-    protected HoldingTimeServiceImpl() {
+    public HoldingTimeServiceImpl(VehicleDataCache vehicleDataCache, HoldingTimeCache holdingTimeCache) {
+        this.vehicleDataCache = vehicleDataCache;
+        this.holdingTimeCache = holdingTimeCache;
     }
 
-    /**
-     * Starts up the HoldingTimeServer so that RMI calls can be used to query holding times stored
-     * in he cache. This will automatically cause the object to continue to run and serve requests.
-     *
-     * @return the singleton PredictionAnalysisServer object. Usually does not need to used since
-     *     the server will be fully running.
-     */
-    public static HoldingTimeServiceImpl start() {
-        if (singleton == null) {
-            singleton = new HoldingTimeServiceImpl();
-        }
-        return singleton;
-    }
 
     @Override
     public IpcHoldingTime getHoldTime(String stopId, String vehicleId, String tripId) throws RemoteException {

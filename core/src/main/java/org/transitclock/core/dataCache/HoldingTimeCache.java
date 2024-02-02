@@ -3,8 +3,7 @@ package org.transitclock.core.dataCache;
 
 import org.ehcache.Cache;
 import org.ehcache.CacheManager;
-import org.transitclock.SingletonContainer;
-import org.transitclock.annotations.Component;
+import org.springframework.stereotype.Component;
 import org.transitclock.domain.structs.HoldingTime;
 
 import java.util.List;
@@ -15,11 +14,10 @@ import java.util.List;
 @Component
 public class HoldingTimeCache {
     private static final String cacheName = "HoldingTimeCache";
-    private Cache<HoldingTimeCacheKey, HoldingTime> cache = null;
+    private Cache<HoldingTimeCacheKey, HoldingTime> cache;
 
 
-    public HoldingTimeCache() {
-        CacheManager cm = SingletonContainer.getInstance(CacheManager.class);
+    public HoldingTimeCache(CacheManager cm) {
         cache = cm.getCache(cacheName, HoldingTimeCacheKey.class, HoldingTime.class);
     }
 

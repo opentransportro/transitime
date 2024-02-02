@@ -2,9 +2,8 @@
 package org.transitclock.core.dataCache;
 
 import lombok.extern.slf4j.Slf4j;
-import org.transitclock.Core;
+import org.springframework.stereotype.Component;
 import org.transitclock.SingletonContainer;
-import org.transitclock.annotations.Component;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.config.data.PredictionConfig;
 import org.transitclock.core.VehicleState;
@@ -62,7 +61,11 @@ public class PredictionDataCache {
     private final ConcurrentHashMap<MapKey, List<IpcPredictionsForRouteStopDest>> predictionsMap =
             new ConcurrentHashMap<>(1000);
 
-    private final DbConfig dbConfig = SingletonContainer.getInstance(DbConfig.class);
+    private final DbConfig dbConfig;
+
+    public PredictionDataCache(DbConfig dbConfig) {
+        this.dbConfig = dbConfig;
+    }
 
 
     /**

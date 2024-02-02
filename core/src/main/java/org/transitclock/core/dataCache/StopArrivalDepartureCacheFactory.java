@@ -1,8 +1,8 @@
 /* (C)2023 */
 package org.transitclock.core.dataCache;
 
-import org.transitclock.annotations.Bean;
-import org.transitclock.annotations.Configuration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.transitclock.config.StringConfigValue;
 import org.transitclock.utils.ClassInstantiator;
 
@@ -19,8 +19,7 @@ public class StopArrivalDepartureCacheFactory {
     private static StopArrivalDepartureCacheInterface singleton = null;
 
     @Bean
-    public static StopArrivalDepartureCacheInterface getInstance() {
-
+    public static StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface() {
         if (singleton == null) {
             singleton = ClassInstantiator.instantiate(className.getValue(), StopArrivalDepartureCacheInterface.class);
         }

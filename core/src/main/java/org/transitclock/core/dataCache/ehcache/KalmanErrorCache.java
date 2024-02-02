@@ -3,6 +3,7 @@ package org.transitclock.core.dataCache.ehcache;
 
 import org.ehcache.Cache;
 import org.ehcache.CacheManager;
+import org.springframework.stereotype.Component;
 import org.transitclock.core.Indices;
 import org.transitclock.core.dataCache.ErrorCache;
 import org.transitclock.core.dataCache.KalmanError;
@@ -13,20 +14,18 @@ import java.util.List;
 /**
  * @author Sean Óg Crudden
  */
+@Component
 public class KalmanErrorCache implements ErrorCache {
     private static final String cacheName = "KalmanErrorCache";
 
-    private Cache<KalmanErrorCacheKey, KalmanError> cache = null;
+    private final Cache<KalmanErrorCacheKey, KalmanError> cache;
 
     /**
      * Gets the singleton instance of this class.
      *
      * @return
      */
-    public KalmanErrorCache() {
-
-        CacheManager cm = CacheManagerFactory.getInstance();
-
+    public KalmanErrorCache(CacheManager cm) {
         cache = cm.getCache(cacheName, KalmanErrorCacheKey.class, KalmanError.class);
     }
 

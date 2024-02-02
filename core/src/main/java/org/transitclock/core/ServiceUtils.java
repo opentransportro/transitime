@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
-import org.transitclock.Core;
 import org.transitclock.domain.structs.Agency;
 import org.transitclock.domain.structs.Calendar;
 import org.transitclock.domain.structs.CalendarDate;

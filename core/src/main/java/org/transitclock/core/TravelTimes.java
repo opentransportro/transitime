@@ -3,9 +3,8 @@ package org.transitclock.core;
 
 import java.util.Date;
 import lombok.extern.slf4j.Slf4j;
-import org.transitclock.Core;
+import org.springframework.stereotype.Component;
 import org.transitclock.SingletonContainer;
-import org.transitclock.annotations.Component;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.domain.structs.Location;
 import org.transitclock.domain.structs.ScheduleTime;
@@ -22,9 +21,6 @@ import org.transitclock.utils.Time;
 @Slf4j
 @Component
 public class TravelTimes {
-
-    /** Constructor declared private because singleton class */
-    public TravelTimes() {}
 
     /**
      * Determines travel time as the crows flies to cover the distance. Intended to be used for

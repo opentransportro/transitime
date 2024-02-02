@@ -4,7 +4,6 @@ package org.transitclock.core;
 import java.util.ArrayList;
 import java.util.Date;
 import lombok.extern.slf4j.Slf4j;
-import org.transitclock.Core;
 import org.transitclock.SingletonContainer;
 import org.transitclock.config.ArrivalsDeparturesConfig;
 import org.transitclock.config.data.AgencyConfig;
@@ -12,6 +11,7 @@ import org.transitclock.config.data.CoreConfig;
 import org.transitclock.core.dataCache.*;
 import org.transitclock.core.dataCache.frequency.FrequencyBasedHistoricalAverageCache;
 import org.transitclock.core.dataCache.scheduled.ScheduleBasedHistoricalAverageCache;
+import org.transitclock.core.holdingmethod.HoldingTimeGenerator;
 import org.transitclock.core.holdingmethod.HoldingTimeGeneratorFactory;
 import org.transitclock.core.predAccuracy.PredictionAccuracyModule;
 import org.transitclock.domain.hibernate.DataDbLogger;
@@ -56,15 +56,31 @@ import org.transitclock.utils.Time;
  */
 @Slf4j
 public class ArrivalDepartureGeneratorDefaultImpl implements ArrivalDepartureGenerator {
+    private final ScheduleBasedHistoricalAverageCache scheduleBasedHistoricalAverageCache;
+    private final FrequencyBasedHistoricalAverageCache frequencyBasedHistoricalAverageCache;
+    private final HoldingTimeCache holdingTimeCache;
+    private final VehicleStateManager vehicleStateManager;
+    private final TravelTimes travelTimes;
+    private final DataDbLogger dataDbLogger;
+    private final DbConfig dbConfig;
+    private final DwellTimeModelCacheInterface dwellTimeModelCacheInterface;
+    private final TripDataHistoryCacheInterface tripDataHistoryCacheInterface;
+    private final StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface;
+    private final HoldingTimeGenerator holdingTimeGenerator;
 
-
-    private final ScheduleBasedHistoricalAverageCache scheduleBasedHistoricalAverageCache = SingletonContainer.getInstance(ScheduleBasedHistoricalAverageCache.class);
-    private final FrequencyBasedHistoricalAverageCache frequencyBasedHistoricalAverageCache = SingletonContainer.getInstance(FrequencyBasedHistoricalAverageCache.class);
-    private final HoldingTimeCache holdingTimeCache = SingletonContainer.getInstance(HoldingTimeCache.class);
-    private final VehicleStateManager vehicleStateManager = SingletonContainer.getInstance(VehicleStateManager.class);
-    private final TravelTimes travelTimes = SingletonContainer.getInstance(TravelTimes.class);
-    private final DataDbLogger dataDbLogger = SingletonContainer.getInstance(DataDbLogger.class);
-    private final DbConfig dbConfig = SingletonContainer.getInstance(DbConfig.class);
+    public ArrivalDepartureGeneratorDefaultImpl(ScheduleBasedHistoricalAverageCache scheduleBasedHistoricalAverageCache, FrequencyBasedHistoricalAverageCache frequencyBasedHistoricalAverageCache, HoldingTimeCache holdingTimeCache, VehicleStateManager vehicleStateManager, TravelTimes travelTimes, DataDbLogger dataDbLogger, DbConfig dbConfig, DwellTimeModelCacheInterface dwellTimeModelCacheInterface, TripDataHistoryCacheInterface tripDataHistoryCacheInterface, StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface, HoldingTimeGenerator holdingTimeGenerator) {
+        this.scheduleBasedHistoricalAverageCache = scheduleBasedHistoricalAverageCache;
+        this.frequencyBasedHistoricalAverageCache = frequencyBasedHistoricalAverageCache;
+        this.holdingTimeCache = holdingTimeCache;
+        this.vehicleStateManager = vehicleStateManager;
+        this.travelTimes = travelTimes;
+        this.dataDbLogger = dataDbLogger;
+        this.dbConfig = dbConfig;
+        this.dwellTimeModelCacheInterface = dwellTimeModelCacheInterface;
+        this.tripDataHistoryCacheInterface = tripDataHistoryCacheInterface;
+        this.stopArrivalDepartureCacheInterface = stopArrivalDepartureCacheInterface;
+        this.holdingTimeGenerator = holdingTimeGenerator;
+    }
 
     /**
      * Returns whether going from oldMatch to newMatch traverses so many stops during the elapsed
@@ -248,15 +264,15 @@ public class ArrivalDepartureGeneratorDefaultImpl implements ArrivalDepartureGen
 
     private void updateCache(VehicleState vehicleState, ArrivalDeparture arrivalDeparture) {
 
-        if (TripDataHistoryCacheFactory.getInstance() != null)
-            TripDataHistoryCacheFactory.getInstance().putArrivalDeparture(arrivalDeparture);
+        if (tripDataHistoryCacheInterface != null)
+            tripDataHistoryCacheInterface.putArrivalDeparture(arrivalDeparture);
 
-        if (StopArrivalDepartureCacheFactory.getInstance() != null) {
-            StopArrivalDepartureCacheFactory.getInstance().putArrivalDeparture(arrivalDeparture);
+        if (stopArrivalDepartureCacheInterface != null) {
+            stopArrivalDepartureCacheInterface.putArrivalDeparture(arrivalDeparture);
         }
 
-        if (DwellTimeModelCacheFactory.getInstance() != null) {
-            DwellTimeModelCacheFactory.getInstance().addSample(arrivalDeparture);
+        if (dwellTimeModelCacheInterface != null) {
+            dwellTimeModelCacheInterface.addSample(arrivalDeparture);
         }
 
         if (scheduleBasedHistoricalAverageCache != null) {
@@ -276,10 +292,10 @@ public class ArrivalDepartureGeneratorDefaultImpl implements ArrivalDepartureGen
                 e.printStackTrace();
             }
 
-        if (HoldingTimeGeneratorFactory.getInstance() != null) {
+        if (holdingTimeGenerator != null) {
             HoldingTime holdingTime;
             try {
-                holdingTime = HoldingTimeGeneratorFactory.getInstance()
+                holdingTime = holdingTimeGenerator
                         .generateHoldingTime(vehicleState, new IpcArrivalDeparture(arrivalDeparture));
                 if (holdingTime != null) {
                     holdingTimeCache.putHoldingTime(holdingTime);
@@ -287,7 +303,7 @@ public class ArrivalDepartureGeneratorDefaultImpl implements ArrivalDepartureGen
                 }
                 ArrayList<Long> N_List = new ArrayList<Long>();
 
-                HoldingTimeGeneratorFactory.getInstance().handleDeparture(vehicleState, arrivalDeparture);
+                holdingTimeGenerator.handleDeparture(vehicleState, arrivalDeparture);
 
             } catch (Exception e) {
                 // TODO Auto-generated catch block

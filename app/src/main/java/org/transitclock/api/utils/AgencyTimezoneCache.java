@@ -29,16 +29,15 @@ public class AgencyTimezoneCache {
      * @param agencyId
      * @return The TimeZone for the agency or null if could not be determined
      */
-    public static TimeZone get(String agencyId) {
+    public static TimeZone get(String agencyId, ConfigInterface configInterface) {
         // Trying getting timezone from cache
         TimeZone timezone = timezonesMap.get(agencyId);
 
         // If timezone not already in cache then get it and cache it
         if (timezone == null) {
-            ConfigInterface inter = ConfigServiceImpl.instance();
             List<Agency> agencies;
             try {
-                agencies = inter.getAgencies();
+                agencies = configInterface.getAgencies();
             } catch (RemoteException e) {
                 logger.error("Exception getting timezone for agencyId={}", agencyId, e);
                 return null;

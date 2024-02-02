@@ -2,21 +2,23 @@
 package org.transitclock.core.predictiongenerator.scheduled.average;
 
 import lombok.extern.slf4j.Slf4j;
-import org.transitclock.Core;
 import org.transitclock.SingletonContainer;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.config.data.PredictionConfig;
 import org.transitclock.core.Indices;
+import org.transitclock.core.TravelTimes;
 import org.transitclock.core.VehicleState;
-import org.transitclock.core.dataCache.HistoricalAverage;
-import org.transitclock.core.dataCache.StopPathCacheKey;
-import org.transitclock.core.dataCache.StopPathPredictionCache;
+import org.transitclock.core.dataCache.*;
 import org.transitclock.core.dataCache.scheduled.ScheduleBasedHistoricalAverageCache;
+import org.transitclock.core.holdingmethod.HoldingTimeGenerator;
 import org.transitclock.core.predictiongenerator.PredictionComponentElementsGenerator;
+import org.transitclock.core.predictiongenerator.bias.BiasAdjuster;
+import org.transitclock.core.predictiongenerator.datafilter.TravelTimeDataFilter;
 import org.transitclock.core.predictiongenerator.lastvehicle.LastVehiclePredictionGeneratorImpl;
 import org.transitclock.domain.hibernate.DataDbLogger;
 import org.transitclock.domain.structs.AvlReport;
 import org.transitclock.domain.structs.PredictionForStopPath;
+import org.transitclock.gtfs.DbConfig;
 import org.transitclock.utils.SystemTime;
 
 /**
@@ -29,9 +31,24 @@ import org.transitclock.utils.SystemTime;
 public class HistoricalAveragePredictionGeneratorImpl extends LastVehiclePredictionGeneratorImpl
         implements PredictionComponentElementsGenerator {
     private final String alternative = "LastVehiclePredictionGeneratorImpl";
-    private final ScheduleBasedHistoricalAverageCache scheduleBasedHistoricalAverageCache = SingletonContainer.getInstance(ScheduleBasedHistoricalAverageCache.class);
-    private final StopPathPredictionCache stopPathPredictionCache = SingletonContainer.getInstance(StopPathPredictionCache.class);
-    private final DataDbLogger dataDbLogger = SingletonContainer.getInstance(DataDbLogger.class);
+    private final ScheduleBasedHistoricalAverageCache scheduleBasedHistoricalAverageCache;
+
+    public HistoricalAveragePredictionGeneratorImpl(DbConfig dbConfig,
+                                                    StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface,
+                                                    TripDataHistoryCacheInterface tripDataHistoryCacheInterface,
+                                                    VehicleStateManager vehicleStateManager,
+                                                    HoldingTimeCache holdingTimeCache,
+                                                    StopPathPredictionCache stopPathPredictionCache,
+                                                    TravelTimes travelTimes,
+                                                    DataDbLogger dataDbLogger,
+                                                    VehicleDataCache vehicleDataCache,
+                                                    ScheduleBasedHistoricalAverageCache scheduleBasedHistoricalAverageCache,
+                                                    HoldingTimeGenerator holdingTimeGenerator,
+                                                    BiasAdjuster biasAdjuster,
+                                                    TravelTimeDataFilter travelTimeDataFilter) {
+        super(dbConfig, stopArrivalDepartureCacheInterface, tripDataHistoryCacheInterface, vehicleStateManager, holdingTimeCache, stopPathPredictionCache, travelTimes, dataDbLogger, vehicleDataCache, holdingTimeGenerator, biasAdjuster, travelTimeDataFilter);
+        this.scheduleBasedHistoricalAverageCache = scheduleBasedHistoricalAverageCache;
+    }
 
     /* (non-Javadoc)
      * @see org.transitclock.core.predictiongenerator.KalmanPredictionGeneratorImpl#getTravelTimeForPath(org.transitclock.core.Indices, org.transitclock.db.structs.AvlReport)

@@ -4,11 +4,8 @@ package org.transitclock.core.dataCache.ehcache.scheduled;
 import lombok.extern.slf4j.Slf4j;
 import org.ehcache.Cache;
 import org.ehcache.CacheManager;
-import org.transitclock.SingletonContainer;
 import org.transitclock.config.data.PredictionConfig;
-import org.transitclock.core.dataCache.StopArrivalDepartureCacheFactory;
-import org.transitclock.core.dataCache.StopArrivalDepartureCacheKey;
-import org.transitclock.core.dataCache.StopPathCacheKey;
+import org.transitclock.core.dataCache.*;
 import org.transitclock.core.predictiongenerator.scheduled.dwell.DwellModel;
 import org.transitclock.core.predictiongenerator.scheduled.dwell.DwellTimeModelFactory;
 import org.transitclock.domain.structs.ArrivalDeparture;
@@ -25,16 +22,17 @@ import java.util.List;
  *     anomaly detection as per TODO in code below.
  */
 @Slf4j
-public class DwellTimeModelCache implements org.transitclock.core.dataCache.DwellTimeModelCacheInterface {
-
+public class DwellTimeModelCache implements DwellTimeModelCacheInterface {
     private static final String cacheName = "dwellTimeModelCache";
 
-    private Cache<StopPathCacheKey, DwellModel> cache = null;
+    private final Cache<StopPathCacheKey, DwellModel> cache;
+    private final StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface;
+    private final DwellModel dwellModel;
 
-    public DwellTimeModelCache() throws IOException {
-        CacheManager cm = SingletonContainer.getInstance(CacheManager.class);
-
+    public DwellTimeModelCache(CacheManager cm, StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface, DwellModel dwellModel) throws IOException {
         cache = cm.getCache(cacheName, StopPathCacheKey.class, DwellModel.class);
+        this.stopArrivalDepartureCacheInterface = stopArrivalDepartureCacheInterface;
+        this.dwellModel = dwellModel;
     }
 
     @Override
@@ -49,7 +47,7 @@ public class DwellTimeModelCache implements org.transitclock.core.dataCache.Dwel
 
             model.putSample((int) dwellTime, (int) headway.getHeadway(), null);
         } else {
-            model = DwellTimeModelFactory.getInstance();
+            model = dwellModel;
         }
         model.putSample((int) dwellTime, (int) headway.getHeadway(), null);
         cache.put(key, model);
@@ -61,8 +59,7 @@ public class DwellTimeModelCache implements org.transitclock.core.dataCache.Dwel
             if (departure != null && !departure.isArrival()) {
                 StopArrivalDepartureCacheKey key =
                         new StopArrivalDepartureCacheKey(departure.getStopId(), departure.getDate());
-                List<IpcArrivalDeparture> stopData =
-                        StopArrivalDepartureCacheFactory.getInstance().getStopHistory(key);
+                List<IpcArrivalDeparture> stopData = stopArrivalDepartureCacheInterface.getStopHistory(key);
 
                 if (stopData != null && stopData.size() > 1) {
                     IpcArrivalDeparture arrival = findArrival(stopData, new IpcArrivalDeparture(departure));

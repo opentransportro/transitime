@@ -2,12 +2,12 @@
 package org.transitclock.core.holdingmethod;
 
 import lombok.extern.slf4j.Slf4j;
-import org.transitclock.Core;
 import org.transitclock.SingletonContainer;
 import org.transitclock.config.data.HoldingConfig;
 import org.transitclock.core.VehicleState;
 import org.transitclock.core.dataCache.PredictionDataCache;
 import org.transitclock.core.dataCache.StopArrivalDepartureCacheFactory;
+import org.transitclock.core.dataCache.StopArrivalDepartureCacheInterface;
 import org.transitclock.core.dataCache.StopArrivalDepartureCacheKey;
 import org.transitclock.domain.hibernate.DataDbLogger;
 import org.transitclock.domain.structs.ArrivalDeparture;
@@ -27,8 +27,15 @@ import java.util.List;
 @Slf4j
 public class SimpleHoldingTimeGeneratorImpl implements HoldingTimeGenerator {
 
-    private final PredictionDataCache predictionDataCache = SingletonContainer.getInstance(PredictionDataCache.class);
-    private final DataDbLogger dataDbLogger = SingletonContainer.getInstance(DataDbLogger.class);
+    private final PredictionDataCache predictionDataCache;
+    private final DataDbLogger dataDbLogger;
+    private final StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface;
+
+    public SimpleHoldingTimeGeneratorImpl(PredictionDataCache predictionDataCache, DataDbLogger dataDbLogger, StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface) {
+        this.predictionDataCache = predictionDataCache;
+        this.dataDbLogger = dataDbLogger;
+        this.stopArrivalDepartureCacheInterface = stopArrivalDepartureCacheInterface;
+    }
 
     public HoldingTime generateHoldingTime(VehicleState vehicleState, IpcArrivalDeparture event) {
 
@@ -97,8 +104,7 @@ public class SimpleHoldingTimeGeneratorImpl implements HoldingTimeGenerator {
     private IpcArrivalDeparture getLastVehicleDepartureTime(String tripId, String stopId, Date time) {
         StopArrivalDepartureCacheKey currentStopKey = new StopArrivalDepartureCacheKey(stopId, time);
 
-        List<IpcArrivalDeparture> currentStopList =
-                StopArrivalDepartureCacheFactory.getInstance().getStopHistory(currentStopKey);
+        List<IpcArrivalDeparture> currentStopList = stopArrivalDepartureCacheInterface.getStopHistory(currentStopKey);
 
         IpcArrivalDeparture closestDepartureEvent = null;
         if (currentStopList != null) {

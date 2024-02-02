@@ -2,10 +2,10 @@
 package org.transitclock.core;
 
 import java.util.List;
+
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.transitclock.Core;
-import org.transitclock.SingletonContainer;
-import org.transitclock.annotations.Component;
+import org.springframework.stereotype.Component;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.core.dataCache.PredictionDataCache;
 import org.transitclock.domain.hibernate.DataDbLogger;
@@ -23,15 +23,13 @@ import org.transitclock.utils.Time;
  */
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class MatchProcessor {
 
     private final DataDbLogger dataDbLogger;
     private final PredictionDataCache predictionDataCache;
-
-    public MatchProcessor() {
-        dataDbLogger = SingletonContainer.getInstance(DataDbLogger.class);
-        predictionDataCache = SingletonContainer.getInstance(PredictionDataCache.class);
-    }
+    private final HeadwayGenerator headwayGenerator;
+    private final PredictionGenerator predictionGenerator;
 
     /**
      * Generates the new predictions for the vehicle based on the new match stored in the vehicle
@@ -43,8 +41,7 @@ public class MatchProcessor {
         logger.debug("Processing predictions for vehicleId={}", vehicleState.getVehicleId());
 
         // Generate the new predictions for the vehicle
-        List<IpcPrediction> newPredictions =
-                PredictionGeneratorFactory.getInstance().generate(vehicleState);
+        List<IpcPrediction> newPredictions = predictionGenerator.generate(vehicleState);
 
         // Store the predictions in database if so configured
         if (CoreConfig.getMaxPredictionsTimeForDbSecs() > 0) {
@@ -81,7 +78,7 @@ public class MatchProcessor {
     private void processHeadways(VehicleState vehicleState) {
         logger.debug("Processing headways for vehicleId={}", vehicleState.getVehicleId());
 
-        Headway headway = HeadwayGeneratorFactory.getInstance().generate(vehicleState);
+        Headway headway = headwayGenerator.generate(vehicleState);
 
         if (headway != null) {
             vehicleState.setHeadway(headway);

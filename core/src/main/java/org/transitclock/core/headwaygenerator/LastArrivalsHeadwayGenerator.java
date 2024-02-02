@@ -8,10 +8,7 @@ import java.util.List;
 import org.transitclock.SingletonContainer;
 import org.transitclock.core.HeadwayGenerator;
 import org.transitclock.core.VehicleState;
-import org.transitclock.core.dataCache.StopArrivalDepartureCacheFactory;
-import org.transitclock.core.dataCache.StopArrivalDepartureCacheKey;
-import org.transitclock.core.dataCache.VehicleDataCache;
-import org.transitclock.core.dataCache.VehicleStateManager;
+import org.transitclock.core.dataCache.*;
 import org.transitclock.domain.structs.Headway;
 import org.transitclock.service.dto.IpcArrivalDeparture;
 import org.transitclock.service.dto.IpcVehicleComplete;
@@ -27,8 +24,15 @@ import org.transitclock.service.dto.IpcVehicleComplete;
  */
 public class LastArrivalsHeadwayGenerator implements HeadwayGenerator {
 
-    private final VehicleDataCache vehicleDataCache = SingletonContainer.getInstance(VehicleDataCache.class);
-    private final VehicleStateManager vehicleStateManager = SingletonContainer.getInstance(VehicleStateManager.class);
+    private final VehicleDataCache vehicleDataCache;
+    private final VehicleStateManager vehicleStateManager;
+    private final StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface;
+
+    public LastArrivalsHeadwayGenerator(VehicleDataCache vehicleDataCache, VehicleStateManager vehicleStateManager, StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface) {
+        this.vehicleDataCache = vehicleDataCache;
+        this.vehicleStateManager = vehicleStateManager;
+        this.stopArrivalDepartureCacheInterface = stopArrivalDepartureCacheInterface;
+    }
 
     @Override
     public Headway generate(VehicleState vehicleState) {
@@ -46,8 +50,7 @@ public class LastArrivalsHeadwayGenerator implements HeadwayGenerator {
 
             StopArrivalDepartureCacheKey key = new StopArrivalDepartureCacheKey(stopId, new Date(date));
 
-            List<IpcArrivalDeparture> stopList =
-                    StopArrivalDepartureCacheFactory.getInstance().getStopHistory(key);
+            List<IpcArrivalDeparture> stopList = stopArrivalDepartureCacheInterface.getStopHistory(key);
             int lastStopArrivalIndex = -1;
             int previousVehicleArrivalIndex = -1;
 

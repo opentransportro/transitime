@@ -14,7 +14,6 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.annotations.DynamicUpdate;
-import org.transitclock.Core;
 import org.transitclock.SingletonContainer;
 import org.transitclock.domain.hibernate.DataDbLogger;
 

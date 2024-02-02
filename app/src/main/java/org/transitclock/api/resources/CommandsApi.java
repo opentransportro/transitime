@@ -28,6 +28,7 @@ import jakarta.ws.rs.core.Response;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.web.bind.annotation.RestController;
 import org.transitclock.api.data.ApiCommandAck;
 import org.transitclock.api.utils.StandardParameters;
 import org.transitclock.api.utils.WebUtils;
@@ -41,10 +42,17 @@ import org.transitclock.service.dto.IpcTrip;
 import org.transitclock.service.contract.CommandsInterface;
 import org.transitclock.service.contract.ConfigInterface;
 
+@RestController
 @Path("/key/{key}/agency/{agency}")
 public class CommandsApi {
-
+    private final CommandsInterface commandsInterface;
+    private final ConfigInterface configInterface;
     private static final String AVL_SOURCE = "API";
+
+    public CommandsApi(CommandsInterface commandsInterface, ConfigInterface configInterface) {
+        this.commandsInterface = commandsInterface;
+        this.configInterface = configInterface;
+    }
 
     /**
      * Reads in a single AVL report specified by the query string parameters v=vehicleId
@@ -120,9 +128,6 @@ public class CommandsApi {
                     "Must specify GPS epoch time in " + "msec using for example \"t=14212312333\"");
 
         try {
-            // Get RMI interface for sending the command
-            CommandsInterface inter = stdParameters.getCommandsInterface();
-
             // Create and send an IpcAvl report to the server
             AvlReport avlReport = new AvlReport(vehicleId, time, lat, lon, speed, heading, AVL_SOURCE);
 
@@ -137,7 +142,7 @@ public class CommandsApi {
             }
 
             IpcAvl ipcAvl = new IpcAvl(avlReport);
-            inter.pushAvl(ipcAvl);
+            commandsInterface.pushAvl(ipcAvl);
 
             // Create the acknowledgment and return it as JSON or XML
             ApiCommandAck ack = new ApiCommandAck(true, "AVL processed");
@@ -242,9 +247,7 @@ public class CommandsApi {
                 avlData.add(new IpcAvl(avlReport));
             }
 
-            // Get RMI interface and send the AVL data to server
-            CommandsInterface inter = stdParameters.getCommandsInterface();
-            inter.pushAvl(avlData);
+            commandsInterface.pushAvl(avlData);
         } catch (JSONException | IOException e) {
             // If problem getting data then return a Bad Request
             throw WebUtils.badRequestException(e);
@@ -271,10 +274,8 @@ public class CommandsApi {
         stdParameters.validate();
 
         try {
-            CommandsInterface inter = stdParameters.getCommandsInterface();
-
             for (String vehicleId : vehicleIds) {
-                inter.setVehicleUnpredictable(vehicleId);
+                commandsInterface.setVehicleUnpredictable(vehicleId);
             }
         } catch (RemoteException e) {
             throw WebUtils.badRequestException(e.getMessage());
@@ -350,12 +351,10 @@ public class CommandsApi {
         stdParameters.validate();
         String result = null;
         try {
-            CommandsInterface inter = stdParameters.getCommandsInterface();
             // We need to get the block id in order to get the vehicle
-            ConfigInterface cofingInterface = stdParameters.getConfigInterface();
-            IpcTrip ipcTrip = cofingInterface.getTrip(tripId);
+            IpcTrip ipcTrip = configInterface.getTrip(tripId);
             if (ipcTrip == null) throw WebUtils.badRequestException("TripId=" + tripId + " does not exist.");
-            result = inter.cancelTrip(tripId, at == null ? null : at.getDate());
+            result = commandsInterface.cancelTrip(tripId, at == null ? null : at.getDate());
         } catch (RemoteException e) {
             e.printStackTrace();
             throw WebUtils.badRequestException("Could not send request to Core server. " + e.getMessage());
@@ -381,12 +380,10 @@ public class CommandsApi {
         stdParameters.validate();
         String result = null;
         try {
-            CommandsInterface inter = stdParameters.getCommandsInterface();
             // We need to get the block id in order to get the vehicle
-            ConfigInterface cofingInterface = stdParameters.getConfigInterface();
-            IpcTrip ipcTrip = cofingInterface.getTrip(tripId);
+            IpcTrip ipcTrip = configInterface.getTrip(tripId);
             if (ipcTrip == null) throw WebUtils.badRequestException("TripId=" + tripId + " does not exist.");
-            result = inter.reenableTrip(tripId, at == null ? null : at.getDate());
+            result = commandsInterface.reenableTrip(tripId, at == null ? null : at.getDate());
         } catch (RemoteException e) {
             e.printStackTrace();
             throw WebUtils.badRequestException("Could not send request to Core server. " + e.getMessage());
@@ -417,9 +414,8 @@ public class CommandsApi {
             long validFrom = jsonObj.getLong("validFrom");
             long validTo = jsonObj.getLong("validTo");
             String blockId = jsonObj.getString("blockId");
-            CommandsInterface inter = stdParameters.getCommandsInterface();
 
-            result = inter.addVehicleToBlock(
+            result = commandsInterface.addVehicleToBlock(
                     vehicleId, blockId, "", new Date(), new Date(validFrom * 1000), new Date(validTo * 1000));
         } catch (JSONException | IOException e) {
             // If problem getting data then return a Bad Request
@@ -444,9 +440,7 @@ public class CommandsApi {
         // Make sure request is valid
         stdParameters.validate();
         try {
-            CommandsInterface inter = stdParameters.getCommandsInterface();
-
-            inter.removeVehicleToBlock(id);
+            commandsInterface.removeVehicleToBlock(id);
         } catch (Exception e) {
             // If problem getting data then return a Bad Request
             throw WebUtils.badRequestException(e);

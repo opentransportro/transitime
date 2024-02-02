@@ -14,6 +14,7 @@ import java.util.Map;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
@@ -36,6 +37,7 @@ import org.transitclock.utils.Time;
 @EqualsAndHashCode
 @ToString
 @Getter
+@Slf4j
 @Table(name = "Calendars")
 public class Calendar implements Serializable {
 
@@ -87,11 +89,6 @@ public class Calendar implements Serializable {
 
     // For outputting start and end date as strings
     private static final DateFormat formatter = new SimpleDateFormat("MM-dd-yyyy");
-
-    // Logging
-    public static final Logger logger = LoggerFactory.getLogger(Calendar.class);
-
-    /********************** Member Functions **************************/
 
     /** Needed because Hibernate requires no-arg constructor */
     @SuppressWarnings("unused")

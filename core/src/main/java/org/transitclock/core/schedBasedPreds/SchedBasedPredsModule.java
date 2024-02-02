@@ -3,7 +3,6 @@ package org.transitclock.core.schedBasedPreds;
 
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.Module;
-import org.transitclock.Core;
 import org.transitclock.SingletonContainer;
 import org.transitclock.config.data.AgencyConfig;
 import org.transitclock.config.data.PredictionConfig;

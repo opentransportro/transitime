@@ -5,6 +5,7 @@ import java.rmi.RemoteException;
 import java.util.Collection;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 import org.transitclock.domain.webstructs.WebAgency;
 import org.transitclock.service.contract.ConfigInterface;
 import org.transitclock.service.contract.ServerStatusInterface;
@@ -17,13 +18,20 @@ import org.transitclock.service.ServerStatusServiceImpl;
  *
  * @author SkiBu Smith
  */
+@Component
 @Slf4j
 public class AgencyMonitorClient {
+    private final ConfigInterface configInterface;
+    private final ServerStatusInterface serverStatusInterface;
 
-    public static String pingAgency(String agencyId) {
+    public AgencyMonitorClient(ConfigInterface configInterface, ServerStatusInterface serverStatusInterface) {
+        this.configInterface = configInterface;
+        this.serverStatusInterface = serverStatusInterface;
+    }
+
+    public String pingAgency(String agencyId) {
         String msg = null;
 
-        ConfigInterface configInterface = ConfigServiceImpl.instance();
         if (configInterface == null) {
             msg = "Could not create ConfigInterface for RMI";
             logger.error(msg);
@@ -47,7 +55,7 @@ public class AgencyMonitorClient {
      *
      * @return An error message if there is a problem, otherwise null
      */
-    public static String pingAllAgencies() {
+    public String pingAllAgencies() {
         String errorMessageForAllAgencies = "";
         Collection<WebAgency> webAgencies = WebAgency.getCachedOrderedListOfWebAgencies();
         for (WebAgency webAgency : webAgencies) {
@@ -76,8 +84,7 @@ public class AgencyMonitorClient {
      * @param agencyId Which agency to monitor
      * @return Error message if problem, or null
      */
-    public static String monitor(String agencyId) {
-        ServerStatusInterface serverStatusInterface = ServerStatusServiceImpl.instance();
+    public String monitor(String agencyId) {
         if (serverStatusInterface == null) {
             logger.error("Could not create ServerStatusInterface for RMI for " + "agencyId={}", agencyId);
             return null;
@@ -104,7 +111,7 @@ public class AgencyMonitorClient {
      *
      * @return
      */
-    public static String monitorAllAgencies() {
+    public String monitorAllAgencies() {
         String errorMessageForAllAgencies = "";
         Collection<WebAgency> webAgencies = WebAgency.getCachedOrderedListOfWebAgencies();
         for (WebAgency webAgency : webAgencies) {

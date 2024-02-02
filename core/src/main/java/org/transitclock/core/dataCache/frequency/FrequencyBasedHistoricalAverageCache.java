@@ -5,9 +5,8 @@ import com.querydsl.jpa.impl.JPAQuery;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.DateUtils;
 import org.hibernate.Session;
-import org.transitclock.Core;
+import org.springframework.stereotype.Component;
 import org.transitclock.SingletonContainer;
-import org.transitclock.annotations.Component;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.core.dataCache.*;
 import org.transitclock.domain.structs.ArrivalDeparture;
@@ -29,11 +28,14 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 public class FrequencyBasedHistoricalAverageCache {
 
-    private final ConcurrentHashMap<StopPathKey, TreeMap<Long, HistoricalAverage>> m =
-            new ConcurrentHashMap<StopPathKey, TreeMap<Long, HistoricalAverage>>();
-    private final DbConfig dbConfig = SingletonContainer.getInstance(DbConfig.class);
+    private final Map<StopPathKey, TreeMap<Long, HistoricalAverage>> m = new ConcurrentHashMap<>();
+    private final DbConfig dbConfig;
+    private final TripDataHistoryCacheInterface tripDataHistoryCacheInterface;
 
-    public FrequencyBasedHistoricalAverageCache() {}
+    public FrequencyBasedHistoricalAverageCache(DbConfig dbConfig, TripDataHistoryCacheInterface tripDataHistoryCacheInterface) {
+        this.dbConfig = dbConfig;
+        this.tripDataHistoryCacheInterface = tripDataHistoryCacheInterface;
+    }
 
     public String toString() {
 
@@ -233,7 +235,7 @@ public class FrequencyBasedHistoricalAverageCache {
         Date nearestDay = DateUtils.truncate(new Date(arrivalDeparture.getTime().getTime()), Calendar.DAY_OF_MONTH);
         TripKey tripKey = new TripKey(arrivalDeparture.getTripId(), nearestDay, trip.getStartTime());
 
-        List<IpcArrivalDeparture> arrivalDepartures = TripDataHistoryCacheFactory.getInstance().getTripHistory(tripKey);
+        List<IpcArrivalDeparture> arrivalDepartures = tripDataHistoryCacheInterface.getTripHistory(tripKey);
 
         if (arrivalDepartures != null && !arrivalDepartures.isEmpty() && arrivalDeparture.isArrival()) {
             IpcArrivalDeparture previousEvent = findPreviousDepartureEvent(arrivalDepartures, arrivalDeparture);
@@ -250,7 +252,7 @@ public class FrequencyBasedHistoricalAverageCache {
         Date nearestDay = DateUtils.truncate(new Date(arrivalDeparture.getTime().getTime()), Calendar.DAY_OF_MONTH);
         TripKey tripKey = new TripKey(arrivalDeparture.getTripId(), nearestDay, trip.getStartTime());
 
-        List<IpcArrivalDeparture> arrivalDepartures = TripDataHistoryCacheFactory.getInstance().getTripHistory(tripKey);
+        List<IpcArrivalDeparture> arrivalDepartures = tripDataHistoryCacheInterface.getTripHistory(tripKey);
 
         if (arrivalDepartures != null && !arrivalDepartures.isEmpty() && arrivalDeparture.isDeparture()) {
             IpcArrivalDeparture previousEvent = findPreviousArrivalEvent(arrivalDepartures, arrivalDeparture);

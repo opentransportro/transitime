@@ -7,11 +7,8 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.ehcache.Cache;
 import org.ehcache.CacheManager;
 import org.hibernate.Session;
-import org.transitclock.Core;
 import org.transitclock.SingletonContainer;
-import org.transitclock.annotations.Component;
 import org.transitclock.core.dataCache.*;
-import org.transitclock.core.dataCache.ehcache.CacheManagerFactory;
 import org.transitclock.domain.structs.ArrivalDeparture;
 import org.transitclock.domain.structs.QArrivalDeparture;
 import org.transitclock.domain.structs.Trip;
@@ -19,7 +16,6 @@ import org.transitclock.gtfs.DbConfig;
 import org.transitclock.gtfs.GtfsData;
 import org.transitclock.service.dto.IpcArrivalDeparture;
 
-import java.net.URL;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -113,7 +109,7 @@ public class TripDataHistoryCache implements TripDataHistoryCacheInterface {
         for (ArrivalDeparture result : results) {
             // TODO this might be better done in the database.
             if (GtfsData.routeNotFiltered(result.getRouteId())) {
-                TripDataHistoryCacheFactory.getInstance().putArrivalDeparture(result);
+                putArrivalDeparture(result);
             }
         }
     }

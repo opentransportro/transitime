@@ -1,8 +1,8 @@
 /* (C)2023 */
 package org.transitclock.core.dataCache;
 
-import org.transitclock.annotations.Bean;
-import org.transitclock.annotations.Configuration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.transitclock.config.StringConfigValue;
 import org.transitclock.utils.ClassInstantiator;
 
@@ -20,7 +20,7 @@ public class DwellTimeModelCacheFactory {
     private static DwellTimeModelCacheInterface singleton = null;
 
     @Bean
-    public static DwellTimeModelCacheInterface getInstance() {
+    public DwellTimeModelCacheInterface dwellTimeModelCacheInterface() {
         if (singleton == null) {
             if (className.getValue() != null && !className.getValue().isEmpty()) {
                 singleton = ClassInstantiator.instantiate(className.getValue(), DwellTimeModelCacheInterface.class);

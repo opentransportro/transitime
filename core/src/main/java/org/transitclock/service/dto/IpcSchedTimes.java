@@ -2,7 +2,7 @@
 package org.transitclock.service.dto;
 
 import java.io.Serializable;
-import org.transitclock.Core;
+
 import org.transitclock.SingletonContainer;
 import org.transitclock.domain.structs.ScheduleTime;
 import org.transitclock.domain.structs.Stop;

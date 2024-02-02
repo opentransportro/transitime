@@ -4,6 +4,7 @@ package org.transitclock.service;
 import com.querydsl.jpa.impl.JPAQuery;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
+import org.springframework.stereotype.Service;
 import org.transitclock.core.BlocksInfo;
 import org.transitclock.core.dataCache.VehicleDataCache;
 import org.transitclock.domain.hibernate.HibernateUtils;
@@ -25,36 +26,11 @@ import java.util.List;
  *
  * @author SkiBu Smith
  */
+@Service
 @Slf4j
 public class VehiclesServiceImpl implements VehiclesInterface {
-
-    // Should only be accessed as singleton class
-    private static VehiclesServiceImpl singleton;
-
-    public static VehiclesInterface instance() {
-        return singleton;
-    }
-
     // The VehicleDataCache associated with the singleton.
-    private VehicleDataCache vehicleDataCache;
-
-
-    /**
-     * Starts up the VehiclesServer so that RMI calls can query for predictions. This will
-     * automatically cause the object to continue to run and serve requests.
-     *
-     * @param vehicleDataCache
-     * @return the singleton PredictionsServer object
-     */
-    public static VehiclesServiceImpl start(VehicleDataCache vehicleDataCache) {
-        if (singleton == null) {
-            singleton = new VehiclesServiceImpl();
-            singleton.vehicleDataCache = vehicleDataCache;
-        }
-
-
-        return singleton;
-    }
+    private final VehicleDataCache vehicleDataCache;
 
     /*
      * Constructor. Made private so that can only be instantiated by
@@ -64,7 +40,8 @@ public class VehiclesServiceImpl implements VehiclesInterface {
      * @param projectId
      *            for registering this object with the rmiregistry
      */
-    private VehiclesServiceImpl() {
+    public VehiclesServiceImpl(VehicleDataCache vehicleDataCache) {
+        this.vehicleDataCache = vehicleDataCache;
     }
 
     /* (non-Javadoc)

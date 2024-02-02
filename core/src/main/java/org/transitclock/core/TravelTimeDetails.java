@@ -12,8 +12,7 @@ import org.transitclock.service.dto.IpcArrivalDeparture;
 @Getter
 @RequiredArgsConstructor
 public class TravelTimeDetails {
-    private static final TravelTimeDataFilter dataFilter = TravelTimeFilterFactory.getInstance();
-
+    private final TravelTimeDataFilter dataFilter;
     private final IpcArrivalDeparture departure;
     private final IpcArrivalDeparture arrival;
 

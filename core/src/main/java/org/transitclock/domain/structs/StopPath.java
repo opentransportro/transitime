@@ -14,7 +14,6 @@ import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.classic.Lifecycle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.transitclock.Core;
 import org.transitclock.SingletonContainer;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.gtfs.DbConfig;

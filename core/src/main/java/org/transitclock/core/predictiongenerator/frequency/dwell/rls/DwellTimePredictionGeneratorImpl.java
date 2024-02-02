@@ -6,13 +6,18 @@ import java.util.Date;
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.core.Indices;
+import org.transitclock.core.TravelTimes;
 import org.transitclock.core.VehicleState;
-import org.transitclock.core.dataCache.DwellTimeModelCacheFactory;
-import org.transitclock.core.dataCache.StopPathCacheKey;
+import org.transitclock.core.dataCache.*;
 import org.transitclock.core.dataCache.frequency.FrequencyBasedHistoricalAverageCache;
+import org.transitclock.core.holdingmethod.HoldingTimeGenerator;
+import org.transitclock.core.predictiongenerator.bias.BiasAdjuster;
+import org.transitclock.core.predictiongenerator.datafilter.TravelTimeDataFilter;
 import org.transitclock.core.predictiongenerator.frequency.traveltime.kalman.KalmanPredictionGeneratorImpl;
+import org.transitclock.domain.hibernate.DataDbLogger;
 import org.transitclock.domain.structs.AvlReport;
 import org.transitclock.domain.structs.Headway;
+import org.transitclock.gtfs.DbConfig;
 
 /**
  * @author Sean Og Crudden
@@ -23,6 +28,20 @@ import org.transitclock.domain.structs.Headway;
  */
 @Slf4j
 public class DwellTimePredictionGeneratorImpl extends KalmanPredictionGeneratorImpl {
+    private final DwellTimeModelCacheInterface dwellTimeModelCacheInterface;
+
+    public DwellTimePredictionGeneratorImpl(DbConfig dbConfig,
+                                            StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface,
+                                            TripDataHistoryCacheInterface tripDataHistoryCacheInterface,
+                                            VehicleStateManager vehicleStateManager, HoldingTimeCache holdingTimeCache, StopPathPredictionCache stopPathPredictionCache, TravelTimes travelTimes, DataDbLogger dataDbLogger, VehicleDataCache vehicleDataCache, FrequencyBasedHistoricalAverageCache frequencyBasedHistoricalAverageCache, DwellTimeModelCacheInterface dwellTimeModelCacheInterface,
+                                            ErrorCache errorCache,
+                                            HoldingTimeGenerator holdingTimeGenerator,
+                                            BiasAdjuster biasAdjuster,
+                                            TravelTimeDataFilter travelTimeDataFilter) {
+        super(dbConfig, stopArrivalDepartureCacheInterface, tripDataHistoryCacheInterface, vehicleStateManager, holdingTimeCache, stopPathPredictionCache, travelTimes, dataDbLogger, vehicleDataCache, frequencyBasedHistoricalAverageCache, errorCache, holdingTimeGenerator, biasAdjuster, travelTimeDataFilter);
+        this.dwellTimeModelCacheInterface = dwellTimeModelCacheInterface;
+    }
+
     @Override
     public long getStopTimeForPath(Indices indices, AvlReport avlReport, VehicleState vehicleState) {
         Long result = null;
@@ -43,8 +62,8 @@ public class DwellTimePredictionGeneratorImpl extends KalmanPredictionGeneratorI
                     StopPathCacheKey cacheKey = new StopPathCacheKey(
                             indices.getTrip().getId(), indices.getStopPathIndex(), false, (long) time);
 
-                    if (DwellTimeModelCacheFactory.getInstance() != null)
-                        result = DwellTimeModelCacheFactory.getInstance().predictDwellTime(cacheKey, headway);
+                    if (dwellTimeModelCacheInterface != null)
+                        result = dwellTimeModelCacheInterface.predictDwellTime(cacheKey, headway);
 
                     if (result == null) {
                         logger.debug(

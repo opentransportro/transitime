@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.transitclock.annotations.Component;
+import org.springframework.stereotype.Component;
 import org.transitclock.core.VehicleState;
 
 /**
@@ -22,13 +22,8 @@ public class VehicleStateManager {
     // since getVehiclesState() returns values() of the map which can be
     // accessed while the map is being modified with new data via another
     // thread. Otherwise could get a ConcurrentModificationException.
-    private final Map<String, VehicleState> vehicleMap = new ConcurrentHashMap<String, VehicleState>();
+    private final Map<String, VehicleState> vehicleMap = new ConcurrentHashMap<>();
 
-    /**
-     * Constructor made private because this is singleton class where getInstance() should be used
-     * to get the VehicleStateManager.
-     */
-    public VehicleStateManager() {}
 
     /**
      * Adds VehicleState for the vehicle to the map so that it can be retrieved later.

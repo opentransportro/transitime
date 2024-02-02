@@ -28,13 +28,20 @@ public class StopArrivalDepartureCache implements StopArrivalDepartureCacheInter
 
     private static final String cacheByStop = "arrivalDeparturesByStop";
 
-    private Cache<StopArrivalDepartureCacheKey, StopEvents> cache = null;
+    private final Cache<StopArrivalDepartureCacheKey, StopEvents> cache;
+    private final StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface;
+    private final DwellTimeModelCacheInterface dwellTimeModelCacheInterface;
 
-    public StopArrivalDepartureCache() {
-        CacheManager cm = CacheManagerFactory.getInstance();
+    public StopArrivalDepartureCache(CacheManager cm, StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface, DwellTimeModelCacheInterface dwellTimeModelCacheInterface) {
         cache = cm.getCache(cacheByStop, StopArrivalDepartureCacheKey.class, StopEvents.class);
+        this.stopArrivalDepartureCacheInterface = stopArrivalDepartureCacheInterface;
+        this.dwellTimeModelCacheInterface = dwellTimeModelCacheInterface;
     }
 
+    @Override
+    public DwellTimeModelCacheInterface getDwellTimeModelCacheInterface() {
+        return dwellTimeModelCacheInterface;
+    }
 
     /* (non-Javadoc)
      * @see org.transitime.core.dataCache.ehcache.StopArrivalDepartureCacheInterface#getStopHistory(org.transitime.core.dataCache.StopArrivalDepartureCacheKey)
@@ -108,11 +115,11 @@ public class StopArrivalDepartureCache implements StopArrivalDepartureCacheInter
                 .fetch();
 
         for (ArrivalDeparture result : results) {
-            StopArrivalDepartureCacheFactory.getInstance().putArrivalDeparture(result);
+            stopArrivalDepartureCacheInterface.putArrivalDeparture(result);
             // TODO might be better with its own populateCacheFromdb
             try {
-                if (DwellTimeModelCacheFactory.getInstance() != null)
-                    DwellTimeModelCacheFactory.getInstance().addSample(result);
+                if (dwellTimeModelCacheInterface != null)
+                    dwellTimeModelCacheInterface.addSample(result);
             } catch (Exception e) {
                 e.printStackTrace();
             }

@@ -7,9 +7,7 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.ehcache.Cache;
 import org.ehcache.CacheManager;
 import org.hibernate.Session;
-import org.transitclock.Core;
 import org.transitclock.SingletonContainer;
-import org.transitclock.annotations.Component;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.core.dataCache.*;
 import org.transitclock.core.dataCache.frequency.FrequencyBasedHistoricalAverageCache;
@@ -35,13 +33,13 @@ import java.util.*;
 @Slf4j
 public class TripDataHistoryCache implements TripDataHistoryCacheInterface {
     private static final boolean debug = false;
-
     private static final String cacheByTrip = "arrivalDeparturesByTrip";
     private final Cache<TripKey, TripEvents> cache;
-    private final DbConfig dbConfig = SingletonContainer.getInstance(DbConfig.class);
-    public TripDataHistoryCache() {
-        CacheManager cm = SingletonContainer.getInstance(CacheManager.class);
+    private final DbConfig dbConfig;
+
+    public TripDataHistoryCache(CacheManager cm, DbConfig dbConfig) {
         cache = cm.getCache(cacheByTrip, TripKey.class, TripEvents.class);
+        this.dbConfig = dbConfig;
     }
 
     /* (non-Javadoc)
@@ -145,7 +143,7 @@ public class TripDataHistoryCache implements TripDataHistoryCacheInterface {
         for (ArrivalDeparture result : results) {
             // TODO this might be better done in the database.
             if (GtfsData.routeNotFiltered(result.getRouteId())) {
-                TripDataHistoryCacheFactory.getInstance().putArrivalDeparture(result);
+                putArrivalDeparture(result);
             }
         }
     }

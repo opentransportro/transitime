@@ -10,6 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.transitclock.api.utils.AgencyTimezoneCache;
 import org.transitclock.config.data.ApiConfig;
 import org.transitclock.core.holdingmethod.PredictionTimeComparator;
+import org.transitclock.service.contract.ConfigInterface;
+import org.transitclock.service.contract.PredictionsInterface;
 import org.transitclock.service.dto.IpcPrediction;
 import org.transitclock.service.dto.IpcPredictionsForRouteStopDest;
 import org.transitclock.service.dto.IpcVehicleConfig;
@@ -61,9 +63,14 @@ public class GtfsRtTripFeed {
 
     private final SimpleDateFormat gtfsRealtimeTimeFormatter = new SimpleDateFormat("HH:mm:ss");
 
-    public GtfsRtTripFeed(String agencyId) {
+    private final VehiclesInterface vehiclesInterface;
+    private final PredictionsInterface predictionsInterface;
+
+    public GtfsRtTripFeed(String agencyId, VehiclesInterface vehiclesInterface, PredictionsInterface predictionsInterface, ConfigInterface configInterface) {
         this.agencyId = agencyId;
-        this.gtfsRealtimeDateFormatter.setTimeZone(AgencyTimezoneCache.get(agencyId));
+        this.vehiclesInterface = vehiclesInterface;
+        this.predictionsInterface = predictionsInterface;
+        this.gtfsRealtimeDateFormatter.setTimeZone(AgencyTimezoneCache.get(agencyId, configInterface));
     }
 
     /**
@@ -75,8 +82,6 @@ public class GtfsRtTripFeed {
     private TripUpdate createTripUpdate(List<IpcPrediction> predsForTrip) {
         // Create the parent TripUpdate object that is returned.
         TripUpdate.Builder tripUpdate = TripUpdate.newBuilder();
-
-        VehiclesInterface vehiclesInterface = VehiclesServiceImpl.instance();
 
         // Add the trip descriptor information
         IpcPrediction firstPred = predsForTrip.get(0);
@@ -281,8 +286,7 @@ public class GtfsRtTripFeed {
         // Get all the predictions, grouped by vehicle, from the server
         List<IpcPredictionsForRouteStopDest> allPredictionsByStop;
         try {
-            allPredictionsByStop = PredictionsServiceImpl.instance()
-                            .getAllPredictions(PREDICTION_MAX_FUTURE_SECS);
+            allPredictionsByStop = predictionsInterface.getAllPredictions(PREDICTION_MAX_FUTURE_SECS);
         } catch (RemoteException e) {
             logger.error("Exception when getting vehicles from RMI", e);
             return new HashMap<>();
@@ -333,7 +337,7 @@ public class GtfsRtTripFeed {
      * @param agencyId
      * @return
      */
-    public static FeedMessage getPossiblyCachedMessage(String agencyId) {
+    public static FeedMessage getPossiblyCachedMessage(String agencyId, VehiclesInterface vehiclesInterface, PredictionsInterface predictionsInterface, ConfigInterface configInterface) {
         FeedMessage feedMessage = tripFeedDataCache.get(agencyId);
         if (feedMessage != null) return feedMessage;
 
@@ -343,7 +347,7 @@ public class GtfsRtTripFeed {
             feedMessage = tripFeedDataCache.get(agencyId);
             if (feedMessage != null) return feedMessage;
 
-            GtfsRtTripFeed feed = new GtfsRtTripFeed(agencyId);
+            GtfsRtTripFeed feed = new GtfsRtTripFeed(agencyId, vehiclesInterface, predictionsInterface, configInterface);
             feedMessage = feed.createMessage();
             tripFeedDataCache.put(agencyId, feedMessage);
         }

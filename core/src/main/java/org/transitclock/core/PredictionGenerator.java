@@ -1,8 +1,9 @@
 /* (C)2023 */
 package org.transitclock.core;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.time.DateUtils;
-import org.transitclock.Core;
 import org.transitclock.SingletonContainer;
 import org.transitclock.config.data.PredictionConfig;
 import org.transitclock.core.dataCache.*;
@@ -24,9 +25,14 @@ import java.util.*;
  *
  * @author SkiBu Smith
  */
+@Getter
+@RequiredArgsConstructor
 public abstract class PredictionGenerator {
 
-    private final DbConfig dbConfig = SingletonContainer.getInstance(DbConfig.class);
+    protected final DbConfig dbConfig;
+    protected final StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface;
+    protected final TripDataHistoryCacheInterface tripDataHistoryCacheInterface;
+    protected final TravelTimeDataFilter travelTimeDataFilter;
     /**
      * Generates and returns the predictions for the vehicle.
      *
@@ -51,10 +57,10 @@ public abstract class PredictionGenerator {
                     currentStopId, new Date(currentVehicleState.getMatch().getAvlTime()));
 
             List<IpcArrivalDeparture> currentStopList =
-                    StopArrivalDepartureCacheFactory.getInstance().getStopHistory(currentStopKey);
+                    stopArrivalDepartureCacheInterface.getStopHistory(currentStopKey);
 
             List<IpcArrivalDeparture> nextStopList =
-                    StopArrivalDepartureCacheFactory.getInstance().getStopHistory(nextStopKey);
+                    stopArrivalDepartureCacheInterface.getStopHistory(nextStopKey);
 
             if (currentStopList != null && nextStopList != null) {
                 // lists are already sorted when put into cache.
@@ -70,7 +76,7 @@ public abstract class PredictionGenerator {
                         IpcArrivalDeparture found;
 
                         if ((found = findMatchInList(nextStopList, currentArrivalDeparture)) != null) {
-                            TravelTimeDetails travelTimeDetails = new TravelTimeDetails(currentArrivalDeparture, found);
+                            TravelTimeDetails travelTimeDetails = new TravelTimeDetails(travelTimeDataFilter, currentArrivalDeparture, found);
                             if (travelTimeDetails.getTravelTime() > 0) {
                                 return travelTimeDetails;
 
@@ -112,10 +118,10 @@ public abstract class PredictionGenerator {
                     currentStopId, new Date(currentVehicleState.getMatch().getAvlTime()));
 
             List<IpcArrivalDeparture> currentStopList =
-                    StopArrivalDepartureCacheFactory.getInstance().getStopHistory(currentStopKey);
+                    stopArrivalDepartureCacheInterface.getStopHistory(currentStopKey);
 
             List<IpcArrivalDeparture> nextStopList =
-                    StopArrivalDepartureCacheFactory.getInstance().getStopHistory(nextStopKey);
+                    stopArrivalDepartureCacheInterface.getStopHistory(nextStopKey);
 
             if (currentStopList != null && nextStopList != null) {
                 // lists are already sorted when put into cache.
@@ -248,15 +254,14 @@ public abstract class PredictionGenerator {
 
                 if (arrival != null) {
                     IpcArrivalDeparture departure =
-                            TripDataHistoryCacheFactory.getInstance().findPreviousDepartureEvent(results, arrival);
+                            tripDataHistoryCacheInterface.findPreviousDepartureEvent(results, arrival);
 
                     if (arrival != null && departure != null) {
 
-                        TravelTimeDetails travelTimeDetails = new TravelTimeDetails(departure, arrival);
+                        TravelTimeDetails travelTimeDetails = new TravelTimeDetails(travelTimeDataFilter, departure, arrival);
 
                         if (travelTimeDetails.getTravelTime() != -1) {
-                            TravelTimeDataFilter travelTimefilter = TravelTimeFilterFactory.getInstance();
-                            if (!travelTimefilter.filter(
+                            if (!travelTimeDataFilter.filter(
                                     travelTimeDetails.getDeparture(), travelTimeDetails.getArrival())) {
                                 times.add(travelTimeDetails);
                                 num_found++;

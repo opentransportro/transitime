@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.springframework.web.bind.annotation.RestController;
 import org.transitclock.api.data.ApiAgencies;
 import org.transitclock.api.data.ApiAgency;
 import org.transitclock.api.data.ApiNearbyPredictionsForAgencies;
@@ -37,9 +38,16 @@ import java.util.List;
  * @author SkiBu Smith
  */
 @Path("/key/{key}")
+@RestController
 public class TransitimeNonAgencyApi {
 
-    /********************** Member Functions **************************/
+    private final ConfigInterface configInterface;
+    private final PredictionsInterface predictionsInterface;
+
+    public TransitimeNonAgencyApi(ConfigInterface configInterface, PredictionsInterface predictionsInterface) {
+        this.configInterface = configInterface;
+        this.predictionsInterface = predictionsInterface;
+    }
 
     /**
      * For "agencies" command. Returns information for all configured agencies.
@@ -66,20 +74,19 @@ public class TransitimeNonAgencyApi {
             Collection<WebAgency> webAgencies = WebAgency.getCachedOrderedListOfWebAgencies();
             for (WebAgency webAgency : webAgencies) {
                 String agencyId = webAgency.getAgencyId();
-                ConfigInterface inter = ConfigServiceImpl.instance();
 
                 // If can't communicate with IPC with that agency then move on
                 // to the next one. This is important because some agencies
                 // might be declared in the web db but they might not actually
                 // be running.
-                if (inter == null) {
+                if (configInterface == null) {
                     // Should really log something here to explain that skipping
                     // agency
 
                     continue;
                 }
 
-                List<Agency> agencies = inter.getAgencies();
+                List<Agency> agencies = configInterface.getAgencies();
                 for (Agency agency : agencies) {
                     apiAgencyList.add(new ApiAgency(agencyId, agency));
                 }
@@ -137,7 +144,6 @@ public class TransitimeNonAgencyApi {
             List<String> nearbyAgencies = PredsByLoc.getNearbyAgencies(lat, lon, maxDistance);
             for (String agencyId : nearbyAgencies) {
                 // Get predictions by location for the agency
-                PredictionsInterface predictionsInterface = PredictionsServiceImpl.instance();
                 List<IpcPredictionsForRouteStopDest> predictions =
                         predictionsInterface.get(new Location(lat, lon), maxDistance, numberPredictions);
 

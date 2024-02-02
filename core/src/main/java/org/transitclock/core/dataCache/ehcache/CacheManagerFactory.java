@@ -5,23 +5,20 @@ import java.net.URL;
 import org.ehcache.CacheManager;
 import org.ehcache.config.builders.CacheManagerBuilder;
 import org.ehcache.xml.XmlConfiguration;
-import org.transitclock.annotations.Configuration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 
 @Configuration
 public class CacheManagerFactory {
 
-    public static CacheManager singleton = null;
+    @Bean
+    public CacheManager cacheManager() {
+        URL xmlConfigUrl = CacheManagerFactory.class.getClassLoader().getResource("ehcache.xml");
+        XmlConfiguration xmlConfig = new XmlConfiguration(xmlConfigUrl);
 
-    public static CacheManager getInstance() {
-        if (singleton == null) {
-            URL xmlConfigUrl = CacheManagerFactory.class.getClassLoader().getResource("ehcache.xml");
-            XmlConfiguration xmlConfig = new XmlConfiguration(xmlConfigUrl);
-
-            singleton = CacheManagerBuilder.newCacheManager(xmlConfig);
-            singleton.init();
-        }
-
-        return singleton;
+        CacheManager cm = CacheManagerBuilder.newCacheManager(xmlConfig);
+        cm.init();
+        return cm;
     }
 }

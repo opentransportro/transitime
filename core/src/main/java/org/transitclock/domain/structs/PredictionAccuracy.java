@@ -9,7 +9,6 @@ import org.hibernate.CallbackException;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.classic.Lifecycle;
-import org.transitclock.Core;
 import org.transitclock.SingletonContainer;
 import org.transitclock.gtfs.DbConfig;
 

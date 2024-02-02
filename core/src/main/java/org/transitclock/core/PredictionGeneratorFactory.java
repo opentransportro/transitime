@@ -1,8 +1,8 @@
 /* (C)2023 */
 package org.transitclock.core;
 
-import org.transitclock.annotations.Bean;
-import org.transitclock.annotations.Configuration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.transitclock.config.StringConfigValue;
 import org.transitclock.utils.ClassInstantiator;
 
@@ -25,7 +25,7 @@ public class PredictionGeneratorFactory {
     private static PredictionGenerator singleton = null;
 
     @Bean
-    public static synchronized PredictionGenerator getInstance() {
+    public synchronized PredictionGenerator predictionGenerator() {
         // If the PredictionGenerator hasn't been created yet then do so now
         if (singleton == null) {
             singleton = ClassInstantiator.instantiate(className.getValue(), PredictionGenerator.class);

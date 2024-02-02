@@ -1,18 +1,19 @@
 /* (C)2023 */
 package org.transitclock.core;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.transitclock.Core;
-import org.transitclock.SingletonContainer;
-import org.transitclock.core.dataCache.HoldingTimeCache;
-import org.transitclock.core.dataCache.StopPathPredictionCache;
-import org.transitclock.core.dataCache.VehicleStateManager;
+import org.springframework.stereotype.Component;
+import org.transitclock.core.dataCache.*;
+import org.transitclock.core.holdingmethod.HoldingTimeGenerator;
 import org.transitclock.core.holdingmethod.HoldingTimeGeneratorFactory;
 import org.transitclock.core.predictiongenerator.PredictionComponentElementsGenerator;
 import org.transitclock.core.predictiongenerator.bias.BiasAdjuster;
 import org.transitclock.core.predictiongenerator.bias.BiasAdjusterFactory;
+import org.transitclock.core.predictiongenerator.datafilter.TravelTimeDataFilter;
 import org.transitclock.domain.hibernate.DataDbLogger;
 import org.transitclock.domain.structs.*;
+import org.transitclock.gtfs.DbConfig;
 import org.transitclock.service.dto.IpcPrediction;
 import org.transitclock.service.dto.IpcPrediction.ArrivalOrDeparture;
 import org.transitclock.utils.Geo;
@@ -46,15 +47,38 @@ import static org.transitclock.config.data.CoreConfig.*;
  *
  * @author SkiBu Smith
  */
+@Getter
 @Slf4j
 public class PredictionGeneratorDefaultImpl extends PredictionGenerator implements PredictionComponentElementsGenerator {
+    protected final VehicleStateManager vehicleStateManager;
+    protected final HoldingTimeCache holdingTimeCache;
+    protected final StopPathPredictionCache stopPathPredictionCache;
+    protected final TravelTimes travelTimes;
+    protected final DataDbLogger dataDbLogger;
+    protected final HoldingTimeGenerator holdingTimeGenerator;
+    protected final BiasAdjuster biasAdjuster;
 
-    private final VehicleStateManager vehicleStateManager = SingletonContainer.getInstance(VehicleStateManager.class);
+    public PredictionGeneratorDefaultImpl(DbConfig dbConfig,
+                                          StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface,
+                                          TripDataHistoryCacheInterface tripDataHistoryCacheInterface,
+                                          VehicleStateManager vehicleStateManager,
+                                          HoldingTimeCache holdingTimeCache,
+                                          StopPathPredictionCache stopPathPredictionCache,
+                                          TravelTimes travelTimes,
+                                          DataDbLogger dataDbLogger,
+                                          HoldingTimeGenerator holdingTimeGenerator,
+                                          BiasAdjuster biasAdjuster,
+                                          TravelTimeDataFilter travelTimeDataFilter) {
+        super(dbConfig, stopArrivalDepartureCacheInterface, tripDataHistoryCacheInterface, travelTimeDataFilter);
+        this.vehicleStateManager = vehicleStateManager;
+        this.holdingTimeCache = holdingTimeCache;
+        this.stopPathPredictionCache = stopPathPredictionCache;
+        this.travelTimes = travelTimes;
+        this.dataDbLogger = dataDbLogger;
+        this.holdingTimeGenerator = holdingTimeGenerator;
+        this.biasAdjuster = biasAdjuster;
+    }
 
-    private final HoldingTimeCache holdingTimeCache = SingletonContainer.getInstance(HoldingTimeCache.class);
-    private final StopPathPredictionCache stopPathPredictionCache = SingletonContainer.getInstance(StopPathPredictionCache.class);
-    private final TravelTimes travelTimes = SingletonContainer.getInstance(TravelTimes.class);
-    private final DataDbLogger dataDbLogger = SingletonContainer.getInstance(DataDbLogger.class);
     /**
      * Generates prediction for the stop specified by the indices parameter. It will be an arrival
      * prediction if at the end of the trip or the useArrivalTimes parameter is set to true, and it
@@ -90,9 +114,8 @@ public class PredictionGeneratorDefaultImpl extends PredictionGenerator implemen
         String stopId = path.getStopId();
         int gtfsStopSeq = path.getGtfsStopSeq();
 
-        if (BiasAdjusterFactory.getInstance() != null) {
-            BiasAdjuster adjuster = BiasAdjusterFactory.getInstance();
-            predictionTime = avlReport.getTime() + adjuster.adjustPrediction(predictionTime - avlReport.getTime());
+        if (biasAdjuster != null) {
+            predictionTime = avlReport.getTime() + biasAdjuster.adjustPrediction(predictionTime - avlReport.getTime());
         }
 
         Trip trip = indices.getTrip();
@@ -383,8 +406,8 @@ public class PredictionGeneratorDefaultImpl extends PredictionGenerator implemen
 
             if ((predictionForStop.getPredictionTime() - SystemTime.getMillis()) < generateHoldingTimeWhenPredictionWithin.getValue()
                     && (predictionForStop.getPredictionTime() - SystemTime.getMillis()) > 0) {
-                if (HoldingTimeGeneratorFactory.getInstance() != null) {
-                    HoldingTime holdingTime = HoldingTimeGeneratorFactory.getInstance()
+                if (holdingTimeGenerator != null) {
+                    HoldingTime holdingTime = holdingTimeGenerator
                             .generateHoldingTime(vehicleState, predictionForStop);
                     if (holdingTime != null) {
                         holdingTimeCache.putHoldingTime(holdingTime);
@@ -468,8 +491,8 @@ public class PredictionGeneratorDefaultImpl extends PredictionGenerator implemen
             if (predictionForStop.isArrival()) {
                 predictionTime += getStopTimeForPath(indices, avlReport, vehicleState);
                 /* TODO this is where we should take account of holding time */
-                if (useHoldingTimeInPrediction.getValue() && HoldingTimeGeneratorFactory.getInstance() != null) {
-                    HoldingTime holdingTime = HoldingTimeGeneratorFactory.getInstance()
+                if (useHoldingTimeInPrediction.getValue() && holdingTimeGenerator != null) {
+                    HoldingTime holdingTime = holdingTimeGenerator
                             .generateHoldingTime(vehicleState, predictionForStop);
 
                     if (holdingTime != null) {

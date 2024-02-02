@@ -3,6 +3,7 @@ package org.transitclock.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
+import org.springframework.stereotype.Service;
 import org.transitclock.SingletonContainer;
 import org.transitclock.core.avl.AvlExecutor;
 import org.transitclock.core.AvlProcessor;
@@ -26,43 +27,20 @@ import java.util.Collection;
 import java.util.Date;
 
 @Slf4j
+@Service
 public class CommandsServiceImpl implements CommandsInterface {
+    private final AvlExecutor avlExecutor;
+    private final AvlProcessor avlProcessor;
+    private final PredictionDataCache predictionDataCache;
+    private final VehicleStateManager vehicleStateManager;
+    private final VehicleDataCache vehicleDataCache;
 
-    // Should only be accessed as singleton class
-    private static CommandsServiceImpl singleton;
-
-    public static CommandsInterface instance() {
-        return singleton;
-    }
-
-
-    /**
-     * Starts up the CommandsServer so that RMI calls can be used to control the server. This will
-     * automatically cause the object to continue to run and serve requests.
-     *
-     * @return the singleton CommandsServer object. Usually does not need to used since the server
-     *     will be fully running.
-     */
-    public static CommandsServiceImpl start() {
-        if (singleton == null) {
-            singleton = new CommandsServiceImpl();
-        }
-
-        return singleton;
-    }
-
-
-    private final AvlExecutor avlExecutor = SingletonContainer.getInstance(AvlExecutor.class);
-    private final AvlProcessor avlProcessor = SingletonContainer.getInstance(AvlProcessor.class);
-    private final PredictionDataCache predictionDataCache = SingletonContainer.getInstance(PredictionDataCache.class);
-    private final VehicleStateManager vehicleStateManager = SingletonContainer.getInstance(VehicleStateManager.class);
-    private final VehicleDataCache vehicleDataCache = SingletonContainer.getInstance(VehicleDataCache.class);
-    /**
-     * Constructor. Made private so that can only be instantiated by get(). Doesn't actually do
-     * anything since all the work is done in the superclass constructor.
-     *
-     */
-    private CommandsServiceImpl() {
+    public CommandsServiceImpl(AvlExecutor avlExecutor, AvlProcessor avlProcessor, PredictionDataCache predictionDataCache, VehicleStateManager vehicleStateManager, VehicleDataCache vehicleDataCache) {
+        this.avlExecutor = avlExecutor;
+        this.avlProcessor = avlProcessor;
+        this.predictionDataCache = predictionDataCache;
+        this.vehicleStateManager = vehicleStateManager;
+        this.vehicleDataCache = vehicleDataCache;
     }
 
     /**

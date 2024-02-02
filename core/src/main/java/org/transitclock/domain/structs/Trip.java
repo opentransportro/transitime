@@ -22,7 +22,6 @@ import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.classic.Lifecycle;
 import org.hibernate.collection.spi.PersistentList;
-import org.transitclock.Core;
 import org.transitclock.SingletonContainer;
 import org.transitclock.gtfs.DbConfig;
 import org.transitclock.gtfs.TitleFormatter;

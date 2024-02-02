@@ -1,8 +1,8 @@
 /* (C)2023 */
 package org.transitclock.core.predictiongenerator.datafilter;
 
-import org.transitclock.annotations.Bean;
-import org.transitclock.annotations.Configuration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.transitclock.config.StringConfigValue;
 import org.transitclock.utils.ClassInstantiator;
 
@@ -17,7 +17,7 @@ public class TravelTimeFilterFactory {
             "Specifies the name of the class used to filter travel times.");
 
     @Bean
-    public static TravelTimeDataFilter getInstance() {
+    public TravelTimeDataFilter travelTimeDataFilter() {
         if (singleton == null) {
             singleton = ClassInstantiator.instantiate(className.getValue(), TravelTimeDataFilter.class);
         }

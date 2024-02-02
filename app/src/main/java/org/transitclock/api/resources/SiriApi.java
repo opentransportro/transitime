@@ -15,10 +15,13 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.checkerframework.checker.units.qual.C;
+import org.springframework.web.bind.annotation.RestController;
 import org.transitclock.api.data.siri.SiriStopMonitoring;
 import org.transitclock.api.data.siri.SiriVehiclesMonitoring;
 import org.transitclock.api.utils.StandardParameters;
 import org.transitclock.api.utils.WebUtils;
+import org.transitclock.service.contract.ConfigInterface;
 import org.transitclock.service.dto.IpcPrediction;
 import org.transitclock.service.dto.IpcPredictionsForRouteStopDest;
 import org.transitclock.service.dto.IpcVehicleComplete;
@@ -30,8 +33,20 @@ import org.transitclock.service.contract.VehiclesInterface;
  *
  * @author SkiBu Smith
  */
+@RestController
 @Path("/key/{key}/agency/{agency}")
 public class SiriApi {
+
+    private final VehiclesInterface vehiclesInterface;
+    private final PredictionsInterface predictionsInterface;
+
+    private final ConfigInterface configInterface;
+
+    public SiriApi(VehiclesInterface vehiclesInterface, PredictionsInterface predictionsInterface, ConfigInterface configInterface) {
+        this.vehiclesInterface = vehiclesInterface;
+        this.predictionsInterface = predictionsInterface;
+        this.configInterface = configInterface;
+    }
 
     /**
      * Returns vehicleMonitoring vehicle information in SIRI format. Can specify vehicleIds,
@@ -65,19 +80,17 @@ public class SiriApi {
 
         try {
             // Get Vehicle data from server
-            VehiclesInterface inter = stdParameters.getVehiclesInterface();
-
             Collection<IpcVehicleComplete> vehicles;
             if (!routesIdOrShortNames.isEmpty()) {
-                vehicles = inter.getCompleteForRoute(routesIdOrShortNames);
+                vehicles = vehiclesInterface.getCompleteForRoute(routesIdOrShortNames);
             } else if (!vehicleIds.isEmpty()) {
-                vehicles = inter.getComplete(vehicleIds);
+                vehicles = vehiclesInterface.getComplete(vehicleIds);
             } else {
-                vehicles = inter.getComplete();
+                vehicles = vehiclesInterface.getComplete();
             }
 
             // Determine and return SiriStopMonitoring response
-            SiriVehiclesMonitoring siriVehicles = new SiriVehiclesMonitoring(vehicles, stdParameters.getAgencyId());
+            SiriVehiclesMonitoring siriVehicles = new SiriVehiclesMonitoring(vehicles, stdParameters.getAgencyId(), configInterface);
             return stdParameters.createResponse(siriVehicles);
         } catch (Exception e) {
             // If problem getting data then return a Bad Request
@@ -122,9 +135,7 @@ public class SiriApi {
 
         try {
             // Get prediction data from server
-            PredictionsInterface inter = stdParameters.getPredictionsInterface();
-
-            List<IpcPredictionsForRouteStopDest> preds = inter.get(routeIdOrShortName, stopId, numberPredictions);
+            List<IpcPredictionsForRouteStopDest> preds = predictionsInterface.get(routeIdOrShortName, stopId, numberPredictions);
 
             // For each prediction also need corresponding vehicle so can create
             // the absurdly large MonitoredVehicleJourney element.
@@ -134,12 +145,11 @@ public class SiriApi {
                     vehicleIds.add(individualPred.getVehicleId());
                 }
             }
-            VehiclesInterface vehicleInter = stdParameters.getVehiclesInterface();
-            Collection<IpcVehicleComplete> vehicles = vehicleInter.getComplete(vehicleIds);
+            Collection<IpcVehicleComplete> vehicles = vehiclesInterface.getComplete(vehicleIds);
 
             // Determine SiriStopMonitoring response
             SiriStopMonitoring siriStopMonitoring =
-                    new SiriStopMonitoring(preds, vehicles, stdParameters.getAgencyId());
+                    new SiriStopMonitoring(preds, vehicles, stdParameters.getAgencyId(), configInterface);
 
             // Return SiriStopMonitoring response
             return stdParameters.createResponse(siriStopMonitoring);

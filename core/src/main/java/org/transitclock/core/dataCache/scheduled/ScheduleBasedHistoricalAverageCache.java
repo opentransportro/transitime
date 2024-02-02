@@ -8,12 +8,11 @@ import org.ehcache.Cache;
 import org.ehcache.CacheManager;
 import org.hibernate.Session;
 import org.slf4j.Logger;
-import org.transitclock.Core;
-import org.transitclock.SingletonContainer;
-import org.transitclock.annotations.Component;
+import org.springframework.stereotype.Component;
 import org.transitclock.core.DwellTimeDetails;
 import org.transitclock.core.TravelTimeDetails;
 import org.transitclock.core.dataCache.*;
+import org.transitclock.core.predictiongenerator.datafilter.TravelTimeDataFilter;
 import org.transitclock.domain.structs.ArrivalDeparture;
 import org.transitclock.domain.structs.QArrivalDeparture;
 import org.transitclock.domain.structs.Trip;
@@ -31,13 +30,16 @@ import java.util.List;
 @Component
 public class ScheduleBasedHistoricalAverageCache {
     private static final String cacheName = "HistoricalAverageCache";
-    private Cache<StopPathCacheKey, HistoricalAverage> cache = null;
+    private final Cache<StopPathCacheKey, HistoricalAverage> cache;
     private final DbConfig dbConfig;
+    private final TripDataHistoryCacheInterface tripDataHistoryCacheInterface;
+    private final TravelTimeDataFilter travelTimeDataFilter;
 
-    public ScheduleBasedHistoricalAverageCache() {
-        CacheManager cm = SingletonContainer.getInstance(CacheManager.class);
+    public ScheduleBasedHistoricalAverageCache(CacheManager cm, DbConfig dbConfig, TripDataHistoryCacheInterface tripDataHistoryCacheInterface, TravelTimeDataFilter travelTimeDataFilter) {
         cache = cm.getCache(cacheName, StopPathCacheKey.class, HistoricalAverage.class);
-        dbConfig = SingletonContainer.getInstance(DbConfig.class);
+        this.dbConfig = dbConfig;
+        this.tripDataHistoryCacheInterface = tripDataHistoryCacheInterface;
+        this.travelTimeDataFilter = travelTimeDataFilter;
     }
 
     public void logCache(Logger logger) {
@@ -49,9 +51,7 @@ public class ScheduleBasedHistoricalAverageCache {
     }
 
     public synchronized HistoricalAverage getAverage(StopPathCacheKey key) {
-
-        HistoricalAverage result = cache.get(key);
-        return result;
+        return cache.get(key);
     }
 
     public synchronized void putAverage(StopPathCacheKey key, HistoricalAverage average) {
@@ -112,14 +112,14 @@ public class ScheduleBasedHistoricalAverageCache {
         Date nearestDay = DateUtils.truncate(new Date(arrivalDeparture.getTime().getTime()), Calendar.DAY_OF_MONTH);
         TripKey tripKey = new TripKey(arrivalDeparture.getTripId(), nearestDay, trip.getStartTime());
 
-        List<IpcArrivalDeparture> arrivalDepartures = TripDataHistoryCacheFactory.getInstance().getTripHistory(tripKey);
+        List<IpcArrivalDeparture> arrivalDepartures = tripDataHistoryCacheInterface.getTripHistory(tripKey);
 
         if (arrivalDepartures != null && !arrivalDepartures.isEmpty() && arrivalDeparture.isArrival()) {
-            IpcArrivalDeparture previousEvent = TripDataHistoryCacheFactory.getInstance()
+            IpcArrivalDeparture previousEvent =tripDataHistoryCacheInterface
                     .findPreviousDepartureEvent(arrivalDepartures, arrivalDeparture);
 
             if (previousEvent != null && arrivalDeparture != null && previousEvent.isDeparture()) {
-                return new TravelTimeDetails(previousEvent, arrivalDeparture);
+                return new TravelTimeDetails(travelTimeDataFilter, previousEvent, arrivalDeparture);
             }
         }
 
@@ -130,10 +130,10 @@ public class ScheduleBasedHistoricalAverageCache {
         Date nearestDay = DateUtils.truncate(new Date(arrivalDeparture.getTime().getTime()), Calendar.DAY_OF_MONTH);
         TripKey tripKey = new TripKey(arrivalDeparture.getTripId(), nearestDay, trip.getStartTime());
 
-        List<IpcArrivalDeparture> arrivalDepartures = TripDataHistoryCacheFactory.getInstance().getTripHistory(tripKey);
+        List<IpcArrivalDeparture> arrivalDepartures = tripDataHistoryCacheInterface.getTripHistory(tripKey);
 
-        if (arrivalDepartures != null && arrivalDepartures.size() > 0 && arrivalDeparture.isDeparture()) {
-            IpcArrivalDeparture previousEvent = TripDataHistoryCacheFactory.getInstance()
+        if (arrivalDepartures != null && !arrivalDepartures.isEmpty() && arrivalDeparture.isDeparture()) {
+            IpcArrivalDeparture previousEvent = tripDataHistoryCacheInterface
                     .findPreviousArrivalEvent(arrivalDepartures, arrivalDeparture);
 
             if (previousEvent != null && arrivalDeparture != null && previousEvent.isArrival()) {

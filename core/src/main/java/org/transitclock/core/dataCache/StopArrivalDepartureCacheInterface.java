@@ -27,7 +27,9 @@ public interface StopArrivalDepartureCacheInterface {
         for (ArrivalDeparture result : results) {
             this.putArrivalDeparture(result);
             // TODO might be better with its own populateCacheFromdb
-            DwellTimeModelCacheFactory.getInstance().addSample(result);
+            getDwellTimeModelCacheInterface().addSample(result);
         }
     }
+
+    DwellTimeModelCacheInterface getDwellTimeModelCacheInterface();
 }

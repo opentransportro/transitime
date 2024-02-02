@@ -160,8 +160,11 @@ public class Agency implements Serializable {
         int configRev = ActiveRevisions.get(agencyId).getConfigRev();
 
         List<Agency> agencies = getAgencies(agencyId, configRev);
-        if (!agencies.isEmpty()) return agencies.get(0).getTimeZone();
-        else return null;
+        if (!agencies.isEmpty()) {
+            return agencies.get(0).getTimeZone();
+        }
+
+        return null;
     }
 
     /**

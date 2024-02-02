@@ -4,23 +4,27 @@ package org.transitclock.core.predictiongenerator.frequency.traveltime.average;
 import java.util.Date;
 
 import lombok.extern.slf4j.Slf4j;
-import org.transitclock.Core;
 import org.transitclock.SingletonContainer;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.config.data.PredictionConfig;
 import org.transitclock.core.Indices;
 import org.transitclock.core.SpatialMatch;
+import org.transitclock.core.TravelTimes;
 import org.transitclock.core.VehicleState;
-import org.transitclock.core.dataCache.HistoricalAverage;
-import org.transitclock.core.dataCache.StopPathCacheKey;
-import org.transitclock.core.dataCache.StopPathPredictionCache;
+import org.transitclock.core.dataCache.*;
 import org.transitclock.core.dataCache.frequency.FrequencyBasedHistoricalAverageCache;
+import org.transitclock.core.holdingmethod.HoldingTimeGenerator;
 import org.transitclock.core.predictiongenerator.PredictionComponentElementsGenerator;
+import org.transitclock.core.predictiongenerator.bias.BiasAdjuster;
+import org.transitclock.core.predictiongenerator.datafilter.TravelTimeDataFilter;
 import org.transitclock.core.predictiongenerator.lastvehicle.LastVehiclePredictionGeneratorImpl;
 import org.transitclock.domain.hibernate.DataDbLogger;
 import org.transitclock.domain.structs.AvlReport;
 import org.transitclock.domain.structs.PredictionForStopPath;
+import org.transitclock.gtfs.DbConfig;
 import org.transitclock.utils.SystemTime;
+
+import javax.swing.text.Position;
 
 /**
  * @author Sean Óg Crudden This provides a prediction based on the average of historical data for
@@ -32,9 +36,24 @@ import org.transitclock.utils.SystemTime;
 public class HistoricalAveragePredictionGeneratorImpl extends LastVehiclePredictionGeneratorImpl implements PredictionComponentElementsGenerator {
     private final String alternative = "LastVehiclePredictionGeneratorImpl";
 
-    private final FrequencyBasedHistoricalAverageCache frequencyBasedHistoricalAverageCache = SingletonContainer.getInstance(FrequencyBasedHistoricalAverageCache.class);
-    private final StopPathPredictionCache stopPathPredictionCache = SingletonContainer.getInstance(StopPathPredictionCache.class);
-    private final DataDbLogger dataDbLogger = SingletonContainer.getInstance(DataDbLogger.class);
+    protected final FrequencyBasedHistoricalAverageCache frequencyBasedHistoricalAverageCache;
+
+    public HistoricalAveragePredictionGeneratorImpl(DbConfig dbConfig,
+                                                    StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface,
+                                                    TripDataHistoryCacheInterface tripDataHistoryCacheInterface,
+                                                    VehicleStateManager vehicleStateManager,
+                                                    HoldingTimeCache holdingTimeCache,
+                                                    StopPathPredictionCache stopPathPredictionCache,
+                                                    TravelTimes travelTimes,
+                                                    DataDbLogger dataDbLogger,
+                                                    VehicleDataCache vehicleDataCache,
+                                                    FrequencyBasedHistoricalAverageCache frequencyBasedHistoricalAverageCache,
+                                                    HoldingTimeGenerator holdingTimeGenerator,
+                                                    BiasAdjuster biasAdjuster,
+                                                    TravelTimeDataFilter travelTimeDataFilter) {
+        super(dbConfig, stopArrivalDepartureCacheInterface, tripDataHistoryCacheInterface, vehicleStateManager, holdingTimeCache, stopPathPredictionCache, travelTimes, dataDbLogger, vehicleDataCache, holdingTimeGenerator, biasAdjuster, travelTimeDataFilter);
+        this.frequencyBasedHistoricalAverageCache = frequencyBasedHistoricalAverageCache;
+    }
 
     /* (non-Javadoc)
      * @see org.transitclock.core.predictiongenerator.KalmanPredictionGeneratorImpl#getTravelTimeForPath(org.transitclock.core.Indices, org.transitclock.db.structs.AvlReport)

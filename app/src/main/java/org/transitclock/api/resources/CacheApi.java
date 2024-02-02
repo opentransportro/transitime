@@ -17,6 +17,7 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.springframework.web.bind.annotation.RestController;
 import org.transitclock.api.data.ApiArrivalDepartures;
 import org.transitclock.api.data.ApiCacheDetails;
 import org.transitclock.api.data.ApiHistoricalAverage;
@@ -46,8 +47,19 @@ import org.transitclock.service.contract.PredictionAnalysisInterface;
  *
  * @author SkiBu Smith
  */
+@RestController
 @Path("/key/{key}/agency/{agency}")
 public class CacheApi {
+    private final CacheQueryInterface cacheQueryInterface;
+    private final PredictionAnalysisInterface predictionAnalysisInterface;
+    private final HoldingTimeInterface holdingTimeInterface;
+
+    public CacheApi(CacheQueryInterface cacheQueryInterface, PredictionAnalysisInterface predictionAnalysisInterface, HoldingTimeInterface holdingTimeInterface) {
+        this.cacheQueryInterface = cacheQueryInterface;
+        this.predictionAnalysisInterface = predictionAnalysisInterface;
+        this.holdingTimeInterface = holdingTimeInterface;
+    }
+
 
     @Path("/command/kalmanerrorcachekeys")
     @GET
@@ -59,9 +71,7 @@ public class CacheApi {
     public Response getKalmanErrorCacheKeys(@BeanParam StandardParameters stdParameters)
             throws WebApplicationException {
         try {
-            CacheQueryInterface cachequeryInterface = stdParameters.getCacheQueryInterface();
-
-            List<IpcKalmanErrorCacheKey> result = cachequeryInterface.getKalmanErrorCacheKeys();
+            List<IpcKalmanErrorCacheKey> result = cacheQueryInterface.getKalmanErrorCacheKeys();
 
             ApiKalmanErrorCacheKeys keys = new ApiKalmanErrorCacheKeys(result);
 
@@ -87,10 +97,8 @@ public class CacheApi {
     public Response getSchedulesBasedHistoricalAverageCacheKeys(@BeanParam StandardParameters stdParameters)
             throws WebApplicationException {
         try {
-            CacheQueryInterface cachequeryInterface = stdParameters.getCacheQueryInterface();
-
             List<IpcHistoricalAverageCacheKey> result =
-                    cachequeryInterface.getScheduledBasedHistoricalAverageCacheKeys();
+                    cacheQueryInterface.getScheduledBasedHistoricalAverageCacheKeys();
 
             ApiHistoricalAverageCacheKeys keys = new ApiHistoricalAverageCacheKeys(result);
 
@@ -118,10 +126,8 @@ public class CacheApi {
     public Response getFrequencyBasedHistoricalAverageCacheKeys(@BeanParam StandardParameters stdParameters)
             throws WebApplicationException {
         try {
-            CacheQueryInterface cachequeryInterface = stdParameters.getCacheQueryInterface();
-
             List<IpcHistoricalAverageCacheKey> result =
-                    cachequeryInterface.getFrequencyBasedHistoricalAverageCacheKeys();
+                    cacheQueryInterface.getFrequencyBasedHistoricalAverageCacheKeys();
 
             ApiHistoricalAverageCacheKeys keys = new ApiHistoricalAverageCacheKeys(result);
 
@@ -145,9 +151,7 @@ public class CacheApi {
     public Response getHoldingTimeCacheKeys(@BeanParam StandardParameters stdParameters)
             throws WebApplicationException {
         try {
-            CacheQueryInterface cachequeryInterface = stdParameters.getCacheQueryInterface();
-
-            List<IpcHoldingTimeCacheKey> result = cachequeryInterface.getHoldingTimeCacheKeys();
+            List<IpcHoldingTimeCacheKey> result = cacheQueryInterface.getHoldingTimeCacheKeys();
 
             ApiHoldingTimeCacheKeys keys = new ApiHoldingTimeCacheKeys(result);
 
@@ -183,10 +187,7 @@ public class CacheApi {
                     String cachename)
             throws WebApplicationException {
         try {
-
-            CacheQueryInterface cachequeryInterface = stdParameters.getCacheQueryInterface();
-
-            Integer size = cachequeryInterface.entriesInCache(cachename);
+            Integer size = cacheQueryInterface.entriesInCache(cachename);
 
             if (size != null) return stdParameters.createResponse(new ApiCacheDetails(cachename, size));
             else throw new Exception("No cache named:" + cachename);
@@ -212,10 +213,7 @@ public class CacheApi {
             @QueryParam(value = "date") Date date)
             throws WebApplicationException {
         try {
-
-            CacheQueryInterface cachequeryInterface = stdParameters.getCacheQueryInterface();
-
-            List<IpcArrivalDeparture> result = cachequeryInterface.getStopArrivalDepartures(stopid);
+            List<IpcArrivalDeparture> result = cacheQueryInterface.getStopArrivalDepartures(stopid);
 
             ApiArrivalDepartures apiResult = new ApiArrivalDepartures(result);
             Response response = stdParameters.createResponse(apiResult);
@@ -249,11 +247,10 @@ public class CacheApi {
             throws WebApplicationException {
         try {
 
-            CacheQueryInterface cachequeryInterface = stdParameters.getCacheQueryInterface();
             LocalDate queryDate = null;
             if (date != null) queryDate = date.getDate();
             List<IpcArrivalDeparture> result =
-                    cachequeryInterface.getTripArrivalDepartures(tripid, queryDate, starttime);
+                    cacheQueryInterface.getTripArrivalDepartures(tripid, queryDate, starttime);
 
             ApiArrivalDepartures apiResult = new ApiArrivalDepartures(result);
             Response response = stdParameters.createResponse(apiResult);
@@ -282,10 +279,7 @@ public class CacheApi {
             @Parameter(description = "Stop path index", required = true) @QueryParam(value = "stopPathIndex")
                     Integer stopPathIndex) {
         try {
-
-            CacheQueryInterface cachequeryInterface = stdParameters.getCacheQueryInterface();
-
-            IpcHistoricalAverage result = cachequeryInterface.getHistoricalAverage(tripId, stopPathIndex);
+            IpcHistoricalAverage result = cacheQueryInterface.getHistoricalAverage(tripId, stopPathIndex);
 
             Response response = stdParameters.createResponse(new ApiHistoricalAverage(result));
 
@@ -311,9 +305,7 @@ public class CacheApi {
                     Integer stopPathIndex) {
         try {
 
-            CacheQueryInterface cachequeryInterface = stdParameters.getCacheQueryInterface();
-
-            Double result = cachequeryInterface.getKalmanErrorValue(tripId, stopPathIndex);
+            Double result = cacheQueryInterface.getKalmanErrorValue(tripId, stopPathIndex);
 
             Response response = stdParameters.createResponse(result);
 
@@ -359,8 +351,6 @@ public class CacheApi {
                         yesterdatMidnight.atZone(ZoneId.systemDefault()).toInstant());
             }
 
-            PredictionAnalysisInterface predictionAnalysisInterface = stdParameters.getPredictionAnalysisInterface();
-
             List<IpcPredictionForStopPath> result = predictionAnalysisInterface.getCachedTravelTimePredictions(
                     tripId, stopPathIndex, start_date, end_date, algorithm);
 
@@ -386,8 +376,7 @@ public class CacheApi {
             @Parameter(description = "Stop id", required = true) @QueryParam(value = "stopId") String stopId,
             @Parameter(description = "Vehicle id", required = true) @QueryParam(value = "vehicleId") String vehicleId) {
         try {
-            HoldingTimeInterface holdingtimeInterface = stdParameters.getHoldingTimeInterface();
-            IpcHoldingTime result = holdingtimeInterface.getHoldTime(stopId, vehicleId);
+            IpcHoldingTime result = holdingTimeInterface.getHoldTime(stopId, vehicleId);
 
             Response response = stdParameters.createResponse(new ApiHoldingTime(result));
 

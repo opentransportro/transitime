@@ -5,9 +5,11 @@ import com.google.transit.realtime.GtfsRealtime.*;
 import com.google.transit.realtime.GtfsRealtime.FeedHeader.Incrementality;
 import com.google.transit.realtime.GtfsRealtime.TripDescriptor.ScheduleRelationship;
 import com.google.transit.realtime.GtfsRealtime.VehiclePosition.VehicleStopStatus;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.api.utils.AgencyTimezoneCache;
+import org.transitclock.service.contract.ConfigInterface;
 import org.transitclock.service.dto.IpcAvl;
 import org.transitclock.service.dto.IpcVehicleConfig;
 import org.transitclock.service.dto.IpcVehicleGtfsRealtime;
@@ -26,6 +28,7 @@ import java.util.Date;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class GtfsRtVehicleFeed {
 
     private final String agencyId;
@@ -35,12 +38,12 @@ public class GtfsRtVehicleFeed {
 
     private SimpleDateFormat gtfsRealtimeTimeFormatter = new SimpleDateFormat("HH:mm:ss");
 
-    private static final Logger logger = LoggerFactory.getLogger(GtfsRtVehicleFeed.class);
+    private final VehiclesInterface vehiclesInterface;
 
-    public GtfsRtVehicleFeed(String agencyId) {
+    public GtfsRtVehicleFeed(String agencyId, VehiclesInterface vehiclesInterface, ConfigInterface configInterface) {
         this.agencyId = agencyId;
-
-        this.gtfsRealtimeDateFormatter.setTimeZone(AgencyTimezoneCache.get(agencyId));
+        this.gtfsRealtimeDateFormatter.setTimeZone(AgencyTimezoneCache.get(agencyId, configInterface));
+        this.vehiclesInterface = vehiclesInterface;
     }
 
     /**
@@ -213,7 +216,6 @@ public class GtfsRtVehicleFeed {
      * @return Collection of Vehicle objects, or null if not available.
      */
     private Collection<IpcVehicleGtfsRealtime> getVehicles() {
-        VehiclesInterface vehiclesInterface = VehiclesServiceImpl.instance();
         Collection<IpcVehicleGtfsRealtime> vehicles = null;
         try {
             vehicles = vehiclesInterface.getGtfsRealtime();
@@ -252,7 +254,7 @@ public class GtfsRtVehicleFeed {
      * @param agencyId
      * @return
      */
-    public static FeedMessage getPossiblyCachedMessage(String agencyId) {
+    public static FeedMessage getPossiblyCachedMessage(String agencyId, VehiclesInterface vehiclesInterface, ConfigInterface configInterface) {
         FeedMessage feedMessage = vehicleFeedDataCache.get(agencyId);
         if (feedMessage != null) return feedMessage;
 
@@ -262,7 +264,7 @@ public class GtfsRtVehicleFeed {
             feedMessage = vehicleFeedDataCache.get(agencyId);
             if (feedMessage != null) return feedMessage;
 
-            GtfsRtVehicleFeed feed = new GtfsRtVehicleFeed(agencyId);
+            GtfsRtVehicleFeed feed = new GtfsRtVehicleFeed(agencyId, vehiclesInterface, configInterface);
             feedMessage = feed.createMessage();
             vehicleFeedDataCache.put(agencyId, feedMessage);
         }

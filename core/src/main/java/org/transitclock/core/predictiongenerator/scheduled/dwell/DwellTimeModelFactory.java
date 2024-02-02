@@ -1,8 +1,8 @@
 /* (C)2023 */
 package org.transitclock.core.predictiongenerator.scheduled.dwell;
 
-import org.transitclock.annotations.Bean;
-import org.transitclock.annotations.Configuration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.transitclock.config.StringConfigValue;
 import org.transitclock.utils.ClassInstantiator;
 
@@ -18,7 +18,7 @@ public class DwellTimeModelFactory {
             "Specifies the name of the class used to predict dwell.");
 
     @Bean
-    public static DwellModel getInstance() {
+    public DwellModel dwellModel() {
         return ClassInstantiator.instantiate(className.getValue(), DwellModel.class);
     }
 }

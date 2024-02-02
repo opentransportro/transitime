@@ -2,7 +2,7 @@
 package org.transitclock.core;
 
 import java.io.Serializable;
-import org.transitclock.Core;
+
 import org.transitclock.SingletonContainer;
 import org.transitclock.domain.structs.ArrivalDeparture;
 import org.transitclock.domain.structs.Block;

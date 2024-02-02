@@ -5,6 +5,8 @@ import java.rmi.RemoteException;
 import java.util.Date;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 import org.transitclock.service.dto.IpcServerStatus;
 import org.transitclock.service.contract.ServerStatusInterface;
 import org.transitclock.monitoring.AgencyMonitor;
@@ -15,36 +17,13 @@ import org.transitclock.utils.SystemTime;
  *
  * @author SkiBu Smith
  */
+@Service
 @Slf4j
 public class ServerStatusServiceImpl implements ServerStatusInterface {
 
-    // Should only be accessed as singleton class
-    private static ServerStatusServiceImpl singleton;
-
-    public static ServerStatusInterface instance() {
-        return singleton;
-    }
-
-    /**
-     * @param agencyId
-     * @return
-     */
-    public static ServerStatusServiceImpl start(String agencyId) {
-        if (singleton == null) {
-            singleton = new ServerStatusServiceImpl(agencyId);
-        }
-
-        return singleton;
-    }
-
     private final String agencyId;
-    /**
-     * Constructor is private because singleton class
-     *
-     * @param projectId
-     * @param objectName
-     */
-    private ServerStatusServiceImpl(String projectId) {
+
+    private ServerStatusServiceImpl(@Value("${transitclock.code.agencyId}") String projectId) {
         agencyId = projectId;
     }
 

@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
-import org.transitclock.Core;
+import org.springframework.stereotype.Service;
 import org.transitclock.SingletonContainer;
 import org.transitclock.core.dataCache.VehicleDataCache;
 import org.transitclock.domain.structs.Agency;
@@ -34,40 +34,20 @@ import org.transitclock.service.contract.ConfigInterface;
  *
  * @author SkiBu Smith
  */
+@Service
 @Slf4j
 public class ConfigServiceImpl implements ConfigInterface {
 
-    // Should only be accessed as singleton class
-    private static ConfigServiceImpl singleton;
-
-
-    public static ConfigInterface instance() {
-        return singleton;
-    }
-
-    /**
-     * Starts up the ConfigServer so that RMI calls can query for configuration data. This will
-     * automatically cause the object to continue to run and serve requests.
-     *
-     * @return the singleton ConfigServer object. Usually does not need to used since the server
-     *     will be fully running.
-     */
-    public static ConfigServiceImpl start() {
-        if (singleton == null) {
-            singleton = new ConfigServiceImpl();
-        }
-
-        return singleton;
-    }
-
-    private final VehicleDataCache vehicleDataCache = SingletonContainer.getInstance(VehicleDataCache.class);
-    private final DbConfig dbConfig = SingletonContainer.getInstance(DbConfig.class);
+    private final VehicleDataCache vehicleDataCache;
+    private final DbConfig dbConfig;
     /**
      * Constructor. Made private so that can only be instantiated by get(). Doesn't actually do
      * anything since all the work is done in the superclass constructor.
      *
      */
-    private ConfigServiceImpl() {
+    public ConfigServiceImpl(VehicleDataCache vehicleDataCache, DbConfig dbConfig) {
+        this.vehicleDataCache = vehicleDataCache;
+        this.dbConfig = dbConfig;
     }
 
     /**

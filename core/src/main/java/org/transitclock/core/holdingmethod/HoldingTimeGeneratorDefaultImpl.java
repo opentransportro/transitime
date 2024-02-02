@@ -2,7 +2,6 @@
 package org.transitclock.core.holdingmethod;
 
 import lombok.extern.slf4j.Slf4j;
-import org.transitclock.Core;
 import org.transitclock.SingletonContainer;
 import org.transitclock.config.data.HoldingConfig;
 import org.transitclock.core.VehicleState;
@@ -32,11 +31,21 @@ import java.util.List;
 @Slf4j
 public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
 
-    private final VehicleStateManager vehicleStateManager = SingletonContainer.getInstance(VehicleStateManager.class);
-    private final HoldingTimeCache holdingTimeCache = SingletonContainer.getInstance(HoldingTimeCache.class);
-    private final VehicleDataCache vehicleDataCache = SingletonContainer.getInstance(VehicleDataCache.class);
-    private final PredictionDataCache predictionDataCache = SingletonContainer.getInstance(PredictionDataCache.class);
-    private final DataDbLogger dataDbLogger = SingletonContainer.getInstance(DataDbLogger.class);
+    private final VehicleStateManager vehicleStateManager;
+    private final HoldingTimeCache holdingTimeCache;
+    private final VehicleDataCache vehicleDataCache;
+    private final PredictionDataCache predictionDataCache;
+    private final DataDbLogger dataDbLogger;
+    private final StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface;
+
+    public HoldingTimeGeneratorDefaultImpl(VehicleStateManager vehicleStateManager, HoldingTimeCache holdingTimeCache, VehicleDataCache vehicleDataCache, PredictionDataCache predictionDataCache, DataDbLogger dataDbLogger, StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface) {
+        this.vehicleStateManager = vehicleStateManager;
+        this.holdingTimeCache = holdingTimeCache;
+        this.vehicleDataCache = vehicleDataCache;
+        this.predictionDataCache = predictionDataCache;
+        this.dataDbLogger = dataDbLogger;
+        this.stopArrivalDepartureCacheInterface = stopArrivalDepartureCacheInterface;
+    }
 
     public HoldingTime generateHoldingTime(VehicleState vehicleState, IpcArrivalDeparture event) {
 
@@ -350,8 +359,7 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
             String currentVehicleId, String tripId, String stopId, Date time) {
         StopArrivalDepartureCacheKey currentStopKey = new StopArrivalDepartureCacheKey(stopId, time);
 
-        List<IpcArrivalDeparture> currentStopList =
-                StopArrivalDepartureCacheFactory.getInstance().getStopHistory(currentStopKey);
+        List<IpcArrivalDeparture> currentStopList = stopArrivalDepartureCacheInterface.getStopHistory(currentStopKey);
 
         IpcArrivalDeparture closestDepartureEvent = null;
         if (currentStopList != null) {
@@ -391,8 +399,7 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
     private IpcArrivalDeparture getLastVehicleArrivalEvent(String stopid, String vehicleid, Date time) {
         StopArrivalDepartureCacheKey currentStopKey = new StopArrivalDepartureCacheKey(stopid, time);
 
-        List<IpcArrivalDeparture> currentStopList =
-                StopArrivalDepartureCacheFactory.getInstance().getStopHistory(currentStopKey);
+        List<IpcArrivalDeparture> currentStopList = stopArrivalDepartureCacheInterface.getStopHistory(currentStopKey);
 
         IpcArrivalDeparture closestArrivalEvent = null;
 
@@ -818,8 +825,7 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
                     IpcArrivalDeparture lastArrival = getLastVehicleArrivalEvent(
                             arrivalDeparture.getStopId(), otherState.getVehicleId(), arrivalDeparture.getAvlTime());
 
-                    HoldingTime otherHoldingTime =
-                            HoldingTimeGeneratorFactory.getInstance().generateHoldingTime(otherState, lastArrival);
+                    HoldingTime otherHoldingTime = generateHoldingTime(otherState, lastArrival);
 
                     holdingTimeCache.putHoldingTime(otherHoldingTime);
 

@@ -13,8 +13,18 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-cache</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <scope>annotationProcessor</scope>
         </dependency>
         <dependency>
             <groupId>com.beust</groupId>
@@ -47,7 +57,6 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>42.6.0</version>
             <scope>runtime</scope>
         </dependency>
 
@@ -55,38 +64,11 @@
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
         </dependency>
-
         <dependency>
-            <groupId>org.hibernate.orm</groupId>
-            <artifactId>hibernate-core</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-logging</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.hibernate.orm</groupId>
-            <artifactId>hibernate-hikaricp</artifactId>
-        </dependency>
-
-        <!-- For logging -->
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>2.0.11</version>
-        </dependency>
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>1.4.14</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>jakarta.servlet</groupId>
-                    <artifactId>jakarta.servlet-api</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>jakarta.servlet.jsp</groupId>
-                    <artifactId>jakarta.servlet.jsp-api</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
         <!-- For many java utilities, such as StringEscapeUtils -->
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -158,11 +140,6 @@
             <version>4.0.0</version>
         </dependency>
 
-        <dependency>
-            <groupId>jakarta.servlet</groupId>
-            <artifactId>jakarta.servlet-api</artifactId>
-        </dependency>
-
         <!--  OLS regression algorithm -->
         <dependency>
             <groupId>com.github.haifengl</groupId>
@@ -188,13 +165,6 @@
         <dependency>
             <groupId>jakarta.xml.bind</groupId>
             <artifactId>jakarta.xml.bind-api</artifactId>
-        </dependency>
-
-        <!-- JAXB RI, Jakarta XML Binding -->
-        <dependency>
-            <groupId>org.glassfish.jaxb</groupId>
-            <artifactId>jaxb-runtime</artifactId>
-            <scope>runtime</scope>
         </dependency>
     </dependencies>
 

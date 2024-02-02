@@ -6,7 +6,6 @@ import java.util.Date;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
-import org.transitclock.Core;
 import org.transitclock.SingletonContainer;
 import org.transitclock.gtfs.DbConfig;
 

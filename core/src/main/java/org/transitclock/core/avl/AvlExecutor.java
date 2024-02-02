@@ -2,7 +2,7 @@
 package org.transitclock.core.avl;
 
 import lombok.extern.slf4j.Slf4j;
-import org.transitclock.annotations.Component;
+import org.springframework.stereotype.Component;
 import org.transitclock.config.data.AgencyConfig;
 import org.transitclock.config.data.AvlConfig;
 import org.transitclock.core.AvlProcessor;
@@ -29,7 +29,6 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 @Component
 public class AvlExecutor {
-
     private static final int MAX_THREADS = 25;
     private final ThreadPoolExecutor avlClientExecutor;
     private final AvlReportProcessorFactory avlReportProcessorFactory;

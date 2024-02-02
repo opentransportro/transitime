@@ -3,10 +3,8 @@ package org.transitclock.core;
 
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
-import org.transitclock.Core;
+import org.springframework.stereotype.Component;
 import org.transitclock.ModuleRegistry;
-import org.transitclock.SingletonContainer;
-import org.transitclock.annotations.Component;
 import org.transitclock.config.data.AgencyConfig;
 import org.transitclock.config.data.BlockAssignerConfig;
 import org.transitclock.config.data.CoreConfig;
@@ -41,19 +39,29 @@ public class AvlProcessor {
     // can determine if AVL feed is up.
     private AvlReport lastRegularReportProcessed;
 
-    private final VehicleStateManager vehicleStateManager = SingletonContainer.getInstance(VehicleStateManager.class);
-    private final VehicleDataCache vehicleDataCache = SingletonContainer.getInstance(VehicleDataCache.class);
-    private final PredictionDataCache predictionDataCache = SingletonContainer.getInstance(PredictionDataCache.class);
-    private final TemporalMatcher temporalMatcher = SingletonContainer.getInstance(TemporalMatcher.class);
-    private final BlockAssigner blockAssigner = SingletonContainer.getInstance(BlockAssigner.class);
-    private final MatchProcessor matchProcessor = SingletonContainer.getInstance(MatchProcessor.class);
-    private final DataDbLogger dataDbLogger = SingletonContainer.getInstance(DataDbLogger.class);
-    private final ServiceUtils serviceUtils = SingletonContainer.getInstance(ServiceUtils.class);
-    private final DbConfig dbConfig = SingletonContainer.getInstance(DbConfig.class);
+    private final VehicleStateManager vehicleStateManager;
+    private final VehicleDataCache vehicleDataCache;
+    private final PredictionDataCache predictionDataCache;
+    private final TemporalMatcher temporalMatcher;
+    private final BlockAssigner blockAssigner;
+    private final MatchProcessor matchProcessor;
+    private final DataDbLogger dataDbLogger;
+    private final ServiceUtils serviceUtils;
+    private final DbConfig dbConfig;
     /*
      * Singleton class so shouldn't use constructor so declared private
      */
-    public AvlProcessor() {}
+    public AvlProcessor(VehicleStateManager vehicleStateManager, VehicleDataCache vehicleDataCache, PredictionDataCache predictionDataCache, TemporalMatcher temporalMatcher, BlockAssigner blockAssigner, MatchProcessor matchProcessor, DataDbLogger dataDbLogger, ServiceUtils serviceUtils, DbConfig dbConfig) {
+        this.vehicleStateManager = vehicleStateManager;
+        this.vehicleDataCache = vehicleDataCache;
+        this.predictionDataCache = predictionDataCache;
+        this.temporalMatcher = temporalMatcher;
+        this.blockAssigner = blockAssigner;
+        this.matchProcessor = matchProcessor;
+        this.dataDbLogger = dataDbLogger;
+        this.serviceUtils = serviceUtils;
+        this.dbConfig = dbConfig;
+    }
 
     /**
      * Removes predictions and the match for the vehicle and marks it as unpredictable. Updates

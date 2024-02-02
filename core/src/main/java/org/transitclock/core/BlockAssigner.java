@@ -3,9 +3,7 @@ package org.transitclock.core;
 
 import java.util.Collection;
 import lombok.extern.slf4j.Slf4j;
-import org.transitclock.Core;
-import org.transitclock.SingletonContainer;
-import org.transitclock.annotations.Component;
+import org.springframework.stereotype.Component;
 import org.transitclock.domain.structs.AvlReport;
 import org.transitclock.domain.structs.Block;
 import org.transitclock.domain.structs.Trip;
@@ -20,13 +18,12 @@ import org.transitclock.utils.Time;
 @Slf4j
 @Component
 public class BlockAssigner {
-
     private final ServiceUtils serviceUtils;
     private final DbConfig dbConfig;
     /** Constructor private since singleton class */
-    public BlockAssigner() {
-        serviceUtils = SingletonContainer.getInstance(ServiceUtils.class);
-        dbConfig = SingletonContainer.getInstance(DbConfig.class);
+    public BlockAssigner(ServiceUtils serviceUtils, DbConfig dbConfig) {
+        this.serviceUtils = serviceUtils;
+        this.dbConfig = dbConfig;
     }
 
     /**

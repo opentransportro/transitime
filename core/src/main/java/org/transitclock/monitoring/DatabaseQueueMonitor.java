@@ -1,7 +1,6 @@
 /* (C)2023 */
 package org.transitclock.monitoring;
 
-import org.transitclock.Core;
 import org.transitclock.SingletonContainer;
 import org.transitclock.config.data.MonitoringConfig;
 import org.transitclock.domain.hibernate.DataDbLogger;

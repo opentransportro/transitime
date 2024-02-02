@@ -4,8 +4,7 @@ package org.transitclock.core.dataCache;
 import lombok.extern.slf4j.Slf4j;
 import org.ehcache.Cache;
 import org.ehcache.CacheManager;
-import org.transitclock.SingletonContainer;
-import org.transitclock.annotations.Component;
+import org.springframework.stereotype.Component;
 import org.transitclock.domain.structs.PredictionForStopPath;
 
 import java.util.ArrayList;
@@ -15,11 +14,9 @@ import java.util.List;
 @Component
 public class StopPathPredictionCache {
     private static final String cacheName = "StopPathPredictionCache";
-
     private final Cache<StopPathCacheKey, StopPredictions> cache;
 
-    public StopPathPredictionCache() {
-        CacheManager cm = SingletonContainer.getInstance(CacheManager.class);
+    public StopPathPredictionCache(CacheManager cm) {
         cache = cm.getCache(cacheName, StopPathCacheKey.class, StopPredictions.class);
     }
 

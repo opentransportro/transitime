@@ -4,9 +4,8 @@ package org.transitclock.core;
 import java.util.Date;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.transitclock.Core;
+import org.springframework.stereotype.Component;
 import org.transitclock.SingletonContainer;
-import org.transitclock.annotations.Component;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.domain.structs.AvlReport;
 import org.transitclock.domain.structs.Location;
@@ -24,9 +23,11 @@ import org.transitclock.utils.Time;
 @Slf4j
 @Component
 public class TemporalMatcher {
-    private static final TravelTimes travelTimes = SingletonContainer.getInstance(TravelTimes.class);
+    private final TravelTimes travelTimes;
 
-    public TemporalMatcher() {}
+    public TemporalMatcher(TravelTimes travelTimes) {
+        this.travelTimes = travelTimes;
+    }
 
     /**
      * For the spatial match, determines how far off in time the vehicle is from what is expected
@@ -45,7 +46,7 @@ public class TemporalMatcher {
      * @return The TemporalDifference between the AVL time and when the vehicle is expected to be at
      *     that match. Returns null if the temporal difference is beyond the allowable bounds.
      */
-    private static TemporalDifference determineHowFarOffScheduledTime(
+    private TemporalDifference determineHowFarOffScheduledTime(
             String vehicleId, Date date, SpatialMatch spatialMatch, boolean isFirstSpatialMatch) {
 
         // check to see if we are frequency based
