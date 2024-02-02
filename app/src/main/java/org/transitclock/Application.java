@@ -111,7 +111,7 @@ public class Application {
                 true,
                 DbSetupConfig.getDbName(),
                 DbSetupConfig.getDbType(),
-                "localhost",
+                DbSetupConfig.getDbHost(),
                 DbSetupConfig.getDbUserName(),
                 DbSetupConfig.getDbPassword());
 

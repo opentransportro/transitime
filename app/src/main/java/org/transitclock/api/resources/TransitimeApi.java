@@ -303,7 +303,8 @@ public class TransitimeApi {
             tags = {"base data", "trip"})
     public Response getTrips(
             @BeanParam StandardParameters stdParameters,
-            @Parameter(description = "Date(YYYY-MM-DD).") @QueryParam(value = "date") String date)
+            @Parameter(description = "Date(YYYY-MM-DD).", required = true)
+            @QueryParam(value = "date") String date)
             throws WebApplicationException {
 
         // Make sure request is valid

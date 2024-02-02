@@ -79,7 +79,6 @@ public class GenericQuery {
      */
     public static Connection getConnection(
             String dbType, String dbHost, String dbName, String dbUserName, String dbPassword) throws SQLException {
-        Connection conn = null;
         Properties connectionProps = new Properties();
         connectionProps.put("user", dbUserName);
         connectionProps.put("password", dbPassword);
@@ -93,15 +92,13 @@ public class GenericQuery {
         // that used for the web server then need to load in the driver for
         // the agency database manually by using Class.forName().
         try {
-            Class.forName("com.mysql.jdbc.Driver");
             Class.forName("org.postgresql.Driver");
         } catch (ClassNotFoundException e) {
             logger.error("Could not load in db driver for GenericQuery. {}", e.getMessage());
         }
 
         String url = "jdbc:" + dbType + "://" + dbHost + "/" + dbName;
-        conn = DriverManager.getConnection(url, connectionProps);
-        return conn;
+        return DriverManager.getConnection(url, connectionProps);
     }
 
     /**
