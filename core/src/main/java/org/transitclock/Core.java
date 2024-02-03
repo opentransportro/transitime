@@ -11,7 +11,7 @@ import org.transitclock.core.TimeoutHandlerModule;
 import org.transitclock.core.dataCache.PredictionDataCache;
 import org.transitclock.core.dataCache.VehicleDataCache;
 import org.transitclock.domain.hibernate.DataDbLogger;
-import org.transitclock.domain.structs.ActiveRevisions;
+import org.transitclock.domain.structs.ActiveRevision;
 import org.transitclock.domain.structs.Agency;
 import org.transitclock.gtfs.DbConfig;
 import org.transitclock.service.*;
@@ -62,15 +62,15 @@ public class Core {
      */
      private Core(@NonNull String agencyId) {
          // Read in config rev from ActiveRevisions table in db
-         ActiveRevisions activeRevisions = ActiveRevisions.get(agencyId);
+         ActiveRevision activeRevision = ActiveRevision.get(agencyId);
 
          // If config rev not set properly then simply log error.
          // Originally would also exit() but found that want system to
          // work even without GTFS configuration so that can test AVL feed.
-         if (activeRevisions == null || !activeRevisions.isValid()) {
-             logger.error("ActiveRevisions in database is not valid. The configuration revs must be set to proper values. {}", activeRevisions);
+         if (activeRevision == null || !activeRevision.isValid()) {
+             logger.error("ActiveRevisions in database is not valid. The configuration revs must be set to proper values. {}", activeRevision);
          }
-         int configRev = activeRevisions.getConfigRev();
+         int configRev = activeRevision.getConfigRev();
 
          // Set the timezone so that when dates are read from db or are logged
          // the time will be correct. Therefore, this needs to be done right at

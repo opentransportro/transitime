@@ -6,10 +6,7 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -22,38 +19,36 @@ import org.transitclock.Core;
  * @author Hubert GoEuropa
  */
 @Entity
-@Getter
-@Setter
-@EqualsAndHashCode
-@ToString
+@Data
 @DynamicUpdate
-@Table(name = "VehicleToBlockConfigs")
+@Table(name = "vehicle_to_block_configs")
 public class VehicleToBlockConfig implements Serializable {
 
     // ID of vehicle
     @Id
+    @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
     @Id
-    @Column(length = 60)
+    @Column(name = "vehicle_id", length = 60)
     private final String vehicleId;
 
-    @Column(nullable = false)
+    @Column(name = "assignment_date", nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private final Date assignmentDate;
 
-    @Column(length = 60)
+    @Column(name = "block_id", length = 60)
     private String blockId;
 
-    @Column(length = 60)
+    @Column(name = "trip_id", length = 60)
     private String tripId;
 
-    @Column
+    @Column(name = "valid_from")
     @Temporal(TemporalType.TIMESTAMP)
     private Date validFrom;
 
-    @Column
+    @Column(name = "valid_to")
     @Temporal(TemporalType.TIMESTAMP)
     private Date validTo;
 

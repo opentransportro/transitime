@@ -31,20 +31,24 @@ import java.util.Map;
 @Entity
 @Getter
 @DynamicUpdate
-@Table(name = "TripPatterns")
+@Table(name = "trip_patterns")
 public class TripPattern implements Serializable, Lifecycle {
+    // For specifying max size of the trip pattern ID
+    public static final int TRIP_PATTERN_ID_LENGTH = 120;
+    // For specifying max size of headsign
+    public static final int HEADSIGN_LENGTH = 255;
 
     // Which configuration revision used
-    @Column
     @Id
+    @Column(name = "config_rev")
     private final int configRev;
 
     // The ID of the trip pattern
-    @Column(length = TRIP_PATTERN_ID_LENGTH)
     @Id
+    @Column(name = "id", length = TRIP_PATTERN_ID_LENGTH)
     private final String id;
 
-    @Column(length = 60)
+    @Column(name = "shape_id", length = 60)
     protected final String shapeId;
 
     // For the List of Paths want to use FetchType.EAGER
@@ -54,29 +58,29 @@ public class TripPattern implements Serializable, Lifecycle {
     // Paths are automatically stored.
     @OneToMany(fetch = FetchType.EAGER)
     @Cascade({CascadeType.SAVE_UPDATE})
-    @JoinTable(name="TripPattern_to_Path_joinTable",
+    @JoinTable(name="trip_pattern_to_path",
             joinColumns= {
-                    @JoinColumn(name="trippattern_id", referencedColumnName="id"),
-                    @JoinColumn(name="trippatterns_configrev", referencedColumnName="configrev")
+                    @JoinColumn(name="trip_pattern_id", referencedColumnName="id"),
+                    @JoinColumn(name="trip_pattern_configrev", referencedColumnName="config_rev")
             },
             inverseJoinColumns= {
-                    @JoinColumn(name="stoppaths_trippatternid", referencedColumnName="trippatternid"),
-                    @JoinColumn(name="stoppaths_stoppathid", referencedColumnName="stoppathid"),
-                    @JoinColumn(name="stoppaths_configrev", referencedColumnName="configRev")
+                    @JoinColumn(name="stop_path_trip_pattern_id", referencedColumnName="trip_pattern_id"),
+                    @JoinColumn(name="stop_path_stop_path_id", referencedColumnName="stop_path_id"),
+                    @JoinColumn(name="stop_path_config_rev", referencedColumnName="config_Rev")
             })
-    @OrderColumn(name = "listIndex")
+    @OrderColumn(name = "list_index")
     protected final List<StopPath> stopPaths;
 
-    @Column(length = HEADSIGN_LENGTH)
+    @Column(name = "headsign", length = HEADSIGN_LENGTH)
     private String headsign;
 
-    @Column(length = 60)
+    @Column(name = "direction_id", length = 60)
     private final String directionId;
 
-    @Column(length = 60)
+    @Column(name = "route_id", length = 60)
     private final String routeId;
 
-    @Column(length = 80)
+    @Column(name = "route_short_name", length = 80)
     private final String routeShortName;
 
     // So know lat lon range of the trip pattern
@@ -95,11 +99,6 @@ public class TripPattern implements Serializable, Lifecycle {
     // EntityManager but we are using regular Hibernate sessions.
     @Transient
     protected final Map<String, StopPath> stopPathsMap = new HashMap<>();
-
-    // For specifying max size of the trip pattern ID
-    public static final int TRIP_PATTERN_ID_LENGTH = 120;
-    // For specifying max size of headsign
-    public static final int HEADSIGN_LENGTH = 255;
 
     /**
      * Create a TripPattern. For when processing GTFS data.
@@ -236,10 +235,10 @@ public class TripPattern implements Serializable, Lifecycle {
                 .createNativeQuery("DELETE FROM StopPath_Locations WHERE StopPath_configRev=" + configRev)
                 .executeUpdate();
         rowsUpdated += session
-                .createNativeQuery("DELETE FROM StopPaths WHERE configRev=" + configRev)
+                .createNativeQuery("DELETE FROM stop_paths WHERE configRev=" + configRev)
                 .executeUpdate();
         rowsUpdated += session
-                .createNativeQuery("DELETE FROM TripPatterns WHERE configRev=" + configRev)
+                .createNativeQuery("DELETE FROM trip_patterns WHERE configRev=" + configRev)
                 .executeUpdate();
         return rowsUpdated;
 
@@ -286,7 +285,7 @@ public class TripPattern implements Serializable, Lifecycle {
      */
     @SuppressWarnings("unchecked")
     public static List<TripPattern> getTripPatterns(Session session, int configRev) throws HibernateException {
-        var query = session.createQuery("FROM TripPattern  WHERE configRev = :configRev");
+        var query = session.createQuery("FROM TripPattern WHERE configRev = :configRev");
         query.setParameter("configRev", configRev);
         return query.list();
     }

@@ -12,55 +12,56 @@ import org.transitclock.Core;
 @Data
 @DynamicUpdate
 @Table(
-        name = "HoldingTimes",
-        indexes = {@Index(name = "HoldingTimeIndex", columnList = "creationTime")})
+        name = "holding_times",
+        indexes = {@Index(name = "HoldingTimeIndex", columnList = "creation_time")})
 
 public class HoldingTime implements Serializable {
 
     @Id
+    @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
     // The revision of the configuration data that was being used
-    @Column
+    @Column(name = "config_rev")
     private final int configRev;
 
-    @Column
+    @Column(name = "holding_time")
     @Temporal(TemporalType.TIMESTAMP)
     private final Date holdingTime;
 
     // The time the AVL data was processed and the prediction was created.
-    @Column
+    @Column(name = "creation_time")
     @Temporal(TemporalType.TIMESTAMP)
     private final Date creationTime;
 
-    @Column(length = 60)
+    @Column(name = "vehicle_id", length = 60)
     private final String vehicleId;
 
-    @Column(length = 60)
+    @Column(name = "stop_id", length = 60)
     private final String stopId;
 
-    @Column(length = 60)
+    @Column(name = "trip_id", length = 60)
     private final String tripId;
 
-    @Column(length = 60)
+    @Column(name = "route_id", length = 60)
     private final String routeId;
 
-    @Column
+    @Column(name = "arrival_time")
     @Temporal(TemporalType.TIMESTAMP)
     private final Date arrivalTime;
 
-    @Column
+    @Column(name = "arrival_prediction_used")
     private boolean arrivalPredictionUsed;
 
-    @Column
+    @Column(name = "arrival_used")
     private boolean arrivalUsed;
 
-    @Column
+    @Column(name = "has_d1")
     private boolean hasD1;
 
-    @Column
-    int numberPredictionsUsed;
+    @Column(name = "number_prediction_used")
+    private int numberPredictionsUsed;
 
     public HoldingTime() {
         this.configRev = -1;

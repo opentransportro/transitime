@@ -6,10 +6,7 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -32,12 +29,9 @@ import org.transitclock.utils.SystemTime;
 @Entity
 @Slf4j
 @DynamicUpdate
-@EqualsAndHashCode
-@ToString
-@Getter
-@Setter
+@Data
 @Table(
-        name = "VehicleEvents",
+        name = "vehicle_events",
         indexes = {@Index(name = "VehicleEventsTimeIndex", columnList = "time")})
 public class VehicleEvent implements Serializable {
 
@@ -58,13 +52,13 @@ public class VehicleEvent implements Serializable {
 
     // System time of the event.
     @Id
-    @Column
+    @Column(name = "time")
     @Temporal(TemporalType.TIMESTAMP)
     private final Date time;
 
     // Important for understanding context of issue
     @Id
-    @Column(length = 60)
+    @Column(name = "vehicle_id", length = 60)
     private final String vehicleId;
 
     // Short descriptor of event. Not using an enumerator because don't
@@ -72,25 +66,25 @@ public class VehicleEvent implements Serializable {
     // created. It is an @Id because several events for a vehicle might
     // happen with the same exact timestamp.
     @Id
-    @Column(length = 60)
+    @Column(name = "event_type", length = 60)
     private final String eventType;
 
     // AVL time of the event. Should correspond to last AVL report time so that
     // can join with AVL report to get more info if necessary.
-    @Column
+    @Column(name = "avl_time")
     @Temporal(TemporalType.TIMESTAMP)
     private final Date avlTime;
 
     // A more verbose textual description of the event
     private static final int MAX_DESCRIPTION_LENGTH = 500;
 
-    @Column(length = MAX_DESCRIPTION_LENGTH)
+    @Column(name = "description", length = MAX_DESCRIPTION_LENGTH)
     private final String description;
 
     // The new state of the vehicle.
     // Using boolean instead of Boolean because it is a required element
     // and must therefore not be null.
-    @Column
+    @Column(name = "predictable")
     private final boolean predictable;
 
     // Whether this event caused the vehicle to become unpredictable. This
@@ -99,13 +93,13 @@ public class VehicleEvent implements Serializable {
     // out specifically why a vehicle became unpredictable.
     // Using boolean instead of Boolean because it is a required element
     // and must therefore not be null.
-    @Column
+    @Column(name = "became_unpredictable")
     private final boolean becameUnpredictable;
 
     // If event was initiated by a supervisor, such as logging out
     // a vehicle, then the login for the supervisor should also
     // be stored.
-    @Column(length = 60)
+    @Column(name = "supervisor", length = 60)
     private final String supervisor;
 
     // Latitude/longitude of vehicle when event occurred. Though this could
@@ -117,7 +111,7 @@ public class VehicleEvent implements Serializable {
 
     // Nice for providing context. Allows for query so can see all events
     // for a route.
-    @Column(length = 60)
+    @Column(name = "route_id", length = 60)
     private final String routeId;
 
     // Nice for providing context.
@@ -126,23 +120,23 @@ public class VehicleEvent implements Serializable {
     // routeShortName is more likely to stay consistent. Therefore
     // it is better for when querying for arrival/departure data
     // over a timespan.
-    @Column(length = 60)
+    @Column(name = "route_short_name", length = 60)
     private final String routeShortName;
 
     // Nice for providing context.
-    @Column(length = 60)
+    @Column(name = "block_id", length = 60)
     private final String blockId;
 
     // Nice for providing context.
-    @Column(length = 60)
+    @Column(name = "service_id", length = 60)
     private final String serviceId;
 
     // Nice for providing context.
-    @Column(length = 60)
+    @Column(name = "trip_id", length = 60)
     private final String tripId;
 
     // Nice for providing context.
-    @Column(length = 60)
+    @Column(name = "stop_id", length = 60)
     private final String stopId;
 
 
@@ -313,14 +307,13 @@ public class VehicleEvent implements Serializable {
         if (sqlClause != null) {
             hql += " " + sqlClause;
         }
-        var query = session.createQuery(hql);
+        var query = session.createQuery(hql, VehicleEvent.class);
 
         // Set the parameters
         query.setParameter("beginDate", beginTime);
         query.setParameter("endDate", endTime);
 
         try {
-            @SuppressWarnings("unchecked")
             List<VehicleEvent> vehicleEvents = query.list();
             logger.debug("Getting VehicleEvents from database took {} msec", timer.elapsedMsec());
             return vehicleEvents;

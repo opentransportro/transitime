@@ -39,66 +39,66 @@ import org.transitclock.utils.IntervalTimer;
 @DynamicUpdate
 @Data
 @Table(
-        name = "Matches",
-        indexes = {@Index(name = "AvlTimeIndex", columnList = "avlTime")})
+        name = "matches",
+        indexes = {@Index(name = "AvlTimeIndex", columnList = "avl_time")})
 public class Match implements Lifecycle, Serializable {
 
     // vehicleId is an @Id since might get multiple AVL reports
     // for different vehicles with the same avlTime but need a unique
     // primary key.
-    @Column(length = 60)
     @Id
+    @Column(name = "vehicle_id", length = 60)
     private String vehicleId;
 
     // Need to use columnDefinition to explicitly specify that should use
     // fractional seconds. This column is an Id since shouldn't get two
     // AVL reports for the same vehicle for the same avlTime.
-    @Column
-    @Temporal(TemporalType.TIMESTAMP)
     @Id
+    @Column(name = "avl_time")
+    @Temporal(TemporalType.TIMESTAMP)
     private final Date avlTime;
 
     // So that know which configuration was being used when this data point
     // was created
-    @Column
+    @Column(name = "config_rev")
     private final int configRev;
 
     // So that know which service type was used when this data point was created
-    @Column
+    @Column(name = "service_id")
     private String serviceId;
 
     // Not truly needed because currently using only trip info for generating
     // travel times, which is the main use of Match data from the db.
-    @Column(length = 60)
+    @Column(name = "block_id", length = 60)
     private String blockId;
 
     // Creating travel times on a trip by trip basis so this element is
     // important.
-    @Column(length = 60)
+    @Column(name = "trip_id", length = 60)
     private String tripId;
 
     // Important because generating travel times on a per stop path basis
-    @Column
+    @Column(name = "stop_path_index")
     private final int stopPathIndex;
 
     // Not currently needed. Added for possible future uses of Match
-    @Column
+    @Column(name = "segment_index")
     private final int segmentIndex;
 
     // Not currently needed. Added for possible future uses of Match
-    @Column
+    @Column(name = "distance_along_segment")
     private final float distanceAlongSegment;
 
     // The distanceAlongStopPath is the important item since travel times are
     // based on dividing up the stop path into travel time paths. These travel
     // time paths are independent of the path segments.
-    @Column
+    @Column(name = "distance_along_stop_path")
     private final float distanceAlongStopPath;
 
     // Whether vehicle is considered to be at a stop. Especially useful so
     // can filter out atStop matches when determining travel times since
     // instead using arrival/departure times for that situation.
-    @Column
+    @Column(name = "at_stop")
     private final boolean atStop;
 
     public Match(VehicleState vehicleState) {
@@ -173,7 +173,7 @@ public class Match implements Lifecycle, Serializable {
         String hql = "FROM Match WHERE avlTime between :beginDate AND :endDate";
         if (sqlClause != null)
             hql += " " + sqlClause;
-        var query = session.createQuery(hql);
+        var query = session.createQuery(hql, Match.class);
 
         // Set the parameters for the query
         query.setParameter("beginDate", beginTime);
@@ -188,7 +188,6 @@ public class Match implements Lifecycle, Serializable {
         }
 
         try {
-            @SuppressWarnings("unchecked")
             List<Match> matches = query.list();
             logger.debug("Getting matches from database took {} msec", timer.elapsedMsec());
             return matches;

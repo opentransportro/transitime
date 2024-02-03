@@ -11,9 +11,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
@@ -33,65 +35,61 @@ import org.transitclock.utils.Time;
 @Immutable
 @Entity
 @DynamicUpdate
-@EqualsAndHashCode
-@ToString
-@Getter
-@Table(name = "Calendars")
+@Slf4j
+@Data
+@Table(name = "calendars")
 public class Calendar implements Serializable {
 
-    @Column
     @Id
+    @Column(name = "config_rev")
     private final int configRev;
 
-    @Column(length = 60)
     @Id
+    @Column(name = "service_id", length = 60)
     private final String serviceId;
 
-    @Column
     @Id
+    @Column(name = "monday")
     private final boolean monday;
 
-    @Column
     @Id
+    @Column(name = "tuesday")
     private final boolean tuesday;
 
-    @Column
     @Id
+    @Column(name = "wednesday")
     private final boolean wednesday;
 
-    @Column
     @Id
+    @Column(name = "thursday")
     private final boolean thursday;
 
-    @Column
     @Id
+    @Column(name = "friday")
     private final boolean friday;
 
-    @Column
     @Id
+    @Column(name = "saturday")
     private final boolean saturday;
 
-    @Column
     @Id
+    @Column(name = "sunday")
     private final boolean sunday;
 
-    @Temporal(TemporalType.DATE)
     @Id
+    @Column(name = "start_date")
+    @Temporal(TemporalType.DATE)
     private final Date startDate;
 
     // The service is to run until midnight of the end date, which is actually
     // the endDate plus 1 day.
-    @Temporal(TemporalType.DATE)
     @Id
+    @Column(name = "end_date")
+    @Temporal(TemporalType.DATE)
     private final Date endDate;
 
     // For outputting start and end date as strings
     private static final DateFormat formatter = new SimpleDateFormat("MM-dd-yyyy");
-
-    // Logging
-    public static final Logger logger = LoggerFactory.getLogger(Calendar.class);
-
-    /********************** Member Functions **************************/
 
     /** Needed because Hibernate requires no-arg constructor */
     @SuppressWarnings("unused")

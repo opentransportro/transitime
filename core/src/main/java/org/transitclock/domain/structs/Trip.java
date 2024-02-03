@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -41,42 +42,40 @@ import org.transitclock.utils.Time;
  */
 @Slf4j
 @Entity
-@Getter
-@Setter
-@EqualsAndHashCode
+@Data
 @DynamicUpdate
-@Table(name = "Trips")
+@Table(name = "trips")
 public class Trip implements Lifecycle, Serializable {
 
-    @Column
     @Id
+    @Column(name = "config_rev")
     private final int configRev;
 
-    @Column(length = 60)
     @Id
+    @Column(name = "trip_id", length = 60)
     private String tripId;
 
     // The startTime needs to be an Id column because GTFS frequencies.txt
     // file can be used to define multiple trips with the same trip ID.
     // It is in number of seconds into the day.
     // Not declared as final because only used for frequency based trips.
-    @Column
     @Id
+    @Column(name = "start_time")
     private Integer startTime;
 
     // Used by some agencies to identify the trip in the AVL feed
-    @Column(length = 60)
+    @Column(name = "trip_short_name", length = 60)
     private String tripShortName;
 
     // Number of seconds into the day.
     // Not final because only used for frequency based trips.
-    @Column
+    @Column(name = "end_time")
     private Integer endTime;
 
-    @Column(length = 60)
+    @Column(name = "direction_id", length = 60)
     private String directionId;
 
-    @Column(length = 60)
+    @Column(name = "route_id", length = 60)
     private String routeId;
 
     // Route short name is also needed because some agencies such as SFMTA
@@ -85,7 +84,7 @@ public class Trip implements Lifecycle, Serializable {
     // prediction pages or for running schedule adherence reports over
     // time. For where need a route identifier that is consistent over time
     // it can be best to use the routeShortName.
-    @Column(length = 60)
+    @Column(name = "route_short_name", length = 60)
     private String routeShortName;
 
     // So can determine all the stops and stopPaths associated with trip
@@ -106,35 +105,35 @@ public class Trip implements Lifecycle, Serializable {
 
     // Contains schedule time for each stop as obtained from GTFS
     // stop_times.txt file. Useful for determining schedule adherence.
-    @ElementCollection
     @OrderColumn
+    @ElementCollection
     private final List<ScheduleTime> scheduledTimesList = new ArrayList<>();
 
     // For non-scheduled blocks where vehicle runs a trip as a continuous loop
-    @Column
+    @Column(name = "no_schedule")
     private final boolean noSchedule;
 
     // For when times are determined via the GTFS frequency.txt file and
     // exact_times for the trip is set to true. Indicates that the schedule
     // times were determined using the trip frequency and start_time.
-    @Column
+    @Column(name = "exact_times_headway")
     private final boolean exactTimesHeadway;
 
     // Service ID for the trip
-    @Column(length = 60)
+    @Column(name = "service_id", length = 60)
     private String serviceId;
 
     // The GTFS trips.txt trip_headsign if set. Otherwise will get from the
     // stop_headsign, if set, from the first stop of the trip. Otherwise null.
-    @Column
+    @Column(name = "headsign")
     private String headsign;
 
     // From GTFS trips.txt block_id if set. Otherwise the trip_id.
-    @Column(length = 60)
+    @Column(name = "block_id", length = 60)
     private String blockId;
 
     // The GTFS trips.txt shape_id
-    @Column(length = 60)
+    @Column(name = "shape_id", length = 60)
     private String shapeId;
 
     @Transient

@@ -26,34 +26,34 @@ import java.util.List;
 @Entity
 @DynamicUpdate
 @Table(
-        name = "MonitoringEvents",
+        name = "monitoring_events",
         indexes = {@Index(name = "MonitoringEventsTimeIndex", columnList = "time")})
 public class MonitoringEvent implements Serializable {
-    // The time the event occurred
+    // The long message associated with the monitoring
+    private static final int MAX_MESSAGE_LENGTH = 512;
+
     @Id
-    @Column
+    @Column(name = "time")
     @Temporal(TemporalType.TIMESTAMP)
     private final Date time;
 
     // String describing type of event, such as "System CPU"
     @Id
-    @Column(length = 40)
+    @Column(name = "type", length = 40)
     private final String type;
 
     // Whether monitoring is now triggered
-    @Column
+    @Column(name = "triggered")
     private final boolean triggered;
 
-    // The long message associated with the monitoring
-    private static final int MAX_MESSAGE_LENGTH = 512;
 
-    @Column(length = MAX_MESSAGE_LENGTH)
+    @Column(name = "message", length = MAX_MESSAGE_LENGTH)
     private final String message;
 
     // The value that caused monitoring to be triggered or untriggered.
     // For some monitors they are triggered when this value is too
     // high. For others though it can be when the value is too low.
-    @Column
+    @Column(name = "value")
     private final double value;
 
     private MonitoringEvent(Date time, String type, boolean triggered, String message, double value) {
@@ -109,7 +109,6 @@ public class MonitoringEvent implements Serializable {
         query.setParameter("endDate", endTime);
 
         try {
-            @SuppressWarnings("unchecked")
             List<MonitoringEvent> monitorEvents = query.list();
             logger.debug("Getting MonitoringEvent from database " + "took {} msec", timer.elapsedMsec());
             return monitorEvents;

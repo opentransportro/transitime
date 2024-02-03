@@ -23,25 +23,25 @@ import org.transitclock.gtfs.model.GtfsFrequency;
 @Entity
 @DynamicUpdate
 @Data
-@Table(name = "Frequencies")
+@Table(name = "frequencies")
 public class Frequency implements Serializable {
 
-    @Column
     @Id
+    @Column(name = "config_rev")
     private final int configRev;
 
-    @Column(length = 60)
     @Id
+    @Column(name = "trip_id", length = 60)
     private final String tripId;
 
-    @Column
+    @Column(name = "start_time")
     @Id
     private final int startTime;
 
-    @Column
+    @Column(name = "end_time")
     private final int endTime;
 
-    @Column
+    @Column(name = "headway_secs")
     private final int headwaySecs;
 
     /**
@@ -60,7 +60,7 @@ public class Frequency implements Serializable {
      *       than the last desired trip start time + headway_secs.
      * </ul>
      */
-    @Column
+    @Column(name = "exact_times")
     private final boolean exactTimes;
 
     /**

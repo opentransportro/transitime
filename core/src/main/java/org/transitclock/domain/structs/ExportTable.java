@@ -21,38 +21,35 @@ import java.util.List;
 @Entity
 @DynamicUpdate
 @Slf4j
-@Table(name = "ExportTable")
+@Table(name = "export_table")
 public class ExportTable implements Serializable {
 
     // ID of vehicle
     @Id
+    @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
-    @Column
+    @Column(name = "data_date")
     @Temporal(TemporalType.DATE)
     private Date dataDate;
 
-    @Column
+    @Column(name = "export_date")
     @Temporal(TemporalType.TIMESTAMP)
     private Date exportDate;
 
-    @Column
+    @Column(name = "export_type")
     private int exportType;
 
-    @Column
+    @Column(name = "export_status")
     private int exportStatus;
 
-    @Column
+    @Column(name = "first_name")
     private String fileName;
 
-    @Column
+    @Column(name = "file")
     private byte[] file;
 
-    /**
-     * @param vehicleId vehicle ID * @param blockId block ID * @param tripId trip ID * @param
-     *     assignmentDate time * * @param validFrom time * * @param validTo time
-     */
     public static ExportTable create(Date dataDate, int exportType, String fileName) {
         ExportTable exportElement = new ExportTable(dataDate, exportType, fileName);
 

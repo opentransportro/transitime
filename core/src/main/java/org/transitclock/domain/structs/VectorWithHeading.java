@@ -26,7 +26,7 @@ public class VectorWithHeading extends Vector {
         super(l1, l2);
         float heading = (float) heading();
         if (heading < 0.0) {
-            heading += 360.0;
+            heading += 360.0F;
         }
         headingInDegrees = heading;
     }

@@ -6,9 +6,11 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -28,10 +30,9 @@ import org.transitclock.utils.Geo;
  */
 @Entity
 @DynamicUpdate
-@ToString
-@EqualsAndHashCode
-@Getter
-@Table(name = "TravelTimesForStopPaths")
+@Data
+@Slf4j
+@Table(name = "travel_times_for_stop_paths")
 public class TravelTimesForStopPath implements Serializable {
 
     // Need a generated ID because trying to share TravelTimesForStopPath objects because
@@ -39,13 +40,13 @@ public class TravelTimesForStopPath implements Serializable {
     // still have a few per path and trip pattern. Therefore also need the
     // generated ID.
     @Id
-    @Column
-    @GeneratedValue
+    @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
     // Need configRev for the configuration so that when old configurations
     // cleaned out can also get rid of old travel times.
-    @Column
+    @Column(name = "config_rev")
     private final int configRev;
 
     // Each time update travel times it gets a new travel time rev. This
@@ -53,19 +54,19 @@ public class TravelTimesForStopPath implements Serializable {
     // to keep the previous travel time rev around for comparison but by
     // using an integer for the rev all of the revs can be kept in the db
     // if desired.
-    @Column
+    @Column(name = "travel_times_rev")
     private final int travelTimesRev;
 
     // Which stop on the trip the travel times are for. Using size of
     // 2 * DEFAULT_ID_SIZE since stop path names are stop1_to_stop2 so can
     // be twice as long as other IDs. And when using GTFS Editor the IDs
     // are quite long, a bit longer than 40 characters.
-    @Column(length = 2 * 60)
+    @Column(name = "stop_path_id", length = 2 * 60)
     private final String stopPathId;
 
     // The distance for each travel time segment for this path. Doesn't
     // need to be precise so use float instead of double to save memory.
-    @Column
+    @Column(name = "travel_time_segment_length")
     private final float travelTimeSegmentLength;
 
     // Travel time is a List of Integers containing the expected travel time
@@ -91,7 +92,7 @@ public class TravelTimesForStopPath implements Serializable {
     // of List<> since List<> doesn't implement Serializable.
     private static final int travelTimesMaxBytes = 100000;
 
-    @Column(length = travelTimesMaxBytes)
+    @Column(name = "travel_times_msec", length = travelTimesMaxBytes)
     private final ArrayList<Integer> travelTimesMsec;
 
     // There is a separate time for travel and for actually stopping. For
@@ -100,7 +101,7 @@ public class TravelTimesForStopPath implements Serializable {
     // can also be used at beginning of trips to determine when buses really
     // do leave the terminus. In this way if a driver always leaves a couple
     // minutes late then the predictions will be adjusted accordingly.
-    @Column
+    @Column(name = "stop_time_msec")
     private final int stopTimeMsec;
 
     // For somehow overriding times for a particular day of the week.
@@ -108,16 +109,14 @@ public class TravelTimesForStopPath implements Serializable {
     // for which the same service is provided. But might want to have
     // different travel times for Fridays since afternoon rush hour is
     // definitely different for Fridays.
-    @Column
+    @Column(name = "days_of_week_override")
     private final short daysOfWeekOverride;
 
     // For keeping track of how the data was obtained (historic GPS,
     // schedule, default speed, etc)
-    @Column(length = 5)
+    @Column(name = "how_set", length = 5)
     @Enumerated(EnumType.STRING)
     private final HowSet howSet;
-
-    private static final Logger logger = LoggerFactory.getLogger(TravelTimesForStopPath.class);
 
     /**
      * This enumeration is for keeping track of how the travel times were determined. This way can
