@@ -18,9 +18,6 @@ import org.transitclock.domain.hibernate.HibernateUtils;
  */
 @Entity
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
-@DynamicUpdate
 @Slf4j
 @Table(name = "active_revisions")
 public class ActiveRevisions {
@@ -33,18 +30,23 @@ public class ActiveRevisions {
     // that need a separate ID. Yes, somewhat peculiar.
     @Id
     @Column(name = "id")
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue
     private Integer id;
 
     // For the configuration data for routes, stops, schedule, etc.
     @Column(name = "config_rev")
-    private int configRev = -1;
+    private int configRev;
 
     // For the travel time configuration data. Updated independently of
     // configRev.
     @Column(name = "travel_times_rev")
-    private int travelTimesRev = -1;
+    private int travelTimesRev;
 
+    /** Constructor. Sets the revisions to default values of -1. */
+    public ActiveRevisions() {
+        configRev = -1;
+        travelTimesRev = -1;
+    }
     /**
      * Gets the ActiveRevisions object using the passed in database session.
      *

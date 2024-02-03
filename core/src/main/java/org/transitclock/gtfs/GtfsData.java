@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
 import org.transitclock.config.data.GtfsConfig;
+import org.transitclock.domain.repository.ActiveRevisionsDao;
 import org.transitclock.domain.structs.*;
 import org.transitclock.domain.structs.Calendar;
 import org.transitclock.gtfs.model.*;
@@ -144,8 +145,10 @@ public class GtfsData {
     private SimpleDateFormat dateFormatter;
     private final double maxDistanceBetweenStops;
     private final boolean disableSpecialLoopBackToBeginningCase;
+    private final ActiveRevisionsDao activeRevisionsDao;
 
     public GtfsData(
+            ActiveRevisionsDao activeRevisionsDao,
             Session session,
             int configRev,
             Date zipFileLastModifiedTime,
@@ -163,7 +166,7 @@ public class GtfsData {
             TitleFormatter titleFormatter,
             double maxDistanceBetweenStops,
             boolean disableSpecialLoopBackToBeginningCase) {
-
+        this.activeRevisionsDao = activeRevisionsDao;
         // Get the database session. Using one session for the whole process.
         this.session = session;
 
@@ -185,7 +188,7 @@ public class GtfsData {
 
         // Deal with the ActiveRevisions. First, store the original travel times
         // rev since need it to read in old travel time data.
-        ActiveRevisions originalRevs = ActiveRevisions.get(session);
+        ActiveRevisions originalRevs = activeRevisionsDao.get();
         originalTravelTimesRev = originalRevs.getTravelTimesRev();
 
         // If should store the new revs in database (make them active)
@@ -2324,6 +2327,6 @@ public class GtfsData {
         // Now process travel times and update the Trip objects.
         TravelTimesProcessorForGtfsUpdates travelTimesProcessor = new TravelTimesProcessorForGtfsUpdates(
                 revs, originalTravelTimesRev, maxTravelTimeSegmentLength, defaultWaitTimeAtStopMsec, maxSpeedKph);
-        travelTimesProcessor.process(session, this);
+        travelTimesProcessor.process(activeRevisionsDao.session(), this);
     }
 }

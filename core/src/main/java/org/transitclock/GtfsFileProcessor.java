@@ -7,6 +7,7 @@ import org.hibernate.Session;
 import org.transitclock.config.ConfigFileReader;
 import org.transitclock.config.data.AgencyConfig;
 import org.transitclock.domain.hibernate.HibernateUtils;
+import org.transitclock.domain.repository.ActiveRevisionsDao;
 import org.transitclock.gtfs.DbWriter;
 import org.transitclock.gtfs.GtfsData;
 import org.transitclock.gtfs.TitleFormatter;
@@ -56,6 +57,7 @@ public class GtfsFileProcessor {
     private final boolean trimPathBeforeFirstStopOfTrip;
     private final double maxDistanceBetweenStops;
     private final boolean disableSpecialLoopBackToBeginningCase;
+    private final ActiveRevisionsDao activeRevisionsDao;
 
     // Read in configuration files. This should be done statically before
     // the logback LoggerFactory.getLogger() is called so that logback can
@@ -69,7 +71,7 @@ public class GtfsFileProcessor {
      * only used internally by createGtfsFileProcessor().
      */
     public GtfsFileProcessor(
-            String gtfsUrl,
+            ActiveRevisionsDao activeRevisionsDao, String gtfsUrl,
             String gtfsZipFileName,
             String unzipSubdirectory,
             String supplementDir,
@@ -86,6 +88,7 @@ public class GtfsFileProcessor {
             boolean trimPathBeforeFirstStopOfTrip,
             double maxDistanceBetweenStops,
             boolean disableSpecialLoopBackToBeginningCase) {
+        this.activeRevisionsDao = activeRevisionsDao;
         // Read in config params if command line option specified
         this.gtfsUrl = gtfsUrl;
         this.gtfsZipFileName = gtfsZipFileName;
@@ -211,6 +214,7 @@ public class GtfsFileProcessor {
         try (Session session = sessionFactory.openSession()) {
             // Process the GTFS data
             GtfsData gtfsData = new GtfsData(
+                    activeRevisionsDao,
                     session,
                     configRev,
                     zipFileLastModifiedTime,
@@ -234,7 +238,7 @@ public class GtfsFileProcessor {
 
             gtfsData.processData();
             new DbWriter(gtfsData)
-                    .write(session, gtfsData.getRevs().getConfigRev(), shouldDeleteRevs);
+                    .write(activeRevisionsDao.session(), gtfsData.getRevs().getConfigRev(), shouldDeleteRevs);
             logger.info("Finished processing GTFS data from {} . Took {} msec.", gtfsDirectoryName, timer.elapsedMsec());
         } catch (HibernateException e) {
             logger.error("Exception when writing data to db", e);
@@ -257,12 +261,14 @@ public class GtfsFileProcessor {
      * defaults go for command line options.
      *
      * @param params
+     * @param activeRevisionsDao
      * @return Fully configured GtfsFileProcessor object
      */
-    public static GtfsFileProcessor createGtfsFileProcessor(CommandLineParameters params) {
+    public static GtfsFileProcessor createGtfsFileProcessor(CommandLineParameters params, ActiveRevisionsDao activeRevisionsDao) {
         File gtfsDirectory = params.getRelativeDirectory("gtfs");
 
         return new GtfsFileProcessor(
+                activeRevisionsDao,
                 params.gtfsUrl,
                 params.gtfsZip,
                 gtfsDirectory.getAbsolutePath(),

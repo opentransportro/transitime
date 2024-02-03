@@ -3,6 +3,7 @@ package org.transitclock;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
 import com.google.common.base.Throwables;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.DateUtils;
 import org.ehcache.CacheManager;
@@ -12,6 +13,7 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -29,6 +31,7 @@ import org.transitclock.core.dataCache.frequency.FrequencyBasedHistoricalAverage
 import org.transitclock.core.dataCache.scheduled.ScheduleBasedHistoricalAverageCache;
 import org.transitclock.domain.ApiKeyManager;
 import org.transitclock.domain.hibernate.HibernateUtils;
+import org.transitclock.domain.repository.ActiveRevisionsDao;
 import org.transitclock.domain.structs.ActiveRevisions;
 import org.transitclock.domain.structs.Agency;
 import org.transitclock.domain.webstructs.ApiKey;
@@ -47,7 +50,9 @@ import java.util.concurrent.ThreadFactory;
 
 @Slf4j
 @EnableScheduling
+@RequiredArgsConstructor
 @SpringBootApplication
+@EntityScan(basePackages = {"org.transitclock.domain.structs", "org.transitclock.domain.webstructs"})
 public class TransitclockSpring implements ApplicationRunner {
     public static void main(String[] args) {
         try {
@@ -100,15 +105,8 @@ public class TransitclockSpring implements ApplicationRunner {
     private final CacheManager cacheManager;
     private final ApiKeyManager apiKeyManager;
 
-    public TransitclockSpring(TripDataHistoryCacheInterface tripDataHistoryCacheInterface, StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface, DwellTimeModelCacheInterface dwellTimeModelCacheInterface, FrequencyBasedHistoricalAverageCache frequencyBasedHistoricalAverageCache, ScheduleBasedHistoricalAverageCache scheduleBasedHistoricalAverageCache, CacheManager cacheManager, ApiKeyManager apiKeyManager) {
-        this.tripDataHistoryCacheInterface = tripDataHistoryCacheInterface;
-        this.stopArrivalDepartureCacheInterface = stopArrivalDepartureCacheInterface;
-        this.dwellTimeModelCacheInterface = dwellTimeModelCacheInterface;
-        this.frequencyBasedHistoricalAverageCache = frequencyBasedHistoricalAverageCache;
-        this.scheduleBasedHistoricalAverageCache = scheduleBasedHistoricalAverageCache;
-        this.cacheManager = cacheManager;
-        this.apiKeyManager = apiKeyManager;
-    }
+    private final ActiveRevisionsDao activeRevisionsDao;
+
 
     private void populateCaches() throws Exception {
         Session session = HibernateUtils.getSession();
@@ -154,7 +152,7 @@ public class TransitclockSpring implements ApplicationRunner {
                         );
             }
 
-            if(dwellTimeModelCacheInterface != null) {
+            if (dwellTimeModelCacheInterface != null) {
                 dwellTimeModelCacheInterface
                         .populateCacheFromDb(session,
                                 new Date(Time.parse(CoreConfig.cacheReloadStartTimeStr.getValue()).getTime()),
@@ -219,7 +217,7 @@ public class TransitclockSpring implements ApplicationRunner {
         CommandLineParameters cli = parseAndValidateCmdLine(args.getSourceArgs());
 
         if (cli.shouldLoadGtfs()) {
-            GtfsFileProcessor processor = GtfsFileProcessor.createGtfsFileProcessor(cli);
+            GtfsFileProcessor processor = GtfsFileProcessor.createGtfsFileProcessor(cli, activeRevisionsDao);
             processor.process();
         }
 

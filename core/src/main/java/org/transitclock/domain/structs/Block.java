@@ -3,6 +3,7 @@ package org.transitclock.domain.structs;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
@@ -39,9 +40,10 @@ import java.util.stream.Collectors;
  *
  * @author SkiBu Smith
  */
-@Entity(name = "Blocks")
+@Entity
 @DynamicUpdate
 @Table(name = "blocks")
+@NoArgsConstructor
 @Slf4j
 public final class Block implements Serializable {
     // For making sure only lazy load trips collection via one thread
@@ -51,29 +53,29 @@ public final class Block implements Serializable {
 
     @Column(name = "config_rev")
     @Id
-    private final int configRev;
+    private int configRev;
 
     @Column(name = "block_id", length = 60)
     @Id
-    private final String blockId;
+    private String blockId;
 
     @Column(name = "service_id", length = 60)
     @Id
-    private final String serviceId;
+    private String serviceId;
 
     // Start time of block assignment. In seconds from midnight. Can be less
     // than 0 to indicate that block starts before midnight of the current
     // day. Can be greater than one day to indicate that block starts after
     // midnight of the current day.
     @Column(name = "start_time")
-    private final int startTime;
+    private int startTime;
 
     // End time of block assignment. In seconds from midnight. Can be less
     // than 0 to indicate that block ends before midnight of the current
     // day. Can be greater than one day to indicate that block ends after
     // midnight of the current day.
     @Column(name = "end_time")
-    private final int endTime;
+    private int endTime;
 
     // Need to have a ManyToMany instead of OneToMany relationship
     // for the List of Trips because several Blocks can refer to the
@@ -93,7 +95,7 @@ public final class Block implements Serializable {
     @JoinTable(name = "block_to_trip_join_table")
     @OrderColumn(name = "listIndex")
     @Cascade({CascadeType.SAVE_UPDATE})
-    private final List<Trip> trips;
+    private List<Trip> trips;
 
     // Sometimes will get vehicle assignment by routeId. This means that need
     // to know which blocks are associated with a route. Getting the routeIds
@@ -105,7 +107,7 @@ public final class Block implements Serializable {
     // of List<> since List<> doesn't implement Serializable.
     @Column(name = "route_ids", length = 500)
 //    @ElementCollection
-    private final HashSet<String> routeIds;
+    private HashSet<String> routeIds;
 
 
     /**
@@ -130,18 +132,6 @@ public final class Block implements Serializable {
         }
     }
 
-    /** Hibernate requires no-arg constructor */
-    @SuppressWarnings("unused")
-    private Block() {
-        this.configRev = -1;
-        this.blockId = null;
-        this.serviceId = null;
-        this.startTime = -1;
-        this.endTime = -1;
-        this.trips = null;
-        this.routeIds = null;
-    }
-
     /**
      * Returns list of Block objects for the specified configRev
      *
@@ -164,13 +154,13 @@ public final class Block implements Serializable {
 
     private static List<Block> getBlocksPassive(Session session, int configRev) throws HibernateException {
         var query = session
-                .createQuery("FROM Blocks b WHERE b.configRev = :configRev", Block.class)
+                .createQuery("FROM Block b WHERE b.configRev = :configRev", Block.class)
                 .setParameter("configRev", configRev);
         return query.list();
     }
 
     private static List<Block> getBlocksAgressively(Session session, int configRev) throws HibernateException {
-        var query = session.createQuery("FROM Blocks b "
+        var query = session.createQuery("FROM Block b "
                         + "join fetch b.trips t "
                         + "join fetch t.travelTimes "
                         + "join fetch t.tripPattern tp "
@@ -220,14 +210,14 @@ public final class Block implements Serializable {
 
         // Delete configRev data from Trips
         rowsUpdated = session
-                .createNativeQuery("DELETE FROM Trips WHERE configRev=" + configRev, Void.class)
+                .createNativeQuery("DELETE FROM trips WHERE config_rev=" + configRev, Void.class)
                 .executeUpdate();
         logger.info("Deleted {} rows from Trips for configRev={}", rowsUpdated, configRev);
         totalRowsUpdated += rowsUpdated;
 
         // Delete configRev data from Blocks
         rowsUpdated = session
-                .createNativeQuery("DELETE FROM Blocks WHERE configRev=" + configRev, Void.class)
+                .createNativeQuery("DELETE FROM blocks WHERE config_rev=" + configRev, Void.class)
                 .executeUpdate();
         logger.info("Deleted {} rows from Blocks for configRev={}", rowsUpdated, configRev);
         totalRowsUpdated += rowsUpdated;

@@ -93,14 +93,20 @@ transitclock.logging.dir: /var/transitclock/logs
 transitclock.web.mapTileUrl: http://tile.openstreetmap.org/{z}/{x}/{y}.png
 
 
+#  spring.jpa.database-platform = org.hibernate.dialect.MySQL5Dialect
+#  spring.jpa.generate-ddl=true
+#  spring.jpa.hibernate.ddl-auto = update
 spring:
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: create
+    show-sql: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    generate-ddl: true
   datasource:
     driver-class-name: org.postgresql.Driver
     username: postgres
     password: transitclock
-    hikari:
-      auto-commit: true
+#    hikari:
+#      auto-commit: true
     url: jdbc:postgresql://localhost:5432/STPT
