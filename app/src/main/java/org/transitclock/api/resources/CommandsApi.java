@@ -28,6 +28,7 @@ import jakarta.ws.rs.core.Response;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RestController;
 import org.transitclock.api.data.ApiCommandAck;
 import org.transitclock.api.utils.StandardParameters;
@@ -42,7 +43,7 @@ import org.transitclock.service.dto.IpcTrip;
 import org.transitclock.service.contract.CommandsInterface;
 import org.transitclock.service.contract.ConfigInterface;
 
-@RestController
+@Component
 @Path("/key/{key}/agency/{agency}")
 public class CommandsApi {
     private final CommandsInterface commandsInterface;

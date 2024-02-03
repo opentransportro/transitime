@@ -16,20 +16,5 @@ public interface StopArrivalDepartureCacheInterface {
 
     StopArrivalDepartureCacheKey putArrivalDeparture(ArrivalDeparture arrivalDeparture);
 
-    default void populateCacheFromDb(Session session, Date startDate, Date endDate) {
-        JPAQuery<ArrivalDeparture> query = new JPAQuery<>(session);
-        var qentity = QArrivalDeparture.arrivalDeparture;
-        List<ArrivalDeparture> results = query.from(qentity)
-                .where(qentity.time.between(startDate,endDate))
-                .orderBy(qentity.time.asc())
-                .fetch();
-
-        for (ArrivalDeparture result : results) {
-            this.putArrivalDeparture(result);
-            // TODO might be better with its own populateCacheFromdb
-            getDwellTimeModelCacheInterface().addSample(result);
-        }
-    }
-
-    DwellTimeModelCacheInterface getDwellTimeModelCacheInterface();
+    void populateCacheFromDb(Session session, Date startDate, Date endDate);
 }

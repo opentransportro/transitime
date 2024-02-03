@@ -31,20 +31,20 @@ import java.util.Map;
 @Entity
 @Getter
 @DynamicUpdate
-@Table(name = "TripPatterns")
+@Table(name = "trip_patterns")
 public class TripPattern implements Serializable, Lifecycle {
 
     // Which configuration revision used
-    @Column
     @Id
+    @Column(name = "config_rev")
     private final int configRev;
 
     // The ID of the trip pattern
-    @Column(length = TRIP_PATTERN_ID_LENGTH)
     @Id
+    @Column(name = "id", length = TRIP_PATTERN_ID_LENGTH)
     private final String id;
 
-    @Column(length = 60)
+    @Column(name = "shape_id", length = 60)
     protected final String shapeId;
 
     // For the List of Paths want to use FetchType.EAGER
@@ -54,29 +54,29 @@ public class TripPattern implements Serializable, Lifecycle {
     // Paths are automatically stored.
     @OneToMany(fetch = FetchType.EAGER)
     @Cascade({CascadeType.SAVE_UPDATE})
-    @JoinTable(name="TripPattern_to_Path_joinTable",
+    @JoinTable(name="trip_pattern_to_path_join_table",
             joinColumns= {
                     @JoinColumn(name="trippattern_id", referencedColumnName="id"),
-                    @JoinColumn(name="trippatterns_configrev", referencedColumnName="configrev")
+                    @JoinColumn(name="trippatterns_configrev", referencedColumnName="config_rev")
             },
             inverseJoinColumns= {
-                    @JoinColumn(name="stoppaths_trippatternid", referencedColumnName="trippatternid"),
-                    @JoinColumn(name="stoppaths_stoppathid", referencedColumnName="stoppathid"),
-                    @JoinColumn(name="stoppaths_configrev", referencedColumnName="configRev")
+                    @JoinColumn(name="stoppaths_trippatternid", referencedColumnName="trip_pattern_id"),
+                    @JoinColumn(name="stoppaths_stoppathid", referencedColumnName="stop_path_id"),
+                    @JoinColumn(name="stoppaths_configrev", referencedColumnName="config_rev")
             })
     @OrderColumn(name = "listIndex")
     protected final List<StopPath> stopPaths;
 
-    @Column(length = HEADSIGN_LENGTH)
+    @Column(name = "headsign")
     private String headsign;
 
-    @Column(length = 60)
+    @Column(name = "direction_id", length = 60)
     private final String directionId;
 
-    @Column(length = 60)
+    @Column(name = "route_id", length = 60)
     private final String routeId;
 
-    @Column(length = 80)
+    @Column(name = "route_short_name", length = 80)
     private final String routeShortName;
 
     // So know lat lon range of the trip pattern

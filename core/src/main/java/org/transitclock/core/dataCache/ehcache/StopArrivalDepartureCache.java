@@ -29,18 +29,9 @@ public class StopArrivalDepartureCache implements StopArrivalDepartureCacheInter
     private static final String cacheByStop = "arrivalDeparturesByStop";
 
     private final Cache<StopArrivalDepartureCacheKey, StopEvents> cache;
-    private final StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface;
-    private final DwellTimeModelCacheInterface dwellTimeModelCacheInterface;
 
-    public StopArrivalDepartureCache(CacheManager cm, StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface, DwellTimeModelCacheInterface dwellTimeModelCacheInterface) {
+    public StopArrivalDepartureCache(CacheManager cm) {
         cache = cm.getCache(cacheByStop, StopArrivalDepartureCacheKey.class, StopEvents.class);
-        this.stopArrivalDepartureCacheInterface = stopArrivalDepartureCacheInterface;
-        this.dwellTimeModelCacheInterface = dwellTimeModelCacheInterface;
-    }
-
-    @Override
-    public DwellTimeModelCacheInterface getDwellTimeModelCacheInterface() {
-        return dwellTimeModelCacheInterface;
     }
 
     /* (non-Javadoc)
@@ -115,14 +106,7 @@ public class StopArrivalDepartureCache implements StopArrivalDepartureCacheInter
                 .fetch();
 
         for (ArrivalDeparture result : results) {
-            stopArrivalDepartureCacheInterface.putArrivalDeparture(result);
-            // TODO might be better with its own populateCacheFromdb
-            try {
-                if (dwellTimeModelCacheInterface != null)
-                    dwellTimeModelCacheInterface.addSample(result);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            putArrivalDeparture(result);
         }
     }
 }

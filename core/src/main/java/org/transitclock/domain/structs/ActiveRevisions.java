@@ -1,14 +1,9 @@
 /* (C)2023 */
 package org.transitclock.domain.structs;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -22,11 +17,12 @@ import org.transitclock.domain.hibernate.HibernateUtils;
  * @author SkiBu Smith
  */
 @Entity
-@Getter
-@Setter
-@ToString
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 @DynamicUpdate
 @Slf4j
+@Table(name = "active_revisions")
 public class ActiveRevisions {
 
     // Need a generated ID since Hibernate required some type
@@ -36,24 +32,18 @@ public class ActiveRevisions {
     // configRev and travelTimesRev can't be an ID. This means
     // that need a separate ID. Yes, somewhat peculiar.
     @Id
-    @Column
-    @GeneratedValue
+    @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
     // For the configuration data for routes, stops, schedule, etc.
-    @Column
-    private int configRev;
+    @Column(name = "config_rev")
+    private int configRev = -1;
 
     // For the travel time configuration data. Updated independently of
     // configRev.
-    @Column
-    private int travelTimesRev;
-
-    /** Constructor. Sets the revisions to default values of -1. */
-    public ActiveRevisions() {
-        configRev = -1;
-        travelTimesRev = -1;
-    }
+    @Column(name = "travel_times_rev")
+    private int travelTimesRev = -1;
 
     /**
      * Gets the ActiveRevisions object using the passed in database session.

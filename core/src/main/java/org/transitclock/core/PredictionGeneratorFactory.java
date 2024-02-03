@@ -1,10 +1,17 @@
 /* (C)2023 */
 package org.transitclock.core;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.transitclock.config.StringConfigValue;
-import org.transitclock.utils.ClassInstantiator;
+import org.transitclock.config.ClassConfigValue;
+import org.transitclock.core.dataCache.*;
+import org.transitclock.core.holdingmethod.HoldingTimeGenerator;
+import org.transitclock.core.predictiongenerator.bias.BiasAdjuster;
+import org.transitclock.core.predictiongenerator.datafilter.TravelTimeDataFilter;
+import org.transitclock.domain.hibernate.DataDbLogger;
+import org.transitclock.gtfs.DbConfig;
 
 /**
  * For instantiating a PredictionGenerator object that generates predictions when a new match is
@@ -14,23 +21,29 @@ import org.transitclock.utils.ClassInstantiator;
  * @author SkiBu Smith
  */
 @Configuration
+@RequiredArgsConstructor
 public class PredictionGeneratorFactory {
-
-    // The name of the class to instantiate
-    private static final StringConfigValue className = new StringConfigValue(
+    private static final ClassConfigValue className = new ClassConfigValue(
             "transitclock.core.predictionGeneratorClass",
-            "org.transitclock.core.PredictionGeneratorDefaultImpl",
+            org.transitclock.core.PredictionGeneratorDefaultImpl.class,
             "Specifies the name of the class used for generating prediction data.");
 
-    private static PredictionGenerator singleton = null;
+    private final DefaultListableBeanFactory factory;
+    private final DbConfig dbConfig;
+    private final StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface;
+    private final TripDataHistoryCacheInterface tripDataHistoryCacheInterface;
+    private final HoldingTimeCache holdingTimeCache;
+    private final ErrorCache kalmanErrorCache;
+    private final StopPathPredictionCache stopPathPredictionCache;
+    private final VehicleStateManager vehicleStateManager;
+    private final TravelTimes travelTimes;
+    private final DataDbLogger dataDbLogger;
+    private final HoldingTimeGenerator holdingTimeGenerator;
+    private final BiasAdjuster biasAdjuster;
+    private final TravelTimeDataFilter travelTimeDataFilter;
 
     @Bean
-    public synchronized PredictionGenerator predictionGenerator() {
-        // If the PredictionGenerator hasn't been created yet then do so now
-        if (singleton == null) {
-            singleton = ClassInstantiator.instantiate(className.getValue(), PredictionGenerator.class);
-        }
-
-        return singleton;
+    public PredictionGenerator predictionGenerator() {
+        return (PredictionGenerator) factory.createBean(className.getValue());
     }
 }

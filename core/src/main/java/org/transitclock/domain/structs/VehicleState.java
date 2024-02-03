@@ -4,6 +4,7 @@ package org.transitclock.domain.structs;
 import java.io.Serializable;
 import java.util.Date;
 import jakarta.persistence.*;
+import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -19,11 +20,9 @@ import org.hibernate.annotations.Immutable;
 @Immutable
 @Entity
 @DynamicUpdate
-@EqualsAndHashCode
-@Getter
-@ToString
+@Data
 @Table(
-        name = "VehicleStates",
+        name = "vehicle_states",
         indexes = {@Index(name = "VehicleStateAvlTimeIndex", columnList = "avlTime")})
 public class VehicleState implements Serializable {
     // vehicleId is an @Id since might get multiple AVL reports

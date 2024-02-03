@@ -23,7 +23,7 @@ import java.util.List;
 @Entity
 @DynamicUpdate
 @Slf4j
-@Table(name = "ExportTable")
+@Table(name = "export_tables")
 public class ExportTable implements Serializable {
 
     // ID of vehicle

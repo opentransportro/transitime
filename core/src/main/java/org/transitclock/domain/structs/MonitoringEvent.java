@@ -27,7 +27,7 @@ import java.util.List;
 @Entity
 @DynamicUpdate
 @Table(
-        name = "MonitoringEvents",
+        name = "monitoring_events",
         indexes = {@Index(name = "MonitoringEventsTimeIndex", columnList = "time")})
 public class MonitoringEvent implements Serializable {
     // The time the event occurred

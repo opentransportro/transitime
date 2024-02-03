@@ -16,6 +16,7 @@ import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.checkerframework.checker.units.qual.C;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RestController;
 import org.transitclock.api.data.siri.SiriStopMonitoring;
 import org.transitclock.api.data.siri.SiriVehiclesMonitoring;
@@ -33,7 +34,7 @@ import org.transitclock.service.contract.VehiclesInterface;
  *
  * @author SkiBu Smith
  */
-@RestController
+@Component
 @Path("/key/{key}/agency/{agency}")
 public class SiriApi {
 

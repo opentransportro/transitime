@@ -24,42 +24,40 @@ import org.transitclock.utils.Time;
 @Entity
 @Data
 @DynamicUpdate
-@Table(name = "Agencies")
+@Table(name = "agencies")
 public class Agency implements Serializable {
 
-    @Getter
-    @Column
+    @Column(name = "config_rev")
     @Id
     private final int configRev;
 
-    @Column(length = 60)
+    @Column(name = "agency_name", length = 60)
     @Id
     private final String agencyName;
 
     // Note: this is the GTFS agency_id, not the usual
     // Transitime agencyId.
-    @Column(length = 60)
+    @Column(name = "agency_id", length = 60)
     private final String agencyId;
 
-    @Column
+    @Column(name = "agency_url")
     private final String agencyUrl;
 
     // Note: agencyTimezone can be reasonable long. At least as long
     // as "America/Los_Angeles". Valid timezone format is at
     // http://en.wikipedia.org/wiki/List_of_tz_zones
-    @Column(length = 40)
+    @Column(name = "agency_timezone", length = 40)
     private final String agencyTimezone;
 
-    @Column(length = 15)
+    @Column(name = "agency_lang", length = 15)
     private final String agencyLang;
 
-    @Column(length = 15)
+    @Column(name = "agency_phone", length = 15)
     private final String agencyPhone;
 
-    @Column
+    @Column(name = "agency_fare_url")
     private final String agencyFareUrl;
 
-    @Getter
     @Embedded
     private final Extent extent;
 

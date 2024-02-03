@@ -13,7 +13,7 @@ import org.transitclock.gtfs.DbConfig;
 @DynamicUpdate
 @Data
 @Table(
-        name = "Headway",
+        name = "headways",
         indexes = {@Index(name = "HeadwayIndex", columnList = "creationTime")})
 public class Headway implements Serializable {
     public Headway() {}

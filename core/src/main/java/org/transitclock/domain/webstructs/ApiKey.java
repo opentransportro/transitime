@@ -2,6 +2,7 @@
 package org.transitclock.domain.webstructs;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -21,27 +22,28 @@ import java.util.List;
  */
 @Entity
 @Data
-@Table(name = "ApiKeys")
+@NoArgsConstructor
+@Table(name = "api_keys")
 public class ApiKey implements Serializable {
 
-    @Column(length = 80)
+    @Column(name = "application_name", length = 80)
     @Id
-    private final String applicationName;
+    private String applicationName;
 
-    @Column(length = 20)
-    private final String applicationKey;
+    @Column(name = "application_key", length = 20)
+    private String applicationKey;
 
-    @Column(length = 80)
-    private final String applicationUrl;
+    @Column(name = "application_url", length = 80)
+    private String applicationUrl;
 
-    @Column(length = 80)
-    private final String email;
+    @Column(name = "email", length = 80)
+    private String email;
 
-    @Column(length = 80)
-    private final String phone;
+    @Column(name = "phone", length = 80)
+    private String phone;
 
-    @Column(length = 1000)
-    private final String description;
+    @Column(name = "description", length = 1000)
+    private String description;
 
     /**
      * For creating object to be written to db.
@@ -56,15 +58,6 @@ public class ApiKey implements Serializable {
         this.email = email;
         this.phone = phone;
         this.description = description;
-    }
-
-    protected ApiKey() {
-        this.applicationName = null;
-        this.applicationKey = null;
-        this.applicationUrl = null;
-        this.email = null;
-        this.phone = null;
-        this.description = null;
     }
 
     /**
@@ -89,8 +82,6 @@ public class ApiKey implements Serializable {
             Transaction transaction = session.beginTransaction();
             session.persist(this);
             transaction.commit();
-        } catch (Exception e) {
-            throw e;
         }
     }
 
@@ -102,10 +93,6 @@ public class ApiKey implements Serializable {
     public void deleteApiKey(String dbName) {
         try (Session session = HibernateUtils.getSession(dbName)) {
             session.remove(this);
-        } catch (Exception e) {
-            throw e;
         }
-        // Make sure that the session always gets closed, even if
-        // exception occurs
     }
 }

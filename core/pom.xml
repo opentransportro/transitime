@@ -26,6 +26,13 @@
             <artifactId>spring-boot-configuration-processor</artifactId>
             <scope>annotationProcessor</scope>
         </dependency>
+
+        <!-- https://mvnrepository.com/artifact/com.sun.istack/istack-commons-runtime -->
+        <dependency>
+            <groupId>com.sun.istack</groupId>
+            <artifactId>istack-commons-runtime</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>com.beust</groupId>
             <artifactId>jcommander</artifactId>

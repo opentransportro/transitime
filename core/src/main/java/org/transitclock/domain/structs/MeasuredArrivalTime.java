@@ -17,7 +17,7 @@ import java.util.Date;
 @DynamicUpdate
 @Data
 @Table(
-        name = "MeasuredArrivalTimes",
+        name = "measured_arrival_times",
         indexes = {@Index(name = "MeasuredArrivalTimesIndex", columnList = "time")})
 public class MeasuredArrivalTime implements Serializable {
     @Id

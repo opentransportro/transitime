@@ -29,15 +29,14 @@ import java.util.List;
 @Slf4j
 public class TripDataHistoryCache implements TripDataHistoryCacheInterface {
     private static final boolean debug = false;
-
     private static final String cacheByTrip = "arrivalDeparturesByTrip";
 
-    private Cache<TripKey, TripEvents> cache = null;
-    private final DbConfig dbConfig = SingletonContainer.getInstance(DbConfig.class);
+    private final Cache<TripKey, TripEvents> cache;
+    private final DbConfig dbConfig;
 
-    public TripDataHistoryCache() {
-        CacheManager cm = SingletonContainer.getInstance(CacheManager.class);
+    public TripDataHistoryCache(CacheManager cm, DbConfig dbConfig) {
         cache = cm.getCache(cacheByTrip, TripKey.class, TripEvents.class);
+        this.dbConfig = dbConfig;
     }
 
     /* (non-Javadoc)

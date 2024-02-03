@@ -7,10 +7,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.util.List;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
@@ -22,11 +19,8 @@ import org.hibernate.annotations.DynamicUpdate;
  */
 @Entity
 @DynamicUpdate
-@Getter
-@Setter
-@ToString
-@EqualsAndHashCode
-@Table(name = "VehicleConfigs")
+@Data
+@Table(name = "vehicle_configs")
 public class VehicleConfig {
 
     // ID of vehicle

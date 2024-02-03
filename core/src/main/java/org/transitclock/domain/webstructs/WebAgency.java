@@ -33,7 +33,7 @@ import java.util.Map;
 @DynamicUpdate
 @Data
 @Slf4j
-@Table(name = "WebAgencies")
+@Table(name = "web_agencies")
 public class WebAgency {
 
     @Id

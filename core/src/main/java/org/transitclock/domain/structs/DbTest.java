@@ -6,6 +6,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import java.util.List;
 
+import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -22,6 +23,7 @@ import org.transitclock.domain.hibernate.HibernateUtils;
 @Entity
 @DynamicUpdate
 @Slf4j
+@Table(name = "test")
 public class DbTest {
 
     @Id

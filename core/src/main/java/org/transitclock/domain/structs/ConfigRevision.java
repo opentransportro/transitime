@@ -20,6 +20,7 @@ import org.transitclock.domain.hibernate.HibernateUtils;
 @Entity
 @Slf4j
 @DynamicUpdate
+@Table(name = "config_revisions")
 public class ConfigRevision {
 
     @Id
@@ -45,7 +46,9 @@ public class ConfigRevision {
         this.notes = notes;
     }
 
-    /** Needed because Hibernate requires no-arg constructor */
+    /**
+     * Needed because Hibernate requires no-arg constructor
+     */
     @SuppressWarnings("unused")
     protected ConfigRevision() {
         this.configRev = -1;

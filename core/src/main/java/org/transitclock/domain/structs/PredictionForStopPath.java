@@ -19,7 +19,7 @@ import java.util.List;
 @DynamicUpdate
 @Data
 @Table(
-        name = "StopPathPredictions",
+        name = "stop_path_predictions",
         indexes = {
                 @Index(name = "StopPathPredictionTimeIndex", columnList = "tripId, stopPathIndex")
         })

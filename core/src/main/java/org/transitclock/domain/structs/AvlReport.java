@@ -34,7 +34,7 @@ import java.util.regex.Pattern;
 @DynamicUpdate
 @EqualsAndHashCode
 @Table(
-    name = "AvlReports",
+    name = "avl_reports",
     indexes = {
         @Index(name = "AvlReportsTimeIndex", columnList = "time")
     })

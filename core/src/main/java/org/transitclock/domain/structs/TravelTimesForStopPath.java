@@ -31,7 +31,7 @@ import org.transitclock.utils.Geo;
 @ToString
 @EqualsAndHashCode
 @Getter
-@Table(name = "TravelTimesForStopPaths")
+@Table(name = "travel_times_for_stop_paths")
 public class TravelTimesForStopPath implements Serializable {
 
     // Need a generated ID because trying to share TravelTimesForStopPath objects because

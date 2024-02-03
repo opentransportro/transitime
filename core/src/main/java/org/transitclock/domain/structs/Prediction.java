@@ -19,7 +19,7 @@ import org.transitclock.service.dto.IpcPrediction;
 @DynamicUpdate
 @Data
 @Table(
-        name = "Predictions",
+        name = "predictions",
         indexes = {@Index(name = "PredictionTimeIndex", columnList = "creationTime")})
 public class Prediction implements Serializable {
 

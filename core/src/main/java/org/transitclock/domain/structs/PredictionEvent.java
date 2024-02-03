@@ -29,7 +29,7 @@ import org.transitclock.utils.SystemTime;
 @ToString
 @Getter
 @Table(
-        name = "PredictionEvents",
+        name = "prediction_events",
         indexes = {@Index(name = "PredictionEventsTimeIndex", columnList = "time")})
 public class PredictionEvent implements Serializable {
 

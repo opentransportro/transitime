@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.CallbackException;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -28,10 +29,11 @@ import org.transitclock.gtfs.DbConfig;
 @Entity
 @Data
 @DynamicUpdate
-@Table(name = "StopPaths")
+@Slf4j
+@Table(name = "stop_paths")
 public class StopPath implements Serializable, Lifecycle {
 
-    @Column
+    @Column(name = "config_rev")
     @Id
     private final int configRev;
 
@@ -39,48 +41,48 @@ public class StopPath implements Serializable, Lifecycle {
     // 2 * DEFAULT_ID_SIZE since stop path names are stop1_to_stop2 so can
     // be twice as long as other IDs. And when using GTFS Editor the IDs
     // are quite long, a bit longer than 40 characters.
-    @Column(length = 2 * 60)
+    @Column(name = "stop_path_id", length = 2 * 60)
     @Id
     private final String stopPathId;
 
-    @Column(length = TripPattern.TRIP_PATTERN_ID_LENGTH)
+    @Column(name = "trip_pattern_id", length = TripPattern.TRIP_PATTERN_ID_LENGTH)
     @Id
     private String tripPatternId;
 
-    @Column(length = 60)
+    @Column(name = "stop_id", length = 60)
     private final String stopId;
 
     // The stop_sequence for the trip from the GTFS stop_times.txt file
-    @Column
+    @Column(name = "gtfs_stop_seq")
     private final int gtfsStopSeq;
 
     // Needed for schedule adherence so can return scheduled departure time
     // for most stops but the scheduled arrival time for the last stop for
     // a trip.
-    @Column
+    @Column(name = "last_stop_in_trip")
     private final boolean lastStopInTrip;
 
     // route ID from GTFS data
-    @Column(length = 60)
+    @Column(name = "route_id", length = 60)
     private final String routeId;
 
     // Indicates that vehicle can leave route path before departing this stop
     // since the driver is taking a break.
-    @Column
+    @Column(name = "layover_stop")
     private final boolean layoverStop;
 
     // Indicates that vehicle is not supposed to depart the stop until the
     // scheduled departure time.
-    @Column
+    @Column(name = "wait_stop")
     private final boolean waitStop;
 
     // If should generate special ScheduleAdherence data for this stop
-    @Column
+    @Column(name = "schedule_adherence_stop")
     private final boolean scheduleAdherenceStop;
 
     // How long a break driver is entitled to have at the stop, even if it
     // means that the driver should depart after the scheduled departure time.
-    @Column
+    @Column(name = "break_time")
     private final Integer breakTime;
 
     // sacrifice performance for reportability -- use a child table instead of java serialization
@@ -91,13 +93,13 @@ public class StopPath implements Serializable, Lifecycle {
     // Having the path length readily accessible via the database is handy
     // since that way can easily do queries to determine travel speeds and
     // such.
-    @Column
+    @Column(name = "path_length")
     private double pathLength;
 
-    @Column
+    @Column(name = "max_distance")
     private Double maxDistance;
 
-    @Column
+    @Column(name = "max_speed")
     private Double maxSpeed;
     // So can have easy access to vectors representing the segments so
     // can easily determine heading. Declared transient because this
@@ -111,8 +113,6 @@ public class StopPath implements Serializable, Lifecycle {
     @Transient
     @EqualsAndHashCode.Exclude
     private Double shapeDistanceTraveled;
-
-    private static final Logger logger = LoggerFactory.getLogger(StopPath.class);
 
     public StopPath(
             int configRev,

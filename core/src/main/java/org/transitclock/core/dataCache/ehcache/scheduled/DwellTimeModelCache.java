@@ -1,15 +1,18 @@
 /* (C)2023 */
 package org.transitclock.core.dataCache.ehcache.scheduled;
 
+import com.querydsl.jpa.impl.JPAQuery;
 import lombok.extern.slf4j.Slf4j;
 import org.ehcache.Cache;
 import org.ehcache.CacheManager;
+import org.hibernate.Session;
 import org.transitclock.config.data.PredictionConfig;
 import org.transitclock.core.dataCache.*;
 import org.transitclock.core.predictiongenerator.scheduled.dwell.DwellModel;
 import org.transitclock.core.predictiongenerator.scheduled.dwell.DwellTimeModelFactory;
 import org.transitclock.domain.structs.ArrivalDeparture;
 import org.transitclock.domain.structs.Headway;
+import org.transitclock.domain.structs.QArrivalDeparture;
 import org.transitclock.service.dto.IpcArrivalDeparture;
 
 import java.io.IOException;
@@ -179,5 +182,19 @@ public class DwellTimeModelCache implements DwellTimeModelCacheInterface {
             return Long.valueOf(model.predict((int) headway.getHeadway(), null));
 
         return null;
+    }
+
+    @Override
+    public void populateCacheFromDb(Session session, Date startDate, Date endDate) {
+        JPAQuery<ArrivalDeparture> query = new JPAQuery<>(session);
+        var qentity = QArrivalDeparture.arrivalDeparture;
+        List<ArrivalDeparture> results = query.from(qentity)
+                .where(qentity.time.between(startDate, endDate))
+                .orderBy(qentity.time.asc())
+                .fetch();
+
+        for (ArrivalDeparture result : results) {
+            addSample(result);
+        }
     }
 }

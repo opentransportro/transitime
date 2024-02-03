@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RestController;
 import org.transitclock.api.data.ApiAgencies;
 import org.transitclock.api.data.ApiAgency;
@@ -38,7 +39,7 @@ import java.util.List;
  * @author SkiBu Smith
  */
 @Path("/key/{key}")
-@RestController
+@Component
 public class TransitimeNonAgencyApi {
 
     private final ConfigInterface configInterface;

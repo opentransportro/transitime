@@ -26,25 +26,25 @@ import org.transitclock.gtfs.model.GtfsTransfer;
 @ToString
 @EqualsAndHashCode
 @Getter
-@Table(name = "Transfers")
+@Table(name = "transfers")
 public class Transfer implements Serializable {
 
-    @Column
+    @Column(name = "config_rev")
     @Id
     private final int configRev;
 
-    @Column(length = 60)
+    @Column(name = "from_stop_id", length = 60)
     @Id
     private final String fromStopId;
 
-    @Column(length = 60)
+    @Column(name = "to_stop_id", length = 60)
     @Id
     private final String toStopId;
 
-    @Column(length = 1)
+    @Column(name = "transfer_type", length = 1)
     private final String transferType;
 
-    @Column
+    @Column(name = "min_transfer_time")
     private final Integer minTransferTime;
 
     public Transfer(int configRev, GtfsTransfer gt) {

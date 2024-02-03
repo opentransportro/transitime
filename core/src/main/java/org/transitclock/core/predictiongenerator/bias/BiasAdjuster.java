@@ -6,4 +6,11 @@ package org.transitclock.core.predictiongenerator.bias;
  */
 public interface BiasAdjuster {
     long adjustPrediction(long prediction);
+
+    public class DummyBiasAdjuster implements BiasAdjuster {
+        @Override
+        public long adjustPrediction(long prediction) {
+            return 0;
+        }
+    }
 }

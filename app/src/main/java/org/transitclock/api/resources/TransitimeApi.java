@@ -26,6 +26,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RestController;
 import org.transitclock.api.data.ApiActiveBlocks;
 import org.transitclock.api.data.ApiActiveBlocksRoutes;
@@ -107,7 +108,7 @@ import org.transitclock.service.contract.PredictionsInterface.RouteStop;
                                 + " doc</a>."),
         servers = {@Server(url = "/api/v1")})
 @Path("/key/{key}/agency/{agency}")
-@RestController
+@Component
 public class TransitimeApi {
 
     private final CommandsInterface commandsInterface;

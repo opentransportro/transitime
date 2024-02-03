@@ -7,6 +7,7 @@ import java.util.Date;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.transitclock.config.data.AgencyConfig;
 import org.transitclock.service.dto.IpcServerStatus;
 import org.transitclock.service.contract.ServerStatusInterface;
 import org.transitclock.monitoring.AgencyMonitor;
@@ -23,8 +24,8 @@ public class ServerStatusServiceImpl implements ServerStatusInterface {
 
     private final String agencyId;
 
-    private ServerStatusServiceImpl(@Value("${transitclock.code.agencyId}") String projectId) {
-        agencyId = projectId;
+    private ServerStatusServiceImpl() {
+        agencyId = AgencyConfig.getAgencyId();
     }
 
     /* (non-Javadoc)

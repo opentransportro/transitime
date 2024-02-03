@@ -40,7 +40,7 @@ import org.transitclock.utils.IntervalTimer;
 @DynamicUpdate
 @Data
 @Table(
-        name = "Matches",
+        name = "matches",
         indexes = {@Index(name = "AvlTimeIndex", columnList = "avlTime")})
 public class Match implements Lifecycle, Serializable {
 

@@ -2,6 +2,8 @@
 package org.transitclock.domain.structs;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+
 import java.util.Date;
 
 /**

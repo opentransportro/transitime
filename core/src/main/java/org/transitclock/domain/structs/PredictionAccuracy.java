@@ -28,7 +28,7 @@ import org.transitclock.gtfs.DbConfig;
 @DynamicUpdate
 @Data
 @Table(
-        name = "PredictionAccuracy",
+        name = "prediction_accuracy",
         indexes = {
                 @Index(name = "PredictionAccuracyTimeIndex", columnList = "arrivalDepartureTime")
         })

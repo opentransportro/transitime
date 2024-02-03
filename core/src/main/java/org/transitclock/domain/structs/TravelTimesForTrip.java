@@ -33,7 +33,7 @@ import java.util.Map;
 @EqualsAndHashCode
 @ToString
 @Table(
-        name = "TravelTimesForTrips",
+        name = "travel_times_for_trips",
         indexes = {
                 @Index(name = "TravelTimesRevIndex", columnList = "travelTimesRev")
         })

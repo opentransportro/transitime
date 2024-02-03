@@ -407,8 +407,7 @@ public class PredictionGeneratorDefaultImpl extends PredictionGenerator implemen
             if ((predictionForStop.getPredictionTime() - SystemTime.getMillis()) < generateHoldingTimeWhenPredictionWithin.getValue()
                     && (predictionForStop.getPredictionTime() - SystemTime.getMillis()) > 0) {
                 if (holdingTimeGenerator != null) {
-                    HoldingTime holdingTime = holdingTimeGenerator
-                            .generateHoldingTime(vehicleState, predictionForStop);
+                    HoldingTime holdingTime = holdingTimeGenerator.generateHoldingTime(vehicleState, predictionForStop);
                     if (holdingTime != null) {
                         holdingTimeCache.putHoldingTime(holdingTime);
                         vehicleState.setHoldingTime(holdingTime);

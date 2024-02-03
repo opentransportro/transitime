@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -41,11 +42,9 @@ import org.transitclock.utils.Time;
  */
 @Slf4j
 @Entity
-@Getter
-@Setter
-@EqualsAndHashCode
+@Data
 @DynamicUpdate
-@Table(name = "Trips")
+@Table(name = "trips")
 public class Trip implements Lifecycle, Serializable {
 
     @Column

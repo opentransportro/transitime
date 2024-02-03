@@ -27,30 +27,30 @@ import org.transitclock.gtfs.model.GtfsFareRule;
 @EqualsAndHashCode
 @ToString
 @Getter
-@Table(name = "FareRules")
+@Table(name = "fare_rules")
 public class FareRule implements Serializable {
 
-    @Column
+    @Column(name = "config_rev")
     @Id
     private final int configRev;
 
-    @Column(length = 60)
+    @Column(name = "fare_id", length = 60)
     @Id
     private final String fareId;
 
-    @Column(length = 60)
+    @Column(name = "route_id", length = 60)
     @Id
     private final String routeId;
 
-    @Column(length = 60)
+    @Column(name = "origin_id", length = 60)
     @Id
     private final String originId;
 
-    @Column(length = 60)
+    @Column(name = "destination_id", length = 60)
     @Id
     private final String destinationId;
 
-    @Column(length = 60)
+    @Column(name = "contains_id", length = 60)
     @Id
     private final String containsId;
 

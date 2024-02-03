@@ -22,24 +22,24 @@ import org.transitclock.gtfs.model.GtfsCalendarDate;
  */
 @Entity
 @DynamicUpdate
-@Table(name = "CalendarDates")
+@Table(name = "calendar_dates")
 @Slf4j
 public class CalendarDate implements Serializable {
 
-    @Column
+    @Column(name = "config_rev")
     @Id
     private final int configRev;
 
-    @Column(length = 60)
+    @Column(name = "service_id", length = 60)
     @Id
     private final String serviceId;
 
-    @Column
+    @Column(name = "date")
     @Id
     @Temporal(TemporalType.DATE)
     private final Date date;
 
-    @Column(length = 2)
+    @Column(name = "exception_type", length = 2)
     private final String exceptionType;
 
     /**

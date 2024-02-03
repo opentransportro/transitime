@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
  */
 @Entity(name = "Blocks")
 @DynamicUpdate
-@Table(name = "Blocks")
+@Table(name = "blocks")
 @Slf4j
 public final class Block implements Serializable {
     // For making sure only lazy load trips collection via one thread
@@ -49,15 +49,15 @@ public final class Block implements Serializable {
     @Getter
     private static final Object lazyLoadingSyncObject = new Object();
 
-    @Column
+    @Column(name = "config_rev")
     @Id
     private final int configRev;
 
-    @Column(length = 60)
+    @Column(name = "block_id", length = 60)
     @Id
     private final String blockId;
 
-    @Column(length = 60)
+    @Column(name = "service_id", length = 60)
     @Id
     private final String serviceId;
 
@@ -65,14 +65,14 @@ public final class Block implements Serializable {
     // than 0 to indicate that block starts before midnight of the current
     // day. Can be greater than one day to indicate that block starts after
     // midnight of the current day.
-    @Column
+    @Column(name = "start_time")
     private final int startTime;
 
     // End time of block assignment. In seconds from midnight. Can be less
     // than 0 to indicate that block ends before midnight of the current
     // day. Can be greater than one day to indicate that block ends after
     // midnight of the current day.
-    @Column
+    @Column(name = "end_time")
     private final int endTime;
 
     // Need to have a ManyToMany instead of OneToMany relationship
@@ -90,7 +90,7 @@ public final class Block implements Serializable {
     // be voluminous and therefore slow. The trips will be read in when
     // getTrips() is called.
     @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "Block_to_Trip_joinTable")
+    @JoinTable(name = "block_to_trip_join_table")
     @OrderColumn(name = "listIndex")
     @Cascade({CascadeType.SAVE_UPDATE})
     private final List<Trip> trips;
@@ -103,7 +103,7 @@ public final class Block implements Serializable {
     // So to speed things up the routeIds for a block are stored here.
     // NOTE: since trying to use serialization need to use ArrayList<> instead
     // of List<> since List<> doesn't implement Serializable.
-    @Column(length = 500)
+    @Column(name = "route_ids", length = 500)
 //    @ElementCollection
     private final HashSet<String> routeIds;
 

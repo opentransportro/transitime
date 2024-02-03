@@ -15,7 +15,7 @@ public class BaseDao<T> {
 //    private TransactionManager transactionManager;
 
     public Session session() {
-        return sessionFactory.getCurrentSession();
+        return sessionFactory.openSession();
     }
 
     public void flush() {

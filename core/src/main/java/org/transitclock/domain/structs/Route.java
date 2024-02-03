@@ -26,49 +26,49 @@ import org.transitclock.utils.StringUtils;
 @Entity
 @DynamicUpdate
 @Data
-@Table(name = "Routes")
+@Table(name = "routes")
 @Slf4j
 public class Route implements Serializable {
 
     @Id
-    @Column
+    @Column(name = "config_rev")
     private final int configRev;
 
     @Id
-    @Column(length = 60)
+    @Column(name = "id", length = 60)
     private final String id;
 
-    @Column(length = 10)
+    @Column(name = "color", length = 10)
     private final String color;
 
-    @Column(length = 10)
+    @Column(name = "text_color", length = 10)
     private final String textColor;
 
     // Not declared final because need to set route order for all
     // routes that did not have the order configured in the db,
     // but can only do so once all routes read in and sorted.
-    @Column
+    @Column(name = "route_order")
     private Integer routeOrder;
 
-    @Column
+    @Column(name = "hidden")
     private final boolean hidden;
 
-    @Column(length = 2)
+    @Column(name = "type", length = 2)
     private final String type;
 
-    @Column(length = 1024)
+    @Column(name = "description", length = 1024)
     private final String description;
 
     // Directly from GTFS data
-    @Column
+    @Column(name = "short_name")
     private final String shortName;
 
     // Directly from GTFS data
-    @Column
+    @Column(name = "long_name")
     private final String longName;
 
     // Processed name combing the GTFS route_short_name and route_long_name
-    @Column
+    @Column(name = "name")
     private final String name;
 
     @Embedded
@@ -76,7 +76,7 @@ public class Route implements Serializable {
 
     // Optional parameter that specifies how far away AVL report can be
     // from segments and still be considered a match.
-    @Column
+    @Column(name = "max_distance")
     private final Double maxDistance;
 
     // Later will probably want to store this in database,
@@ -111,7 +111,6 @@ public class Route implements Serializable {
             int configRev, GtfsRoute gtfsRoute, List<TripPattern> tripPatternsForRoute, TitleFormatter titleFormatter) {
         // Because will be writing data to the sandbox in the db
         this.configRev = configRev;
-
         // Here are most of the params from GtfsRoute
         this.id = gtfsRoute.getRouteId();
         this.color = gtfsRoute.getRouteColor();

@@ -13,7 +13,7 @@ import org.transitclock.gtfs.DbConfig;
 @Data
 @DynamicUpdate
 @Table(
-        name = "HoldingTimes",
+        name = "holding_times",
         indexes = {@Index(name = "HoldingTimeIndex", columnList = "creationTime")})
 
 public class HoldingTime implements Serializable {

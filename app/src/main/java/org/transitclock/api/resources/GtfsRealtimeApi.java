@@ -8,6 +8,7 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.StreamingOutput;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RestController;
 import org.transitclock.api.data.gtfs.GtfsRtTripFeed;
 import org.transitclock.api.data.gtfs.GtfsRtVehicleFeed;
@@ -23,7 +24,7 @@ import org.transitclock.service.contract.VehiclesInterface;
  * @author SkiBu Smith
  */
 @Path("/key/{key}/agency/{agency}")
-@RestController
+@Component
 public class GtfsRealtimeApi {
     private final VehiclesInterface vehiclesInterface;
     private final PredictionsInterface predictionsInterface;

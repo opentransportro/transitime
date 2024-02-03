@@ -42,7 +42,7 @@ import java.util.List;
 @Setter
 @DynamicUpdate
 @EqualsAndHashCode
-@Table(name = "ArrivalsDepartures",
+@Table(name = "arrivals_departures",
     indexes = {
             @Index(name = "ArrivalsDeparturesTimeIndex", columnList = "time"),
             @Index(name = "ArrivalsDeparturesRouteTimeIndex", columnList = "routeShortName, time")

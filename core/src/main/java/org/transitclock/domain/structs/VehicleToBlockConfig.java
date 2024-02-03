@@ -6,10 +6,7 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -23,12 +20,9 @@ import org.transitclock.domain.hibernate.DataDbLogger;
  * @author Hubert GoEuropa
  */
 @Entity
-@Getter
-@Setter
-@EqualsAndHashCode
-@ToString
+@Data
 @DynamicUpdate
-@Table(name = "VehicleToBlockConfigs")
+@Table(name = "vehicle_to_block_configs")
 public class VehicleToBlockConfig implements Serializable {
 
     // ID of vehicle

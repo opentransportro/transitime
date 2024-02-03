@@ -6,10 +6,7 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -33,12 +30,9 @@ import org.transitclock.utils.SystemTime;
 @Entity
 @Slf4j
 @DynamicUpdate
-@EqualsAndHashCode
-@ToString
-@Getter
-@Setter
+@Data
 @Table(
-        name = "VehicleEvents",
+        name = "vehicle_events",
         indexes = {@Index(name = "VehicleEventsTimeIndex", columnList = "time")})
 public class VehicleEvent implements Serializable {
 

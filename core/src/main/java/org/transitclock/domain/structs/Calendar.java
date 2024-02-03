@@ -11,10 +11,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
+import org.checkerframework.checker.units.qual.N;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
@@ -34,49 +36,48 @@ import org.transitclock.utils.Time;
 @Immutable
 @Entity
 @DynamicUpdate
-@EqualsAndHashCode
-@ToString
-@Getter
+@Data
 @Slf4j
-@Table(name = "Calendars")
+@Table(name = "calendars")
 public class Calendar implements Serializable {
 
-    @Column
+    @Column(name = "config_rev")
     @Id
     private final int configRev;
 
-    @Column(length = 60)
+    @Column(name = "service_id", length = 60)
     @Id
     private final String serviceId;
 
-    @Column
+    @Column(name = "monday")
     @Id
     private final boolean monday;
 
-    @Column
+    @Column(name = "tuesday")
     @Id
     private final boolean tuesday;
 
-    @Column
+    @Column(name = "wednesday")
     @Id
     private final boolean wednesday;
 
-    @Column
+    @Column(name = "thursday")
     @Id
     private final boolean thursday;
 
-    @Column
+    @Column(name = "friday")
     @Id
     private final boolean friday;
 
-    @Column
+    @Column(name = "saturday")
     @Id
     private final boolean saturday;
 
-    @Column
+    @Column(name = "sunday")
     @Id
     private final boolean sunday;
 
+    @Column(name = "start_date")
     @Temporal(TemporalType.DATE)
     @Id
     private final Date startDate;
@@ -84,6 +85,7 @@ public class Calendar implements Serializable {
     // The service is to run until midnight of the end date, which is actually
     // the endDate plus 1 day.
     @Temporal(TemporalType.DATE)
+    @Column(name = "end_date")
     @Id
     private final Date endDate;
 

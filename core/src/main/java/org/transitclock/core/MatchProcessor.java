@@ -30,6 +30,7 @@ public class MatchProcessor {
     private final PredictionDataCache predictionDataCache;
     private final HeadwayGenerator headwayGenerator;
     private final PredictionGenerator predictionGenerator;
+    private final ArrivalDepartureGenerator arrivalDepartureGenerator;
 
     /**
      * Generates the new predictions for the vehicle based on the new match stored in the vehicle
@@ -95,7 +96,7 @@ public class MatchProcessor {
     private void processArrivalDepartures(VehicleState vehicleState) {
         logger.debug("Processing arrivals/departures for vehicleId={}", vehicleState.getVehicleId());
 
-        ArrivalDepartureGeneratorFactory.getInstance().generate(vehicleState);
+        arrivalDepartureGenerator.generate(vehicleState);
     }
 
     /**

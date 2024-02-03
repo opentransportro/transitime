@@ -7,6 +7,10 @@ import org.transitclock.config.ConfigFileReader;
 
 @Slf4j
 public class ApplicationInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+    public ApplicationInitializer(String[] args) {
+
+    }
+
     @Override
     public void initialize(ConfigurableApplicationContext applicationContext) {
         ConfigFileReader.processConfig();

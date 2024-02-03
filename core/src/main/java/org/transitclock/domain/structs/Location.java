@@ -18,10 +18,10 @@ import org.transitclock.utils.Geo;
 @Data
 public class Location implements Serializable {
 
-    @Column
+    @Column(name = "lat")
     private final double lat;
 
-    @Column
+    @Column(name = "lon")
     private final double lon;
 
     public Location(double lat, double lon) {

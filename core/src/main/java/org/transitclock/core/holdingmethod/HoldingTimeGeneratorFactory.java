@@ -1,32 +1,38 @@
 /* (C)2023 */
 package org.transitclock.core.holdingmethod;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.transitclock.config.ClassConfigValue;
 import org.transitclock.config.StringConfigValue;
+import org.transitclock.core.dataCache.*;
+import org.transitclock.domain.hibernate.DataDbLogger;
 import org.transitclock.utils.ClassInstantiator;
 
 /**
  * @author Sean Óg Crudden
  */
+@RequiredArgsConstructor
 @Configuration
 public class HoldingTimeGeneratorFactory {
     // The name of the class to instantiate
-    private static final StringConfigValue className = new StringConfigValue(
+    private static final ClassConfigValue className = new ClassConfigValue(
             "transitclock.core.holdingTimeGeneratorClass",
-            null,
+            HoldingTimeGenerator.DummyHoldingTimeGenerator.class,
             "Specifies the name of the class used for generating " + "holding times.");
 
-    private static HoldingTimeGenerator singleton = null;
+    private final DefaultListableBeanFactory factory;
+    private final VehicleStateManager vehicleStateManager;
+    private final HoldingTimeCache holdingTimeCache;
+    private final VehicleDataCache vehicleDataCache;
+    private final PredictionDataCache predictionDataCache;
+    private final DataDbLogger dataDbLogger;
+    private final StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface;
 
     @Bean
     public HoldingTimeGenerator holdingTimeGenerator() {
-        // If the HoldingTimeGenerator hasn't been created yet then do so now
-        if (singleton == null) {
-            if (className.getValue() != null && !className.getValue().isEmpty())
-                singleton = ClassInstantiator.instantiate(className.getValue(), HoldingTimeGenerator.class);
-        }
-
-        return singleton;
+        return (HoldingTimeGenerator) factory.createBean(className.getValue());
     }
 }
