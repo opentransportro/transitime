@@ -94,7 +94,7 @@ public class Core {
          ThreadFactory threadFactory = new NamedThreadFactory("module-thread-pool");
          Executor executor = Executors.newFixedThreadPool(10, threadFactory);
 
-         var timeoutHandlerModule = new TimeoutHandlerModule(AgencyConfig.getAgencyId());
+         var timeoutHandlerModule = new TimeoutHandlerModule(agencyId);
          ModuleRegistry.register(timeoutHandlerModule);
          executor.execute(timeoutHandlerModule);
 
