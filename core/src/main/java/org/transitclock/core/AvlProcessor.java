@@ -4,6 +4,7 @@ package org.transitclock.core;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
 import org.transitclock.Core;
+import org.transitclock.ModuleRegistry;
 import org.transitclock.config.data.AgencyConfig;
 import org.transitclock.config.data.BlockAssignerConfig;
 import org.transitclock.config.data.CoreConfig;
@@ -1423,7 +1424,7 @@ public class AvlProcessor {
         // If any vehicles have timed out then handle them. This is done
         // here instead of using a regular timer so that it will work
         // even when in playback mode or when reading batch data.
-        Core.getInstance().getTimeoutHandlerModule().storeAvlReport(avlReport);
+        ModuleRegistry.getTimeoutHandlerModule().storeAvlReport(avlReport);
 
         // Do the low level work of matching vehicle and then generating results
         lowLevelProcessAvlReport(avlReport, false);

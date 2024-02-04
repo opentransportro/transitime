@@ -3,10 +3,7 @@ package org.transitclock.domain.structs;
 
 import jakarta.persistence.*;
 
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -59,19 +56,19 @@ public class ActiveRevision {
      *
      * @param session
      * @return the ActiveRevisions
-     * @throws HibernateException
      */
-    public static ActiveRevision get(Session session) throws HibernateException {
+    @NonNull
+    public static ActiveRevision get(Session session) {
         // There should only be a single object so don't need a WHERE clause
         var query = session.createQuery("FROM ActiveRevision", ActiveRevision.class);
         ActiveRevision activeRevision = null;
         try {
             activeRevision = query.uniqueResult();
-        } catch (Exception e) {
-            System.err.println("Exception when reading ActiveRevisions object " + "from database so will create it");
-        } finally {
+        } catch (Exception ignored) {}
+        finally {
             // If we couldn't read from db use default values and write the object to the database.
             if (activeRevision == null) {
+                logger.warn("Exception when reading ActiveRevisions object from database so will create it");
                 activeRevision = new ActiveRevision();
                 session.persist(activeRevision);
             }
@@ -81,13 +78,11 @@ public class ActiveRevision {
         return activeRevision;
     }
 
+    @NonNull
     public static ActiveRevision get(String agencyId) throws HibernateException {
         try (Session session = HibernateUtils.getSession(agencyId)) {
             return get(session);
-        } catch (HibernateException e) {
-            logger.error("Exception in ActiveRevisions.get(). {}", e.getMessage(), e);
         }
-        return null;
     }
 
     /**

@@ -41,21 +41,6 @@ public class Core {
     // For logging data such as AVL reports and arrival times to database
     private final DataDbLogger dataDbLogger;
 
-    @Getter
-    private final TimeoutHandlerModule timeoutHandlerModule;
-
-    private final ServiceUtils service;
-
-    private final Map<Class<?>, Module> modules = new HashMap<>();
-
-    /**
-     *  For when want to use methods in Time. This is important when need methods that access a
-     *  Calendar a lot. By putting the Calendar in Time it can be shared.
-     */
-    @Getter
-    private final Time time;
-
-
     /**
      * Construct the Core object and read in the config data. This is private so that the
      * createCore() factory method must be used.
@@ -67,7 +52,7 @@ public class Core {
          // If config rev not set properly then simply log error.
          // Originally would also exit() but found that want system to
          // work even without GTFS configuration so that can test AVL feed.
-         if (activeRevision == null || !activeRevision.isValid()) {
+         if (!activeRevision.isValid()) {
              logger.error("ActiveRevisions in database is not valid. The configuration revs must be set to proper values. {}", activeRevision);
          }
          int configRev = activeRevision.getConfigRev();
@@ -92,8 +77,7 @@ public class Core {
          // HibernateUtils.clearSessionFactory();
 
          // Read in all GTFS based config data from the database
-         configData = new DbConfig(agencyId);
-         configData.read(configRev);
+         configData = new DbConfig(agencyId, configRev);
 
          // Create the DataDBLogger so that generated data can be stored
          // to database via a robust queue. But don't actually log data
@@ -110,12 +94,9 @@ public class Core {
          ThreadFactory threadFactory = new NamedThreadFactory("module-thread-pool");
          Executor executor = Executors.newFixedThreadPool(10, threadFactory);
 
-         timeoutHandlerModule = new TimeoutHandlerModule(AgencyConfig.getAgencyId());
+         var timeoutHandlerModule = new TimeoutHandlerModule(AgencyConfig.getAgencyId());
+         ModuleRegistry.register(timeoutHandlerModule);
          executor.execute(timeoutHandlerModule);
-         modules.put(timeoutHandlerModule.getClass(), timeoutHandlerModule);
-
-         service = new ServiceUtils(configData);
-         time = new Time(configData);
 
          // Start any optional modules.
          var optionalModuleNames = CoreConfig.getOptionalModules();
@@ -127,7 +108,7 @@ public class Core {
                  logger.info("Starting up optional module {}", moduleName);
                  try {
                      Module module = createModule(moduleName, agencyId);
-                     modules.put(module.getClass(), module);
+                     ModuleRegistry.register(module);
                      executor.execute(module);
                  } catch (NoSuchMethodException e) {
                      logger.error("Failed to start {} because could not find constructor with agencyId arg", moduleName, e);
@@ -207,7 +188,11 @@ public class Core {
      * Returns the ServiceUtils object that can be reused for efficiency.
      */
     public ServiceUtils getServiceUtils() {
-        return service;
+        return configData.getServiceUtils();
+    }
+
+    public Time getTime() {
+        return configData.getTime();
     }
 
     /**

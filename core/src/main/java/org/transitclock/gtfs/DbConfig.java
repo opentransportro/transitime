@@ -9,6 +9,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.slf4j.Logger;
@@ -43,12 +46,14 @@ import org.transitclock.utils.Time;
  *
  * @author SkiBu Smith
  */
+@Slf4j
+@Getter
 public class DbConfig {
 
     private final String agencyId;
 
     // Keeps track of which revision of config data was read in
-    private int configRev;
+    private final int configRev;
 
     // Following is for all the data read from the database
     private List<Block> blocks;
@@ -99,47 +104,11 @@ public class DbConfig {
     // and so that can read in TripPatterns later using the same session.
     private Session globalSession;
 
-    private static final Logger logger = LoggerFactory.getLogger(DbConfig.class);
+    private final ServiceUtils serviceUtils;
+    private final Time time;
 
-    /**
-     * Constructor
-     *
-     * @param agencyId
-     */
-    public DbConfig(String agencyId) {
+    public DbConfig(String agencyId, int configRev) {
         this.agencyId = agencyId;
-    }
-
-    /**
-     * Returns the global session used for lazy loading data. Useful for determining if the global
-     * session has changed.
-     *
-     * @return the global session used for lazy loading of data
-     */
-    public final Session getGlobalSession() {
-        return globalSession;
-    }
-
-    /**
-     * For when the session dies, which happens when db failed over or rebooted. Idea is to create a
-     * new session that can be attached to persistent objects so can lazy load data.
-     */
-    public void createNewGlobalSession() {
-        logger.info("Creating a new session for agencyId={}", agencyId);
-        HibernateUtils.clearSessionFactory();
-        globalSession = HibernateUtils.getSession(agencyId);
-    }
-
-    /**
-     * Initiates the reading of the configuration data from the database. Calls actuallyReadData()
-     * which does all the work.
-     *
-     * <p>NOTE: exits system if config data could not be read in. This is done so that action will
-     * be taken to fix this issue.
-     *
-     * @param configRev
-     */
-    public void read(int configRev) {
         // For logging how long things take
         IntervalTimer timer = new IntervalTimer();
 
@@ -165,6 +134,28 @@ public class DbConfig {
 
         // Let user know what is going on
         logger.info("Finished reading configuration data from database . " + "Took {} msec.", timer.elapsedMsec());
+        this.serviceUtils = new ServiceUtils(this);
+        this.time = new Time(this);
+    }
+
+    /**
+     * Returns the global session used for lazy loading data. Useful for determining if the global
+     * session has changed.
+     *
+     * @return the global session used for lazy loading of data
+     */
+    public final Session getGlobalSession() {
+        return globalSession;
+    }
+
+    /**
+     * For when the session dies, which happens when db failed over or rebooted. Idea is to create a
+     * new session that can be attached to persistent objects so can lazy load data.
+     */
+    public void createNewGlobalSession() {
+        logger.info("Creating a new session for agencyId={}", agencyId);
+        HibernateUtils.clearSessionFactory();
+        globalSession = HibernateUtils.getSession(agencyId);
     }
 
     /**
