@@ -12,7 +12,7 @@
     String beginTime = request.getParameter("beginTime");
     String endTime = request.getParameter("endTime");
 
-    String routeIds[] = request.getParameterValues("r");
+    String[] routeIds = request.getParameterValues("r");
     // source can be "" (for all), "Transitime", or "Other";
     String source = request.getParameter("source");
 

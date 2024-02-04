@@ -86,7 +86,7 @@ public class PredictionAccuracy implements Lifecycle, Serializable {
 
     // Positive means vehicle arrived at stop later then predicted for and
     // negative value means vehicle arrived earlier.
-    @Column(name = "prediction_accuracy")
+    @Column(name = "prediction_accuracy_msecs")
     private final int predictionAccuracyMsecs;
 
     @Column(name = "prediction_source", length = 60)

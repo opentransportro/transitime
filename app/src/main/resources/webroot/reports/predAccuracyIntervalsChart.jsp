@@ -2,9 +2,8 @@
          pageEncoding="UTF-8" %>
 
 <%@page import="org.transitclock.api.utils.WebUtils" %>
-<%@page import="java.util.ResourceBundle" %>
-<%@page import="java.util.Locale" %>
 <%@page import="org.transitclock.domain.webstructs.WebAgency" %>
+<%@page import="java.util.ResourceBundle" %>
 
 <%
     // Determine all the parameters from the query string

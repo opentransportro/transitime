@@ -9,7 +9,7 @@
 
     <!-- Load in Select2 files so can create fancy route selector -->
     <link href="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/css/select2.min.css" rel="stylesheet"/>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/js/select2.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/js/select2.min.js" type="text/javascript"></script>
 
     <link href="params/reportParams.css" rel="stylesheet"/>
 </head>
@@ -51,7 +51,7 @@
                    title="How early a vehicle can arrive compared to the prediction
     	and still be acceptable. Must be a positive number to indicate
     	early."
-                   value="1.0"
+                   value="5.0"
                    step="0.1"
                    type="number"/> <span class="note"><fmt:message key="div.minutes"/></span>
         </div>
@@ -62,7 +62,7 @@
                    title="How late a vehicle can arrive compared to the prediction
     	and still be acceptable. Must be a positive number to indicate
     	late."
-                   value="4.0"
+                   value="5.0"
                    step="0.1"
                    type="number"/> <span class="note"><fmt:message key="div.minutes"/></span>
         </div>

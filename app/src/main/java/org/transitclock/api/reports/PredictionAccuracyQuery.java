@@ -1,8 +1,7 @@
 /* (C)2023 */
 package org.transitclock.api.reports;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.transitclock.domain.GenericQuery;
 import org.transitclock.domain.webstructs.WebAgency;
 import org.transitclock.utils.Time;
@@ -23,13 +22,13 @@ import java.util.Map;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public abstract class PredictionAccuracyQuery {
-
-    private final Connection connection;
-    private String dbType = null;
-
     protected static final int MAX_PRED_LENGTH = 900;
     protected static final int PREDICTION_LENGTH_BUCKET_SIZE = 30;
+
+    private final Connection connection;
+    private final String dbType;
 
     // Keyed on source (so can show data for multiple sources at
     // once in order to compare prediction accuracy. Contains a array,
@@ -37,7 +36,7 @@ public abstract class PredictionAccuracyQuery {
     // of the prediction accuracy values in seconds for that bucket. Each bucket
     // is for
     // a certain prediction range, specified by predictionLengthBucketSize.
-    protected final Map<String, List<List<Integer>>> map = new HashMap<String, List<List<Integer>>>();
+    protected final Map<String, List<List<Integer>>> map = new HashMap<>();
 
     // Defines the output type for the intervals, whether should show
     // standard deviation, percentage, or both.
@@ -50,7 +49,7 @@ public abstract class PredictionAccuracyQuery {
 
         private final String text;
 
-        private IntervalsType(final String text) {
+        IntervalsType(final String text) {
             this.text = text;
         }
 
@@ -81,32 +80,12 @@ public abstract class PredictionAccuracyQuery {
         }
     }
 
-    private static final Logger logger = LoggerFactory.getLogger(PredictionAccuracyQuery.class);
-
-    /********************** Member Functions **************************/
-
-    /**
-     * Creates connection to database.
-     *
-     * @param dbType
-     * @param dbHost
-     * @param dbName
-     * @param dbUserName
-     * @param dbPassword
-     * @throws SQLException
-     */
     public PredictionAccuracyQuery(String dbType, String dbHost, String dbName, String dbUserName, String dbPassword)
             throws SQLException {
         this.dbType = dbType;
         connection = GenericQuery.getConnection(dbType, dbHost, dbName, dbUserName, dbPassword);
     }
 
-    /**
-     * Creates connection to the database for the specified agency.
-     *
-     * @param agencyId
-     * @throws SQLException
-     */
     public PredictionAccuracyQuery(String agencyId) throws SQLException {
         WebAgency agency = WebAgency.getCachedWebAgency(agencyId);
         this.dbType = agency.getDbType();
@@ -140,16 +119,12 @@ public abstract class PredictionAccuracyQuery {
      */
     private void addDataToMap(int predLength, int predAccuracy, String source) {
         // Get the prediction buckets for the specified source
-        List<List<Integer>> predictionBuckets = map.get(source);
-        if (predictionBuckets == null) {
-            predictionBuckets = new ArrayList<List<Integer>>();
-            map.put(source, predictionBuckets);
-        }
+        List<List<Integer>> predictionBuckets = map.computeIfAbsent(source, k -> new ArrayList<>());
 
         // Determine the index of the appropriate prediction bucket
         int predictionBucketIndex = index(predLength);
 
-        while (predictionBuckets.size() < predictionBucketIndex + 1) predictionBuckets.add(new ArrayList<Integer>());
+        while (predictionBuckets.size() < predictionBucketIndex + 1) predictionBuckets.add(new ArrayList<>());
         if (predictionBucketIndex < predictionBuckets.size() && predictionBucketIndex >= 0) {
             List<Integer> predictionAccuracies = predictionBuckets.get(predictionBucketIndex);
             // Add the prediction accuracy to the bucket.
@@ -191,7 +166,7 @@ public abstract class PredictionAccuracyQuery {
             String numDaysStr,
             String beginTimeStr,
             String endTimeStr,
-            String routeIds[],
+            String[] routeIds,
             String predSource,
             String predType)
             throws SQLException, ParseException {
@@ -221,8 +196,8 @@ public abstract class PredictionAccuracyQuery {
             }
             if (endTimeStr == null || endTimeStr.isEmpty()) endTimeStr = "23:59:59";
             // time param is jdbc param -- no need to check for injection attacks
-            timeSql = " AND arrivalDepartureTime::time BETWEEN ? AND ? ";
-            mySqlTimeSql = "AND CAST(arrivalDepartureTime AS TIME) BETWEEN CAST(? AS TIME) AND CAST(? AS" + " TIME) ";
+            timeSql = " AND arrival_departure_time::time BETWEEN ? AND ? ";
+            mySqlTimeSql = "AND CAST(arrival_departure_time AS TIME) BETWEEN CAST(? AS TIME) AND CAST(? AS TIME) ";
         }
 
         // Determine route portion of SQL
@@ -232,8 +207,10 @@ public abstract class PredictionAccuracyQuery {
         // stable but the GTFS route_short_name is.
         String routeSql = "";
         if (routeIds != null && routeIds.length > 0 && !routeIds[0].trim().isEmpty()) {
-            routeSql = " AND (routeId=? OR routeShortName=?";
-            for (int i = 1; i < routeIds.length; ++i) routeSql += " OR routeId=? OR routeShortName=?";
+            routeSql = " AND (route_id=? OR route_short_name=?";
+            for (int i = 1; i < routeIds.length; ++i) {
+                routeSql += " OR route_id=? OR route_short_name=?";
+            }
             routeSql += ")";
         }
 
@@ -243,10 +220,10 @@ public abstract class PredictionAccuracyQuery {
         if (predSource != null && !predSource.isEmpty()) {
             if (predSource.equals("Transitime")) {
                 // Only "Transitime" predictions
-                sourceSql = " AND predictionSource='Transitime'";
+                sourceSql = " AND prediction_source='Transitime'";
             } else {
                 // Anything but "Transitime"
-                sourceSql = " AND predictionSource<>'Transitime'";
+                sourceSql = " AND prediction_source<>'Transitime'";
             }
         }
 
@@ -256,45 +233,43 @@ public abstract class PredictionAccuracyQuery {
         if (predType != null && !predType.isEmpty()) {
             if (predSource.equals("AffectedByWaitStop")) {
                 // Only "AffectedByLayover" predictions
-                predTypeSql = " AND affectedByWaitStop = true ";
+                predTypeSql = " AND affected_by_wait_stop = true ";
             } else {
                 // Only "NotAffectedByLayover" predictions
-                predTypeSql = " AND affectedByWaitStop = false ";
+                predTypeSql = " AND affected_by_wait_stop = false ";
             }
         }
         // TODO generate database independent SQL if possible!
         // Put the entire SQL query together
-        String postSql = "SELECT      to_char(predictedTime-predictionReadTime, 'SSSS')::integer as"
-                + " predLength,      predictionAccuracyMsecs/1000 as predAccuracy,     "
-                + " predictionSource as source  FROM predictionAccuracy WHERE"
-                + " arrivalDepartureTime BETWEEN ?       AND TIMESTAMP '"
-                + beginDateStr
+        String postSql = "SELECT to_char(predicted_time-prediction_read_time, 'SSSS')::integer as predLength, "
+                + "prediction_accuracy_msecs/1000 as predAccuracy, "
+                + " prediction_source as source  FROM prediction_accuracy WHERE"
+                + " arrival_departure_time BETWEEN ? AND TIMESTAMP '" + beginDateStr
                 + "' + INTERVAL '"
                 + numDays
                 + " day' "
                 + timeSql
-                + "  AND predictedTime-predictionReadTime < '00:15:00' "
+                + "  AND predicted_time - prediction_read_time < '00:15:00' "
                 + routeSql
                 + sourceSql
                 + predTypeSql;
 
-        String mySql = "SELECT      abs((unix_timestamp(predictedTime)-unix_timestamp(predictionReadTime))"
-                + " div 1) as predLength,      predictionAccuracyMsecs/1000 as predAccuracy,   "
-                + "   predictionSource as source  FROM PredictionAccuracy WHERE"
-                + " arrivalDepartureTime BETWEEN CAST(? AS DATETIME) AND DATE_ADD(CAST(? AS"
-                + " DATETIME), INTERVAL "
+        String mySql = "SELECT abs((unix_timestamp(predicted_time)-unix_timestamp(prediction_read_time)) div 1) as predLength,"
+                + "predictionAccuracyMsecs/1000 as predAccuracy, "
+                + "prediction_source as source  FROM prediction_accuracy WHERE"
+                + " arrival_departure_time BETWEEN CAST(? AS DATETIME) AND DATE_ADD(CAST(? AS DATETIME), INTERVAL "
                 + numDays
                 + " day) "
                 + mySqlTimeSql
                 + "  AND"
-                + " abs(unix_timestamp(predictedTime)-unix_timestamp(predictionReadTime)) <"
+                + " abs(unix_timestamp(predicted_time)-unix_timestamp(prediction_read_time)) <"
                 + " 900 " // 15 mins
                 // Filter out MBTA_seconds source since it is isn't
                 // significantly different from MBTA_epoch.
                 // TODO should clean this up by not having MBTA_seconds source
                 // at all
                 // in the prediction accuracy module for MBTA.
-                + "  AND predictionSource <> 'MBTA_seconds' "
+                + "  AND prediction_source <> 'MBTA_seconds' "
                 + routeSql
                 + sourceSql
                 + predTypeSql;

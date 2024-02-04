@@ -77,7 +77,8 @@ public class SqlUtils {
      */
     public static String routeClause(HttpServletRequest request, String tableAliasName) {
         // If no route specified then no SQL route clause
-        if (request.getParameter("r") == null) return "";
+        if (request.getParameter("r") == null)
+            return "";
 
         String routeIdentifiers = routeIdentifiersList(request);
 
@@ -86,7 +87,7 @@ public class SqlUtils {
         String tableAlias = "";
         if (tableAliasName != null && !tableAliasName.isEmpty()) tableAlias = tableAliasName + ".";
 
-        return " AND " + tableAlias + "routeShortName IN " + routeIdentifiers;
+        return " AND " + tableAlias + "route_short_name IN " + routeIdentifiers;
     }
 
     /**
@@ -128,7 +129,7 @@ public class SqlUtils {
         String dateRange = request.getParameter("dateRange");
         throwOnSqlInjection(dateRange);
         if (dateRange != null) {
-            String fromToDates[] = dateRange.split(" to ");
+            String[] fromToDates = dateRange.split(" to ");
             String beginDateStr, endDateStr;
             if (fromToDates.length == 1) {
                 beginDateStr = endDateStr = fromToDates[0];

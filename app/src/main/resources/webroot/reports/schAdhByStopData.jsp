@@ -31,20 +31,20 @@
 
         String sql =
                 "SELECT "
-                        + "     COUNT(CASE WHEN scheduledTime-time > " + allowableEarlyMinutesStr + " THEN 1 ELSE null END) as early, \n"
-                        + "     COUNT(CASE WHEN scheduledTime-time <= " + allowableEarlyMinutesStr + " AND time-scheduledTime <= "
+                        + "     COUNT(CASE WHEN scheduled_time-time > " + allowableEarlyMinutesStr + " THEN 1 ELSE null END) as early, \n"
+                        + "     COUNT(CASE WHEN scheduled_time-time <= " + allowableEarlyMinutesStr + " AND time-scheduled_time <= "
                         + allowableLateMinutesStr + " THEN 1 ELSE null END) AS ontime, \n"
-                        + "     COUNT(CASE WHEN time-scheduledTime > " + allowableLateMinutesStr + " THEN 1 ELSE null END) AS late, \n"
+                        + "     COUNT(CASE WHEN time-scheduled_time > " + allowableLateMinutesStr + " THEN 1 ELSE null END) AS late, \n"
                         + "     COUNT(*) AS total, \n"
                         + "     s.name AS stop_name, \n"
-                        + "     ad.directionid AS direction_id \n"
-                        + "FROM ArrivalsDepartures ad, Stops s \n"
+                        + "     ad.direction_id AS direction_id \n"
+                        + "FROM arrivals_departures ad, Stops s \n"
                         + "WHERE "
                         // To get stop name
-                        + " ad.configRev = s.configRev \n"
-                        + " AND ad.stopId = s.id \n"
+                        + " ad.config_rev = s.config_rev \n"
+                        + " AND ad.stop_id = s.id \n"
                         // Only need arrivals/departures that have a schedule time
-                        + " AND ad.scheduledTime IS NOT NULL \n"
+                        + " AND ad.scheduled_time IS NOT NULL \n"
                         // Specifies which routes to provide data for
                         + SqlUtils.routeClause(request, "ad") + "\n"
                         + SqlUtils.timeRangeClause(request, "ad.time", 7) + "\n"
@@ -57,8 +57,8 @@
                         // need to order by direction id and stop order, but also the stop name
                         // as a backup for if stoporder not defined for data and is therefore
                         // always the same and doesn't provide any ordering info.
-                        + " GROUP BY directionid, s.name, ad.stopOrder \n"
-                        + " ORDER BY directionid, ad.stopOrder, s.name";
+                        + " GROUP BY direction_id, s.name, ad.stop_order \n"
+                        + " ORDER BY direction_id, ad.stop_order, s.name";
 
 // Just for debugging
         System.out.println("\nFor schedule adherence by stop query sql=\n" + sql);

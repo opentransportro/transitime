@@ -51,13 +51,13 @@
                 "SELECT "
                         + "  COUNT(*) AS counts_per_time_period, \n"
                         // Put into time buckets of every BUCKET_TIME seconds.
-                        + "  FLOOR(" + epochCommandPre + " (scheduledTime-time)" + epochCommandPost + " / " + BUCKET_TIME + ")*" + BUCKET_TIME + " AS time_period \n"
-                        + "FROM ArrivalsDepartures ad\n"
+                        + "  FLOOR(" + epochCommandPre + " (scheduled_time-time)" + epochCommandPost + " / " + BUCKET_TIME + ")*" + BUCKET_TIME + " AS time_period \n"
+                        + "FROM arrivals_departures ad\n"
                         + "WHERE "
                         // Only need arrivals/departures that have a schedule time
-                        + " ad.scheduledTime IS NOT NULL \n"
+                        + " ad.scheduled_time IS NOT NULL \n"
                         // Ignore stops where schedule adherence really far off
-                        + " AND ABS(" + epochCommandPre + " (scheduledTime-time)" + epochCommandPost + ") < 3600\n"
+                        + " AND ABS(" + epochCommandPre + " (scheduled_time-time)" + epochCommandPost + ") < 3600\n"
                         // Specifies which routes to provide data for
                         + SqlUtils.routeClause(request, "ad") + "\n"
                         + SqlUtils.timeRangeClause(request, "ad.time", 7) + "\n"
