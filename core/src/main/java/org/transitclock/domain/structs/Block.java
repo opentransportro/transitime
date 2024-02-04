@@ -1,7 +1,7 @@
 /* (C)2023 */
 package org.transitclock.domain.structs;
 
-import com.vladmihalcea.hibernate.type.json.JsonType;
+import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.Getter;
