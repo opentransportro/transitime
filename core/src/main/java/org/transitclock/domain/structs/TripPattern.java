@@ -229,16 +229,18 @@ public class TripPattern implements Serializable, Lifecycle {
         // key to the StopPath table,
         int rowsUpdated = 0;
         rowsUpdated += session
-                .createNativeQuery("DELETE FROM TripPattern_to_Path_joinTable WHERE TripPattern_configRev=" + configRev)
+                .createNativeQuery("DELETE FROM trip_pattern_to_path WHERE trip_pattern_config_rev=" + configRev)
                 .executeUpdate();
         rowsUpdated += session
-                .createNativeQuery("DELETE FROM StopPath_Locations WHERE StopPath_configRev=" + configRev)
+                .createNativeQuery("DELETE FROM stoppath_locations WHERE stoppath_config_rev=" + configRev)
                 .executeUpdate();
         rowsUpdated += session
-                .createNativeQuery("DELETE FROM stop_paths WHERE configRev=" + configRev)
+                .createMutationQuery("DELETE FROM StopPath WHERE configRev=:configRev")
+                .setParameter("configRev", configRev)
                 .executeUpdate();
         rowsUpdated += session
-                .createNativeQuery("DELETE FROM trip_patterns WHERE configRev=" + configRev)
+                .createMutationQuery("DELETE FROM TripPattern WHERE configRev=:configRev")
+                .setParameter("configRev", configRev)
                 .executeUpdate();
         return rowsUpdated;
 
@@ -283,10 +285,10 @@ public class TripPattern implements Serializable, Lifecycle {
      * @return
      * @throws HibernateException
      */
-    @SuppressWarnings("unchecked")
     public static List<TripPattern> getTripPatterns(Session session, int configRev) throws HibernateException {
-        var query = session.createQuery("FROM TripPattern WHERE configRev = :configRev");
-        query.setParameter("configRev", configRev);
+        var query = session
+                .createQuery("FROM TripPattern WHERE configRev = :configRev", TripPattern.class)
+                .setParameter("configRev", configRev);
         return query.list();
     }
 

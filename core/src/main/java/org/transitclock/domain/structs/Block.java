@@ -208,14 +208,14 @@ public class Block implements Serializable {
 
         // Delete configRev data from Block_to_Trip_joinTable
         int rowsUpdated = session
-                .createNativeQuery("DELETE FROM block_to_trip WHERE Blocks_configRev=" + configRev, Void.class)
+                .createNativeQuery("DELETE FROM block_to_trip WHERE block_config_rev=" + configRev, Void.class)
                 .executeUpdate();
         logger.info("Deleted {} rows from Block_to_Trip_joinTable for " + "configRev={}", rowsUpdated, configRev);
         totalRowsUpdated += rowsUpdated;
 
         // Delete configRev data from Trip_ScheduledTimeslist
         rowsUpdated = session
-                .createNativeQuery("DELETE FROM trip_scheduledtimeslist WHERE trip_config_rev=" + configRev, Void.class)
+                .createNativeQuery("DELETE FROM trip_scheduled_times_list WHERE trip_config_rev=" + configRev, Void.class)
                 .executeUpdate();
         logger.info("Deleted {} rows from Trip_ScheduledTimeslist for configRev={}", rowsUpdated, configRev);
         totalRowsUpdated += rowsUpdated;
