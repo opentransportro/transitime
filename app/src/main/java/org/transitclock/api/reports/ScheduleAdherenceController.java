@@ -124,52 +124,51 @@ public class ScheduleAdherenceController {
             List<String> idsOrEmpty,
             boolean byGroup,
             String datatype) {
+/*
 
-//        Session session = HibernateUtils.getSession();
-//        JPAQuery<ArrivalDeparture> query = new JPAQuery<>(session);
-//
-//        var qentity = QArrivalDeparture.arrivalDeparture;
-//
-//        // filter ids which may be empty.
-//        List<String> ids = new ArrayList<>();
-//        if (idsOrEmpty != null)
-//            for (String id : idsOrEmpty)
-//                if (!StringUtils.isBlank(id)) {
-//                    ids.add(id);
-//                }
-//
-//        Date endDate = new Date(startDate.getTime() + (numDays * Time.MS_PER_DAY));
-//
-//        ProjectionList proj = Projections.projectionList();
-//
-//        if (byGroup)
-//            proj.add(Projections.groupProperty(groupName), groupName)
-//                .add(Projections.rowCount(), "count");
-//        else
-//            proj.add(Projections.property("routeId"), "routeId")
-//                    .add(Projections.property("stopId"), "stopId")
-//                    .add(Projections.property("tripId"), "tripId");
-//
-//        proj.add(byGroup ? AVG_ADHERENCE_PROJECTION : ADHERENCE_PROJECTION, "scheduleAdherence");
-//
-//        DetachedCriteria criteria = DetachedCriteria.forClass(ArrivalDeparture.class)
-//                .add(Restrictions.between("time", startDate, endDate))
-//                .add(Restrictions.isNotNull("scheduledTime"));
-//
-//        if ("arrival".equals(datatype)) criteria.add(Restrictions.eq("isArrival", true));
-//        else if ("departure".equals(datatype)) criteria.add(Restrictions.eq("isArrival", false));
-//
-//        String sql = "time({alias}.time) between ? and ?";
-//        String[] values = {startTime, endTime};
-//        Type[] types = {StringType.INSTANCE, StringType.INSTANCE};
-//        criteria.add(Restrictions.sqlRestriction(sql, values, types));
-//
-//        criteria.setProjection(proj).setResultTransformer(DetachedCriteria.ALIAS_TO_ENTITY_MAP);
-//
-//        if (ids != null && ids.size() > 0) criteria.add(Restrictions.in(groupName, ids));
-//
-//        return dbify(criteria);
-        return null;
+        var qentity = QArrivalDeparture.arrivalDeparture;
+        Session session = HibernateUtils.getSession();
+        JPAQuery<ArrivalDeparture> query = new JPAQuery<>(session);
+
+        // filter ids which may be empty.
+        List<String> ids = new ArrayList<>();
+        if (idsOrEmpty != null)
+            for (String id : idsOrEmpty)
+                if (!StringUtils.isBlank(id)) {
+                    ids.add(id);
+                }
+
+        Date endDate = new Date(startDate.getTime() + (numDays * Time.MS_PER_DAY));
+
+        ProjectionList proj = Projections.projectionList();
+
+        if (byGroup)
+            proj.add(Projections.groupProperty(groupName), groupName)
+                .add(Projections.rowCount(), "count");
+        else
+            proj.add(Projections.property("routeId"), "routeId")
+                    .add(Projections.property("stopId"), "stopId")
+                    .add(Projections.property("tripId"), "tripId");
+
+        proj.add(byGroup ? AVG_ADHERENCE_PROJECTION : ADHERENCE_PROJECTION, "scheduleAdherence");
+
+        DetachedCriteria criteria = DetachedCriteria.forClass(ArrivalDeparture.class)
+                .add(Restrictions.between("time", startDate, endDate))
+                .add(Restrictions.isNotNull("scheduledTime"));
+
+        if ("arrival".equals(datatype)) criteria.add(Restrictions.eq("isArrival", true));
+        else if ("departure".equals(datatype)) criteria.add(Restrictions.eq("isArrival", false));
+
+        String sql = "time({alias}.time) between ? and ?";
+        String[] values = {startTime, endTime};
+        Type[] types = {StringType.INSTANCE, StringType.INSTANCE};
+        criteria.add(Restrictions.sqlRestriction(sql, values, types));
+
+        criteria.setProjection(proj).setResultTransformer(DetachedCriteria.ALIAS_TO_ENTITY_MAP);
+
+        if (ids != null && ids.size() > 0) criteria.add(Restrictions.in(groupName, ids));
+*/
+        return Collections.emptyList();
     }
 
     private static Date endOfDay(Date endDate) {

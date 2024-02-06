@@ -218,7 +218,7 @@ public class DbQueue<T> {
                 // actually write the data to the db though. That is only
                 // done when the session is flushed or committed.
                 logger.trace("DataDbLogger batch saving object={}", objectToBeStored);
-                session.save(objectToBeStored);
+                session.merge(objectToBeStored);
             }
 
             // Sometimes useful for debugging via the console
@@ -432,8 +432,10 @@ public class DbQueue<T> {
         try (Session session = sessionFactory.openSession()) {
             Transaction tx = session.beginTransaction();
             logger.debug("Individually saving object {}", objectToBeStored);
-            session.persist(objectToBeStored);
+            session.merge(objectToBeStored);
             tx.commit();
+        } catch (Exception e) {
+            logger.error("Something happened while processing {}", objectToBeStored, e);
         }
     }
 

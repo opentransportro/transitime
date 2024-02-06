@@ -139,7 +139,6 @@ public class PredictionEvent implements Serializable {
             String referenceVehicleId,
             Date arrivalTime,
             Date departureTime) {
-        super();
         this.time = time;
         this.avlTime = avlTime;
         this.vehicleId = vehicleId;
