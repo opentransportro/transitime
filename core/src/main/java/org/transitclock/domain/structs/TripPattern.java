@@ -61,7 +61,7 @@ public class TripPattern implements Serializable, Lifecycle {
     @JoinTable(name="trip_pattern_to_path",
             joinColumns= {
                     @JoinColumn(name="trip_pattern_id", referencedColumnName="id"),
-                    @JoinColumn(name="trip_pattern_configrev", referencedColumnName="config_rev")
+                    @JoinColumn(name="trip_pattern_config_rev", referencedColumnName="config_rev")
             },
             inverseJoinColumns= {
                     @JoinColumn(name="stop_path_trip_pattern_id", referencedColumnName="trip_pattern_id"),

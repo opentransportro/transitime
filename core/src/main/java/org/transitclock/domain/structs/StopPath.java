@@ -33,9 +33,8 @@ import org.transitclock.config.data.CoreConfig;
 public class StopPath implements Serializable, Lifecycle {
 
     @Id
-    @Column(name = "config_rev")
-    private final int configRev;
-
+    @Column(name = "trip_pattern_id", length = TripPattern.TRIP_PATTERN_ID_LENGTH)
+    private String tripPatternId;
     // Using size of
     // 2 * DEFAULT_ID_SIZE since stop path names are stop1_to_stop2 so can
     // be twice as long as other IDs. And when using GTFS Editor the IDs
@@ -45,8 +44,8 @@ public class StopPath implements Serializable, Lifecycle {
     private final String stopPathId;
 
     @Id
-    @Column(name = "trip_pattern_id", length = TripPattern.TRIP_PATTERN_ID_LENGTH)
-    private String tripPatternId;
+    @Column(name = "config_rev")
+    private final int configRev;
 
     @Column(name = "stop_id", length = 60)
     private final String stopId;
@@ -86,7 +85,12 @@ public class StopPath implements Serializable, Lifecycle {
 
     // sacrifice performance for reportability -- use a child table instead of java serialization
     @ElementCollection
-    @OrderColumn
+    @CollectionTable(name="stoppath_locations",joinColumns= {
+            @JoinColumn(name = "stoppath_trip_pattern_id", referencedColumnName = "trip_pattern_id"),
+            @JoinColumn(name = "stoppath_stop_path_id", referencedColumnName = "stop_path_id"),
+            @JoinColumn(name = "stoppath_config_rev", referencedColumnName = "config_rev")
+    })
+    @OrderColumn(name = "list_index")
     private List<Location> locations;
 
     // Having the path length readily accessible via the database is handy

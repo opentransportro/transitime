@@ -1,6 +1,10 @@
 package org.transitclock;
 
+import com.beust.jcommander.JCommander;
+import com.beust.jcommander.ParameterException;
 import jakarta.servlet.DispatcherType;
+import lombok.Getter;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.tomcat.InstanceManager;
@@ -12,12 +16,16 @@ import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
 import org.eclipse.jetty.ee10.servlet.ServletHolder;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
+import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.MigrationInfoService;
+import org.flywaydb.core.api.output.MigrateResult;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.hibernate.Session;
 import org.transitclock.api.EmbeddedJspStarter;
 import org.transitclock.api.utils.ApiLoggingFilter;
 import org.transitclock.api.utils.WebLoggingFilter;
 import org.transitclock.api.utils.XSSFilter;
+import org.transitclock.config.ConfigFileReader;
 import org.transitclock.config.data.AgencyConfig;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.config.data.DbSetupConfig;
@@ -42,28 +50,60 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.EnumSet;
 
+import static org.transitclock.utils.ApplicationShutdownSupport.addShutdownHook;
+
 @Slf4j
+@Getter
 public class Application {
-    private final CommandLineParameters cli;
-
-    // Resource path pointing to where the WEBROOT is
     private static final String WEBROOT_INDEX = "/webroot/";
+    private final CommandLineParameters cli;
     private final Server server;
+    private final ApplicationContext context;
 
+    @SneakyThrows
+    public static void main(String[] args) {
+        Thread.currentThread().setName("main");
+        ConfigFileReader.processConfig();
+
+        var app = new Application(args);
+        app.start();
+    }
+
+    public Application(String[] args) throws IOException, URISyntaxException {
+        this(parseAndValidateCmdLine(args));
+    }
+
+    public void start() {
+        // instantiate flyway & migrate
+        migrate();
+        if(cli.shouldLoadGtfs()) {
+            loadGtfs();
+        }
+        createApiKey();
+        createWebAgency();
+        run();
+    }
+
+    private void migrate() {
+        Flyway flyway = Flyway.configure()
+                .dataSource(DbSetupConfig.getConnectionUrl(), DbSetupConfig.getDbUserName(), DbSetupConfig.getDbPassword())
+                .load();
+        MigrationInfoService info = flyway.info();
+        MigrateResult migrate = flyway.migrate();
+    }
 
     public Application(CommandLineParameters commandLineParameters) throws IOException, URISyntaxException {
         this.cli = commandLineParameters;
         this.server = new Server();
+        this.context = ApplicationContext.createDefaultContext(AgencyConfig.getAgencyId());
     }
 
-    public void loadGtfs() {
-        if(cli.shouldLoadGtfs()) {
-            GtfsFileProcessor processor = GtfsFileProcessor.createGtfsFileProcessor(cli);
-            processor.process();
-        }
+    private void loadGtfs() {
+        GtfsFileProcessor processor = GtfsFileProcessor.createGtfsFileProcessor(cli);
+        processor.process();
     }
 
-    public void run() {
+    private void run() {
         String agencyId = AgencyConfig.getAgencyId();
         try {
             try {
@@ -72,8 +112,7 @@ public class Application {
                 logger.error("Failed to populate cache.", e);
             }
 
-            // Close cache if shutting down.
-            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            addShutdownHook("close-cache", () -> {
                 try {
                     logger.info("Closing cache.");
                     CacheManagerFactory.getInstance().close();
@@ -81,10 +120,10 @@ public class Application {
                 } catch (Exception e) {
                     logger.error("Cache close failed...", e);
                 }
-            }));
+            });
 
             // Initialize the core now
-            Core core = Core.createCore(agencyId);
+            Core core = Core.createCore(agencyId, context.getModuleRegistry());
 
             var serverInstance = createWebserver();
             serverInstance.start();
@@ -95,7 +134,7 @@ public class Application {
         }
     }
 
-    public void createApiKey() {
+    private void createApiKey() {
         ApiKeyManager.getInstance()
                 .generateApiKey(
                         "Sean Og Crudden",
@@ -105,7 +144,7 @@ public class Application {
                         "foo");
     }
 
-    public void createWebAgency() {
+    private void createWebAgency() {
         WebAgency webAgency = new WebAgency(AgencyConfig.getAgencyId(),
                 "127.0.0.1",
                 true,
@@ -316,5 +355,33 @@ public class Application {
         }
         // Points to wherever /webroot/ (the resource) is
         return indexUri.toURI();
+    }
+
+    private static CommandLineParameters parseAndValidateCmdLine(String[] args) {
+        CommandLineParameters params = new CommandLineParameters();
+        try {
+            // It is tempting to use JCommander's command syntax: http://jcommander.org/#_more_complex_syntaxes_commands
+            // But this seems to lead to confusing switch ordering and more difficult subsequent use of the
+            // parsed commands, since there will be three separate objects.
+            JCommander jc = JCommander.newBuilder()
+                    .addObject(params)
+                    .args(args)
+                    .build();
+
+            if (params.version) {
+                System.exit(0);
+            }
+
+            if (params.help) {
+                jc.setProgramName("java -Xmx4G -jar transitclock.jar");
+                jc.usage();
+                System.exit(0);
+            }
+            params.inferAndValidate();
+        } catch (ParameterException pex) {
+            logger.error("Parameter error: {}", pex.getMessage());
+            System.exit(1);
+        }
+        return params;
     }
 }
