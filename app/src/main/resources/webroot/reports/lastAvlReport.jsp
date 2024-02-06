@@ -42,7 +42,7 @@
         $(document).ready(function () {
             $.ajax({
                 // The page being requested
-                url: "/web/reports/lastAvlJsonData.jsp",
+                url: "/reports/lastAvlJsonData.jsp",
                 // Pass in query string parameters to page being requested
                 data: {<%= WebUtils.getAjaxDataString(request) %>},
                 // Needed so that parameters passed properly to page being requested
