@@ -337,13 +337,17 @@ public class Block implements Serializable {
      */
     private int activeTripIndex(int secondsIntoDay) {
         List<Trip> trips = getTrips();
-        int previousTripEndTimeSecs = trips.get(0).getStartTime();
-        for (int i = 0; i < trips.size(); ++i) {
-            Trip trip = trips.get(i);
-            int tripEndTimeSecs = trip.getEndTime();
-            if (secondsIntoDay > previousTripEndTimeSecs && secondsIntoDay < tripEndTimeSecs) {
-                return i;
+        if (!trips.isEmpty()) {
+            int previousTripEndTimeSecs = trips.get(0).getStartTime();
+            for (int i = 0; i < trips.size(); ++i) {
+                Trip trip = trips.get(i);
+                int tripEndTimeSecs = trip.getEndTime();
+                if (secondsIntoDay > previousTripEndTimeSecs && secondsIntoDay < tripEndTimeSecs) {
+                    return i;
+                }
             }
+        } else {
+            logger.error("No trips assigned to the current block [{}]", this);
         }
 
         return -1;
@@ -822,7 +826,12 @@ public class Block implements Serializable {
      * @return true if no schedule
      */
     public boolean isNoSchedule() {
-        return getTrips().get(0).isNoSchedule();
+        List<Trip> trips = getTrips();
+        if(trips.isEmpty()) {
+            logger.error("Current block {} has no trips assigned. Please check if this is expected!", this);
+            return false;
+        }
+        return trips.get(0).isNoSchedule();
     }
 
     /**
