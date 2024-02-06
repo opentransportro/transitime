@@ -1,26 +1,24 @@
 /* (C)2023 */
 package org.transitclock;
 
-import lombok.Getter;
 import lombok.NonNull;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.transitclock.config.data.AgencyConfig;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.core.ServiceUtils;
 import org.transitclock.core.TimeoutHandlerModule;
 import org.transitclock.core.dataCache.PredictionDataCache;
 import org.transitclock.core.dataCache.VehicleDataCache;
 import org.transitclock.domain.hibernate.DataDbLogger;
-import org.transitclock.domain.structs.ActiveRevisions;
+import org.transitclock.domain.structs.ActiveRevision;
 import org.transitclock.domain.structs.Agency;
 import org.transitclock.gtfs.DbConfig;
 import org.transitclock.service.*;
 import org.transitclock.utils.Time;
 import org.transitclock.utils.threading.NamedThreadFactory;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.TimeZone;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -38,39 +36,22 @@ public class Core {
     // Contains the configuration data read from database
     private final DbConfig configData;
 
-    // For logging data such as AVL reports and arrival times to database
     private final DataDbLogger dataDbLogger;
+    private final ModuleRegistry moduleRegistry;
 
-    @Getter
-    private final TimeoutHandlerModule timeoutHandlerModule;
-
-    private final ServiceUtils service;
-
-    private final Map<Class<?>, Module> modules = new HashMap<>();
-
-    /**
-     *  For when want to use methods in Time. This is important when need methods that access a
-     *  Calendar a lot. By putting the Calendar in Time it can be shared.
-     */
-    @Getter
-    private final Time time;
-
-
-    /**
-     * Construct the Core object and read in the config data. This is private so that the
-     * createCore() factory method must be used.
-     */
-     private Core(@NonNull String agencyId) {
+    @SneakyThrows
+    private Core(@NonNull String agencyId, ModuleRegistry moduleRegistry) {
+        this.moduleRegistry = moduleRegistry;
          // Read in config rev from ActiveRevisions table in db
-         ActiveRevisions activeRevisions = ActiveRevisions.get(agencyId);
+         ActiveRevision activeRevision = ActiveRevision.get(agencyId);
 
          // If config rev not set properly then simply log error.
          // Originally would also exit() but found that want system to
          // work even without GTFS configuration so that can test AVL feed.
-         if (activeRevisions == null || !activeRevisions.isValid()) {
-             logger.error("ActiveRevisions in database is not valid. The configuration revs must be set to proper values. {}", activeRevisions);
+         if (!activeRevision.isValid()) {
+             logger.error("ActiveRevisions in database is not valid. The configuration revs must be set to proper values. {}", activeRevision);
          }
-         int configRev = activeRevisions.getConfigRev();
+         int configRev = activeRevision.getConfigRev();
 
          // Set the timezone so that when dates are read from db or are logged
          // the time will be correct. Therefore, this needs to be done right at
@@ -92,8 +73,7 @@ public class Core {
          // HibernateUtils.clearSessionFactory();
 
          // Read in all GTFS based config data from the database
-         configData = new DbConfig(agencyId);
-         configData.read(configRev);
+         configData = new DbConfig(agencyId, configRev);
 
          // Create the DataDBLogger so that generated data can be stored
          // to database via a robust queue. But don't actually log data
@@ -110,39 +90,27 @@ public class Core {
          ThreadFactory threadFactory = new NamedThreadFactory("module-thread-pool");
          Executor executor = Executors.newFixedThreadPool(10, threadFactory);
 
-         timeoutHandlerModule = new TimeoutHandlerModule(AgencyConfig.getAgencyId());
-         executor.execute(timeoutHandlerModule);
-         modules.put(timeoutHandlerModule.getClass(), timeoutHandlerModule);
-
-         service = new ServiceUtils(configData);
-         time = new Time(configData);
+        TimeoutHandlerModule timeoutHandlerModule = moduleRegistry.create(TimeoutHandlerModule.class);
+        executor.execute(timeoutHandlerModule);
 
          // Start any optional modules.
          var optionalModuleNames = CoreConfig.getOptionalModules();
-
-         if (optionalModuleNames.isEmpty()) {
-             logger.info("No optional modules to start up.");
-         } else {
-             for (Class<?> moduleName : optionalModuleNames) {
-                 logger.info("Starting up optional module {}", moduleName);
-                 try {
-                     Module module = createModule(moduleName, agencyId);
-                     modules.put(module.getClass(), module);
-                     executor.execute(module);
-                 } catch (NoSuchMethodException e) {
-                     logger.error("Failed to start {} because could not find constructor with agencyId arg", moduleName, e);
-                 } catch (InvocationTargetException e) {
-                     logger.error("Failed to start {}", moduleName, e);
-                 } catch (InstantiationException e) {
-                     logger.error("Failed to start {}", moduleName, e);
-                 } catch (IllegalAccessException e) {
-                     logger.error("Failed to start {}", moduleName, e);
-                 }
+         for (Class<?> moduleName : optionalModuleNames) {
+             logger.info("Starting up optional module {}", moduleName);
+             try {
+                 Module module = moduleRegistry.create(moduleName);
+                 executor.execute(module);
+             } catch (NoSuchMethodException e) {
+                 logger.error("Failed to start {} because could not find constructor with agencyId arg", moduleName, e);
+             } catch (InvocationTargetException e) {
+                 logger.error("Failed to start {}", moduleName, e);
+             } catch (InstantiationException e) {
+                 logger.error("Failed to start {}", moduleName, e);
+             } catch (IllegalAccessException e) {
+                 logger.error("Failed to start {}", moduleName, e);
              }
          }
 
-         // Start the RMI Servers so that clients can obtain data
-         // on predictions, vehicles locations, etc.
           startServices(agencyId);
      }
 
@@ -157,21 +125,15 @@ public class Core {
      *
      * @return The Core singleton, or null if could not create it
      */
-    public static synchronized Core createCore(String agencyId) {
-        // If agencyId not set then can't create a Core. This can happen
-        // when doing testing.
-        if (agencyId == null) {
-            logger.error("No agencyId specified for when creating Core.");
-            return null;
-        }
-
+    public static synchronized Core createCore(@NonNull String agencyId,
+                                               @NonNull ModuleRegistry registry) {
         // Make sure only can have a single Core object
         if (SINGLETON != null) {
             logger.error("Core singleton already created. Cannot create another one.");
             return SINGLETON;
         }
 
-        SINGLETON = new Core(agencyId);
+        SINGLETON = new Core(agencyId, registry);
 
         return SINGLETON;
     }
@@ -207,7 +169,11 @@ public class Core {
      * Returns the ServiceUtils object that can be reused for efficiency.
      */
     public ServiceUtils getServiceUtils() {
-        return service;
+        return configData.getServiceUtils();
+    }
+
+    public Time getTime() {
+        return configData.getTime();
     }
 
     /**
@@ -220,10 +186,6 @@ public class Core {
     }
 
 
-    /**
-     * Start the RMI Servers so that clients can obtain data on predictions, vehicles locations,
-     * etc.
-     */
     public void startServices(String agencyId) {
         PredictionsServiceImpl.start(PredictionDataCache.getInstance());
         VehiclesServiceImpl.start(VehicleDataCache.getInstance());
@@ -235,11 +197,7 @@ public class Core {
         HoldingTimeServiceImpl.start();
     }
 
-    @NonNull
-    private static Module createModule(Class <?> classname, String agencyId) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
-        // Create the module object using reflection by calling the constructor
-        // and passing in agencyId
-        Constructor<?> constructor = classname.getConstructor(String.class);
-        return (Module) constructor.newInstance(agencyId);
+    public TimeoutHandlerModule getTimeoutHandlerModule() {
+        return moduleRegistry.getTimeoutHandlerModule();
     }
 }

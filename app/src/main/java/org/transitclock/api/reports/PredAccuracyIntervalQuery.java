@@ -1,6 +1,7 @@
 /* (C)2023 */
 package org.transitclock.api.reports;
 
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.api.reports.ChartJsonBuilder.RowBuilder;
@@ -16,16 +17,13 @@ import java.util.List;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class PredAccuracyIntervalQuery extends PredictionAccuracyQuery {
 
     // If fewer than this many datapoints for a prediction bucket then
     // stats are not provided since really can't determine standard
     // deviation or percentages for such situation.
     private static final int MIN_DATA_POINTS_PER_PRED_BUCKET = 5;
-
-    private static final Logger logger = LoggerFactory.getLogger(PredAccuracyIntervalQuery.class);
-
-    /********************** Member Functions **************************/
 
     /**
      * Creates connection to database.
@@ -193,7 +191,7 @@ public class PredAccuracyIntervalQuery extends PredictionAccuracyQuery {
                 // for this bucket.
                 if (listForPredBucket != null && listForPredBucket.size() >= MIN_DATA_POINTS_PER_PRED_BUCKET) {
                     // Determine the mean
-                    double dataForPredBucket[] = Statistics.toDoubleArray(listForPredBucket);
+                    double[] dataForPredBucket = Statistics.toDoubleArray(listForPredBucket);
                     double mean = Statistics.mean(dataForPredBucket);
 
                     // Determine the standard deviation and handle special case
@@ -292,7 +290,7 @@ public class PredAccuracyIntervalQuery extends PredictionAccuracyQuery {
             String numDaysStr,
             String beginTimeStr,
             String endTimeStr,
-            String routeIds[],
+            String[] routeIds,
             String predSource,
             String predType,
             IntervalsType intervalsType,
@@ -312,32 +310,6 @@ public class PredAccuracyIntervalQuery extends PredictionAccuracyQuery {
         addCols(builder, intervalsType, intervalPercentage1, intervalPercentage2);
         addRows(builder, intervalsType, intervalPercentage1, intervalPercentage2);
 
-        String jsonString = builder.getJson();
-        return jsonString;
-    }
-
-    /**
-     * For debugging
-     *
-     * @param args
-     */
-    public static void main(String args[]) {
-        String beginDate = "11-03-2014";
-        String numDays = "1";
-        String beginTime = null;
-        String endTime = null;
-        String routeIds[] = {"CR-Providence"};
-        String source = "Transitime";
-
-        String agencyId = "mbta";
-
-        try {
-            PredAccuracyIntervalQuery query = new PredAccuracyIntervalQuery(agencyId);
-            String jsonString = query.getJson(
-                    beginDate, numDays, beginTime, endTime, routeIds, source, null, IntervalsType.BOTH, 0.68, 0.80);
-            System.out.println(jsonString);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        return builder.getJson();
     }
 }

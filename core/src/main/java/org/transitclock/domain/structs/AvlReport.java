@@ -2,6 +2,7 @@
 package org.transitclock.domain.structs;
 
 import jakarta.persistence.*;
+import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -32,9 +33,9 @@ import java.util.regex.Pattern;
 @Immutable
 @Entity
 @DynamicUpdate
-@EqualsAndHashCode
+@Data
 @Table(
-    name = "AvlReports",
+    name = "avl_reports",
     indexes = {
         @Index(name = "AvlReportsTimeIndex", columnList = "time")
     })
@@ -43,16 +44,15 @@ public class AvlReport implements Serializable {
     // vehicleId is an @Id since might get multiple AVL reports
     // for different vehicles with the same time but need a unique
     // primary key.
-    @Getter
     @Id
-    @Column(length = 60)
+    @Column(name = "vehicle_id", length = 60)
     private final String vehicleId;
 
     // Need to use columnDefinition to explicitly specify that should use
     // fractional seconds. This column is an Id since shouldn't get two
     // AVL reports for the same vehicle for the same time.
     @Id
-    @Column
+    @Column(name = "time")
     @Temporal(TemporalType.TIMESTAMP)
     private final Date time;
 
@@ -62,11 +62,10 @@ public class AvlReport implements Serializable {
     // latency. Will be null if AVL report not yet being processed.
     // Need to use columnDefinition to explicitly specify that should use
     // fractional seconds.
-    @Column
+    @Column(name = "time_processed")
     @Temporal(TemporalType.TIMESTAMP)
     private Date timeProcessed;
 
-    @Getter
     @Embedded
     private final Location location;
 
@@ -77,7 +76,7 @@ public class AvlReport implements Serializable {
     // in the database. This is because Float.NaN doesn't work with JDBC
     // drivers. Externally though, such as when calling the constructor,
     // should use Float.NaN. It is converted to a null internally.
-    @Column
+    @Column(name = "speed")
     private final Float speed; // optional
 
     // Heading in degrees clockwise from north.
@@ -88,17 +87,15 @@ public class AvlReport implements Serializable {
     // in the database. This is because Float.NaN doesn't work with JDBC
     // drivers. Externally though, such as when calling the constructor,
     // should use Float.NaN. It is converted to a null internally.
-    @Column
+    @Column(name = "heading")
     private final Float heading; // optional
 
     // Optional text for describing the source of the AVL report
-    @Getter
-    @Column(length = SOURCE_LENGTH)
+    @Column(name = "source", length = SOURCE_LENGTH)
     private String source;
 
     // Can be block, trip, or route ID
-    @Getter
-    @Column(length = 60)
+    @Column(name = "assignment_id", length = 60)
     private String assignmentId; // optional
 
     // The type of the assignment received in the AVL feed
@@ -107,7 +104,6 @@ public class AvlReport implements Serializable {
         BLOCK_ID,
         // For when creating schedule based predictions
         BLOCK_FOR_SCHED_BASED_PREDS,
-
         ROUTE_ID,
         TRIP_ID,
         TRIP_SHORT_NAME,
@@ -115,8 +111,7 @@ public class AvlReport implements Serializable {
         PREVIOUS
     }
 
-    @Getter
-    @Column(length = 40)
+    @Column(name = "assignment_type", length = 40)
     @Enumerated(EnumType.STRING)
     private AssignmentType assignmentType;
 
@@ -126,43 +121,37 @@ public class AvlReport implements Serializable {
      */
     // Optional. This value is transient because it is usually not set.
     // Initially only used for San Francisco Muni. Therefore, not as worthwhile for storing in the database.
-    @Getter
     @Transient
     private final String leadVehicleId;
 
     // Optional
-    @Getter
-    @Column(length = 60)
+    @Column(name = "driver_id", length = 60)
     private final String driverId;
 
     // Optional
-    @Getter
-    @Column(length = 10)
+    @Column(name = "license_place", length = 10)
     private final String licensePlate;
 
     // Optional. Set to null if passenger count info is not available
-    @Column
+    @Column(name = "passenger_count")
     private final Integer passengerCount;
 
     // Optional. How full a bus is as a fraction. 0.0=empty, 1.0=at capacity.
     // This parameter is optional. Set to null if data not available.
-    @Column(length = 60)
+    @Column(name = "passenger_fullness", length = 60)
     private final Float passengerFullness;
 
     // Optional. For containing additional info for a particular feed.
     // Not declared final because setField1() is used to set values.
-    @Getter
-    @Column(length = 60)
+    @Column(name = "field1_name", length = 60)
     private String field1Name;
 
     // Optional. For containing additional info for a particular feed.
     // Not declared final because setField1() is used to set values.
-    @Getter
-    @Column(length = 60)
+    @Column(name = "field1_value", length = 60)
     String field1Value;
 
-    @Setter
-    @Getter
+    @Column(name = "vehicle_name")
     private String vehicleName;
 
     // How long the AvlReport source field can be in db

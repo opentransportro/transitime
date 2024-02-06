@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 
+import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -24,23 +25,28 @@ import org.transitclock.utils.SystemTime;
 @Immutable
 @Entity
 @DynamicUpdate
-@EqualsAndHashCode
-@ToString
-@Getter
+@Data
 @Table(
-        name = "PredictionEvents",
-        indexes = {@Index(name = "PredictionEventsTimeIndex", columnList = "time")})
+    name = "prediction_events",
+    indexes = {
+            @Index(name = "PredictionEventsTimeIndex", columnList = "time")
+    })
 public class PredictionEvent implements Serializable {
+    // A more verbose textual description of the event
+    private static final int MAX_DESCRIPTION_LENGTH = 500;
+    // Some standard prediciton event types
+    public static final String PREDICTION_VARIATION = "Prediction variation";
+    public static final String TRAVELTIME_EXCEPTION = "Travel time exception";
 
     // System time of the event.
     @Id
-    @Column
+    @Column(name = "time")
     @Temporal(TemporalType.TIMESTAMP)
     private final Date time;
 
     // Important for understanding context of issue
     @Id
-    @Column(length = 60)
+    @Column(name = "vehicle_id", length = 60)
     private final String vehicleId;
 
     // Short descriptor of event. Not using an enumerator because don't
@@ -48,19 +54,16 @@ public class PredictionEvent implements Serializable {
     // created. It is an @Id because several events for a vehicle might
     // happen with the same exact timestamp.
     @Id
-    @Column(length = 60)
+    @Column(name = "event_type", length = 60)
     private final String eventType;
 
     // AVL time of the event. Should correspond to last AVL report time so that
     // can join with AVL report to get more info if necessary.
-    @Column
+    @Column(name = "avl_time")
     @Temporal(TemporalType.TIMESTAMP)
     private final Date avlTime;
 
-    // A more verbose textual description of the event
-    private static final int MAX_DESCRIPTION_LENGTH = 500;
-
-    @Column(length = MAX_DESCRIPTION_LENGTH)
+    @Column(name = "description", length = MAX_DESCRIPTION_LENGTH)
     private final String description;
 
     // Latitude/longitude of vehicle when event occurred. Though this could
@@ -72,7 +75,7 @@ public class PredictionEvent implements Serializable {
 
     // Nice for providing context. Allows for query so can see all events
     // for a route.
-    @Column(length = 60)
+    @Column(name = "route_id", length = 60)
     private final String routeId;
 
     // Nice for providing context.
@@ -81,45 +84,42 @@ public class PredictionEvent implements Serializable {
     // routeShortName is more likely to stay consistent. Therefore
     // it is better for when querying for arrival/departure data
     // over a timespan.
-    @Column(length = 60)
+    @Column(name = "route_short_name", length = 60)
     private final String routeShortName;
 
     // Nice for providing context.
-    @Column(length = 60)
+    @Column(name = "block_id", length = 60)
     private final String blockId;
 
     // Nice for providing context.
-    @Column(length = 60)
+    @Column(name = "service_id", length = 60)
     private final String serviceId;
 
     // Nice for providing context.
-    @Column(length = 60)
+    @Column(name = "trip_id", length = 60)
     private final String tripId;
 
     // Nice for providing context.
-    @Column(length = 60)
+    @Column(name = "stop_id", length = 60)
     private final String stopId;
 
-    @Column(length = 60)
+    @Column(name = "arrival_stop_id", length = 60)
     private final String arrivalstopid;
 
-    @Column(length = 60)
+    @Column(name = "departure_stop_id", length = 60)
     private final String departurestopid;
 
-    @Column(length = 60)
+    @Column(name = "reference_vehicle_id", length = 60)
     private final String referenceVehicleId;
 
-    @Column
+    @Column(name = "arrival_time")
     @Temporal(TemporalType.TIMESTAMP)
     private final Date arrivalTime;
 
-    @Column
+    @Column(name = "departure_time")
     @Temporal(TemporalType.TIMESTAMP)
     private final Date departureTime;
 
-    // Some standard prediciton event types
-    public static final String PREDICTION_VARIATION = "Prediction variation";
-    public static final String TRAVELTIME_EXCEPTION = "Travel time exception";
 
     private PredictionEvent(
             Date time,
@@ -139,7 +139,6 @@ public class PredictionEvent implements Serializable {
             String referenceVehicleId,
             Date arrivalTime,
             Date departureTime) {
-        super();
         this.time = time;
         this.avlTime = avlTime;
         this.vehicleId = vehicleId;

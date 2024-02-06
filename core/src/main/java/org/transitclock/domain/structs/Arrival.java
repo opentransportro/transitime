@@ -2,6 +2,8 @@
 package org.transitclock.domain.structs;
 
 import java.util.Date;
+
+import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 
 /**
@@ -10,6 +12,7 @@ import jakarta.persistence.Entity;
  * @author SkiBu Smith
  */
 @Entity
+@DiscriminatorValue(value = "ARRIVAL")
 public class Arrival extends ArrivalDeparture {
 
     public Arrival(

@@ -2,6 +2,8 @@
 package org.transitclock.domain.structs;
 
 import java.io.Serializable;
+
+import com.querydsl.core.annotations.QueryEmbeddable;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.Data;
@@ -15,13 +17,14 @@ import org.transitclock.utils.Geo;
  */
 @Immutable
 @Embeddable
+@QueryEmbeddable
 @Data
 public class Location implements Serializable {
 
-    @Column
+    @Column(name = "lat")
     private final double lat;
 
-    @Column
+    @Column(name = "lon")
     private final double lon;
 
     public Location(double lat, double lon) {

@@ -157,8 +157,8 @@ public class PredictionAccuracyModule extends Module {
         // If prediction too far into the future then don't store it in
         // memory. This is important because need to limit how much
         // memory is used for prediction accuracy data collecting.
-        if (pred.getPredictedTime().getTime()
-                > SystemTime.getMillis() + PredictionAccuracyConfig.maxPredTimeMinutes.getValue() * Time.MS_PER_MIN) {
+        if (pred.getPredictedTime().getTime() >
+                SystemTime.getMillis() + PredictionAccuracyConfig.maxPredTimeMinutes.getValue() * Time.MS_PER_MIN) {
             logger.debug(
                     "Prediction is too far into future so not storing "
                             + "it in memory for prediction accuracy analysis. {}",
@@ -167,13 +167,10 @@ public class PredictionAccuracyModule extends Module {
         }
 
         PredictionKey key = new PredictionKey(pred.getVehicleId(), pred.getDirectionId(), pred.getStopId());
-        List<PredAccuracyPrediction> predsList = predictionMap.get(key);
-        if (predsList == null) {
-            predictionMap.putIfAbsent(key, new ArrayList<>(1));
-            predsList = predictionMap.get(key);
-        }
-        logger.debug("Adding prediction to memory for prediction accuracy " + "analysis. {}", pred);
-        predsList.add(pred);
+        logger.debug("Adding prediction to memory for prediction accuracy analysis. {}", pred);
+        predictionMap
+                .computeIfAbsent(key, k -> new ArrayList<>(1))
+                .add(pred);
     }
 
     /**

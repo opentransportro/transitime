@@ -10,14 +10,9 @@ import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.transitclock.domain.structs.ActiveRevisions;
-import org.transitclock.domain.structs.ScheduleTime;
-import org.transitclock.domain.structs.StopPath;
-import org.transitclock.domain.structs.TravelTimesForStopPath;
+import org.transitclock.domain.structs.*;
+import org.transitclock.domain.structs.ActiveRevision;
 import org.transitclock.domain.structs.TravelTimesForStopPath.HowSet;
-import org.transitclock.domain.structs.TravelTimesForTrip;
-import org.transitclock.domain.structs.Trip;
-import org.transitclock.domain.structs.TripPattern;
 import org.transitclock.gtfs.model.GtfsStopTime;
 import org.transitclock.utils.Geo;
 import org.transitclock.utils.IntervalTimer;
@@ -38,7 +33,7 @@ import org.transitclock.utils.Time;
 public class TravelTimesProcessorForGtfsUpdates {
 
     // Which config and travel times revs to write data for
-    private final ActiveRevisions activeRevisions;
+    private final ActiveRevision activeRevision;
 
     // The original active travel time revision, as read from db
     private final int originalTravelTimesRev;
@@ -52,19 +47,19 @@ public class TravelTimesProcessorForGtfsUpdates {
     /**
      * Constructor
      *
-     * @param activeRevisions
+     * @param activeRevision
      * @param originalTravelTimesRev
      * @param maxTravelTimeSegmentLength
      * @param defaultWaitTimeAtStopMsec
      * @param maxSpeedKph
      */
     public TravelTimesProcessorForGtfsUpdates(
-            ActiveRevisions activeRevisions,
+            ActiveRevision activeRevision,
             int originalTravelTimesRev,
             double maxTravelTimeSegmentLength,
             int defaultWaitTimeAtStopMsec,
             double maxSpeedKph) {
-        this.activeRevisions = activeRevisions;
+        this.activeRevision = activeRevision;
         this.maxTravelTimeSegmentLength = maxTravelTimeSegmentLength;
         this.defaultWaitTimeAtStopMsec = defaultWaitTimeAtStopMsec;
         this.maxSpeedKph = maxSpeedKph;
@@ -117,7 +112,7 @@ public class TravelTimesProcessorForGtfsUpdates {
 
         // Create the TravelTimesForTrip object to be returned
         TravelTimesForTrip travelTimes =
-                new TravelTimesForTrip(activeRevisions.getConfigRev(), activeRevisions.getTravelTimesRev(), trip);
+                new TravelTimesForTrip(activeRevision.getConfigRev(), activeRevision.getTravelTimesRev(), trip);
 
         // Handle first path specially since it is a special case where it is
         // simply a stub path. It therefore has no travel or stop time.
@@ -130,8 +125,8 @@ public class TravelTimesProcessorForGtfsUpdates {
             return travelTimes;
         }
         TravelTimesForStopPath firstPathTravelTimesForPath = new TravelTimesForStopPath(
-                activeRevisions.getConfigRev(),
-                activeRevisions.getTravelTimesRev(),
+                activeRevision.getConfigRev(),
+                activeRevision.getTravelTimesRev(),
                 firstPath.getId(),
                 firstPath.length(),
                 firstPathTravelTimesMsec,
@@ -293,8 +288,8 @@ public class TravelTimesProcessorForGtfsUpdates {
 
                 // Create and add the travel time for this stop path
                 TravelTimesForStopPath travelTimesForStopPath = new TravelTimesForStopPath(
-                        activeRevisions.getConfigRev(),
-                        activeRevisions.getTravelTimesRev(),
+                        activeRevision.getConfigRev(),
+                        activeRevision.getTravelTimesRev(),
                         stopPathId,
                         travelTimeSegmentsLength,
                         travelTimesMsec,

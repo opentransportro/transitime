@@ -20,24 +20,26 @@ import org.transitclock.domain.hibernate.HibernateUtils;
 @Entity
 @Slf4j
 @DynamicUpdate
+@Table(name = "config_revisions")
 public class ConfigRevision {
 
     @Id
-    @Column
+    @Column(name = "config_rev")
     private final int configRev;
 
+    @Column(name = "processed_time")
     @Temporal(TemporalType.TIMESTAMP)
     private final Date processedTime;
 
     // Last modified time of zip file if GTFS data comes directly
     // from zip file instead of from a directory.
+    @Column(name = "zipfile_last_modified_time")
     @Temporal(TemporalType.TIMESTAMP)
     private final Date zipFileLastModifiedTime;
 
-    @Column(length = 512)
+    @Column(name = "notes", length = 512)
     private final String notes;
 
-    // Logging
     public ConfigRevision(int configRev, Date processedTime, Date zipFileLastModifiedTime, String notes) {
         this.configRev = configRev;
         this.processedTime = processedTime;
@@ -45,7 +47,9 @@ public class ConfigRevision {
         this.notes = notes;
     }
 
-    /** Needed because Hibernate requires no-arg constructor */
+    /**
+     * Needed because Hibernate requires no-arg constructor
+     */
     @SuppressWarnings("unused")
     protected ConfigRevision() {
         this.configRev = -1;

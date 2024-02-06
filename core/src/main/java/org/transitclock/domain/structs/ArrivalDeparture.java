@@ -1,8 +1,10 @@
 /* (C)2023 */
 package org.transitclock.domain.structs;
 
+import com.esotericsoftware.kryo.NotNull;
 import com.querydsl.jpa.impl.JPAQuery;
 import jakarta.persistence.*;
+import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -10,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.hibernate.CallbackException;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
+import org.hibernate.annotations.DiscriminatorOptions;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.classic.Lifecycle;
 import org.transitclock.Core;
@@ -38,21 +41,27 @@ import java.util.List;
  * @author SkiBu Smith
  */
 @Entity
-@Getter
-@Setter
+@Data
 @DynamicUpdate
-@EqualsAndHashCode
-@Table(name = "ArrivalsDepartures",
+@Table(name = "arrivals_departures",
     indexes = {
             @Index(name = "ArrivalsDeparturesTimeIndex", columnList = "time"),
-            @Index(name = "ArrivalsDeparturesRouteTimeIndex", columnList = "routeShortName, time")
+            @Index(name = "ArrivalsDeparturesRouteTimeIndex", columnList = "route_short_name, time")
     }
 )
 @Slf4j
-public class ArrivalDeparture implements Lifecycle, Serializable {
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "type", discriminatorType = DiscriminatorType.STRING)
+@DiscriminatorOptions(force = true)
+public abstract class ArrivalDeparture implements Lifecycle, Serializable {
+
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type", insertable = false, updatable = false)
+    private ArrivalsOrDepartures type;
 
     @Id
-    @Column(length = 60)
+    @Column(name = "vehicle_id", length = 60)
     private String vehicleId;
 
     // Originally did not use msec precision (datetime(3)) specification
@@ -68,12 +77,12 @@ public class ArrivalDeparture implements Lifecycle, Serializable {
     // when most likely it zoomed by the stop. It looks better to add
     // only a msec to make the departure after the arrival.
     @Id
-    @Column
+    @Column(name = "time")
     @Temporal(TemporalType.TIMESTAMP)
     private final Date time;
 
     @Id
-    @Column(length = 60)
+    @Column(name = "stop_id", length = 60)
     private String stopId;
 
     // From the GTFS stop_times.txt file for the trip. The gtfsStopSeq can
@@ -83,24 +92,24 @@ public class ArrivalDeparture implements Lifecycle, Serializable {
     // such that a stop is served twice on a trip. Otherwise would get a
     // constraint violation.
     @Id
-    @Column
+    @Column(name = "gtfs_stop_seq")
     private final int gtfsStopSeq;
 
     @Id
-    @Column
+    @Column(name = "is_arrival")
     private final boolean isArrival;
 
     @Id
-    @Column(length = 60)
+    @Column(name = "trip_id", length = 60)
     private String tripId;
 
     // The revision of the configuration data that was being used
-    @Column
+    @Column(name = "config_rev")
     final int configRev;
 
     // So can match the ArrivalDeparture time to the AvlReport that
     // generated it by using vehicleId and avlTime.
-    @Column
+    @Column(name = "avl_time")
     @Temporal(TemporalType.TIMESTAMP)
     private final Date avlTime;
 
@@ -110,14 +119,14 @@ public class ArrivalDeparture implements Lifecycle, Serializable {
     // a trip and and this is an arrival time OR there is a departure schedule
     // time and this is not the last stop for a trip and this is a departure
     // time. Otherwise will be null.
-    @Column
+    @Column(name = "scheduled_time")
     @Temporal(TemporalType.TIMESTAMP)
     private final Date scheduledTime;
 
-    @Column(length = 60)
+    @Column(name = "block_id", length = 60)
     private String blockId;
 
-    @Column(length = 60)
+    @Column(name = "route_id", length = 60)
     private String routeId;
 
     // routeShortName is included because for some agencies the
@@ -125,21 +134,21 @@ public class ArrivalDeparture implements Lifecycle, Serializable {
     // routeShortName is more likely to stay consistent. Therefore
     // it is better for when querying for arrival/departure data
     // over a timespan.
-    @Column(length = 60)
+    @Column(name = "route_short_name", length = 60)
     private String routeShortName;
 
-    @Column(length = 60)
+    @Column(name = "service_id", length = 60)
     private String serviceId;
 
-    @Column(length = 60)
+    @Column(name = "direction_id", length = 60)
     private String directionId;
 
     // The index of which trip this is within the block.
-    @Column
+    @Column(name = "trip_index")
     private final int tripIndex;
 
     /* this is required for frequenecy based services */
-    @Column
+    @Column(name = "freq_start_time")
     @Temporal(TemporalType.TIMESTAMP)
     private final Date freqStartTime;
 
@@ -147,7 +156,7 @@ public class ArrivalDeparture implements Lifecycle, Serializable {
     // Different from the GTFS gtfsStopSeq. The stopPathIndex starts
     // at 0 and increments by one for every stop. The GTFS gtfsStopSeq
     // on the other hand doesn't need to be sequential.
-    @Column
+    @Column(name = "stop_path_index")
     private final int stopPathIndex;
 
     // The order of the stop for the direction of the route. This can
@@ -157,7 +166,7 @@ public class ArrivalDeparture implements Lifecycle, Serializable {
     // is not sufficient for properly ordering data for a route/direction.
     // Declared an Integer instead of an int because might not always
     // be set.
-    @Column
+    @Column(name = "stop_order")
     private final Integer stopOrder;
 
     // Sometimes want to look at travel times using arrival/departure times.
@@ -166,7 +175,7 @@ public class ArrivalDeparture implements Lifecycle, Serializable {
     // StopPath to determine length. So simply storing the stop path
     // length along with arrivals/departures so that it is easy to obtain
     // for post-processing.
-    @Column
+    @Column(name = "stop_path_length")
     private final float stopPathLength;
 
     // So can easily create copy constructor withUpdatedTime()
@@ -313,7 +322,7 @@ public class ArrivalDeparture implements Lifecycle, Serializable {
      * them.
      */
     @Override
-    public void onLoad(Session s, Serializable id) throws CallbackException {
+    public void onLoad(Session s, Object id) throws CallbackException {
         if (vehicleId != null) vehicleId = vehicleId.intern();
         if (stopId != null) stopId = stopId.intern();
         if (tripId != null) tripId = tripId.intern();
@@ -323,25 +332,6 @@ public class ArrivalDeparture implements Lifecycle, Serializable {
         if (serviceId != null) serviceId = serviceId.intern();
         if (directionId != null) directionId = directionId.intern();
     }
-
-    /** Implemented due to Lifecycle interface being implemented. Not actually used. */
-    @Override
-    public boolean onSave(Session s) throws CallbackException {
-        return Lifecycle.NO_VETO;
-    }
-
-    /** Implemented due to Lifecycle interface being implemented. Not actually used. */
-    @Override
-    public boolean onUpdate(Session s) throws CallbackException {
-        return Lifecycle.NO_VETO;
-    }
-
-    /** Implemented due to Lifecycle interface being implemented. Not actually used. */
-    @Override
-    public boolean onDelete(Session s) throws CallbackException {
-        return Lifecycle.NO_VETO;
-    }
-
 
     @Override
     public String toString() {
@@ -592,7 +582,7 @@ public class ArrivalDeparture implements Lifecycle, Serializable {
             String dbName, Date beginTime, Date endTime, ArrivalsOrDepartures arrivalOrDeparture) {
         IntervalTimer timer = new IntervalTimer();
         Long count = null;
-        // Get the database session. This is supposed to be pretty light weight
+        // Get the database session. This is supposed to be pretty lightweight
         Session session = dbName != null ? HibernateUtils.getSession(dbName, false) : HibernateUtils.getSession(true);
 
         // Create the query. Table name is case sensitive and needs to be the

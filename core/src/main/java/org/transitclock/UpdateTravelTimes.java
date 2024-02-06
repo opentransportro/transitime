@@ -17,11 +17,8 @@ import org.transitclock.core.travelTimes.TravelTimeInfoMap;
 import org.transitclock.core.travelTimes.TravelTimeInfoWithHowSet;
 import org.transitclock.core.travelTimes.TravelTimesProcessor;
 import org.transitclock.domain.hibernate.HibernateUtils;
-import org.transitclock.domain.structs.ActiveRevisions;
-import org.transitclock.domain.structs.Agency;
-import org.transitclock.domain.structs.TravelTimesForStopPath;
-import org.transitclock.domain.structs.TravelTimesForTrip;
-import org.transitclock.domain.structs.Trip;
+import org.transitclock.domain.structs.*;
+import org.transitclock.domain.structs.ActiveRevision;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.Time;
 
@@ -76,14 +73,14 @@ public class UpdateTravelTimes {
 
         // Determine which travel times rev is currently being used and which
         // rev should be used for the new travel times.
-        ActiveRevisions activeRevisions = ActiveRevisions.get(session);
-        int currentTravelTimesRev = activeRevisions.getTravelTimesRev();
+        ActiveRevision activeRevision = ActiveRevision.get(session);
+        int currentTravelTimesRev = activeRevision.getTravelTimesRev();
         int newTravelTimesRev = currentTravelTimesRev + 1;
 
         // Update travel time rev in activeRevisions so that will be written
         // to db when session is flushed.
-        activeRevisions.setTravelTimesRev(newTravelTimesRev);
-        logger.info("Revisions being set in database to {}", activeRevisions);
+        activeRevision.setTravelTimesRev(newTravelTimesRev);
+        logger.info("Revisions being set in database to {}", activeRevision);
 
         // For every single trip that is configured...
         for (Trip trip : tripMap.values()) {
@@ -253,9 +250,9 @@ public class UpdateTravelTimes {
         Map<String, Trip> tripMap;
         IntervalTimer timer = new IntervalTimer();
         try {
-            ActiveRevisions activeRevisions = ActiveRevisions.get(session);
+            ActiveRevision activeRevision = ActiveRevision.get(session);
             logger.info("Reading in trips from db...");
-            tripMap = Trip.getTrips(session, activeRevisions.getConfigRev());
+            tripMap = Trip.getTrips(session, activeRevision.getConfigRev());
         } finally {
             logger.info("Reading in trips from db took {} msec", timer.elapsedMsec());
         }
@@ -371,7 +368,7 @@ public class UpdateTravelTimes {
 
         // Set the timezone for the application. Must be done before
         // determine begin and end time so that get the proper time of day.
-        int configRev = ActiveRevisions.get(agencyId).getConfigRev();
+        int configRev = ActiveRevision.get(agencyId).getConfigRev();
         TimeZone timezone = Agency.getAgencies(agencyId, configRev).get(0).getTimeZone();
         TimeZone.setDefault(timezone);
 

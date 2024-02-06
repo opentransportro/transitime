@@ -15,7 +15,7 @@ public class DbSetupConfig {
         return dbName.getValue();
     }
 
-    private static StringConfigValue dbName = new StringConfigValue(
+    private static final StringConfigValue dbName = new StringConfigValue(
             "transitclock.db.dbName",
             null, // Null as default to use the projectId
             "Specifies the name of the database. If not set then the " + "transitclock.core.agencyId will be used.");
@@ -24,7 +24,7 @@ public class DbSetupConfig {
         return dbHost.getValue();
     }
 
-    private static StringConfigValue dbHost = new StringConfigValue(
+    private static final StringConfigValue dbHost = new StringConfigValue(
             "transitclock.db.dbHost",
             null, // Null as default so can get it from hibernate config
             "Specifies the name of the machine the database for the "
@@ -36,7 +36,7 @@ public class DbSetupConfig {
         return dbType.getValue();
     }
 
-    private static StringConfigValue dbType = new StringConfigValue(
+    private static final StringConfigValue dbType = new StringConfigValue(
             "transitclock.db.dbType",
             "postgres",
             "Specifies type of database when creating the URL to "
@@ -47,7 +47,7 @@ public class DbSetupConfig {
         return dbUserName.getValue();
     }
 
-    private static StringConfigValue dbUserName = new StringConfigValue(
+    private static final StringConfigValue dbUserName = new StringConfigValue(
             "transitclock.db.dbUserName",
             null,
             "Specifies login for the project database. Use null " + "value to use values from hibernate config file.");
@@ -56,7 +56,7 @@ public class DbSetupConfig {
         return dbPassword.getValue();
     }
 
-    private static StringConfigValue dbPassword = new StringConfigValue(
+    private static final StringConfigValue dbPassword = new StringConfigValue(
             "transitclock.db.dbPassword",
             null,
             "Specifies password for the project database. Use null "
@@ -84,7 +84,7 @@ public class DbSetupConfig {
         return hibernateConfigFileName.getValue();
     }
 
-    private static StringConfigValue hibernateConfigFileName = new StringConfigValue(
+    private static final StringConfigValue hibernateConfigFileName = new StringConfigValue(
             "transitclock.hibernate.configFile",
             "hibernate.cfg.xml",
             "Specifies the database dependent hibernate.cfg.xml file "
@@ -96,7 +96,7 @@ public class DbSetupConfig {
         return batchSize.getValue();
     }
 
-    private static IntegerConfigValue batchSize = new IntegerConfigValue(
+    private static final IntegerConfigValue batchSize = new IntegerConfigValue(
             "transitclock.db.batchSize", 100, "Specifies the database batch size, defaults to 100");
 
 
@@ -108,4 +108,21 @@ public class DbSetupConfig {
             "Used for encrypting, deencrypting passwords for storage "
                     + "in a database. This value should be customized for each "
                     + "implementation and should be hidden from users.");
+
+    public static String getConnectionUrl() {
+        String dbUrl = "jdbc:" + DbSetupConfig.getDbType() + "://" + DbSetupConfig.getDbHost() + "/" + dbName;
+
+        // If socket timeout specified then add that to the URL
+        Integer timeout = DbSetupConfig.getSocketTimeoutSec();
+        if (timeout != null && timeout != 0) {
+            // If mysql then timeout specified in msec instead of secs
+            if (DbSetupConfig.getDbType().equals("mysql")) {
+                timeout *= 1000;
+            }
+
+            dbUrl += "?connectTimeout=" + timeout + "&socketTimeout=" + timeout;
+        }
+
+        return dbUrl;
+    }
 }

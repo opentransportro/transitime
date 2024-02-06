@@ -31,24 +31,24 @@
 
         String sql =
                 "SELECT "
-                        + "     COUNT(CASE WHEN scheduledTime-time > " + allowableEarlyMinutesStr + " THEN 1 ELSE null END) as early, \n"
-                        + "     COUNT(CASE WHEN scheduledTime-time <= " + allowableEarlyMinutesStr + " AND time-scheduledTime <= "
+                        + "     COUNT(CASE WHEN scheduled_time-time > " + allowableEarlyMinutesStr + " THEN 1 ELSE null END) as early, \n"
+                        + "     COUNT(CASE WHEN scheduled_time-time <= " + allowableEarlyMinutesStr + " AND time-scheduled_time <= "
                         + allowableLateMinutesStr + " THEN 1 ELSE null END) AS ontime, \n"
-                        + "     COUNT(CASE WHEN time-scheduledTime > " + allowableLateMinutesStr + " THEN 1 ELSE null END) AS late, \n"
+                        + "     COUNT(CASE WHEN time-scheduled_time > " + allowableLateMinutesStr + " THEN 1 ELSE null END) AS late, \n"
                         + "     COUNT(*) AS total, \n"
                         + "     r.name \n"
-                        + "FROM ArrivalsDepartures ad, Routes r \n"
+                        + "FROM arrivals_departures ad, routes r \n"
                         + "WHERE "
                         // For joining in route table to get route name
-                        + "ad.configrev = r.configrev \n"
-                        + " AND ad.routeShortName = r.shortName \n"
+                        + "ad.config_rev = r.config_rev AND \n"
+                        + "ad.route_short_name = r.short_name AND \n"
                         // Only need arrivals/departures that have a schedule time
-                        + " AND ad.scheduledTime IS NOT NULL \n"
+                        + "ad.scheduled_time IS NOT NULL \n"
                         // Specifies which routes to provide data for
                         + SqlUtils.routeClause(request, "ad") + "\n"
                         + SqlUtils.timeRangeClause(request, "ad.time", 7) + "\n"
                         // Grouping needed since want to output route name
-                        + " GROUP BY r.name, r.routeOrder ORDER BY r.routeOrder, r.name;";
+                        + " GROUP BY r.name, r.route_order ORDER BY r.route_order, r.name;";
 
 // Just for debugging
         System.out.println("\nFor schedule adherence by route query sql=\n" + sql);

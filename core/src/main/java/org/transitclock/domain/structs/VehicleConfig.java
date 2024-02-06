@@ -7,10 +7,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.util.List;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
@@ -22,46 +19,43 @@ import org.hibernate.annotations.DynamicUpdate;
  */
 @Entity
 @DynamicUpdate
-@Getter
-@Setter
-@ToString
-@EqualsAndHashCode
-@Table(name = "VehicleConfigs")
+@Data
+@Table(name = "vehicle_configs")
 public class VehicleConfig {
 
     // ID of vehicle
-    @Column(length = 60)
+    @Column(name = "id", length = 60)
     @Id
     private final String id;
 
-    @Column
+    @Column(name = "name")
     private String name;
 
     // Same as vehicle type in GTFS
-    @Column
+    @Column(name = "type")
     private final Integer type;
 
     // A more verbose description of the vehicle.
-    @Column
+    @Column(name = "description")
     private final String description;
 
     // Useful for when getting a GPS feed that has a tracker ID, like an IMEI
     // or phone #, instead of a vehicle ID. Allows the corresponding vehicleId
     // to be determined from the VehicleConfig object.
-    @Column(length = 60)
+    @Column(name = "tracker_id", length = 60)
     private final String trackerId;
 
     // Typical capacity of vehicle
-    @Column
+    @Column(name = "capacity")
     private final Integer capacity;
 
     // Absolute crush capacity of vehicle. Number of people who can be
     // squeezed in.
-    @Column
+    @Column(name = "crush_capacity")
     private final Integer crushCapacity;
 
     // If true then a non-revenue vehicle.
-    @Column
+    @Column(name = "non_passenger_vehicle")
     private final Boolean nonPassengerVehicle;
 
     public VehicleConfig(String id) {

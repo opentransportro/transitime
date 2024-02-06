@@ -1,6 +1,7 @@
 /* (C)2023 */
 package org.transitclock.api.reports;
 
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.api.reports.ChartJsonBuilder.RowBuilder;
@@ -19,13 +20,9 @@ import java.util.ResourceBundle;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class PredAccuracyRangeQuery extends PredictionAccuracyQuery {
-
-    private static final Logger logger = LoggerFactory.getLogger(PredAccuracyRangeQuery.class);
-
-    ResourceBundle labels = ResourceBundle.getBundle("org.transitclock.i18n.text", Locale.getDefault());
-
-    /********************** Member Functions **************************/
+    private final ResourceBundle labels;
 
     /**
      * Creates connection to database.
@@ -40,6 +37,7 @@ public class PredAccuracyRangeQuery extends PredictionAccuracyQuery {
     public PredAccuracyRangeQuery(String dbType, String dbHost, String dbName, String dbUserName, String dbPassword)
             throws SQLException {
         super(dbType, dbHost, dbName, dbUserName, dbPassword);
+        labels = ResourceBundle.getBundle("org.transitclock.i18n.text", Locale.getDefault());
     }
 
     /**
@@ -50,6 +48,7 @@ public class PredAccuracyRangeQuery extends PredictionAccuracyQuery {
      */
     public PredAccuracyRangeQuery(String agencyId) throws SQLException {
         super(agencyId);
+        labels = ResourceBundle.getBundle("org.transitclock.i18n.text", Locale.getDefault());
     }
 
     /**
@@ -215,7 +214,7 @@ public class PredAccuracyRangeQuery extends PredictionAccuracyQuery {
             String numDays,
             String beginTimeStr,
             String endTimeStr,
-            String routeIds[],
+            String[] routeIds,
             String predSource,
             String predType,
             int maxEarlySec,
@@ -234,46 +233,6 @@ public class PredAccuracyRangeQuery extends PredictionAccuracyQuery {
         addCols(builder, maxEarlySec, maxLateSec);
         addRows(builder, maxEarlySec, maxLateSec);
 
-        String jsonString = builder.getJson();
-        return jsonString;
-    }
-
-    /**
-     * For debugging
-     *
-     * @param args
-     */
-    public static void main(String args[]) {
-
-        String beginDate = "11-25-2014";
-        String beginTime = null;
-        String endTime = null;
-        String numDays = "1";
-        String routeIds[] = {"CR-Fairmount"};
-
-        String source = "Transitime";
-
-        String dbType = "postgresql"; // "mysql";
-        String dbHost = "192.168.99.100"; // "localhost";
-        String dbName = "GOHART";
-        String dbUserName = "postgres"; // "root";
-        String dbPassword = "transitime";
-
-        try {
-            PredAccuracyRangeQuery query = new PredAccuracyRangeQuery(dbType, dbHost, dbName, dbUserName, dbPassword);
-            String jsonString = query.getJson(
-                    beginDate,
-                    numDays,
-                    beginTime,
-                    endTime,
-                    routeIds,
-                    source,
-                    null,
-                    -60 * Time.MS_PER_SEC,
-                    3 * Time.MS_PER_SEC);
-            System.out.println(jsonString);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        return builder.getJson();
     }
 }

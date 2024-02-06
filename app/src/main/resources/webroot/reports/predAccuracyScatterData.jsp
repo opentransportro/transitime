@@ -33,8 +33,7 @@
 // Make sure not trying to get data for too long of a time span since
 // that could bog down the database.
     if (Integer.parseInt(numDays) > 31) {
-        throw new ParseException(
-                "Number of days of " + numDays + " spans more than a month", 0);
+        throw new ParseException("Number of days of " + numDays + " spans more than a month", 0);
     }
 
 // Determine the time portion of the SQL
@@ -54,7 +53,7 @@
 // all routes.
     String routeSql = "";
     if (routeId != null && !routeId.trim().isEmpty()) {
-        routeSql = "  AND routeId='" + routeId + "' ";
+        routeSql = "  AND route_id='" + routeId + "' ";
     }
 
 // Determine the source portion of the SQL. Default is to provide
@@ -63,10 +62,10 @@
     if (source != null && !source.isEmpty()) {
         if (source.equals("Transitime")) {
             // Only "Transitime" predictions
-            sourceSql = " AND predictionSource='Transitime'";
+            sourceSql = " AND prediction_source='Transitime'";
         } else {
             // Anything but "Transitime"
-            sourceSql = " AND predictionSource<>'Transitime'";
+            sourceSql = " AND prediction_source<>'Transitime'";
         }
     }
 
@@ -75,10 +74,10 @@
     if (predictionType != null && !predictionType.isEmpty()) {
         if (source.equals("AffectedByWaitStop")) {
             // Only "AffectedByLayover" predictions
-            predTypeSql = " AND affectedByWaitStop = true ";
+            predTypeSql = " AND affected_by_wait_stop = true ";
         } else {
             // Only "NotAffectedByLayover" predictions
-            predTypeSql = " AND affectedByWaitStop = false ";
+            predTypeSql = " AND affected_by_wait_stop = false ";
         }
     }
 
@@ -96,30 +95,30 @@
                         + "vehicleId=%s\\n"
                         + "source=%s\\n"
                         + "affectedByLayover=%s', "
-                        + "   CAST(predictionAccuracyMsecs || ' msec' AS INTERVAL), predictedTime-predictionReadTime,"
-                        + "   stopId, routeId, tripId, "
-                        + "   to_char(arrivalDepartureTime, 'HH24:MI:SS.MS MM/DD/YYYY'),"
-                        + "   to_char(predictedTime, 'HH24:MI:SS.MS'),"
-                        + "   to_char(predictionReadTime, 'HH24:MI:SS.MS'),"
+                        + "   CAST(prediction_accuracy_msecs || ' msec' AS INTERVAL), predicted_time-prediction_read_time,"
+                        + "   stop_id, route_id, trip_id, "
+                        + "   to_char(arrival_departure_time, 'HH24:MI:SS.MS MM/DD/YYYY'),"
+                        + "   to_char(predicted_time, 'HH24:MI:SS.MS'),"
+                        + "   to_char(prediction_read_time, 'HH24:MI:SS.MS'),"
                         + "   vehicleId,"
                         + "   predictionSource,"
                         + "   CASE WHEN affectedbywaitstop THEN 'True' ELSE 'False' END) AS tooltip ";
 
-    String predLengthSql = "     to_char(predictedTime-predictionReadTime, 'SSSS')::integer ";
-    String predAccuracySql = "     predictionAccuracyMsecs/1000 as predAccuracy ";
+    String predLengthSql = "     to_char(predicted_time-prediction_read_time, 'SSSS')::integer ";
+    String predAccuracySql = "     prediction_accuracy_msecs/1000 as predAccuracy ";
     if (isMysql) {
-        predLengthSql = "CAST(predictedTime-predictionReadTime as SIGNED) ";
-        predAccuracySql = "CAST(predictionAccuracyMsecs/1000 AS DECIMAL) as predAccuracy ";
+        predLengthSql = "CAST(predicted_time-prediction_read_time as SIGNED) ";
+        predAccuracySql = "CAST(prediction_accuracy_msecs/1000 AS DECIMAL) as predAccuracy ";
     }
 
     String sql = "SELECT "
             + predLengthSql + " as predLength,"
             + predAccuracySql
             + tooltipsSql
-            + " FROM PredictionAccuracy "
+            + " FROM prediction_accuracy "
             + "WHERE "
             + "1=1 "
-            + SqlUtils.timeRangeClause(request, "arrivalDepartureTime", 30)
+            + SqlUtils.timeRangeClause(request, "arrival_departure_time", 30)
             + "  AND " + predLengthSql + " < 900 "
             + routeSql
             + sourceSql
@@ -127,7 +126,7 @@
             // Filter out MBTA_seconds source since it is isn't significantly different from MBTA_epoch.
             // TODO should clean this up by not having MBTA_seconds source at all
             // in the prediction accuracy module for MBTA.
-            + "  AND predictionSource <> 'MBTA_seconds' ";
+            + "  AND prediction_source <> 'MBTA_seconds' ";
 
 
     // Determine the json data by running the query

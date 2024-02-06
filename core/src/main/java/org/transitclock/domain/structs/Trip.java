@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -41,42 +42,40 @@ import org.transitclock.utils.Time;
  */
 @Slf4j
 @Entity
-@Getter
-@Setter
-@EqualsAndHashCode
+@Data
 @DynamicUpdate
-@Table(name = "Trips")
+@Table(name = "trips")
 public class Trip implements Lifecycle, Serializable {
 
-    @Column
     @Id
+    @Column(name = "config_rev")
     private final int configRev;
 
-    @Column(length = 60)
     @Id
+    @Column(name = "trip_id", length = 60)
     private String tripId;
 
     // The startTime needs to be an Id column because GTFS frequencies.txt
     // file can be used to define multiple trips with the same trip ID.
     // It is in number of seconds into the day.
     // Not declared as final because only used for frequency based trips.
-    @Column
     @Id
+    @Column(name = "start_time")
     private Integer startTime;
 
     // Used by some agencies to identify the trip in the AVL feed
-    @Column(length = 60)
+    @Column(name = "trip_short_name", length = 60)
     private String tripShortName;
 
     // Number of seconds into the day.
     // Not final because only used for frequency based trips.
-    @Column
+    @Column(name = "end_time")
     private Integer endTime;
 
-    @Column(length = 60)
+    @Column(name = "direction_id", length = 60)
     private String directionId;
 
-    @Column(length = 60)
+    @Column(name = "route_id", length = 60)
     private String routeId;
 
     // Route short name is also needed because some agencies such as SFMTA
@@ -85,7 +84,7 @@ public class Trip implements Lifecycle, Serializable {
     // prediction pages or for running schedule adherence reports over
     // time. For where need a route identifier that is consistent over time
     // it can be best to use the routeShortName.
-    @Column(length = 60)
+    @Column(name = "route_short_name", length = 60)
     private String routeShortName;
 
     // So can determine all the stops and stopPaths associated with trip
@@ -106,35 +105,40 @@ public class Trip implements Lifecycle, Serializable {
 
     // Contains schedule time for each stop as obtained from GTFS
     // stop_times.txt file. Useful for determining schedule adherence.
+    @OrderColumn(name = "list_index")
     @ElementCollection
-    @OrderColumn
+    @CollectionTable(name = "trip_scheduled_times_list", joinColumns = {
+            @JoinColumn(name = "trip_config_rev", referencedColumnName = "config_rev"),
+            @JoinColumn(name = "trip_trip_id", referencedColumnName = "trip_id"),
+            @JoinColumn(name = "trip_start_time", referencedColumnName = "start_time")
+    })
     private final List<ScheduleTime> scheduledTimesList = new ArrayList<>();
 
     // For non-scheduled blocks where vehicle runs a trip as a continuous loop
-    @Column
+    @Column(name = "no_schedule")
     private final boolean noSchedule;
 
     // For when times are determined via the GTFS frequency.txt file and
     // exact_times for the trip is set to true. Indicates that the schedule
     // times were determined using the trip frequency and start_time.
-    @Column
+    @Column(name = "exact_times_headway")
     private final boolean exactTimesHeadway;
 
     // Service ID for the trip
-    @Column(length = 60)
+    @Column(name = "service_id", length = 60)
     private String serviceId;
 
     // The GTFS trips.txt trip_headsign if set. Otherwise will get from the
     // stop_headsign, if set, from the first stop of the trip. Otherwise null.
-    @Column
+    @Column(name = "headsign")
     private String headsign;
 
     // From GTFS trips.txt block_id if set. Otherwise the trip_id.
-    @Column(length = 60)
+    @Column(name = "block_id", length = 60)
     private String blockId;
 
     // The GTFS trips.txt shape_id
-    @Column(length = 60)
+    @Column(name = "shape_id", length = 60)
     private String shapeId;
 
     @Transient
@@ -795,7 +799,7 @@ public class Trip implements Lifecycle, Serializable {
      * them.
      */
     @Override
-    public void onLoad(Session s, Serializable id) throws CallbackException {
+    public void onLoad(Session s, Object id) throws CallbackException {
         if (tripId != null) tripId = tripId.intern();
         if (tripShortName != null) tripShortName = tripShortName.intern();
         if (directionId != null) directionId = directionId.intern();
@@ -805,24 +809,6 @@ public class Trip implements Lifecycle, Serializable {
         if (headsign != null) headsign = headsign.intern();
         if (blockId != null) blockId = blockId.intern();
         if (shapeId != null) shapeId = shapeId.intern();
-    }
-
-    /** Implemented due to Lifecycle interface being implemented. Not actually used. */
-    @Override
-    public boolean onSave(Session s) throws CallbackException {
-        return Lifecycle.NO_VETO;
-    }
-
-    /** Implemented due to Lifecycle interface being implemented. Not actually used. */
-    @Override
-    public boolean onUpdate(Session s) throws CallbackException {
-        return Lifecycle.NO_VETO;
-    }
-
-    /** Implemented due to Lifecycle interface being implemented. Not actually used. */
-    @Override
-    public boolean onDelete(Session s) throws CallbackException {
-        return Lifecycle.NO_VETO;
     }
 
     /**

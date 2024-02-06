@@ -50,17 +50,17 @@ public class AvlJsonQuery {
         String sql = "";
 
         if ("mysql".equals(agency.getDbType())) {
-            sql = "SELECT vehicleId, name, time, assignmentId, lat, lon, speed, heading,"
-                    + " timeProcessed, source FROM avlreports INNER JOIN vehicleconfigs ON"
-                    + " vehicleconfigs.id = avlreports.vehicleId WHERE time BETWEEN  cast(? as"
+            sql = "SELECT vehicle_id, name, time, assignment_id, lat, lon, speed, heading,"
+                    + " time_processed, source FROM avl_reports INNER JOIN vehicle_configs ON"
+                    + " vehicle_configs.id = avl_reports.vehicle_id WHERE time BETWEEN  cast(? as"
                     + " datetime) AND date_add(cast(? as datetime), INTERVAL "
                     + numdays
                     + " day) "
                     + timeSql;
         } else {
-            sql = "SELECT vehicleId, name, time, assignmentId, lat, lon, speed, heading,"
-                    + " timeProcessed, source FROM avlreports INNER JOIN vehicleconfigs ON"
-                    + " vehicleconfigs.id = avlreports.vehicleId WHERE time BETWEEN  cast(? as"
+            sql = "SELECT vehicle_id, name, time, assignment_id, lat, lon, speed, heading,"
+                    + " time_processed, source FROM avl_reports INNER JOIN vehicle_configs ON"
+                    + " vehicle_configs.id = avl_reports.vehicle_id WHERE time BETWEEN  cast(? as"
                     + " timestamp) AND cast(? as timestamp) + INTERVAL '"
                     + numdays
                     + " day' "
@@ -68,7 +68,7 @@ public class AvlJsonQuery {
         }
 
         // If only want data for single vehicle then specify so in SQL
-        if (vehicleId != null && !vehicleId.isEmpty()) sql += " AND vehicleId='" + vehicleId + "' ";
+        if (vehicleId != null && !vehicleId.isEmpty()) sql += " AND vehicle_id='" + vehicleId + "' ";
 
         // Make sure data is ordered by vehicleId so that can draw lines
         // connecting the AVL reports per vehicle properly. Also then need
@@ -76,7 +76,7 @@ public class AvlJsonQuery {
         // lastly, limit AVL reports to 5000 so that someone doesn't try
         // to view too much data at once.
 
-        sql += "ORDER BY vehicleId, time LIMIT " + MAX_ROWS;
+        sql += "ORDER BY vehicle_id, time LIMIT " + MAX_ROWS;
 
         String json = null;
         try {
@@ -127,14 +127,14 @@ public class AvlJsonQuery {
             timeSql = " AND time::time BETWEEN '" + beginTime + "' AND '" + endTime + "' ";
         }
 
-        String sql = "SELECT a.vehicleId, a.time, a.assignmentId, a.lat, a.lon, "
-                + "     a.speed, a.heading, a.timeProcessed, "
-                + "     vs.blockId, vs.tripId, vs.tripShortName, vs.routeId, "
-                + "     vs.routeShortName, vs.schedAdhMsec, vs.schedAdh, "
-                + "     vs.isDelayed, vs.isLayover, vs.isWaitStop  "
-                + "FROM AvlReports a "
-                + "  LEFT JOIN vehicleStates vs "
-                + "    ON vs.vehicleId = a.vehicleId AND vs.avlTime = a.time "
+        String sql = "SELECT a.vehicle_id, a.time, a.assignment_id, a.lat, a.lon, "
+                + "     a.speed, a.heading, a.time_processed, "
+                + "     vs.block_id, vs.trip_id, vs.trip_short_name, vs.route_id, "
+                + "     vs.route_short_name, vs.schedule_adherence_msec, vs.schedule_adherence, "
+                + "     vs.is_delayed, vs.is_layover, vs.is_wait_stop  "
+                + "FROM avl_reports a "
+                + "  LEFT JOIN vehicle_states vs "
+                + "    ON vs.vehicle_id = a.vehicle_id AND vs.avl_time = a.time "
                 + "WHERE a.time BETWEEN '"
                 + beginDate
                 + "' "
@@ -150,17 +150,17 @@ public class AvlJsonQuery {
         // across schedule changes need to try to match to GTFS route_id or
         // route_short_name.
         if (vehicleId == null && routeId != null && !routeId.trim().isEmpty())
-            sql += "AND (vs.routeId='" + routeId + "' OR vs.routeShortName='" + routeId + "') ";
+            sql += "AND (vs.route_id='" + routeId + "' OR vs.route_short_name='" + routeId + "') ";
 
         // If only want data for single vehicle then specify so in SQL
-        if (vehicleId != null && !vehicleId.trim().isEmpty()) sql += "AND a.vehicleId='" + vehicleId + "' ";
+        if (vehicleId != null && !vehicleId.trim().isEmpty()) sql += "AND a.vehicle_id='" + vehicleId + "' ";
 
         // Make sure data is ordered by vehicleId so that can draw lines
         // connecting the AVL reports per vehicle properly. Also then need
         // to order by time to make sure they are in proper order. And
         // lastly, limit AVL reports to 5000 so that someone doesn't try
         // to view too much data at once.
-        sql += "ORDER BY a.vehicleId, time LIMIT " + MAX_ROWS;
+        sql += "ORDER BY a.vehicle_id, time LIMIT " + MAX_ROWS;
 
         return GenericJsonQuery.getJsonString(agencyId, sql);
     }

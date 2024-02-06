@@ -2,7 +2,11 @@
 package org.transitclock.domain.structs;
 
 import java.io.Serializable;
+
+import com.querydsl.core.annotations.QueryEmbeddable;
+import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
+import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.transitclock.utils.Time;
@@ -13,9 +17,9 @@ import org.transitclock.utils.Time;
  *
  * @author SkiBu Smith
  */
-@Getter
+@Data
 @Embeddable
-@EqualsAndHashCode
+@QueryEmbeddable
 public class ScheduleTime implements Serializable {
 
     // Times are in seconds. arrivalTime only set for last
@@ -24,12 +28,14 @@ public class ScheduleTime implements Serializable {
      * Time of day in seconds. Will be null if there is no arrival time (even if there is a
      * departure time). There will be no arrival time unless it is last stop in trip.
      */
+    @Column(name = "arrival_time")
     private final Integer arrivalTime;
 
     /**
      * Time of day in seconds. Will be null if there is no departure time (even if there is an
      * arrival time). There will be no departure time if last stop of trip.
      */
+    @Column(name = "departure_time")
     private final Integer departureTime;
 
     public ScheduleTime(Integer arrivalTime, Integer departureTime) {
@@ -49,7 +55,8 @@ public class ScheduleTime implements Serializable {
      * @return
      */
     public Integer getTime() {
-        if (departureTime != null) return departureTime;
+        if (departureTime != null)
+            return departureTime;
         return arrivalTime;
     }
 

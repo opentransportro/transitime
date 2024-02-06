@@ -8,6 +8,7 @@ import jakarta.persistence.Table;
 import java.io.Serializable;
 import java.util.List;
 
+import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -22,36 +23,34 @@ import org.transitclock.gtfs.model.GtfsFareRule;
  *
  * @author SkiBu Smith
  */
+@Data
 @Entity
 @DynamicUpdate
-@EqualsAndHashCode
-@ToString
-@Getter
-@Table(name = "FareRules")
+@Table(name = "fare_rules")
 public class FareRule implements Serializable {
 
-    @Column
     @Id
+    @Column(name = "config_rev")
     private final int configRev;
 
-    @Column(length = 60)
     @Id
+    @Column(name = "fare_id", length = 60)
     private final String fareId;
 
-    @Column(length = 60)
     @Id
+    @Column(name = "route_id", length = 60)
     private final String routeId;
 
-    @Column(length = 60)
     @Id
+    @Column(name = "origin_id", length = 60)
     private final String originId;
 
-    @Column(length = 60)
     @Id
+    @Column(name = "destination_id", length = 60)
     private final String destinationId;
 
-    @Column(length = 60)
     @Id
+    @Column(name = "contains_id", length = 60)
     private final String containsId;
 
     /**

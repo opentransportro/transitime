@@ -1,14 +1,9 @@
 /* (C)2023 */
 package org.transitclock.domain.structs;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -22,12 +17,11 @@ import org.transitclock.domain.hibernate.HibernateUtils;
  * @author SkiBu Smith
  */
 @Entity
-@Getter
-@Setter
-@ToString
+@Data
 @DynamicUpdate
 @Slf4j
-public class ActiveRevisions {
+@Table(name = "active_revisions")
+public class ActiveRevision {
 
     // Need a generated ID since Hibernate required some type
     // of ID. Both configRev and travelTimesRev
@@ -36,21 +30,23 @@ public class ActiveRevisions {
     // configRev and travelTimesRev can't be an ID. This means
     // that need a separate ID. Yes, somewhat peculiar.
     @Id
-    @Column
+    @Column(name = "id")
     @GeneratedValue
     private Integer id;
 
     // For the configuration data for routes, stops, schedule, etc.
-    @Column
+    @Column(name = "config_rev")
     private int configRev;
 
     // For the travel time configuration data. Updated independently of
     // configRev.
-    @Column
+    @Column(name = "travel_times_rev")
     private int travelTimesRev;
 
-    /** Constructor. Sets the revisions to default values of -1. */
-    public ActiveRevisions() {
+    /**
+     * Constructor. Sets the revisions to default values of -1.
+     */
+    public ActiveRevision() {
         configRev = -1;
         travelTimesRev = -1;
     }
@@ -60,35 +56,33 @@ public class ActiveRevisions {
      *
      * @param session
      * @return the ActiveRevisions
-     * @throws HibernateException
      */
-    public static ActiveRevisions get(Session session) throws HibernateException {
+    @NonNull
+    public static ActiveRevision get(Session session) {
         // There should only be a single object so don't need a WHERE clause
-        var query = session.createQuery("FROM ActiveRevisions", ActiveRevisions.class);
-        ActiveRevisions activeRevisions = null;
+        var query = session.createQuery("FROM ActiveRevision", ActiveRevision.class);
+        ActiveRevision activeRevision = null;
         try {
-            activeRevisions = query.uniqueResult();
-        } catch (Exception e) {
-            System.err.println("Exception when reading ActiveRevisions object " + "from database so will create it");
-        } finally {
+            activeRevision = query.uniqueResult();
+        } catch (Exception ignored) {}
+        finally {
             // If we couldn't read from db use default values and write the object to the database.
-            if (activeRevisions == null) {
-                activeRevisions = new ActiveRevisions();
-                session.persist(activeRevisions);
+            if (activeRevision == null) {
+                logger.warn("Exception when reading ActiveRevisions object from database so will create it");
+                activeRevision = new ActiveRevision();
+                session.persist(activeRevision);
             }
         }
 
         // Return the object
-        return activeRevisions;
+        return activeRevision;
     }
 
-    public static ActiveRevisions get(String agencyId) throws HibernateException {
+    @NonNull
+    public static ActiveRevision get(String agencyId) throws HibernateException {
         try (Session session = HibernateUtils.getSession(agencyId)) {
             return get(session);
-        } catch (HibernateException e) {
-            logger.error("Exception in ActiveRevisions.get(). {}", e.getMessage(), e);
         }
-        return null;
     }
 
     /**

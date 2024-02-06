@@ -5,7 +5,7 @@ import org.transitclock.config.BooleanConfigValue;
 
 public class ReportsConfig {
 
-    private static BooleanConfigValue showPredictionSource = new BooleanConfigValue(
+    private static final BooleanConfigValue showPredictionSource = new BooleanConfigValue(
             "transitclock.reports.showPredictionSource",
             true,
             "Whether prediction source UI element should be visible.");

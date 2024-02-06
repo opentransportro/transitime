@@ -18,16 +18,16 @@ import org.hibernate.annotations.Immutable;
 @NoArgsConstructor
 public class Extent implements Serializable {
 
-    @Column
+    @Column(name = "min_lat")
     private double minLat = Double.POSITIVE_INFINITY;
 
-    @Column
+    @Column(name = "max_lat")
     private double maxLat = Double.NEGATIVE_INFINITY;
 
-    @Column
+    @Column(name = "min_lon")
     private double minLon = Double.POSITIVE_INFINITY;
 
-    @Column
+    @Column(name = "max_lon")
     private double maxLon = Double.NEGATIVE_INFINITY;
 
     // This value is actually dependent on latitude a bit since the earth

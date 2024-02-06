@@ -4,6 +4,7 @@ package org.transitclock.domain.structs;
 import java.io.Serializable;
 import java.util.Date;
 import jakarta.persistence.*;
+import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -19,71 +20,69 @@ import org.hibernate.annotations.Immutable;
 @Immutable
 @Entity
 @DynamicUpdate
-@EqualsAndHashCode
-@Getter
-@ToString
+@Data
 @Table(
-        name = "VehicleStates",
-        indexes = {@Index(name = "VehicleStateAvlTimeIndex", columnList = "avlTime")})
+        name = "vehicle_states",
+        indexes = {@Index(name = "VehicleStateAvlTimeIndex", columnList = "avl_time")})
 public class VehicleState implements Serializable {
     // vehicleId is an @Id since might get multiple AVL reports
     // for different vehicles with the same avlTime but need a unique
     // primary key.
-    @Column(length = 60)
+    @Column(name = "vehicle_id", length = 60)
     @Id
     private final String vehicleId;
 
     // Need to use columnDefinition to explicitly specify that should use
     // fractional seconds. This column is an Id since shouldn't get two
     // AVL reports for the same vehicle for the same avlTime.
-    @Column
+    @Column(name = "avl_time")
     @Temporal(TemporalType.TIMESTAMP)
     @Id
     private final Date avlTime;
 
-    @Column(length = 60)
+    @Column(name = "block_id", length = 60)
     private String blockId;
 
-    @Column(length = 60)
+    @Column(name = "trip_id", length = 60)
     private String tripId;
 
-    @Column(length = 60)
+    @Column(name = "trip_short_name", length = 60)
     private String tripShortName;
 
-    @Column(length = 60)
+    @Column(name = "route_id", length = 60)
     private String routeId;
 
     private static final int ROUTE_SHORT_NAME_MAX_LENGTH = 80;
 
-    @Column(length = ROUTE_SHORT_NAME_MAX_LENGTH)
+    @Column(name = "route_short_name", length = ROUTE_SHORT_NAME_MAX_LENGTH)
     private String routeShortName;
 
     // Positive means vehicle early, negative means vehicle late
-    @Column
+    @Column(name = "schedule_adherence_msec")
     private final Integer schedAdhMsec;
 
     // A String representing the schedule adherence
     private static final int SCHED_ADH_MAX_LENGTH = 50;
 
-    @Column(length = SCHED_ADH_MAX_LENGTH)
+    @Column(name = "schedule_adherence", length = SCHED_ADH_MAX_LENGTH)
     private final String schedAdh;
 
-    @Column
+    @Column(name = "schedule_adherence_within_bounds")
     private final Boolean schedAdhWithinBounds;
 
-    @Column
+    @Column(name = "is_delayed")
     private final Boolean isDelayed;
 
-    @Column
+    @Column(name = "is_layover")
     private final Boolean isLayover;
 
-    @Column
+    @Column(name = "is_predictable")
     private final Boolean isPredictable;
 
-    @Column
+    @Column(name = "is_wait_stop")
     private final Boolean isWaitStop;
 
-    @Column
+    @Column(name = "is_for_sched_based_predictions")
     private final Boolean isForSchedBasedPreds;
 
     public VehicleState(org.transitclock.core.VehicleState vs) {

@@ -11,60 +11,62 @@ import org.transitclock.Core;
 @Entity
 @DynamicUpdate
 @Data
+@NoArgsConstructor
 @Table(
-        name = "Headway",
-        indexes = {@Index(name = "HeadwayIndex", columnList = "creationTime")})
+    name = "headways",
+    indexes = {
+        @Index(name = "HeadwayIndex", columnList = "creation_time")
+    })
 public class Headway implements Serializable {
-    public Headway() {}
-
     @Id
+    @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
     // The revision of the configuration data that was being used
-    @Column
+    @Column(name = "config_rev")
     private int configRev;
 
-    @Column
+    @Column(name = "headway")
     private double headway;
 
-    @Column
+    @Column(name = "average")
     private double average;
 
-    @Column
+    @Column(name = "variance")
     private double variance;
 
-    @Column
+    @Column(name = "coefficient_of_variation")
     private double coefficientOfVariation;
 
-    @Column
+    @Column(name = "num_vehicles")
     private int numVehicles;
 
     // The time the AVL data was processed and the headway was created.
-    @Column
+    @Column(name = "creation_time")
     @Temporal(TemporalType.TIMESTAMP)
     private Date creationTime;
 
-    @Column(length = 60)
+    @Column(name = "vehicle_id", length = 60)
     private String vehicleId;
 
-    @Column(length = 60)
+    @Column(name = "other_vehicle_id", length = 60)
     private String otherVehicleId;
 
-    @Column(length = 60)
+    @Column(name = "stop_id", length = 60)
     private String stopId;
 
-    @Column(length = 60)
+    @Column(name = "trip_id", length = 60)
     private String tripId;
 
-    @Column(length = 60)
+    @Column(name = "route_id", length = 60)
     private String routeId;
 
-    @Column
+    @Column(name = "first_departure")
     @Temporal(TemporalType.TIMESTAMP)
     private Date firstDeparture;
 
-    @Column
+    @Column(name = "second_departure")
     @Temporal(TemporalType.TIMESTAMP)
     private Date secondDeparture;
 

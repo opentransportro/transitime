@@ -1,7 +1,9 @@
 /* (C)2023 */
 package org.transitclock.domain.structs;
 
+import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.*;
+import lombok.Data;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Hibernate;
@@ -11,6 +13,7 @@ import org.hibernate.Session;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.Type;
 import org.hibernate.collection.spi.PersistentList;
 import org.hibernate.internal.SessionImpl;
 import org.transitclock.Core;
@@ -38,25 +41,26 @@ import java.util.stream.Collectors;
  *
  * @author SkiBu Smith
  */
-@Entity(name = "Blocks")
+@Entity
+@Data
 @DynamicUpdate
-@Table(name = "Blocks")
+@Table(name = "blocks")
 @Slf4j
-public final class Block implements Serializable {
+public class Block implements Serializable {
     // For making sure only lazy load trips collection via one thread
     // at a time.
     @Getter
     private static final Object lazyLoadingSyncObject = new Object();
 
-    @Column
+    @Column(name = "config_rev")
     @Id
     private final int configRev;
 
-    @Column(length = 60)
+    @Column(name = "block_id", length = 60)
     @Id
     private final String blockId;
 
-    @Column(length = 60)
+    @Column(name = "service_id", length = 60)
     @Id
     private final String serviceId;
 
@@ -64,14 +68,14 @@ public final class Block implements Serializable {
     // than 0 to indicate that block starts before midnight of the current
     // day. Can be greater than one day to indicate that block starts after
     // midnight of the current day.
-    @Column
+    @Column(name = "start_time")
     private final int startTime;
 
     // End time of block assignment. In seconds from midnight. Can be less
     // than 0 to indicate that block ends before midnight of the current
     // day. Can be greater than one day to indicate that block ends after
     // midnight of the current day.
-    @Column
+    @Column(name = "end_time")
     private final int endTime;
 
     // Need to have a ManyToMany instead of OneToMany relationship
@@ -89,8 +93,8 @@ public final class Block implements Serializable {
     // be voluminous and therefore slow. The trips will be read in when
     // getTrips() is called.
     @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "Block_to_Trip_joinTable")
-    @OrderColumn(name = "listIndex")
+    @JoinTable(name = "block_to_trip")
+    @OrderColumn(name = "list_index")
     @Cascade({CascadeType.SAVE_UPDATE})
     private final List<Trip> trips;
 
@@ -102,9 +106,9 @@ public final class Block implements Serializable {
     // So to speed things up the routeIds for a block are stored here.
     // NOTE: since trying to use serialization need to use ArrayList<> instead
     // of List<> since List<> doesn't implement Serializable.
-    @Column(length = 500)
-//    @ElementCollection
-    private final HashSet<String> routeIds;
+    @Column(name = "route_ids", columnDefinition = "json", length = 500)
+    @Type(JsonType.class)
+    private final Set<String> routeIds;
 
 
     /**
@@ -130,8 +134,7 @@ public final class Block implements Serializable {
     }
 
     /** Hibernate requires no-arg constructor */
-    @SuppressWarnings("unused")
-    private Block() {
+    protected Block() {
         this.configRev = -1;
         this.blockId = null;
         this.serviceId = null;
@@ -163,13 +166,13 @@ public final class Block implements Serializable {
 
     private static List<Block> getBlocksPassive(Session session, int configRev) throws HibernateException {
         var query = session
-                .createQuery("FROM Blocks b WHERE b.configRev = :configRev", Block.class)
+                .createQuery("FROM Block b WHERE b.configRev = :configRev", Block.class)
                 .setParameter("configRev", configRev);
         return query.list();
     }
 
     private static List<Block> getBlocksAgressively(Session session, int configRev) throws HibernateException {
-        var query = session.createQuery("FROM Blocks b "
+        var query = session.createQuery("FROM Block b "
                         + "join fetch b.trips t "
                         + "join fetch t.travelTimes "
                         + "join fetch t.tripPattern tp "
@@ -205,28 +208,30 @@ public final class Block implements Serializable {
 
         // Delete configRev data from Block_to_Trip_joinTable
         int rowsUpdated = session
-                .createNativeQuery("DELETE FROM Block_to_Trip_joinTable WHERE Blocks_configRev=" + configRev, Void.class)
+                .createNativeQuery("DELETE FROM block_to_trip WHERE Blocks_configRev=" + configRev, Void.class)
                 .executeUpdate();
         logger.info("Deleted {} rows from Block_to_Trip_joinTable for " + "configRev={}", rowsUpdated, configRev);
         totalRowsUpdated += rowsUpdated;
 
         // Delete configRev data from Trip_ScheduledTimeslist
         rowsUpdated = session
-                .createNativeQuery("DELETE FROM Trip_ScheduledTimeslist WHERE Trip_configRev=" + configRev, Void.class)
+                .createNativeQuery("DELETE FROM trip_scheduledtimeslist WHERE trip_config_rev=" + configRev, Void.class)
                 .executeUpdate();
         logger.info("Deleted {} rows from Trip_ScheduledTimeslist for configRev={}", rowsUpdated, configRev);
         totalRowsUpdated += rowsUpdated;
 
         // Delete configRev data from Trips
         rowsUpdated = session
-                .createNativeQuery("DELETE FROM Trips WHERE configRev=" + configRev, Void.class)
+                .createMutationQuery("DELETE FROM Trip WHERE configRev=:configRev")
+                .setParameter("configRev", configRev)
                 .executeUpdate();
         logger.info("Deleted {} rows from Trips for configRev={}", rowsUpdated, configRev);
         totalRowsUpdated += rowsUpdated;
 
         // Delete configRev data from Blocks
         rowsUpdated = session
-                .createNativeQuery("DELETE FROM Blocks WHERE configRev=" + configRev, Void.class)
+                .createMutationQuery("DELETE FROM Block WHERE configRev=:configRev")
+                .setParameter("configRev", configRev)
                 .executeUpdate();
         logger.info("Deleted {} rows from Blocks for configRev={}", rowsUpdated, configRev);
         totalRowsUpdated += rowsUpdated;
@@ -332,13 +337,17 @@ public final class Block implements Serializable {
      */
     private int activeTripIndex(int secondsIntoDay) {
         List<Trip> trips = getTrips();
-        int previousTripEndTimeSecs = trips.get(0).getStartTime();
-        for (int i = 0; i < trips.size(); ++i) {
-            Trip trip = trips.get(i);
-            int tripEndTimeSecs = trip.getEndTime();
-            if (secondsIntoDay > previousTripEndTimeSecs && secondsIntoDay < tripEndTimeSecs) {
-                return i;
+        if (!trips.isEmpty()) {
+            int previousTripEndTimeSecs = trips.get(0).getStartTime();
+            for (int i = 0; i < trips.size(); ++i) {
+                Trip trip = trips.get(i);
+                int tripEndTimeSecs = trip.getEndTime();
+                if (secondsIntoDay > previousTripEndTimeSecs && secondsIntoDay < tripEndTimeSecs) {
+                    return i;
+                }
             }
+        } else {
+            logger.error("No trips assigned to the current block [{}]", this);
         }
 
         return -1;
@@ -462,7 +471,7 @@ public final class Block implements Serializable {
      * Note: does not look to see if the service associated with the block is active. Only looks at
      * time of day.
      *
-     * @param date The time checking to see whether block is active for
+     * @param epochTime The time checking to see whether block is active for
      * @param allowableBeforeTimeSecs Block considered active if within this number of seconds
      *     before the block start time. Set to 0 if want to know if date is actually between the
      *     block start and end times.
@@ -817,7 +826,12 @@ public final class Block implements Serializable {
      * @return true if no schedule
      */
     public boolean isNoSchedule() {
-        return getTrips().get(0).isNoSchedule();
+        List<Trip> trips = getTrips();
+        if(trips.isEmpty()) {
+            logger.error("Current block {} has no trips assigned. Please check if this is expected!", this);
+            return false;
+        }
+        return trips.get(0).isNoSchedule();
     }
 
     /**

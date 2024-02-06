@@ -17,28 +17,28 @@ import java.util.Date;
 @DynamicUpdate
 @Data
 @Table(
-        name = "MeasuredArrivalTimes",
+        name = "measured_arrival_times",
         indexes = {@Index(name = "MeasuredArrivalTimesIndex", columnList = "time")})
 public class MeasuredArrivalTime implements Serializable {
     @Id
-    @Column
+    @Column(name = "time")
     @Temporal(TemporalType.TIMESTAMP)
     private final Date time;
 
     @Id
-    @Column(length = 60)
+    @Column(name = "stop_id", length = 60)
     private String stopId;
 
-    @Column(length = 60)
+    @Column(name = "route_id", length = 60)
     private String routeId;
 
-    @Column(length = 60)
+    @Column(name = "route_short_name", length = 60)
     private String routeShortName;
 
-    @Column(length = 60)
+    @Column(name = "direction_id", length = 60)
     private String directionId;
 
-    @Column(length = 60)
+    @Column(name = "headsign", length = 60)
     private String headsign;
 
     public MeasuredArrivalTime(
@@ -70,7 +70,7 @@ public class MeasuredArrivalTime implements Serializable {
      */
     public String getUpdateSql() {
         return "INSERT INTO MeasuredArrivalTimes ("
-                + "time, stopId, routeId, routeShortName, directionId, headsign) "
+                + "time, stop_id, route_id, route_short_name, direction_id, headsign) "
                 + "VALUES('"
                 + time
                 + "', '"

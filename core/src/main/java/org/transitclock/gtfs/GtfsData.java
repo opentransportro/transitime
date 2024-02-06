@@ -40,7 +40,7 @@ public class GtfsData {
     private final Session session;
 
     // Various params set by constructor
-    private final ActiveRevisions revs;
+    private final ActiveRevision revs;
     // For when zip file used. Null otherwise
     private final Date zipFileLastModifiedTime;
     private final int originalTravelTimesRev;
@@ -185,7 +185,7 @@ public class GtfsData {
 
         // Deal with the ActiveRevisions. First, store the original travel times
         // rev since need it to read in old travel time data.
-        ActiveRevisions originalRevs = ActiveRevisions.get(session);
+        ActiveRevision originalRevs = ActiveRevision.get(session);
         originalTravelTimesRev = originalRevs.getTravelTimesRev();
 
         // If should store the new revs in database (make them active)
@@ -199,7 +199,7 @@ public class GtfsData {
             revs = originalRevs;
         } else {
             // Don't need to store new revs in db so use a transient object
-            revs = new ActiveRevisions();
+            revs = new ActiveRevision();
         }
         // If particular configuration rev specified then use it. This way
         // can write over existing configuration revisions.

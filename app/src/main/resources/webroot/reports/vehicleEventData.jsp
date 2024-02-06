@@ -8,11 +8,11 @@ try
 String agencyId = request.getParameter("a");
 String vehicleId = request.getParameter("v");
 
-String sql = "select * from vehicleevents ve where ve.vehicleid=ve.vehicleid";
+String sql = "select * from vehicle_events ve where ve.vehicle_id=ve.vehicle_id";
 // If only want data for single vehicle then specify so in SQL
 if (vehicleId != null && !vehicleId.isEmpty()&&!vehicleId.startsWith(" "))
 {
-	sql += " AND ve.vehicleId='" + vehicleId + "' ";
+	sql += " AND ve.vehicle_id='" + vehicleId + "' ";
 }
 sql +=  SqlUtils.timeRangeClause(request, "ve.time", 5) + "\n";
 sql += " order by ve.time desc";

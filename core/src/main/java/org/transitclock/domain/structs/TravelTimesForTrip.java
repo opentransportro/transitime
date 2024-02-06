@@ -3,6 +3,7 @@ package org.transitclock.domain.structs;
 
 import com.querydsl.jpa.impl.JPAQuery;
 import jakarta.persistence.*;
+import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -29,13 +30,11 @@ import java.util.Map;
 @Entity
 @Slf4j
 @DynamicUpdate
-@Getter
-@EqualsAndHashCode
-@ToString
+@Data
 @Table(
-        name = "TravelTimesForTrips",
+        name = "travel_times_for_trips",
         indexes = {
-                @Index(name = "TravelTimesRevIndex", columnList = "travelTimesRev")
+                @Index(name = "TravelTimesRevIndex", columnList = "travel_times_rev")
         })
 public class TravelTimesForTrip implements Serializable {
 
@@ -44,9 +43,9 @@ public class TravelTimesForTrip implements Serializable {
     // But can still have a few per path and trip pattern. Therefore
     // also need the generated ID since the other columns are not adequate
     // as an ID.
-    @Column
     @Id
-    @GeneratedValue
+    @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
     // Need configRev for the configuration so that when old configurations
@@ -58,7 +57,7 @@ public class TravelTimesForTrip implements Serializable {
     // caused a strange PropertyAccessException when trying to save travel
     // times. Therefore cannot make this member an @Id and have to use fancy
     // delete with a join to clear out the join table of old data.
-    @Column
+    @Column(name = "config_rev")
     private final int configRev;
 
     // Each time update travel times it gets a new travel time rev. This
@@ -66,22 +65,28 @@ public class TravelTimesForTrip implements Serializable {
     // to keep the previous travel time rev around for comparison but by
     // using an integer for the rev all of the revs can be kept in the db
     // if desired.
-    @Column
+    @Column(name = "travel_times_rev")
     private final int travelTimesRev;
 
-    @Column(length = TripPattern.TRIP_PATTERN_ID_LENGTH)
+    @Column(name = "trip_pattern_id", length = TripPattern.TRIP_PATTERN_ID_LENGTH)
     private final String tripPatternId;
 
     // So know which trip these travel times were created for. Useful
     // for logging statements. Used when creating travel times based
     // on schedule.
-    @Column(length = 60)
+    @Column(name = "trip_created_for_id", length = 60)
     private final String tripCreatedForId;
 
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "TravelTimesForTrip_to_TravelTimesForPath_joinTable")
+    @JoinTable(name = "travel_times_for_trip_to_travel_times_for_path",
+            joinColumns = {
+                    @JoinColumn(name = "for_path_id", referencedColumnName = "id")
+            },
+            inverseJoinColumns = {
+                    @JoinColumn(name = "for_trip_id", referencedColumnName = "id")
+            })
     @Cascade({CascadeType.SAVE_UPDATE})
-    @OrderColumn(name = "listIndex")
+    @OrderColumn(name = "list_index")
     private final List<TravelTimesForStopPath> travelTimesForStopPaths = new ArrayList<>();
 
     public TravelTimesForTrip(int configRev, int travelTimesRev, Trip trip) {
@@ -91,7 +96,9 @@ public class TravelTimesForTrip implements Serializable {
         this.tripCreatedForId = trip.getId();
     }
 
-    /** Hibernate requires no-arg constructor */
+    /**
+     * Hibernate requires no-arg constructor
+     */
     @SuppressWarnings("unused")
     protected TravelTimesForTrip() {
         this.configRev = -1;
@@ -128,7 +135,7 @@ public class TravelTimesForTrip implements Serializable {
         // syntax for inner joins is different for the two databases. Therefore need to
         // use the IN statement with a SELECT clause.
         int rowsUpdated = session
-                .createNativeQuery("DELETE FROM TravelTimesForTrip_to_TravelTimesForPath_joinTable WHERE TravelTimesForTrip_id IN   (SELECT id FROM TravelTimesForTrips WHERE configRev=" + configRev +")")
+                .createNativeQuery("DELETE FROM travel_times_for_trip_to_travel_times_for_path WHERE for_trip_id IN (SELECT id FROM travel_times_for_trips WHERE config_rev=" + configRev + ")")
                 .executeUpdate();
         logger.info(
                 "Deleted {} rows from TravelTimesForTrip_to_TravelTimesForPath_joinTable for configRev={}",
@@ -138,14 +145,16 @@ public class TravelTimesForTrip implements Serializable {
 
         // Delete configRev data from TravelTimesForStopPaths
         rowsUpdated = session
-                .createNativeQuery("DELETE FROM TravelTimesForStopPaths WHERE configRev=" + configRev)
+                .createMutationQuery("DELETE FROM TravelTimesForStopPath WHERE configRev=:configRev")
+                .setParameter("configRev", configRev)
                 .executeUpdate();
         logger.info("Deleted {} rows from TravelTimesForStopPaths for " + "configRev={}", rowsUpdated, configRev);
         totalRowsUpdated += rowsUpdated;
 
         // Delete configRev data from TravelTimesForTrips
         rowsUpdated = session
-                .createNativeQuery("DELETE FROM TravelTimesForTrips WHERE configRev=" + configRev)
+                .createMutationQuery("DELETE FROM TravelTimesForTrip WHERE configRev=:configRev")
+                .setParameter("configRev", configRev)
                 .executeUpdate();
         logger.info("Deleted {} rows from TravelTimesForTrips for configRev={}", rowsUpdated, configRev);
         totalRowsUpdated += rowsUpdated;
@@ -208,7 +217,9 @@ public class TravelTimesForTrip implements Serializable {
         return true;
     }
 
-    /** Returns true if all stop paths are valid. */
+    /**
+     * Returns true if all stop paths are valid.
+     */
     public boolean isValid() {
         for (TravelTimesForStopPath times : travelTimesForStopPaths) {
             if (!times.isValid()) {

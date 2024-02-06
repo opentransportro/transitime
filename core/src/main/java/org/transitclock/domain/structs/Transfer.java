@@ -7,6 +7,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -23,28 +24,26 @@ import org.transitclock.gtfs.model.GtfsTransfer;
  */
 @Entity
 @DynamicUpdate
-@ToString
-@EqualsAndHashCode
-@Getter
-@Table(name = "Transfers")
+@Data
+@Table(name = "transfers")
 public class Transfer implements Serializable {
 
-    @Column
     @Id
+    @Column(name = "config_rev")
     private final int configRev;
 
-    @Column(length = 60)
     @Id
+    @Column(name = "from_stop_id", length = 60)
     private final String fromStopId;
 
-    @Column(length = 60)
     @Id
+    @Column(name = "to_stop_id", length = 60)
     private final String toStopId;
 
-    @Column(length = 1)
+    @Column(name = "transfer_type", length = 1)
     private final String transferType;
 
-    @Column
+    @Column(name = "min_transfer_time")
     private final Integer minTransferTime;
 
     public Transfer(int configRev, GtfsTransfer gt) {
@@ -75,7 +74,8 @@ public class Transfer implements Serializable {
      */
     public static int deleteFromRev(Session session, int configRev) throws HibernateException {
         // Note that hql uses class name, not the table name
-        return session.createMutationQuery("DELETE Transfer WHERE configRev=:configRev")
+        return session
+                .createMutationQuery("DELETE Transfer WHERE configRev=:configRev")
                 .setParameter("configRev", configRev)
                 .executeUpdate();
     }
@@ -89,7 +89,8 @@ public class Transfer implements Serializable {
      * @throws HibernateException
      */
     public static List<Transfer> getTransfers(Session session, int configRev) throws HibernateException {
-        return session.createQuery("FROM Transfer WHERE configRev = :configRev", Transfer.class)
+        return session
+                .createQuery("FROM Transfer WHERE configRev = :configRev", Transfer.class)
                 .setParameter("configRev", configRev)
                 .list();
     }

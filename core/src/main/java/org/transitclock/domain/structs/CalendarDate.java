@@ -8,6 +8,7 @@ import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -20,26 +21,34 @@ import org.transitclock.gtfs.model.GtfsCalendarDate;
  *
  * @author SkiBu Smith
  */
+@Getter
 @Entity
 @DynamicUpdate
-@Table(name = "CalendarDates")
+@Table(name = "calendar_dates")
 @Slf4j
 public class CalendarDate implements Serializable {
 
-    @Column
     @Id
+    @Column(name = "config_rev")
     private final int configRev;
 
-    @Column(length = 60)
     @Id
+    @Column(name = "service_id", length = 60)
     private final String serviceId;
 
-    @Column
     @Id
+    @Column(name = "date")
     @Temporal(TemporalType.DATE)
     private final Date date;
 
-    @Column(length = 2)
+    /**
+     * -- GETTER --
+     *  Note that is probably more clear to use addService() since that way don't need to know what
+     *  valid values of exception_type are in GTFS.
+     *
+     * @return the exceptionType
+     */
+    @Column(name = "exception_type", length = 2)
     private final String exceptionType;
 
     /**
@@ -160,45 +169,12 @@ public class CalendarDate implements Serializable {
     }
 
     /**
-     * @return the configRev
-     */
-    public int getConfigRev() {
-        return configRev;
-    }
-
-    /**
-     * @return the serviceId
-     */
-    public String getServiceId() {
-        return serviceId;
-    }
-
-    /**
-     * The epoch start time of midnight, the beginning of the day.
-     *
-     * @return the date
-     */
-    public Date getDate() {
-        return date;
-    }
-
-    /**
      * The epoch start time of midnight, the beginning of the day.
      *
      * @return the epoch time
      */
     public long getTime() {
         return date.getTime();
-    }
-
-    /**
-     * Note that is probably more clear to use addService() since that way don't need to know what
-     * valid values of exception_type are in GTFS.
-     *
-     * @return the exceptionType
-     */
-    public String getExceptionType() {
-        return exceptionType;
     }
 
     /**

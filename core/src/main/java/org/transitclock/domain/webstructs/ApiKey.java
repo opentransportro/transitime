@@ -21,7 +21,7 @@ import java.util.List;
  */
 @Entity
 @Data
-@Table(name = "ApiKeys")
+@Table(name = "api_keys")
 public class ApiKey implements Serializable {
 
     @Column(length = 80)

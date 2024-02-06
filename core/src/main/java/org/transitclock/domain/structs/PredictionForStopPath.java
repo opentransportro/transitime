@@ -19,39 +19,40 @@ import java.util.List;
 @DynamicUpdate
 @Data
 @Table(
-        name = "StopPathPredictions",
+        name = "stop_path_predictions",
         indexes = {
-                @Index(name = "StopPathPredictionTimeIndex", columnList = "tripId, stopPathIndex")
+                @Index(name = "StopPathPredictionTimeIndex", columnList = "trip_id, stop_path_index")
         })
 public class PredictionForStopPath implements Serializable {
 
     @Id
+    @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
-    @Column
+    @Column(name = "creation_time")
     @Temporal(TemporalType.TIMESTAMP)
     private Date creationTime;
 
-    @Column
+    @Column(name = "prediction_time")
     private Double predictionTime;
 
-    @Column(length = 60)
+    @Column(name = "trip_id", length = 60)
     private String tripId;
 
-    @Column
+    @Column(name = "start_time")
     private Integer startTime;
 
-    @Column
+    @Column(name = "algorithm")
     private String algorithm;
 
-    @Column
+    @Column(name = "stop_path_index")
     private Integer stopPathIndex;
 
-    @Column
+    @Column(name = "vehicle_id")
     private String vehicleId;
 
-    @Column
+    @Column(name = "travel_time")
     private boolean travelTime;
 
     public PredictionForStopPath(

@@ -19,24 +19,24 @@ import org.transitclock.gtfs.model.GtfsStop;
 @Entity
 @DynamicUpdate
 @Data
-@Table(name = "Stops")
+@Table(name = "stops")
 public class Stop implements Serializable {
 
-    @Column
     @Id
+    @Column(name = "config_rev")
     private final int configRev;
 
     // The stop ID
-    @Column(length = 60)
     @Id
+    @Column(name = "id", length = 60)
     private final String id;
 
     // The stop code used for SMS and phone systems
-    @Column
+    @Column(name = "code")
     private final Integer code;
 
     // Name of the stop
-    @Column
+    @Column(name = "name")
     private final String name;
 
     // Latitude/longitude of stop
@@ -44,21 +44,21 @@ public class Stop implements Serializable {
     private final Location loc;
 
     // If should generate special ScheduleAdherence data for this stop
-    @Column
+    @Column(name = "time_point_stop")
     private final boolean timepointStop;
 
     // Indicates that vehicle can leave route path before departing this stop
     // since the driver is taking a break.
-    @Column
+    @Column(name = "layover_stop")
     private final Boolean layoverStop;
 
     // Indicates that vehicle is not supposed to depart the stop until the
     // scheduled departure time.
-    @Column
+    @Column(name = "wait_stop")
     private final Boolean waitStop;
 
     // Indicates if stop should be hidden from public
-    @Column
+    @Column(name = "hidden")
     private final boolean hidden;
 
     /**

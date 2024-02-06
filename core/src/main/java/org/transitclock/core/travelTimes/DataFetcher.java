@@ -3,7 +3,7 @@ package org.transitclock.core.travelTimes;
 
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.config.data.UpdatesConfig;
-import org.transitclock.domain.structs.ActiveRevisions;
+import org.transitclock.domain.structs.ActiveRevision;
 import org.transitclock.domain.structs.Agency;
 import org.transitclock.domain.structs.ArrivalDeparture;
 import org.transitclock.domain.structs.Match;
@@ -45,7 +45,7 @@ public class DataFetcher {
     public DataFetcher(String dbName, List<Integer> newSpecialDaysOfWeek) {
         // Create the member calendar using timezone specified in db for the
         // agency. Use the currently active config rev.
-        int configRev = ActiveRevisions.get(dbName).getConfigRev();
+        int configRev = ActiveRevision.get(dbName).getConfigRev();
         List<Agency> agencies = Agency.getAgencies(dbName, configRev);
         TimeZone timezone = agencies.get(0).getTimeZone();
         calendar = new GregorianCalendar(timezone);

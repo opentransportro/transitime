@@ -30,9 +30,9 @@ public class DbWriter {
 
     private void writeObject(Session session, Object object, boolean checkForUpdate) {
         if (checkForUpdate) {
-            session.saveOrUpdate(object);
+            session.merge(object);
         } else {
-            session.save(object);
+            session.persist(object);
         }
 
         // Since can writing large amount of data should use Hibernate

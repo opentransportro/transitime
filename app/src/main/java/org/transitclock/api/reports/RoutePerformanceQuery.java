@@ -4,6 +4,7 @@ package org.transitclock.api.reports;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberPath;
 import com.querydsl.jpa.impl.JPAQuery;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -16,6 +17,7 @@ import org.transitclock.domain.structs.QPredictionAccuracy;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * To find route performance information. For now, route performance is the percentage of
@@ -23,10 +25,9 @@ import java.util.List;
  *
  * @author Simon Jacobs
  */
+@Slf4j
 public class RoutePerformanceQuery {
     private Session session;
-
-    private static final Logger logger = LoggerFactory.getLogger(RoutePerformanceQuery.class);
 
     public static final String PREDICTION_TYPE_AFFECTED = "AffectedByWaitStop";
     public static final String PREDICTION_TYPE_NOT_AFFECTED = "NotAffectedByWaitStop";
@@ -64,9 +65,9 @@ public class RoutePerformanceQuery {
                     .where(qentity.predictionAccuracyMsecs.between(msecLo,msecHi));
 
 
-            if (predictionType == PREDICTION_TYPE_AFFECTED)
+            if (Objects.equals(predictionType, PREDICTION_TYPE_AFFECTED))
                 query.where(qentity.affectedByWaitStop.eq(true));
-            else if (predictionType == PREDICTION_TYPE_NOT_AFFECTED)
+            else if (Objects.equals(predictionType, PREDICTION_TYPE_NOT_AFFECTED))
                 query.where(qentity.affectedByWaitStop.eq(false));
 
             if (predictionSource != null && !StringUtils.isEmpty(predictionSource)) {
@@ -79,10 +80,7 @@ public class RoutePerformanceQuery {
             query.orderBy(performance.desc())
                     .groupBy(qentity.routeId);
 
-            @SuppressWarnings("unchecked")
-            List<PredictionAccuracy> results = query.fetch();
-
-            return results;
+            return query.fetch();
         } catch (HibernateException e) {
             logger.error(e.toString());
             return null;

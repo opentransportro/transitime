@@ -23,30 +23,30 @@ import org.transitclock.gtfs.model.GtfsFareAttribute;
 @Entity
 @DynamicUpdate
 @Data
-@Table(name = "FareAttributes")
+@Table(name = "fare_attributes")
 public class FareAttribute implements Serializable {
 
-    @Column
     @Id
+    @Column(name = "config_rev")
     private final int configRev;
 
-    @Column(length = 60)
     @Id
+    @Column(name = "fare_id", length = 60)
     private final String fareId;
 
-    @Column
+    @Column(name = "price")
     private final float price;
 
-    @Column(length = 3)
+    @Column(name = "currency_type", length = 3)
     private final String currencyType;
 
-    @Column
+    @Column(name = "payment_method")
     private final String paymentMethod;
 
-    @Column
+    @Column(name = "transfers")
     private final String transfers;
 
-    @Column
+    @Column(name = "transfer_duration")
     private final Integer transferDuration;
 
     /**
@@ -87,7 +87,8 @@ public class FareAttribute implements Serializable {
      */
     public static int deleteFromRev(Session session, int configRev) throws HibernateException {
         // Note that hql uses class name, not the table name
-        return session.createMutationQuery("DELETE FareAttribute WHERE configRev=" + configRev)
+        return session.createMutationQuery("DELETE FareAttribute WHERE configRev=:configRev")
+                .setParameter("configRev", configRev)
                 .executeUpdate();
     }
 

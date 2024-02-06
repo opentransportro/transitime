@@ -31,62 +31,62 @@
 
         String sql =
                 "WITH trips_early_query AS ( SELECT "
-                        + "	 array_to_string(array_agg(distinct tripid::text order by tripid::text), '; ') AS trips_early, \n"
+                        + "	 array_to_string(array_agg(distinct trip_id::text order by trip_id::text), '; ') AS trips_early, \n"
                         + "	 s.id AS stop_id, \n"
-                        + "	 ad.stopOrder AS stop_order \n"
-                        + " 	FROM ArrivalsDepartures ad, Stops s  \n"
+                        + "	 ad.stop_order AS stop_order \n"
+                        + " 	FROM arrivals_departures ad, stops s  \n"
                         + "WHERE "
                         // To get stop name
-                        + " ad.configRev = s.configRev \n"
-                        + " AND ad.stopId = s.id \n"
+                        + " ad.config_rev = s.config_rev \n"
+                        + " AND ad.stop_id = s.id \n"
                         // Only need arrivals/departures that have a schedule time
-                        + " AND ad.scheduledTime IS NOT NULL \n"
+                        + " AND ad.scheduled_time IS NOT NULL \n"
                         // Specifies which routes to provide data for
                         + SqlUtils.routeClause(request, "ad") + "\n"
                         + SqlUtils.timeRangeClause(request, "ad.time", 7) + "\n"
-                        + " AND scheduledTime-time > " + allowableEarlyMinutesStr + " \n"
-                        + "	 GROUP BY directionid, s.name, s.id, ad.stopOrder \n"
-                        + "	 ORDER BY directionid, ad.stopOrder, s.name \n"
+                        + " AND scheduled_time-time > " + allowableEarlyMinutesStr + " \n"
+                        + "	 GROUP BY direction_id, s.name, s.id, ad.stop_order \n"
+                        + "	 ORDER BY direction_id, ad.stop_order, s.name \n"
                         + "), \n"
 
                         + "trips_late_query AS ( SELECT "
-                        + "	 array_to_string(array_agg(distinct tripid::text order by tripid::text), '; ') AS trips_late, \n"
+                        + "	 array_to_string(array_agg(distinct trip_id::text order by trip_id::text), '; ') AS trips_late, \n"
                         + "	 s.id AS stop_id, \n"
-                        + "	 ad.stopOrder AS stop_order \n"
-                        + "	FROM ArrivalsDepartures ad, Stops s  \n"
+                        + "	 ad.stop_order AS stop_order \n"
+                        + "	FROM arrivals_departures ad, stops s  \n"
                         + "WHERE "
                         // To get stop name
-                        + " ad.configRev = s.configRev \n"
-                        + " AND ad.stopId = s.id \n"
+                        + " ad.config_rev = s.config_rev \n"
+                        + " AND ad.stop_id = s.id \n"
                         // Only need arrivals/departures that have a schedule time
-                        + " AND ad.scheduledTime IS NOT NULL \n"
+                        + " AND ad.scheduled_time IS NOT NULL \n"
                         // Specifies which routes to provide data for
                         + SqlUtils.routeClause(request, "ad") + "\n"
                         + SqlUtils.timeRangeClause(request, "ad.time", 7) + "\n"
-                        + " AND time-scheduledTime > " + allowableLateMinutesStr + " \n"
-                        + "	 GROUP BY directionid, s.name, s.id, ad.stopOrder \n"
-                        + "	 ORDER BY directionid, ad.stopOrder, s.name \n"
+                        + " AND time-scheduled_time > " + allowableLateMinutesStr + " \n"
+                        + "	 GROUP BY direction_id, s.name, s.id, ad.stop_order \n"
+                        + "	 ORDER BY direction_id, ad.stop_order, s.name \n"
                         + ") \n"
                         + "SELECT "
-                        + "     COUNT(CASE WHEN scheduledTime-time > " + allowableEarlyMinutesStr + " THEN 1 ELSE null END) as early, \n"
-                        + "     COUNT(CASE WHEN scheduledTime-time <= " + allowableEarlyMinutesStr + " AND time-scheduledTime <= "
+                        + "     COUNT(CASE WHEN scheduled_time-time > " + allowableEarlyMinutesStr + " THEN 1 ELSE null END) as early, \n"
+                        + "     COUNT(CASE WHEN scheduled_time-time <= " + allowableEarlyMinutesStr + " AND time-scheduled_time <= "
                         + allowableLateMinutesStr + " THEN 1 ELSE null END) AS ontime, \n"
-                        + "     COUNT(CASE WHEN time-scheduledTime > " + allowableLateMinutesStr + " THEN 1 ELSE null END) AS late, \n"
+                        + "     COUNT(CASE WHEN time-scheduled_time > " + allowableLateMinutesStr + " THEN 1 ELSE null END) AS late, \n"
                         + "     COUNT(*) AS total, \n"
                         + "     s.name AS stop_name, \n"
-                        + "     ad.directionid AS direction_id, \n"
+                        + "     ad.direction_id AS direction_id, \n"
                         + " 	trips_early_query.trips_early as trips_early, \n"
                         + " 	trips_late_query.trips_late as trips_late \n"
-                        + "FROM ArrivalsDepartures ad"
-                        + "	INNER JOIN Stops s ON ad.stopId = s.id \n"
-                        + "	LEFT JOIN trips_early_query ON s.id = trips_early_query.stop_id AND ad.stopOrder = trips_early_query.stop_order \n"
-                        + "	LEFT JOIN trips_late_query ON s.id = trips_late_query.stop_id AND ad.stopOrder = trips_late_query.stop_order \n"
+                        + "FROM arrivals_departures ad"
+                        + "	INNER JOIN Stops s ON ad.stop_id = s.id \n"
+                        + "	LEFT JOIN trips_early_query ON s.id = trips_early_query.stop_id AND ad.stop_order = trips_early_query.stop_order \n"
+                        + "	LEFT JOIN trips_late_query ON s.id = trips_late_query.stop_id AND ad.stop_order = trips_late_query.stop_order \n"
                         + "WHERE "
                         // To get stop name
-                        + " ad.configRev = s.configRev \n"
-                        + " AND ad.stopId = s.id \n"
+                        + " ad.config_rev = s.config_rev \n"
+                        + " AND ad.stop_id = s.id \n"
                         // Only need arrivals/departures that have a schedule time
-                        + " AND ad.scheduledTime IS NOT NULL \n"
+                        + " AND ad.scheduled_time IS NOT NULL \n"
                         // Specifies which routes to provide data for
                         + SqlUtils.routeClause(request, "ad") + "\n"
                         + SqlUtils.timeRangeClause(request, "ad.time", 7) + "\n"
@@ -99,8 +99,8 @@
                         // need to order by direction id and stop order, but also the stop name
                         // as a backup for if stoporder not defined for data and is therefore
                         // always the same and doesn't provide any ordering info.
-                        + " GROUP BY directionid, s.name, s.id, ad.stopOrder, trips_early_query.trips_early, trips_late_query.trips_late \n"
-                        + " ORDER BY directionid, ad.stopOrder, s.name";
+                        + " GROUP BY direction_id, s.name, s.id, ad.stop_order, trips_early_query.trips_early, trips_late_query.trips_late \n"
+                        + " ORDER BY direction_id, ad.stop_order, s.name";
 
 // Just for debugging
         System.out.println("\nFor schedule adherence by stop query sql=\n" + sql);
