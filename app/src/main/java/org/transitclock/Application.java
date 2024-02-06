@@ -135,13 +135,17 @@ public class Application {
     }
 
     private void createApiKey() {
-        ApiKeyManager.getInstance()
-                .generateApiKey(
-                        "Sean Og Crudden",
-                        "http://www.transitclock.org",
-                        "og.crudden@gmail.com",
-                        "123456",
-                        "foo");
+        try {
+            ApiKeyManager.getInstance()
+                    .generateApiKey(
+                            "Sean Og Crudden",
+                            "http://www.transitclock.org",
+                            "og.crudden@gmail.com",
+                            "123456",
+                            "foo");
+        } catch (IllegalArgumentException ignored) {
+
+        }
     }
 
     private void createWebAgency() {
@@ -154,8 +158,12 @@ public class Application {
                 DbSetupConfig.getDbUserName(),
                 DbSetupConfig.getDbPassword());
 
-        // Store the WebAgency
-        webAgency.store("web");
+        try {
+            // Store the WebAgency
+            webAgency.store("web");
+        } catch (IllegalArgumentException ignored) {
+
+        }
     }
 
 

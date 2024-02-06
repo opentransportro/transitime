@@ -125,12 +125,15 @@ public class WebAgency {
      * @param dbName Name of the db that the WebAgency object is stored in
      */
     public void store(String dbName) {
+        Transaction transaction = null;
         try (Session session = HibernateUtils.getSession(dbName)) {
-            Transaction transaction = session.beginTransaction();
+            transaction = session.beginTransaction();
             session.persist(this);
             transaction.commit();
         } catch (Exception e) {
-            throw e;
+            transaction.rollback();
+            logger.warn("There is already a configuration for provided web-agency.");
+            throw new IllegalArgumentException("There is already a configuration for provided web-agency.");
         }
     }
 
