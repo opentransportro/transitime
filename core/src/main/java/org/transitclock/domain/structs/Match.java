@@ -60,6 +60,7 @@ public class Match implements Lifecycle, Serializable {
 
     // So that know which configuration was being used when this data point
     // was created
+    @Id
     @Column(name = "config_rev")
     private final int configRev;
 

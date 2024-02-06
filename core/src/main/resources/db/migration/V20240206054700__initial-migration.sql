@@ -272,7 +272,7 @@ CREATE TABLE IF NOT EXISTS matches
 (
     vehicle_id               VARCHAR(60)                 NOT NULL,
     avl_time                 TIMESTAMP WITHOUT TIME ZONE NOT NULL,
-    config_rev               INTEGER,
+    config_rev               INTEGER NOT NULL,
     service_id               VARCHAR(255),
     block_id                 VARCHAR(60),
     trip_id                  VARCHAR(60),
@@ -281,7 +281,7 @@ CREATE TABLE IF NOT EXISTS matches
     distance_along_segment   FLOAT,
     distance_along_stop_path FLOAT,
     at_stop                  BOOLEAN,
-    CONSTRAINT pk_matches PRIMARY KEY (vehicle_id, avl_time)
+    CONSTRAINT pk_matches PRIMARY KEY (vehicle_id, avl_time, config_rev)
 );
 
 CREATE TABLE IF NOT EXISTS measured_arrival_times

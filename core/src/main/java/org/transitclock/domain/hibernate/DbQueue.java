@@ -39,7 +39,7 @@ public class DbQueue<T> {
     private static final int QUEUE_CAPACITY = 500000;
 
     // The queue that objects to be stored are placed in
-    private final BlockingQueue<T> queue = new LinkedBlockingQueue<T>(QUEUE_CAPACITY);
+    private final BlockingQueue<T> queue = new LinkedBlockingQueue<>(QUEUE_CAPACITY);
 
     // When running in playback mode where getting AVLReports from database
     // instead of from an AVL feed, then debugging and don't want to store
@@ -149,17 +149,17 @@ public class DbQueue<T> {
 
     private List<T> drain() {
         // Get the next object from the head of the queue
-        ArrayList<T> buff = new ArrayList<T>(DbSetupConfig.getBatchSize());
+        List<T> buff = new ArrayList<>(DbSetupConfig.getBatchSize());
         int count = 0;
         do {
-            buff.clear();
             count = queue.drainTo(buff, DbSetupConfig.getBatchSize());
             throughputCount += count;
-            if (count == 0)
+            if (count == 0) {
                 try {
                     Thread.sleep(TIME_BETWEEN_RETRIES);
                 } catch (InterruptedException e) {
                 }
+            }
         } while (buff.isEmpty());
         logger.debug("drained {} elements", count);
         // Log if went below a capacity level
@@ -217,7 +217,7 @@ public class DbQueue<T> {
                 // Write the data to the session. This doesn't yet
                 // actually write the data to the db though. That is only
                 // done when the session is flushed or committed.
-                logger.debug("DataDbLogger batch saving object={}", objectToBeStored);
+                logger.trace("DataDbLogger batch saving object={}", objectToBeStored);
                 session.save(objectToBeStored);
             }
 
@@ -233,16 +233,13 @@ public class DbQueue<T> {
 
             session.close();
         } catch (HibernateException e) {
-            e.printStackTrace();
-
             // If there was a connection problem then create a whole session
             // factory so that get new connections.
             Throwable rootCause = HibernateUtils.getRootCause(e);
 
             if (rootCause instanceof SocketTimeoutException
                     || rootCause instanceof SocketException
-                    || (rootCause instanceof SQLException
-                            && rootCause.getMessage().contains("statement closed"))) {
+                    || (rootCause instanceof SQLException && rootCause.getMessage().contains("statement closed"))) {
                 logger.error("Had a connection problem to the database. Likely "
                         + "means that the db was rebooted or that the "
                         + "connection to it was lost. Therefore creating a new "
@@ -257,32 +254,32 @@ public class DbQueue<T> {
                 try {
                     if (tx != null) tx.rollback();
                 } catch (HibernateException e2) {
-                    logger.error(
-                            "Error rolling back transaction after processing batch of data via DataDbLogger.", e2);
+                    logger.error("Error rolling back transaction after processing batch of data via DataDbLogger.", e2);
                 }
 
                 // Close session here so that can process the objects
                 // individually
                 // using a new session.
                 try {
-                    if (session != null) session.close();
+                    if (session != null)
+                        session.close();
                 } catch (HibernateException e2) {
                     logger.error("Error closing session after processing batch of data via DataDbLogger.", e2);
                 }
 
                 // If it is a SQLGrammarException then also log the SQL to
                 // help in debugging.
-                String additionaInfo =
-                        e instanceof SQLGrammarException ? " SQL=\"" + ((SQLGrammarException) e).getSQL() + "\"" : "";
+                String additionaInfo = e instanceof SQLGrammarException ? " SQL=\"" + ((SQLGrammarException) e).getSQL() + "\"" : "";
                 Throwable cause = HibernateUtils.getRootCause(e);
-                logger.error(
+                logger.warn(
                         "{} for database for project={} when batch writing "
                                 + "objects: {}. Will try to write each object "
                                 + "from batch individually. {}",
                         e.getClass().getSimpleName(),
                         projectId,
                         cause.getMessage(),
-                        additionaInfo);
+                        additionaInfo,
+                        e);
             }
 
             // Write each object individually so that the valid ones will be
@@ -310,13 +307,13 @@ public class DbQueue<T> {
                                         "Encountered database connection "
                                                 + "exception so will sleep for {} msec and "
                                                 + "will then try again.",
-                                        TIME_BETWEEN_RETRIES);
+                                        TIME_BETWEEN_RETRIES, e2);
                                 Time.sleep(TIME_BETWEEN_RETRIES);
                             }
                         }
                         // Output message on what is going on
                         Throwable cause2 = HibernateUtils.getRootCause(e2);
-                        logger.error("{} when individually writing object {}. {}msg={}", e2.getClass().getSimpleName(), o, shouldKeepTrying ? "Will keep trying. " : "", cause2.getMessage());
+                        logger.error("{} when individually writing object {}. {}msg={}", e2.getClass().getSimpleName(), o, shouldKeepTrying ? "Will keep trying. " : "", cause2.getMessage(), e2);
                     }
                 } while (shouldKeepTrying);
             }
@@ -331,10 +328,9 @@ public class DbQueue<T> {
     public void processData() {
         while (true) {
             try {
-                logger.debug("DataDbLogger.processData() processing batch of " + "data to be stored in database.");
                 processBatchOfData();
             } catch (Exception e) {
-                logger.error("Error writing data to database via DataDbLogger. Look for ERROR in log file to see if the database classes were configured correctly. Error: {}", e);
+                logger.error("Error writing data to database via DataDbLogger. Look for ERROR in log file to see if the database classes were configured correctly.", e);
 
                 // Don't try again right away because that would be wasteful
                 Time.sleep(TIME_BETWEEN_RETRIES);
