@@ -322,7 +322,7 @@ public abstract class ArrivalDeparture implements Lifecycle, Serializable {
      * them.
      */
     @Override
-    public void onLoad(Session s, Serializable id) throws CallbackException {
+    public void onLoad(Session s, Object id) throws CallbackException {
         if (vehicleId != null) vehicleId = vehicleId.intern();
         if (stopId != null) stopId = stopId.intern();
         if (tripId != null) tripId = tripId.intern();
@@ -332,25 +332,6 @@ public abstract class ArrivalDeparture implements Lifecycle, Serializable {
         if (serviceId != null) serviceId = serviceId.intern();
         if (directionId != null) directionId = directionId.intern();
     }
-
-    /** Implemented due to Lifecycle interface being implemented. Not actually used. */
-    @Override
-    public boolean onSave(Session s) throws CallbackException {
-        return Lifecycle.NO_VETO;
-    }
-
-    /** Implemented due to Lifecycle interface being implemented. Not actually used. */
-    @Override
-    public boolean onUpdate(Session s) throws CallbackException {
-        return Lifecycle.NO_VETO;
-    }
-
-    /** Implemented due to Lifecycle interface being implemented. Not actually used. */
-    @Override
-    public boolean onDelete(Session s) throws CallbackException {
-        return Lifecycle.NO_VETO;
-    }
-
 
     @Override
     public String toString() {

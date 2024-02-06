@@ -656,31 +656,10 @@ public class TripPattern implements Serializable, Lifecycle {
     }
 
     @Override
-    public boolean onDelete(Session arg0) throws CallbackException {
-        // Don't veto delete
-        return false;
-    }
-
-    @Override
-    public void onLoad(Session arg0, Serializable arg1) {
+    public void onLoad(Session arg0, Object arg1) {
         // Initialize the transient member stopPathsMaps
         for (StopPath stopPath : stopPaths) {
             stopPathsMap.put(stopPath.getStopId(), stopPath);
         }
-    }
-
-    @Override
-    public boolean onSave(Session arg0) throws CallbackException {
-        // Don't veto save
-        return false;
-    }
-
-    /* (non-Javadoc)
-     * @see org.hibernate.classic.Lifecycle#onUpdate(org.hibernate.Session)
-     */
-    @Override
-    public boolean onUpdate(Session arg0) throws CallbackException {
-        // Don't veto update
-        return false;
     }
 }

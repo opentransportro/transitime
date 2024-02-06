@@ -379,22 +379,13 @@ public class StopPath implements Serializable, Lifecycle {
         return CoreConfig.getAfterStopDistance();
     }
 
-    /* (non-Javadoc)
-     * @see org.hibernate.classic.Lifecycle#onDelete(org.hibernate.Session)
-     */
-    @Override
-    public boolean onDelete(Session arg0) throws CallbackException {
-        // Don't veto delete
-        return false;
-    }
-
     /*
      * When the vector is read in from db this method is automatically called to
      * set the transient vector array. This way it is simpler to go through the
      * path segments to determine matches.
      */
     @Override
-    public void onLoad(Session arg0, Serializable arg1) {
+    public void onLoad(Session session, Object arg1) {
         vectors = new ArrayList<>(locations.size() - 1);
         for (int segmentIndex = 0; segmentIndex < locations.size() - 1; ++segmentIndex) {
             VectorWithHeading v = new VectorWithHeading(
@@ -408,17 +399,5 @@ public class StopPath implements Serializable, Lifecycle {
             location = new Location(0.0, 0.0);
         }
         return location;
-    }
-
-    @Override
-    public boolean onSave(Session arg0) throws CallbackException {
-        // Don't veto save
-        return false;
-    }
-
-    @Override
-    public boolean onUpdate(Session arg0) throws CallbackException {
-        // Don't veto update
-        return false;
     }
 }

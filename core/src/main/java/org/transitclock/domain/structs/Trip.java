@@ -799,7 +799,7 @@ public class Trip implements Lifecycle, Serializable {
      * them.
      */
     @Override
-    public void onLoad(Session s, Serializable id) throws CallbackException {
+    public void onLoad(Session s, Object id) throws CallbackException {
         if (tripId != null) tripId = tripId.intern();
         if (tripShortName != null) tripShortName = tripShortName.intern();
         if (directionId != null) directionId = directionId.intern();
@@ -809,24 +809,6 @@ public class Trip implements Lifecycle, Serializable {
         if (headsign != null) headsign = headsign.intern();
         if (blockId != null) blockId = blockId.intern();
         if (shapeId != null) shapeId = shapeId.intern();
-    }
-
-    /** Implemented due to Lifecycle interface being implemented. Not actually used. */
-    @Override
-    public boolean onSave(Session s) throws CallbackException {
-        return Lifecycle.NO_VETO;
-    }
-
-    /** Implemented due to Lifecycle interface being implemented. Not actually used. */
-    @Override
-    public boolean onUpdate(Session s) throws CallbackException {
-        return Lifecycle.NO_VETO;
-    }
-
-    /** Implemented due to Lifecycle interface being implemented. Not actually used. */
-    @Override
-    public boolean onDelete(Session s) throws CallbackException {
-        return Lifecycle.NO_VETO;
     }
 
     /**

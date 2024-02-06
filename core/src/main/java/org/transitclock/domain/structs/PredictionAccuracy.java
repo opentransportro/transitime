@@ -165,7 +165,7 @@ public class PredictionAccuracy implements Lifecycle, Serializable {
 
     /** Callback due to implementing Lifecycle interface. Used to compact string members by them. */
     @Override
-    public void onLoad(Session s, Serializable id) throws CallbackException {
+    public void onLoad(Session s, Object id) throws CallbackException {
         if (routeId != null) routeId = routeId.intern();
         if (routeShortName != null) routeShortName = routeShortName.intern();
         if (directionId != null) directionId = directionId.intern();
@@ -174,23 +174,5 @@ public class PredictionAccuracy implements Lifecycle, Serializable {
         if (predictionSource != null) predictionSource = predictionSource.intern();
         if (predictionAlgorithm != null) predictionAlgorithm = predictionAlgorithm.intern();
         if (vehicleId != null) vehicleId = vehicleId.intern();
-    }
-
-    /** Implemented due to Lifecycle interface being implemented. Not actually used. */
-    @Override
-    public boolean onSave(Session s) throws CallbackException {
-        return Lifecycle.NO_VETO;
-    }
-
-    /** Implemented due to Lifecycle interface being implemented. Not actually used. */
-    @Override
-    public boolean onUpdate(Session s) throws CallbackException {
-        return Lifecycle.NO_VETO;
-    }
-
-    /** Implemented due to Lifecycle interface being implemented. Not actually used. */
-    @Override
-    public boolean onDelete(Session s) throws CallbackException {
-        return Lifecycle.NO_VETO;
     }
 }
