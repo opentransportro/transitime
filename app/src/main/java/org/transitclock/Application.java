@@ -88,6 +88,7 @@ public class Application {
 
     private void migrate() {
         Flyway flyway = Flyway.configure()
+                .loggers("slf4j")
                 .dataSource(DbSetupConfig.getConnectionUrl(), DbSetupConfig.getDbUserName(), DbSetupConfig.getDbPassword())
                 .load();
         MigrationInfoService info = flyway.info();
