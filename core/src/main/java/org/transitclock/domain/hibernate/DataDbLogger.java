@@ -91,7 +91,7 @@ public class DataDbLogger {
      */
     private DataDbLogger(String agencyId, boolean shouldStoreToDb, boolean shouldPauseToReduceQueue) {
         NamedThreadFactory threadFactory = new NamedThreadFactory("DataWriter");
-        ExtendedScheduledThreadPoolExecutor executor = new ExtendedScheduledThreadPoolExecutor(10, threadFactory, new RejectedExecutionHandler() {
+        ExtendedScheduledThreadPoolExecutor executor = new ExtendedScheduledThreadPoolExecutor(5, threadFactory, new RejectedExecutionHandler() {
             @Override
             public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
                 logger.error("Execution of {} was rejected by {}", r, executor);

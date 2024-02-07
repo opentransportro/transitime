@@ -159,19 +159,20 @@ public class GtfsUpdatedModule extends Module {
      */
     @Override
     public void run() {
-        // Continue running module forever
-        while (true) {
-            // Wait until appropriate time
-            Time.sleep(GtfsConfig.intervalMsec.getValue());
-
-            // Get the GTFS file if it has been updated. Catch and
-            // handle all exceptions to make sure module continues
-            // to run even if there is an unexpected problem.
-            try {
-                get();
-            } catch (Exception e) {
-                logger.error("Exception in GtfsUpdatedModule for agencyId={}", AgencyConfig.getAgencyId(), e);
-            }
+        try {
+            get();
+        } catch (Exception e) {
+            logger.error("Exception in GtfsUpdatedModule for agencyId={}", AgencyConfig.getAgencyId(), e);
         }
+    }
+
+    @Override
+    public ExecutionType getExecutionType() {
+        return ExecutionType.FIXED_RATE;
+    }
+
+    @Override
+    public int executionPeriod() {
+        return Math.toIntExact(GtfsConfig.intervalMsec.getValue());
     }
 }

@@ -35,35 +35,25 @@ public class MonitoringModule extends Module {
 
         AgencyMonitor agencyMonitor = AgencyMonitor.getInstance(agencyId);
 
-        // Run forever. Sleep before monitoring since don't want to monitor
-        // immediately at startup
-        IntervalTimer timer = new IntervalTimer();
-        while (true) {
-            try {
-                // Wait appropriate amount of time till poll again
-                long elapsedMsec = timer.elapsedMsec();
-                long sleepTime = MonitoringConfig.secondsBetweenMonitorinPolling.getValue() * Time.MS_PER_SEC - elapsedMsec;
-                if (sleepTime < 0) {
-                    logger.warn("For monitoring module upposed to have a polling "
-                            + "rate of "
-                            + MonitoringConfig.secondsBetweenMonitorinPolling.getValue() * Time.MS_PER_SEC
-                            + " msec but processing previous data took "
-                            + elapsedMsec
-                            + " msec so polling again immediately.");
-                } else {
-                    Time.sleep(sleepTime);
-                }
-                timer.resetTimer();
-
-                // Actually do the monitoring
-                String resultStr = agencyMonitor.checkAll();
-
-                if (resultStr != null) {
-                    logger.error("MonitoringModule detected problem. {}", resultStr);
-                }
-            } catch (Exception e) {
-                logger.error("Errror in MonitoringModule for agencyId={}", AgencyConfig.getAgencyId(), e);
+        try {
+            // Wait appropriate amount of time till poll again
+            // Actually do the monitoring
+            String resultStr = agencyMonitor.checkAll();
+            if (resultStr != null) {
+                logger.error("MonitoringModule detected problem. {}", resultStr);
             }
+        } catch (Exception e) {
+            logger.error("Errror in MonitoringModule for agencyId={}", AgencyConfig.getAgencyId(), e);
         }
+    }
+
+    @Override
+    public int executionPeriod() {
+        return MonitoringConfig.secondsBetweenMonitorinPolling.getValue() * Time.MS_PER_SEC;
+    }
+
+    @Override
+    public ExecutionType getExecutionType() {
+        return ExecutionType.FIXED_RATE;
     }
 }

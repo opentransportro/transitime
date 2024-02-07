@@ -67,36 +67,18 @@ public class PredictionAccuracyModule extends Module {
      */
     @Override
     public void run() {
-        // Log that module successfully started
-        logger.info("Started module {} for agencyId={}", getClass().getName(), getAgencyId());
+        IntervalTimer timer = new IntervalTimer();
 
-        // No need to run at startup since internal predictions won't be
-        // generated yet. So sleep a bit first.
-        Time.sleep(PredictionAccuracyConfig.timeBetweenPollingPredictionsMsec.getValue());
+        try {
+            getAndProcessData(getRoutesAndStops(), SystemTime.getDate());
 
-        // Run forever
-        while (true) {
-            IntervalTimer timer = new IntervalTimer();
-
-            try {
-                getAndProcessData(getRoutesAndStops(), SystemTime.getDate());
-
-                // Make sure old predictions that were never matched to an
-                // arrival/departure don't stick around taking up memory.
-                clearStalePredictions();
-            } catch (Exception e) {
-                logger.error("Error accessing predictions feed {}", e, e);
-            } catch (Throwable t) {
-                logger.error("possible sql exception {}", t, t);
-            } finally {
-                // if we have an exception, we still need to wait to be nice to the cpu
-                // Wait appropriate amount of time till poll again
-                long elapsedMsec = timer.elapsedMsec();
-                long sleepTime = PredictionAccuracyConfig.timeBetweenPollingPredictionsMsec.getValue() - elapsedMsec;
-                if (sleepTime > 0) {
-                    Time.sleep(sleepTime);
-                }
-            }
+            // Make sure old predictions that were never matched to an
+            // arrival/departure don't stick around taking up memory.
+            clearStalePredictions();
+        } catch (Exception e) {
+            logger.error("Error accessing predictions feed {}", e, e);
+        } catch (Throwable t) {
+            logger.error("possible sql exception {}", t, t);
         }
     }
 
@@ -369,5 +351,20 @@ public class PredictionAccuracyModule extends Module {
         // it gets written to database
         logger.debug("Storing prediction accuracy object to db. {}", predAccuracy);
         Core.getInstance().getDbLogger().add(predAccuracy);
+    }
+
+    @Override
+    public ExecutionType getExecutionType() {
+        return ExecutionType.FIXED_RATE;
+    }
+
+    @Override
+    public int executionPeriod() {
+        return PredictionAccuracyConfig.timeBetweenPollingPredictionsMsec.getValue();
+    }
+
+    @Override
+    public int initialExecutionDelay() {
+        return PredictionAccuracyConfig.timeBetweenPollingPredictionsMsec.getValue();
     }
 }

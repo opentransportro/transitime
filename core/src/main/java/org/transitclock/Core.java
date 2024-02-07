@@ -15,13 +15,12 @@ import org.transitclock.domain.structs.Agency;
 import org.transitclock.gtfs.DbConfig;
 import org.transitclock.service.*;
 import org.transitclock.utils.Time;
+import org.transitclock.utils.threading.ExtendedScheduledThreadPoolExecutor;
 import org.transitclock.utils.threading.NamedThreadFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.TimeZone;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.*;
 
 /**
  * The main class for running a Transitime Core real-time data processing system. Handles command
@@ -87,19 +86,16 @@ public class Core {
          // work if Db logger started first.
          dataDbLogger = DataDbLogger.getDataDbLogger(agencyId, CoreConfig.storeDataInDatabase(), CoreConfig.pauseIfDbQueueFilling());
 
-         ThreadFactory threadFactory = new NamedThreadFactory("module-thread-pool");
-         Executor executor = Executors.newFixedThreadPool(10, threadFactory);
 
-        TimeoutHandlerModule timeoutHandlerModule = moduleRegistry.create(TimeoutHandlerModule.class);
-        executor.execute(timeoutHandlerModule);
+
+         TimeoutHandlerModule timeoutHandlerModule = moduleRegistry.createAndSchedule(TimeoutHandlerModule.class);
 
          // Start any optional modules.
          var optionalModuleNames = CoreConfig.getOptionalModules();
          for (Class<?> moduleName : optionalModuleNames) {
              logger.info("Starting up optional module {}", moduleName);
              try {
-                 Module module = moduleRegistry.create(moduleName);
-                 executor.execute(module);
+                 Module module = moduleRegistry.createAndSchedule(moduleName);
              } catch (NoSuchMethodException e) {
                  logger.error("Failed to start {} because could not find constructor with agencyId arg", moduleName, e);
              } catch (InvocationTargetException e) {

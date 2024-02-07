@@ -267,28 +267,26 @@ public class TimeoutHandlerModule extends Module {
 
     @Override
     public void run() {
-        logger.info("Starting module {} for agencyId={}", getClass().getName(), getAgencyId());
-
-        // No need to run at startup since haven't processed AVL data yet
-        Time.sleep(TimeoutConfig.pollingRateSecs.getValue() * Time.MS_PER_SEC);
-
-        // Run forever
-        while (true) {
-            try {
-                // For determining when to poll next
-                IntervalTimer timer = new IntervalTimer();
-
-                // Do the actual work
-                handlePossibleTimeouts();
-
-                // Wait appropriate amount of time till poll again
-                long sleepTime = TimeoutConfig.pollingRateSecs.getValue() * Time.MS_PER_SEC - timer.elapsedMsec();
-                if (sleepTime > 0) {
-                    Time.sleep(sleepTime);
-                }
-            } catch (Exception e) {
-                logger.error("Error with TimeoutHandlerModule for agencyId={}", AgencyConfig.getAgencyId(), e);
-            }
+        try {
+            // Do the actual work
+            handlePossibleTimeouts();
+        } catch (Exception e) {
+            logger.error("Error with TimeoutHandlerModule for agencyId={}", AgencyConfig.getAgencyId(), e);
         }
+    }
+
+    @Override
+    public int initialExecutionDelay() {
+        return TimeoutConfig.pollingRateSecs.getValue() * Time.MS_PER_SEC;
+    }
+
+    @Override
+    public int executionPeriod() {
+        return TimeoutConfig.pollingRateSecs.getValue() * Time.MS_PER_SEC;
+    }
+
+    @Override
+    public ExecutionType getExecutionType() {
+        return ExecutionType.FIXED_RATE;
     }
 }

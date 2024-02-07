@@ -7,10 +7,7 @@ import org.transitclock.config.data.AvlConfig;
 import org.transitclock.domain.structs.AvlReport;
 import org.transitclock.utils.threading.NamedThreadFactory;
 
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.RejectedExecutionHandler;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * A singleton thread executor for executing AVL reports. For when not using JMS to handle queue of
@@ -29,7 +26,7 @@ public class AvlExecutor {
 
     private static final int MAX_THREADS = 25;
     private static AvlExecutor singleton;
-    private final ThreadPoolExecutor avlClientExecutor;
+    private final Executor avlClientExecutor;
     private final AvlReportProcessorFactory avlReportProcessorFactory;
 
     public AvlExecutor(AvlReportProcessorFactory avlReportProcessorFactory) {

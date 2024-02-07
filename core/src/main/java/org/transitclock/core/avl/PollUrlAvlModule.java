@@ -163,34 +163,28 @@ public abstract class PollUrlAvlModule extends AvlModule {
      */
     @Override
     public void run() {
-        // Log that module successfully started
-        logger.info("Started module {} for agencyId={}", getClass().getName(), getAgencyId());
-
-        while (true) {
-            IntervalTimer timer = new IntervalTimer();
-
-            try {
-                // Process data
-                getAndProcessData();
-            } catch (SocketTimeoutException e) {
-                logger.error(
-                        "Error for agencyId={} accessing AVL feed using URL={} " + "with a timeout of {} msec.",
-                        AgencyConfig.getAgencyId(),
-                        getUrl(),
-                        AvlConfig.getAvlFeedTimeoutInMSecs(),
-                        e);
-            } catch (Exception e) {
-                logger.error("Error accessing AVL feed using URL={}.", getUrl(), e);
-            }
-
-            // Wait appropriate amount of time till poll again
-            long elapsedMsec = timer.elapsedMsec();
-            long sleepTime = AvlConfig.getSecondsBetweenAvlFeedPolling() * Time.MS_PER_SEC - elapsedMsec;
-            if (sleepTime < 0) {
-                logger.warn("Supposed to have a polling rate of {} msec but processing previous data took {} msec so polling again immediately.", AvlConfig.getSecondsBetweenAvlFeedPolling() * Time.MS_PER_SEC, elapsedMsec);
-            } else {
-                Time.sleep(sleepTime);
-            }
+        try {
+            // Process data
+            getAndProcessData();
+        } catch (SocketTimeoutException e) {
+            logger.error(
+                    "Error for agencyId={} accessing AVL feed using URL={} " + "with a timeout of {} msec.",
+                    AgencyConfig.getAgencyId(),
+                    getUrl(),
+                    AvlConfig.getAvlFeedTimeoutInMSecs(),
+                    e);
+        } catch (Exception e) {
+            logger.error("Error accessing AVL feed using URL={}.", getUrl(), e);
         }
+    }
+
+    @Override
+    public int executionPeriod() {
+        return AvlConfig.getSecondsBetweenAvlFeedPolling() * Time.MS_PER_SEC;
+    }
+
+    @Override
+    public ExecutionType getExecutionType() {
+        return ExecutionType.FIXED_RATE;
     }
 }

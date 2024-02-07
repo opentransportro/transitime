@@ -2,6 +2,7 @@
 package org.transitclock;
 
 import lombok.extern.slf4j.Slf4j;
+import org.transitclock.utils.Time;
 
 /**
  * Modules are run in a separate thread and continuously process data. They are initiated by core
@@ -14,6 +15,11 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public abstract class Module implements Runnable {
+    public static enum ExecutionType {
+        ONCE,
+        FIXED_DELAY,
+        FIXED_RATE
+    }
 
     protected final String agencyId;
 
@@ -31,4 +37,21 @@ public abstract class Module implements Runnable {
         return agencyId;
     }
 
+    /**
+     * Initial execution delay expressed in MILLISECONDS
+     * @return initialDelay
+     */
+    public int initialExecutionDelay() {
+        return 0;
+    }
+
+    /**
+     * Execution period expressed in MILLISECONDS
+     * @return execution period
+     */
+    public int executionPeriod() {
+        return 15 * Time.SEC_IN_MSECS;
+    }
+
+    public abstract ExecutionType getExecutionType();
 }

@@ -191,34 +191,29 @@ public class SchedBasedPredsModule extends Module {
      */
     @Override
     public void run() {
-        // Log that module successfully started
-        logger.info("Starting module {} for agencyId={}", getClass().getName(), getAgencyId());
+        try {
+            // Do the actual work
+            createSchedBasedPredsAsNecessary();
+        } catch (Exception e) {
+            logger.error("Error with SchedBasedPredsModule for agencyId={}", AgencyConfig.getAgencyId(), e);
+        }
+    }
 
+    @Override
+    public int initialExecutionDelay() {
         // No need to run at startup since haven't yet had change to assign
         // vehicles to blocks yet. So sleep a bit first, unless specified to
         // run immediately by the processImmediatelyAtStartup configuration
         // parameter.
         if (!PredictionConfig.processImmediatelyAtStartup.getValue()) {
-            Time.sleep(PredictionConfig.timeBetweenPollingMsec.getValue());
+            return PredictionConfig.timeBetweenPollingMsec.getValue();
         }
 
-        // Run forever
-        while (true) {
-            // For determining when to poll next
-            IntervalTimer timer = new IntervalTimer();
+        return 0;
+    }
 
-            try {
-                // Do the actual work
-                createSchedBasedPredsAsNecessary();
-            } catch (Exception e) {
-                logger.error("Error with SchedBasedPredsModule for agencyId={}", AgencyConfig.getAgencyId(), e);
-            }
-
-            // Wait appropriate amount of time till poll again
-            long sleepTime = PredictionConfig.timeBetweenPollingMsec.getValue() - timer.elapsedMsec();
-            if (sleepTime > 0) {
-                Time.sleep(sleepTime);
-            }
-        }
+    @Override
+    public ExecutionType getExecutionType() {
+        return ExecutionType.FIXED_RATE;
     }
 }
