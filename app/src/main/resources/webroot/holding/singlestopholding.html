@@ -158,7 +158,7 @@
         var results = regex.exec(location.search);
         return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
     };
-    document.getElementById('mapframe').src = "/web/maps/map.jsp?a=" + getUrlParameter('agency') + "&verbose=true&showUnassignedVehicles=true&r=" + getUrlParameter('route');
+    document.getElementById('mapframe').src = "/maps/map.jsp?a=" + getUrlParameter('agency') + "&verbose=true&showUnassignedVehicles=true&r=" + getUrlParameter('route');
 
     var threshold = parseInt(getUrlParameter('threshold'));
 
