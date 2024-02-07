@@ -38,6 +38,7 @@ import org.transitclock.domain.ApiKeyManager;
 import org.transitclock.domain.hibernate.HibernateUtils;
 import org.transitclock.domain.webstructs.WebAgency;
 import org.transitclock.utils.Time;
+import org.transitclock.utils.threading.UncaughtExceptionHandler;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -62,7 +63,13 @@ public class Application {
 
     @SneakyThrows
     public static void main(String[] args) {
-        Thread.currentThread().setName("main");
+        var uncaughtExceptionHandler = new UncaughtExceptionHandler();
+        Thread.setDefaultUncaughtExceptionHandler(uncaughtExceptionHandler);
+
+        var currentThread = Thread.currentThread();
+        currentThread.setName("main");
+        currentThread.setUncaughtExceptionHandler(uncaughtExceptionHandler);
+
         ConfigFileReader.processConfig();
 
         var app = new Application(args);
@@ -130,7 +137,7 @@ public class Application {
 
             var serverInstance = createWebserver();
             serverInstance.start();
-            logger.info("Go to http://localhost:" + cli.port + " in your browser");
+            logger.info("Go to http://localhost:{} in your browser", cli.port);
             serverInstance.join();
         } catch (Exception e) {
             logger.error(e.getMessage(), e);

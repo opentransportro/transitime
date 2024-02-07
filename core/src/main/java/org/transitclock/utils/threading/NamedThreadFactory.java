@@ -1,6 +1,8 @@
 /* (C)2023 */
 package org.transitclock.utils.threading;
 
+import lombok.NonNull;
+
 import java.util.concurrent.ThreadFactory;
 
 /**
@@ -17,7 +19,7 @@ public class NamedThreadFactory implements ThreadFactory {
         this.poolName = poolName;
     }
 
-    public Thread newThread(Runnable runnable) {
+    public Thread newThread(@NonNull Runnable runnable) {
         return new NamedThread(runnable, poolName);
     }
 }

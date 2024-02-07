@@ -6,11 +6,9 @@ import java.net.SocketTimeoutException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.*;
 
+import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -24,7 +22,6 @@ import org.transitclock.config.data.DbSetupConfig;
 import org.transitclock.utils.ExceptionUtils;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.Time;
-import org.transitclock.utils.threading.NamedThreadFactory;
 
 /**
  * Encapsulate the queuing operations of the database. Make generic so db-side batching is more
@@ -76,7 +73,7 @@ public class DbQueue<T> {
     private long throughputTimestamp = System.currentTimeMillis();
     private final Class<?> shortType;
 
-    public DbQueue(String projectId, boolean shouldStoreToDb, boolean shouldPauseToReduceQueue, Class<?> shortType) {
+    public DbQueue(ScheduledExecutorService executor, String projectId, boolean shouldStoreToDb, boolean shouldPauseToReduceQueue, Class<?> shortType) {
         this.projectId = projectId;
         this.shouldStoreToDb = shouldStoreToDb;
         this.shouldPauseToReduceQueue = shouldPauseToReduceQueue;
@@ -87,11 +84,8 @@ public class DbQueue<T> {
 
         // Start up separate thread that reads from the queue and
         // actually stores the data
-        NamedThreadFactory threadFactory = new NamedThreadFactory(getClass().getSimpleName());
-        ExecutorService executor = Executors.newSingleThreadExecutor(threadFactory);
-        executor.execute(this::processData);
-        ThroughputMonitor tm = new ThroughputMonitor();
-        new Thread(tm).start();
+        executor.scheduleAtFixedRate(this::processBatchOfData, 0, TIME_BETWEEN_RETRIES, TimeUnit.MILLISECONDS);
+        executor.scheduleAtFixedRate(this::logThroughputInfo, 1, 1, TimeUnit.MINUTES);
     }
 
     public boolean add(T t) {
@@ -156,7 +150,7 @@ public class DbQueue<T> {
             if (count == 0) {
                 try {
                     Thread.sleep(TIME_BETWEEN_RETRIES);
-                } catch (InterruptedException e) {
+                } catch (InterruptedException ignored) {
                 }
             }
         } while (buff.isEmpty());
@@ -320,24 +314,6 @@ public class DbQueue<T> {
     }
 
     /**
-     * This is the main method for processing data. It simply keeps on calling processBatchOfData()
-     * so that data is batched as efficiently as possible. Exceptions are caught such that this
-     * method will continue to run indefinitely.
-     */
-    public void processData() {
-        while (true) {
-            try {
-                processBatchOfData();
-            } catch (Exception e) {
-                logger.error("Error writing data to database via DataDbLogger. Look for ERROR in log file to see if the database classes were configured correctly.", e);
-
-                // Don't try again right away because that would be wasteful
-                Time.sleep(TIME_BETWEEN_RETRIES);
-            }
-        }
-    }
-
-    /**
      * Returns how much capacity of the queue is being used up.
      *
      * @return a value between 0.0 and 1.0 indicating how much of queue being used
@@ -438,35 +414,17 @@ public class DbQueue<T> {
         }
     }
 
-    private class ThroughputMonitor implements Runnable {
-        private static final long INTERVAL = 1L; // minutes
-
-        @Override
-        public void run() {
-            Time.sleep(INTERVAL * Time.MS_PER_MIN);
-            while (!Thread.interrupted()) {
-                try {
-                    processThroughput();
-                } catch (Throwable t) {
-                    logger.error("monitor broke:{}", t, t);
-                }
-                Time.sleep(INTERVAL * Time.MS_PER_MIN);
-            }
+    private void logThroughputInfo() {
+        long delta = (System.currentTimeMillis() - throughputTimestamp) / 1000;
+        if (throughputCount == 0) {
+            logger.debug("wrote nothing");
+            return;
         }
 
-        private void processThroughput() {
-            long delta = (System.currentTimeMillis() - throughputTimestamp) / 1000;
-            if (throughputCount == 0) {
-                logger.debug("wrote nothing");
-                return;
-            }
-
-            long throughput = throughputCount;
-            throughputCount = 0;
-            throughputTimestamp = System.currentTimeMillis();
-            double rate = throughput / delta;
-            logger.info(
-                    "wrote {} {} messages in {}s, ({}/s) ", throughput, shortType, delta / 1000, (long) rate);
-        }
+        long throughput = throughputCount;
+        throughputCount = 0;
+        throughputTimestamp = System.currentTimeMillis();
+        double rate = (double) throughput / delta;
+        logger.info("wrote {} {} messages in {}s, ({}/s) ", throughput, shortType, delta / 1000, (long) rate);
     }
 }

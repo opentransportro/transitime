@@ -3,7 +3,9 @@ package org.transitclock.domain.hibernate;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.*;
 
+import lombok.extern.slf4j.Slf4j;
 import org.transitclock.domain.structs.ArrivalDeparture;
 import org.transitclock.domain.structs.AvlReport;
 import org.transitclock.domain.structs.Match;
@@ -13,6 +15,8 @@ import org.transitclock.domain.structs.PredictionAccuracy;
 import org.transitclock.domain.structs.VehicleConfig;
 import org.transitclock.domain.structs.VehicleEvent;
 import org.transitclock.domain.structs.VehicleState;
+import org.transitclock.utils.threading.ExtendedScheduledThreadPoolExecutor;
+import org.transitclock.utils.threading.NamedThreadFactory;
 
 /**
  * DataDbLogger is for storing to the db a stream of data objects. It is intended for example for
@@ -40,6 +44,7 @@ import org.transitclock.domain.structs.VehicleState;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class DataDbLogger {
 
     // This is a singleton class that only returns a single object per agencyId.
@@ -85,6 +90,14 @@ public class DataDbLogger {
      *     the db really quickly.
      */
     private DataDbLogger(String agencyId, boolean shouldStoreToDb, boolean shouldPauseToReduceQueue) {
+        NamedThreadFactory threadFactory = new NamedThreadFactory("DataWriter");
+        ExtendedScheduledThreadPoolExecutor executor = new ExtendedScheduledThreadPoolExecutor(10, threadFactory, new RejectedExecutionHandler() {
+            @Override
+            public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
+                logger.error("Execution of {} was rejected by {}", r, executor);
+            }
+        });
+
         // So can access agencyId for logging messages
         // When running in playback mode where getting AVLReports from database
         // instead of from an AVL feed, then debugging and don't want to store
@@ -94,16 +107,16 @@ public class DataDbLogger {
         // Used by add(). If queue filling up to 25% and shouldPauseToReduceQueue is
         // true then will pause the calling thread for a few seconds so that more
         // objects can be written out and not have the queue fill up.
-        arrivalDepartureQueue = new DbQueue<>(agencyId, shouldStoreToDb, shouldPauseToReduceQueue, ArrivalDeparture.class);
-        avlReportQueue = new DbQueue<>(agencyId, shouldStoreToDb, shouldPauseToReduceQueue, AvlReport.class);
-        vehicleConfigQueue = new DbQueue<>(agencyId, shouldStoreToDb, shouldPauseToReduceQueue, VehicleConfig.class);
-        predictionQueue = new DbQueue<>(agencyId, shouldStoreToDb, shouldPauseToReduceQueue, Prediction.class);
-        matchQueue = new DbQueue<>(agencyId, shouldStoreToDb, shouldPauseToReduceQueue, Match.class);
-        predictionAccuracyQueue = new DbQueue<>(agencyId, shouldStoreToDb, shouldPauseToReduceQueue, PredictionAccuracy.class);
-        monitoringEventQueue = new DbQueue<>(agencyId, shouldStoreToDb, shouldPauseToReduceQueue, MonitoringEvent.class);
-        vehicleEventQueue = new DbQueue<>(agencyId, shouldStoreToDb, shouldPauseToReduceQueue, VehicleEvent.class);
-        vehicleStateQueue = new DbQueue<>(agencyId, shouldStoreToDb, shouldPauseToReduceQueue, VehicleState.class);
-        genericQueue = new DbQueue<>(agencyId, shouldStoreToDb, shouldPauseToReduceQueue, Object.class);
+        arrivalDepartureQueue = new DbQueue<>(executor, agencyId, shouldStoreToDb, shouldPauseToReduceQueue, ArrivalDeparture.class);
+        avlReportQueue = new DbQueue<>(executor, agencyId, shouldStoreToDb, shouldPauseToReduceQueue, AvlReport.class);
+        vehicleConfigQueue = new DbQueue<>(executor, agencyId, shouldStoreToDb, shouldPauseToReduceQueue, VehicleConfig.class);
+        predictionQueue = new DbQueue<>(executor, agencyId, shouldStoreToDb, shouldPauseToReduceQueue, Prediction.class);
+        matchQueue = new DbQueue<>(executor, agencyId, shouldStoreToDb, shouldPauseToReduceQueue, Match.class);
+        predictionAccuracyQueue = new DbQueue<>(executor, agencyId, shouldStoreToDb, shouldPauseToReduceQueue, PredictionAccuracy.class);
+        monitoringEventQueue = new DbQueue<>(executor, agencyId, shouldStoreToDb, shouldPauseToReduceQueue, MonitoringEvent.class);
+        vehicleEventQueue = new DbQueue<>(executor, agencyId, shouldStoreToDb, shouldPauseToReduceQueue, VehicleEvent.class);
+        vehicleStateQueue = new DbQueue<>(executor, agencyId, shouldStoreToDb, shouldPauseToReduceQueue, VehicleState.class);
+        genericQueue = new DbQueue<>(executor, agencyId, shouldStoreToDb, shouldPauseToReduceQueue, Object.class);
     }
 
     public boolean add(ArrivalDeparture ad) {
