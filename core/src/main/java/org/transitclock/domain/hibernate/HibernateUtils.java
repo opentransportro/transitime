@@ -7,14 +7,12 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
+import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.service.ServiceRegistry;
 import org.transitclock.config.data.DbSetupConfig;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.net.URL;
 import java.util.Map;
 import java.util.Properties;
@@ -26,7 +24,6 @@ public class HibernateUtils {
     // Cache. Keyed on database name
     private static final Map<String, SessionFactory> sessionFactoryCache = new ConcurrentHashMap<>();
     private static final Map<Thread, ThreadLocal<Session>> threadSessions = new ConcurrentHashMap<>();
-    private static final ThreadLocal<Session> localThreadSession = new ThreadLocal<>();
 
     private static SessionFactory createSessionFactory(String dbName, boolean readOnly) throws HibernateException {
         Configuration config = new Configuration();
@@ -66,12 +63,12 @@ public class HibernateUtils {
         // can be overwritten in a standard way. If that property not set then
         // uses values from DbSetupConfig if set. If they are not set then the
         // values will be obtained from the hibernate.cfg.xml config file.
-        String dbUrl = config.getProperty("hibernate.connection.url");
+        String dbUrl = config.getProperty(AvailableSettings.URL);
         if (readOnly) {
             dbUrl = config.getProperty("hibernate.ro.connection.url");
             // override the configured url so its picked up by the driver
-            config.setProperty("hibernate.connection.url", dbUrl);
-            logger.info("using read only connection url {}", dbUrl);
+            config.setProperty(AvailableSettings.URL, dbUrl);
+            logger.trace("using read only connection url {}", dbUrl);
         }
         if (dbUrl == null || dbUrl.isEmpty()) {
             dbUrl = "jdbc:" + DbSetupConfig.getDbType() + "://" + DbSetupConfig.getDbHost() + "/" + dbName;
@@ -86,18 +83,18 @@ public class HibernateUtils {
 
                 dbUrl += "?connectTimeout=" + timeout + "&socketTimeout=" + timeout;
             }
-            config.setProperty("hibernate.connection.url", dbUrl);
+            config.setProperty(AvailableSettings.URL, dbUrl);
         }
 
         String dbUserName = DbSetupConfig.getDbUserName();
         if (dbUserName != null) {
-            config.setProperty("hibernate.connection.username", dbUserName);
+            config.setProperty(AvailableSettings.USER, dbUserName);
         } else {
-            dbUserName = config.getProperty("hibernate.connection.username");
+            dbUserName = config.getProperty(AvailableSettings.USER);
         }
 
         if (DbSetupConfig.getDbPassword() != null) {
-            config.setProperty("hibernate.connection.password", DbSetupConfig.getDbPassword());
+            config.setProperty(AvailableSettings.PASS, DbSetupConfig.getDbPassword());
         }
 
         // Log info, but don't log password. This can just be debug logging
@@ -143,7 +140,6 @@ public class HibernateUtils {
             // If factory not yet created for this projectId then create it
             if (factory == null || factory.isClosed()) {
                 try {
-                    logger.info("creating new session factory with readOnly={}", readOnly);
                     factory = createSessionFactory(dbName, readOnly);
                     sessionFactoryCache.put(dbName, factory);
                 } catch (Exception e) {
@@ -221,46 +217,4 @@ public class HibernateUtils {
 
         return threadSessions.get(currentThread).get();
     }
-
-
-    /**
-     * retrieve or create a session on this thread.
-     * @param agencyId
-     * @return
-     */
-    @Synchronized
-    public static Session getSessionForThread(String agencyId) {
-        Session storedSession = localThreadSession.get();
-        if (storedSession == null || !storedSession.isOpen()) {
-            Session session = getSession(agencyId);
-            localThreadSession.set(session);
-
-            return session;
-        }
-        return storedSession;
-    }
-
-    /**
-     * Determines the size of a serializable object by serializing it in memory and then measuring
-     * the resulting size in bytes.
-     *
-     * @param obj Object to be serialized
-     * @return Size of serialized object in bytes or -1 if object cannot be serialized
-     */
-    public static int sizeof(Object obj) {
-
-        ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
-        try {
-            ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteOutputStream);
-
-            objectOutputStream.writeObject(obj);
-            objectOutputStream.flush();
-            objectOutputStream.close();
-        } catch (IOException e) {
-            return -1;
-        }
-
-        return byteOutputStream.toByteArray().length;
-    }
-
 }
