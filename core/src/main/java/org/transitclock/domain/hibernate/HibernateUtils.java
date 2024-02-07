@@ -1,6 +1,7 @@
 /* (C)2023 */
 package org.transitclock.domain.hibernate;
 
+import lombok.Synchronized;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -15,15 +16,17 @@ import java.io.File;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.URL;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 public class HibernateUtils {
 
     // Cache. Keyed on database name
-    private static final Map<String, SessionFactory> sessionFactoryCache = new HashMap<>();
+    private static final Map<String, SessionFactory> sessionFactoryCache = new ConcurrentHashMap<>();
+    private static final Map<Thread, ThreadLocal<Session>> threadSessions = new ConcurrentHashMap<>();
+    private static final ThreadLocal<Session> localThreadSession = new ThreadLocal<>();
 
     private static SessionFactory createSessionFactory(String dbName, boolean readOnly) throws HibernateException {
         Configuration config = new Configuration();
@@ -116,7 +119,7 @@ public class HibernateUtils {
      * Returns a cached Hibernate SessionFactory. Returns null if there is a problem.
      *
      * @param agencyId Used as the database name if the property transitclock.db.dbName is not set
-     * @return
+     * @return {@link SessionFactory}
      */
     public static SessionFactory getSessionFactory(String agencyId) throws HibernateException {
         return getSessionFactory(agencyId, false);
@@ -204,9 +207,37 @@ public class HibernateUtils {
     }
 
 
+    @Synchronized
     public static Session getSession(boolean readOnly) {
-        SessionFactory sessionFactory = HibernateUtils.getSessionFactory(DbSetupConfig.getDbName(), readOnly);
-        return sessionFactory.openSession();
+        Thread currentThread = Thread.currentThread();
+        ThreadLocal<Session> threadSession = threadSessions.get(currentThread);
+        if (threadSession == null || threadSession.get() == null || !threadSession.get().isOpen()) {
+            if(threadSession != null && threadSession.get() != null) {
+                threadSession.remove();
+            }
+            SessionFactory sessionFactory = HibernateUtils.getSessionFactory(DbSetupConfig.getDbName(), readOnly);
+            threadSessions.put(currentThread, ThreadLocal.withInitial(sessionFactory::openSession));
+        }
+
+        return threadSessions.get(currentThread).get();
+    }
+
+
+    /**
+     * retrieve or create a session on this thread.
+     * @param agencyId
+     * @return
+     */
+    @Synchronized
+    public static Session getSessionForThread(String agencyId) {
+        Session storedSession = localThreadSession.get();
+        if (storedSession == null || !storedSession.isOpen()) {
+            Session session = getSession(agencyId);
+            localThreadSession.set(session);
+
+            return session;
+        }
+        return storedSession;
     }
 
     /**
@@ -232,16 +263,4 @@ public class HibernateUtils {
         return byteOutputStream.toByteArray().length;
     }
 
-    /**
-     * Recursively finds the root cause of the throwable. Useful for complicated inconsistent
-     * exceptions like what one gets with JDBC drivers.
-     *
-     * @param t The throwable to get the root cause of
-     * @return The root cause of the throwable passed in
-     */
-    public static Throwable getRootCause(Throwable t) {
-        Throwable subcause = t.getCause();
-        if (subcause == null || subcause == t) return t;
-        else return getRootCause(subcause);
-    }
 }

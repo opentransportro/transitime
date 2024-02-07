@@ -19,8 +19,8 @@ import org.hibernate.internal.SessionImpl;
 import org.transitclock.Core;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.core.SpatialMatch;
-import org.transitclock.domain.hibernate.HibernateUtils;
 import org.transitclock.gtfs.DbConfig;
+import org.transitclock.utils.ExceptionUtils;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.Time;
 
@@ -744,7 +744,7 @@ public class Block implements Serializable {
                 // then somehow lost connection to the database. Might have
                 // been rebooted or such. For this situation need to attach
                 // object to new session.
-                Throwable rootCause = HibernateUtils.getRootCause(e);
+                Throwable rootCause = ExceptionUtils.getRootCause(e);
                 if (rootCause instanceof SocketTimeoutException || rootCause instanceof SocketException) {
                     logger.error(
                             "Socket timeout in getTrips() for "

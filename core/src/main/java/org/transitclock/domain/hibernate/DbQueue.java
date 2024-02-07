@@ -10,6 +10,8 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -18,9 +20,8 @@ import org.hibernate.exception.ConstraintViolationException;
 import org.hibernate.exception.GenericJDBCException;
 import org.hibernate.exception.JDBCConnectionException;
 import org.hibernate.exception.SQLGrammarException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.transitclock.config.data.DbSetupConfig;
+import org.transitclock.utils.ExceptionUtils;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.Time;
 import org.transitclock.utils.threading.NamedThreadFactory;
@@ -29,10 +30,8 @@ import org.transitclock.utils.threading.NamedThreadFactory;
  * Encapsulate the queuing operations of the database. Make generic so db-side batching is more
  * effective.
  */
+@Slf4j
 public class DbQueue<T> {
-
-    private static final Logger logger = LoggerFactory.getLogger(DbQueue.class);
-
     // For when cannot connect to data the length of time in msec between retries
     private static final long TIME_BETWEEN_RETRIES = 1000; // msec
 
@@ -235,7 +234,7 @@ public class DbQueue<T> {
         } catch (HibernateException e) {
             // If there was a connection problem then create a whole session
             // factory so that get new connections.
-            Throwable rootCause = HibernateUtils.getRootCause(e);
+            Throwable rootCause = ExceptionUtils.getRootCause(e);
 
             if (rootCause instanceof SocketTimeoutException
                     || rootCause instanceof SocketException
@@ -270,7 +269,7 @@ public class DbQueue<T> {
                 // If it is a SQLGrammarException then also log the SQL to
                 // help in debugging.
                 String additionaInfo = e instanceof SQLGrammarException ? " SQL=\"" + ((SQLGrammarException) e).getSQL() + "\"" : "";
-                Throwable cause = HibernateUtils.getRootCause(e);
+                Throwable cause = ExceptionUtils.getRootCause(e);
                 logger.warn(
                         "{} for database for project={} when batch writing "
                                 + "objects: {}. Will try to write each object "
@@ -312,7 +311,7 @@ public class DbQueue<T> {
                             }
                         }
                         // Output message on what is going on
-                        Throwable cause2 = HibernateUtils.getRootCause(e2);
+                        Throwable cause2 = ExceptionUtils.getRootCause(e2);
                         logger.error("{} when individually writing object {}. {}msg={}", e2.getClass().getSimpleName(), o, shouldKeepTrying ? "Will keep trying. " : "", cause2.getMessage(), e2);
                     }
                 } while (shouldKeepTrying);
