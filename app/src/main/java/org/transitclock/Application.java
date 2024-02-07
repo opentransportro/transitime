@@ -151,7 +151,8 @@ public class Application {
     }
 
     private void createWebAgency() {
-        WebAgency webAgency = new WebAgency(AgencyConfig.getAgencyId(),
+        String agencyId = AgencyConfig.getAgencyId();
+        WebAgency webAgency = new WebAgency(agencyId,
                 "127.0.0.1",
                 true,
                 DbSetupConfig.getDbName(),
@@ -162,7 +163,7 @@ public class Application {
 
         try {
             // Store the WebAgency
-            webAgency.store("web");
+            webAgency.store(agencyId);
         } catch (IllegalArgumentException ignored) {
 
         }
