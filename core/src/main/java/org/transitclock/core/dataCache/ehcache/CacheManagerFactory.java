@@ -11,9 +11,13 @@ public class CacheManagerFactory {
     public static CacheManager singleton = null;
 
     public static CacheManager getInstance() {
-
         if (singleton == null) {
-            URL xmlConfigUrl = CacheManagerFactory.class.getClassLoader().getResource("ehcache.xml");
+            URL xmlConfigUrl = CacheManagerFactory.class
+                    .getClassLoader()
+                    .getResource("ehcache.xml");
+            if (xmlConfigUrl == null) {
+                throw new RuntimeException("Could not find ehcache.xml");
+            }
             XmlConfiguration xmlConfig = new XmlConfiguration(xmlConfigUrl);
 
             singleton = CacheManagerBuilder.newCacheManager(xmlConfig);

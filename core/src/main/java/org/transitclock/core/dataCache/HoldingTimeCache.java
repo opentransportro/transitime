@@ -1,16 +1,13 @@
 /* (C)2023 */
 package org.transitclock.core.dataCache;
 
-import java.net.URL;
-import java.util.List;
 import org.ehcache.Cache;
 import org.ehcache.CacheManager;
-import org.ehcache.Status;
-import org.ehcache.config.builders.CacheManagerBuilder;
-import org.ehcache.xml.XmlConfiguration;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.transitclock.core.dataCache.ehcache.CacheManagerFactory;
 import org.transitclock.domain.structs.HoldingTime;
+
+import java.util.List;
 
 /**
  * @author Sean Óg Crudden
@@ -18,9 +15,7 @@ import org.transitclock.domain.structs.HoldingTime;
 public class HoldingTimeCache {
     private static final String cacheName = "HoldingTimeCache";
     private static final HoldingTimeCache singleton = new HoldingTimeCache();
-    private static final Logger logger = LoggerFactory.getLogger(HoldingTimeCache.class);
-    final URL xmlConfigUrl = getClass().getResource("/ehcache.xml");
-    private Cache<HoldingTimeCacheKey, HoldingTime> cache = null;
+    private final Cache<HoldingTimeCacheKey, HoldingTime> cache;
 
     /**
      * Gets the singleton instance of this class.
@@ -32,12 +27,7 @@ public class HoldingTimeCache {
     }
 
     private HoldingTimeCache() {
-        XmlConfiguration xmlConfig = new XmlConfiguration(xmlConfigUrl);
-
-        CacheManager cm = CacheManagerBuilder.newCacheManager(xmlConfig);
-
-        if (cm.getStatus().compareTo(Status.AVAILABLE) != 0) cm.init();
-
+        CacheManager cm = CacheManagerFactory.getInstance();
         cache = cm.getCache(cacheName, HoldingTimeCacheKey.class, HoldingTime.class);
     }
 

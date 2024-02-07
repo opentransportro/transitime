@@ -2,12 +2,12 @@
 package org.transitclock.core.dataCache.scheduled;
 
 import com.querydsl.jpa.impl.JPAQuery;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.DateUtils;
 import org.ehcache.Cache;
 import org.ehcache.CacheManager;
 import org.hibernate.Session;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.transitclock.Core;
 import org.transitclock.core.DwellTimeDetails;
 import org.transitclock.core.TravelTimeDetails;
@@ -19,7 +19,6 @@ import org.transitclock.domain.structs.Trip;
 import org.transitclock.gtfs.DbConfig;
 import org.transitclock.service.dto.IpcArrivalDeparture;
 
-import java.net.URL;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -27,11 +26,10 @@ import java.util.List;
 /**
  * @author Sean Óg Crudden
  */
+@Slf4j
 public class ScheduleBasedHistoricalAverageCache {
     private static final String cacheName = "HistoricalAverageCache";
     private static final ScheduleBasedHistoricalAverageCache singleton = new ScheduleBasedHistoricalAverageCache();
-    private static final Logger logger = LoggerFactory.getLogger(ScheduleBasedHistoricalAverageCache.class);
-    final URL xmlConfigUrl = getClass().getResource("/ehcache.xml");
     private Cache<StopPathCacheKey, HistoricalAverage> cache = null;
 
     /**
@@ -45,7 +43,6 @@ public class ScheduleBasedHistoricalAverageCache {
 
     private ScheduleBasedHistoricalAverageCache() {
         CacheManager cm = CacheManagerFactory.getInstance();
-
         cache = cm.getCache(cacheName, StopPathCacheKey.class, HistoricalAverage.class);
     }
 

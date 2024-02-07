@@ -30,30 +30,12 @@ import java.util.List;
  */
 @Slf4j
 public class TripDataHistoryCache implements TripDataHistoryCacheInterface {
-    private static final TripDataHistoryCacheInterface singleton = new TripDataHistoryCache();
-
     private static final boolean debug = false;
-
     private static final String cacheByTrip = "arrivalDeparturesByTrip";
-
-    final URL xmlConfigUrl = getClass().getResource("/ehcache.xml");
-
-    private Cache<TripKey, TripEvents> cache = null;
-
-
-    /**
-     * Gets the singleton instance of this class.
-     *
-     * @return
-     */
-    public static TripDataHistoryCacheInterface getInstance() {
-        return singleton;
-    }
+    private final Cache<TripKey, TripEvents> cache;
 
     public TripDataHistoryCache() {
-
         CacheManager cm = CacheManagerFactory.getInstance();
-
         cache = cm.getCache(cacheByTrip, TripKey.class, TripEvents.class);
     }
 
@@ -62,7 +44,6 @@ public class TripDataHistoryCache implements TripDataHistoryCacheInterface {
      */
     @Override
     public List<IpcArrivalDeparture> getTripHistory(TripKey tripKey) {
-
         TripEvents result = cache.get(tripKey);
         if (result != null) {
             return result.getEvents();

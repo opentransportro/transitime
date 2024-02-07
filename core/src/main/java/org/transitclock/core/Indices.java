@@ -22,7 +22,7 @@ import org.transitclock.utils.SystemTime;
  * @author SkiBu Smith
  */
 public class Indices implements Serializable {
-    private Block block;
+    private final Block block;
     private int tripIndex;
     private int stopPathIndex;
     private int segmentIndex;

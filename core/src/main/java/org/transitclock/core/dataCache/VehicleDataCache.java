@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -36,6 +38,7 @@ import org.transitclock.utils.Time;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class VehicleDataCache {
 
     // Make this class available as a singleton
@@ -73,9 +76,6 @@ public class VehicleDataCache {
     // obsolete and shouldn't be displayed.
     private static final int MAX_AGE_MSEC = 15 * Time.MS_PER_MIN;
 
-    private static final Logger logger = LoggerFactory.getLogger(VehicleDataCache.class);
-
-    /********************** Member Functions **************************/
 
     /**
      * Gets the singleton instance of this class.

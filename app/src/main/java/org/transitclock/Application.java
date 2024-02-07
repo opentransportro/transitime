@@ -74,6 +74,8 @@ public class Application {
     }
 
     public void start() {
+        // init cache manager
+        CacheManagerFactory.getInstance();
         // instantiate flyway & migrate
         migrate();
         if(cli.shouldLoadGtfs()) {

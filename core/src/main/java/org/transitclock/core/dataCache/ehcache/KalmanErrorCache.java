@@ -15,8 +15,7 @@ import java.util.List;
  */
 public class KalmanErrorCache implements ErrorCache {
     private static final String cacheName = "KalmanErrorCache";
-
-    private Cache<KalmanErrorCacheKey, KalmanError> cache = null;
+    private final Cache<KalmanErrorCacheKey, KalmanError> cache;
 
     /**
      * Gets the singleton instance of this class.
@@ -24,9 +23,7 @@ public class KalmanErrorCache implements ErrorCache {
      * @return
      */
     public KalmanErrorCache() {
-
         CacheManager cm = CacheManagerFactory.getInstance();
-
         cache = cm.getCache(cacheName, KalmanErrorCacheKey.class, KalmanError.class);
     }
 

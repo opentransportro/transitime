@@ -28,10 +28,8 @@ public class FrequencyBasedHistoricalAverageCache {
 
     private static final FrequencyBasedHistoricalAverageCache singleton = new FrequencyBasedHistoricalAverageCache();
 
-
-
     private final ConcurrentHashMap<StopPathKey, TreeMap<Long, HistoricalAverage>> m =
-            new ConcurrentHashMap<StopPathKey, TreeMap<Long, HistoricalAverage>>();
+            new ConcurrentHashMap<>();
 
     /**
      * Gets the singleton instance of this class.
@@ -106,14 +104,7 @@ public class FrequencyBasedHistoricalAverageCache {
     }
 
     private synchronized void putAverage(StopPathCacheKey key, HistoricalAverage average) {
-
-        TreeMap<Long, HistoricalAverage> result = m.get(new StopPathKey(key));
-
-        if (result == null) {
-            m.put(new StopPathKey(key), new TreeMap<Long, HistoricalAverage>());
-        }
-        // logger.debug("Putting: {} for start time: {} in FrequencyBasedHistoricalAverageCache with
-        // value : {}",new StopPathKey(key), key.getStartTime(), average);
+        m.computeIfAbsent(new StopPathKey(key), k -> new TreeMap<>());
         m.get(new StopPathKey(key)).put(key.getStartTime(), average);
     }
 

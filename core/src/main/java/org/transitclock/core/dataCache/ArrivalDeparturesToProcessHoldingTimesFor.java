@@ -14,8 +14,6 @@ public class ArrivalDeparturesToProcessHoldingTimesFor {
     private static final ArrivalDeparturesToProcessHoldingTimesFor singleton =
             new ArrivalDeparturesToProcessHoldingTimesFor();
 
-    private static final Logger logger = LoggerFactory.getLogger(ArrivalDeparturesToProcessHoldingTimesFor.class);
-
     private final ArrayList<ArrivalDeparture> m = new ArrayList<ArrivalDeparture>();
 
     /**

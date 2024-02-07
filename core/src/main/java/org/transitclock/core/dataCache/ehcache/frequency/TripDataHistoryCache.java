@@ -34,24 +34,9 @@ import java.util.*;
  */
 @Slf4j
 public class TripDataHistoryCache implements TripDataHistoryCacheInterface {
-    private static final TripDataHistoryCacheInterface singleton = new TripDataHistoryCache();
-
     private static final boolean debug = false;
-
     private static final String cacheByTrip = "arrivalDeparturesByTrip";
-
-    final URL xmlConfigUrl = getClass().getResource("/ehcache.xml");
-
     private final Cache<TripKey, TripEvents> cache;
-
-    /**
-     * Gets the singleton instance of this class.
-     *
-     * @return
-     */
-    public static TripDataHistoryCacheInterface getInstance() {
-        return singleton;
-    }
 
     public TripDataHistoryCache() {
         CacheManager cm = CacheManagerFactory.getInstance();

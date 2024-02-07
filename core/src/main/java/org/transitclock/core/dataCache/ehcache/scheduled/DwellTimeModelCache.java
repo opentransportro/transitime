@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+
+import lombok.extern.slf4j.Slf4j;
 import org.ehcache.Cache;
 import org.ehcache.CacheManager;
 import org.slf4j.Logger;
@@ -24,18 +26,15 @@ import org.transitclock.service.dto.IpcArrivalDeparture;
  * @author scrudden This stores DwellModel instances in the cache. TODO We should abstract the
  *     anomaly detection as per TODO in code below.
  */
+@Slf4j
 public class DwellTimeModelCache implements org.transitclock.core.dataCache.DwellTimeModelCacheInterface {
 
     private static final String cacheName = "dwellTimeModelCache";
 
-    private static final Logger logger = LoggerFactory.getLogger(DwellTimeModelCache.class);
-
-    private Cache<StopPathCacheKey, DwellModel> cache = null;
+    private final Cache<StopPathCacheKey, DwellModel> cache;
 
     public DwellTimeModelCache() throws IOException {
-
         CacheManager cm = CacheManagerFactory.getInstance();
-
         cache = cm.getCache(cacheName, StopPathCacheKey.class, DwellModel.class);
     }
 

@@ -1,37 +1,29 @@
 /* (C)2023 */
 package org.transitclock.core.dataCache;
 
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 import org.ehcache.Cache;
 import org.ehcache.CacheManager;
-import org.ehcache.Status;
-import org.ehcache.config.builders.CacheManagerBuilder;
-import org.ehcache.xml.XmlConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.transitclock.core.dataCache.ehcache.CacheManagerFactory;
 import org.transitclock.domain.structs.PredictionForStopPath;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class StopPathPredictionCache {
     private static final String cacheName = "StopPathPredictionCache";
     private static final StopPathPredictionCache singleton = new StopPathPredictionCache();
     private static final Logger logger = LoggerFactory.getLogger(StopPathPredictionCache.class);
 
-    private Cache<StopPathCacheKey, StopPredictions> cache = null;
-    final URL xmlConfigUrl = getClass().getResource("/ehcache.xml");
+    private final Cache<StopPathCacheKey, StopPredictions> cache;
 
     public static StopPathPredictionCache getInstance() {
         return singleton;
     }
 
     private StopPathPredictionCache() {
-        XmlConfiguration xmlConfig = new XmlConfiguration(xmlConfigUrl);
-
-        CacheManager cm = CacheManagerBuilder.newCacheManager(xmlConfig);
-
-        if (cm.getStatus().compareTo(Status.AVAILABLE) != 0) cm.init();
-
+        CacheManager cm = CacheManagerFactory.getInstance();
         cache = cm.getCache(cacheName, StopPathCacheKey.class, StopPredictions.class);
     }
 
@@ -56,14 +48,14 @@ public class StopPathPredictionCache {
     @SuppressWarnings("unchecked")
     public synchronized void putPrediction(StopPathCacheKey key, PredictionForStopPath prediction) {
 
-        List<PredictionForStopPath> list = null;
+        List<PredictionForStopPath> list;
         StopPredictions element = cache.get(key);
 
         if (element != null && element.getPredictions() != null) {
             list = element.getPredictions();
             cache.remove(key);
         } else {
-            list = new ArrayList<PredictionForStopPath>();
+            list = new ArrayList<>();
         }
         list.add(prediction);
 

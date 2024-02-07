@@ -28,7 +28,7 @@ public class StopArrivalDepartureCache extends StopArrivalDepartureCacheInterfac
 
     private static final String cacheByStop = "arrivalDeparturesByStop";
 
-    private Cache<StopArrivalDepartureCacheKey, StopEvents> cache = null;
+    private final Cache<StopArrivalDepartureCacheKey, StopEvents> cache;
 
     public StopArrivalDepartureCache() {
         CacheManager cm = CacheManagerFactory.getInstance();
