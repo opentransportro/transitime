@@ -456,7 +456,7 @@ CREATE TABLE IF NOT EXISTS travel_times_for_stop_paths
     travel_times_rev           INTEGER,
     stop_path_id               VARCHAR(120),
     travel_time_segment_length FLOAT,
-    travel_times_msec          INTEGER[],
+    travel_times_msec          JSON,
     stop_time_msec             INTEGER,
     days_of_week_override      SMALLINT,
     how_set                    VARCHAR(5),

@@ -1,24 +1,19 @@
 /* (C)2023 */
 package org.transitclock.domain.structs;
 
+import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.*;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.annotations.DynamicUpdate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.transitclock.domain.hibernate.HibernateUtils;
+import org.hibernate.annotations.Type;
 import org.transitclock.utils.Geo;
+
+import java.io.Serializable;
+import java.util.List;
 
 /**
  * Contains the expected time it takes to travel along the specified path, which is for one stop to
@@ -69,31 +64,9 @@ public class TravelTimesForStopPath implements Serializable {
     @Column(name = "travel_time_segment_length")
     private final float travelTimeSegmentLength;
 
-    // Travel time is a List of Integers containing the expected travel time
-    // for each travel time segment whose length is travelTimeSegmentLength.
-    // Integers are used to make it take
-    // less space and processing than if longs were used. Values in milliseconds.
-    // There are two ways to deal with Lists of basic types in Hibernate. The
-    // normal way is to declare it an @ElementCollection (and use @OrderColumn
-    // to maintain order of data in list) but this causes the list data to be
-    // stored in a separate table, one having the same primary keys. When
-    // reading data need to do a join of the tables. When doing a write
-    // many SQL statements are needed (one for each element in the List).
-    // This is all very cumbersome, slow, and space inefficient since
-    // storing the primary keys again for each row in the additional table.
-    // The other way to deal with such a list is to have it be serializable
-    // and specify (length=1000) in the @Column annotation. In this way the
-    // List data is simply serialized/unserialized into a BLOB. This means that
-    // don't have a separate table with a separate row for each item in the
-    // list. The drawback is that since the data is in a blob it cannot be
-    // read directly using SQL on the command line or for reports. But since
-    // it can make things so much more efficient want to try using it.
-    // NOTE: since trying to use serialization need to use ArrayList<> instead
-    // of List<> since List<> doesn't implement Serializable.
-    private static final int travelTimesMaxBytes = 100000;
-
-    @Column(name = "travel_times_msec", length = travelTimesMaxBytes)
-    private final ArrayList<Integer> travelTimesMsec;
+    @Column(name = "travel_times_msec")
+    @Type(JsonType.class)
+    private final List<Integer> travelTimesMsec;
 
     // There is a separate time for travel and for actually stopping. For
     // many systems might not be able to really differentiate between the two
@@ -167,45 +140,45 @@ public class TravelTimesForStopPath implements Serializable {
         // First make sure that travelTimesMsec isn't bigger than
         // the space allocated for it. Only bother checking if have
         // at least a few travel times for the path.
-        if (travelTimesMsec.size() > 5) {
-            int serializedSize = HibernateUtils.sizeof(travelTimesMsec);
-            if (serializedSize > travelTimesMaxBytes) {
-                String msg = "Too many elements in "
-                        + "travelTimesMsec when constructing a "
-                        + "TravelTimesForStopPath for stopPathId="
-                        + stopPathId
-                        + " and travelTimeSegmentDistance="
-                        + Geo.distanceFormat(travelTimeSegmentDistance)
-                        + " . Have "
-                        + travelTimesMsec.size()
-                        + " travel time segments taking up "
-                        + serializedSize
-                        + " bytes but only have "
-                        + travelTimesMaxBytes
-                        + " bytes allocated for the data. TripId="
-                        + (trip != null ? trip.getId() : "")
-                        + " routeId="
-                        + (trip != null ? trip.getRouteId() : "")
-                        // Would like to get the route short name from the trip
-                        // but that requires Core to be read in, which can't be
-                        // don't when processing GTFS data.
-                        // + " routeShortName="
-                        // + (trip!=null ? trip.getRouteShortName() : "")
-                        + ". You most likely need to set the "
-                        + "-maxTravelTimeSegmentLength command line option to "
-                        + "a larger value than than the default of 200m.";
-                logger.error(msg);
-
-                // Since this could be a really problematic issue, throw an error
-                throw new ArrayIndexOutOfBoundsException(msg);
-            }
-        }
+//        if (travelTimesMsec.size() > 5) {
+//            int serializedSize = HibernateUtils.sizeof(travelTimesMsec);
+//            if (serializedSize > travelTimesMaxBytes) {
+//                String msg = "Too many elements in "
+//                        + "travelTimesMsec when constructing a "
+//                        + "TravelTimesForStopPath for stopPathId="
+//                        + stopPathId
+//                        + " and travelTimeSegmentDistance="
+//                        + Geo.distanceFormat(travelTimeSegmentDistance)
+//                        + " . Have "
+//                        + travelTimesMsec.size()
+//                        + " travel time segments taking up "
+//                        + serializedSize
+//                        + " bytes but only have "
+//                        + travelTimesMaxBytes
+//                        + " bytes allocated for the data. TripId="
+//                        + (trip != null ? trip.getId() : "")
+//                        + " routeId="
+//                        + (trip != null ? trip.getRouteId() : "")
+//                        // Would like to get the route short name from the trip
+//                        // but that requires Core to be read in, which can't be
+//                        // don't when processing GTFS data.
+//                        // + " routeShortName="
+//                        // + (trip!=null ? trip.getRouteShortName() : "")
+//                        + ". You most likely need to set the "
+//                        + "-maxTravelTimeSegmentLength command line option to "
+//                        + "a larger value than than the default of 200m.";
+//                logger.error(msg);
+//
+//                // Since this could be a really problematic issue, throw an error
+//                throw new ArrayIndexOutOfBoundsException(msg);
+//            }
+//        }
 
         this.configRev = configRev;
         this.travelTimesRev = travelTimesRev;
         this.stopPathId = stopPathId;
         this.travelTimeSegmentLength = (float) travelTimeSegmentDistance;
-        this.travelTimesMsec = (ArrayList<Integer>) travelTimesMsec;
+        this.travelTimesMsec = travelTimesMsec;
         this.stopTimeMsec = stopTimeMsec;
         this.daysOfWeekOverride = (short) daysOfWeekOverride;
         this.howSet = howSet;
