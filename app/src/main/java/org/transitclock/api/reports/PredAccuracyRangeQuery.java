@@ -2,11 +2,8 @@
 package org.transitclock.api.reports;
 
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.transitclock.api.reports.ChartJsonBuilder.RowBuilder;
 import org.transitclock.utils.StringUtils;
-import org.transitclock.utils.Time;
 
 import java.sql.SQLException;
 import java.text.ParseException;
@@ -24,21 +21,6 @@ import java.util.ResourceBundle;
 public class PredAccuracyRangeQuery extends PredictionAccuracyQuery {
     private final ResourceBundle labels;
 
-    /**
-     * Creates connection to database.
-     *
-     * @param dbType
-     * @param dbHost
-     * @param dbName
-     * @param dbUserName
-     * @param dbPassword
-     * @throws SQLException
-     */
-    public PredAccuracyRangeQuery(String dbType, String dbHost, String dbName, String dbUserName, String dbPassword)
-            throws SQLException {
-        super(dbType, dbHost, dbName, dbUserName, dbPassword);
-        labels = ResourceBundle.getBundle("org.transitclock.i18n.text", Locale.getDefault());
-    }
 
     /**
      * Creates connection to database specified by the agencyId.
@@ -140,8 +122,6 @@ public class PredAccuracyRangeQuery extends PredictionAccuracyQuery {
                 rowBuilder.addRowElement(predBucketSecs);
 
                 rowBuilder.addRowElement(tooEarlyPercentage);
-
-                ResourceBundle labels = ResourceBundle.getBundle("org.transitclock.i18n.text", Locale.getDefault());
 
                 rowBuilder.addRowElement(labels.getString("EarlierThanPredicted")
                         + ": "

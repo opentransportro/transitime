@@ -16,10 +16,6 @@ public class GenericJsonQuery extends GenericQuery {
     private final List<String> columnNames;
     private boolean firstRow;
 
-    /**
-     * @param agencyId
-     * @throws SQLException
-     */
     private GenericJsonQuery(String agencyId) throws SQLException {
         super(agencyId);
         strBuilder = new StringBuilder();
@@ -27,9 +23,6 @@ public class GenericJsonQuery extends GenericQuery {
         firstRow = true;
     }
 
-    /* (non-Javadoc)
-     * @see org.transitclock.db.GenericQuery#addColumn(java.lang.String, int)
-     */
     @Override
     protected void addColumn(String columnName, int type) {
         // Keep track of names of all columns
@@ -52,9 +45,6 @@ public class GenericJsonQuery extends GenericQuery {
         strBuilder.append("\"").append(value).append("\"");
     }
 
-    /* (non-Javadoc)
-     * @see org.transitclock.db.GenericQuery#addRow(java.util.List)
-     */
     @Override
     protected void addRow(List<Object> values) {
         if (!firstRow) {
@@ -94,11 +84,6 @@ public class GenericJsonQuery extends GenericQuery {
 
     /**
      * Does SQL query and returns JSON formatted results.
-     *
-     * @param agencyId
-     * @param sql
-     * @return
-     * @throws SQLException
      */
     public static String getJsonString(String agencyId, String sql, Object... parameters) {
         // Add the rows from the query to the JSON string
@@ -117,41 +102,5 @@ public class GenericJsonQuery extends GenericQuery {
         } catch (SQLException e) {
             return e.getMessage();
         }
-    }
-
-    /**
-     * Does SQL query and returns JSON formatted results.
-     *
-     * @param agencyId
-     * @param sql
-     * @return
-     * @throws SQLException
-     */
-    public static String getJsonString(String agencyId, String sql) {
-        // Add the rows from the query to the JSON string
-        try {
-            GenericJsonQuery query = new GenericJsonQuery(agencyId);
-
-            // Start the JSON
-            query.strBuilder.append("{\"data\": [\n");
-            logger.debug("sql={}", sql);
-
-            query.doQuery(sql);
-
-            // Finish up the JSON
-            query.strBuilder.append("]}");
-
-            return query.strBuilder.toString();
-        } catch (SQLException e) {
-            return e.getMessage();
-        }
-    }
-
-    public static void main(String[] args) {
-        String agencyId = "sfmta";
-
-        String sql = "SELECT * FROM avlreports ORDER BY time DESC LIMIT 5";
-        String str = GenericJsonQuery.getJsonString(agencyId, sql);
-        System.out.println(str);
     }
 }

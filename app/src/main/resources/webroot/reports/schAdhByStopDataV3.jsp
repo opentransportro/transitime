@@ -13,21 +13,21 @@
        allowableEarlyMinutes - how early vehicle can be and still be OK.  Decimal format OK. 
        allowableLateMinutes - how early vehicle can be and still be OK. Decimal format OK.
 --%>
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-         pageEncoding="UTF-8" %>
-<%@ page import="org.transitclock.api.reports.GenericJsonQuery" %>
-<%@ page import="org.transitclock.api.reports.SqlUtils" %>
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page import="org.transitclock.core.reports.GenericJsonQuery" %>
+<%@ page import="org.transitclock.core.reports.SqlUtils" %>
 <%
     try {
-        System.out.println("test");
         String allowableEarlyStr = request.getParameter("allowableEarly");
-        if (allowableEarlyStr == null || allowableEarlyStr.isEmpty())
+        if (allowableEarlyStr == null || allowableEarlyStr.isEmpty()) {
             allowableEarlyStr = "1.0";
+        }
         String allowableEarlyMinutesStr = "'" + SqlUtils.convertMinutesToSecs(allowableEarlyStr) + " seconds'";
 
         String allowableLateStr = request.getParameter("allowableLate");
-        if (allowableLateStr == null || allowableLateStr.isEmpty())
+        if (allowableLateStr == null || allowableLateStr.isEmpty()) {
             allowableLateStr = "3.0";
+        }
         String allowableLateMinutesStr = "'" + SqlUtils.convertMinutesToSecs(allowableLateStr) + " seconds'";
 
 
@@ -45,7 +45,7 @@
                         // Only need arrivals/departures that have a schedule time
                         + " AND ad.scheduled_time IS NOT NULL \n"
                         // Specifies which routes to provide data for
-                        + SqlUtils.routeClause(request, "ad") + "\n"
+                        + SqlUtils.routeClause(request.getParameter("r"), "ad") + "\n"
                         + SqlUtils.timeRangeClause(request, "ad.time", 7) + "\n"
                         + " AND scheduled_time-time > " + allowableEarlyMinutesStr + " \n"
                         + "	 ORDER BY direction_id, ad.stop_order, s.name \n"
@@ -64,7 +64,7 @@
                         // Only need arrivals/departures that have a schedule time
                         + " AND ad.scheduled_time IS NOT NULL \n"
                         // Specifies which routes to provide data for
-                        + SqlUtils.routeClause(request, "ad") + "\n"
+                        + SqlUtils.routeClause(request.getParameter("r"), "ad") + "\n"
                         + SqlUtils.timeRangeClause(request, "ad.time", 7) + "\n"
                         + " AND time-scheduled_time > " + allowableLateMinutesStr + " \n"
                         + "	 ORDER BY direction_id, ad.stop_order, s.name \n"
@@ -104,12 +104,12 @@
                         // Only need arrivals/departures that have a schedule time
                         + " AND ad.scheduled_time IS NOT NULL \n"
                         // Specifies which routes to provide data for
-                        + SqlUtils.routeClause(request, "ad") + "\n"
+                        + SqlUtils.routeClause(request.getParameter("r"), "ad") + "\n"
                         + SqlUtils.timeRangeClause(request, "ad.time", 7) + "\n"
                         // Grouping and ordering is a bit complicated since might also be looking
                         // at old arrival/departure data that doen't have stoporder defined. Also,
                         // when configuration changes happen then the stop order can change.
-                        // Therefore want to group by directionId and stop name. Need to also
+                        // Therefore, want to group by directionId and stop name. Need to also
                         // group by stop order so that can output it, which can be useful for
                         // debugging, plus need to order by stop order. For the ORDER BY clause
                         // need to order by direction id and stop order, but also the stop name
@@ -118,10 +118,6 @@
                         + " GROUP BY direction_id, s.name, s.id, ad.stop_order, trips_early_query_v2.trips_early, trips_late_query_v2.trips_late \n"
                         + " ORDER BY direction_id, ad.stop_order, s.name";
 
-// Just for debugging
-        System.out.println("\nFor schedule adherence by stop query sql=\n" + sql);
-
-// Do the query and return result in JSON format    
         String agencyId = request.getParameter("a");
         String jsonString = GenericJsonQuery.getJsonString(agencyId, sql);
         response.setContentType("application/json");

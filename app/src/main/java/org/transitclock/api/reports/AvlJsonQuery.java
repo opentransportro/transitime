@@ -1,7 +1,7 @@
 /* (C)2023 */
 package org.transitclock.api.reports;
 
-import org.transitclock.domain.webstructs.WebAgency;
+import org.transitclock.core.reports.GenericJsonQuery;
 import org.transitclock.utils.Time;
 
 import java.text.ParseException;
@@ -32,7 +32,6 @@ public class AvlJsonQuery {
             String agencyId, String vehicleId, String beginDate, String numdays, String beginTime, String endTime) {
         // Determine the time portion of the SQL
         String timeSql = "";
-        WebAgency agency = WebAgency.getCachedWebAgency(agencyId);
         // If beginTime or endTime set but not both then use default values
         if ((beginTime != null && !beginTime.isEmpty()) || (endTime != null && !endTime.isEmpty())) {
             if (beginTime == null || beginTime.isEmpty()) beginTime = "00:00";
@@ -40,35 +39,21 @@ public class AvlJsonQuery {
         }
         // cast('2000-01-01 01:12:00'::timestamp as time);
         if (beginTime != null && !beginTime.isEmpty()) {
-            if ("mysql".equals(agency.getDbType())) {
-                timeSql = " AND time(time) BETWEEN '" + beginTime + "' AND '" + endTime + "' ";
-            } else {
-                timeSql = " AND cast(time::timestamp as time) BETWEEN '" + beginTime + "' AND '" + endTime + "' ";
-            }
+            timeSql = " AND cast(time::timestamp as time) BETWEEN '" + beginTime + "' AND '" + endTime + "' ";
         }
 
-        String sql = "";
-
-        if ("mysql".equals(agency.getDbType())) {
-            sql = "SELECT vehicle_id, name, time, assignment_id, lat, lon, speed, heading,"
-                    + " time_processed, source FROM avl_reports INNER JOIN vehicle_configs ON"
-                    + " vehicle_configs.id = avl_reports.vehicle_id WHERE time BETWEEN  cast(? as"
-                    + " datetime) AND date_add(cast(? as datetime), INTERVAL "
-                    + numdays
-                    + " day) "
-                    + timeSql;
-        } else {
-            sql = "SELECT vehicle_id, name, time, assignment_id, lat, lon, speed, heading,"
+        String sql = "SELECT vehicle_id, name, time, assignment_id, lat, lon, speed, heading,"
                     + " time_processed, source FROM avl_reports INNER JOIN vehicle_configs ON"
                     + " vehicle_configs.id = avl_reports.vehicle_id WHERE time BETWEEN  cast(? as"
                     + " timestamp) AND cast(? as timestamp) + INTERVAL '"
                     + numdays
                     + " day' "
                     + timeSql;
-        }
 
         // If only want data for single vehicle then specify so in SQL
-        if (vehicleId != null && !vehicleId.isEmpty()) sql += " AND vehicle_id='" + vehicleId + "' ";
+        if (vehicleId != null && !vehicleId.isEmpty()) {
+            sql += " AND vehicle_id='" + vehicleId + "' ";
+        }
 
         // Make sure data is ordered by vehicleId so that can draw lines
         // connecting the AVL reports per vehicle properly. Also then need
@@ -78,17 +63,13 @@ public class AvlJsonQuery {
 
         sql += "ORDER BY vehicle_id, time LIMIT " + MAX_ROWS;
 
-        String json = null;
         try {
             java.util.Date startdate = Time.parseDate(beginDate);
 
-            json = GenericJsonQuery.getJsonString(agencyId, sql, startdate, startdate);
-
+            return GenericJsonQuery.getJsonString(agencyId, sql, startdate, startdate);
         } catch (ParseException e) {
-            json = e.getMessage();
+            return e.getMessage();
         }
-
-        return json;
     }
 
     /**
@@ -117,13 +98,18 @@ public class AvlJsonQuery {
             String beginTime,
             String endTime) {
         // Determine the time portion of the SQL
-        String timeSql = "";
         // If beginTime or endTime set but not both then use default values
         if ((beginTime != null && !beginTime.isEmpty()) || (endTime != null && !endTime.isEmpty())) {
-            if (beginTime == null || beginTime.isEmpty()) beginTime = "00:00";
-            if (endTime == null || endTime.isEmpty()) endTime = "24:00";
+            if (beginTime == null || beginTime.isEmpty()) {
+                beginTime = "00:00";
+            }
+            if (endTime == null || endTime.isEmpty()) {
+                endTime = "24:00";
+            }
         }
-        if (beginTime != null && !beginTime.isEmpty() && endTime != null && !endTime.isEmpty()) {
+
+        String timeSql = "";
+        if (beginTime != null && !beginTime.isEmpty()) {
             timeSql = " AND time::time BETWEEN '" + beginTime + "' AND '" + endTime + "' ";
         }
 
@@ -149,11 +135,14 @@ public class AvlJsonQuery {
         // Since some agencies like sfmta don't have consistent route IDs
         // across schedule changes need to try to match to GTFS route_id or
         // route_short_name.
-        if (vehicleId == null && routeId != null && !routeId.trim().isEmpty())
+        if (vehicleId == null && routeId != null && !routeId.trim().isEmpty()) {
             sql += "AND (vs.route_id='" + routeId + "' OR vs.route_short_name='" + routeId + "') ";
+        }
 
         // If only want data for single vehicle then specify so in SQL
-        if (vehicleId != null && !vehicleId.trim().isEmpty()) sql += "AND a.vehicle_id='" + vehicleId + "' ";
+        if (vehicleId != null && !vehicleId.trim().isEmpty()) {
+            sql += "AND a.vehicle_id='" + vehicleId + "' ";
+        }
 
         // Make sure data is ordered by vehicleId so that can draw lines
         // connecting the AVL reports per vehicle properly. Also then need

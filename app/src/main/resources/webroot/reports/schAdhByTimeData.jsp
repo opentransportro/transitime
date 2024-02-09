@@ -17,59 +17,35 @@
        allowableEarly - how early vehicle can be and still be OK.  Decimal format OK. 
        allowableLate - how early vehicle can be and still be OK. Decimal format OK.
 --%>
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-         pageEncoding="UTF-8" %>
-<%@ page import="org.transitclock.domain.webstructs.WebAgency" %>
-<%@ page import="org.transitclock.api.reports.GenericJsonQuery" %>
-<%@ page import="org.transitclock.api.reports.SqlUtils" %>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page import="org.transitclock.core.reports.GenericJsonQuery" %>
+<%@ page import="org.transitclock.core.reports.SqlUtils" %>
 <%
     try {
-        String agencyId = request.getParameter("a");
-        WebAgency agency = WebAgency.getCachedWebAgency(agencyId);
-        String dbtype = agency.getDbType();
-        boolean isMysql = "mysql".equals(dbtype);
-
-        String allowableEarlyStr = request.getParameter("allowableEarly");
-        if (allowableEarlyStr == null || allowableEarlyStr.isEmpty())
-            allowableEarlyStr = "1.0";
-        String allowableEarlyMinutesStr = "'" + SqlUtils.convertMinutesToSecs(allowableEarlyStr) + " seconds'";
-
-        String allowableLateStr = request.getParameter("allowableLate");
-        if (allowableLateStr == null || allowableLateStr.isEmpty())
-            allowableLateStr = "4.0";
-        String allowableLateMinutesStr = "'" + SqlUtils.convertMinutesToSecs(allowableLateStr) + " seconds'";
-
-// Group into timebuckets of 30 seconds
         int BUCKET_TIME = 30;
         String epochCommandPre = "EXTRACT (EPOCH FROM ";
         String epochCommandPost = ")";
-        if (isMysql) {
-            epochCommandPre = "";
-            epochCommandPost = "";
-        }
+
         String sql =
                 "SELECT "
-                        + "  COUNT(*) AS counts_per_time_period, \n"
-                        // Put into time buckets of every BUCKET_TIME seconds.
-                        + "  FLOOR(" + epochCommandPre + " (scheduled_time-time)" + epochCommandPost + " / " + BUCKET_TIME + ")*" + BUCKET_TIME + " AS time_period \n"
-                        + "FROM arrivals_departures ad\n"
-                        + "WHERE "
-                        // Only need arrivals/departures that have a schedule time
-                        + " ad.scheduled_time IS NOT NULL \n"
-                        // Ignore stops where schedule adherence really far off
-                        + " AND ABS(" + epochCommandPre + " (scheduled_time-time)" + epochCommandPost + ") < 3600\n"
-                        // Specifies which routes to provide data for
-                        + SqlUtils.routeClause(request, "ad") + "\n"
-                        + SqlUtils.timeRangeClause(request, "ad.time", 7) + "\n"
-                        // Grouping needed to put times in time buckets
-                        + " GROUP BY time_period \n"
-                        // Order by lateness so can easily understand results
-                        + " ORDER BY time_period;";
+                    + "  COUNT(*) AS counts_per_time_period, \n"
+                    // Put into time buckets of every BUCKET_TIME seconds.
+                    + "  FLOOR(" + epochCommandPre + " (scheduled_time-time)" + epochCommandPost + " / " + BUCKET_TIME + ")*" + BUCKET_TIME + " AS time_period \n"
+                + "FROM arrivals_departures ad\n"
+                + "WHERE "
+                    // Only need arrivals/departures that have a schedule time
+                    + " ad.scheduled_time IS NOT NULL \n"
+                    // Ignore stops where schedule adherence really far off
+                    + " AND ABS(" + epochCommandPre + " (scheduled_time-time)" + epochCommandPost + ") < 3600\n"
+                    // Specifies which routes to provide data for
+                    + SqlUtils.routeClause(request.getParameter("r"), "ad") + "\n"
+                    + SqlUtils.timeRangeClause(request, "ad.time", 7) + "\n"
+                // Grouping needed to put times in time buckets
+                + " GROUP BY time_period \n"
+                // Order by lateness so can easily understand results
+                + " ORDER BY time_period;";
 
-// Just for debugging
-        System.out.println("\nFor schedule adherence by time buckets query sql=\n" + sql);
-
-// Do the query and return result in JSON format    
+        String agencyId = request.getParameter("a");
         String jsonString = GenericJsonQuery.getJsonString(agencyId, sql);
         response.setContentType("application/json");
         response.setHeader("Access-Control-Allow-Origin", "*");

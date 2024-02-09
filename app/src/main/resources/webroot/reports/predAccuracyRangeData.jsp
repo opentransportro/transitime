@@ -61,8 +61,7 @@
         PredAccuracyRangeQuery query = new PredAccuracyRangeQuery(agencyId);
 
         // Convert results of query to a JSON string
-        String jsonString = query
-                .getJson(beginDate, numDays, beginTime, endTime,
+        String jsonString = query.getJson(beginDate, numDays, beginTime, endTime,
                         routeIds, source, predictionType,
                         allowableEarlySec, allowableLateSec);
 
@@ -76,8 +75,7 @@
                     + " source=" + source
                     + " allowableEarlyMsec=" + allowableEarlySec
                     + " allowableLateMsec=" + allowableLateSec;
-            response.sendError(
-                    416 /* Requested Range Not Satisfiable */, message);
+            response.sendError(416 /* Requested Range Not Satisfiable */, message);
             return;
         }
 

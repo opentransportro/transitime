@@ -50,6 +50,7 @@ import java.net.URLClassLoader;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.EnumSet;
+import java.util.TimeZone;
 
 import static org.transitclock.utils.ApplicationShutdownSupport.addShutdownHook;
 
@@ -63,6 +64,8 @@ public class Application {
 
     @SneakyThrows
     public static void main(String[] args) {
+        TimeZone aDefault = TimeZone.getDefault();
+        logger.warn("Application started using Timezone [{}, offset={}, daylight={}]", aDefault.getID(), aDefault.getRawOffset(), aDefault.useDaylightTime());
         var uncaughtExceptionHandler = new UncaughtExceptionHandler();
         Thread.setDefaultUncaughtExceptionHandler(uncaughtExceptionHandler);
 
@@ -98,8 +101,7 @@ public class Application {
                 .loggers("slf4j")
                 .dataSource(DbSetupConfig.getConnectionUrl(), DbSetupConfig.getDbUserName(), DbSetupConfig.getDbPassword())
                 .load();
-        MigrationInfoService info = flyway.info();
-        MigrateResult migrate = flyway.migrate();
+        flyway.migrate();
     }
 
     public Application(CommandLineParameters commandLineParameters) throws IOException, URISyntaxException {

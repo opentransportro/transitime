@@ -1,6 +1,6 @@
-<%@ page language="java" contentType="application/json; charset=UTF-8"
+<%@ page  contentType="application/json; charset=UTF-8"
     pageEncoding="UTF-8"%>
-<%@ page import="org.transitclock.api.reports.GenericJsonQuery" %>
+<%@ page import="org.transitclock.core.reports.GenericJsonQuery" %>
 <%@ page import="org.transitclock.domain.webstructs.WebAgency" %>
 <%
 String agencyId = request.getParameter("a");

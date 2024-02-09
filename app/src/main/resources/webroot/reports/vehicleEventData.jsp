@@ -1,7 +1,7 @@
-<%@ page language="java" contentType="application/json; charset=ISO-8859-1"
+<%@ page  contentType="application/json; charset=ISO-8859-1"
     pageEncoding="ISO-8859-1"%>
-<%@ page import="org.transitclock.api.reports.GenericJsonQuery" %>
-<%@ page import="org.transitclock.api.reports.SqlUtils" %>
+<%@ page import="org.transitclock.core.reports.GenericJsonQuery" %>
+<%@ page import="org.transitclock.core.reports.SqlUtils" %>
 <%
 try
 {

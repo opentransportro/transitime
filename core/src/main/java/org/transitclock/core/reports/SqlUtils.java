@@ -1,11 +1,12 @@
 /* (C)2023 */
 package org.transitclock.core.reports;
 
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
+import org.transitclock.utils.Time;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import jakarta.servlet.http.HttpServletRequest;
-import org.transitclock.domain.webstructs.WebAgency;
-import org.transitclock.utils.Time;
 
 /**
  * SQL utilities for creating SQL statements using parameters passed in to a page. Intended to make
@@ -13,6 +14,7 @@ import org.transitclock.utils.Time;
  *
  * @author Michael Smith
  */
+@Slf4j
 public class SqlUtils {
 
     /**
@@ -21,51 +23,26 @@ public class SqlUtils {
      *
      * @param parameter
      * @throws RuntimeException if problem characters detected
-     * @return the parameter
      */
-    public static String throwOnSqlInjection(String parameter) {
+    public static void throwOnSqlInjection(String parameter) {
         // If null then it is not a problem
-        if (parameter == null) return parameter;
+        if (parameter == null) {
+            return;
+        }
 
         // If parameter contains a ' or a ; then throw error to
         // prevent possible SQL injection attack
-        if (parameter.contains("'") || parameter.contains(";"))
+        if (parameter.contains("'") || parameter.contains(";")) {
             throw new IllegalArgumentException("Parameter \"" + parameter + "\" not valid.");
-
-        // Not a problem so return parameter
-        return parameter;
-    }
-
-    /**
-     * Returns SQL list of route identifiers specified by the request parameter "r". Multiple routes
-     * can be specified. These route identifiers might be route_ids or route_short_names.
-     *
-     * @param request Http request containing parameters for the query
-     * @return an sql list such as "('21','5','5R')"
-     */
-    public static String routeIdentifiersList(HttpServletRequest request) {
-        String[] routeIdentifiers = request.getParameterValues("r");
-        StringBuilder sb = new StringBuilder();
-        sb.append(" (");
-        boolean needComma = false;
-        for (String routeIdentifier : routeIdentifiers) {
-            throwOnSqlInjection(routeIdentifier);
-
-            if (needComma) sb.append(',');
-            needComma = true;
-
-            sb.append('\'').append(routeIdentifier).append('\'');
         }
-        sb.append(") ");
-
-        return sb.toString();
     }
+
 
     /**
      * Returns SQL list of route identifiers specified by the request parameter "r". Multiple routes
      * can be specified. These route identifiers might be route_ids or route_short_names.
      *
-     * @param request Http request containing parameters for the query
+     * @param r route
      * @return an sql list such as "('21','5','5R')"
      */
     public static String routeIdentifiersList(String r) {
@@ -76,7 +53,9 @@ public class SqlUtils {
         for (String routeIdentifier : routeIdentifiers) {
             throwOnSqlInjection(routeIdentifier);
 
-            if (needComma) sb.append(',');
+            if (needComma) {
+                sb.append(',');
+            }
             needComma = true;
 
             sb.append('\'').append(routeIdentifier).append('\'');
@@ -84,33 +63,6 @@ public class SqlUtils {
         sb.append(") ");
 
         return sb.toString();
-    }
-
-    /**
-     * Creates a SQL clause for specifying routes. Looks at the request parameter "r". It can be
-     * empty, signifying all routes, or can specify multiple routes. If "r" parameter not specified
-     * in request then empty string is returned such that data for all routes will be retrieved.
-     * Since "AND" is included in clause if it is not empty string this clause can't be put right
-     * after the WHERE clause
-     *
-     * @param request Http request containing parameters for the query
-     * @param tableAliasName for when joins are used such that a table has an alias such as "FROM
-     *     arrivalsdepartures ad, routes r"
-     * @return SQL clause such as "AND ad.routeshortname = r.shortname AND ad.scheduledtime IS NOT
-     *     NULL AND (ad.routeshortname IN ('21','5') OR ad.routeid IN ('21','5') )"
-     */
-    public static String routeClause(HttpServletRequest request, String tableAliasName) {
-        // If no route specified then no SQL route clause
-        if (request.getParameter("r") == null) return "";
-
-        String routeIdentifiers = routeIdentifiersList(request);
-
-        // For specifying table alias name for when doing more
-        // complicated queries
-        String tableAlias = "";
-        if (tableAliasName != null && !tableAliasName.isEmpty()) tableAlias = tableAliasName + ".";
-
-        return " AND " + tableAlias + "routeShortName IN " + routeIdentifiers;
     }
 
     /**
@@ -127,6 +79,9 @@ public class SqlUtils {
      *     NULL AND (ad.routeshortname IN ('21','5') OR ad.routeid IN ('21','5') )"
      */
     public static String routeClause(String r, String tableAliasName) {
+        if (r == null || r.isEmpty())
+            return "";
+
         String routeIdentifiers = routeIdentifiersList(r);
 
         // For specifying table alias name for when doing more
@@ -149,9 +104,6 @@ public class SqlUtils {
      *     INTERVAL '1 day' AND time::time BETWEEN '12:00' AND '24:00'"
      */
     public static String timeRangeClause(HttpServletRequest request, String timeColumnName, int maxNumDays) {
-        String agencyId = request.getParameter("a");
-        WebAgency agency = WebAgency.getCachedWebAgency(agencyId);
-        boolean isMysql = "mysql".equals(agency.getDbType());
         String beginTime = request.getParameter("beginTime");
         throwOnSqlInjection(beginTime);
 
@@ -159,19 +111,14 @@ public class SqlUtils {
         throwOnSqlInjection(endTime);
 
         // Determine the time portion of the SQL
-        String timeSql = "";
         // If beginTime or endTime set but not both then use default values
-        if ((beginTime != null && !beginTime.isEmpty()) || (endTime != null && !endTime.isEmpty())) {
-            if (beginTime == null || beginTime.isEmpty()) beginTime = "00:00";
-            if (endTime == null || endTime.isEmpty()) endTime = "24:00";
+        if (beginTime == null || beginTime.isEmpty()) {
+            beginTime = "00:00";
         }
-        if (beginTime != null && !beginTime.isEmpty() && endTime != null && !endTime.isEmpty()) {
-            if (isMysql) {
-                timeSql = " AND time(" + timeColumnName + ") BETWEEN '" + beginTime + "' AND '" + endTime + "' ";
-            } else {
-                timeSql = " AND " + timeColumnName + "::time BETWEEN '" + beginTime + "' AND '" + endTime + "' ";
-            }
+        if (endTime == null || endTime.isEmpty()) {
+            endTime = "24:00";
         }
+        String timeSql = " AND " + timeColumnName + "::time BETWEEN '" + beginTime + "' AND '" + endTime + "' ";
 
         String dateRange = request.getParameter("dateRange");
         throwOnSqlInjection(dateRange);
@@ -197,31 +144,8 @@ public class SqlUtils {
                         "Could not parse begin date \"" + beginDateStr + "\" or end date \"" + endDateStr + "\".");
             }
 
-            String sql = null;
-            if (isMysql) {
-                sql = " AND "
-                        + timeColumnName
-                        + " BETWEEN '"
-                        + beginDateStr
-                        + "' "
-                        + " AND DATE_ADD(STR_TO_DATE('"
-                        + endDateStr
-                        + "', '%Y-%m-%d'), INTERVAL 1 day) "
-                        + timeSql
-                        + ' ';
-            } else {
-                sql = " AND "
-                        + timeColumnName
-                        + " BETWEEN '"
-                        + beginDateStr
-                        + "' "
-                        + " AND TIMESTAMP '"
-                        + endDateStr
-                        + "' + INTERVAL '1 day' "
-                        + timeSql
-                        + ' ';
-            }
-            return sql;
+            return " AND %s BETWEEN '%s'  AND TIMESTAMP '%s' + INTERVAL '1 day' %s "
+                    .formatted(timeColumnName, beginDateStr, endDateStr, timeSql);
         } else { // Not using dateRange so must be using beginDate and numDays params
             String beginDate = request.getParameter("beginDate");
             throwOnSqlInjection(beginDate);
@@ -235,52 +159,21 @@ public class SqlUtils {
             // Limit number of days to maxNumDays to prevent queries that are
             // too big
             int numDays = Integer.parseInt(numDaysStr);
-            if (numDays > maxNumDays) numDays = maxNumDays;
-            String sql = null;
-            if (isMysql) {
-                String reformattedBeginDate = beginDate;
-                SimpleDateFormat currentFormat = new SimpleDateFormat("MM-dd-yyyy");
-                SimpleDateFormat requiredFormat = new SimpleDateFormat("yyyy-MM-dd");
-                try {
-                    reformattedBeginDate = requiredFormat.format(currentFormat.parse(beginDate));
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-                sql = " AND "
-                        + timeColumnName
-                        + " BETWEEN '"
-                        + reformattedBeginDate
-                        + "' "
-                        + " AND DATE_ADD(STR_TO_DATE('"
-                        + reformattedBeginDate
-                        + "', '%Y-%m-%d'), INTERVAL "
-                        + numDays
-                        + " day) "
-                        + timeSql
-                        + ' ';
-            } else {
-                // FRAGMENT KODU TYLKO NA DEV!!!!
-                SimpleDateFormat currentFormat = new SimpleDateFormat("MM-dd-yyyy");
-                SimpleDateFormat requiredFormat = new SimpleDateFormat("yyyy-MM-dd");
-                try {
-                    beginDate = requiredFormat.format(currentFormat.parse(beginDate));
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-                sql = " AND "
-                        + timeColumnName
-                        + " BETWEEN '"
-                        + beginDate
-                        + "' "
-                        + " AND TIMESTAMP '"
-                        + beginDate
-                        + "' + INTERVAL '"
-                        + numDays
-                        + " day' "
-                        + timeSql
-                        + ' ';
+
+
+            if (numDays > maxNumDays) {
+                numDays = maxNumDays;
             }
-            return sql;
+
+            SimpleDateFormat currentFormat = new SimpleDateFormat("dd-MM-yyyy");
+            SimpleDateFormat requiredFormat = new SimpleDateFormat("yyyy-MM-dd");
+            try {
+                beginDate = requiredFormat.format(currentFormat.parse(beginDate));
+            } catch (ParseException e) {
+                logger.error("Exception occurred while processing time-range clause.", e);
+            }
+            return " AND %s BETWEEN '%s'  AND TIMESTAMP '%s' + INTERVAL '%d day' %s "
+                    .formatted(timeColumnName, beginDate, beginDate, numDays, timeSql);
         }
     }
 
@@ -303,130 +196,34 @@ public class SqlUtils {
             String beginTime,
             String endTime,
             String beginDate) {
-        WebAgency agency = WebAgency.getCachedWebAgency(agencyId);
-        boolean isMysql = "mysql".equals(agency.getDbType());
         throwOnSqlInjection(beginTime);
-
         throwOnSqlInjection(endTime);
 
-        // Determine the time portion of the SQL
-        String timeSql = "";
         // If beginTime or endTime set but not both then use default values
-        if ((beginTime != null && !beginTime.isEmpty()) || (endTime != null && !endTime.isEmpty())) {
-            if (beginTime == null || beginTime.isEmpty()) beginTime = "00:00";
-            if (endTime == null || endTime.isEmpty()) endTime = "24:00";
+        if (beginTime == null || beginTime.isEmpty()) {
+            beginTime = "00:00";
         }
-        if (beginTime != null && !beginTime.isEmpty() && endTime != null && !endTime.isEmpty()) {
-            if (isMysql) {
-                timeSql = " AND time(" + timeColumnName + ") BETWEEN '" + beginTime + "' AND '" + endTime + "' ";
-            } else {
-                timeSql = " AND " + timeColumnName + "::time BETWEEN '" + beginTime + "' AND '" + endTime + "' ";
-            }
+        if (endTime == null || endTime.isEmpty()) {
+            endTime = "24:00";
         }
-        String dateRange = null;
-        throwOnSqlInjection(dateRange);
-        if (dateRange != null) {
-            String[] fromToDates = dateRange.split(" to ");
-            String beginDateStr, endDateStr;
-            if (fromToDates.length == 1) {
-                beginDateStr = endDateStr = fromToDates[0];
-            } else {
-                beginDateStr = fromToDates[0];
-                endDateStr = fromToDates[1];
-            }
 
-            // Make sure not running report for too many days
-            try {
-                long beginDateTime = Time.parseDate(beginDateStr).getTime();
-                long endDateTime = Time.parseDate(endDateStr).getTime();
-                if (endDateTime - beginDateTime >= maxNumDays * Time.DAY_IN_MSECS) {
-                    throw new IllegalArgumentException("Date range is limited to " + maxNumDays + " days.");
-                }
-            } catch (ParseException e) {
-                throw new IllegalArgumentException(
-                        "Could not parse begin date \"" + beginDateStr + "\" or end date \"" + endDateStr + "\".");
-            }
+        String timeSql = " AND " + timeColumnName + "::time BETWEEN '" + beginTime + "' AND '" + endTime + "' ";
 
-            String sql = null;
-            if (isMysql) {
-                sql = " AND "
-                        + timeColumnName
-                        + " BETWEEN '"
-                        + beginDateStr
-                        + "' "
-                        + " AND DATE_ADD(STR_TO_DATE('"
-                        + endDateStr
-                        + "', '%Y-%m-%d'), INTERVAL 1 day) "
-                        + timeSql
-                        + ' ';
-            } else {
-                sql = " AND "
-                        + timeColumnName
-                        + " BETWEEN '"
-                        + beginDateStr
-                        + "' "
-                        + " AND TIMESTAMP '"
-                        + endDateStr
-                        + "' + INTERVAL '1 day' "
-                        + timeSql
-                        + ' ';
-            }
-            return sql;
-        } else {
-            throwOnSqlInjection(beginDate);
+        throwOnSqlInjection(beginDate);
 
-            throwOnSqlInjection(String.valueOf(numDays));
-
-            if (Integer.valueOf(numDays) == null) {
-                numDays = 1;
-            }
-            if (numDays > maxNumDays) numDays = maxNumDays;
-            String sql = null;
-            if (isMysql) {
-                String reformattedBeginDate = beginDate;
-                SimpleDateFormat currentFormat = new SimpleDateFormat("MM-dd-yyyy");
-                SimpleDateFormat requiredFormat = new SimpleDateFormat("yyyy-MM-dd");
-                try {
-                    reformattedBeginDate = requiredFormat.format(currentFormat.parse(beginDate));
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-                sql = " AND "
-                        + timeColumnName
-                        + " BETWEEN '"
-                        + reformattedBeginDate
-                        + "' "
-                        + " AND DATE_ADD(STR_TO_DATE('"
-                        + reformattedBeginDate
-                        + "', '%Y-%m-%d'), INTERVAL "
-                        + numDays
-                        + " day) "
-                        + timeSql
-                        + ' ';
-            } else {
-                // FRAGMENT KODU TYLKO NA DEV!!!!
-                SimpleDateFormat currentFormat = new SimpleDateFormat("MM-dd-yyyy");
-                SimpleDateFormat requiredFormat = new SimpleDateFormat("yyyy-MM-dd");
-                try {
-                    beginDate = requiredFormat.format(currentFormat.parse(beginDate));
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-                sql = " AND "
-                        + timeColumnName
-                        + " BETWEEN '"
-                        + beginDate
-                        + "' "
-                        + " AND TIMESTAMP '"
-                        + beginDate
-                        + "' + INTERVAL '"
-                        + numDays
-                        + " day' "
-                        + timeSql
-                        + ' ';
-            }
-            return sql;
+        if (numDays > maxNumDays) {
+            numDays = maxNumDays;
         }
+
+        SimpleDateFormat currentFormat = new SimpleDateFormat("dd-MM-yyyy");
+        SimpleDateFormat requiredFormat = new SimpleDateFormat("yyyy-MM-dd");
+        try {
+            beginDate = requiredFormat.format(currentFormat.parse(beginDate));
+        } catch (ParseException e) {
+            logger.error("Exception happened while processing time-range clause", e);
+        }
+        return " AND %s BETWEEN '%s' AND TIMESTAMP '%s' + INTERVAL '%d day' %s "
+                .formatted(timeColumnName, beginDate, beginDate, numDays, timeSql);
     }
 
     /**

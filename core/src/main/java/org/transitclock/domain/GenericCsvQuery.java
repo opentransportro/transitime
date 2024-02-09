@@ -1,10 +1,10 @@
 /* (C)2023 */
 package org.transitclock.domain;
 
+import org.apache.commons.text.StringEscapeUtils;
+
 import java.sql.SQLException;
 import java.util.List;
-
-import org.apache.commons.text.StringEscapeUtils;
 
 /**
  * For doing an SQL query and returning the results in CVS format.
@@ -34,8 +34,9 @@ public class GenericCsvQuery extends GenericQuery {
      */
     @Override
     protected void addColumn(String columnName, int type) {
-        if (numColumns++ > 0)
+        if (numColumns++ > 0) {
             sb.append(',');
+        }
         sb.append(columnName);
     }
 
@@ -55,15 +56,18 @@ public class GenericCsvQuery extends GenericQuery {
         int column = 0;
         for (Object o : values) {
             // Comma separate the cells
-            if (column++ > 0) sb.append(',');
+            if (column++ > 0) {
+                sb.append(',');
+            }
 
             // Output value as long as it is not null
             if (o != null) {
                 // Strings should be escaped but numbers can be output directly
-                if (o instanceof String)
+                if (o instanceof String) {
                     sb.append(StringEscapeUtils.escapeCsv((String) o));
-                else
+                } else {
                     sb.append(o);
+                }
             }
         }
         sb.append('\n');
@@ -81,22 +85,5 @@ public class GenericCsvQuery extends GenericQuery {
         GenericCsvQuery query = new GenericCsvQuery(agencyId);
         query.doQuery(sql, parameters);
         return query.sb.toString();
-    }
-
-    /**
-     * For debugging.
-     *
-     * @param args
-     */
-    public static void main(String[] args) {
-        String agencyId = "mbta";
-        String sql = "SELECT * FROM routes WHERE configRev=0;";
-
-        try {
-            String str = GenericCsvQuery.getCsvString(agencyId, sql);
-            System.out.println(str);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
     }
 }

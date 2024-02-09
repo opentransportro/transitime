@@ -1,9 +1,8 @@
-<%@ page import="org.transitclock.api.reports.RoutePerformanceQuery" %>
-<%@ page import="java.util.List" %>
-<%@ page import="java.util.Date" %>
-<%@ page import="java.text.SimpleDateFormat" %>
-<%@ page import="org.json.JSONArray" %>
 <%@ page import="org.apache.commons.lang3.StringUtils" %>
+<%@ page import="org.json.JSONArray" %>
+<%@ page import="org.transitclock.api.reports.RoutePerformanceQuery" %>
+<%@ page import="java.text.SimpleDateFormat" %>
+<%@ page import="java.util.Date" %>
 
 <%@ page contentType="application/json" %>
 <%
@@ -31,8 +30,7 @@ SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 Date beginDate = dateFormat.parse(beginDateStr + " " + beginTimeStr);
 int numDays = Integer.parseInt(numDaysStr);
 
-List<Object[]> results = new RoutePerformanceQuery().query(agency, beginDate, numDays, allowableEarly, allowableLate, predictionType, predictionSource);
-
+var results = new RoutePerformanceQuery().query(agency, beginDate, numDays, allowableEarly, allowableLate, predictionType, predictionSource);
 JSONArray json = new JSONArray(results);
 json.write(out);
 

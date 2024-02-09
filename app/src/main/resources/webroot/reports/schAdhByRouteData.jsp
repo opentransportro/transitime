@@ -13,10 +13,10 @@
        allowableEarlyMinutes - how early vehicle can be and still be OK.  Decimal format OK. 
        allowableLateMinutes - how early vehicle can be and still be OK. Decimal format OK.
 --%>
-<%@ page language="java" contentType="text/html; charset=UTF-8"
+<%@ page contentType="text/html; charset=UTF-8"
          pageEncoding="UTF-8" %>
-<%@ page import="org.transitclock.api.reports.GenericJsonQuery" %>
-<%@ page import="org.transitclock.api.reports.SqlUtils" %>
+<%@ page import="org.transitclock.core.reports.GenericJsonQuery" %>
+<%@ page import="org.transitclock.core.reports.SqlUtils" %>
 <%
     try {
         String allowableEarlyStr = request.getParameter("allowableEarly");
@@ -45,7 +45,7 @@
                         // Only need arrivals/departures that have a schedule time
                         + "ad.scheduled_time IS NOT NULL \n"
                         // Specifies which routes to provide data for
-                        + SqlUtils.routeClause(request, "ad") + "\n"
+                        + SqlUtils.routeClause(request.getParameter("r"), "ad") + "\n"
                         + SqlUtils.timeRangeClause(request, "ad.time", 7) + "\n"
                         // Grouping needed since want to output route name
                         + " GROUP BY r.name, r.route_order ORDER BY r.route_order, r.name;";

@@ -1,8 +1,8 @@
-<%@ page import="org.transitclock.domain.webstructs.WebAgency" %>
+<%@ page contentType="application/json; charset=UTF-8" %>
 <%@ page import="org.transitclock.api.reports.ChartGenericJsonQuery" %>
-<%@ page import="org.transitclock.utils.Time" %>
+<%@ page import="org.transitclock.core.reports.SqlUtils" %>
 <%@ page import="java.text.ParseException" %>
-<%@ page import="org.transitclock.api.reports.SqlUtils" %>
+<%@ page import="java.util.Objects" %>
 <%
     // Parameters from request
     String agencyId = request.getParameter("a");
@@ -14,13 +14,9 @@
     String source = request.getParameter("source");
     String predictionType = request.getParameter("predictionType");
 
-    WebAgency agency = WebAgency.getCachedWebAgency(agencyId);
-    String dbtype = agency.getDbType();
-    boolean isMysql = "mysql".equals(dbtype);
-
-    boolean showTooltips = false;
+    boolean showTooltips = true;
     String showTooltipsStr = request.getParameter("tooltips");
-    if (showTooltipsStr != null && showTooltipsStr.toLowerCase().equals("false"))
+    if (showTooltipsStr != null && showTooltipsStr.equalsIgnoreCase("false"))
         showTooltips = false;
 
     if (agencyId == null || beginDate == null || numDays == null) {
@@ -46,7 +42,7 @@
         if (endTime == null || endTime.isEmpty())
             endTime = "23:59:59";
 
-        timeSql = SqlUtils.timeRangeClause(request, "arrivalDepatureTime", Integer.parseInt(numDays));
+        timeSql = SqlUtils.timeRangeClause(request, "arrival_depature_time", Integer.parseInt(numDays));
     }
 
 // Determine route portion of SQL. Default is to provide info for
@@ -72,7 +68,7 @@
 // Determine SQL for prediction type ()
     String predTypeSql = "";
     if (predictionType != null && !predictionType.isEmpty()) {
-        if (source.equals("AffectedByWaitStop")) {
+        if (Objects.equals(source, "AffectedByWaitStop")) {
             // Only "AffectedByLayover" predictions
             predTypeSql = " AND affected_by_wait_stop = true ";
         } else {
@@ -100,16 +96,12 @@
                         + "   to_char(arrival_departure_time, 'HH24:MI:SS.MS MM/DD/YYYY'),"
                         + "   to_char(predicted_time, 'HH24:MI:SS.MS'),"
                         + "   to_char(prediction_read_time, 'HH24:MI:SS.MS'),"
-                        + "   vehicleId,"
-                        + "   predictionSource,"
-                        + "   CASE WHEN affectedbywaitstop THEN 'True' ELSE 'False' END) AS tooltip ";
+                        + "   vehicle_id,"
+                        + "   prediction_Source,"
+                        + "   CASE WHEN affected_by_wait_stop THEN 'True' ELSE 'False' END) AS tooltip ";
 
     String predLengthSql = "     to_char(predicted_time-prediction_read_time, 'SSSS')::integer ";
     String predAccuracySql = "     prediction_accuracy_msecs/1000 as predAccuracy ";
-    if (isMysql) {
-        predLengthSql = "CAST(predicted_time-prediction_read_time as SIGNED) ";
-        predAccuracySql = "CAST(prediction_accuracy_msecs/1000 AS DECIMAL) as predAccuracy ";
-    }
 
     String sql = "SELECT "
             + predLengthSql + " as predLength,"

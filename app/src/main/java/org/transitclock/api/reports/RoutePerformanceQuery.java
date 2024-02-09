@@ -8,8 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.transitclock.domain.hibernate.HibernateUtils;
 import org.transitclock.domain.structs.PredictionAccuracy;
 import org.transitclock.domain.structs.QPredictionAccuracy;
@@ -28,10 +26,8 @@ import java.util.Objects;
 @Slf4j
 public class RoutePerformanceQuery {
     private Session session;
-
     public static final String PREDICTION_TYPE_AFFECTED = "AffectedByWaitStop";
     public static final String PREDICTION_TYPE_NOT_AFFECTED = "NotAffectedByWaitStop";
-
     private static final String TRANSITIME_PREDICTION_SOURCE = "Transitime";
 
     // TODO: revisit query

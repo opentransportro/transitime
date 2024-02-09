@@ -3,10 +3,12 @@ package org.transitclock.api.reports;
 
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.domain.GenericQuery;
-import org.transitclock.domain.webstructs.WebAgency;
 import org.transitclock.utils.Time;
 
-import java.sql.*;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,12 +25,9 @@ import java.util.Map;
  * @author SkiBu Smith
  */
 @Slf4j
-public abstract class PredictionAccuracyQuery {
+public abstract class PredictionAccuracyQuery extends GenericQuery {
     protected static final int MAX_PRED_LENGTH = 900;
     protected static final int PREDICTION_LENGTH_BUCKET_SIZE = 30;
-
-    private final Connection connection;
-    private final String dbType;
 
     // Keyed on source (so can show data for multiple sources at
     // once in order to compare prediction accuracy. Contains a array,
@@ -80,21 +79,9 @@ public abstract class PredictionAccuracyQuery {
         }
     }
 
-    public PredictionAccuracyQuery(String dbType, String dbHost, String dbName, String dbUserName, String dbPassword)
-            throws SQLException {
-        this.dbType = dbType;
-        connection = GenericQuery.getConnection(dbType, dbHost, dbName, dbUserName, dbPassword);
-    }
 
     public PredictionAccuracyQuery(String agencyId) throws SQLException {
-        WebAgency agency = WebAgency.getCachedWebAgency(agencyId);
-        this.dbType = agency.getDbType();
-        connection = GenericQuery.getConnection(
-                agency.getDbType(),
-                agency.getDbHost(),
-                agency.getDbName(),
-                agency.getDbUserName(),
-                agency.getDbPassword());
+        super(agencyId);
     }
 
     /**
@@ -197,7 +184,6 @@ public abstract class PredictionAccuracyQuery {
             if (endTimeStr == null || endTimeStr.isEmpty()) endTimeStr = "23:59:59";
             // time param is jdbc param -- no need to check for injection attacks
             timeSql = " AND arrival_departure_time::time BETWEEN ? AND ? ";
-            mySqlTimeSql = "AND CAST(arrival_departure_time AS TIME) BETWEEN CAST(? AS TIME) AND CAST(? AS TIME) ";
         }
 
         // Determine route portion of SQL
@@ -241,7 +227,7 @@ public abstract class PredictionAccuracyQuery {
         }
         // TODO generate database independent SQL if possible!
         // Put the entire SQL query together
-        String postSql = "SELECT to_char(predicted_time-prediction_read_time, 'SSSS')::integer as predLength, "
+        String sql = "SELECT to_char(predicted_time-prediction_read_time, 'SSSS')::integer as predLength, "
                 + "prediction_accuracy_msecs/1000 as predAccuracy, "
                 + " prediction_source as source  FROM prediction_accuracy WHERE"
                 + " arrival_departure_time BETWEEN ? AND TIMESTAMP '" + beginDateStr
@@ -254,35 +240,12 @@ public abstract class PredictionAccuracyQuery {
                 + sourceSql
                 + predTypeSql;
 
-        String mySql = "SELECT abs((unix_timestamp(predicted_time)-unix_timestamp(prediction_read_time)) div 1) as predLength,"
-                + "predictionAccuracyMsecs/1000 as predAccuracy, "
-                + "prediction_source as source  FROM prediction_accuracy WHERE"
-                + " arrival_departure_time BETWEEN CAST(? AS DATETIME) AND DATE_ADD(CAST(? AS DATETIME), INTERVAL "
-                + numDays
-                + " day) "
-                + mySqlTimeSql
-                + "  AND"
-                + " abs(unix_timestamp(predicted_time)-unix_timestamp(prediction_read_time)) <"
-                + " 900 " // 15 mins
-                // Filter out MBTA_seconds source since it is isn't
-                // significantly different from MBTA_epoch.
-                // TODO should clean this up by not having MBTA_seconds source
-                // at all
-                // in the prediction accuracy module for MBTA.
-                + "  AND prediction_source <> 'MBTA_seconds' "
-                + routeSql
-                + sourceSql
-                + predTypeSql;
 
-        String sql = postSql;
-        if ("mysql".equals(dbType)) {
-            sql = mySql;
-        }
 
         PreparedStatement statement = null;
         try {
             logger.debug("SQL: {}", sql);
-            statement = connection.prepareStatement(sql);
+            statement = getConnection().prepareStatement(sql);
 
             // Determine the date parameters for the query
             Timestamp beginDate = null;
@@ -324,25 +287,12 @@ public abstract class PredictionAccuracyQuery {
             // Set the parameters for the query
             int i = 1;
             statement.setTimestamp(i++, beginDate);
-            if ("mysql".equals(dbType)) {
-                statement.setTimestamp(i++, beginDate);
-            }
 
             if (beginTime != null) {
-                if ("mysql".equals(dbType)) {
-                    // for mysql use the time str as is to avoid TZ issues
-                    statement.setString(i++, beginTimeStr);
-                } else {
-                    statement.setTime(i++, beginTime);
-                }
+                statement.setTime(i++, beginTime);
             }
             if (endTime != null) {
-                if ("mysql".equals(dbType)) {
-                    // for mysql use the time str as is to avoid TZ issues
-                    statement.setString(i++, endTimeStr);
-                } else {
-                    statement.setTime(i++, endTime);
-                }
+                statement.setTime(i++, endTime);
             }
             if (routeIds != null) {
                 for (String routeId : routeIds)

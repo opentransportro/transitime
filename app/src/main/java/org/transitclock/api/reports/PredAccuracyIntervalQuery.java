@@ -2,8 +2,6 @@
 package org.transitclock.api.reports;
 
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.transitclock.api.reports.ChartJsonBuilder.RowBuilder;
 import org.transitclock.statistics.Statistics;
 
@@ -24,21 +22,6 @@ public class PredAccuracyIntervalQuery extends PredictionAccuracyQuery {
     // stats are not provided since really can't determine standard
     // deviation or percentages for such situation.
     private static final int MIN_DATA_POINTS_PER_PRED_BUCKET = 5;
-
-    /**
-     * Creates connection to database.
-     *
-     * @param dbType
-     * @param dbHost
-     * @param dbName
-     * @param dbUserName
-     * @param dbPassword
-     * @throws SQLException
-     */
-    public PredAccuracyIntervalQuery(String dbType, String dbHost, String dbName, String dbUserName, String dbPassword)
-            throws SQLException {
-        super(dbType, dbHost, dbName, dbUserName, dbPassword);
-    }
 
     /**
      * Creates connection to database for the specified agency
@@ -108,7 +91,7 @@ public class PredAccuracyIntervalQuery extends PredictionAccuracyQuery {
             double intervalPercentage1,
             double intervalPercentage2) {
         if (map.isEmpty()) {
-            logger.error("Called PredAccuracyIntervalQuery.getCols() but there " + "is no data in the map.");
+            logger.error("Called PredAccuracyIntervalQuery.getCols() but there is no data in the map.");
             return;
         }
 

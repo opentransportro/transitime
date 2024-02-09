@@ -83,14 +83,15 @@ public class StandardParameters {
             formatOverride = formatOverride.toLowerCase();
 
             // If mediaType override set properly then use it
-            if (formatOverride.equals("json")) mediaType = MediaType.APPLICATION_JSON;
-            else if (formatOverride.equals("xml")) mediaType = MediaType.APPLICATION_XML;
-            else if (formatOverride.equals("human")) mediaType = MediaType.TEXT_PLAIN;
-            else
-                throw WebUtils.badRequestException("Format \"format="
+            mediaType = switch (formatOverride) {
+                case "json" -> MediaType.APPLICATION_JSON;
+                case "xml" -> MediaType.APPLICATION_XML;
+                case "human" -> MediaType.TEXT_PLAIN;
+                default -> throw WebUtils.badRequestException("Format \"format="
                         + formatOverride
                         + "\" from query string not valid. "
                         + "Format must be \"json\" or \"xml\"");
+            };
         }
 
         return mediaType;
@@ -104,9 +105,8 @@ public class StandardParameters {
      */
     public void validate() throws WebApplicationException {
         // Make sure the application key is valid
-        if (!ApiKeyManager.getInstance().isKeyValid(getKey())) {
-            ApiKeyManager manager = ApiKeyManager.getInstance();
-            boolean test = manager.isKeyValid(getKey());
+        ApiKeyManager manager = ApiKeyManager.getInstance();
+        if (!manager.isKeyValid(getKey())) {
             throw WebUtils.badRequestException(
                     Status.UNAUTHORIZED.getStatusCode(), "Application key \"" + getKey() + "\" is not valid.");
         }
