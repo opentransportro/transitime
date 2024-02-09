@@ -125,15 +125,12 @@
                         </platforms>
                     </from>
                     <to>
-                        <image>otrro/transitclock-server</image>
+                        <image>${env.CONTAINER_REPO}</image>
+                        <auth>
+                            <username>${env.CONTAINER_REGISTRY_USER}</username>
+                            <password>${env.CONTAINER_REGISTRY_PASSWORD}</password>
+                        </auth>
                     </to>
-<!--                    <to>-->
-<!--                        <image>${env.CONTAINER_REPO}</image>-->
-<!--                        <auth>-->
-<!--                            <username>${env.CONTAINER_REGISTRY_USER}</username>-->
-<!--                            <password>${env.CONTAINER_REGISTRY_PASSWORD}</password>-->
-<!--                        </auth>-->
-<!--                    </to>-->
                     <extraDirectories>
                         <permissions>
                             <permission>

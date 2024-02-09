@@ -10,6 +10,6 @@ find /app/config/ -type f -exec sed -i s#"PGPASSWORD"#"$PGPASSWORD"#g {} \;
 find /app/config/ -type f -exec sed -i s#"AGENCYNAME"#"$AGENCYNAME"#g {} \;
 find /app/config/ -type f -exec sed -i s#"GTFSRTVEHICLEPOSITIONS"#"$GTFSRTVEHICLEPOSITIONS"#g {} \;
 
-export JAVA_OPTS="-Dtransitclock.apikey=f78a2e9a -Duser.timezone=Europe/Bucharest -Dtransitclock.configFiles=/app/config/transitclock.properties -Dtransitclock.core.agencyId=$AGENCYID"
+JAVA_OPTS="$JAVA_OPTS -Dtransitclock.apikey=f78a2e9a -Dtransitclock.configFiles=/app/config/transitclock.properties -Dtransitclock.core.agencyId=$AGENCYID"
 
-java $JAVA_OPTS -cp @/app/jib-classpath-file @/app/jib-main-class-file /var/transitclock/ "$@"
+java "$JAVA_OPTS" -cp @/app/jib-classpath-file @/app/jib-main-class-file /var/transitclock/ "$@"
