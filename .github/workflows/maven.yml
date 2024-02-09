@@ -57,7 +57,7 @@ jobs:
           node-version: 18
       - name: Build container image with Jib, push to Dockerhub
         env:
-          CONTAINER_REPO: docker.io/otrro/transitime
+          CONTAINER_REPO: docker.io/otrro/transitclock-server
           CONTAINER_REGISTRY_USER: ${{secrets.DOCKER_USER}}
           CONTAINER_REGISTRY_PASSWORD: ${{ secrets.DOCKER_AUTH }}
         run: |
