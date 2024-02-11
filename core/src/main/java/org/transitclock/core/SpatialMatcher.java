@@ -643,7 +643,7 @@ public class SpatialMatcher {
         SpatialMatcher spatialMatcher = new SpatialMatcher();
 
         // The matches to be returned
-        List<SpatialMatch> spatialMatches = new ArrayList<SpatialMatch>();
+        List<SpatialMatch> spatialMatches = new ArrayList<>();
 
         // Don't want to waste time search forward too far. So limit distance
         // such that vehicle would have traveled at 30% more than the max speed
@@ -696,9 +696,7 @@ public class SpatialMatcher {
 
         while (!indices.pastEndOfBlock(vehicleState.getAvlReport().getTime())
                 && (vehicleState.isLayover() || distanceSearched < distanceAlongPathToSearch)
-                && Math.abs(indices.getStopPathIndex()
-                                - previousMatch.getIndices().getStopPathIndex())
-                        <= AvlConfig.getMaxStopPathsAhead()) {
+                && Math.abs(indices.getStopPathIndex() - previousMatch.getIndices().getStopPathIndex()) <= AvlConfig.getMaxStopPathsAhead()) {
 
             spatialMatcher.processPossiblePotentialMatch(
                     vehicleState.getAvlReport(), indices, spatialMatches, MatchingType.STANDARD_MATCHING);

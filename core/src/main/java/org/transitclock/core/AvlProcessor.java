@@ -304,7 +304,7 @@ public class AvlProcessor {
                 spatialMatches.size(),
                 spatialMatches);
 
-        // Find best temporal match of the spatial matches
+        // Find the best temporal match of the spatial matches
         TemporalMatch bestTemporalMatch =
                 TemporalMatcher.getInstance().getBestTemporalMatch(vehicleState, spatialMatches);
 
@@ -520,7 +520,7 @@ public class AvlProcessor {
         // Determine which blocks are currently active for the route.
         // Multiple services can be active on a given day. Therefore need
         // to look at all the active ones to find out what blocks are active...
-        List<Block> allBlocksForRoute = new ArrayList<Block>();
+        List<Block> allBlocksForRoute = new ArrayList<>();
         ServiceUtils serviceUtils = Core.getInstance().getServiceUtils();
         Collection<String> serviceIds = serviceUtils.getServiceIds(avlReport.getDate());
         for (String serviceId : serviceIds) {
@@ -530,7 +530,7 @@ public class AvlProcessor {
             }
         }
 
-        List<SpatialMatch> allPotentialSpatialMatchesForRoute = new ArrayList<SpatialMatch>();
+        List<SpatialMatch> allPotentialSpatialMatchesForRoute = new ArrayList<>();
 
         // Go through each block and determine best spatial matches
         for (Block block : allBlocksForRoute) {

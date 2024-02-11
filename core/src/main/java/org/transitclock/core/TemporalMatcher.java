@@ -323,7 +323,7 @@ public class TemporalMatcher {
             return new TemporalMatch(spatialMatches.get(0), new TemporalDifference(0));
         }
 
-        // Find best temporal match of the spatial matches
+        // Find the best temporal match of the spatial matches
         TemporalMatch bestTemporalMatchSoFar = null;
         for (int matchIdx = 0; matchIdx < spatialMatches.size(); ++matchIdx) {
             SpatialMatch spatialMatch = spatialMatches.get(matchIdx);

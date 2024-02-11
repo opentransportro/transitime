@@ -8,56 +8,18 @@
             org.postgresql.Driver
         </property>
         <property name="hibernate.hikari.autoCommit">false</property>
-
-        <!-- Enable full SQL logging that also shows the
-             parameters being used. show_sql is not really
-             useful since it duplicates the output of the SQL.
-             format_sql makes sql more readable but takes up
-             more space. OK for now but should disable in the
-             future. use_sql_comments adds comments that might
-             be nice, but again, should probably be disabled
-             in the future. -->
 <!--        <property name="hibernate.show_sql">true</property>-->
 <!--        <property name="hibernate.format_sql">true</property>-->
 <!--        <property name="hibernate.use_sql_comments">true</property>-->
 <!--        <property name="hibernate.hbm2ddl.auto">create-drop</property>-->
 
-        <!--  Configure the C3P0 db connection pooler. Setting any of the
-              following params tells Hibernate to use this pooler. It is
-              important to use this one instead of the standard hibernate one
-              because the Hibernate one is not for use in production.
-              Documentation on the parameters for C3P0 can be found at
-              https://community.jboss.org/wiki/HowToConfigureTheC3P0ConnectionPool
-              and http://www.mchange.com/projects/c3p0/index.html#appendix_d -->
-        <!-- Default min_size is 1 but want to make sure that can have at
-             least a couple of db access happening simultaneously without
-             having to create an additional connection. -->
-        <property name="hibernate.c3p0.min_size">2</property>
         <property name="hibernate.hikari.minimumIdle">5</property>
-        <!-- Default max_size is 100 but that seems excessive -->
-        <property name="hibernate.c3p0.max_size">20</property>
-        <property name="hibernate.hikari.maximumPoolSize">20</property>
+        <property name="hibernate.hikari.maximumPoolSize">40</property>
         <!-- Default timeout is 0s (forever) but want to reclaim connections
              if not used for more than 5 minutes so don't get too many
              connections. -->
-        <property name="hibernate.c3p0.timeout">300</property>
         <property name="hibernate.hikari.idleTimeout">30000</property>
-        <!-- Default max_statements is 0 but since will be doing lots of logging
-             of data using the same query caching some prepared statements could
-             easily speed things up. -->
-        <property name="hibernate.c3p0.max_statements">50</property>
-
-        <!-- When doing lots of writes, such as logging AVL data and other
-             such regularlly occurring data then want to batch the requests
-             to improve efficiency. Info online indicates that a value of
-             between 5 and 30 is best. So using 25.
-
-             NOTE: when timed where program and db running on same laptop
-             setting batch_size to 25 actually hurt performance by a few
-             percent. Probably much more important when db is remote and
-             network traffic could bog down the thread that is writing. -->
         <property name="hibernate.jdbc.batch_size">25</property>
-
 
         <!-- List of XML mapping files. Commented out because adding
              the classes programatically via AnnoatedClassesList so
