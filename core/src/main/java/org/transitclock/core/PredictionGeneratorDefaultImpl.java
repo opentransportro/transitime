@@ -416,7 +416,7 @@ public class PredictionGeneratorDefaultImpl extends PredictionGenerator implemen
             // prediction if it is in the past since those are not needed.
             // Can get predictions in the past for schedule based predictions.
             if (!lastStopOfNonSchedBasedTrip && predictionForStop.getPredictionTime() > now) {
-                logger.info("Generated IpcPrediction [vehicle={}, route={}, stop={}, eta={}] based on {}.",
+                logger.debug("Generated IpcPrediction [vehicle={}, route={}, stop={}, eta={}] based on {}.",
                         predictionForStop.getVehicleId(),
                         predictionForStop.getRouteShortName() != null ? predictionForStop.getRouteShortName() : predictionForStop.getRouteId(),
                         predictionForStop.getStopId(),
@@ -434,7 +434,7 @@ public class PredictionGeneratorDefaultImpl extends PredictionGenerator implemen
                                 .getTrip()
                                 .getStartTime();
                         if (predictionForStop.getTrip().getStartTime() > filteredPredictionTripStartTime) {
-                            logger.debug("Found multiple predictions for Prediction with routeId={}, stopId={}, and vehicleId={} ",
+                            logger.warn("Found multiple predictions for Prediction with routeId={}, stopId={}, and vehicleId={} ",
                                     predictionForStop.getRouteId(),
                                     predictionForStop.getStopId(),
                                     predictionForStop.getVehicleId());

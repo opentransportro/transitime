@@ -1403,7 +1403,7 @@ public class AvlProcessor {
 
         // The beginning of processing AVL data is an important milestone
         // in processing data so log it as info.
-        logger.info("=====" + "AvlProcessor processing {}", avlReport);
+        logger.debug("Processing {}", avlReport);
 
         // Record when the AvlReport was actually processed. This is done here
         // so that the value will be set when the avlReport is stored in the
