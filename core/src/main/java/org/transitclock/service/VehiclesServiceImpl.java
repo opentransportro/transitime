@@ -4,6 +4,7 @@ package org.transitclock.service;
 import com.querydsl.jpa.impl.JPAQuery;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
+import org.jvnet.hk2.annotations.Service;
 import org.transitclock.core.BlocksInfo;
 import org.transitclock.core.dataCache.VehicleDataCache;
 import org.transitclock.domain.hibernate.HibernateUtils;
@@ -26,6 +27,7 @@ import java.util.List;
  * @author SkiBu Smith
  */
 @Slf4j
+@Service
 public class VehiclesServiceImpl implements VehiclesInterface {
 
     // Should only be accessed as singleton class
@@ -35,26 +37,16 @@ public class VehiclesServiceImpl implements VehiclesInterface {
         return singleton;
     }
 
-    // The VehicleDataCache associated with the singleton.
-    private VehicleDataCache vehicleDataCache;
-
-
-    /**
-     * Starts up the VehiclesServer so that RMI calls can query for predictions. This will
-     * automatically cause the object to continue to run and serve requests.
-     *
-     * @param vehicleManager
-     * @return the singleton PredictionsServer object
-     */
     public static VehiclesServiceImpl start(VehicleDataCache vehicleManager) {
         if (singleton == null) {
-            singleton = new VehiclesServiceImpl();
-            singleton.vehicleDataCache = vehicleManager;
+            singleton = new VehiclesServiceImpl(vehicleManager);
         }
 
 
         return singleton;
     }
+
+    private final VehicleDataCache vehicleDataCache;
 
     /*
      * Constructor. Made private so that can only be instantiated by
@@ -64,14 +56,15 @@ public class VehiclesServiceImpl implements VehiclesInterface {
      * @param projectId
      *            for registering this object with the rmiregistry
      */
-    private VehiclesServiceImpl() {
+    private VehiclesServiceImpl(VehicleDataCache vehicleDataCache) {
+        this.vehicleDataCache = vehicleDataCache;
     }
 
     /* (non-Javadoc)
      * @see org.transitclock.ipc.interfaces.VehiclesInterface#get()
      */
     @Override
-    public Collection<IpcVehicle> get() throws RemoteException {
+    public Collection<IpcVehicle> get() {
         return getSerializableCollection(vehicleDataCache.getVehicles());
     }
 
@@ -79,7 +72,7 @@ public class VehiclesServiceImpl implements VehiclesInterface {
      * @see org.transitclock.ipc.interfaces.VehiclesInterface#getComplete()
      */
     @Override
-    public Collection<IpcVehicleComplete> getComplete() throws RemoteException {
+    public Collection<IpcVehicleComplete> getComplete() {
         return getCompleteSerializableCollection(vehicleDataCache.getVehicles());
     }
 
@@ -87,7 +80,7 @@ public class VehiclesServiceImpl implements VehiclesInterface {
      * @see org.transitclock.ipc.interfaces.VehiclesInterface#getGtfsRealtime()
      */
     @Override
-    public Collection<IpcVehicleGtfsRealtime> getGtfsRealtime() throws RemoteException {
+    public Collection<IpcVehicleGtfsRealtime> getGtfsRealtime() {
         return getGtfsRealtimeSerializableCollection(vehicleDataCache.getVehicles());
     }
 
@@ -95,7 +88,7 @@ public class VehiclesServiceImpl implements VehiclesInterface {
      * @see org.transitclock.ipc.interfaces.VehiclesInterface#get(java.lang.String)
      */
     @Override
-    public IpcVehicle get(String vehicleId) throws RemoteException {
+    public IpcVehicle get(String vehicleId) {
         return vehicleDataCache.getVehicle(vehicleId);
     }
 
@@ -103,7 +96,7 @@ public class VehiclesServiceImpl implements VehiclesInterface {
      * @see org.transitclock.ipc.interfaces.VehiclesInterface#get(java.lang.String)
      */
     @Override
-    public IpcVehicleComplete getComplete(String vehicleId) throws RemoteException {
+    public IpcVehicleComplete getComplete(String vehicleId) {
         return vehicleDataCache.getVehicle(vehicleId);
     }
 
@@ -111,7 +104,7 @@ public class VehiclesServiceImpl implements VehiclesInterface {
      * @see org.transitclock.ipc.interfaces.VehiclesInterface#get(java.util.List)
      */
     @Override
-    public Collection<IpcVehicle> get(Collection<String> vehicleIds) throws RemoteException {
+    public Collection<IpcVehicle> get(Collection<String> vehicleIds) {
         return getSerializableCollection(vehicleDataCache.getVehicles(vehicleIds));
     }
 
@@ -119,7 +112,7 @@ public class VehiclesServiceImpl implements VehiclesInterface {
      * @see org.transitclock.ipc.interfaces.VehiclesInterface#get(java.util.List)
      */
     @Override
-    public Collection<IpcVehicleComplete> getComplete(Collection<String> vehicleIds) throws RemoteException {
+    public Collection<IpcVehicleComplete> getComplete(Collection<String> vehicleIds) {
         return getCompleteSerializableCollection(vehicleDataCache.getVehicles(vehicleIds));
     }
 
@@ -127,7 +120,7 @@ public class VehiclesServiceImpl implements VehiclesInterface {
      * @see org.transitclock.ipc.interfaces.VehiclesInterface#getForRoute(java.lang.String)
      */
     @Override
-    public Collection<IpcVehicle> getForRoute(String routeIdOrShortName) throws RemoteException {
+    public Collection<IpcVehicle> getForRoute(String routeIdOrShortName) {
         return getSerializableCollection(vehicleDataCache.getVehiclesForRoute(routeIdOrShortName));
     }
 
@@ -135,7 +128,7 @@ public class VehiclesServiceImpl implements VehiclesInterface {
      * @see org.transitclock.ipc.interfaces.VehiclesInterface#getForRoute(java.lang.String)
      */
     @Override
-    public Collection<IpcVehicleComplete> getCompleteForRoute(String routeIdOrShortName) throws RemoteException {
+    public Collection<IpcVehicleComplete> getCompleteForRoute(String routeIdOrShortName) {
         return getCompleteSerializableCollection(vehicleDataCache.getVehiclesForRoute(routeIdOrShortName));
     }
 
@@ -143,7 +136,7 @@ public class VehiclesServiceImpl implements VehiclesInterface {
      * @see org.transitclock.ipc.interfaces.VehiclesInterface#getForRoute(java.util.Collection)
      */
     @Override
-    public Collection<IpcVehicle> getForRoute(Collection<String> routeIdsOrShortNames) throws RemoteException {
+    public Collection<IpcVehicle> getForRoute(Collection<String> routeIdsOrShortNames) {
         return getSerializableCollection(vehicleDataCache.getVehiclesForRoute(routeIdsOrShortNames));
     }
 
@@ -151,8 +144,7 @@ public class VehiclesServiceImpl implements VehiclesInterface {
      * @see org.transitclock.ipc.interfaces.VehiclesInterface#getForRoute(java.util.Collection)
      */
     @Override
-    public Collection<IpcVehicleComplete> getCompleteForRoute(Collection<String> routeIdsOrShortNames)
-            throws RemoteException {
+    public Collection<IpcVehicleComplete> getCompleteForRoute(Collection<String> routeIdsOrShortNames) {
         return getCompleteSerializableCollection(vehicleDataCache.getVehiclesForRoute(routeIdsOrShortNames));
     }
 
@@ -211,8 +203,7 @@ public class VehiclesServiceImpl implements VehiclesInterface {
      * @see org.transitclock.ipc.interfaces.VehiclesInterface#getActiveBlocks()
      */
     @Override
-    public Collection<IpcActiveBlock> getActiveBlocks(Collection<String> routeIds, int allowableBeforeTimeSecs)
-            throws RemoteException {
+    public Collection<IpcActiveBlock> getActiveBlocks(Collection<String> routeIds, int allowableBeforeTimeSecs) {
         // List of data to be returned
         List<IpcActiveBlock> results = new ArrayList<>();
         // Determine all the active blocks
@@ -255,7 +246,7 @@ public class VehiclesServiceImpl implements VehiclesInterface {
      * @see org.transitclock.ipc.interfaces.VehiclesInterface#getActiveBlocks()
      */
     @Override
-    public int getNumActiveBlocks(Collection<String> routeIds, int allowableBeforeTimeSecs) throws RemoteException {
+    public int getNumActiveBlocks(Collection<String> routeIds, int allowableBeforeTimeSecs) {
         // Determine all the active blocks
         List<Block> blocks = BlocksInfo.getCurrentlyActiveBlocks(routeIds, null, allowableBeforeTimeSecs, -1);
 
@@ -267,7 +258,7 @@ public class VehiclesServiceImpl implements VehiclesInterface {
      */
     @Override
     public Collection<IpcActiveBlock> getActiveBlocksWithoutVehicles(
-            Collection<String> routeIds, int allowableBeforeTimeSecs) throws RemoteException {
+            Collection<String> routeIds, int allowableBeforeTimeSecs) {
         // List of data to be returned
         List<IpcActiveBlock> results = new ArrayList<>();
         // Determine all the active blocks
@@ -298,9 +289,7 @@ public class VehiclesServiceImpl implements VehiclesInterface {
      * @see org.transitclock.ipc.interfaces.VehiclesInterface#getActiveBlocksAndVehiclesByRouteId()
      */
     @Override
-    public Collection<IpcActiveBlock> getActiveBlocksAndVehiclesByRouteId(String routeId, int allowableBeforeTimeSecs)
-            throws RemoteException {
-
+    public Collection<IpcActiveBlock> getActiveBlocksAndVehiclesByRouteId(String routeId, int allowableBeforeTimeSecs) {
         Collection<String> routeIds = new ArrayList<>();
         routeIds.add(routeId);
         return getActiveBlocksAndVehiclesByRouteId(routeIds, allowableBeforeTimeSecs);
@@ -311,7 +300,7 @@ public class VehiclesServiceImpl implements VehiclesInterface {
      */
     @Override
     public Collection<IpcActiveBlock> getActiveBlocksAndVehiclesByRouteName(
-            String routeName, int allowableBeforeTimeSecs) throws RemoteException {
+            String routeName, int allowableBeforeTimeSecs) {
 
         List<String> routeIds;
         try (Session session = HibernateUtils.getSession()) {
@@ -332,7 +321,7 @@ public class VehiclesServiceImpl implements VehiclesInterface {
     }
 
     private Collection<IpcActiveBlock> getActiveBlocksAndVehiclesByRouteId(
-            Collection<String> routeIds, int allowableBeforeTimeSecs) throws RemoteException {
+            Collection<String> routeIds, int allowableBeforeTimeSecs) {
 
         // List of data to be returned
         List<IpcActiveBlock> results = new ArrayList<>();
@@ -375,7 +364,7 @@ public class VehiclesServiceImpl implements VehiclesInterface {
      * @see org.transitclock.ipc.interfaces.VehiclesInterface#getVehicleConfigs()
      */
     @Override
-    public Collection<IpcVehicleConfig> getVehicleConfigs() throws RemoteException {
+    public Collection<IpcVehicleConfig> getVehicleConfigs() {
         Collection<IpcVehicleConfig> result = new ArrayList<>();
         for (VehicleConfig vehicleConfig : VehicleDataCache.getInstance().getVehicleConfigs()) {
             result.add(new IpcVehicleConfig(vehicleConfig));
@@ -388,7 +377,7 @@ public class VehiclesServiceImpl implements VehiclesInterface {
      * @see org.transitclock.ipc.interfaces.VehiclesInterface#getVehiclesForBlocks()
      */
     @Override
-    public Collection<IpcVehicle> getVehiclesForBlocks() throws RemoteException {
+    public Collection<IpcVehicle> getVehiclesForBlocks() {
         List<String> vehicleIds = new ArrayList<>();
         List<Block> blocks = BlocksInfo.getCurrentlyActiveBlocks();
         for (Block block : blocks) {
@@ -400,7 +389,7 @@ public class VehiclesServiceImpl implements VehiclesInterface {
     }
 
     @Override
-    public Collection<IpcVehicleToBlockConfig> getVehicleToBlockConfig(String blockId) throws RemoteException {
+    public Collection<IpcVehicleToBlockConfig> getVehicleToBlockConfig(String blockId) {
         List<IpcVehicleToBlockConfig> result = new ArrayList<>();
         Session session = HibernateUtils.getSession();
         try {
@@ -415,13 +404,11 @@ public class VehiclesServiceImpl implements VehiclesInterface {
     }
 
     @Override
-    public Collection<IpcVehicleToBlockConfig> getVehicleToBlockConfigByVehicleId(String vehicleId)
-            throws RemoteException {
+    public Collection<IpcVehicleToBlockConfig> getVehicleToBlockConfigByVehicleId(String vehicleId) {
         List<IpcVehicleToBlockConfig> result = new ArrayList<>();
         Session session = HibernateUtils.getSession();
         try {
-            for (VehicleToBlockConfig vTBC :
-                    VehicleToBlockConfig.getVehicleToBlockConfigsByVehicleId(session, vehicleId)) {
+            for (var vTBC : VehicleToBlockConfig.getVehicleToBlockConfigsByVehicleId(session, vehicleId)) {
                 result.add(new IpcVehicleToBlockConfig(vTBC));
             }
             session.close();

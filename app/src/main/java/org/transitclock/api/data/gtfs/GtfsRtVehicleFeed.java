@@ -214,21 +214,16 @@ public class GtfsRtVehicleFeed {
      */
     private Collection<IpcVehicleGtfsRealtime> getVehicles() {
         VehiclesInterface vehiclesInterface = VehiclesServiceImpl.instance();
-        Collection<IpcVehicleGtfsRealtime> vehicles = null;
-        try {
-            vehicles = vehiclesInterface.getGtfsRealtime();
+        Collection<IpcVehicleGtfsRealtime> vehicles = vehiclesInterface.getGtfsRealtime();
 
-            for (IpcVehicleGtfsRealtime ipc : vehicles) {
-                Collection<IpcVehicleConfig> vehConfigs = vehiclesInterface.getVehicleConfigs();
-                for (IpcVehicleConfig ipcVehicleConfig : vehConfigs) {
-                    if (ipcVehicleConfig.getId().equals(ipc.getId())) {
-                        ipc.setVehicleName(ipcVehicleConfig.getName());
-                        break;
-                    }
+        for (IpcVehicleGtfsRealtime ipc : vehicles) {
+            Collection<IpcVehicleConfig> vehConfigs = vehiclesInterface.getVehicleConfigs();
+            for (IpcVehicleConfig ipcVehicleConfig : vehConfigs) {
+                if (ipcVehicleConfig.getId().equals(ipc.getId())) {
+                    ipc.setVehicleName(ipcVehicleConfig.getName());
+                    break;
                 }
             }
-        } catch (RemoteException e) {
-            logger.error("Exception when getting vehicles from RMI", e);
         }
         return vehicles;
     }

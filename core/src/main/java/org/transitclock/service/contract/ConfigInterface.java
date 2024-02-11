@@ -1,10 +1,7 @@
 /* (C)2023 */
 package org.transitclock.service.contract;
 
-import java.rmi.Remote;
-import java.rmi.RemoteException;
-import java.util.Collection;
-import java.util.List;
+import org.jvnet.hk2.annotations.Contract;
 import org.transitclock.domain.structs.Agency;
 import org.transitclock.service.dto.IpcBlock;
 import org.transitclock.service.dto.IpcCalendar;
@@ -15,20 +12,23 @@ import org.transitclock.service.dto.IpcSchedule;
 import org.transitclock.service.dto.IpcTrip;
 import org.transitclock.service.dto.IpcTripPattern;
 
+import java.util.Collection;
+import java.util.List;
+
 /**
  * Defines the RMI interface for getting configuration data.
  *
  * @author SkiBu Smith
  */
-public interface ConfigInterface extends Remote {
+@Contract
+public interface ConfigInterface {
 
     /**
      * Obtains ordered list of route summaries.
      *
      * @return
-     * @throws RemoteException
      */
-    Collection<IpcRouteSummary> getRoutes() throws RemoteException;
+    Collection<IpcRouteSummary> getRoutes();
 
     /**
      * Obtains data for single route.
@@ -46,19 +46,17 @@ public interface ConfigInterface extends Remote {
      *     trip then stopId is used to determine which trip pattern to highlight. If this additional
      *     info not needed for UI then null can be specified.
      * @return
-     * @throws RemoteException
      */
     IpcRoute getRoute(String routeIdOrShortName, String directionId, String stopId, String tripPatternId)
-            throws RemoteException;
+           ;
 
     /**
      * Obtains ordered list of route details
      *
      * @param routeIdOrShortName
      * @return
-     * @throws RemoteException
      */
-    List<IpcRoute> getRoutes(List<String> routeIdsOrShortNames) throws RemoteException;
+    List<IpcRoute> getRoutes(List<String> routeIdsOrShortNames);
 
     /**
      * Returns stops for each direction for a route.
@@ -67,9 +65,8 @@ public interface ConfigInterface extends Remote {
      *     used instead of routeId since routeIds unfortunately often change when there is a
      *     schedule change.
      * @return
-     * @throws RemoteException
      */
-    IpcDirectionsForRoute getStops(String routeIdOrShortName) throws RemoteException;
+    IpcDirectionsForRoute getStops(String routeIdOrShortName);
 
     /**
      * Returns block info for specified blockId and serviceId. Includes all trip and trip pattern
@@ -78,18 +75,16 @@ public interface ConfigInterface extends Remote {
      * @param blockId
      * @param serviceId
      * @return
-     * @throws RemoteException
      */
-    IpcBlock getBlock(String blockId, String serviceId) throws RemoteException;
+    IpcBlock getBlock(String blockId, String serviceId);
 
     /**
      * Returns blocks for each service class for the blockId specified.
      *
      * @param blockId
      * @return
-     * @throws RemoteException
      */
-    Collection<IpcBlock> getBlocks(String blockId) throws RemoteException;
+    Collection<IpcBlock> getBlocks(String blockId);
 
     /**
      * Returns trip info for specified tripId. If trip with the specified trip_id is not found then
@@ -99,98 +94,86 @@ public interface ConfigInterface extends Remote {
      *
      * @param tripId The GTFS trip_id or trip_short_name
      * @return The IpcTrip for interprocess communication
-     * @throws RemoteException
      */
-    IpcTrip getTrip(String tripId) throws RemoteException;
+    IpcTrip getTrip(String tripId);
 
     /**
      * Returns trip patterns for specified routeIdOrShortName.
      *
      * @param routeIdOrShortName
      * @return
-     * @throws RemoteException
      */
-    List<IpcTripPattern> getTripPatterns(String routeIdOrShortName) throws RemoteException;
+    List<IpcTripPattern> getTripPatterns(String routeIdOrShortName);
 
     /**
      * Returns list of IpcSchedule objects for the specified routeIdOrShortName
      *
      * @param routeIdOrShortName
      * @return
-     * @throws RemoteException
      */
-    List<IpcSchedule> getSchedules(String routeIdOrShortName) throws RemoteException;
+    List<IpcSchedule> getSchedules(String routeIdOrShortName);
 
     /**
      * Returns list of Agency objects containing data from GTFS agency.txt file
      *
      * @return
-     * @throws RemoteException
      */
-    List<Agency> getAgencies() throws RemoteException;
+    List<Agency> getAgencies();
 
     /**
      * Returns list of Calendar objects that are currently active.
      *
      * @return
-     * @throws RemoteException
      */
-    List<IpcCalendar> getCurrentCalendars() throws RemoteException;
+    List<IpcCalendar> getCurrentCalendars();
 
     /**
      * Returns list of all Calendar objects.
      *
      * @return
-     * @throws RemoteException
      */
-    List<IpcCalendar> getAllCalendars() throws RemoteException;
+    List<IpcCalendar> getAllCalendars();
 
     /**
      * Returns list of vehicle IDs, unsorted
      *
      * @return vehicle IDs
-     * @throws RemoteException
      */
-    List<String> getVehicleIds() throws RemoteException;
+    List<String> getVehicleIds();
 
     /**
      * Returns list of service IDs, unsorted
      *
      * @return vehicle IDs
-     * @throws RemoteException
      */
-    List<String> getServiceIds() throws RemoteException;
+    List<String> getServiceIds();
 
     /**
      * Returns list of service IDs, unsorted
      *
      * @return vehicle IDs
-     * @throws RemoteException
      */
-    List<String> getCurrentServiceIds() throws RemoteException;
+    List<String> getCurrentServiceIds();
 
     /**
      * Returns list of trip IDs, unsorted
      *
      * @return vehicle IDs
-     * @throws RemoteException
      */
-    List<String> getTripIds() throws RemoteException;
+    List<String> getTripIds();
 
     /**
      * Returns list of block IDs, unsorted, duplicates removed
      *
      * @return vehicle IDs
-     * @throws RemoteException
      */
-    List<String> getBlockIds() throws RemoteException;
+    List<String> getBlockIds();
 
     /**
      * Returns list of block IDs for specified serviceId, unsorted
      *
      * @param serviceId If null then all block IDs are returned
      * @return vehicle IDs
-     * @throws RemoteException
      */
-    List<String> getBlockIds(String serviceId) throws RemoteException;
+    List<String> getBlockIds(String serviceId);
 }

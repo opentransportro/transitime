@@ -36,13 +36,7 @@ public class AgencyTimezoneCache {
         // If timezone not already in cache then get it and cache it
         if (timezone == null) {
             ConfigInterface inter = ConfigServiceImpl.instance();
-            List<Agency> agencies;
-            try {
-                agencies = inter.getAgencies();
-            } catch (RemoteException e) {
-                logger.error("Exception getting timezone for agencyId={}", agencyId, e);
-                return null;
-            }
+            List<Agency> agencies = inter.getAgencies();
 
             // Use timezone of first agency
             String timezoneStr = agencies.get(0).getTimeZoneStr();

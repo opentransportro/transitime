@@ -1,19 +1,20 @@
 /* (C)2023 */
 package org.transitclock.service.contract;
 
-import java.io.Serializable;
-import java.rmi.Remote;
-import java.rmi.RemoteException;
-import java.util.List;
+import org.jvnet.hk2.annotations.Contract;
 import org.transitclock.domain.structs.Location;
 import org.transitclock.service.dto.IpcPredictionsForRouteStopDest;
+
+import java.io.Serializable;
+import java.util.List;
 
 /**
  * Defines the RMI interface used for obtaining predictions.
  *
  * @author SkiBu Smith
  */
-public interface PredictionsInterface extends Remote {
+@Contract
+public interface PredictionsInterface {
 
     /** This class is for use as key into hash maps that store prediction data. */
     class RouteStop implements Serializable {
@@ -48,10 +49,9 @@ public interface PredictionsInterface extends Remote {
      * @param stopId
      * @param predictionsPerStop Max number of predictions to return for route/stop
      * @return List of PredictionsForRouteStop objects for the route/stop, one for each destination
-     * @throws RemoteException
      */
     List<IpcPredictionsForRouteStopDest> get(String routeShortName, String stopId, int predictionsPerStop)
-            throws RemoteException;
+           ;
 
     /**
      * For each route/stop specified returns a list of predictions for that stop. Since expensive
@@ -63,9 +63,8 @@ public interface PredictionsInterface extends Remote {
      * @param predictionsPerStop Max number of predictions to return per route/stop
      * @return List of PredictionsForRouteStop objects for the route/stop. There is a separate one
      *     for each destination for each route/stop.
-     * @throws RemoteException
      */
-    List<IpcPredictionsForRouteStopDest> get(List<RouteStop> routeStops, int predictionsPerStop) throws RemoteException;
+    List<IpcPredictionsForRouteStopDest> get(List<RouteStop> routeStops, int predictionsPerStop);
 
     /**
      * Returns predictions based on the specified location.
@@ -75,10 +74,8 @@ public interface PredictionsInterface extends Remote {
      * @param predictionsPerStop
      * @return List of PredictionsForRouteStop objects for the location. There is a separate one for
      *     each destination for each route/stop.
-     * @throws RemoteException
      */
-    List<IpcPredictionsForRouteStopDest> get(Location loc, double maxDistance, int predictionsPerStop)
-            throws RemoteException;
+    List<IpcPredictionsForRouteStopDest> get(Location loc, double maxDistance, int predictionsPerStop);
 
     /**
      * Returns all predictions. This is intended for clients such as the GTFS-RT vehicle update feed
@@ -87,7 +84,6 @@ public interface PredictionsInterface extends Remote {
      * @param predictionMaxFutureSecs
      * @return List of all PredictionsForRouteStop objects for system. There is a separate one for
      *     every route/stop/destination.
-     * @throws RemoteException
      */
-    List<IpcPredictionsForRouteStopDest> getAllPredictions(int predictionMaxFutureSecs) throws RemoteException;
+    List<IpcPredictionsForRouteStopDest> getAllPredictions(int predictionMaxFutureSecs);
 }

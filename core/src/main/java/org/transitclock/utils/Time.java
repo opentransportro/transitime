@@ -113,7 +113,8 @@ public class Time {
      */
     public Time(String timeZoneStr) {
         // If no time zone string specified then use local timezone
-        if (timeZoneStr == null) return;
+        if (timeZoneStr == null)
+            return;
 
         TimeZone timeZone = TimeZone.getTimeZone(timeZoneStr);
         this.calendar = new GregorianCalendar(timeZone);

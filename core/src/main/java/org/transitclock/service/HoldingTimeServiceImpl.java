@@ -4,6 +4,7 @@ package org.transitclock.service;
 import java.rmi.RemoteException;
 
 import lombok.extern.slf4j.Slf4j;
+import org.jvnet.hk2.annotations.Service;
 import org.transitclock.core.dataCache.HoldingTimeCache;
 import org.transitclock.core.dataCache.HoldingTimeCacheKey;
 import org.transitclock.core.dataCache.VehicleDataCache;
@@ -16,6 +17,7 @@ import org.transitclock.service.contract.HoldingTimeInterface;
  *     not be set to run by default as really only for analysis of predictions.
  */
 @Slf4j
+@Service
 public class HoldingTimeServiceImpl implements HoldingTimeInterface {
     // Should only be accessed as singleton class
     private static HoldingTimeServiceImpl singleton;
@@ -24,16 +26,6 @@ public class HoldingTimeServiceImpl implements HoldingTimeInterface {
         return singleton;
     }
 
-    protected HoldingTimeServiceImpl() {
-    }
-
-    /**
-     * Starts up the HoldingTimeServer so that RMI calls can be used to query holding times stored
-     * in he cache. This will automatically cause the object to continue to run and serve requests.
-     *
-     * @return the singleton PredictionAnalysisServer object. Usually does not need to used since
-     *     the server will be fully running.
-     */
     public static HoldingTimeServiceImpl start() {
         if (singleton == null) {
             singleton = new HoldingTimeServiceImpl();
@@ -41,8 +33,12 @@ public class HoldingTimeServiceImpl implements HoldingTimeInterface {
         return singleton;
     }
 
+    public HoldingTimeServiceImpl() {
+
+    }
+
     @Override
-    public IpcHoldingTime getHoldTime(String stopId, String vehicleId, String tripId) throws RemoteException {
+    public IpcHoldingTime getHoldTime(String stopId, String vehicleId, String tripId) {
 
         if (tripId == null) {
             if (VehicleDataCache.getInstance().getVehicle(vehicleId) != null) {
@@ -58,7 +54,7 @@ public class HoldingTimeServiceImpl implements HoldingTimeInterface {
     }
 
     @Override
-    public IpcHoldingTime getHoldTime(String stopId, String vehicleId) throws RemoteException {
+    public IpcHoldingTime getHoldTime(String stopId, String vehicleId) {
 
         String tripId = null;
         if (VehicleDataCache.getInstance().getVehicle(vehicleId) != null) {

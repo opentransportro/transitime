@@ -5,6 +5,7 @@ import java.rmi.RemoteException;
 import java.util.Date;
 
 import lombok.extern.slf4j.Slf4j;
+import org.jvnet.hk2.annotations.Service;
 import org.transitclock.service.dto.IpcServerStatus;
 import org.transitclock.service.contract.ServerStatusInterface;
 import org.transitclock.monitoring.AgencyMonitor;
@@ -16,19 +17,14 @@ import org.transitclock.utils.SystemTime;
  * @author SkiBu Smith
  */
 @Slf4j
+@Service
 public class ServerStatusServiceImpl implements ServerStatusInterface {
-
-    // Should only be accessed as singleton class
     private static ServerStatusServiceImpl singleton;
 
     public static ServerStatusInterface instance() {
         return singleton;
     }
 
-    /**
-     * @param agencyId
-     * @return
-     */
     public static ServerStatusServiceImpl start(String agencyId) {
         if (singleton == null) {
             singleton = new ServerStatusServiceImpl(agencyId);
@@ -44,7 +40,7 @@ public class ServerStatusServiceImpl implements ServerStatusInterface {
      * @param projectId
      * @param objectName
      */
-    private ServerStatusServiceImpl(String projectId) {
+    public ServerStatusServiceImpl(String projectId) {
         agencyId = projectId;
     }
 
@@ -52,7 +48,7 @@ public class ServerStatusServiceImpl implements ServerStatusInterface {
      * @see org.transitclock.ipc.interfaces.ServerStatusInterface#get()
      */
     @Override
-    public IpcServerStatus get() throws RemoteException {
+    public IpcServerStatus get() {
         AgencyMonitor agencyMonitor = AgencyMonitor.getInstance(agencyId);
         return new IpcServerStatus(agencyMonitor.getMonitorResults());
     }
@@ -61,7 +57,7 @@ public class ServerStatusServiceImpl implements ServerStatusInterface {
      * @see org.transitclock.ipc.interfaces.ServerStatusInterface#monitor()
      */
     @Override
-    public String monitor() throws RemoteException {
+    public String monitor() {
         // Monitor everything having to do with an agency server. Send
         // out any notifications if necessary. Return any resulting
         // error message.
@@ -71,7 +67,7 @@ public class ServerStatusServiceImpl implements ServerStatusInterface {
     }
 
     @Override
-    public Date getCurrentServerTime() throws RemoteException {
+    public Date getCurrentServerTime() {
         return SystemTime.getDate();
     }
 }

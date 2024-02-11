@@ -3,10 +3,11 @@ package org.transitclock.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
-import org.transitclock.core.avl.AvlExecutor;
+import org.jvnet.hk2.annotations.Service;
 import org.transitclock.core.AvlProcessor;
 import org.transitclock.core.TemporalMatch;
 import org.transitclock.core.VehicleState;
+import org.transitclock.core.avl.AvlExecutor;
 import org.transitclock.core.dataCache.PredictionDataCache;
 import org.transitclock.core.dataCache.VehicleDataCache;
 import org.transitclock.core.dataCache.VehicleStateManager;
@@ -14,17 +15,17 @@ import org.transitclock.domain.hibernate.HibernateUtils;
 import org.transitclock.domain.structs.AvlReport;
 import org.transitclock.domain.structs.VehicleEvent;
 import org.transitclock.domain.structs.VehicleToBlockConfig;
+import org.transitclock.service.contract.CommandsInterface;
 import org.transitclock.service.dto.IpcAvl;
 import org.transitclock.service.dto.IpcVehicleComplete;
-import org.transitclock.service.contract.CommandsInterface;
 
-import java.rmi.RemoteException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Collection;
 import java.util.Date;
 
 @Slf4j
+@Service
 public class CommandsServiceImpl implements CommandsInterface {
 
     // Should only be accessed as singleton class
@@ -50,13 +51,7 @@ public class CommandsServiceImpl implements CommandsInterface {
         return singleton;
     }
 
-    /**
-     * Constructor. Made private so that can only be instantiated by get(). Doesn't actually do
-     * anything since all the work is done in the superclass constructor.
-     *
-     * @param agencyId for registering this object with the rmiregistry
-     */
-    private CommandsServiceImpl() {
+    public CommandsServiceImpl() {
     }
 
     /**
@@ -66,7 +61,7 @@ public class CommandsServiceImpl implements CommandsInterface {
      * @return Null if OK, otherwise an error message
      */
     @Override
-    public String pushAvl(IpcAvl avlData) throws RemoteException {
+    public String pushAvl(IpcAvl avlData) {
         // Use AvlExecutor to actually process the data using a thread executor
         AvlReport avlReport = new AvlReport(avlData);
         logger.debug("Processing AVL report {}", avlReport);
@@ -83,7 +78,7 @@ public class CommandsServiceImpl implements CommandsInterface {
      * @return Null if OK, otherwise an error message
      */
     @Override
-    public String pushAvl(Collection<IpcAvl> avlDataCollection) throws RemoteException {
+    public String pushAvl(Collection<IpcAvl> avlDataCollection) {
         for (IpcAvl avlData : avlDataCollection) {
             // Use AvlExecutor to actually process the data using a thread executor
             AvlReport avlReport = new AvlReport(avlData);
@@ -96,7 +91,7 @@ public class CommandsServiceImpl implements CommandsInterface {
     }
 
     @Override
-    public void setVehicleUnpredictable(String vehicleId) throws RemoteException {
+    public void setVehicleUnpredictable(String vehicleId) {
 
         VehicleState vehicleState = VehicleStateManager.getInstance().getVehicleState(vehicleId);
 

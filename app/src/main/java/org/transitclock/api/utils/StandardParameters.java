@@ -64,8 +64,10 @@ public class StandardParameters {
         // If mediaType specified (to something besides "*/*") in accept
         // header then start with it.
         if (acceptHeader != null && !acceptHeader.contains("*/*")) {
-            if (acceptHeader.contains(MediaType.APPLICATION_JSON)) mediaType = MediaType.APPLICATION_JSON;
-            else if (acceptHeader.contains(MediaType.APPLICATION_XML)) mediaType = MediaType.APPLICATION_XML;
+            if (acceptHeader.contains(MediaType.APPLICATION_JSON))
+                mediaType = MediaType.APPLICATION_JSON;
+            else if (acceptHeader.contains(MediaType.APPLICATION_XML))
+                mediaType = MediaType.APPLICATION_XML;
             else
                 throw WebUtils.badRequestException("Accept header \"Accept: "
                         + acceptHeader

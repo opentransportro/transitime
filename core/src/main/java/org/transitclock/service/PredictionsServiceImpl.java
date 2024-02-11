@@ -8,6 +8,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
+import org.jvnet.hk2.annotations.Service;
 import org.transitclock.core.dataCache.PredictionDataCache;
 import org.transitclock.domain.structs.Location;
 import org.transitclock.gtfs.StopsByLocation;
@@ -26,6 +27,7 @@ import org.transitclock.utils.Time;
  * @author SkiBu Smith
  */
 @Slf4j
+@Service
 public class PredictionsServiceImpl implements PredictionsInterface {
 
     // Should only be accessed as singleton class
@@ -34,10 +36,6 @@ public class PredictionsServiceImpl implements PredictionsInterface {
     public static PredictionsInterface instance() {
         return singleton;
     }
-
-    // The PredictionDataCache associated with the singleton.
-    private PredictionDataCache predictionDataCache;
-
 
     /**
      * Starts up the PredictionsServer so that RMI calls can query for predictions. This will
@@ -49,12 +47,13 @@ public class PredictionsServiceImpl implements PredictionsInterface {
      */
     public static PredictionsServiceImpl start(PredictionDataCache predictionDataCache) {
         if (singleton == null) {
-            singleton = new PredictionsServiceImpl();
-            singleton.predictionDataCache = predictionDataCache;
+            singleton = new PredictionsServiceImpl(predictionDataCache);
         }
 
         return singleton;
     }
+
+    private final PredictionDataCache predictionDataCache;
 
     /*
      * Constructor. Made private so that can only be instantiated by
@@ -64,15 +63,15 @@ public class PredictionsServiceImpl implements PredictionsInterface {
      * @param projectId
      *            for registering this object with the rmiregistry
      */
-    private PredictionsServiceImpl() {
+    public PredictionsServiceImpl(PredictionDataCache predictionDataCache) {
+        this.predictionDataCache = predictionDataCache;
     }
 
     /* (non-Javadoc)
      * @see org.transitclock.ipc.interfaces.PredictionsInterface#get(java.lang.String, java.lang.String, int)
      */
     @Override
-    public List<IpcPredictionsForRouteStopDest> get(String routeIdOrShortName, String stopId, int predictionsPerStop)
-            throws RemoteException {
+    public List<IpcPredictionsForRouteStopDest> get(String routeIdOrShortName, String stopId, int predictionsPerStop) {
         return predictionDataCache.getPredictions(routeIdOrShortName, null, stopId, predictionsPerStop);
     }
 
@@ -80,8 +79,7 @@ public class PredictionsServiceImpl implements PredictionsInterface {
      * @see org.transitclock.ipc.interfaces.PredictionsInterface#get(java.util.List, int)
      */
     @Override
-    public List<IpcPredictionsForRouteStopDest> get(List<RouteStop> routeStops, int predictionsPerStop)
-            throws RemoteException {
+    public List<IpcPredictionsForRouteStopDest> get(List<RouteStop> routeStops, int predictionsPerStop) {
         return predictionDataCache.getPredictions(routeStops, predictionsPerStop);
     }
 
@@ -135,8 +133,7 @@ public class PredictionsServiceImpl implements PredictionsInterface {
      * @see org.transitclock.ipc.interfaces.PredictionsInterface#get(org.transitclock.db.structs.Location, double, int)
      */
     @Override
-    public List<IpcPredictionsForRouteStopDest> get(Location loc, double maxDistance, int predictionsPerStop)
-            throws RemoteException {
+    public List<IpcPredictionsForRouteStopDest> get(Location loc, double maxDistance, int predictionsPerStop) {
         IntervalTimer timer = new IntervalTimer();
 
         // For returning the results
@@ -174,7 +171,7 @@ public class PredictionsServiceImpl implements PredictionsInterface {
         // Sort the predictions so that nearby stops output first, stops of
         // similar distance are output in route order, and direction "0"
         // is output first for each route.
-        Collections.sort(results, predsByLocComparator);
+        results.sort(predsByLocComparator);
 
         logger.info("Determined predictions for stops near {}. Took {} msec", loc, timer.elapsedMsec());
 

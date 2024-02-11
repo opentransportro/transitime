@@ -270,14 +270,10 @@ public class CommandsApi {
         // Make sure request is valid
         stdParameters.validate();
 
-        try {
-            CommandsInterface inter = stdParameters.getCommandsInterface();
+        CommandsInterface inter = stdParameters.getCommandsInterface();
 
-            for (String vehicleId : vehicleIds) {
-                inter.setVehicleUnpredictable(vehicleId);
-            }
-        } catch (RemoteException e) {
-            throw WebUtils.badRequestException(e.getMessage());
+        for (String vehicleId : vehicleIds) {
+            inter.setVehicleUnpredictable(vehicleId);
         }
 
         ApiCommandAck ack = new ApiCommandAck(true, "Vehicle reset");
@@ -348,21 +344,21 @@ public class CommandsApi {
                     String tripId,
             @Parameter(description = "start trip time", required = false) @QueryParam(value = "at") DateTimeParam at) {
         stdParameters.validate();
-        String result = null;
-        try {
-            CommandsInterface inter = stdParameters.getCommandsInterface();
-            // We need to get the block id in order to get the vehicle
-            ConfigInterface cofingInterface = stdParameters.getConfigInterface();
-            IpcTrip ipcTrip = cofingInterface.getTrip(tripId);
-            if (ipcTrip == null) throw WebUtils.badRequestException("TripId=" + tripId + " does not exist.");
-            result = inter.cancelTrip(tripId, at == null ? null : at.getDate());
-        } catch (RemoteException e) {
-            e.printStackTrace();
-            throw WebUtils.badRequestException("Could not send request to Core server. " + e.getMessage());
+        String result;
+        CommandsInterface inter = stdParameters.getCommandsInterface();
+        // We need to get the block id in order to get the vehicle
+        ConfigInterface cofingInterface = stdParameters.getConfigInterface();
+        IpcTrip ipcTrip = cofingInterface.getTrip(tripId);
+        if (ipcTrip == null) {
+            throw WebUtils.badRequestException("TripId=" + tripId + " does not exist.");
+        }
+        result = inter.cancelTrip(tripId, at == null ? null : at.getDate());
+
+        if (result == null) {
+            return stdParameters.createResponse(new ApiCommandAck(true, "Processed"));
         }
 
-        if (result == null) return stdParameters.createResponse(new ApiCommandAck(true, "Processed"));
-        else return stdParameters.createResponse(new ApiCommandAck(true, result));
+        return stdParameters.createResponse(new ApiCommandAck(true, result));
     }
 
     @Path("/command/reenableTrip/{tripId}")
@@ -380,19 +376,19 @@ public class CommandsApi {
             @Parameter(description = "start trip time", required = false) @QueryParam(value = "at") DateTimeParam at) {
         stdParameters.validate();
         String result = null;
-        try {
-            CommandsInterface inter = stdParameters.getCommandsInterface();
-            // We need to get the block id in order to get the vehicle
-            ConfigInterface cofingInterface = stdParameters.getConfigInterface();
-            IpcTrip ipcTrip = cofingInterface.getTrip(tripId);
-            if (ipcTrip == null) throw WebUtils.badRequestException("TripId=" + tripId + " does not exist.");
-            result = inter.reenableTrip(tripId, at == null ? null : at.getDate());
-        } catch (RemoteException e) {
-            e.printStackTrace();
-            throw WebUtils.badRequestException("Could not send request to Core server. " + e.getMessage());
+        CommandsInterface inter = stdParameters.getCommandsInterface();
+        // We need to get the block id in order to get the vehicle
+        ConfigInterface cofingInterface = stdParameters.getConfigInterface();
+        IpcTrip ipcTrip = cofingInterface.getTrip(tripId);
+        if (ipcTrip == null) {
+            throw WebUtils.badRequestException("TripId=" + tripId + " does not exist.");
         }
-        if (result == null) return stdParameters.createResponse(new ApiCommandAck(true, "Processed"));
-        else return stdParameters.createResponse(new ApiCommandAck(true, result));
+        result = inter.reenableTrip(tripId, at == null ? null : at.getDate());
+        if (result == null) {
+            return stdParameters.createResponse(new ApiCommandAck(true, "Processed"));
+        }
+
+        return stdParameters.createResponse(new ApiCommandAck(true, result));
     }
 
     @Operation(

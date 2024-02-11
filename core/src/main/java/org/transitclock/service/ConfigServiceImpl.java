@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
+import org.jvnet.hk2.annotations.Service;
 import org.transitclock.Core;
 import org.transitclock.core.dataCache.VehicleDataCache;
 import org.transitclock.domain.structs.Agency;
@@ -34,6 +35,7 @@ import org.transitclock.service.contract.ConfigInterface;
  * @author SkiBu Smith
  */
 @Slf4j
+@Service
 public class ConfigServiceImpl implements ConfigInterface {
 
     // Should only be accessed as singleton class
@@ -59,12 +61,7 @@ public class ConfigServiceImpl implements ConfigInterface {
         return singleton;
     }
 
-    /**
-     * Constructor. Made private so that can only be instantiated by get(). Doesn't actually do
-     * anything since all the work is done in the superclass constructor.
-     *
-     */
-    private ConfigServiceImpl() {
+    public ConfigServiceImpl() {
     }
 
     /**
@@ -89,7 +86,7 @@ public class ConfigServiceImpl implements ConfigInterface {
      * @see org.transitclock.ipc.interfaces.ConfigInterface#getRoutes()
      */
     @Override
-    public Collection<IpcRouteSummary> getRoutes() throws RemoteException {
+    public Collection<IpcRouteSummary> getRoutes() {
         // Get the db route info
         DbConfig dbConfig = Core.getInstance().getDbConfig();
         var dbRoutes = dbConfig.getRoutes();
@@ -105,7 +102,7 @@ public class ConfigServiceImpl implements ConfigInterface {
      */
     @Override
     public IpcRoute getRoute(String routeIdOrShortName, String directionId, String stopId, String tripPatternId)
-            throws RemoteException {
+            {
         // Determine the route
         Route dbRoute = getRoute(routeIdOrShortName);
         if (dbRoute == null) {
@@ -121,7 +118,7 @@ public class ConfigServiceImpl implements ConfigInterface {
      * @see org.transitclock.ipc.interfaces.ConfigInterface#getRoutes(java.util.List)
      */
     @Override
-    public List<IpcRoute> getRoutes(List<String> routeIdsOrShortNames) throws RemoteException {
+    public List<IpcRoute> getRoutes(List<String> routeIdsOrShortNames) {
         List<IpcRoute> routes = new ArrayList<>();
 
         // If no route specified then return data for all routes
@@ -151,7 +148,7 @@ public class ConfigServiceImpl implements ConfigInterface {
      * @see org.transitclock.ipc.interfaces.ConfigInterface#getStops(java.lang.String)
      */
     @Override
-    public IpcDirectionsForRoute getStops(String routeIdOrShortName) throws RemoteException {
+    public IpcDirectionsForRoute getStops(String routeIdOrShortName) {
         // Get the db route info
         Route dbRoute = getRoute(routeIdOrShortName);
         if (dbRoute == null) return null;
@@ -164,7 +161,7 @@ public class ConfigServiceImpl implements ConfigInterface {
      * @see org.transitclock.ipc.interfaces.ConfigInterface#getBlock(java.lang.String, java.lang.String)
      */
     @Override
-    public IpcBlock getBlock(String blockId, String serviceId) throws RemoteException {
+    public IpcBlock getBlock(String blockId, String serviceId) {
         Block dbBlock = Core.getInstance().getDbConfig().getBlock(serviceId, blockId);
 
         // If no such block then return null since can't create a IpcBlock
@@ -179,7 +176,7 @@ public class ConfigServiceImpl implements ConfigInterface {
      * @see org.transitclock.ipc.interfaces.ConfigInterface#getBlocks(java.lang.String)
      */
     @Override
-    public Collection<IpcBlock> getBlocks(String blockId) throws RemoteException {
+    public Collection<IpcBlock> getBlocks(String blockId) {
         // For returning results
         List<IpcBlock> ipcBlocks = new ArrayList<>();
 
@@ -199,7 +196,7 @@ public class ConfigServiceImpl implements ConfigInterface {
      * @see org.transitclock.ipc.interfaces.ConfigInterface#getTrip(java.lang.String)
      */
     @Override
-    public IpcTrip getTrip(String tripId) throws RemoteException {
+    public IpcTrip getTrip(String tripId) {
         Trip dbTrip = Core.getInstance().getDbConfig().getTrip(tripId);
 
         // If couldn't find a trip with the specified trip_id then see if a
@@ -220,7 +217,7 @@ public class ConfigServiceImpl implements ConfigInterface {
      * @see org.transitclock.ipc.interfaces.ConfigInterface#getTripPattern(java.lang.String)
      */
     @Override
-    public List<IpcTripPattern> getTripPatterns(String routeIdOrShortName) throws RemoteException {
+    public List<IpcTripPattern> getTripPatterns(String routeIdOrShortName) {
         DbConfig dbConfig = Core.getInstance().getDbConfig();
 
         Route dbRoute = getRoute(routeIdOrShortName);
@@ -240,7 +237,7 @@ public class ConfigServiceImpl implements ConfigInterface {
      * @see org.transitclock.ipc.interfaces.ConfigInterface#getAgencies()
      */
     @Override
-    public List<Agency> getAgencies() throws RemoteException {
+    public List<Agency> getAgencies() {
         return Core.getInstance().getDbConfig().getAgencies();
     }
 
@@ -248,7 +245,7 @@ public class ConfigServiceImpl implements ConfigInterface {
      * @see org.transitclock.ipc.interfaces.ConfigInterface#getSchedules(java.lang.String)
      */
     @Override
-    public List<IpcSchedule> getSchedules(String routeIdOrShortName) throws RemoteException {
+    public List<IpcSchedule> getSchedules(String routeIdOrShortName) {
         // Determine the route
         Route dbRoute = getRoute(routeIdOrShortName);
         if (dbRoute == null) return null;
@@ -298,7 +295,7 @@ public class ConfigServiceImpl implements ConfigInterface {
      * @see org.transitclock.ipc.interfaces.ConfigInterface#getVehicleIds()
      */
     @Override
-    public List<String> getVehicleIds() throws RemoteException {
+    public List<String> getVehicleIds() {
         Collection<VehicleConfig> vehicleConfigs =
                 VehicleDataCache.getInstance().getVehicleConfigs();
         List<String> vehicleIds = new ArrayList<>(vehicleConfigs.size());
@@ -312,7 +309,7 @@ public class ConfigServiceImpl implements ConfigInterface {
      * @see org.transitclock.ipc.interfaces.ConfigInterface#getServiceIds()
      */
     @Override
-    public List<String> getServiceIds() throws RemoteException {
+    public List<String> getServiceIds() {
         // Convert the Set from getServiceIds() to a List since need
         // to use a List for IPC due to serialization.
         return new ArrayList<>(Core.getInstance().getDbConfig().getServiceIds());
@@ -322,7 +319,7 @@ public class ConfigServiceImpl implements ConfigInterface {
      * @see org.transitclock.ipc.interfaces.ConfigInterface#getCurrentServiceIds()
      */
     @Override
-    public List<String> getCurrentServiceIds() throws RemoteException {
+    public List<String> getCurrentServiceIds() {
         // Convert the Set from getCurrentServiceIds() to a List since need
         // to use a List for IPC due to serialization.
         return new ArrayList<>(Core.getInstance().getDbConfig().getCurrentServiceIds());
@@ -332,7 +329,7 @@ public class ConfigServiceImpl implements ConfigInterface {
      * @see org.transitclock.ipc.interfaces.ConfigInterface#getTripIds()
      */
     @Override
-    public List<String> getTripIds() throws RemoteException {
+    public List<String> getTripIds() {
         var trips = Core.getInstance().getDbConfig().getTrips().values();
         return trips.stream()
                 .map(Trip::getId)
@@ -343,7 +340,7 @@ public class ConfigServiceImpl implements ConfigInterface {
      * @see org.transitclock.ipc.interfaces.ConfigInterface#getBlockIds()
      */
     @Override
-    public List<String> getBlockIds() throws RemoteException {
+    public List<String> getBlockIds() {
         var blocks = Core.getInstance().getDbConfig().getBlocks();
         return blocks.stream()
                 .map(Block::getId)
@@ -355,7 +352,7 @@ public class ConfigServiceImpl implements ConfigInterface {
      * @see org.transitclock.ipc.interfaces.ConfigInterface#getBlockIds()
      */
     @Override
-    public List<String> getBlockIds(String serviceId) throws RemoteException {
+    public List<String> getBlockIds(String serviceId) {
         if (serviceId == null) {
             return getBlockIds();
         }

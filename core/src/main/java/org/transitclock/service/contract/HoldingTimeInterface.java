@@ -1,8 +1,7 @@
 /* (C)2023 */
 package org.transitclock.service.contract;
 
-import java.rmi.Remote;
-import java.rmi.RemoteException;
+import org.jvnet.hk2.annotations.Contract;
 import org.transitclock.service.dto.IpcHoldingTime;
 
 /**
@@ -10,9 +9,10 @@ import org.transitclock.service.dto.IpcHoldingTime;
  *
  * @author Sean Og Crudden
  */
-public interface HoldingTimeInterface extends Remote {
+@Contract
+public interface HoldingTimeInterface {
 
-    IpcHoldingTime getHoldTime(String stopId, String vehicleId, String tripId) throws RemoteException;
+    IpcHoldingTime getHoldTime(String stopId, String vehicleId, String tripId);
 
-    IpcHoldingTime getHoldTime(String stopId, String vehicleId) throws RemoteException;
+    IpcHoldingTime getHoldTime(String stopId, String vehicleId);
 }

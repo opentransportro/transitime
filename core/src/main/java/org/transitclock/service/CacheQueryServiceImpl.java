@@ -1,15 +1,8 @@
 /* (C)2023 */
 package org.transitclock.service;
 
-import java.rmi.RemoteException;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-
 import lombok.extern.slf4j.Slf4j;
+import org.jvnet.hk2.annotations.Service;
 import org.transitclock.core.dataCache.ErrorCacheFactory;
 import org.transitclock.core.dataCache.HistoricalAverage;
 import org.transitclock.core.dataCache.HoldingTimeCache;
@@ -23,17 +16,25 @@ import org.transitclock.core.dataCache.TripDataHistoryCacheFactory;
 import org.transitclock.core.dataCache.TripKey;
 import org.transitclock.core.dataCache.frequency.FrequencyBasedHistoricalAverageCache;
 import org.transitclock.core.dataCache.scheduled.ScheduleBasedHistoricalAverageCache;
+import org.transitclock.service.contract.CacheQueryInterface;
 import org.transitclock.service.dto.IpcArrivalDeparture;
 import org.transitclock.service.dto.IpcHistoricalAverage;
 import org.transitclock.service.dto.IpcHistoricalAverageCacheKey;
 import org.transitclock.service.dto.IpcHoldingTimeCacheKey;
 import org.transitclock.service.dto.IpcKalmanErrorCacheKey;
-import org.transitclock.service.contract.CacheQueryInterface;
+
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @author Sean Og Crudden Server to allow cache content to be queried.
  */
 @Slf4j
+@Service
 public class CacheQueryServiceImpl implements CacheQueryInterface {
     // Should only be accessed as singleton class
     private static CacheQueryServiceImpl singleton;
@@ -41,10 +42,6 @@ public class CacheQueryServiceImpl implements CacheQueryInterface {
     public static CacheQueryInterface instance() {
         return singleton;
     }
-
-    protected CacheQueryServiceImpl() {
-    }
-
     /**
      * Starts up the CacheQueryServer so that RMI calls can be used to query cache. This will
      * automatically cause the object to continue to run and serve requests.
@@ -61,6 +58,9 @@ public class CacheQueryServiceImpl implements CacheQueryInterface {
         return singleton;
     }
 
+    public CacheQueryServiceImpl() {
+    }
+
     /*
      * (non-Javadoc)
      *
@@ -68,7 +68,7 @@ public class CacheQueryServiceImpl implements CacheQueryInterface {
      * getStopArrivalDepartures(java.lang.String)
      */
     @Override
-    public List<IpcArrivalDeparture> getStopArrivalDepartures(String stopId) throws RemoteException {
+    public List<IpcArrivalDeparture> getStopArrivalDepartures(String stopId) {
 
         try {
             StopArrivalDepartureCacheKey nextStopKey = new StopArrivalDepartureCacheKey(
@@ -77,20 +77,19 @@ public class CacheQueryServiceImpl implements CacheQueryInterface {
             return StopArrivalDepartureCacheFactory.getInstance().getStopHistory(nextStopKey);
 
         } catch (Exception e) {
-
-            throw new RemoteException(e.toString(), e);
+            throw new RuntimeException(e.toString(), e);
         }
     }
 
     @Override
-    public Integer entriesInCache(String cacheName) throws RemoteException {
+    public Integer entriesInCache(String cacheName) {
 
         // TODO Auto-generated method stub
         return -1;
     }
 
     @Override
-    public IpcHistoricalAverage getHistoricalAverage(String tripId, Integer stopPathIndex) throws RemoteException {
+    public IpcHistoricalAverage getHistoricalAverage(String tripId, Integer stopPathIndex) {
         StopPathCacheKey key = new StopPathCacheKey(tripId, stopPathIndex);
 
         HistoricalAverage average =
@@ -100,7 +99,7 @@ public class CacheQueryServiceImpl implements CacheQueryInterface {
 
     @Override
     public List<IpcArrivalDeparture> getTripArrivalDepartures(String tripId, LocalDate localDate, Integer starttime)
-            throws RemoteException {
+            {
 
         try {
             List<IpcArrivalDeparture> result = new ArrayList<>();
@@ -141,13 +140,12 @@ public class CacheQueryServiceImpl implements CacheQueryInterface {
             return result;
 
         } catch (Exception e) {
-
-            throw new RemoteException(e.toString(), e);
+            throw new RuntimeException(e.toString(), e);
         }
     }
 
     @Override
-    public List<IpcHistoricalAverageCacheKey> getScheduledBasedHistoricalAverageCacheKeys() throws RemoteException {
+    public List<IpcHistoricalAverageCacheKey> getScheduledBasedHistoricalAverageCacheKeys() {
 
         List<StopPathCacheKey> keys =
                 ScheduleBasedHistoricalAverageCache.getInstance().getKeys();
@@ -160,13 +158,13 @@ public class CacheQueryServiceImpl implements CacheQueryInterface {
     }
 
     @Override
-    public Double getKalmanErrorValue(String tripId, Integer stopPathIndex) throws RemoteException {
+    public Double getKalmanErrorValue(String tripId, Integer stopPathIndex) {
         KalmanErrorCacheKey key = new KalmanErrorCacheKey(tripId, stopPathIndex);
         return ErrorCacheFactory.getInstance().getErrorValue(key).getError();
     }
 
     @Override
-    public List<IpcKalmanErrorCacheKey> getKalmanErrorCacheKeys() throws RemoteException {
+    public List<IpcKalmanErrorCacheKey> getKalmanErrorCacheKeys() {
         List<KalmanErrorCacheKey> keys = ErrorCacheFactory.getInstance().getKeys();
         List<IpcKalmanErrorCacheKey> ipcResultList = new ArrayList<>();
 
@@ -177,7 +175,7 @@ public class CacheQueryServiceImpl implements CacheQueryInterface {
     }
 
     @Override
-    public List<IpcHoldingTimeCacheKey> getHoldingTimeCacheKeys() throws RemoteException {
+    public List<IpcHoldingTimeCacheKey> getHoldingTimeCacheKeys() {
         List<HoldingTimeCacheKey> keys = HoldingTimeCache.getInstance().getKeys();
         List<IpcHoldingTimeCacheKey> ipcResultList = new ArrayList<IpcHoldingTimeCacheKey>();
 
@@ -188,7 +186,7 @@ public class CacheQueryServiceImpl implements CacheQueryInterface {
     }
 
     @Override
-    public List<IpcHistoricalAverageCacheKey> getFrequencyBasedHistoricalAverageCacheKeys() throws RemoteException {
+    public List<IpcHistoricalAverageCacheKey> getFrequencyBasedHistoricalAverageCacheKeys() {
         // TODO Auto-generated method stub
         FrequencyBasedHistoricalAverageCache.getInstance();
         return null;

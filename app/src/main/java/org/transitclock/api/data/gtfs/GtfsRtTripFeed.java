@@ -126,20 +126,16 @@ public class GtfsRtTripFeed {
         // Add the VehicleDescriptor information
         VehicleDescriptor.Builder vehicleDescriptor = null;
 
-        Collection<IpcVehicleConfig> vehConfigs;
-        try {
-            vehConfigs = vehiclesInterface.getVehicleConfigs();
-            for (IpcVehicleConfig ipcVehicleConfig : vehConfigs) {
-                if (ipcVehicleConfig.getId().equals(firstPred.getVehicleId())) {
-                    vehicleDescriptor = VehicleDescriptor
-                            .newBuilder()
-                            .setId(ipcVehicleConfig.getId());
-                    break;
-                }
+        Collection<IpcVehicleConfig> vehConfigs = vehiclesInterface.getVehicleConfigs();
+        for (IpcVehicleConfig ipcVehicleConfig : vehConfigs) {
+            if (ipcVehicleConfig.getId().equals(firstPred.getVehicleId())) {
+                vehicleDescriptor = VehicleDescriptor
+                        .newBuilder()
+                        .setId(ipcVehicleConfig.getId());
+                break;
             }
-        } catch (RemoteException e) {
-
         }
+
         if (vehicleDescriptor == null)
             vehicleDescriptor = VehicleDescriptor.newBuilder().setId(firstPred.getVehicleId());
 
@@ -279,14 +275,8 @@ public class GtfsRtTripFeed {
      */
     private Map<String, List<IpcPrediction>> getPredictionsPerTrip() {
         // Get all the predictions, grouped by vehicle, from the server
-        List<IpcPredictionsForRouteStopDest> allPredictionsByStop;
-        try {
-            allPredictionsByStop = PredictionsServiceImpl.instance()
+        List<IpcPredictionsForRouteStopDest> allPredictionsByStop = PredictionsServiceImpl.instance()
                             .getAllPredictions(PREDICTION_MAX_FUTURE_SECS);
-        } catch (RemoteException e) {
-            logger.error("Exception when getting vehicles from RMI", e);
-            return new HashMap<>();
-        }
 
         // Group the predictions by trip instead of by vehicle
         Map<String, List<IpcPrediction>> predictionsByTrip = new HashMap<>();

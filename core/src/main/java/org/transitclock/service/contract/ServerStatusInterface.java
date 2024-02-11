@@ -4,6 +4,8 @@ package org.transitclock.service.contract;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.Date;
+
+import org.jvnet.hk2.annotations.Contract;
 import org.transitclock.service.dto.IpcServerStatus;
 
 /**
@@ -11,30 +13,28 @@ import org.transitclock.service.dto.IpcServerStatus;
  *
  * @author SkiBu Smith
  */
-public interface ServerStatusInterface extends Remote {
+@Contract
+public interface ServerStatusInterface {
 
     /**
      * Gets from the server a IpcStatus object indicating the status of the server.
      *
      * @return
-     * @throws RemoteException
      */
-    IpcServerStatus get() throws RemoteException;
+    IpcServerStatus get();
 
     /**
      * Monitors the agency server for problems. If there is a problem then a message indicating such
      * is returned. Sending out notifications is done by the server side.
      *
      * @return Error message if there is one, otherwise null
-     * @throws RemoteException
      */
-    String monitor() throws RemoteException;
+    String monitor();
 
     /**
      * Gets current server time.
      *
      * @return
-     * @throws RemoteException
      */
-    Date getCurrentServerTime() throws RemoteException;
+    Date getCurrentServerTime();
 }
