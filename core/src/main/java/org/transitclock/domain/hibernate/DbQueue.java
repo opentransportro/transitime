@@ -65,9 +65,6 @@ public class DbQueue<T> {
     // So can access projectId for logging messages
     private final String projectId;
 
-    // The Session for writing data to db
-    private SessionFactory sessionFactory;
-
     // collect some statistics on how the db is performing
     private long throughputCount = 0;
     private long throughputTimestamp = System.currentTimeMillis();
@@ -78,9 +75,6 @@ public class DbQueue<T> {
         this.shouldStoreToDb = shouldStoreToDb;
         this.shouldPauseToReduceQueue = shouldPauseToReduceQueue;
         this.shortType = shortType;
-
-        // Create the reusable heavy weight session factory
-        sessionFactory = HibernateUtils.getSessionFactory(projectId);
 
         // Start up separate thread that reads from the queue and
         // actually stores the data
@@ -199,7 +193,7 @@ public class DbQueue<T> {
         Session session = null;
 
         try {
-            session = sessionFactory.openSession();
+            session = HibernateUtils.getSession();
             tx = session.beginTransaction();
 
             // Get the objects to be stored from the queue
@@ -238,7 +232,6 @@ public class DbQueue<T> {
                         + "connection to it was lost. Therefore creating a new "
                         + "SessionFactory so get new connections.");
                 HibernateUtils.clearSessionFactory();
-                sessionFactory = HibernateUtils.getSessionFactory(projectId);
             } else {
                 // Rollback the transaction since it likely was not committed.
                 // Otherwise can get an error when using Postgres "ERROR:
@@ -404,7 +397,7 @@ public class DbQueue<T> {
      * @param objectToBeStored
      */
     private void processSingleObject(Object objectToBeStored) {
-        try (Session session = sessionFactory.openSession()) {
+        try (Session session = HibernateUtils.getSession()) {
             Transaction tx = session.beginTransaction();
             logger.debug("Individually saving object {}", objectToBeStored);
             session.merge(objectToBeStored);

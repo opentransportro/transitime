@@ -31,7 +31,6 @@ public class GenericQuery {
     // Number of rows read in
     private int rows;
 
-
     /**
      * Constructor
      *

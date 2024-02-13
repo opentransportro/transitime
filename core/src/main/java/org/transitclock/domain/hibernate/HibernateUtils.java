@@ -209,10 +209,14 @@ public class HibernateUtils {
         ThreadLocal<Session> threadSession = threadSessions.get(currentThread);
         if (threadSession == null || threadSession.get() == null || !threadSession.get().isOpen()) {
             if(threadSession != null && threadSession.get() != null) {
+                threadSession.get().close();
                 threadSession.remove();
             }
             SessionFactory sessionFactory = HibernateUtils.getSessionFactory(DbSetupConfig.getDbName(), readOnly);
-            threadSessions.put(currentThread, ThreadLocal.withInitial(sessionFactory::openSession));
+            if (threadSession == null)
+                threadSessions.put(currentThread, ThreadLocal.withInitial(sessionFactory::openSession));
+            else
+                threadSession.set(sessionFactory.openSession());
         }
 
         return threadSessions.get(currentThread).get();

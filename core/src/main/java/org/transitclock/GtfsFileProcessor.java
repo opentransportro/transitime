@@ -206,9 +206,8 @@ public class GtfsFileProcessor {
 
         // Create a title formatter
         TitleFormatter titleFormatter = new TitleFormatter(regexReplaceListFileName, true);
-        var sessionFactory = HibernateUtils.getSessionFactory(AgencyConfig.getAgencyId());
 
-        try (Session session = sessionFactory.openSession()) {
+        try (Session session = HibernateUtils.getSession()) {
             // Process the GTFS data
             GtfsData gtfsData = new GtfsData(
                     session,
