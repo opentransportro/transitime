@@ -97,6 +97,10 @@ public class GenericQuery {
         } catch (SQLException e) {
             throw e;
         }
+
+        if (!connection.isClosed()) {
+            connection.close();
+        }
     }
 
     /**
@@ -110,6 +114,10 @@ public class GenericQuery {
             statement.executeUpdate(sql);
         } catch (SQLException e) {
             throw e;
+        } finally {
+            if (!connection.isClosed()) {
+                connection.close();
+            }
         }
     }
 

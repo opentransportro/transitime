@@ -323,7 +323,11 @@ public abstract class PredictionAccuracyQuery extends GenericQuery {
         } catch (SQLException e) {
             throw e;
         } finally {
-            if (statement != null) statement.close();
+            if (statement != null)
+                statement.close();
+            if (!getConnection().isClosed()) {
+                getConnection().close();
+            }
         }
     }
 }
