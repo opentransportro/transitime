@@ -348,15 +348,15 @@ public class TemporalMatcher {
             int expectedTravelTimeMsecForward = TravelTimes.getInstance()
                     .expectedTravelTimeBetweenMatches(
                             vehicleState.getVehicleId(), previousAvlTime, previousMatch, spatialMatch);
+            // TODO - Check why it has to look backwards. Useful for freq based trips. Currently
+            // breaks schedule based trips
+            /*
             int expectedTravelTimeMsecBackward = TravelTimes.getInstance()
                     .expectedTravelTimeBetweenMatches(
                             vehicleState.getVehicleId(), previousAvlTime, spatialMatch, previousMatch);
 
-            // TODO - Check why it has to look backwards. Useful for freq based trips. Currently
-            // breaks schedule based trips
-            // int expectedTravelTimeMsec = Math.min(expectedTravelTimeMsecForward,
-            // expectedTravelTimeMsecBackward);
-
+            int expectedTravelTimeMsec = Math.min(expectedTravelTimeMsecForward, expectedTravelTimeMsecBackward);
+            */
             int expectedTravelTimeMsec = expectedTravelTimeMsecForward;
 
             // If looking at layover match and the match is different from
@@ -490,8 +490,7 @@ public class TemporalMatcher {
 
             // If this is the best differenceFromExpectedTime so far then use it.
             if (differenceFromExpectedTime != null
-                    && (bestDifferenceFromExpectedTime == null
-                            || differenceFromExpectedTime.betterThan(bestDifferenceFromExpectedTime))) {
+                    && (bestDifferenceFromExpectedTime == null || differenceFromExpectedTime.betterThan(bestDifferenceFromExpectedTime))) {
                 bestDifferenceFromExpectedTime = differenceFromExpectedTime;
                 bestSpatialMatch = spatialMatch;
                 logger.debug(
@@ -505,7 +504,7 @@ public class TemporalMatcher {
         if (bestSpatialMatch != null && bestDifferenceFromExpectedTime != null) {
             TemporalMatch result = new TemporalMatch(bestSpatialMatch, bestDifferenceFromExpectedTime);
             logger.debug(
-                    "For vehicleId={} getBestTemporalMatch() returning " + "temporalMatch={}",
+                    "For vehicleId={} getBestTemporalMatch() returning temporalMatch={}",
                     avlReport.getVehicleId(),
                     result);
             return result;

@@ -435,13 +435,16 @@ public class DbConfig {
             synchronized (Block.getLazyLoadingSyncObject()) {
                 trip = Trip.getTrip(globalSession, configRev, tripIdOrShortName);
             }
-            if (trip != null) individualTripsMap.put(tripIdOrShortName, trip);
+
+            if (trip != null) {
+                individualTripsMap.put(tripIdOrShortName, trip);
+            }
         }
 
         // If couldn't get trip by tripId then see if using the trip short name.
         if (trip == null) {
             logger.debug(
-                    "Could not find tripId={} so seeing if there is a " + "tripShortName with that ID.",
+                    "Could not find tripId={} so seeing if there is a tripShortName with that ID.",
                     tripIdOrShortName);
             trip = getTripUsingTripShortName(tripIdOrShortName);
 

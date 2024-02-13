@@ -12,6 +12,7 @@ import org.ehcache.CacheManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.config.data.PredictionConfig;
+import org.transitclock.core.TemporalDifference;
 import org.transitclock.core.dataCache.StopArrivalDepartureCacheFactory;
 import org.transitclock.core.dataCache.StopArrivalDepartureCacheKey;
 import org.transitclock.core.dataCache.StopPathCacheKey;
@@ -55,6 +56,8 @@ public class DwellTimeModelCache implements org.transitclock.core.dataCache.Dwel
         model.putSample((int) dwellTime, (int) headway.getHeadway(), null);
         cache.put(key, model);
     }
+    private static final Integer minScheduleAdherence = PredictionConfig.minSceheduleAdherence.getValue();
+    private static final Integer maxScheduleAdherence = PredictionConfig.maxSceheduleAdherence.getValue();
 
     @Override
     public void addSample(ArrivalDeparture departure) {
@@ -70,36 +73,25 @@ public class DwellTimeModelCache implements org.transitclock.core.dataCache.Dwel
 
                     if (arrival != null) {
                         IpcArrivalDeparture previousArrival = findPreviousArrival(stopData, arrival);
-                        if (arrival != null && previousArrival != null) {
+                        if (previousArrival != null) {
                             Headway headway = new Headway();
-                            headway.setHeadway(arrival.getTime().getTime()
-                                    - previousArrival.getTime().getTime());
-                            long dwelltime =
-                                    departure.getTime() - arrival.getTime().getTime();
+                            headway.setHeadway(arrival.getTime().getTime() - previousArrival.getTime().getTime());
                             headway.setTripId(arrival.getTripId());
+
+                            long dwelltime = departure.getTime() - arrival.getTime().getTime();
 
                             /* Leave out silly values as they are most likely errors or unusual circumstance. */
                             /* TODO Should abstract this behind an anomaly detention interface/Factory */
-
-                            if (departure.getScheduleAdherence() != null
-                                    && departure
-                                            .getScheduleAdherence()
-                                            .isWithinBounds(
-                                                    PredictionConfig.minSceheduleAdherence.getValue(),
-                                                    PredictionConfig.maxSceheduleAdherence.getValue())) {
-
+                            TemporalDifference departureScheduleAdherence = departure.getScheduleAdherence();
+                            if (departureScheduleAdherence != null && departureScheduleAdherence.isWithinBounds(minScheduleAdherence, maxScheduleAdherence)) {
                                 // Arrival schedule adherence appears not to be set much. So only
                                 // stop if set and outside range.
-                                if (previousArrival.getScheduledAdherence() == null
-                                        || previousArrival
-                                                .getScheduledAdherence()
-                                                .isWithinBounds(
-                                                        PredictionConfig.minSceheduleAdherence.getValue(),
-                                                        PredictionConfig.maxSceheduleAdherence.getValue())) {
-                                    if (dwelltime < PredictionConfig.maxDwellTimeAllowedInModel.getValue()
-                                            && dwelltime > PredictionConfig.minDwellTimeAllowedInModel.getValue()) {
-                                        if (headway.getHeadway() < PredictionConfig.maxHeadwayAllowedInModel.getValue()
-                                                && headway.getHeadway() > PredictionConfig.minHeadwayAllowedInModel.getValue()) {
+                                TemporalDifference scheduledAdherence = previousArrival.getScheduledAdherence();
+                                if (scheduledAdherence == null || scheduledAdherence.isWithinBounds(minScheduleAdherence, maxScheduleAdherence)) {
+                                    if (dwelltime < PredictionConfig.maxDwellTimeAllowedInModel.getValue() &&
+                                            dwelltime > PredictionConfig.minDwellTimeAllowedInModel.getValue()) {
+                                        if (headway.getHeadway() < PredictionConfig.maxHeadwayAllowedInModel.getValue() &&
+                                                headway.getHeadway() > PredictionConfig.minHeadwayAllowedInModel.getValue()) {
                                             addSample(departure, headway, dwelltime);
                                         } else {
                                             logger.warn("Headway outside allowable range . {}", headway);
@@ -108,10 +100,10 @@ public class DwellTimeModelCache implements org.transitclock.core.dataCache.Dwel
                                         logger.warn("Dwell time {} outside allowable range for {}.", dwelltime, departure);
                                     }
                                 } else {
-                                    logger.warn("Schedule adherence outside allowable range. {}", previousArrival.getScheduledAdherence());
+                                    logger.warn("Schedule adherence outside allowable range. {}", scheduledAdherence);
                                 }
                             } else {
-                                logger.warn("Schedule adherence outside allowable range. {}", departure.getScheduleAdherence());
+                                logger.warn("Schedule adherence outside allowable range. {}", departureScheduleAdherence);
                             }
                         }
                     }
