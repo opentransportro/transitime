@@ -1,7 +1,6 @@
 /* (C)2023 */
 package org.transitclock.service.contract;
 
-import org.jvnet.hk2.annotations.Contract;
 import org.transitclock.domain.structs.Location;
 import org.transitclock.service.dto.IpcPredictionsForRouteStopDest;
 
@@ -13,15 +12,12 @@ import java.util.List;
  *
  * @author SkiBu Smith
  */
-@Contract
 public interface PredictionsInterface {
 
     /** This class is for use as key into hash maps that store prediction data. */
     class RouteStop implements Serializable {
         private final String routeIdOrShortName;
         private final String stopIdOrCode;
-
-        private static final long serialVersionUID = -4558270897399749207L;
 
         public RouteStop(String routeIdOrShortName, String stopId) {
             this.routeIdOrShortName = routeIdOrShortName;

@@ -53,7 +53,7 @@ import org.transitclock.api.data.ApiVehicleConfigs;
 import org.transitclock.api.data.ApiVehicleToBlockConfigs;
 import org.transitclock.api.data.ApiVehicles;
 import org.transitclock.api.data.ApiVehiclesDetails;
-import org.transitclock.api.predsByLoc.PredsByLoc;
+import org.transitclock.api.utils.PredsByLoc;
 import org.transitclock.api.utils.StandardParameters;
 import org.transitclock.api.utils.WebUtils;
 import org.transitclock.core.TemporalDifference;

@@ -2,17 +2,12 @@
 package org.transitclock.api.utils;
 
 import jakarta.servlet.*;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Slf4j
 public class WebLoggingFilter implements Filter {
-
-    private static final Logger logger = LoggerFactory.getLogger(WebLoggingFilter.class);
-
-    @Override
-    public void init(FilterConfig filterConfg) {
-        logger.info("WebLoggingFilter init");
-    }
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain) {
@@ -22,10 +17,5 @@ public class WebLoggingFilter implements Filter {
             logger.error("Filter caught exception: ", ex);
             throw new RuntimeException(ex);
         }
-    }
-
-    @Override
-    public void destroy() {
-        logger.info("WebLoggingFilter destroy");
     }
 }

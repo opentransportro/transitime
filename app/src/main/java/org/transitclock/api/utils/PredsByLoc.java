@@ -1,5 +1,5 @@
 /* (C)2023 */
-package org.transitclock.api.predsByLoc;
+package org.transitclock.api.utils;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -22,15 +22,13 @@ public class PredsByLoc {
 
     // The cache of extents. Keyed on agencyId. Should not be accessed directly.
     // Should instead use getAgencyExtents().
-    private static Map<String, Extent> agencyExtentsCache = new HashMap<String, Extent>();
+    private static final Map<String, Extent> agencyExtentsCache = new HashMap<>();
     private static long cacheUpdatedTime = 0;
 
     // The maximum allowable maxDistance for getting predictions by location
     public static final double MAX_MAX_DISTANCE = 2000.0;
 
-    private static long CACHE_VALID_MSEC = 4 * Time.MS_PER_HOUR;
-
-    /************************ Methods *********************/
+    private static final long CACHE_VALID_MSEC = 4 * Time.MS_PER_HOUR;
 
     /**
      * Returns the cache of agency extents. If haven't read in extents from the servers in more than
@@ -40,7 +38,9 @@ public class PredsByLoc {
      */
     private static Map<String, Extent> getAgencyExtents() {
         // If updated cache recently then simply return it
-        if (System.currentTimeMillis() < cacheUpdatedTime + CACHE_VALID_MSEC) return agencyExtentsCache;
+        if (System.currentTimeMillis() < cacheUpdatedTime + CACHE_VALID_MSEC) {
+            return agencyExtentsCache;
+        }
 
         // Haven't updated cache in a while so update it now
         Collection<WebAgency> webAgencies = WebAgency.getCachedOrderedListOfWebAgencies();
@@ -67,14 +67,16 @@ public class PredsByLoc {
      */
     public static List<String> getNearbyAgencies(double latitude, double longitude, double distance) {
         // For results of method
-        List<String> nearbyAgencies = new ArrayList<String>();
+        List<String> nearbyAgencies = new ArrayList<>();
 
         // Determine which agencies are nearby and add them to list
         Location loc = new Location(latitude, longitude);
         Map<String, Extent> agencyExtents = getAgencyExtents();
         for (String agencyId : agencyExtents.keySet()) {
             Extent agencyExtent = agencyExtents.get(agencyId);
-            if (agencyExtent.isWithinDistance(loc, distance)) nearbyAgencies.add(agencyId);
+            if (agencyExtent.isWithinDistance(loc, distance)) {
+                nearbyAgencies.add(agencyId);
+            }
         }
 
         // Return agencies that are nearby

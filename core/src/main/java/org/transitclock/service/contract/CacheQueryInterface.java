@@ -1,7 +1,6 @@
 /* (C)2023 */
 package org.transitclock.service.contract;
 
-import org.jvnet.hk2.annotations.Contract;
 import org.transitclock.service.dto.IpcArrivalDeparture;
 import org.transitclock.service.dto.IpcHistoricalAverage;
 import org.transitclock.service.dto.IpcHistoricalAverageCacheKey;
@@ -16,7 +15,6 @@ import java.util.List;
  *
  * @author Sean Og Crudden
  */
-@Contract
 public interface CacheQueryInterface {
 
     /**

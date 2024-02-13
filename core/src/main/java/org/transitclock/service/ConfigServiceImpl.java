@@ -1,14 +1,7 @@
 /* (C)2023 */
 package org.transitclock.service;
 
-import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import lombok.extern.slf4j.Slf4j;
-import org.jvnet.hk2.annotations.Service;
 import org.transitclock.Core;
 import org.transitclock.core.dataCache.VehicleDataCache;
 import org.transitclock.domain.structs.Agency;
@@ -19,6 +12,7 @@ import org.transitclock.domain.structs.Trip;
 import org.transitclock.domain.structs.TripPattern;
 import org.transitclock.domain.structs.VehicleConfig;
 import org.transitclock.gtfs.DbConfig;
+import org.transitclock.service.contract.ConfigInterface;
 import org.transitclock.service.dto.IpcBlock;
 import org.transitclock.service.dto.IpcCalendar;
 import org.transitclock.service.dto.IpcDirectionsForRoute;
@@ -27,7 +21,11 @@ import org.transitclock.service.dto.IpcRouteSummary;
 import org.transitclock.service.dto.IpcSchedule;
 import org.transitclock.service.dto.IpcTrip;
 import org.transitclock.service.dto.IpcTripPattern;
-import org.transitclock.service.contract.ConfigInterface;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Implements ConfigInterface to serve up configuration information to RMI clients.
@@ -35,7 +33,6 @@ import org.transitclock.service.contract.ConfigInterface;
  * @author SkiBu Smith
  */
 @Slf4j
-@Service
 public class ConfigServiceImpl implements ConfigInterface {
 
     // Should only be accessed as singleton class

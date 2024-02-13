@@ -9,7 +9,7 @@ import org.transitclock.api.data.ApiAgencies;
 import org.transitclock.api.data.ApiAgency;
 import org.transitclock.api.data.ApiNearbyPredictionsForAgencies;
 import org.transitclock.api.data.ApiPredictions;
-import org.transitclock.api.predsByLoc.PredsByLoc;
+import org.transitclock.api.utils.PredsByLoc;
 import org.transitclock.api.utils.StandardParameters;
 import org.transitclock.api.utils.WebUtils;
 import org.transitclock.domain.structs.Agency;
@@ -21,7 +21,6 @@ import org.transitclock.service.contract.PredictionsInterface;
 import org.transitclock.service.ConfigServiceImpl;
 import org.transitclock.service.PredictionsServiceImpl;
 
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;

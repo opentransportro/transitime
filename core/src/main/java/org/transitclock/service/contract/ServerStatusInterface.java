@@ -1,19 +1,15 @@
 /* (C)2023 */
 package org.transitclock.service.contract;
 
-import java.rmi.Remote;
-import java.rmi.RemoteException;
-import java.util.Date;
-
-import org.jvnet.hk2.annotations.Contract;
 import org.transitclock.service.dto.IpcServerStatus;
+
+import java.util.Date;
 
 /**
  * RMI interface for determining the status of the server.
  *
  * @author SkiBu Smith
  */
-@Contract
 public interface ServerStatusInterface {
 
     /**

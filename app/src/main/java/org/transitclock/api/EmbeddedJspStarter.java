@@ -41,7 +41,7 @@ public class EmbeddedJspStarter extends AbstractLifeCycle {
         StandardJarScanner jarScanner = new StandardJarScanner();
         StandardJarScanFilter jarScanFilter = new StandardJarScanFilter();
         jarScanFilter.setTldScan("taglibs-standard-impl-*");
-        jarScanFilter.setTldSkip("apache-*,ecj-*,jetty-*,asm-*,javax.servlet-*,javax.annotation-*,taglibs-standard-spec-*");
+        jarScanFilter.setTldSkip("apache-*,ecj-*,jetty-*,asm-*,javax.servlet-*,hk2-*,javax.annotation-*,taglibs-standard-spec-*");
         jarScanner.setJarScanFilter(jarScanFilter);
 
         this.sci = new JettyJasperInitializer();

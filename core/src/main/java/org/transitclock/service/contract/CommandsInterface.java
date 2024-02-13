@@ -1,7 +1,6 @@
 /* (C)2023 */
 package org.transitclock.service.contract;
 
-import org.jvnet.hk2.annotations.Contract;
 import org.transitclock.service.dto.IpcAvl;
 
 import java.time.LocalDateTime;
@@ -14,7 +13,6 @@ import java.util.Date;
  *
  * @author Michael
  */
-@Contract
 public interface CommandsInterface {
 
     /**

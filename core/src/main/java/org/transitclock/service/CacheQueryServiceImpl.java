@@ -2,7 +2,6 @@
 package org.transitclock.service;
 
 import lombok.extern.slf4j.Slf4j;
-import org.jvnet.hk2.annotations.Service;
 import org.transitclock.core.dataCache.ErrorCacheFactory;
 import org.transitclock.core.dataCache.HistoricalAverage;
 import org.transitclock.core.dataCache.HoldingTimeCache;
@@ -34,7 +33,6 @@ import java.util.List;
  * @author Sean Og Crudden Server to allow cache content to be queried.
  */
 @Slf4j
-@Service
 public class CacheQueryServiceImpl implements CacheQueryInterface {
     // Should only be accessed as singleton class
     private static CacheQueryServiceImpl singleton;

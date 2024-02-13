@@ -6,6 +6,7 @@ import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,10 +15,8 @@ import org.slf4j.LoggerFactory;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class WebUtils {
-
-    private static final Logger logger = LoggerFactory.getLogger(WebUtils.class);
-
     /**
      * Provides the API key to be used to access the Transitime API by Transitime web pages.
      *

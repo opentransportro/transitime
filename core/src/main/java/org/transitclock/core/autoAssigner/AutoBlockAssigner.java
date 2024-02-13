@@ -520,7 +520,7 @@ public class AutoBlockAssigner {
         String vehicleId = vehicleState.getVehicleId();
 
         // The list of matches to return
-        List<TemporalMatch> validMatches = new ArrayList<TemporalMatch>();
+        List<TemporalMatch> validMatches = new ArrayList<>();
 
         // Only want to try to auto assign if there is also a previous AVL
         // report that is significantly away from the current report. This
@@ -559,20 +559,12 @@ public class AutoBlockAssigner {
 
         // For each active block that is currently unassigned...
         for (Block block : blocksToExamine) {
-            IntervalTimer blockTimer = new IntervalTimer();
-
-            if (logger.isDebugEnabled()) {
-                // Note, when auto assignment first done for this block this
-                // debug statement will take a while to execute because block
-                // info read from db. But that is OK since it is going to happen
-                // at some point anyways.
-                logger.debug(
-                        "For vehicleId={} examining blockId={} for match. " + "The block contains the routes {}. {}",
-                        vehicleId,
-                        block.getId(),
-                        block.getRouteIds(),
-                        block.toShortString());
-            }
+            logger.debug(
+                    "For vehicleId={} examining blockId={} for match. The block contains the routes {}. {}",
+                    vehicleId,
+                    block.getId(),
+                    block.getRouteIds(),
+                    block.toShortString());
 
             // Determine best match for the block depending on whether the
             // block is schedule based or not
@@ -580,8 +572,6 @@ public class AutoBlockAssigner {
             if (bestMatch != null) {
                 validMatches.add(bestMatch);
             }
-
-            logger.debug("For vehicleId={} checking blockId={} took {}msec", vehicleId, block.getId(), blockTimer);
         }
 
         // Return the valid matches that were found
@@ -602,7 +592,7 @@ public class AutoBlockAssigner {
      * @param vehicleState
      * @return true if was too recently called for the vehicle
      */
-    private static boolean tooRecent(VehicleState vehicleState) {
+    private boolean tooRecent(VehicleState vehicleState) {
         // Convenience variables
         String vehicleId = vehicleState.getVehicleId();
         long gpsTime = vehicleState.getAvlReport().getTime();

@@ -1,23 +1,20 @@
 /* (C)2023 */
 package org.transitclock.service;
 
-import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-
 import lombok.extern.slf4j.Slf4j;
-import org.jvnet.hk2.annotations.Service;
 import org.transitclock.core.dataCache.PredictionDataCache;
 import org.transitclock.domain.structs.Location;
 import org.transitclock.gtfs.StopsByLocation;
 import org.transitclock.gtfs.StopsByLocation.StopInfo;
-import org.transitclock.service.dto.IpcPredictionsForRouteStopDest;
 import org.transitclock.service.contract.PredictionsInterface;
+import org.transitclock.service.dto.IpcPredictionsForRouteStopDest;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.SystemTime;
 import org.transitclock.utils.Time;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * Implements the PredictionsInterface interface on the server side such that a
@@ -27,7 +24,6 @@ import org.transitclock.utils.Time;
  * @author SkiBu Smith
  */
 @Slf4j
-@Service
 public class PredictionsServiceImpl implements PredictionsInterface {
 
     // Should only be accessed as singleton class

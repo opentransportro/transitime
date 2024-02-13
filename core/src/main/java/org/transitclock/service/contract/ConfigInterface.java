@@ -1,7 +1,6 @@
 /* (C)2023 */
 package org.transitclock.service.contract;
 
-import org.jvnet.hk2.annotations.Contract;
 import org.transitclock.domain.structs.Agency;
 import org.transitclock.service.dto.IpcBlock;
 import org.transitclock.service.dto.IpcCalendar;
@@ -20,7 +19,6 @@ import java.util.List;
  *
  * @author SkiBu Smith
  */
-@Contract
 public interface ConfigInterface {
 
     /**

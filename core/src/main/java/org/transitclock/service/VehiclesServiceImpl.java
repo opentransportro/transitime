@@ -4,16 +4,24 @@ package org.transitclock.service;
 import com.querydsl.jpa.impl.JPAQuery;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
-import org.jvnet.hk2.annotations.Service;
 import org.transitclock.core.BlocksInfo;
 import org.transitclock.core.dataCache.VehicleDataCache;
 import org.transitclock.domain.hibernate.HibernateUtils;
-import org.transitclock.domain.structs.*;
+import org.transitclock.domain.structs.Block;
+import org.transitclock.domain.structs.QRoute;
+import org.transitclock.domain.structs.Trip;
+import org.transitclock.domain.structs.VehicleConfig;
+import org.transitclock.domain.structs.VehicleToBlockConfig;
 import org.transitclock.service.contract.VehiclesInterface;
-import org.transitclock.service.dto.*;
+import org.transitclock.service.dto.IpcActiveBlock;
+import org.transitclock.service.dto.IpcBlock;
+import org.transitclock.service.dto.IpcVehicle;
+import org.transitclock.service.dto.IpcVehicleComplete;
+import org.transitclock.service.dto.IpcVehicleConfig;
+import org.transitclock.service.dto.IpcVehicleGtfsRealtime;
+import org.transitclock.service.dto.IpcVehicleToBlockConfig;
 
 import java.io.Serializable;
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -27,7 +35,6 @@ import java.util.List;
  * @author SkiBu Smith
  */
 @Slf4j
-@Service
 public class VehiclesServiceImpl implements VehiclesInterface {
 
     // Should only be accessed as singleton class

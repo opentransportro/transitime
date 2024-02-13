@@ -1,15 +1,13 @@
 /* (C)2023 */
 package org.transitclock.service;
 
-import java.rmi.RemoteException;
-import java.util.Date;
-
 import lombok.extern.slf4j.Slf4j;
-import org.jvnet.hk2.annotations.Service;
-import org.transitclock.service.dto.IpcServerStatus;
-import org.transitclock.service.contract.ServerStatusInterface;
 import org.transitclock.monitoring.AgencyMonitor;
+import org.transitclock.service.contract.ServerStatusInterface;
+import org.transitclock.service.dto.IpcServerStatus;
 import org.transitclock.utils.SystemTime;
+
+import java.util.Date;
 
 /**
  * Runs on the server side and receives IPC calls and returns results.
@@ -17,7 +15,6 @@ import org.transitclock.utils.SystemTime;
  * @author SkiBu Smith
  */
 @Slf4j
-@Service
 public class ServerStatusServiceImpl implements ServerStatusInterface {
     private static ServerStatusServiceImpl singleton;
 

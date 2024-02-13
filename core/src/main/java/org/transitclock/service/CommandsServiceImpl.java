@@ -3,7 +3,6 @@ package org.transitclock.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
-import org.jvnet.hk2.annotations.Service;
 import org.transitclock.core.AvlProcessor;
 import org.transitclock.core.TemporalMatch;
 import org.transitclock.core.VehicleState;
@@ -25,7 +24,6 @@ import java.util.Collection;
 import java.util.Date;
 
 @Slf4j
-@Service
 public class CommandsServiceImpl implements CommandsInterface {
 
     // Should only be accessed as singleton class

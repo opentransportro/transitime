@@ -1,9 +1,6 @@
 /* (C)2023 */
 package org.transitclock.service.contract;
 
-import java.util.Collection;
-
-import org.jvnet.hk2.annotations.Contract;
 import org.transitclock.service.dto.IpcActiveBlock;
 import org.transitclock.service.dto.IpcVehicle;
 import org.transitclock.service.dto.IpcVehicleComplete;
@@ -11,12 +8,13 @@ import org.transitclock.service.dto.IpcVehicleConfig;
 import org.transitclock.service.dto.IpcVehicleGtfsRealtime;
 import org.transitclock.service.dto.IpcVehicleToBlockConfig;
 
+import java.util.Collection;
+
 /**
  * Defines the RMI interface used for obtaining vehicle information.
  *
  * @author SkiBu Smith
  */
-@Contract
 public interface VehiclesInterface {
 
     /**

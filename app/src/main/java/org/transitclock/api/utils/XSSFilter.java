@@ -14,12 +14,6 @@ import java.util.Map.Entry;
 public class XSSFilter implements Filter {
 
     @Override
-    public void init(FilterConfig arg0) throws ServletException {}
-
-    @Override
-    public void destroy() {}
-
-    @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
 

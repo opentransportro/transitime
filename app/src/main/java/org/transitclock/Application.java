@@ -17,8 +17,6 @@ import org.eclipse.jetty.ee10.servlet.ServletHolder;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.flywaydb.core.Flyway;
-import org.flywaydb.core.api.MigrationInfoService;
-import org.flywaydb.core.api.output.MigrateResult;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.hibernate.Session;
 import org.transitclock.api.EmbeddedJspStarter;
@@ -59,7 +57,6 @@ import static org.transitclock.utils.ApplicationShutdownSupport.addShutdownHook;
 public class Application {
     private static final String WEBROOT_INDEX = "/webroot/";
     private final CommandLineParameters cli;
-    private final Server server;
     private final ApplicationContext context;
 
     @SneakyThrows
@@ -83,6 +80,11 @@ public class Application {
         this(parseAndValidateCmdLine(args));
     }
 
+    public Application(CommandLineParameters commandLineParameters) throws IOException, URISyntaxException {
+        this.cli = commandLineParameters;
+        this.context = ApplicationContext.createDefaultContext(AgencyConfig.getAgencyId());
+    }
+
     public void start() {
         // init cache manager
         CacheManagerFactory.getInstance();
@@ -102,12 +104,6 @@ public class Application {
                 .dataSource(DbSetupConfig.getConnectionUrl(), DbSetupConfig.getDbUserName(), DbSetupConfig.getDbPassword())
                 .load();
         flyway.migrate();
-    }
-
-    public Application(CommandLineParameters commandLineParameters) throws IOException, URISyntaxException {
-        this.cli = commandLineParameters;
-        this.server = new Server();
-        this.context = ApplicationContext.createDefaultContext(AgencyConfig.getAgencyId());
     }
 
     private void loadGtfs() {
@@ -137,10 +133,10 @@ public class Application {
             // Initialize the core now
             Core core = Core.createCore(agencyId, context.getModuleRegistry());
 
-            var serverInstance = createWebserver();
-            serverInstance.start();
+            Server server = createWebserver();
+            server.start();
             logger.info("Go to http://localhost:{} in your browser", cli.port);
-            serverInstance.join();
+            server.join();
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
@@ -178,8 +174,6 @@ public class Application {
 
         }
     }
-
-
 
     private void populateCaches() throws Exception {
         Session session = HibernateUtils.getSession();
@@ -328,11 +322,13 @@ public class Application {
         servletContextHandler.setAttribute(InstanceManager.class.getName(), new SimpleInstanceManager());
     }
 
-    public Server createWebserver() throws IOException, URISyntaxException {
+    private Server createWebserver() throws IOException, URISyntaxException {
         // Define ServerConnector
+        Server server = new Server();
         ServerConnector connector = new ServerConnector(server);
         connector.setPort(cli.port);
         server.addConnector(connector);
+        server.setStopAtShutdown(true);
 
         // Base URI for servlet context
         URI baseUri = getWebRootResourceUri();

@@ -36,7 +36,7 @@ public class PredictionAccuracyModule extends Module {
     // more than a single prediction stored in memory for a vehicle/stop.
     // Declared static because want to be able to access it from another
     // class by using the static method handleArrivalDeparture().
-    private static final ConcurrentHashMap<PredictionKey, List<PredAccuracyPrediction>> predictionMap = new ConcurrentHashMap<>();
+    private static final Map<PredictionKey, List<PredAccuracyPrediction>> predictionMap = new ConcurrentHashMap<>();
 
 
     @Data

@@ -1,18 +1,16 @@
 /* (C)2023 */
 package org.transitclock.service;
 
-import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 import lombok.extern.slf4j.Slf4j;
-import org.jvnet.hk2.annotations.Service;
 import org.transitclock.core.dataCache.StopPathCacheKey;
 import org.transitclock.core.dataCache.StopPathPredictionCache;
 import org.transitclock.domain.structs.PredictionForStopPath;
-import org.transitclock.service.dto.IpcPredictionForStopPath;
 import org.transitclock.service.contract.PredictionAnalysisInterface;
+import org.transitclock.service.dto.IpcPredictionForStopPath;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @author Sean Óg Crudden Server to allow stored travel time predictions to be queried. TODO May
@@ -20,7 +18,6 @@ import org.transitclock.service.contract.PredictionAnalysisInterface;
  *     be changed to also work with frequency based services.
  */
 @Slf4j
-@Service
 public class PredictionAnalysisServiceImpl implements PredictionAnalysisInterface {
     // Should only be accessed as singleton class
     private static PredictionAnalysisServiceImpl singleton;
