@@ -1125,10 +1125,9 @@ public class ArrivalDepartureGeneratorDefaultImpl implements ArrivalDepartureGen
 
         if (oldMatchIsProblematic || newMatchIsProblematic) {
             logger.warn(
-                    "For vehicleId={} the old or the new match had a "
-                            + "match distance greater than allowed. Therefore not "
-                            + "generating arrival/departure times. "
-                            + "Max allowed layoverDistance={}. oldMatch={} newMatch={}",
+                    "For vehicleId={} the old or the new match had a match distance greater than allowed. " +
+                    "Therefore not generating arrival/departure times. " +
+                    "Max allowed layoverDistance={}. oldMatch={} newMatch={}",
                     vehicleState.getVehicleId(),
                     CoreConfig.getLayoverDistance(),
                     oldMatch,

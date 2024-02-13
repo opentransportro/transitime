@@ -1,16 +1,16 @@
 /* (C)2023 */
 package org.transitclock.core.dataCache;
 
-import org.transitclock.config.StringConfigValue;
+import org.transitclock.config.ClassConfigValue;
 import org.transitclock.utils.ClassInstantiator;
 
 /**
  * @author Sean Óg Crudden
  */
 public class StopArrivalDepartureCacheFactory {
-    private static final StringConfigValue className = new StringConfigValue(
+    private static final ClassConfigValue className = new ClassConfigValue(
             "transitclock.core.cache.stopArrivalDepartureCache",
-            "org.transitclock.core.dataCache.ehcache.StopArrivalDepartureCache",
+            org.transitclock.core.dataCache.ehcache.StopArrivalDepartureCache.class,
             "Specifies the class used to cache the arrival and departures for a stop.");
 
     private static StopArrivalDepartureCacheInterface singleton = null;

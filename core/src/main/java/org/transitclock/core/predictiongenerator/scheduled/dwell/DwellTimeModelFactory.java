@@ -1,7 +1,7 @@
 /* (C)2023 */
 package org.transitclock.core.predictiongenerator.scheduled.dwell;
 
-import org.transitclock.config.StringConfigValue;
+import org.transitclock.config.ClassConfigValue;
 import org.transitclock.utils.ClassInstantiator;
 
 /**
@@ -9,14 +9,12 @@ import org.transitclock.utils.ClassInstantiator;
  */
 public class DwellTimeModelFactory {
     // The name of the class to instantiate
-    private static final StringConfigValue className = new StringConfigValue(
+    private static final ClassConfigValue className = new ClassConfigValue(
             "transitclock.core.dwelltime.model",
-            "org.transitclock.core.predictiongenerator.scheduled.dwell.DwellAverage",
+            org.transitclock.core.predictiongenerator.scheduled.dwell.DwellAverage.class,
             "Specifies the name of the class used to predict dwell.");
 
-    /********************** Member Functions **************************/
     public static DwellModel getInstance() {
-
         return ClassInstantiator.instantiate(className.getValue(), DwellModel.class);
     }
 }

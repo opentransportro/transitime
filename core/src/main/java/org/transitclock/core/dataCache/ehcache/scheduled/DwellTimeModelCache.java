@@ -105,13 +105,11 @@ public class DwellTimeModelCache implements org.transitclock.core.dataCache.Dwel
                                             logger.warn("Headway outside allowable range . {}", headway);
                                         }
                                     } else {
-                                        logger.warn(
-                                                "Dwell time {} outside allowable range for {}.", dwelltime, departure);
+                                        logger.warn("Dwell time {} outside allowable range for {}.", dwelltime, departure);
                                     }
                                 } else {
                                     logger.warn("Schedule adherence outside allowable range. {}", previousArrival.getScheduledAdherence());
                                 }
-
                             } else {
                                 logger.warn("Schedule adherence outside allowable range. {}", departure.getScheduleAdherence());
                             }

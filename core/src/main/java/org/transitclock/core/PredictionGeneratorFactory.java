@@ -1,7 +1,7 @@
 /* (C)2023 */
 package org.transitclock.core;
 
-import org.transitclock.config.StringConfigValue;
+import org.transitclock.config.ClassConfigValue;
 import org.transitclock.utils.ClassInstantiator;
 
 /**
@@ -14,9 +14,9 @@ import org.transitclock.utils.ClassInstantiator;
 public class PredictionGeneratorFactory {
 
     // The name of the class to instantiate
-    private static final StringConfigValue className = new StringConfigValue(
+    private static final ClassConfigValue className = new ClassConfigValue(
             "transitclock.core.predictionGeneratorClass",
-            "org.transitclock.core.PredictionGeneratorDefaultImpl",
+            org.transitclock.core.PredictionGeneratorDefaultImpl.class,
             "Specifies the name of the class used for generating prediction data.");
 
     private static PredictionGenerator singleton = null;

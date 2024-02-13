@@ -10,7 +10,7 @@ public class CacheManagerFactory {
 
     public static CacheManager singleton = null;
 
-    public static CacheManager getInstance() {
+    public static synchronized CacheManager getInstance() {
         if (singleton == null) {
             URL xmlConfigUrl = CacheManagerFactory.class
                     .getClassLoader()

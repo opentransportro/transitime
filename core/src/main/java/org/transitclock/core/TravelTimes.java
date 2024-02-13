@@ -1,7 +1,6 @@
 /* (C)2023 */
 package org.transitclock.core;
 
-import java.util.Date;
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.Core;
 import org.transitclock.config.data.CoreConfig;
@@ -9,6 +8,8 @@ import org.transitclock.domain.structs.Location;
 import org.transitclock.domain.structs.ScheduleTime;
 import org.transitclock.domain.structs.TravelTimesForStopPath;
 import org.transitclock.utils.Time;
+
+import java.util.Date;
 
 /**
  * Singleton class that contains methods for determining how long a vehicle is expected to take to
@@ -22,15 +23,7 @@ public class TravelTimes {
 
     // Singleton class
     private static final TravelTimes singleton = new TravelTimes();
-
-    /** Constructor declared private because singleton class */
     private TravelTimes() {}
-
-    /**
-     * Returns singleton MatchProcessor
-     *
-     * @return
-     */
     public static TravelTimes getInstance() {
         return singleton;
     }
@@ -312,8 +305,10 @@ public class TravelTimes {
      * @param match2
      * @return travel time in msec between matches. Returns 0 if match2 is before match1
      */
-    public int expectedTravelTimeBetweenMatches(
-            String vehicleId, int timeOfDaySecs, SpatialMatch match1, SpatialMatch match2) {
+    public int expectedTravelTimeBetweenMatches(String vehicleId,
+                                                int timeOfDaySecs,
+                                                SpatialMatch match1,
+                                                SpatialMatch match2) {
         logger.debug(
                 "For vehicleId={} determining travel time between "
                         + "following two matches: \n"
@@ -335,8 +330,7 @@ public class TravelTimes {
         if (!match2.block.isNoSchedule()) {
             if (match2.lessThan(match1)) {
                 logger.error(
-                        "For vehicleId={} match1AfterStop is after "
-                                + "match2BeforeStop so returning travel time of 0. "
+                        "For vehicleId={} match1AfterStop is after match2BeforeStop so returning travel time of 0. "
                                 + "match1AfterStop={}, match2BeforeStop={}",
                         vehicleId,
                         match1,
@@ -349,7 +343,7 @@ public class TravelTimes {
         // stop path.
         int travelTimeMsec = expectedTravelTimeFromMatchToEndOfStopPath(match1);
         logger.debug(
-                "For vehicleId={} travel time for first partial " + "stop path is {} msec. {}",
+                "For vehicleId={} travel time for first partial stop path is {} msec. {}",
                 vehicleId,
                 travelTimeMsec,
                 match1);
@@ -377,8 +371,7 @@ public class TravelTimes {
             int stopTimeMsec = indices.getStopTimeForPath();
             travelTimeMsec += stopTimeMsec;
             logger.debug(
-                    "For vehicleId={} adding stop time={} msec so "
-                            + "travel time now is {} msec for stop at indices={}",
+                    "For vehicleId={} adding stop time={} msec so travel time now is {} msec for stop at indices={}",
                     vehicleId,
                     stopTimeMsec,
                     travelTimeMsec,

@@ -1,7 +1,7 @@
 /* (C)2023 */
 package org.transitclock.core;
 
-import org.transitclock.config.StringConfigValue;
+import org.transitclock.config.ClassConfigValue;
 import org.transitclock.utils.ClassInstantiator;
 
 /**
@@ -14,10 +14,10 @@ import org.transitclock.utils.ClassInstantiator;
 public class HeadwayGeneratorFactory {
 
     // The name of the class to instantiate
-    private static final StringConfigValue className = new StringConfigValue(
+    private static final ClassConfigValue className = new ClassConfigValue(
             "transitclock.core.headwayGeneratorClass",
-            "org.transitclock.core.HeadwayGeneratorDefaultImpl",
-            "Specifies the name of the class used for generating " + "headway data.");
+            org.transitclock.core.HeadwayGeneratorDefaultImpl.class,
+            "Specifies the name of the class used for generating headway data.");
 
     private static HeadwayGenerator singleton = null;
 

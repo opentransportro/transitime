@@ -1,7 +1,6 @@
 /* (C)2023 */
 package org.transitclock.core;
 
-import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.Core;
 import org.transitclock.config.data.CoreConfig;
@@ -12,6 +11,8 @@ import org.transitclock.domain.structs.Match;
 import org.transitclock.domain.structs.Prediction;
 import org.transitclock.service.dto.IpcPrediction;
 import org.transitclock.utils.Time;
+
+import java.util.List;
 
 /**
  * For generating predictions, arrival/departure times, headways etc. This class is used once a
@@ -117,6 +118,7 @@ public class MatchProcessor {
         logger.debug("Processing spatial match for vehicleId={}", vehicleState.getVehicleId());
 
         Match match = new Match(vehicleState);
+        logger.debug("{}", match);
 
         // Store match in database if it is not at a stop. The reason only
         // storing to db if not at a stop is because reason for storing
@@ -126,7 +128,9 @@ public class MatchProcessor {
         // matches at stops only confuse things since they will be before
         // the departure time or after the arrival time. Plus not storing
         // the matches at the stops means there is less data to store.
-        if (!match.isAtStop()) Core.getInstance().getDbLogger().add(match);
+        if (!match.isAtStop()) {
+            Core.getInstance().getDbLogger().add(match);
+        }
     }
 
     /**

@@ -1,7 +1,7 @@
 /* (C)2023 */
 package org.transitclock.core.dataCache;
 
-import org.transitclock.config.StringConfigValue;
+import org.transitclock.config.ClassConfigValue;
 import org.transitclock.utils.ClassInstantiator;
 
 /**
@@ -9,7 +9,7 @@ import org.transitclock.utils.ClassInstantiator;
  *     for each stop.
  */
 public class DwellTimeModelCacheFactory {
-    private static final StringConfigValue className = new StringConfigValue(
+    private static final ClassConfigValue className = new ClassConfigValue(
             "transitclock.core.cache.dwellTimeModelCache",
             null,
             "Specifies the class used to cache RLS data for a stop.");
@@ -17,9 +17,8 @@ public class DwellTimeModelCacheFactory {
     private static DwellTimeModelCacheInterface singleton = null;
 
     public static DwellTimeModelCacheInterface getInstance() {
-
         if (singleton == null) {
-            if (className.getValue() != null && !className.getValue().isEmpty()) {
+            if (className.getValue() != null) {
                 singleton = ClassInstantiator.instantiate(className.getValue(), DwellTimeModelCacheInterface.class);
             }
         }

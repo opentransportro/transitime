@@ -137,11 +137,11 @@ public class PredictionConfig {
     public static IntegerConfigValue minSceheduleAdherence = new IntegerConfigValue(
             "transitclock.prediction.rls.minSceheduleAdherence",
             10 * Time.SEC_PER_MIN,
-            "If schedule adherence of vehicle is outside this then not considerd in dwell" + " RLS algorithm.");
+            "If schedule adherence of vehicle is outside this then not considerd in dwell RLS algorithm.");
     public static IntegerConfigValue maxSceheduleAdherence = new IntegerConfigValue(
             "transitclock.prediction.rls.maxSceheduleAdherence",
             10 * Time.SEC_PER_MIN,
-            "If schedule adherence of vehicle is outside this then not considerd in dwell" + " RLS algorithm.");
+            "If schedule adherence of vehicle is outside this then not considerd in dwell RLS algorithm.");
 
     public static DoubleConfigValue lambda = new DoubleConfigValue(
             "transitclock.prediction.rls.lambda",

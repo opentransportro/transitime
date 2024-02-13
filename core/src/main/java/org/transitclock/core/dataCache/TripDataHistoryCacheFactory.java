@@ -1,7 +1,7 @@
 /* (C)2023 */
 package org.transitclock.core.dataCache;
 
-import org.transitclock.config.StringConfigValue;
+import org.transitclock.config.ClassConfigValue;
 import org.transitclock.utils.ClassInstantiator;
 
 /**
@@ -9,9 +9,9 @@ import org.transitclock.utils.ClassInstantiator;
  *     trip.
  */
 public class TripDataHistoryCacheFactory {
-    private static final StringConfigValue className = new StringConfigValue(
+    private static final ClassConfigValue className = new ClassConfigValue(
             "transitclock.core.cache.tripDataHistoryCache",
-            "org.transitclock.core.dataCache.ehcache.frequency.TripDataHistoryCache",
+            org.transitclock.core.dataCache.ehcache.frequency.TripDataHistoryCache.class,
             "Specifies the class used to cache the arrival and departures for a trip.");
 
     public static TripDataHistoryCacheInterface singleton = null;

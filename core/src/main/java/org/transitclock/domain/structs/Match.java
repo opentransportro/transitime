@@ -116,9 +116,6 @@ public class Match implements Lifecycle, Serializable {
         this.distanceAlongSegment = (float) (lastMatch != null ? lastMatch.getDistanceAlongSegment() : 0.0);
         this.distanceAlongStopPath = (float) (lastMatch != null ? lastMatch.getDistanceAlongStopPath() : 0.0);
         this.atStop = vehicleState.getMatch().isAtStop();
-
-        // Log each creation of a Match to the match.log log file
-        logger.info(this.toString());
     }
 
     /**
