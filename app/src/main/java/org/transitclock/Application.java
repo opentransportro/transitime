@@ -16,6 +16,7 @@ import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
 import org.eclipse.jetty.ee10.servlet.ServletHolder;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.flywaydb.core.Flyway;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.hibernate.Session;
@@ -323,8 +324,9 @@ public class Application {
     }
 
     private Server createWebserver() throws IOException, URISyntaxException {
-        // Define ServerConnector
-        Server server = new Server();
+        QueuedThreadPool jettyThreadpool = new QueuedThreadPool(10, 3, 30000);
+        jettyThreadpool.setName("jetty-threadpool");
+        Server server = new Server(jettyThreadpool);
         ServerConnector connector = new ServerConnector(server);
         connector.setPort(cli.port);
         server.addConnector(connector);
@@ -352,12 +354,12 @@ public class Application {
 
         ServletHolder docServlet = new ServletHolder("doc", ServletContainer.class);
         docServlet.setInitParameter("jersey.config.server.provider.packages", "io.swagger.v3.jaxrs2.integration.resources,org.transitclock.api.resources,org.transitclock.api.utils");
-        docServlet.setInitOrder(1);
+        docServlet.setInitOrder(0);
         servletContextHandler.addServlet(docServlet, "/doc/*");
 
         ServletHolder apiServlet = new ServletHolder("api", ServletContainer.class);
         apiServlet.setInitParameter("jersey.config.server.provider.packages", "org.transitclock.api.resources");
-        apiServlet.setInitOrder(2);
+        apiServlet.setInitOrder(0);
         servletContextHandler.addServlet(apiServlet, "/api/v1/*");
 
         server.setHandler(servletContextHandler);

@@ -19,6 +19,7 @@
              if not used for more than 5 minutes so don't get too many
              connections. -->
         <property name="hibernate.hikari.idleTimeout">30000</property>
+        <property name="hibernate.hikari.keepaliveTime">30000</property>
         <property name="hibernate.jdbc.batch_size">25</property>
 
         <!-- List of XML mapping files. Commented out because adding

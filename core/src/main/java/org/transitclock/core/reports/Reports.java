@@ -276,7 +276,7 @@ public class Reports {
                 // + "	 ((ad.time / 1000) - (ad.scheduled_time / 1000)) AS
                 // difference_in_seconds,  \n"
                 + "	 s.id AS stop_id, \n"
-                + "	 ad.stopOrder AS stop_order \n"
+                + "	 ad.stop_order AS stop_order \n"
                 + "	FROM arrivals_departures ad, Stops s  \n"
                 + "WHERE "
                 // To get stop name
@@ -472,7 +472,7 @@ public class Reports {
                 // + "	 abs(((ad.time / 1000) - (ad.scheduled_time / 1000))) AS
                 // difference_in_seconds,  \n"
                 + "	 s.id AS stop_id, \n"
-                + "	 ad.stopOrder AS stop_order \n"
+                + "	 ad.stop_order AS stop_order \n"
                 + " 	FROM arrivals_departures ad, stops s  \n"
                 + "WHERE "
                 // To get stop name
@@ -552,9 +552,9 @@ public class Reports {
                 + " 	trips_late_query_v2.trips_late as trips_late  \n"
                 + "FROM ArrivalsDepartures ad	INNER JOIN Stops s ON ad.stop_id = s.id \n"
                 + "	LEFT JOIN trips_early_query_v2 ON s.id = trips_early_query_v2.stop_id"
-                + " AND ad.stopOrder = trips_early_query_v2.stop_order \n"
+                + " AND ad.stop_order = trips_early_query_v2.stop_order \n"
                 + "	LEFT JOIN trips_late_query_v2 ON s.id = trips_late_query_v2.stop_id AND"
-                + " ad.stopOrder = trips_late_query_v2.stop_order \n"
+                + " ad.stop_order = trips_late_query_v2.stop_order \n"
                 + "WHERE "
                 // To get stop name
                 + " ad.config_rev = s.config_rev \n"
@@ -575,9 +575,9 @@ public class Reports {
                 // need to order by direction id and stop order, but also the stop name
                 // as a backup for if stoporder not defined for data and is therefore
                 // always the same and doesn't provide any ordering info.
-                + " GROUP BY directionid, s.name, s.id, ad.stopOrder,"
+                + " GROUP BY direction_id, s.name, s.id, ad.stop_order,"
                 + " trips_early_query_v2.trips_early, trips_late_query_v2.trips_late \n"
-                + " ORDER BY directionid, ad.stopOrder, s.name";
+                + " ORDER BY direction_id, ad.stop_order, s.name";
 
         String sql_trips_early = "SELECT trip_id AS trips_early, 	 regexp_replace(CAST(DATE_TRUNC('second',"
                 + " ad.scheduled_time::timestamp) - DATE_TRUNC('second', ad.time::timestamp) AS"
