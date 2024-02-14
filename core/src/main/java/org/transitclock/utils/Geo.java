@@ -476,49 +476,6 @@ public class Geo {
     }
 
     /**
-     * Just for debugging
-     *
-     * @param args
-     */
-    public static void main(String[] args) {
-        double d = 30.0;
-        Location l1 = new Location(37.800, -122.436);
-        Location l2 = new Location(37.805, -122.436);
-        Location l3 = new Location(37.801, -122.437);
-        Location offsetVertex = rightOffsetVertex(l1, l2, l3, d);
-
-        System.err.println("name,color,lat,lon");
-        System.err.println("l1, red, " + l1.getLat() + ", " + l1.getLon());
-        System.err.println("l2, red, " + l2.getLat() + ", " + l2.getLon());
-        System.err.println("l3, red, " + l3.getLat() + ", " + l3.getLon());
-        System.err.println("offsetVertex, green, " + offsetVertex.getLat() + ", " + offsetVertex.getLon());
-        //
-        //		Location loc = new Location(40.75, -73.97);
-        //		Location l1 = new Location(40.7486, -73.9864);
-        //		Location l2 = new Location(40.7586, -73.9664);
-        //		Vector v1 = new Vector(l1, l2);
-        //		Vector v2 = new Vector(l2, l1);
-        //		double vlength = v1.length();
-        //
-        //		double d1 = distance(loc,  v1);
-        //		double md1 = matchDistanceAlongVector(loc, v1);
-        //
-        //		double d2 = distance(loc,  v2);
-        //		double md2 = matchDistanceAlongVector(loc, v2);
-        //
-        //		// Make sure the values are ok. Should get the same distance
-        //		// no matter which was vector is pointing.
-        //		assert Math.abs(d1-d2) < 0.000001;
-        //		// The distance to the match for the vectors going in
-        //		// different directions should add up to v1length
-        //		assert Math.abs(md1 + md2-vlength) < 0.000001;
-        //
-        //		System.out.println("vlength=" + vlength + "\n" +
-        //				"d1=" + dFormat(d1) + " md1=" + dFormat(md1) + "\n" +
-        //				"d2=" + dFormat(d2) + " md2=" + dFormat(md2) + "\n");
-    }
-
-    /**
      * Returns true if the heading specified by vehicleHeading is within the allowableDelta of
      * segmentHeading. All angles are expressed in degrees.
      *

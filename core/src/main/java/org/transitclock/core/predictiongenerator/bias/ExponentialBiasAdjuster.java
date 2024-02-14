@@ -32,37 +32,4 @@ public class ExponentialBiasAdjuster implements BiasAdjuster {
         double new_prediction = prediction + (CoreConfig.updown.getValue() * (((percentage / 100) * prediction)));
         return (long) new_prediction;
     }
-
-    public static void main(String[] args) {
-        ExponentialBiasAdjuster adjuster = new ExponentialBiasAdjuster();
-        long result = adjuster.adjustPrediction(20 * Time.MS_PER_MIN);
-        System.out.println("Percentage is :"
-                + adjuster.getPercentage()
-                + " giving a result to :"
-                + Math.round((float) result / Time.MS_PER_SEC));
-
-        result = adjuster.adjustPrediction(15 * Time.MS_PER_MIN);
-        System.out.println("Percentage is :"
-                + adjuster.getPercentage()
-                + " giving a result to :"
-                + Math.round((float) result / Time.MS_PER_SEC));
-
-        result = adjuster.adjustPrediction(10 * Time.MS_PER_MIN);
-        System.out.println("Percentage is :"
-                + adjuster.getPercentage()
-                + " giving a result to :"
-                + Math.round((float) result / Time.MS_PER_SEC));
-
-        result = adjuster.adjustPrediction(5 * Time.MS_PER_MIN);
-        System.out.println("Percentage is :"
-                + adjuster.getPercentage()
-                + " giving a result to :"
-                + Math.round((float) result / Time.MS_PER_SEC));
-
-        result = adjuster.adjustPrediction(1 * Time.MS_PER_MIN);
-        System.out.println("Percentage is :"
-                + adjuster.getPercentage()
-                + " giving a result to :"
-                + Math.round((float) result / Time.MS_PER_SEC));
-    }
 }

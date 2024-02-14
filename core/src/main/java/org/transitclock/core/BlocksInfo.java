@@ -90,7 +90,7 @@ public class BlocksInfo {
             int allowableBeforeTimeSecs,
             int allowableAfterStartTimeSecs) {
         // The list to be returned
-        List<Block> activeBlocks = new ArrayList<Block>(1000);
+        List<Block> activeBlocks = new ArrayList<>(1000);
 
         Core core = Core.getInstance();
         if (core == null) return activeBlocks;

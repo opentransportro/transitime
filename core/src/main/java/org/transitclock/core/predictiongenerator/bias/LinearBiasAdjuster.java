@@ -36,37 +36,4 @@ public class LinearBiasAdjuster implements BiasAdjuster {
         double new_prediction = prediction + (((percentage / 100) * prediction) * CoreConfig.linearUpdown.getValue());
         return (long) new_prediction;
     }
-
-    public static void main(String[] args) {
-        LinearBiasAdjuster adjuster = new LinearBiasAdjuster(0.0006);
-        long result = adjuster.adjustPrediction(20 * Time.MS_PER_MIN);
-        System.out.println("Percentage is :"
-                + adjuster.getPercentage()
-                + " giving a result to :"
-                + Math.round((float) result / Time.MS_PER_SEC));
-
-        result = adjuster.adjustPrediction(15 * Time.MS_PER_MIN);
-        System.out.println("Percentage is :"
-                + adjuster.getPercentage()
-                + " giving a result to :"
-                + Math.round((float) result / Time.MS_PER_SEC));
-
-        result = adjuster.adjustPrediction(10 * Time.MS_PER_MIN);
-        System.out.println("Percentage is :"
-                + adjuster.getPercentage()
-                + " giving a result to :"
-                + Math.round((float) result / Time.MS_PER_SEC));
-
-        result = adjuster.adjustPrediction(5 * Time.MS_PER_MIN);
-        System.out.println("Percentage is :"
-                + adjuster.getPercentage()
-                + " giving a result to :"
-                + Math.round((float) result / Time.MS_PER_SEC));
-
-        result = adjuster.adjustPrediction(Time.MS_PER_MIN);
-        System.out.println("Percentage is :"
-                + adjuster.getPercentage()
-                + " giving a result to :"
-                + Math.round((float) result / Time.MS_PER_SEC));
-    }
 }

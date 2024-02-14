@@ -1,7 +1,8 @@
 <%@ page import="org.transitclock.api.reports.PredictionAccuracyQuery.IntervalsType" %>
 <%@ page import="org.transitclock.api.reports.PredAccuracyIntervalQuery" %>
 <%@ page import="java.util.Arrays" %>
-<%@ page import="java.text.ParseException" %>
+<%@ page contentType="application/json; charset=UTF-8"
+         pageEncoding="UTF-8" %>
 
 <%
     // Get params from the query string

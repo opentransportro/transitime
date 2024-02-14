@@ -54,7 +54,7 @@ public class ApiVehiclesDetails {
         Time timeForAgency = agency != null ? agency.getTime() : new Time((String) null);
 
         // Process each vehicle
-        vehiclesData = new ArrayList<ApiVehicleDetails>();
+        vehiclesData = new ArrayList<>();
         for (IpcVehicle vehicle : vehicles) {
             // Determine UI type for vehicle
             UiMode uiType = uiTypesForVehicles.get(vehicle.getId());

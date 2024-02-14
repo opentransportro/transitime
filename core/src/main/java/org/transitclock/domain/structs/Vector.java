@@ -166,21 +166,6 @@ public class Vector implements Serializable {
         return beginningVector.end(length1);
     }
 
-    public static void main(String[] args) {
-        Vector v = new Vector(new Location(37.79971, -122.43595), new Location(37.79972, -122.43596));
-        double h1 = v.heading();
-        System.err.println("h1=" + Geo.headingFormat((float) h1) + " degrees");
-
-        double a1 = v.angle();
-        System.err.println("a1=" + a1 + " radians or " + Geo.headingFormat((float) Math.toDegrees(a1)));
-
-        Location l = new Location(37.79971, -122.43595);
-        Location offset = Geo.offset(l, 20.0, -70.0);
-        System.err.println("\nname, lat, lon");
-        System.err.println("l, " + Geo.format(l.getLat()) + ", " + Geo.format(l.getLon()));
-        System.err.println("offset, " + Geo.format(offset.getLat()) + ", " + Geo.format(offset.getLon()));
-    }
-
     @Override
     public String toString() {
         return "Vector [" + "l1=" + l1 + ", l2=" + l2 + ", length=" + length() + "]";
