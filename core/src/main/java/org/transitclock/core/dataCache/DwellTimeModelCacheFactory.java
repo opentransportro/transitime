@@ -11,16 +11,14 @@ import org.transitclock.utils.ClassInstantiator;
 public class DwellTimeModelCacheFactory {
     private static final ClassConfigValue className = new ClassConfigValue(
             "transitclock.core.cache.dwellTimeModelCache",
-            null,
+            DummyDwellTimeModelCacheImpl.class,
             "Specifies the class used to cache RLS data for a stop.");
 
     private static DwellTimeModelCacheInterface singleton = null;
 
     public static DwellTimeModelCacheInterface getInstance() {
-        if (singleton == null) {
-            if (className.getValue() != null) {
-                singleton = ClassInstantiator.instantiate(className.getValue(), DwellTimeModelCacheInterface.class);
-            }
+        if (singleton == null && className.getValue() != null) {
+            singleton = ClassInstantiator.instantiate(className.getValue(), DwellTimeModelCacheInterface.class);
         }
 
         return singleton;

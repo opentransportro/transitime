@@ -10,7 +10,7 @@ public class BiasAdjusterFactory {
     // The name of the class to instantiate
     private static final ClassConfigValue className = new ClassConfigValue(
             "transitclock.core.predictiongenerator.biasabjuster",
-            null,
+            DummyBiasAdjuster.class,
             "Specifies the name of the class used to adjust the bias of a predction.");
 
     public static BiasAdjuster getInstance() {

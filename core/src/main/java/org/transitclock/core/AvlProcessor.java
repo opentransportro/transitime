@@ -38,17 +38,8 @@ public class AvlProcessor {
     // can determine if AVL feed is up.
     private AvlReport lastRegularReportProcessed;
 
-
-    /*
-     * Singleton class so shouldn't use constructor so declared private
-     */
     private AvlProcessor() {}
 
-    /**
-     * Returns the singleton AvlProcessor
-     *
-     * @return
-     */
     public static synchronized AvlProcessor getInstance() {
         return singleton;
     }
@@ -1424,8 +1415,7 @@ public class AvlProcessor {
         // If any vehicles have timed out then handle them. This is done
         // here instead of using a regular timer so that it will work
         // even when in playback mode or when reading batch data.
-        ApplicationContext.getDefaultContext()
-                .getModuleRegistry()
+        ApplicationContext.moduleRegistry()
                 .getTimeoutHandlerModule()
                 .storeAvlReport(avlReport);
 

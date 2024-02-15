@@ -307,7 +307,7 @@ public class PredictionDataCache {
         for (RouteStop routeStop : routeStops) {
             List<IpcPredictionsForRouteStopDest> predsForStop = getPredictions(
                     routeStop.getRouteIdOrShortName(), null, routeStop.getStopIdOrCode(), predictionsPerStop);
-            for (IpcPredictionsForRouteStopDest predictions : predsForStop) listOfPredictions.add(predictions);
+            listOfPredictions.addAll(predsForStop);
         }
         return listOfPredictions;
     }

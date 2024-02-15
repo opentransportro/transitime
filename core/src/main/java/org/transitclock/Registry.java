@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class Registry<C> {
-    private final Map<Class<?>, C> data;
+    protected final Map<Class<?>, C> data;
 
     public Registry() {
         this.data = new ConcurrentHashMap<>();
@@ -19,7 +19,18 @@ public abstract class Registry<C> {
         }
 
         data.put(obj.getClass(), obj);
+        registerImplementedInterfaces(obj.getClass(), obj);
+
         return obj;
+    }
+
+    private <T extends C> void registerImplementedInterfaces(Class<?> clazz, T obj) {
+        for (Class<?> anInterface : clazz.getInterfaces()) {
+            if (!anInterface.getPackageName().startsWith("java.lang")) {
+                data.put(anInterface, obj);
+            }
+            registerImplementedInterfaces(anInterface, obj);
+        }
     }
 
     @NonNull

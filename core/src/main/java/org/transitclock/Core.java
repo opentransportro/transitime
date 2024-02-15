@@ -86,16 +86,14 @@ public class Core {
          // work if Db logger started first.
          dataDbLogger = DataDbLogger.getDataDbLogger(agencyId, CoreConfig.storeDataInDatabase(), CoreConfig.pauseIfDbQueueFilling());
 
-
-
-         TimeoutHandlerModule timeoutHandlerModule = moduleRegistry.createAndSchedule(TimeoutHandlerModule.class);
+         moduleRegistry.createAndSchedule(TimeoutHandlerModule.class);
 
          // Start any optional modules.
          var optionalModuleNames = CoreConfig.getOptionalModules();
          for (Class<?> moduleName : optionalModuleNames) {
              logger.info("Starting up optional module {}", moduleName);
              try {
-                 Module module = moduleRegistry.createAndSchedule(moduleName);
+                 moduleRegistry.createAndSchedule(moduleName);
              } catch (NoSuchMethodException e) {
                  logger.error("Failed to start {} because could not find constructor with agencyId arg", moduleName, e);
              } catch (InvocationTargetException e) {
