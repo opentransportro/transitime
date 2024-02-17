@@ -8,6 +8,9 @@ import org.ehcache.Cache;
 import org.ehcache.CacheManager;
 import org.hibernate.Session;
 import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.transitclock.ApplicationContext;
 import org.transitclock.Core;
 import org.transitclock.core.DwellTimeDetails;
 import org.transitclock.core.TravelTimeDetails;
@@ -27,22 +30,14 @@ import java.util.List;
  * @author Sean Óg Crudden
  */
 @Slf4j
+@Component
 public class ScheduleBasedHistoricalAverageCache {
     private static final String cacheName = "HistoricalAverageCache";
-    private static final ScheduleBasedHistoricalAverageCache singleton = new ScheduleBasedHistoricalAverageCache();
-    private Cache<StopPathCacheKey, HistoricalAverage> cache = null;
+    private final Cache<StopPathCacheKey, HistoricalAverage> cache;
+    @Autowired
+    private TripDataHistoryCacheInterface tripDataHistoryCache;
 
-    /**
-     * Gets the singleton instance of this class.
-     *
-     * @return
-     */
-    public static ScheduleBasedHistoricalAverageCache getInstance() {
-        return singleton;
-    }
-
-    private ScheduleBasedHistoricalAverageCache() {
-        CacheManager cm = CacheManagerFactory.getInstance();
+    public ScheduleBasedHistoricalAverageCache(CacheManager cm) {
         cache = cm.getCache(cacheName, StopPathCacheKey.class, HistoricalAverage.class);
     }
 
@@ -55,17 +50,14 @@ public class ScheduleBasedHistoricalAverageCache {
     }
 
     public synchronized HistoricalAverage getAverage(StopPathCacheKey key) {
-
         HistoricalAverage result = cache.get(key);
         return result;
     }
 
     public synchronized void putAverage(StopPathCacheKey key, HistoricalAverage average) {
-
         logger.debug("Putting: {} in cache with values : {}", key.toString(), average);
 
         cache.put(key, average);
-        // logCache(logger);
     }
 
     public synchronized void putArrivalDeparture(ArrivalDeparture arrivalDeparture) throws Exception {
@@ -84,8 +76,7 @@ public class ScheduleBasedHistoricalAverageCache {
                     StopPathCacheKey historicalAverageCacheKey =
                             new StopPathCacheKey(trip.getId(), arrivalDeparture.getStopPathIndex(), true);
 
-                    HistoricalAverage average =
-                            ScheduleBasedHistoricalAverageCache.getInstance().getAverage(historicalAverageCacheKey);
+                    HistoricalAverage average = getAverage(historicalAverageCacheKey);
 
                     if (average == null) average = new HistoricalAverage();
                     logger.debug(
@@ -93,8 +84,7 @@ public class ScheduleBasedHistoricalAverageCache {
                             historicalAverageCacheKey,
                             travelTimeDetails);
                     average.update(travelTimeDetails.getTravelTime());
-
-                    ScheduleBasedHistoricalAverageCache.getInstance().putAverage(historicalAverageCacheKey, average);
+                    putAverage(historicalAverageCacheKey, average);
                 }
             }
 
@@ -104,16 +94,14 @@ public class ScheduleBasedHistoricalAverageCache {
                 StopPathCacheKey historicalAverageCacheKey =
                         new StopPathCacheKey(trip.getId(), arrivalDeparture.getStopPathIndex(), false);
 
-                HistoricalAverage average =
-                        ScheduleBasedHistoricalAverageCache.getInstance().getAverage(historicalAverageCacheKey);
+                HistoricalAverage average = getAverage(historicalAverageCacheKey);
 
                 if (average == null) average = new HistoricalAverage();
 
                 logger.debug(
                         "Updating historical averege for : {} with {}", historicalAverageCacheKey, dwellTimeDetails);
                 average.update(dwellTimeDetails.getDwellTime());
-
-                ScheduleBasedHistoricalAverageCache.getInstance().putAverage(historicalAverageCacheKey, average);
+                putAverage(historicalAverageCacheKey, average);
             }
         }
     }
@@ -122,10 +110,10 @@ public class ScheduleBasedHistoricalAverageCache {
         Date nearestDay = DateUtils.truncate(new Date(arrivalDeparture.getTime().getTime()), Calendar.DAY_OF_MONTH);
         TripKey tripKey = new TripKey(arrivalDeparture.getTripId(), nearestDay, trip.getStartTime());
 
-        List<IpcArrivalDeparture> arrivalDepartures = TripDataHistoryCacheFactory.getInstance().getTripHistory(tripKey);
+        List<IpcArrivalDeparture> arrivalDepartures = tripDataHistoryCache.getTripHistory(tripKey);
 
         if (arrivalDepartures != null && !arrivalDepartures.isEmpty() && arrivalDeparture.isArrival()) {
-            IpcArrivalDeparture previousEvent = TripDataHistoryCacheFactory.getInstance()
+            IpcArrivalDeparture previousEvent = tripDataHistoryCache
                     .findPreviousDepartureEvent(arrivalDepartures, arrivalDeparture);
 
             if (previousEvent != null && arrivalDeparture != null && previousEvent.isDeparture()) {
@@ -140,10 +128,10 @@ public class ScheduleBasedHistoricalAverageCache {
         Date nearestDay = DateUtils.truncate(new Date(arrivalDeparture.getTime().getTime()), Calendar.DAY_OF_MONTH);
         TripKey tripKey = new TripKey(arrivalDeparture.getTripId(), nearestDay, trip.getStartTime());
 
-        List<IpcArrivalDeparture> arrivalDepartures = TripDataHistoryCacheFactory.getInstance().getTripHistory(tripKey);
+        List<IpcArrivalDeparture> arrivalDepartures = tripDataHistoryCache.getTripHistory(tripKey);
 
         if (arrivalDepartures != null && arrivalDepartures.size() > 0 && arrivalDeparture.isDeparture()) {
-            IpcArrivalDeparture previousEvent = TripDataHistoryCacheFactory.getInstance()
+            IpcArrivalDeparture previousEvent = tripDataHistoryCache
                     .findPreviousArrivalEvent(arrivalDepartures, arrivalDeparture);
 
             if (previousEvent != null && arrivalDeparture != null && previousEvent.isArrival()) {
@@ -163,7 +151,7 @@ public class ScheduleBasedHistoricalAverageCache {
         results.sort(new ArrivalDepartureComparator());
 
         for (ArrivalDeparture result : results) {
-            ScheduleBasedHistoricalAverageCache.getInstance().putArrivalDeparture(result);
+            putArrivalDeparture(result);
         }
     }
 

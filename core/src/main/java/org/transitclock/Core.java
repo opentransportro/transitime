@@ -36,11 +36,9 @@ public class Core {
     private final DbConfig configData;
 
     private final DataDbLogger dataDbLogger;
-    private final ModuleRegistry moduleRegistry;
 
     @SneakyThrows
     private Core(@NonNull String agencyId, ModuleRegistry moduleRegistry) {
-        this.moduleRegistry = moduleRegistry;
          // Read in config rev from ActiveRevisions table in db
          ActiveRevision activeRevision = ActiveRevision.get(agencyId);
 
@@ -73,6 +71,9 @@ public class Core {
 
          // Read in all GTFS based config data from the database
          configData = new DbConfig(agencyId, configRev);
+         ApplicationContext.registerSingleton(configData);
+         ApplicationContext.registerSingleton(configData.getServiceUtils());
+         ApplicationContext.registerSingleton(configData.getTime());
 
          // Create the DataDBLogger so that generated data can be stored
          // to database via a robust queue. But don't actually log data
@@ -85,6 +86,8 @@ public class Core {
          // to work across all threads it appears that sometimes it wouldn't
          // work if Db logger started first.
          dataDbLogger = DataDbLogger.getDataDbLogger(agencyId, CoreConfig.storeDataInDatabase(), CoreConfig.pauseIfDbQueueFilling());
+         ApplicationContext.registerSingleton(dataDbLogger);
+
 
          moduleRegistry.createAndSchedule(TimeoutHandlerModule.class);
 
@@ -105,7 +108,6 @@ public class Core {
              }
          }
 
-          startServices(agencyId);
      }
 
     /**
@@ -141,16 +143,6 @@ public class Core {
     }
 
     /**
-     * Returns true if core application. If GTFS processing or other application then not a Core
-     * application and should't try to read in data such as route names for a trip.
-     *
-     * @return true if core application
-     */
-    public static boolean isCoreApplication() {
-        return SINGLETON != null;
-    }
-
-    /**
      * Makes the config data available to all
      *
      * @return
@@ -177,21 +169,5 @@ public class Core {
      */
     public DataDbLogger getDbLogger() {
         return dataDbLogger;
-    }
-
-
-    public void startServices(String agencyId) {
-        PredictionsServiceImpl.start(PredictionDataCache.getInstance());
-        VehiclesServiceImpl.start(VehicleDataCache.getInstance());
-        ConfigServiceImpl.start();
-        ServerStatusServiceImpl.start(agencyId);
-        CommandsServiceImpl.start();
-        CacheQueryServiceImpl.start();
-        PredictionAnalysisServiceImpl.start();
-        HoldingTimeServiceImpl.start();
-    }
-
-    public TimeoutHandlerModule getTimeoutHandlerModule() {
-        return moduleRegistry.getTimeoutHandlerModule();
     }
 }

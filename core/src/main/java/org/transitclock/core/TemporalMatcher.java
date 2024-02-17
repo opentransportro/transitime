@@ -4,6 +4,9 @@ package org.transitclock.core;
 import java.util.Date;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.transitclock.ApplicationContext;
 import org.transitclock.Core;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.domain.structs.AvlReport;
@@ -20,22 +23,10 @@ import org.transitclock.utils.Time;
  * @author SkiBu Smith
  */
 @Slf4j
+@Component
 public class TemporalMatcher {
-
-    // Singleton class
-    private static final TemporalMatcher singleton = new TemporalMatcher();
-
-    /** Declaring constructor as private since singleton class */
-    private TemporalMatcher() {}
-
-    /**
-     * Returns the TemporalMatcher singleton
-     *
-     * @return
-     */
-    public static TemporalMatcher getInstance() {
-        return singleton;
-    }
+    @Autowired
+    private TravelTimes travelTimes;
 
     /**
      * For the spatial match, determines how far off in time the vehicle is from what is expected
@@ -54,7 +45,7 @@ public class TemporalMatcher {
      * @return The TemporalDifference between the AVL time and when the vehicle is expected to be at
      *     that match. Returns null if the temporal difference is beyond the allowable bounds.
      */
-    private static TemporalDifference determineHowFarOffScheduledTime(
+    private TemporalDifference determineHowFarOffScheduledTime(
             String vehicleId, Date date, SpatialMatch spatialMatch, boolean isFirstSpatialMatch) {
 
         // check to see if we are frequency based
@@ -78,7 +69,7 @@ public class TemporalMatcher {
                 0.0, // distanceToSegment
                 0.0); // distanceAlongSegment
         int tripStartTimeSecs = spatialMatch.getTrip().getStartTime();
-        int travelTimeForCurrentTrip = TravelTimes.getInstance()
+        int travelTimeForCurrentTrip = travelTimes
                 .expectedTravelTimeBetweenMatches(vehicleId, tripStartTimeSecs, beginningOfTrip, spatialMatch);
 
         int msecIntoDayVehicleExpectedToBeAtMatch = tripStartTimeSecs * 1000 + travelTimeForCurrentTrip;
@@ -345,7 +336,7 @@ public class TemporalMatcher {
 
             // Determine how long would expect it to take to get from previous
             // match to the new match.
-            int expectedTravelTimeMsecForward = TravelTimes.getInstance()
+            int expectedTravelTimeMsecForward = travelTimes
                     .expectedTravelTimeBetweenMatches(
                             vehicleState.getVehicleId(), previousAvlTime, previousMatch, spatialMatch);
             // TODO - Check why it has to look backwards. Useful for freq based trips. Currently

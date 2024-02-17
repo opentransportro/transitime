@@ -665,13 +665,6 @@ public abstract class ArrivalDeparture implements Lifecycle, Serializable {
      *     is a problem
      */
     public String getTripShortName() {
-        if (!Core.isCoreApplication()) {
-            logger.error(
-                    "For agencyId={} align ArrivalDeparture.getTripShortName() but it is not part of core application",
-                    AgencyConfig.getAgencyId());
-            return null;
-        }
-
         Trip trip = Core.getInstance().getDbConfig().getTrip(tripId);
         if (trip != null) {
             return trip.getShortName();

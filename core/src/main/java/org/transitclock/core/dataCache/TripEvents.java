@@ -19,7 +19,7 @@ public class TripEvents implements Serializable {
 
     public void setEvents(List<IpcArrivalDeparture> events) {
         this.events = events;
-        Collections.sort(this.events, new IpcArrivalDepartureComparator());
+        this.events.sort(new IpcArrivalDepartureComparator());
     }
 
     @Override

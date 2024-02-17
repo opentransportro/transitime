@@ -11,6 +11,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
+import org.transitclock.ApplicationContext;
 import org.transitclock.core.BlockAssignmentMethod;
 import org.transitclock.core.SpatialMatch;
 import org.transitclock.core.TemporalDifference;
@@ -74,7 +75,7 @@ public class IpcVehicle implements Serializable {
      *
      * @param vs
      */
-    public IpcVehicle(VehicleState vs) {
+    public IpcVehicle(VehicleState vs, long layoverDepartureTime) {
         this.vehicleName = vs.getVehicleName();
         this.blockAssignmentMethod = vs.getAssignmentMethod();
         this.avl = new IpcAvl(vs.getAvlReport());
@@ -83,6 +84,7 @@ public class IpcVehicle implements Serializable {
         this.routeShortName = vs.getRouteShortName();
         this.routeName = vs.getRouteName();
         Trip trip = vs.getTrip();
+
         if (trip != null) {
             this.blockId = vs.getBlock().getId();
             this.tripId = trip.getId();
@@ -102,17 +104,18 @@ public class IpcVehicle implements Serializable {
             // the scheduled time. Therefore use the predicted departure time
             // for layover.
             this.isLayover = match.isLayover();
-            if (this.isLayover) {
-                IpcPrediction predsForVehicle = PredictionDataCache.getInstance()
-                        .getPredictionForVehicle(
-                                vs.getAvlReport().getVehicleId(),
-                                vs.getRouteShortName(),
-                                match.getStopPath().getStopId());
-                this.layoverDepartureTime = predsForVehicle != null ? predsForVehicle.getPredictionTime() : 0;
-            } else {
-                // Not a layover so departure time not provided
-                this.layoverDepartureTime = 0;
-            }
+            this.layoverDepartureTime = layoverDepartureTime;
+//            if (this.isLayover) {
+//                IpcPrediction predsForVehicle = ApplicationContext.singleton(PredictionDataCache.class)
+//                        .getPredictionForVehicle(
+//                                vs.getAvlReport().getVehicleId(),
+//                                vs.getRouteShortName(),
+//                                match.getStopPath().getStopId());
+//                this.layoverDepartureTime = predsForVehicle != null ? predsForVehicle.getPredictionTime() : 0;
+//            } else {
+//                // Not a layover so departure time not provided
+//                this.layoverDepartureTime = 0;
+//            }
 
             // If vehicle is at a stop then "next" stop will actually be
             // the current stop.

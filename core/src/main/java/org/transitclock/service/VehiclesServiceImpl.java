@@ -4,6 +4,9 @@ package org.transitclock.service;
 import com.querydsl.jpa.impl.JPAQuery;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.transitclock.ApplicationContext;
 import org.transitclock.core.BlocksInfo;
 import org.transitclock.core.dataCache.VehicleDataCache;
 import org.transitclock.domain.hibernate.HibernateUtils;
@@ -35,37 +38,10 @@ import java.util.List;
  * @author SkiBu Smith
  */
 @Slf4j
+@Component
 public class VehiclesServiceImpl implements VehiclesInterface {
-
-    // Should only be accessed as singleton class
-    private static VehiclesServiceImpl singleton;
-
-    public static VehiclesInterface instance() {
-        return singleton;
-    }
-
-    public static VehiclesServiceImpl start(VehicleDataCache vehicleManager) {
-        if (singleton == null) {
-            singleton = new VehiclesServiceImpl(vehicleManager);
-        }
-
-
-        return singleton;
-    }
-
-    private final VehicleDataCache vehicleDataCache;
-
-    /*
-     * Constructor. Made private so that can only be instantiated by
-     * get(). Doesn't actually do anything since all the work is done in
-     * the superclass constructor.
-     *
-     * @param projectId
-     *            for registering this object with the rmiregistry
-     */
-    private VehiclesServiceImpl(VehicleDataCache vehicleDataCache) {
-        this.vehicleDataCache = vehicleDataCache;
-    }
+    @Autowired
+    private VehicleDataCache vehicleDataCache;
 
     /* (non-Javadoc)
      * @see org.transitclock.ipc.interfaces.VehiclesInterface#get()
@@ -233,7 +209,7 @@ public class VehiclesServiceImpl implements VehiclesInterface {
 
             // Determine vehicles associated with the block if there are any
             Collection<String> vehicleIdsForBlock =
-                    VehicleDataCache.getInstance().getVehiclesByBlockId(block.getId());
+                    vehicleDataCache.getVehiclesByBlockId(block.getId());
             Collection<IpcVehicle> ipcVehiclesForBlock = get(vehicleIdsForBlock);
 
             // Create and add the IpcActiveBlock
@@ -352,7 +328,7 @@ public class VehiclesServiceImpl implements VehiclesInterface {
 
             // Determine vehicles associated with the block if there are any
             Collection<String> vehicleIdsForBlock =
-                    VehicleDataCache.getInstance().getVehiclesByBlockId(block.getId());
+                    vehicleDataCache.getVehiclesByBlockId(block.getId());
             Collection<IpcVehicle> ipcVehiclesForBlock = get(vehicleIdsForBlock);
 
             // Create and add the IpcActiveBlock
@@ -373,7 +349,7 @@ public class VehiclesServiceImpl implements VehiclesInterface {
     @Override
     public Collection<IpcVehicleConfig> getVehicleConfigs() {
         Collection<IpcVehicleConfig> result = new ArrayList<>();
-        for (VehicleConfig vehicleConfig : VehicleDataCache.getInstance().getVehicleConfigs()) {
+        for (VehicleConfig vehicleConfig : vehicleDataCache.getVehicleConfigs()) {
             result.add(new IpcVehicleConfig(vehicleConfig));
         }
 
@@ -389,7 +365,7 @@ public class VehiclesServiceImpl implements VehiclesInterface {
         List<Block> blocks = BlocksInfo.getCurrentlyActiveBlocks();
         for (Block block : blocks) {
             Collection<String> vehicleIdsForBlock =
-                    VehicleDataCache.getInstance().getVehiclesByBlockId(block.getId());
+                    vehicleDataCache.getVehiclesByBlockId(block.getId());
             vehicleIds.addAll(vehicleIdsForBlock);
         }
         return get(vehicleIds);

@@ -6,6 +6,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.ehcache.Cache;
 import org.ehcache.CacheManager;
 import org.hibernate.Session;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.transitclock.ApplicationContext;
 import org.transitclock.core.dataCache.*;
 import org.transitclock.domain.structs.ArrivalDeparture;
 import org.transitclock.domain.structs.QArrivalDeparture;
@@ -24,14 +27,14 @@ import java.util.List;
  *     perhaps using Infinispan.
  */
 @Slf4j
-public class StopArrivalDepartureCache extends StopArrivalDepartureCacheInterface {
-
+@Component
+public class StopArrivalDepartureCache implements StopArrivalDepartureCacheInterface {
     private static final String cacheByStop = "arrivalDeparturesByStop";
-
     private final Cache<StopArrivalDepartureCacheKey, StopEvents> cache;
+    @Autowired
+    private DwellTimeModelCacheInterface dwellTimeModelCacheInterface;
 
-    public StopArrivalDepartureCache() {
-        CacheManager cm = CacheManagerFactory.getInstance();
+    public StopArrivalDepartureCache(CacheManager cm) {
         cache = cm.getCache(cacheByStop, StopArrivalDepartureCacheKey.class, StopEvents.class);
     }
 
@@ -108,11 +111,10 @@ public class StopArrivalDepartureCache extends StopArrivalDepartureCacheInterfac
                 .fetch();
 
         for (ArrivalDeparture result : results) {
-            StopArrivalDepartureCacheFactory.getInstance().putArrivalDeparture(result);
+            putArrivalDeparture(result);
             // TODO might be better with its own populateCacheFromdb
             try {
-                if (DwellTimeModelCacheFactory.getInstance() != null)
-                    DwellTimeModelCacheFactory.getInstance().addSample(result);
+                dwellTimeModelCacheInterface.addSample(result);
             } catch (Exception e) {
                 e.printStackTrace();
             }

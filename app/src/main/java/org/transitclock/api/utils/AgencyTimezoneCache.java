@@ -2,6 +2,9 @@
 package org.transitclock.api.utils;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.transitclock.ApplicationContext;
 import org.transitclock.domain.structs.Agency;
 import org.transitclock.service.contract.ConfigInterface;
 import org.transitclock.service.ConfigServiceImpl;
@@ -19,9 +22,11 @@ import java.util.TimeZone;
  * @author Michael
  */
 @Slf4j
+@Component
 public class AgencyTimezoneCache {
-    private static final Map<String, TimeZone> timezonesMap = new HashMap<>();
-
+    private final Map<String, TimeZone> timezonesMap = new HashMap<>();
+    @Autowired
+    private ConfigInterface configInterface;
     /**
      * Returns the TimeZone for the agency specified by the agencyId. The timezone is obtained from
      * the core agency server. Therefore it is cached to reduce requests to the server.
@@ -29,14 +34,13 @@ public class AgencyTimezoneCache {
      * @param agencyId
      * @return The TimeZone for the agency or null if could not be determined
      */
-    public static TimeZone get(String agencyId) {
+    public TimeZone get(String agencyId) {
         // Trying getting timezone from cache
         TimeZone timezone = timezonesMap.get(agencyId);
 
         // If timezone not already in cache then get it and cache it
         if (timezone == null) {
-            ConfigInterface inter = ConfigServiceImpl.instance();
-            List<Agency> agencies = inter.getAgencies();
+            List<Agency> agencies = configInterface.getAgencies();
 
             // Use timezone of first agency
             String timezoneStr = agencies.get(0).getTimeZoneStr();

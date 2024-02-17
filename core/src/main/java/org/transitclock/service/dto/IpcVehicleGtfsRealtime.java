@@ -56,8 +56,8 @@ public class IpcVehicleGtfsRealtime extends IpcVehicle {
      *
      * @param vs
      */
-    public IpcVehicleGtfsRealtime(VehicleState vs) {
-        super(vs);
+    public IpcVehicleGtfsRealtime(VehicleState vs, long layoverDepartureTime) {
+        super(vs, layoverDepartureTime);
 
         // Get the match. If match is just after a stop then adjust
         // it to just before the stop so that can determine proper

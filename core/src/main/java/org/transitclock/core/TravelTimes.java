@@ -2,6 +2,7 @@
 package org.transitclock.core;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 import org.transitclock.Core;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.domain.structs.Location;
@@ -18,16 +19,9 @@ import java.util.Date;
  *
  * @author SkiBu Smith
  */
+@Component
 @Slf4j
 public class TravelTimes {
-
-    // Singleton class
-    private static final TravelTimes singleton = new TravelTimes();
-    private TravelTimes() {}
-    public static TravelTimes getInstance() {
-        return singleton;
-    }
-
     /**
      * Determines travel time as the crows flies to cover the distance. Intended to be used for
      * seeing if have enough time to deadhead to a breakpoint. Just a very crude approximation since

@@ -5,6 +5,8 @@ import com.querydsl.jpa.impl.JPAQuery;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.DateUtils;
 import org.hibernate.Session;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.transitclock.Core;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.core.dataCache.*;
@@ -24,31 +26,23 @@ import java.util.concurrent.ConcurrentHashMap;
  *     trip is used to decide which bucket to apply the data to or which average to retrieve.
  */
 @Slf4j
+@Component
 public class FrequencyBasedHistoricalAverageCache {
 
-    private static final FrequencyBasedHistoricalAverageCache singleton = new FrequencyBasedHistoricalAverageCache();
+    private final Map<StopPathKey, TreeMap<Long, HistoricalAverage>> m = new ConcurrentHashMap<>();
 
-    private final ConcurrentHashMap<StopPathKey, TreeMap<Long, HistoricalAverage>> m =
-            new ConcurrentHashMap<>();
+    @Autowired
+    private TripDataHistoryCacheInterface tripDataHistoryCacheInterface;
 
-    /**
-     * Gets the singleton instance of this class.
-     *
-     * @return
-     */
-    public static FrequencyBasedHistoricalAverageCache getInstance() {
-        return singleton;
-    }
-
-    private FrequencyBasedHistoricalAverageCache() {}
+    public FrequencyBasedHistoricalAverageCache() {}
 
     public String toString() {
 
         String totalsString = "";
         for (StopPathKey key : m.keySet()) {
-            TreeMap<Long, HistoricalAverage> values = new TreeMap<Long, HistoricalAverage>();
+            Map<Long, HistoricalAverage> values = new TreeMap<>();
+            Map<Long, HistoricalAverage> map = m.get(key);
 
-            TreeMap<Long, HistoricalAverage> map = m.get(key);
             Set<Long> times = map.keySet();
             for (Long time : times) {
                 values.put(time, map.get(time));
@@ -128,8 +122,7 @@ public class FrequencyBasedHistoricalAverageCache {
                     StopPathCacheKey historicalAverageCacheKey = new StopPathCacheKey(
                             trip.getId(), pathDuration.getArrival().getStopPathIndex(), true, (long) time);
 
-                    HistoricalAverage average =
-                            FrequencyBasedHistoricalAverageCache.getInstance().getAverage(historicalAverageCacheKey);
+                    HistoricalAverage average = getAverage(historicalAverageCacheKey);
 
                     if (average == null) average = new HistoricalAverage();
 
@@ -142,7 +135,7 @@ public class FrequencyBasedHistoricalAverageCache {
                             historicalAverageCacheKey,
                             average);
 
-                    FrequencyBasedHistoricalAverageCache.getInstance().putAverage(historicalAverageCacheKey, average);
+                    putAverage(historicalAverageCacheKey, average);
                 }
             }
             DwellTimeResult stopDuration = getLastStopDuration(new IpcArrivalDeparture(arrivalDeparture), trip);
@@ -152,8 +145,7 @@ public class FrequencyBasedHistoricalAverageCache {
                 StopPathCacheKey historicalAverageCacheKey = new StopPathCacheKey(
                         trip.getId(), stopDuration.getDeparture().getStopPathIndex(), false, (long) time);
 
-                HistoricalAverage average =
-                        FrequencyBasedHistoricalAverageCache.getInstance().getAverage(historicalAverageCacheKey);
+                HistoricalAverage average = getAverage(historicalAverageCacheKey);
 
                 if (average == null) average = new HistoricalAverage();
 
@@ -166,7 +158,7 @@ public class FrequencyBasedHistoricalAverageCache {
                         historicalAverageCacheKey,
                         average);
 
-                FrequencyBasedHistoricalAverageCache.getInstance().putAverage(historicalAverageCacheKey, average);
+                putAverage(historicalAverageCacheKey, average);
             }
             if (stopDuration == null && pathDuration == null) {
                 logger.debug(
@@ -237,7 +229,7 @@ public class FrequencyBasedHistoricalAverageCache {
         Date nearestDay = DateUtils.truncate(new Date(arrivalDeparture.getTime().getTime()), Calendar.DAY_OF_MONTH);
         TripKey tripKey = new TripKey(arrivalDeparture.getTripId(), nearestDay, trip.getStartTime());
 
-        List<IpcArrivalDeparture> arrivalDepartures = TripDataHistoryCacheFactory.getInstance().getTripHistory(tripKey);
+        List<IpcArrivalDeparture> arrivalDepartures = tripDataHistoryCacheInterface.getTripHistory(tripKey);
 
         if (arrivalDepartures != null && !arrivalDepartures.isEmpty() && arrivalDeparture.isArrival()) {
             IpcArrivalDeparture previousEvent = findPreviousDepartureEvent(arrivalDepartures, arrivalDeparture);
@@ -254,7 +246,7 @@ public class FrequencyBasedHistoricalAverageCache {
         Date nearestDay = DateUtils.truncate(new Date(arrivalDeparture.getTime().getTime()), Calendar.DAY_OF_MONTH);
         TripKey tripKey = new TripKey(arrivalDeparture.getTripId(), nearestDay, trip.getStartTime());
 
-        List<IpcArrivalDeparture> arrivalDepartures = TripDataHistoryCacheFactory.getInstance().getTripHistory(tripKey);
+        List<IpcArrivalDeparture> arrivalDepartures = tripDataHistoryCacheInterface.getTripHistory(tripKey);
 
         if (arrivalDepartures != null && !arrivalDepartures.isEmpty() && arrivalDeparture.isDeparture()) {
             IpcArrivalDeparture previousEvent = findPreviousArrivalEvent(arrivalDepartures, arrivalDeparture);
@@ -277,7 +269,7 @@ public class FrequencyBasedHistoricalAverageCache {
         for (ArrivalDeparture result : results) {
             // TODO this might be better done in the database.
             if (GtfsData.routeNotFiltered(result.getRouteId())) {
-                FrequencyBasedHistoricalAverageCache.getInstance().putArrivalDeparture(result);
+                putArrivalDeparture(result);
             }
         }
     }

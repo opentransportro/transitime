@@ -37,8 +37,8 @@ public class IpcVehicleComplete extends IpcVehicleGtfsRealtime {
      *
      * @param vs The current vehicle state. Must not be null.
      */
-    public IpcVehicleComplete(VehicleState vs) {
-        super(vs);
+    public IpcVehicleComplete(VehicleState vs, long layoverDepartureTime) {
+        super(vs, layoverDepartureTime);
 
         // If vehicle assigned then can set the parameters
         Trip trip = vs.getTrip();

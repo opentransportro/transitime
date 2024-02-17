@@ -6,6 +6,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.transitclock.ApplicationContext;
 import org.transitclock.Module;
 import org.transitclock.Core;
 import org.transitclock.config.data.PredictionAccuracyConfig;
@@ -37,7 +39,8 @@ public class PredictionAccuracyModule extends Module {
     // Declared static because want to be able to access it from another
     // class by using the static method handleArrivalDeparture().
     private static final Map<PredictionKey, List<PredAccuracyPrediction>> predictionMap = new ConcurrentHashMap<>();
-
+    @Autowired
+    private PredictionDataCache predictionDataCache;
 
     @Data
     public static class RouteAndStops {
@@ -220,8 +223,7 @@ public class PredictionAccuracyModule extends Module {
             for (String directionId : directionIds) {
                 Collection<String> stopIds = routeAndStop.stopIds.get(directionId);
                 for (String stopId : stopIds) {
-                    List<IpcPredictionsForRouteStopDest> predictions =
-                            PredictionDataCache.getInstance().getPredictions(routeId, directionId, stopId);
+                    List<IpcPredictionsForRouteStopDest> predictions = predictionDataCache.getPredictions(routeId, directionId, stopId);
                     boolean predictionsFound = false;
                     for (IpcPredictionsForRouteStopDest predList : predictions) {
                         for (IpcPrediction pred : predList.getPredictionsForRouteStop()) {

@@ -4,6 +4,8 @@ package org.transitclock.core.dataCache;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import org.springframework.stereotype.Component;
 import org.transitclock.core.VehicleState;
 
 /**
@@ -13,6 +15,7 @@ import org.transitclock.core.VehicleState;
  *
  * @author SkiBu Smith
  */
+@Component
 public class VehicleStateManager {
 
     // Keyed by vehicle ID. Need to use ConcurrentHashMap instead of HashMap
@@ -21,25 +24,6 @@ public class VehicleStateManager {
     // thread. Otherwise could get a ConcurrentModificationException.
     private final Map<String, VehicleState> vehicleMap = new ConcurrentHashMap<String, VehicleState>();
 
-    // This is a singleton class
-    private static final VehicleStateManager singleton = new VehicleStateManager();
-
-    /********************** Member Functions **************************/
-
-    /**
-     * Constructor made private because this is singleton class where getInstance() should be used
-     * to get the VehicleStateManager.
-     */
-    private VehicleStateManager() {}
-
-    /**
-     * Returns the singleton VehicleStateManager
-     *
-     * @return
-     */
-    public static VehicleStateManager getInstance() {
-        return singleton;
-    }
 
     /**
      * Adds VehicleState for the vehicle to the map so that it can be retrieved later.

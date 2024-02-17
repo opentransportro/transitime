@@ -4,6 +4,7 @@ package org.transitclock.domain;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
+import org.springframework.stereotype.Component;
 import org.transitclock.config.IntegerConfigValue;
 import org.transitclock.config.data.DbSetupConfig;
 import org.transitclock.domain.hibernate.HibernateUtils;
@@ -20,6 +21,7 @@ import java.util.Map;
  * @author SkiBu Smith
  */
 @Slf4j
+@Component
 public class ApiKeyManager {
 
     // Cache of the ApiKeys loaded from database.
@@ -37,12 +39,9 @@ public class ApiKeyManager {
             3,
             "Amount of time to wait in sec before updating the apiKeyCache");
 
-    // This is a singleton class
-    private static final ApiKeyManager singleton = new ApiKeyManager();
-
 
     /** Constructor private because singleton class */
-    private ApiKeyManager() {
+    public ApiKeyManager() {
         // Set the name of the db to get the data from.
         // Use the db name, such as "web".
         dbName = DbSetupConfig.getDbName();
@@ -50,15 +49,6 @@ public class ApiKeyManager {
         // Create the cache. Cache will actually be populated when first
         // checking if key is valid. This way don't do a db read at startup.
         apiKeyCache = new HashMap<String, ApiKey>();
-    }
-
-    /**
-     * Get singleton instance.
-     *
-     * @return
-     */
-    public static ApiKeyManager getInstance() {
-        return singleton;
     }
 
     /**

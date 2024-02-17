@@ -2,6 +2,8 @@
 package org.transitclock.monitoring;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.transitclock.ApplicationContext;
 import org.transitclock.Module;
 import org.transitclock.config.data.AgencyConfig;
 import org.transitclock.config.data.MonitoringConfig;
@@ -20,6 +22,8 @@ import org.transitclock.utils.Time;
  */
 @Slf4j
 public class MonitoringModule extends Module {
+    @Autowired
+    private AgencyMonitor agencyMonitor;
 
     public MonitoringModule(String agencyId) {
         super(agencyId);
@@ -32,9 +36,6 @@ public class MonitoringModule extends Module {
     public void run() {
         // Log that module successfully started
         logger.info("Started module {} for agencyId={}", getClass().getName(), getAgencyId());
-
-        AgencyMonitor agencyMonitor = AgencyMonitor.getInstance(agencyId);
-
         try {
             // Wait appropriate amount of time till poll again
             // Actually do the monitoring

@@ -2,6 +2,9 @@
 package org.transitclock.core.autoAssigner;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.transitclock.ApplicationContext;
 import org.transitclock.Core;
 import org.transitclock.config.data.BlockAssignerConfig;
 import org.transitclock.config.data.CoreConfig;
@@ -35,6 +38,7 @@ import static org.transitclock.config.data.BlockAssignerConfig.allowableLateSeco
  * @author SkiBu Smith
  */
 @Slf4j
+@Component
 public class AutoBlockAssigner {
 
     // For keeping track of last time vehicle auto assigned so that can limit
@@ -50,6 +54,14 @@ public class AutoBlockAssigner {
     // specified trip pattern. Keyed on trip pattern ID. Note: since the spatial
     // matches are cached and reused the block member will not be correct
     private final Map<String, SpatialMatch> spatialMatchCache = new HashMap<>();
+    @Autowired
+    private VehicleDataCache vehicleDataCache;
+    @Autowired
+    private TravelTimes travelTimes;
+    @Autowired
+    private VehicleStateManager vehicleStateManager;
+    @Autowired
+    private TemporalMatcher temporalMatcher;
 
     /**
      * Constructor
@@ -90,7 +102,7 @@ public class AutoBlockAssigner {
      *     it.
      */
     private boolean isBlockUnassigned(String blockId) {
-        Collection<String> vehicleIdsForBlock = VehicleDataCache.getInstance().getVehiclesByBlockId(blockId);
+        Collection<String> vehicleIdsForBlock = vehicleDataCache.getVehiclesByBlockId(blockId);
         // If no vehicles associated with the block then it is definitely
         // unassigned.
         if (vehicleIdsForBlock.isEmpty()) {
@@ -103,7 +115,7 @@ public class AutoBlockAssigner {
             // If a regular vehicle instead of one for schedule based
             // predictions then the block has a vehicle assigned to it,
             // meaning it is not unassigned
-            VehicleState vehiclestate = VehicleStateManager.getInstance().getVehicleState(vehicleId);
+            VehicleState vehiclestate = vehicleStateManager.getVehicleState(vehicleId);
             if (!vehiclestate.isForSchedBasedPreds()) {
                 return false;
             }
@@ -178,7 +190,7 @@ public class AutoBlockAssigner {
                 // Determine according to the historic travel times how long
                 // it was expected to take to travel from the previous match
                 // to the current one.
-                int expectedTravelTimeMsec = TravelTimes.getInstance()
+                int expectedTravelTimeMsec = travelTimes
                         .expectedTravelTimeBetweenMatches(avlReport.getVehicleId(), timeOfDayInSecs, prevSpatialMatch, spatialMatch);
                 TemporalDifference differenceFromExpectedTime =
                         new TemporalDifference(expectedTravelTimeMsec - avlTimeDifferenceMsec);
@@ -388,8 +400,7 @@ public class AutoBlockAssigner {
         var spatialMatches = useCache ? getSpatialMatches(avlReport, block) : getSpatialMatchesWithoutCache(avlReport, block);
 
         // Now that have the spatial matches determine the best temporal match
-        TemporalMatch bestMatch =
-                TemporalMatcher.getInstance().getBestTemporalMatchComparedToSchedule(avlReport, spatialMatches);
+        TemporalMatch bestMatch = temporalMatcher.getBestTemporalMatchComparedToSchedule(avlReport, spatialMatches);
 
         // Want to be pretty restrictive about matching to avoid false
         // positives. At the same time, want to not have a temporal match

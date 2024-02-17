@@ -1,41 +1,29 @@
 /* (C)2023 */
 package org.transitclock.core.dataCache;
 
+import lombok.extern.slf4j.Slf4j;
 import org.ehcache.Cache;
 import org.ehcache.CacheManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.transitclock.core.dataCache.ehcache.CacheManagerFactory;
+import org.springframework.stereotype.Component;
+import org.transitclock.ApplicationContext;
 import org.transitclock.domain.structs.PredictionForStopPath;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
+@Component
 public class StopPathPredictionCache {
     private static final String cacheName = "StopPathPredictionCache";
-    private static final StopPathPredictionCache singleton = new StopPathPredictionCache();
-    private static final Logger logger = LoggerFactory.getLogger(StopPathPredictionCache.class);
-
     private final Cache<StopPathCacheKey, StopPredictions> cache;
 
-    public static StopPathPredictionCache getInstance() {
-        return singleton;
-    }
-
-    private StopPathPredictionCache() {
-        CacheManager cm = CacheManagerFactory.getInstance();
+    public StopPathPredictionCache(CacheManager cm) {
         cache = cm.getCache(cacheName, StopPathCacheKey.class, StopPredictions.class);
-    }
-
-    public void logCache(Logger logger) {
-        logger.debug("Cache content log. Not implemented.");
     }
 
     @SuppressWarnings("unchecked")
     public synchronized List<PredictionForStopPath> getPredictions(StopPathCacheKey key) {
-
         StopPredictions result = cache.get(key);
-        logCache(logger);
         if (result == null) return null;
         else return result.getPredictions();
     }

@@ -4,6 +4,8 @@ package org.transitclock.core.predictiongenerator.frequency.traveltime.average;
 import java.util.Date;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.transitclock.ApplicationContext;
 import org.transitclock.Core;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.config.data.PredictionConfig;
@@ -29,7 +31,8 @@ import org.transitclock.utils.SystemTime;
 @Slf4j
 public class HistoricalAveragePredictionGeneratorImpl extends LastVehiclePredictionGeneratorImpl implements PredictionComponentElementsGenerator {
     private final String alternative = "LastVehiclePredictionGeneratorImpl";
-
+    @Autowired
+    protected FrequencyBasedHistoricalAverageCache frequencyBasedHistoricalAverageCache;
 
     /* (non-Javadoc)
      * @see org.transitclock.core.predictiongenerator.KalmanPredictionGeneratorImpl#getTravelTimeForPath(org.transitclock.core.Indices, org.transitclock.db.structs.AvlReport)
@@ -53,8 +56,7 @@ public class HistoricalAveragePredictionGeneratorImpl extends LastVehiclePredict
             StopPathCacheKey historicalAverageCacheKey =
                     new StopPathCacheKey(indices.getTrip().getId(), indices.getStopPathIndex(), true, time.longValue());
 
-            HistoricalAverage average =
-                    FrequencyBasedHistoricalAverageCache.getInstance().getAverage(historicalAverageCacheKey);
+            HistoricalAverage average = frequencyBasedHistoricalAverageCache.getAverage(historicalAverageCacheKey);
 
             if (average != null && average.getCount() >= PredictionConfig.minDays.getValue()) {
                 if (CoreConfig.storeTravelTimeStopPathPredictions.getValue()) {
@@ -68,7 +70,7 @@ public class HistoricalAveragePredictionGeneratorImpl extends LastVehiclePredict
                             true,
                             time);
                     Core.getInstance().getDbLogger().add(predictionForStopPath);
-                    StopPathPredictionCache.getInstance().putPrediction(predictionForStopPath);
+                    stopPathPredictionCache.putPrediction(predictionForStopPath);
                 }
 
                 logger.debug("Using historical average algorithm for prediction : {} for : {}", average, indices);
@@ -97,7 +99,7 @@ public class HistoricalAveragePredictionGeneratorImpl extends LastVehiclePredict
                 new StopPathCacheKey(indices.getTrip().getId(), indices.getStopPathIndex(), true, (long) time);
 
         HistoricalAverage average =
-                FrequencyBasedHistoricalAverageCache.getInstance().getAverage(historicalAverageCacheKey);
+                frequencyBasedHistoricalAverageCache.getAverage(historicalAverageCacheKey);
 
         if (average != null && average.getCount() >= PredictionConfig.minDays.getValue()) {
             double fractionofstoppathlefttotravel = (match.getStopPath().getLength() - match.getDistanceAlongStopPath())
@@ -114,7 +116,7 @@ public class HistoricalAveragePredictionGeneratorImpl extends LastVehiclePredict
                         true,
                         time);
                 Core.getInstance().getDbLogger().add(predictionForStopPath);
-                StopPathPredictionCache.getInstance().putPrediction(predictionForStopPath);
+                stopPathPredictionCache.putPrediction(predictionForStopPath);
             }
             return (long) value;
         } else {
@@ -136,7 +138,7 @@ public class HistoricalAveragePredictionGeneratorImpl extends LastVehiclePredict
                     indices.getTrip().getId(), indices.getStopPathIndex(), false, (long) time);
 
             HistoricalAverage average =
-                    FrequencyBasedHistoricalAverageCache.getInstance().getAverage(historicalAverageCacheKey);
+                    frequencyBasedHistoricalAverageCache.getAverage(historicalAverageCacheKey);
 
             if (average != null && average.getCount() >= PredictionConfig.minDays.getValue()) {
                 if (CoreConfig.storeDwellTimeStopPathPredictions.getValue()) {
@@ -150,7 +152,7 @@ public class HistoricalAveragePredictionGeneratorImpl extends LastVehiclePredict
                             false,
                             time);
                     Core.getInstance().getDbLogger().add(predictionForStopPath);
-                    StopPathPredictionCache.getInstance().putPrediction(predictionForStopPath);
+                    stopPathPredictionCache.putPrediction(predictionForStopPath);
                 }
 
                 logger.debug("Using historical average alogrithm for dwell time : {} for : {}", average, indices);

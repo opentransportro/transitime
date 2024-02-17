@@ -4,6 +4,9 @@ package org.transitclock.monitoring;
 import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.transitclock.ApplicationContext;
 import org.transitclock.config.data.MonitoringConfig;
 import org.transitclock.core.AvlProcessor;
 import org.transitclock.core.BlocksInfo;
@@ -18,7 +21,10 @@ import org.transitclock.utils.Time;
  * @author SkiBu Smith
  */
 @Slf4j
+@Component
 public class AvlFeedMonitor extends MonitorBase {
+    @Autowired
+    private AvlProcessor avlProcessor;
 
     public AvlFeedMonitor(String agencyId) {
         super(agencyId);
@@ -33,13 +39,13 @@ public class AvlFeedMonitor extends MonitorBase {
      */
     private int avlFeedOutageSecs() {
         // Determine age of AVL report
-        long lastAvlReportTime = AvlProcessor.getInstance().lastAvlReportTime();
+        long lastAvlReportTime = avlProcessor.lastAvlReportTime();
         long ageOfAvlReport = System.currentTimeMillis() - lastAvlReportTime;
         Double ageOfAvlReportInSecs = (double) (ageOfAvlReport / Time.MS_PER_SEC);
 
         logger.debug(
                 "When monitoring AVL feed last AVL report={}",
-                AvlProcessor.getInstance().getLastAvlReport());
+                avlProcessor.getLastAvlReport());
 
         setMessage(
                 "Last valid AVL report was "

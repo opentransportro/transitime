@@ -8,6 +8,7 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.annotations.DynamicUpdate;
+import org.transitclock.ApplicationContext;
 import org.transitclock.config.data.DbSetupConfig;
 import org.transitclock.domain.hibernate.HibernateUtils;
 import org.transitclock.domain.structs.Agency;
@@ -147,22 +148,12 @@ public class WebAgency {
      */
     public Agency getAgency() {
         // If agency hasn't been accessed yet do so now...
-        if (agency == null) {
-            ConfigInterface inter = ConfigServiceImpl.instance();
-
-            if (inter == null) {
-                logger.error(
-                        "Could not access via RMI agencyId={}. The "
-                                + "ConfigInterfaceFactory returned null for the "
-                                + "agency ID.",
-                        agencyId);
-            } else {
-                List<Agency> agencies = inter.getAgencies();
-
-                // Use the first agency if there are multiple ones
-                agency = agencies.isEmpty() ? null : agencies.get(0);
-            }
-        }
+        //TODO: need to find a way to add this back
+//        if (agency == null) {
+//            ConfigInterface inter = ApplicationContext.singleton(ConfigServiceImpl.class);
+//            List<Agency> agencies = inter.getAgencies();
+//            agency = agencies.isEmpty() ? null : agencies.get(0);
+//        }
 
         // Return the RMI based agency object
         return agency;

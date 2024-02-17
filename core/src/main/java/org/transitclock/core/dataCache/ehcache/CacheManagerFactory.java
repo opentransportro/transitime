@@ -5,12 +5,16 @@ import java.net.URL;
 import org.ehcache.CacheManager;
 import org.ehcache.config.builders.CacheManagerBuilder;
 import org.ehcache.xml.XmlConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
+@Configuration
 public class CacheManagerFactory {
 
     public static CacheManager singleton = null;
 
-    public static synchronized CacheManager getInstance() {
+    @Bean
+    public CacheManager cacheManager() {
         if (singleton == null) {
             URL xmlConfigUrl = CacheManagerFactory.class
                     .getClassLoader()

@@ -5,6 +5,11 @@ import java.util.HashMap;
 import java.util.Map;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+import org.transitclock.ApplicationContext;
+import org.transitclock.SingletonRegistry;
 import org.transitclock.config.data.AgencyConfig;
 import org.transitclock.config.data.AvlConfig;
 import org.transitclock.core.AvlProcessor;
@@ -19,6 +24,8 @@ import org.transitclock.utils.Time;
  */
 @Getter
 @Slf4j
+@Component
+@Scope("prototype")
 public class AvlReportProcessor implements Runnable {
     // List of current AVL reports by vehicle. Useful for determining last
     // report so can filter out new report if the same as the old one.
@@ -28,7 +35,8 @@ public class AvlReportProcessor implements Runnable {
     // The AVL report being processed
     private final AvlReport avlReport;
 
-    private final AvlProcessor avlProcessor = AvlProcessor.getInstance();
+    @Autowired
+    private AvlProcessor avlProcessor;
 
     public AvlReportProcessor(AvlReport avlReport) {
         this.avlReport = avlReport;

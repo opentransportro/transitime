@@ -2,6 +2,9 @@
 package org.transitclock.core;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.transitclock.ApplicationContext;
 import org.transitclock.Core;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.core.dataCache.PredictionDataCache;
@@ -21,24 +24,18 @@ import java.util.List;
  * @author SkiBu Smith
  */
 @Slf4j
+@Component
 public class MatchProcessor {
-
-    // Singleton class
-    private static final MatchProcessor singleton = new MatchProcessor();
-    private final DataDbLogger dbLogger;
-    /** Constructor declared private because singleton class */
-    private MatchProcessor() {
-        dbLogger = Core.getInstance().getDbLogger();
-    }
-
-    /**
-     * Returns singleton MatchProcessor
-     *
-     * @return
-     */
-    public static MatchProcessor getInstance() {
-        return singleton;
-    }
+    @Autowired
+    private DataDbLogger dbLogger;
+    @Autowired
+    private PredictionDataCache predictionDataCache;
+    @Autowired
+    private HeadwayGenerator headwayGenerator;
+    @Autowired
+    private ArrivalDepartureGenerator arrivalDepartureGenerator;
+    @Autowired
+    private PredictionGenerator predictionGenerator;
 
     /**
      * Generates the new predictions for the vehicle based on the new match stored in the vehicle
@@ -50,8 +47,7 @@ public class MatchProcessor {
         logger.debug("Processing predictions for vehicleId={}", vehicleState.getVehicleId());
 
         // Generate the new predictions for the vehicle
-        List<IpcPrediction> newPredictions =
-                PredictionGeneratorFactory.getInstance().generate(vehicleState);
+        List<IpcPrediction> newPredictions = predictionGenerator.generate(vehicleState);
 
         // Store the predictions in database if so configured
         if (CoreConfig.getMaxPredictionsTimeForDbSecs() > 0) {
@@ -74,7 +70,7 @@ public class MatchProcessor {
         // Update the predictions cache to use the new predictions for the
         // vehicle
         List<IpcPrediction> oldPredictions = vehicleState.getPredictions();
-        PredictionDataCache.getInstance().updatePredictions(oldPredictions, newPredictions);
+        predictionDataCache.updatePredictions(oldPredictions, newPredictions);
 
         // Update predictions for vehicle
         vehicleState.setPredictions(newPredictions);
@@ -88,11 +84,11 @@ public class MatchProcessor {
     private void processHeadways(VehicleState vehicleState) {
         logger.debug("Processing headways for vehicleId={}", vehicleState.getVehicleId());
 
-        Headway headway = HeadwayGeneratorFactory.getInstance().generate(vehicleState);
+        Headway headway = headwayGenerator.generate(vehicleState);
 
         if (headway != null) {
             vehicleState.setHeadway(headway);
-            Core.getInstance().getDbLogger().add(headway);
+            dbLogger.add(headway);
         }
     }
 
@@ -105,7 +101,7 @@ public class MatchProcessor {
     private void processArrivalDepartures(VehicleState vehicleState) {
         logger.debug("Processing arrivals/departures for vehicleId={}", vehicleState.getVehicleId());
 
-        ArrivalDepartureGeneratorFactory.getInstance().generate(vehicleState);
+        arrivalDepartureGenerator.generate(vehicleState);
     }
 
     /**
@@ -129,7 +125,7 @@ public class MatchProcessor {
         // the departure time or after the arrival time. Plus not storing
         // the matches at the stops means there is less data to store.
         if (!match.isAtStop()) {
-            Core.getInstance().getDbLogger().add(match);
+            dbLogger.add(match);
         }
     }
 

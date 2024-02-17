@@ -2,11 +2,14 @@
 package org.transitclock.core.holdingmethod;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.transitclock.ApplicationContext;
 import org.transitclock.Core;
 import org.transitclock.config.data.HoldingConfig;
 import org.transitclock.core.VehicleState;
 import org.transitclock.core.dataCache.PredictionDataCache;
 import org.transitclock.core.dataCache.StopArrivalDepartureCacheFactory;
+import org.transitclock.core.dataCache.StopArrivalDepartureCacheInterface;
 import org.transitclock.core.dataCache.StopArrivalDepartureCacheKey;
 import org.transitclock.domain.structs.ArrivalDeparture;
 import org.transitclock.domain.structs.HoldingTime;
@@ -24,9 +27,12 @@ import java.util.List;
  */
 @Slf4j
 public class SimpleHoldingTimeGeneratorImpl implements HoldingTimeGenerator {
+    @Autowired
+    private PredictionDataCache predictionDataCache;
+    @Autowired
+    private StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface;
 
     public HoldingTime generateHoldingTime(VehicleState vehicleState, IpcArrivalDeparture event) {
-
         if (event.isArrival() && isControlStop(event.getStopId(), event.getStopPathIndex())) {
             logger.debug("Calling Simple Holding Generator for event : {}", event);
 
@@ -93,7 +99,7 @@ public class SimpleHoldingTimeGeneratorImpl implements HoldingTimeGenerator {
         StopArrivalDepartureCacheKey currentStopKey = new StopArrivalDepartureCacheKey(stopId, time);
 
         List<IpcArrivalDeparture> currentStopList =
-                StopArrivalDepartureCacheFactory.getInstance().getStopHistory(currentStopKey);
+                stopArrivalDepartureCacheInterface.getStopHistory(currentStopKey);
 
         IpcArrivalDeparture closestDepartureEvent = null;
         if (currentStopList != null) {
@@ -159,12 +165,10 @@ public class SimpleHoldingTimeGeneratorImpl implements HoldingTimeGenerator {
     }
 
     protected IpcPrediction getForwardVehicleDeparturePrediction(IpcPrediction predictionEvent) {
-        PredictionDataCache predictionCache = PredictionDataCache.getInstance();
-
         List<IpcPrediction> predictions = new ArrayList<>();
 
         List<IpcPredictionsForRouteStopDest> predictionsForRouteStopDests =
-                predictionCache.getPredictions(predictionEvent.getRouteId(), predictionEvent.getStopId());
+                predictionDataCache.getPredictions(predictionEvent.getRouteId(), predictionEvent.getStopId());
 
         for (IpcPredictionsForRouteStopDest predictionForRouteStopDest : predictionsForRouteStopDests) {
             predictions.addAll(predictionForRouteStopDest.getPredictionsForRouteStop());
@@ -193,12 +197,10 @@ public class SimpleHoldingTimeGeneratorImpl implements HoldingTimeGenerator {
     }
 
     protected List<IpcPrediction> getBackwardArrivalPredictions(IpcPrediction predictionEvent) {
-        PredictionDataCache predictionCache = PredictionDataCache.getInstance();
-
         List<IpcPrediction> predictions = new ArrayList<>();
 
         List<IpcPredictionsForRouteStopDest> predictionsForRouteStopDests =
-                predictionCache.getPredictions(predictionEvent.getRouteId(), predictionEvent.getStopId());
+                predictionDataCache.getPredictions(predictionEvent.getRouteId(), predictionEvent.getStopId());
 
         for (IpcPredictionsForRouteStopDest predictionForRouteStopDest : predictionsForRouteStopDests) {
             for (IpcPrediction prediction : predictionForRouteStopDest.getPredictionsForRouteStop()) {

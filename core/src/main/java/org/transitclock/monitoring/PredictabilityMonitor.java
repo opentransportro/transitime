@@ -5,6 +5,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.transitclock.ApplicationContext;
 import org.transitclock.config.data.MonitoringConfig;
 import org.transitclock.core.BlocksInfo;
 import org.transitclock.core.dataCache.VehicleDataCache;
@@ -17,7 +20,10 @@ import org.transitclock.utils.StringUtils;
  *
  * @author SkiBu Smith
  */
+@Component
 public class PredictabilityMonitor extends MonitorBase {
+    @Autowired
+    private VehicleDataCache vehicleDataCache;
 
     public PredictabilityMonitor(String agencyId) {
         super(agencyId);
@@ -46,8 +52,7 @@ public class PredictabilityMonitor extends MonitorBase {
         int predictableVehicleCount = 0;
         for (Block block : activeBlocks) {
             // Determine vehicles associated with the block if there are any
-            Collection<String> vehicleIdsForBlock =
-                    VehicleDataCache.getInstance().getVehiclesByBlockId(block.getId());
+            Collection<String> vehicleIdsForBlock = vehicleDataCache.getVehiclesByBlockId(block.getId());
             predictableVehicleCount += vehicleIdsForBlock.size();
 
             // Keep track of active blocks without vehicles

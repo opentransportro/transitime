@@ -17,13 +17,7 @@ public class KalmanErrorCache implements ErrorCache {
     private static final String cacheName = "KalmanErrorCache";
     private final Cache<KalmanErrorCacheKey, KalmanError> cache;
 
-    /**
-     * Gets the singleton instance of this class.
-     *
-     * @return
-     */
-    public KalmanErrorCache() {
-        CacheManager cm = CacheManagerFactory.getInstance();
+    public KalmanErrorCache(CacheManager cm) {
         cache = cm.getCache(cacheName, KalmanErrorCacheKey.class, KalmanError.class);
     }
 
@@ -33,12 +27,8 @@ public class KalmanErrorCache implements ErrorCache {
     @Override
     @SuppressWarnings("unchecked")
     public synchronized KalmanError getErrorValue(Indices indices) {
-
         KalmanErrorCacheKey key = new KalmanErrorCacheKey(indices);
-
-        KalmanError result = cache.get(key);
-
-        return result;
+        return cache.get(key);
     }
 
     /* (non-Javadoc)
@@ -47,9 +37,7 @@ public class KalmanErrorCache implements ErrorCache {
     @Override
     @SuppressWarnings("unchecked")
     public synchronized KalmanError getErrorValue(KalmanErrorCacheKey key) {
-
         KalmanError result = cache.get(key);
-
         return result;
     }
 
@@ -58,7 +46,6 @@ public class KalmanErrorCache implements ErrorCache {
      */
     @Override
     public synchronized void putErrorValue(Indices indices, Double value) {
-
         KalmanErrorCacheKey key = new KalmanErrorCacheKey(indices);
         putErrorValue(key, value);
     }

@@ -3,6 +3,10 @@ package org.transitclock.gtfs;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.transitclock.ApplicationContext;
 import org.transitclock.Core;
 import org.transitclock.core.dataCache.PredictionDataCache;
 import org.transitclock.domain.structs.Location;
@@ -18,7 +22,10 @@ import org.transitclock.utils.Geo;
  *
  * @author SkiBu Smith
  */
+@Component
 public class StopsByLocation {
+    @Autowired
+    PredictionDataCache predictionDataCache;
     // When looking for nearest stop should bias a bit to the next one
     // in the trip pattern. This way if a user is in between two stops
     // it will match to the second one, giving the passenger a bit more
@@ -65,7 +72,7 @@ public class StopsByLocation {
      * @return The closest stop for the trip pattern that is not the last stop of the trip pattern
      *     and is within maxDistance of the loc.
      */
-    private static StopInfo determineClosestStop(TripPattern tripPattern, Location loc, double maxDistance) {
+    private StopInfo determineClosestStop(TripPattern tripPattern, Location loc, double maxDistance) {
         // Determine the closest stop for the specified trip pattern.
         // Don't look at last stop for the trip pattern because
         // passenger can't board at that stop so not point providing
@@ -106,14 +113,15 @@ public class StopsByLocation {
      * @param matchesForDirection
      * @return
      */
-    private static StopInfo determineBestStopBasedOnPredictions(List<StopInfo> matchesForDirection) {
+    private StopInfo determineBestStopBasedOnPredictions(List<StopInfo> matchesForDirection) {
         StopInfo nearestStopWithPrediction = null;
 
         // There are multiple trip matches with a match so
         // determine best one by looking at the predictions
         for (StopInfo stopInfo : matchesForDirection) {
             List<IpcPredictionsForRouteStopDest> predictionsForStop =
-                    PredictionDataCache.getInstance().getPredictions(stopInfo.routeShortName, stopInfo.stopId);
+                    predictionDataCache
+                            .getPredictions(stopInfo.routeShortName, stopInfo.stopId);
 
             // Is this the nearest stop with a prediction?
             if (!predictionsForStop.isEmpty()
@@ -152,7 +160,7 @@ public class StopsByLocation {
      * @param maxDistance
      * @return
      */
-    public static List<StopInfo> getStops(Location loc, double maxDistance) {
+    public List<StopInfo> getStops(Location loc, double maxDistance) {
         // For returning the results
         List<StopInfo> results = new ArrayList<StopInfo>();
 

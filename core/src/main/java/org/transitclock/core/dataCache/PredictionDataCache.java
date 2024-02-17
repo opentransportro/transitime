@@ -2,6 +2,8 @@
 package org.transitclock.core.dataCache;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.transitclock.Core;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.config.data.PredictionConfig;
@@ -38,11 +40,10 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author SkiBu Smith
  */
 @Slf4j
+@Component
 public class PredictionDataCache {
-
-    // This is a singleton class
-    private static final PredictionDataCache singleton = new PredictionDataCache();
-
+    @Autowired
+    VehicleStateManager vehicleStateManager;
 
     // Contains lists of predictions per route/stop. Also want to group
     // predictions by destination/trip head sign together so that can
@@ -62,17 +63,6 @@ public class PredictionDataCache {
     // those changes will be coherent and information will not be lost.
     private final ConcurrentHashMap<MapKey, List<IpcPredictionsForRouteStopDest>> predictionsMap =
             new ConcurrentHashMap<>(1000);
-
-
-    /**
-     * Returns singleton object for this class. It will use the regular SystemCurrentTime class for
-     * determining the time and whether any predictions are obsolete.
-     *
-     * @return
-     */
-    public static PredictionDataCache getInstance() {
-        return singleton;
-    }
 
     /**
      * Returns the current time. Can be based on the systems clock but when in playback mode will be
@@ -150,7 +140,7 @@ public class PredictionDataCache {
         // Remove old predictions so that they are not provided through the
         // API and such
         for (IpcPredictionsForRouteStopDest preds : predictionsForRouteStop) {
-            preds.removeExpiredPredictions(getSystemTime());
+            preds.removeExpiredPredictions(getSystemTime(), vehicleStateManager);
         }
 
         // Want to limit predictions to max time in future since if using

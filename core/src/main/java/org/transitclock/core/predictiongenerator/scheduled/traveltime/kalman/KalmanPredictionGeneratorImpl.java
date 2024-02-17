@@ -3,6 +3,7 @@ package org.transitclock.core.predictiongenerator.scheduled.traveltime.kalman;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.DateUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.transitclock.Core;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.config.data.PredictionConfig;
@@ -28,6 +29,10 @@ public class KalmanPredictionGeneratorImpl extends PredictionGeneratorDefaultImp
 
     private final String alternative = "PredictionGeneratorDefaultImpl";
 
+    @Autowired
+    private TripDataHistoryCacheInterface tripCache;
+    @Autowired
+    private ErrorCache kalmanErrorCache;
 
     /*
      * (non-Javadoc)
@@ -42,9 +47,6 @@ public class KalmanPredictionGeneratorImpl extends PredictionGeneratorDefaultImp
         logger.debug("Calling Kalman prediction algorithm for : {}", indices);
 
         long alternatePrediction = super.getTravelTimeForPath(indices, avlReport, vehicleState);
-        var tripCache = TripDataHistoryCacheFactory.getInstance();
-        var kalmanErrorCache = ErrorCacheFactory.getInstance();
-        var vehicleStateManager = VehicleStateManager.getInstance();
         var currentVehicleState = vehicleStateManager.getVehicleState(avlReport.getVehicleId());
 
         try {
@@ -156,7 +158,7 @@ public class KalmanPredictionGeneratorImpl extends PredictionGeneratorDefaultImp
                                     true,
                                     null);
                             Core.getInstance().getDbLogger().add(predictionForStopPath);
-                            StopPathPredictionCache.getInstance().putPrediction(predictionForStopPath);
+                            stopPathPredictionCache.putPrediction(predictionForStopPath);
                         }
                         return predictionTime;
 
@@ -176,8 +178,6 @@ public class KalmanPredictionGeneratorImpl extends PredictionGeneratorDefaultImp
     public long expectedTravelTimeFromMatchToEndOfStopPath(AvlReport avlReport, SpatialMatch match) {
 
         if (PredictionConfig.useKalmanForPartialStopPaths.getValue()) {
-            VehicleStateManager vehicleStateManager = VehicleStateManager.getInstance();
-
             VehicleState currentVehicleState = vehicleStateManager.getVehicleState(avlReport.getVehicleId());
 
             long fulltime = this.getTravelTimeForPath(match.getIndices(), avlReport, currentVehicleState);

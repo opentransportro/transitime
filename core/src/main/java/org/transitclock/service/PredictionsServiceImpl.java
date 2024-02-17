@@ -2,6 +2,9 @@
 package org.transitclock.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.transitclock.ApplicationContext;
 import org.transitclock.core.dataCache.PredictionDataCache;
 import org.transitclock.domain.structs.Location;
 import org.transitclock.gtfs.StopsByLocation;
@@ -24,44 +27,12 @@ import java.util.List;
  * @author SkiBu Smith
  */
 @Slf4j
+@Component
 public class PredictionsServiceImpl implements PredictionsInterface {
-
-    // Should only be accessed as singleton class
-    private static PredictionsServiceImpl singleton;
-
-    public static PredictionsInterface instance() {
-        return singleton;
-    }
-
-    /**
-     * Starts up the PredictionsServer so that RMI calls can query for predictions. This will
-     * automatically cause the object to continue to run and serve requests.
-     *
-     * @param predictionDataCache
-     * @return the singleton PredictionsServer object. Usually does not need to used since the
-     *     server will be fully running.
-     */
-    public static PredictionsServiceImpl start(PredictionDataCache predictionDataCache) {
-        if (singleton == null) {
-            singleton = new PredictionsServiceImpl(predictionDataCache);
-        }
-
-        return singleton;
-    }
-
-    private final PredictionDataCache predictionDataCache;
-
-    /*
-     * Constructor. Made private so that can only be instantiated by
-     * get(). Doesn't actually do anything since all the work is done in
-     * the superclass constructor.
-     *
-     * @param projectId
-     *            for registering this object with the rmiregistry
-     */
-    public PredictionsServiceImpl(PredictionDataCache predictionDataCache) {
-        this.predictionDataCache = predictionDataCache;
-    }
+    @Autowired
+    private PredictionDataCache predictionDataCache;
+    @Autowired
+    private StopsByLocation stopsByLocation;
 
     /* (non-Javadoc)
      * @see org.transitclock.ipc.interfaces.PredictionsInterface#get(java.lang.String, java.lang.String, int)
@@ -136,7 +107,7 @@ public class PredictionsServiceImpl implements PredictionsInterface {
         List<IpcPredictionsForRouteStopDest> results = new ArrayList<IpcPredictionsForRouteStopDest>();
 
         // Determine which stops are near the location
-        List<StopInfo> stopInfos = StopsByLocation.getStops(loc, maxDistance);
+        List<StopInfo> stopInfos = stopsByLocation.getStops(loc, maxDistance);
 
         // Gather predictions for all of those stops
         for (StopInfo stopInfo : stopInfos) {

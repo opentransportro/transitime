@@ -7,6 +7,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.transitclock.ApplicationContext;
 import org.transitclock.Core;
 import org.transitclock.core.dataCache.PredictionDataCache;
 import org.transitclock.core.dataCache.VehicleDataCache;
@@ -33,15 +35,16 @@ public class IpcRoute extends IpcRouteSummary {
      * Create an IpcRoute that contains all stops and paths but separates out information for the
      * remaining part of the trip specified by stopId and tripPatternId.
      *
-     * @param dbRoute The route object as read from the db
-     * @param directionId Set if want to know which part of route is major and which is minor.
-     *     Otherwise set to null.
-     * @param stopId Set if want to know which part of route is major and which is minor. Otherwise
-     *     set to null.
+     * @param dbRoute       The route object as read from the db
+     * @param directionId   Set if want to know which part of route is major and which is minor.
+     *                      Otherwise set to null.
+     * @param stopId        Set if want to know which part of route is major and which is minor. Otherwise
+     *                      set to null.
      * @param tripPatternId Set if want to know which part of route is major and which is minor.
-     *     Otherwise set to null.
+     *                      Otherwise set to null.
+     * @param location
      */
-    public IpcRoute(Route dbRoute, String directionId, String stopId, String tripPatternId) {
+    public IpcRoute(Route dbRoute, String directionId, String stopId, String tripPatternId, Location location) {
         // Construct the core part of the route, everything but
         // the stops and paths.
         super(dbRoute);
@@ -49,37 +52,7 @@ public class IpcRoute extends IpcRouteSummary {
         // Create Collections of stops and paths
         stops = createStops(dbRoute, directionId, stopId, tripPatternId);
         shapes = createShapes(dbRoute, directionId, stopId, tripPatternId);
-        locationOfNextPredictedVehicle = getLocationOfNextPredictedVehicle(dbRoute, directionId, stopId);
-    }
-
-    /**
-     * If stop specified then returns the location of the next predicted vehicle for that stop.
-     * Returns null if stop not specified or no predictions for stop.
-     *
-     * @param dbRoute
-     * @param directionId Set if want to know which part of route is major and which is minor.
-     *     Otherwise set to null.
-     * @param stopId
-     * @return
-     */
-    private static Location getLocationOfNextPredictedVehicle(Route dbRoute, String directionId, String stopId) {
-        // If no stop specified then can't determine next predicted vehicle
-        if (stopId == null) return null;
-
-        // Determine the first IpcPrediction for the stop
-        List<IpcPredictionsForRouteStopDest> predsList =
-                PredictionDataCache.getInstance().getPredictions(dbRoute.getShortName(), directionId, stopId);
-        if (predsList.isEmpty()) return null;
-
-        List<IpcPrediction> ipcPreds = predsList.get(0).getPredictionsForRouteStop();
-        if (ipcPreds.isEmpty()) return null;
-
-        // Based on the first prediction determine the current IpcVehicle info
-        String vehicleId = ipcPreds.get(0).getVehicleId();
-
-        IpcVehicleComplete vehicle = VehicleDataCache.getInstance().getVehicle(vehicleId);
-
-        return new Location(vehicle.getLatitude(), vehicle.getLongitude());
+        locationOfNextPredictedVehicle = location;
     }
 
     /**

@@ -1,6 +1,8 @@
 /* (C)2023 */
 package org.transitclock.core;
 
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.transitclock.config.ClassConfigValue;
 import org.transitclock.utils.ClassInstantiator;
 
@@ -11,6 +13,7 @@ import org.transitclock.utils.ClassInstantiator;
  *
  * @author SkiBu Smith
  */
+@Configuration
 public class ArrivalDepartureGeneratorFactory {
 
     // The name of the class to instantiate
@@ -21,7 +24,8 @@ public class ArrivalDepartureGeneratorFactory {
 
     private static ArrivalDepartureGenerator singleton = null;
 
-    public static synchronized ArrivalDepartureGenerator getInstance() {
+    @Bean
+    public synchronized ArrivalDepartureGenerator arrivalDepartureGenerator() {
         // If the PredictionGenerator hasn't been created yet then do so now
         if (singleton == null) {
             singleton = ClassInstantiator.instantiate(className.getValue(), ArrivalDepartureGenerator.class);

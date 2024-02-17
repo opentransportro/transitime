@@ -2,6 +2,9 @@
 package org.transitclock.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.transitclock.ApplicationContext;
 import org.transitclock.core.dataCache.StopPathCacheKey;
 import org.transitclock.core.dataCache.StopPathPredictionCache;
 import org.transitclock.domain.structs.PredictionForStopPath;
@@ -18,22 +21,12 @@ import java.util.List;
  *     be changed to also work with frequency based services.
  */
 @Slf4j
+@Component
 public class PredictionAnalysisServiceImpl implements PredictionAnalysisInterface {
-    // Should only be accessed as singleton class
-    private static PredictionAnalysisServiceImpl singleton;
+    @Autowired
+    private StopPathPredictionCache stopPathPredictionCache;
 
-    public static PredictionAnalysisInterface instance() {
-        return singleton;
-    }
-
-    public static synchronized PredictionAnalysisServiceImpl start() {
-        if (singleton == null) {
-            singleton = new PredictionAnalysisServiceImpl();
-        }
-        return singleton;
-    }
-
-    protected PredictionAnalysisServiceImpl() {
+    public PredictionAnalysisServiceImpl() {
     }
 
 
@@ -55,8 +48,8 @@ public class PredictionAnalysisServiceImpl implements PredictionAnalysisInterfac
     public List<IpcPredictionForStopPath> getCachedTravelTimePredictions(
             String tripId, Integer stopPathIndex, Date startdate, Date enddate, String algorithm) {
         StopPathCacheKey key = new StopPathCacheKey(tripId, stopPathIndex, true);
-        List<PredictionForStopPath> predictions =
-                StopPathPredictionCache.getInstance().getPredictions(key);
+        List<PredictionForStopPath> predictions = stopPathPredictionCache.getPredictions(key);
+
         List<IpcPredictionForStopPath> results = new ArrayList<IpcPredictionForStopPath>();
         if (predictions != null) {
             for (PredictionForStopPath prediction : predictions) {

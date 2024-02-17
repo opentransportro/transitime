@@ -2,10 +2,13 @@
 package org.transitclock.core;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.transitclock.ApplicationContext;
 import org.transitclock.Core;
 import org.transitclock.core.dataCache.HoldingTimeCache;
 import org.transitclock.core.dataCache.StopPathPredictionCache;
 import org.transitclock.core.dataCache.VehicleStateManager;
+import org.transitclock.core.holdingmethod.HoldingTimeGenerator;
 import org.transitclock.core.holdingmethod.HoldingTimeGeneratorFactory;
 import org.transitclock.core.predictiongenerator.PredictionComponentElementsGenerator;
 import org.transitclock.core.predictiongenerator.bias.BiasAdjuster;
@@ -46,6 +49,16 @@ import static org.transitclock.config.data.CoreConfig.*;
  */
 @Slf4j
 public class PredictionGeneratorDefaultImpl extends PredictionGenerator implements PredictionComponentElementsGenerator {
+    @Autowired
+    protected HoldingTimeCache holdingTimeCache;
+    @Autowired
+    protected StopPathPredictionCache stopPathPredictionCache;
+    @Autowired
+    protected TravelTimes travelTimes;
+    @Autowired
+    protected HoldingTimeGenerator holdingTimeGenerator;
+    @Autowired
+    protected VehicleStateManager vehicleStateManager;
 
     /**
      * Generates prediction for the stop specified by the indices parameter. It will be an arrival
@@ -90,7 +103,7 @@ public class PredictionGeneratorDefaultImpl extends PredictionGenerator implemen
         Trip trip = indices.getTrip();
 
         long freqStartTime = -1;
-        VehicleState vehicleState = VehicleStateManager.getInstance().getVehicleState(avlReport.getVehicleId());
+        VehicleState vehicleState = vehicleStateManager.getVehicleState(avlReport.getVehicleId());
         if (trip.isNoSchedule()) {
             if (vehicleState.getTripStartTime(tripCounter) != null) {
                 freqStartTime = vehicleState.getTripStartTime(tripCounter);
@@ -375,11 +388,11 @@ public class PredictionGeneratorDefaultImpl extends PredictionGenerator implemen
 
             if ((predictionForStop.getPredictionTime() - SystemTime.getMillis()) < generateHoldingTimeWhenPredictionWithin.getValue()
                     && (predictionForStop.getPredictionTime() - SystemTime.getMillis()) > 0) {
-                if (HoldingTimeGeneratorFactory.getInstance() != null) {
-                    HoldingTime holdingTime = HoldingTimeGeneratorFactory.getInstance()
+                if (holdingTimeGenerator != null) {
+                    HoldingTime holdingTime = holdingTimeGenerator
                             .generateHoldingTime(vehicleState, predictionForStop);
                     if (holdingTime != null) {
-                        HoldingTimeCache.getInstance().putHoldingTime(holdingTime);
+                        holdingTimeCache.putHoldingTime(holdingTime);
                         vehicleState.setHoldingTime(holdingTime);
                     }
                 }
@@ -460,8 +473,8 @@ public class PredictionGeneratorDefaultImpl extends PredictionGenerator implemen
             if (predictionForStop.isArrival()) {
                 predictionTime += getStopTimeForPath(indices, avlReport, vehicleState);
                 /* TODO this is where we should take account of holding time */
-                if (useHoldingTimeInPrediction.getValue() && HoldingTimeGeneratorFactory.getInstance() != null) {
-                    HoldingTime holdingTime = HoldingTimeGeneratorFactory.getInstance()
+                if (useHoldingTimeInPrediction.getValue() && holdingTimeGenerator != null) {
+                    HoldingTime holdingTime = holdingTimeGenerator
                             .generateHoldingTime(vehicleState, predictionForStop);
 
                     if (holdingTime != null) {
@@ -509,17 +522,16 @@ public class PredictionGeneratorDefaultImpl extends PredictionGenerator implemen
                     true,
                     null);
             Core.getInstance().getDbLogger().add(predictionForStopPath);
-            StopPathPredictionCache.getInstance().putPrediction(predictionForStopPath);
+            stopPathPredictionCache.putPrediction(predictionForStopPath);
         }
         return indices.getTravelTimeForPath();
     }
 
     public long getStopTimeForPath(Indices indices, AvlReport avlReport, VehicleState vehicleState) {
-        return TravelTimes.getInstance().expectedStopTimeForStopPath(indices);
+        return travelTimes.expectedStopTimeForStopPath(indices);
     }
 
     public long expectedTravelTimeFromMatchToEndOfStopPath(AvlReport avlReport, SpatialMatch match) {
-        TravelTimes travelTimes = TravelTimes.getInstance();
         return travelTimes.expectedTravelTimeFromMatchToEndOfStopPath(match);
     }
 

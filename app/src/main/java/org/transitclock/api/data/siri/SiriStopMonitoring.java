@@ -171,8 +171,8 @@ public class SiriStopMonitoring {
     public SiriStopMonitoring(
             List<IpcPredictionsForRouteStopDest> preds, Collection<IpcVehicleComplete> vehicles, String agencyId) {
         // Set the time zones for the date formatters
-        siriDateTimeFormat.setTimeZone(AgencyTimezoneCache.get(agencyId));
-        siriDateFormat.setTimeZone(AgencyTimezoneCache.get(agencyId));
+//        siriDateTimeFormat.setTimeZone(AgencyTimezoneCache.get(agencyId));
+//        siriDateFormat.setTimeZone(AgencyTimezoneCache.get(agencyId));
 
         delivery = new SiriServiceDelivery(preds, vehicles, agencyId, siriDateTimeFormat, siriDateFormat);
     }

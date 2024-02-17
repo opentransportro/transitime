@@ -16,6 +16,8 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.transitclock.Core;
 import org.transitclock.config.data.AgencyConfig;
 import org.transitclock.core.VehicleState;
@@ -23,10 +25,13 @@ import org.transitclock.domain.hibernate.HibernateUtils;
 import org.transitclock.domain.structs.AvlReport;
 import org.transitclock.domain.structs.Route;
 import org.transitclock.domain.structs.VehicleConfig;
+import org.transitclock.service.dto.IpcPrediction;
 import org.transitclock.service.dto.IpcVehicleComplete;
 import org.transitclock.utils.ConcurrentHashMapNullKeyOk;
 import org.transitclock.utils.SystemTime;
 import org.transitclock.utils.Time;
+
+import static org.transitclock.domain.structs.QMatch.match;
 
 /**
  * For storing and retrieving vehicle information that can be used by clients. Is updated every time
@@ -39,10 +44,8 @@ import org.transitclock.utils.Time;
  * @author SkiBu Smith
  */
 @Slf4j
+@Component
 public class VehicleDataCache {
-
-    // Make this class available as a singleton
-    private static final VehicleDataCache singleton = new VehicleDataCache();
 
     // Keyed by vehicle ID
     private final Map<String, IpcVehicleComplete> vehiclesMap = new ConcurrentHashMap<String, IpcVehicleComplete>();
@@ -76,21 +79,9 @@ public class VehicleDataCache {
     // obsolete and shouldn't be displayed.
     private static final int MAX_AGE_MSEC = 15 * Time.MS_PER_MIN;
 
+    @Autowired
+    private PredictionDataCache predictionDataCache;
 
-    /**
-     * Gets the singleton instance of this class.
-     *
-     * @return
-     */
-    public static VehicleDataCache getInstance() {
-        return singleton;
-    }
-
-    /*
-     * Constructor declared private to enforce only access to this singleton
-     * class being getInstance()
-     */
-    private VehicleDataCache() {}
 
     /**
      * Reads in vehicle config data from db. Unsynchronized since the calling methods are expected
@@ -406,11 +397,8 @@ public class VehicleDataCache {
         }
 
         // Add the new block assignment to the map
-        List<String> vehiclesForNewBlock = vehicleIdsByBlockMap.get(vehicle.getBlockId());
-        if (vehiclesForNewBlock == null) {
-            vehiclesForNewBlock = new ArrayList<String>(1);
-            vehicleIdsByBlockMap.put(vehicle.getBlockId(), vehiclesForNewBlock);
-        }
+        List<String> vehiclesForNewBlock = vehicleIdsByBlockMap
+                .computeIfAbsent(vehicle.getBlockId(), k -> new ArrayList<>(1));
         vehiclesForNewBlock.add(vehicle.getId());
     }
 
@@ -470,7 +458,17 @@ public class VehicleDataCache {
      * @param vehicleState The current VehicleState
      */
     public void updateVehicle(VehicleState vehicleState) {
-        IpcVehicleComplete vehicle = new IpcVehicleComplete(vehicleState);
+        // Not a layover so departure time not provided
+        long layoverDepartureTime = 0;
+        if (vehicleState.getMatch().isLayover()) {
+            IpcPrediction predsForVehicle = predictionDataCache
+                    .getPredictionForVehicle(
+                            vehicleState.getAvlReport().getVehicleId(),
+                            vehicleState.getRouteShortName(),
+                            vehicleState.getMatch().getStopPath().getStopId());
+            layoverDepartureTime = predsForVehicle != null ? predsForVehicle.getPredictionTime() : 0;
+        }
+        IpcVehicleComplete vehicle = new IpcVehicleComplete(vehicleState, layoverDepartureTime);
         IpcVehicleComplete originalVehicle = vehiclesMap.get(vehicle.getId());
 
         logger.debug("Adding to VehicleDataCache vehicle={}", vehicle);

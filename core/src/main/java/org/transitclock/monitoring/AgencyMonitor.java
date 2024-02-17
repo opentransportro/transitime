@@ -5,8 +5,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+import org.transitclock.config.data.AgencyConfig;
 
 /**
  * For monitoring whether the core system is working properly. For calling all of the specific
@@ -14,21 +18,14 @@ import org.slf4j.LoggerFactory;
  *
  * @author SkiBu Smith
  */
+@Slf4j
+@Component
 public class AgencyMonitor {
 
     // List of all the monitoring to do
     private final List<MonitorBase> monitors;
 
-    // For being able to reuse AgencyMonitors. This is important because
-    // each monitor maintains state, such as if notification e-mail sent out.
-    // Keyed on agencyId.
-    private static final Map<String, AgencyMonitor> agencyMonitorMap = new HashMap<String, AgencyMonitor>();
-
-    private static final Logger logger = LoggerFactory.getLogger(AgencyMonitor.class);
-
     private static final String enableSystemMonitoring = System.getProperty("transitclock.enableSystemMonitoring");
-
-    /********************** Member Functions **************************/
 
     /**
      * Constructor declared private so have to use getInstance() to get an AgencyMonitor. Like a
@@ -36,7 +33,8 @@ public class AgencyMonitor {
      *
      * @param agencyId
      */
-    private AgencyMonitor(String agencyId) {
+    public AgencyMonitor() {
+        String agencyId = AgencyConfig.getAgencyId();
         // Create all the monitors and add them to the monitors list
         monitors = new ArrayList<MonitorBase>();
         monitors.add(new AvlFeedMonitor(agencyId));
@@ -48,25 +46,6 @@ public class AgencyMonitor {
             monitors.add(new SystemCpuMonitor(agencyId));
             monitors.add(new SystemDiskSpaceMonitor(agencyId));
             monitors.add(new DatabaseMonitor(agencyId));
-        }
-    }
-
-    /**
-     * Returns the AgencyMonitor for the specified agencyId. If the AgencyMonitor for that agency
-     * hasn't been created yet it is created. This is important because each monitor maintains
-     * state, such as if notification e-mail sent out.
-     *
-     * @param agencyId Which agency get AgencyMonitor for
-     * @return The AgencyMonitor for the agencyId
-     */
-    public static AgencyMonitor getInstance(String agencyId) {
-        synchronized (agencyMonitorMap) {
-            AgencyMonitor agencyMonitor = agencyMonitorMap.get(agencyId);
-            if (agencyMonitor == null) {
-                agencyMonitor = new AgencyMonitor(agencyId);
-                agencyMonitorMap.put(agencyId, agencyMonitor);
-            }
-            return agencyMonitor;
         }
     }
 
@@ -111,12 +90,5 @@ public class AgencyMonitor {
         // Return the concatenated error message if there were any
         if (errorMessage.length() > 0) return errorMessage;
         else return null;
-    }
-
-    public static void main(String[] args) {
-        String agencyId = "mbta";
-        AgencyMonitor agencyMonitor = AgencyMonitor.getInstance(agencyId);
-        String resultStr = agencyMonitor.checkAll();
-        System.out.println("resultStr=" + resultStr);
     }
 }

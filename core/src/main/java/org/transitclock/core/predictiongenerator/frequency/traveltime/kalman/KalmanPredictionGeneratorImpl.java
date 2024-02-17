@@ -3,6 +3,7 @@ package org.transitclock.core.predictiongenerator.frequency.traveltime.kalman;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.DateUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.transitclock.Core;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.config.data.PredictionConfig;
@@ -10,11 +11,18 @@ import org.transitclock.core.Indices;
 import org.transitclock.core.SpatialMatch;
 import org.transitclock.core.TravelTimeDetails;
 import org.transitclock.core.VehicleState;
-import org.transitclock.core.dataCache.*;
+import org.transitclock.core.dataCache.ErrorCache;
+import org.transitclock.core.dataCache.KalmanError;
+import org.transitclock.core.dataCache.KalmanErrorCacheKey;
+import org.transitclock.core.dataCache.TripDataHistoryCacheInterface;
 import org.transitclock.core.dataCache.frequency.FrequencyBasedHistoricalAverageCache;
 import org.transitclock.core.predictiongenerator.PredictionComponentElementsGenerator;
 import org.transitclock.core.predictiongenerator.frequency.traveltime.average.HistoricalAveragePredictionGeneratorImpl;
-import org.transitclock.core.predictiongenerator.kalman.*;
+import org.transitclock.core.predictiongenerator.kalman.KalmanPrediction;
+import org.transitclock.core.predictiongenerator.kalman.KalmanPredictionResult;
+import org.transitclock.core.predictiongenerator.kalman.TripSegment;
+import org.transitclock.core.predictiongenerator.kalman.Vehicle;
+import org.transitclock.core.predictiongenerator.kalman.VehicleStopDetail;
 import org.transitclock.domain.structs.AvlReport;
 import org.transitclock.domain.structs.PredictionForStopPath;
 import org.transitclock.domain.structs.VehicleEvent;
@@ -31,8 +39,11 @@ import java.util.List;
 @Slf4j
 public class KalmanPredictionGeneratorImpl extends HistoricalAveragePredictionGeneratorImpl
         implements PredictionComponentElementsGenerator {
-
     private final String alternative = "LastVehiclePredictionGeneratorImpl";
+    @Autowired
+    protected TripDataHistoryCacheInterface tripCache;
+    @Autowired
+    protected ErrorCache kalmanErrorCache;
 
     /*
      * (non-Javadoc)
@@ -52,12 +63,6 @@ public class KalmanPredictionGeneratorImpl extends HistoricalAveragePredictionGe
 
         time = FrequencyBasedHistoricalAverageCache.round(
                 time, CoreConfig.getCacheIncrementsForFrequencyService());
-
-        TripDataHistoryCacheInterface tripCache = TripDataHistoryCacheFactory.getInstance();
-
-        ErrorCache kalmanErrorCache = ErrorCacheFactory.getInstance();
-
-        VehicleStateManager vehicleStateManager = VehicleStateManager.getInstance();
 
         VehicleState currentVehicleState = vehicleStateManager.getVehicleState(avlReport.getVehicleId());
 
@@ -173,7 +178,7 @@ public class KalmanPredictionGeneratorImpl extends HistoricalAveragePredictionGe
                                     true,
                                     null);
                             Core.getInstance().getDbLogger().add(predictionForStopPath);
-                            StopPathPredictionCache.getInstance().putPrediction(predictionForStopPath);
+                            stopPathPredictionCache.putPrediction(predictionForStopPath);
                         }
                         return predictionTime;
 
@@ -193,16 +198,11 @@ public class KalmanPredictionGeneratorImpl extends HistoricalAveragePredictionGe
     public long expectedTravelTimeFromMatchToEndOfStopPath(AvlReport avlReport, SpatialMatch match) {
 
         if (PredictionConfig.useKalmanForPartialStopPaths.getValue()) {
-            VehicleStateManager vehicleStateManager = VehicleStateManager.getInstance();
-
             VehicleState currentVehicleState = vehicleStateManager.getVehicleState(avlReport.getVehicleId());
 
             long fulltime = this.getTravelTimeForPath(match.getIndices(), avlReport, currentVehicleState);
-
             double distanceAlongStopPath = match.getDistanceAlongStopPath();
-
             double stopPathLength = match.getStopPath().getLength();
-
             long remainingtime = (long) (fulltime * ((stopPathLength - distanceAlongStopPath) / stopPathLength));
 
             logger.debug(

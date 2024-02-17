@@ -31,7 +31,7 @@ public final class ApplicationContext {
         return defaultContext().singletonRegistry;
     }
 
-    public static <T> T singleton(Class<T> clazz) {
+    private static <T> T singleton(Class<T> clazz) {
         return defaultContext().singletonRegistry.get(clazz);
     }
 

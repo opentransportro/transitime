@@ -4,9 +4,13 @@ package org.transitclock.core.headwaygenerator;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.transitclock.ApplicationContext;
 import org.transitclock.core.HeadwayGenerator;
 import org.transitclock.core.VehicleState;
 import org.transitclock.core.dataCache.StopArrivalDepartureCacheFactory;
+import org.transitclock.core.dataCache.StopArrivalDepartureCacheInterface;
 import org.transitclock.core.dataCache.StopArrivalDepartureCacheKey;
 import org.transitclock.core.dataCache.VehicleDataCache;
 import org.transitclock.core.dataCache.VehicleStateManager;
@@ -24,6 +28,12 @@ import org.transitclock.service.dto.IpcVehicleComplete;
  *     for headway could be (stop, vehicle, trip, start_time).
  */
 public class LastDepartureHeadwayGenerator implements HeadwayGenerator {
+    @Autowired
+    private VehicleDataCache vehicleDataCache;
+    @Autowired
+    private VehicleStateManager vehicleStateManager;
+    @Autowired
+    private StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface;
 
     @Override
     public Headway generate(VehicleState vehicleState) {
@@ -31,15 +41,11 @@ public class LastDepartureHeadwayGenerator implements HeadwayGenerator {
         try {
             String stopId =
                     vehicleState.getMatch().getMatchAtPreviousStop().getAtStop().getStopId();
-
             long date = vehicleState.getMatch().getAvlTime();
-
             String vehicleId = vehicleState.getVehicleId();
-
             StopArrivalDepartureCacheKey key = new StopArrivalDepartureCacheKey(stopId, new Date(date));
 
-            List<IpcArrivalDeparture> stopList =
-                    StopArrivalDepartureCacheFactory.getInstance().getStopHistory(key);
+            List<IpcArrivalDeparture> stopList = stopArrivalDepartureCacheInterface.getStopHistory(key);
             int lastStopArrivalIndex = -1;
             int previousVehicleArrivalIndex = -1;
 
@@ -126,8 +132,9 @@ public class LastDepartureHeadwayGenerator implements HeadwayGenerator {
         int total_with_headway = 0;
         int total_vehicles = 0;
         boolean error = false;
-        for (IpcVehicleComplete currentVehicle : VehicleDataCache.getInstance().getVehicles()) {
-            VehicleState vehicleState = VehicleStateManager.getInstance().getVehicleState(currentVehicle.getId());
+
+        for (IpcVehicleComplete currentVehicle : vehicleDataCache.getVehicles()) {
+            VehicleState vehicleState = vehicleStateManager.getVehicleState(currentVehicle.getId());
             if (vehicleState.getHeadway() != null) {
                 headways.add(vehicleState.getHeadway());
                 total_with_headway++;
@@ -135,7 +142,7 @@ public class LastDepartureHeadwayGenerator implements HeadwayGenerator {
             total_vehicles++;
         }
         // ONLY SET IF HAVE VALES FOR ALL VEHICLES ON ROUTE.
-        if (VehicleDataCache.getInstance().getVehicles().size() == headways.size()
+        if (vehicleDataCache.getVehicles().size() == headways.size()
                 && total_vehicles == total_with_headway) {
             headway.setAverage(average(headways));
             headway.setVariance(variance(headways));

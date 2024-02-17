@@ -1,58 +1,58 @@
 /* (C)2023 */
 package org.transitclock.core.dataCache.ehcache.scheduled;
 
-import java.io.IOException;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-
 import lombok.extern.slf4j.Slf4j;
 import org.ehcache.Cache;
 import org.ehcache.CacheManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.transitclock.config.data.PredictionConfig;
 import org.transitclock.core.TemporalDifference;
+import org.transitclock.core.dataCache.DwellTimeModelCacheInterface;
 import org.transitclock.core.dataCache.StopArrivalDepartureCacheFactory;
+import org.transitclock.core.dataCache.StopArrivalDepartureCacheInterface;
 import org.transitclock.core.dataCache.StopArrivalDepartureCacheKey;
 import org.transitclock.core.dataCache.StopPathCacheKey;
-import org.transitclock.core.dataCache.ehcache.CacheManagerFactory;
 import org.transitclock.core.predictiongenerator.scheduled.dwell.DwellModel;
 import org.transitclock.core.predictiongenerator.scheduled.dwell.DwellTimeModelFactory;
 import org.transitclock.domain.structs.ArrivalDeparture;
 import org.transitclock.domain.structs.Headway;
 import org.transitclock.service.dto.IpcArrivalDeparture;
 
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+
 /**
  * @author scrudden This stores DwellModel instances in the cache. TODO We should abstract the
  *     anomaly detection as per TODO in code below.
  */
 @Slf4j
-public class DwellTimeModelCache implements org.transitclock.core.dataCache.DwellTimeModelCacheInterface {
-
+public class DwellTimeModelCache implements DwellTimeModelCacheInterface {
     private static final String cacheName = "dwellTimeModelCache";
-
     private final Cache<StopPathCacheKey, DwellModel> cache;
 
-    public DwellTimeModelCache() throws IOException {
-        CacheManager cm = CacheManagerFactory.getInstance();
+    @Autowired
+    private DwellModel dwellModel;
+    @Autowired
+    private StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface;
+
+    public DwellTimeModelCache(CacheManager cm) throws IOException {
         cache = cm.getCache(cacheName, StopPathCacheKey.class, DwellModel.class);
     }
 
     @Override
     public synchronized void addSample(ArrivalDeparture event, Headway headway, long dwellTime) {
-
         StopPathCacheKey key = new StopPathCacheKey(headway.getTripId(), event.getStopPathIndex(), false);
-
         DwellModel model = null;
 
         if (cache.get(key) != null) {
             model = cache.get(key);
-
             model.putSample((int) dwellTime, (int) headway.getHeadway(), null);
         } else {
-            model = DwellTimeModelFactory.getInstance();
+            model = dwellModel;
         }
+
         model.putSample((int) dwellTime, (int) headway.getHeadway(), null);
         cache.put(key, model);
     }
@@ -66,7 +66,7 @@ public class DwellTimeModelCache implements org.transitclock.core.dataCache.Dwel
                 StopArrivalDepartureCacheKey key =
                         new StopArrivalDepartureCacheKey(departure.getStopId(), departure.getDate());
                 List<IpcArrivalDeparture> stopData =
-                        StopArrivalDepartureCacheFactory.getInstance().getStopHistory(key);
+                        stopArrivalDepartureCacheInterface.getStopHistory(key);
 
                 if (stopData != null && stopData.size() > 1) {
                     IpcArrivalDeparture arrival = findArrival(stopData, new IpcArrivalDeparture(departure));

@@ -5,8 +5,13 @@ import com.google.transit.realtime.GtfsRealtime.*;
 import com.google.transit.realtime.GtfsRealtime.FeedHeader.Incrementality;
 import com.google.transit.realtime.GtfsRealtime.TripDescriptor.ScheduleRelationship;
 import com.google.transit.realtime.GtfsRealtime.VehiclePosition.VehicleStopStatus;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+import org.transitclock.ApplicationContext;
 import org.transitclock.api.utils.AgencyTimezoneCache;
 import org.transitclock.service.dto.IpcAvl;
 import org.transitclock.service.dto.IpcVehicleConfig;
@@ -26,21 +31,24 @@ import java.util.Date;
  *
  * @author SkiBu Smith
  */
+@Slf4j
+@Component
+@Scope("prototype")
 public class GtfsRtVehicleFeed {
 
     private final String agencyId;
 
     // For outputting date in GTFS-realtime format
     private SimpleDateFormat gtfsRealtimeDateFormatter = new SimpleDateFormat("yyyyMMdd");
-
     private SimpleDateFormat gtfsRealtimeTimeFormatter = new SimpleDateFormat("HH:mm:ss");
-
-    private static final Logger logger = LoggerFactory.getLogger(GtfsRtVehicleFeed.class);
+    @Autowired
+    private VehiclesInterface vehiclesInterface ;
+    @Autowired
+    AgencyTimezoneCache agencyTimezoneCache;
 
     public GtfsRtVehicleFeed(String agencyId) {
         this.agencyId = agencyId;
-
-        this.gtfsRealtimeDateFormatter.setTimeZone(AgencyTimezoneCache.get(agencyId));
+        this.gtfsRealtimeDateFormatter.setTimeZone(agencyTimezoneCache.get(agencyId));
     }
 
     /**
@@ -213,7 +221,6 @@ public class GtfsRtVehicleFeed {
      * @return Collection of Vehicle objects, or null if not available.
      */
     private Collection<IpcVehicleGtfsRealtime> getVehicles() {
-        VehiclesInterface vehiclesInterface = VehiclesServiceImpl.instance();
         Collection<IpcVehicleGtfsRealtime> vehicles = vehiclesInterface.getGtfsRealtime();
 
         for (IpcVehicleGtfsRealtime ipc : vehicles) {

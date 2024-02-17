@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.transitclock.ApplicationContext;
 import org.transitclock.Core;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.core.Indices;
@@ -35,6 +37,11 @@ import org.transitclock.utils.SystemTime;
  */
 @Slf4j
 public class LastVehiclePredictionGeneratorImpl extends PredictionGeneratorDefaultImpl {
+    @Autowired
+    protected VehicleDataCache vehicleCache;
+    @Autowired
+    protected VehicleStateManager vehicleStateManager;
+
     @Override
     protected IpcPrediction generatePredictionForStop(
             AvlReport avlReport,
@@ -61,18 +68,9 @@ public class LastVehiclePredictionGeneratorImpl extends PredictionGeneratorDefau
 
     private final String alternative = "PredictionGeneratorDefaultImpl";
 
-    /* (non-Javadoc)
-     * @see org.transitclock.core.predictiongenerator.KalmanPredictionGeneratorImpl#getTravelTimeForPath(org.transitclock.core.Indices, org.transitclock.db.structs.AvlReport)
-     */
     @Override
     public long getTravelTimeForPath(Indices indices, AvlReport avlReport, VehicleState vehicleState) {
-
-        VehicleDataCache vehicleCache = VehicleDataCache.getInstance();
-
         List<VehicleState> vehiclesOnRoute = new ArrayList<>();
-
-        VehicleStateManager vehicleStateManager = VehicleStateManager.getInstance();
-
         VehicleState currentVehicleState = vehicleStateManager.getVehicleState(avlReport.getVehicleId());
 
         for (IpcVehicleComplete vehicle :
@@ -98,7 +96,7 @@ public class LastVehiclePredictionGeneratorImpl extends PredictionGeneratorDefau
                             null);
 
                     Core.getInstance().getDbLogger().add(predictionForStopPath);
-                    StopPathPredictionCache.getInstance().putPrediction(predictionForStopPath);
+                    stopPathPredictionCache.putPrediction(predictionForStopPath);
                 }
 
                 return travelTimeDetails.getTravelTime();

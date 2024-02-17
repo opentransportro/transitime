@@ -2,11 +2,15 @@
 package org.transitclock.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.transitclock.Core;
+import org.transitclock.core.dataCache.PredictionDataCache;
 import org.transitclock.core.dataCache.VehicleDataCache;
 import org.transitclock.domain.structs.Agency;
 import org.transitclock.domain.structs.Block;
 import org.transitclock.domain.structs.Calendar;
+import org.transitclock.domain.structs.Location;
 import org.transitclock.domain.structs.Route;
 import org.transitclock.domain.structs.Trip;
 import org.transitclock.domain.structs.TripPattern;
@@ -16,11 +20,14 @@ import org.transitclock.service.contract.ConfigInterface;
 import org.transitclock.service.dto.IpcBlock;
 import org.transitclock.service.dto.IpcCalendar;
 import org.transitclock.service.dto.IpcDirectionsForRoute;
+import org.transitclock.service.dto.IpcPrediction;
+import org.transitclock.service.dto.IpcPredictionsForRouteStopDest;
 import org.transitclock.service.dto.IpcRoute;
 import org.transitclock.service.dto.IpcRouteSummary;
 import org.transitclock.service.dto.IpcSchedule;
 import org.transitclock.service.dto.IpcTrip;
 import org.transitclock.service.dto.IpcTripPattern;
+import org.transitclock.service.dto.IpcVehicleComplete;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,30 +40,12 @@ import java.util.stream.Collectors;
  * @author SkiBu Smith
  */
 @Slf4j
+@Component
 public class ConfigServiceImpl implements ConfigInterface {
-
-    // Should only be accessed as singleton class
-    private static ConfigServiceImpl singleton;
-
-
-    public static ConfigInterface instance() {
-        return singleton;
-    }
-
-    /**
-     * Starts up the ConfigServer so that RMI calls can query for configuration data. This will
-     * automatically cause the object to continue to run and serve requests.
-     *
-     * @return the singleton ConfigServer object. Usually does not need to used since the server
-     *     will be fully running.
-     */
-    public static ConfigServiceImpl start() {
-        if (singleton == null) {
-            singleton = new ConfigServiceImpl();
-        }
-
-        return singleton;
-    }
+    @Autowired
+    private VehicleDataCache vehicleDataCache;
+    @Autowired
+    private PredictionDataCache predictionDataCache;
 
     public ConfigServiceImpl() {
     }
@@ -106,10 +95,41 @@ public class ConfigServiceImpl implements ConfigInterface {
             return null;
         }
 
+        var location = getLocationOfNextPredictedVehicle(dbRoute, directionId, stopId);
         // Convert db route into an ipc route and return it
-        return new IpcRoute(dbRoute, directionId, stopId, tripPatternId);
+        return new IpcRoute(dbRoute, directionId, stopId, tripPatternId, location);
     }
 
+    /**
+     * If stop specified then returns the location of the next predicted vehicle for that stop.
+     * Returns null if stop not specified or no predictions for stop.
+     *
+     * @param dbRoute
+     * @param directionId Set if want to know which part of route is major and which is minor.
+     *     Otherwise set to null.
+     * @param stopId
+     * @return
+     */
+    private Location getLocationOfNextPredictedVehicle(Route dbRoute, String directionId, String stopId) {
+        // If no stop specified then can't determine next predicted vehicle
+        if (stopId == null) return null;
+
+        // Determine the first IpcPrediction for the stop
+        List<IpcPredictionsForRouteStopDest> predsList =
+                predictionDataCache
+                        .getPredictions(dbRoute.getShortName(), directionId, stopId);
+        if (predsList.isEmpty()) return null;
+
+        List<IpcPrediction> ipcPreds = predsList.get(0).getPredictionsForRouteStop();
+        if (ipcPreds.isEmpty()) return null;
+
+        // Based on the first prediction determine the current IpcVehicle info
+        String vehicleId = ipcPreds.get(0).getVehicleId();
+
+        IpcVehicleComplete vehicle =  vehicleDataCache.getVehicle(vehicleId);
+
+        return new Location(vehicle.getLatitude(), vehicle.getLongitude());
+    }
     /*
      * (non-Javadoc)
      * @see org.transitclock.ipc.interfaces.ConfigInterface#getRoutes(java.util.List)
@@ -123,7 +143,7 @@ public class ConfigServiceImpl implements ConfigInterface {
             DbConfig dbConfig = Core.getInstance().getDbConfig();
             List<Route> dbRoutes = dbConfig.getRoutes();
             for (Route dbRoute : dbRoutes) {
-                IpcRoute ipcRoute = new IpcRoute(dbRoute, null, null, null);
+                IpcRoute ipcRoute = new IpcRoute(dbRoute, null, null, null, null);
                 routes.add(ipcRoute);
             }
         } else {
@@ -133,7 +153,7 @@ public class ConfigServiceImpl implements ConfigInterface {
                 Route dbRoute = getRoute(routeIdOrShortName);
                 if (dbRoute == null) continue;
 
-                IpcRoute ipcRoute = new IpcRoute(dbRoute, null, null, null);
+                IpcRoute ipcRoute = new IpcRoute(dbRoute, null, null, null, null);
                 routes.add(ipcRoute);
             }
         }
@@ -293,8 +313,7 @@ public class ConfigServiceImpl implements ConfigInterface {
      */
     @Override
     public List<String> getVehicleIds() {
-        Collection<VehicleConfig> vehicleConfigs =
-                VehicleDataCache.getInstance().getVehicleConfigs();
+        Collection<VehicleConfig> vehicleConfigs = vehicleDataCache.getVehicleConfigs();
         List<String> vehicleIds = new ArrayList<>(vehicleConfigs.size());
         for (VehicleConfig vehicleConfig : vehicleConfigs) {
             vehicleIds.add(vehicleConfig.getId());

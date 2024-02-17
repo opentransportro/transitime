@@ -2,6 +2,8 @@
 package org.transitclock.core.schedBasedPreds;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.transitclock.ApplicationContext;
 import org.transitclock.Module;
 import org.transitclock.Core;
 import org.transitclock.config.data.AgencyConfig;
@@ -45,7 +47,10 @@ import java.util.Set;
  */
 @Slf4j
 public class SchedBasedPredsModule extends Module {
-
+    @Autowired
+    private VehicleDataCache vehicleDataCache;
+    @Autowired
+    private AvlProcessor avlProcessor;
 
     public SchedBasedPredsModule(String agencyId) {
         super(agencyId);
@@ -60,7 +65,7 @@ public class SchedBasedPredsModule extends Module {
         // when doing the somewhat expensive searching for currently active
         // blocks.
         Set<String> blockIdsAlreadyAssigned = new HashSet<>();
-        Collection<IpcVehicleComplete> vehicles = VehicleDataCache.getInstance().getVehiclesIncludingSchedBasedOnes();
+        Collection<IpcVehicleComplete> vehicles = vehicleDataCache.getVehiclesIncludingSchedBasedOnes();
         for (IpcVehicle vehicle : vehicles) {
             String blockId = vehicle.getBlockId();
             if (blockId != null) blockIdsAlreadyAssigned.add(blockId);
@@ -76,7 +81,7 @@ public class SchedBasedPredsModule extends Module {
         // For each block about to start see if no associated vehicle
         for (Block block : activeBlocks) {
             // Is there a vehicle associated with the block?
-            Collection<String> vehiclesForBlock = VehicleDataCache.getInstance().getVehiclesByBlockId(block.getId());
+            Collection<String> vehiclesForBlock = vehicleDataCache.getVehiclesByBlockId(block.getId());
             if (vehiclesForBlock == null || vehiclesForBlock.isEmpty()) {
                 // No vehicle associated with the active block so create a
                 // schedule based one. First create a fake AVL report that
@@ -101,91 +106,11 @@ public class SchedBasedPredsModule extends Module {
                             block.toShortString());
 
                     // Process that AVL report to generate predictions and such
-                    AvlProcessor.getInstance().processAvlReport(avlReport);
+                    avlProcessor.processAvlReport(avlReport);
                 }
             }
         }
     }
-
-    /**
-     * Determines if schedule based vehicle should be timed out. A schedule based vehicle should be
-     * timed out if the block is now over (now is passed the end time of the block) or if passed the
-     * start time of the block by more than the allowable number of minutes (a real vehicle was
-     * never assigned to the block).
-     *
-     * @param vehicleState
-     * @param now Current time
-     * @return An event description if the schedule based vehicle should be timed out and
-     *     predictions should be removed, otherwise null
-     */
-    public static String shouldTimeoutVehicle(VehicleState vehicleState, long now) {
-        // Make sure method only called for schedule based vehicles
-        if (!vehicleState.isForSchedBasedPreds()) {
-            logger.error(
-                    "Called SchedBasedPredictionsModule.shouldTimeoutVehicle() "
-                            + "for vehicle that is not schedule based. {}",
-                    vehicleState);
-            return null;
-        }
-        Block block = vehicleState.getBlock();
-        if (block == null) {
-            logger.error(
-                    "Called SchedBasedPredictionsModule.shouldTimeoutVehicle() "
-                            + "for vehicle that does not have a block assigned. {}",
-                    vehicleState);
-            return null;
-        }
-
-        // If block not active anymore then must have reached end of block then
-        // should remove the schedule based vehicle
-        if (!block.isActive(now, PredictionConfig.beforeStartTimeMinutes.getValue() * Time.SEC_PER_MIN)) {
-            return "Schedule based predictions to be "
-                    + "removed for block "
-                    + vehicleState.getBlock().getId()
-                    + " because the block is no longer active."
-                    + " Block start time is "
-                    + Time.timeOfDayShortStr(block.getStartTime())
-                    + " and block end time is "
-                    + Time.timeOfDayShortStr(block.getEndTime());
-        }
-
-        // If block is active but it is beyond the allowable number of minutes past the
-        // the block start time then should remove the schedule based vehicle
-        if (PredictionConfig.afterStartTimeMinutes.getValue() >= 0) {
-            long scheduledDepartureTime = vehicleState.getMatch().getScheduledWaitStopTime();
-            if (scheduledDepartureTime >= 0) {
-                // There is a scheduled departure time. Make sure not too
-                // far past it
-                long maxNoAvl = PredictionConfig.afterStartTimeMinutes.getValue() * Time.MS_PER_MIN;
-                if (now > scheduledDepartureTime + maxNoAvl) {
-                    String shouldTimeoutEventDescription = "Schedule based predictions removed for block "
-                            + vehicleState.getBlock().getId()
-                            + " because it is now "
-                            + Time.elapsedTimeStr(now - scheduledDepartureTime)
-                            + " since the scheduled start time for the block"
-                            + Time.dateTimeStr(scheduledDepartureTime)
-                            + " while allowable time without an AVL report is "
-                            + Time.elapsedTimeStr(maxNoAvl)
-                            + ".";
-                    if (!PredictionConfig.cancelTripOnTimeout.getValue()) {
-                        return shouldTimeoutEventDescription;
-                    } else if (!vehicleState.isCanceled()
-                            && PredictionConfig.cancelTripOnTimeout.getValue()) // TODO: Check if it works on state changed
-                    {
-                        logger.info("Canceling trip...");
-                        vehicleState.setCanceled(true);
-                        VehicleDataCache.getInstance().updateVehicle(vehicleState);
-                        AvlReport avlReport = vehicleState.getAvlReport();
-                        AvlProcessor.getInstance().processAvlReport(avlReport);
-                    }
-                }
-            }
-        }
-
-        // Vehicle doesn't need to be timed out
-        return null;
-    }
-
     /* (non-Javadoc)
      * @see java.lang.Runnable#run()
      */

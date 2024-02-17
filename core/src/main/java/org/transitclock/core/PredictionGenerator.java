@@ -2,9 +2,12 @@
 package org.transitclock.core;
 
 import org.apache.commons.lang3.time.DateUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.transitclock.Core;
 import org.transitclock.config.data.PredictionConfig;
 import org.transitclock.core.dataCache.*;
+import org.transitclock.core.dataCache.ehcache.StopArrivalDepartureCache;
 import org.transitclock.core.predictiongenerator.datafilter.TravelTimeDataFilter;
 import org.transitclock.core.predictiongenerator.datafilter.TravelTimeFilterFactory;
 import org.transitclock.domain.structs.ArrivalDeparture;
@@ -24,7 +27,10 @@ import java.util.*;
  * @author SkiBu Smith
  */
 public abstract class PredictionGenerator {
-
+    @Autowired
+    protected StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface;
+    @Autowired
+    protected TripDataHistoryCacheInterface tripDataHistoryCacheInterface;
     /**
      * Generates and returns the predictions for the vehicle.
      *
@@ -49,10 +55,10 @@ public abstract class PredictionGenerator {
                     currentStopId, new Date(currentVehicleState.getMatch().getAvlTime()));
 
             List<IpcArrivalDeparture> currentStopList =
-                    StopArrivalDepartureCacheFactory.getInstance().getStopHistory(currentStopKey);
+                    stopArrivalDepartureCacheInterface.getStopHistory(currentStopKey);
 
             List<IpcArrivalDeparture> nextStopList =
-                    StopArrivalDepartureCacheFactory.getInstance().getStopHistory(nextStopKey);
+                    stopArrivalDepartureCacheInterface.getStopHistory(nextStopKey);
 
             if (currentStopList != null && nextStopList != null) {
                 // lists are already sorted when put into cache.
@@ -110,10 +116,10 @@ public abstract class PredictionGenerator {
                     currentStopId, new Date(currentVehicleState.getMatch().getAvlTime()));
 
             List<IpcArrivalDeparture> currentStopList =
-                    StopArrivalDepartureCacheFactory.getInstance().getStopHistory(currentStopKey);
+                    stopArrivalDepartureCacheInterface.getStopHistory(currentStopKey);
 
             List<IpcArrivalDeparture> nextStopList =
-                    StopArrivalDepartureCacheFactory.getInstance().getStopHistory(nextStopKey);
+                    stopArrivalDepartureCacheInterface.getStopHistory(nextStopKey);
 
             if (currentStopList != null && nextStopList != null) {
                 // lists are already sorted when put into cache.
@@ -248,7 +254,7 @@ public abstract class PredictionGenerator {
 
                 if (arrival != null) {
                     IpcArrivalDeparture departure =
-                            TripDataHistoryCacheFactory.getInstance().findPreviousDepartureEvent(results, arrival);
+                            tripDataHistoryCacheInterface.findPreviousDepartureEvent(results, arrival);
 
                     if (arrival != null && departure != null) {
 

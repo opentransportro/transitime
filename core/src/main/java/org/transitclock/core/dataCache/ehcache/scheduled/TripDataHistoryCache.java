@@ -34,14 +34,10 @@ public class TripDataHistoryCache implements TripDataHistoryCacheInterface {
     private static final String cacheByTrip = "arrivalDeparturesByTrip";
     private final Cache<TripKey, TripEvents> cache;
 
-    public TripDataHistoryCache() {
-        CacheManager cm = CacheManagerFactory.getInstance();
+    public TripDataHistoryCache(CacheManager cm) {
         cache = cm.getCache(cacheByTrip, TripKey.class, TripEvents.class);
     }
 
-    /* (non-Javadoc)
-     * @see org.transitclock.core.dataCache.TripDataHistoryCacheInterface#getTripHistory(org.transitclock.core.dataCache.TripKey)
-     */
     @Override
     public List<IpcArrivalDeparture> getTripHistory(TripKey tripKey) {
         TripEvents result = cache.get(tripKey);
@@ -110,7 +106,7 @@ public class TripDataHistoryCache implements TripDataHistoryCacheInterface {
         for (ArrivalDeparture result : results) {
             // TODO this might be better done in the database.
             if (GtfsData.routeNotFiltered(result.getRouteId())) {
-                TripDataHistoryCacheFactory.getInstance().putArrivalDeparture(result);
+                putArrivalDeparture(result);
             }
         }
     }

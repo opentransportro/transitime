@@ -2,6 +2,9 @@
 package org.transitclock.core;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.transitclock.ApplicationContext;
 import org.transitclock.Core;
 import org.transitclock.domain.structs.ScheduleTime;
 import org.transitclock.domain.structs.Trip;
@@ -15,7 +18,10 @@ import java.util.Date;
  * @author SkiBu Smith
  */
 @Slf4j
+@Component
 public class RealTimeSchedAdhProcessor {
+    @Autowired
+    private TravelTimes travelTimes;
 
     /**
      * Determines the current schedule adherence for the vehicle. If vehicle at a stop with a
@@ -28,7 +34,7 @@ public class RealTimeSchedAdhProcessor {
      * @return The real-time schedule adherence for the vehicle, or null if vehicle is not
      *     predictable or there are no upcoming stops with a schedule time.
      */
-    public static TemporalDifference generate(VehicleState vehicleState) {
+    public TemporalDifference generate(VehicleState vehicleState) {
         // If vehicle not matched/predictable then cannot provide schedule
         // adherence
         if (!vehicleState.isPredictable()) return null;
@@ -118,7 +124,7 @@ public class RealTimeSchedAdhProcessor {
 
         // Determine how long it is expected to take for vehicle to get to
         // that stop
-        int travelTimeToStopMsec = TravelTimes.getInstance()
+        int travelTimeToStopMsec = travelTimes
                 .expectedTravelTimeBetweenMatches(vehicleId, avlTime, match, matchAtStopWithScheduleTime);
 
         // If using departure time then add in expected stop wait time

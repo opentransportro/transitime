@@ -2,8 +2,11 @@
 package org.transitclock.core;
 
 import java.util.*;
+
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.transitclock.ApplicationContext;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.core.dataCache.VehicleStateManager;
 import org.transitclock.domain.structs.Arrival;
@@ -27,6 +30,7 @@ import org.transitclock.utils.Time;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class VehicleState {
 
     private final String vehicleId;
@@ -77,6 +81,16 @@ public class VehicleState {
     // Used for schedPred AVL. Identify if trip is canceled.
     private boolean isCanceled;
 
+    public VehicleState(String vehicleId) {
+        this.vehicleId = vehicleId;
+    }
+
+    public VehicleState(String vehicleId, String vehicleName) {
+        this.vehicleId = vehicleId;
+        this.vehicleName = vehicleName;
+    }
+
+
     public Headway getHeadway() {
         return headway;
     }
@@ -99,18 +113,6 @@ public class VehicleState {
 
     public void incrementTripCounter() {
         tripCounter = tripCounter + 1;
-    }
-
-    private static final Logger logger = LoggerFactory.getLogger(VehicleState.class);
-
-    /********************** Member Functions **************************/
-    public VehicleState(String vehicleId) {
-        this.vehicleId = vehicleId;
-    }
-
-    public VehicleState(String vehicleId, String vehicleName) {
-        this.vehicleId = vehicleId;
-        this.vehicleName = vehicleName;
     }
 
     /**
@@ -359,8 +361,8 @@ public class VehicleState {
      *
      * @param event
      */
-    public void incrementTripCounter(ArrivalDeparture event) {
-        VehicleState vehicleState = VehicleStateManager.getInstance().getVehicleState(event.getVehicleId());
+    public void incrementTripCounter(ArrivalDeparture event, VehicleStateManager vehicleStateManager) {
+        VehicleState vehicleState = vehicleStateManager.getVehicleState(event.getVehicleId());
 
         if (event.getStopPathIndex() == 0) {
             if (event.isArrival()) {

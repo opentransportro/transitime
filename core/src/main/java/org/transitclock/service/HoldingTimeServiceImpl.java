@@ -2,6 +2,9 @@
 package org.transitclock.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.transitclock.ApplicationContext;
 import org.transitclock.core.dataCache.HoldingTimeCache;
 import org.transitclock.core.dataCache.HoldingTimeCacheKey;
 import org.transitclock.core.dataCache.VehicleDataCache;
@@ -14,20 +17,12 @@ import org.transitclock.service.dto.IpcHoldingTime;
  *     not be set to run by default as really only for analysis of predictions.
  */
 @Slf4j
+@Component
 public class HoldingTimeServiceImpl implements HoldingTimeInterface {
-    // Should only be accessed as singleton class
-    private static HoldingTimeServiceImpl singleton;
-
-    public static HoldingTimeInterface instance() {
-        return singleton;
-    }
-
-    public static HoldingTimeServiceImpl start() {
-        if (singleton == null) {
-            singleton = new HoldingTimeServiceImpl();
-        }
-        return singleton;
-    }
+    @Autowired
+    private VehicleDataCache vehicleDataCache;
+    @Autowired
+    private HoldingTimeCache holdingTimeCache;
 
     public HoldingTimeServiceImpl() {
 
@@ -35,15 +30,15 @@ public class HoldingTimeServiceImpl implements HoldingTimeInterface {
 
     @Override
     public IpcHoldingTime getHoldTime(String stopId, String vehicleId, String tripId) {
-
         if (tripId == null) {
-            if (VehicleDataCache.getInstance().getVehicle(vehicleId) != null) {
-                tripId = VehicleDataCache.getInstance().getVehicle(vehicleId).getTripId();
+            if (vehicleDataCache.getVehicle(vehicleId) != null) {
+                tripId = vehicleDataCache.getVehicle(vehicleId).getTripId();
             }
         }
+
         if (stopId != null && vehicleId != null && tripId != null) {
             HoldingTimeCacheKey key = new HoldingTimeCacheKey(stopId, vehicleId, tripId);
-            HoldingTime result = HoldingTimeCache.getInstance().getHoldingTime(key);
+            HoldingTime result = holdingTimeCache.getHoldingTime(key);
             if (result != null) return new IpcHoldingTime(result);
         }
         return null;
@@ -53,12 +48,13 @@ public class HoldingTimeServiceImpl implements HoldingTimeInterface {
     public IpcHoldingTime getHoldTime(String stopId, String vehicleId) {
 
         String tripId = null;
-        if (VehicleDataCache.getInstance().getVehicle(vehicleId) != null) {
-            tripId = VehicleDataCache.getInstance().getVehicle(vehicleId).getTripId();
+        if (vehicleDataCache.getVehicle(vehicleId) != null) {
+            tripId = vehicleDataCache.getVehicle(vehicleId).getTripId();
         }
+
         if (stopId != null && vehicleId != null && tripId != null) {
             HoldingTimeCacheKey key = new HoldingTimeCacheKey(stopId, vehicleId, tripId);
-            HoldingTime result = HoldingTimeCache.getInstance().getHoldingTime(key);
+            HoldingTime result = holdingTimeCache.getHoldingTime(key);
             if (result != null) return new IpcHoldingTime(result);
         }
         return null;

@@ -2,6 +2,9 @@
 package org.transitclock.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.transitclock.ApplicationContext;
 import org.transitclock.monitoring.AgencyMonitor;
 import org.transitclock.service.contract.ServerStatusInterface;
 import org.transitclock.service.dto.IpcServerStatus;
@@ -15,51 +18,21 @@ import java.util.Date;
  * @author SkiBu Smith
  */
 @Slf4j
+@Component
 public class ServerStatusServiceImpl implements ServerStatusInterface {
-    private static ServerStatusServiceImpl singleton;
+    @Autowired
+    private AgencyMonitor agencyMonitor;
 
-    public static ServerStatusInterface instance() {
-        return singleton;
+    public ServerStatusServiceImpl() {
     }
 
-    public static ServerStatusServiceImpl start(String agencyId) {
-        if (singleton == null) {
-            singleton = new ServerStatusServiceImpl(agencyId);
-        }
-
-        return singleton;
-    }
-
-    private final String agencyId;
-    /**
-     * Constructor is private because singleton class
-     *
-     * @param projectId
-     * @param objectName
-     */
-    public ServerStatusServiceImpl(String projectId) {
-        agencyId = projectId;
-    }
-
-    /* (non-Javadoc)
-     * @see org.transitclock.ipc.interfaces.ServerStatusInterface#get()
-     */
     @Override
     public IpcServerStatus get() {
-        AgencyMonitor agencyMonitor = AgencyMonitor.getInstance(agencyId);
         return new IpcServerStatus(agencyMonitor.getMonitorResults());
     }
 
-    /* (non-Javadoc)
-     * @see org.transitclock.ipc.interfaces.ServerStatusInterface#monitor()
-     */
     @Override
     public String monitor() {
-        // Monitor everything having to do with an agency server. Send
-        // out any notifications if necessary. Return any resulting
-        // error message.
-        AgencyMonitor agencyMonitor = AgencyMonitor.getInstance(agencyId);
-
         return agencyMonitor.checkAll();
     }
 

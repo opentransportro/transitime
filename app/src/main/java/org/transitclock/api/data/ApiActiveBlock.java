@@ -59,7 +59,7 @@ public class ApiActiveBlock {
         WebAgency webAgency = WebAgency.getCachedWebAgency(agencyId);
         Time timeForAgency = webAgency.getAgency().getTime();
 
-        vehicles = new ArrayList<ApiVehicleDetails>();
+        vehicles = new ArrayList<>();
         for (IpcVehicle ipcVehicles : ipcActiveBlock.getVehicles()) {
             vehicles.add(new ApiVehicleDetails(ipcVehicles, timeForAgency));
         }

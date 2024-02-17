@@ -2,9 +2,11 @@
 package org.transitclock.core.predictiongenerator.scheduled.dwell;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.transitclock.core.Indices;
 import org.transitclock.core.VehicleState;
 import org.transitclock.core.dataCache.DwellTimeModelCacheFactory;
+import org.transitclock.core.dataCache.DwellTimeModelCacheInterface;
 import org.transitclock.core.dataCache.StopPathCacheKey;
 import org.transitclock.core.predictiongenerator.scheduled.traveltime.kalman.KalmanPredictionGeneratorImpl;
 import org.transitclock.domain.structs.AvlReport;
@@ -21,6 +23,8 @@ import org.transitclock.domain.structs.Headway;
  */
 @Slf4j
 public class DwellTimePredictionGeneratorImpl extends KalmanPredictionGeneratorImpl {
+    @Autowired
+    DwellTimeModelCacheInterface dwellTimeModelCacheInterface;
 
     @Override
     public long getStopTimeForPath(Indices indices, AvlReport avlReport, VehicleState vehicleState) {
@@ -38,8 +42,8 @@ public class DwellTimePredictionGeneratorImpl extends KalmanPredictionGeneratorI
                     StopPathCacheKey cacheKey =
                             new StopPathCacheKey(indices.getTrip().getId(), indices.getStopPathIndex(), false);
 
-                    if (DwellTimeModelCacheFactory.getInstance() != null)
-                        result = DwellTimeModelCacheFactory.getInstance().predictDwellTime(cacheKey, headway);
+                    if (dwellTimeModelCacheInterface != null)
+                        result = dwellTimeModelCacheInterface.predictDwellTime(cacheKey, headway);
 
                     if (result == null) {
                         logger.debug(

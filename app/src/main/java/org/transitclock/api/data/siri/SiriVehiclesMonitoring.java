@@ -136,15 +136,13 @@ public class SiriVehiclesMonitoring {
         }
     }
 
-    /********************** Member Functions **************************/
-
     // No-args needed because this class is an XML root element
     protected SiriVehiclesMonitoring() {}
 
     public SiriVehiclesMonitoring(Collection<IpcVehicleComplete> vehicles, String agencyId) {
         // Set the time zones for the date formatters
-        siriDateTimeFormat.setTimeZone(AgencyTimezoneCache.get(agencyId));
-        siriDateFormat.setTimeZone(AgencyTimezoneCache.get(agencyId));
+//        siriDateTimeFormat.setTimeZone(AgencyTimezoneCache.get(agencyId));
+//        siriDateFormat.setTimeZone(AgencyTimezoneCache.get(agencyId));
 
         delivery = new SiriServiceDelivery(vehicles, agencyId, siriDateTimeFormat, siriDateFormat);
     }

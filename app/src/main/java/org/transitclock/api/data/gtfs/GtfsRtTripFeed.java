@@ -7,9 +7,14 @@ import com.google.transit.realtime.GtfsRealtime.TripUpdate.StopTimeEvent;
 import com.google.transit.realtime.GtfsRealtime.TripUpdate.StopTimeUpdate;
 import com.google.transit.realtime.GtfsRealtime.TripUpdate.StopTimeUpdate.ScheduleRelationship;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+import org.transitclock.ApplicationContext;
 import org.transitclock.api.utils.AgencyTimezoneCache;
 import org.transitclock.config.data.ApiConfig;
 import org.transitclock.core.holdingmethod.PredictionTimeComparator;
+import org.transitclock.service.contract.PredictionsInterface;
 import org.transitclock.service.dto.IpcPrediction;
 import org.transitclock.service.dto.IpcPredictionsForRouteStopDest;
 import org.transitclock.service.dto.IpcVehicleConfig;
@@ -35,6 +40,8 @@ import java.util.*;
  * @author SkiBu Smith
  */
 @Slf4j
+@Component
+@Scope("prototype")
 public class GtfsRtTripFeed {
     private static final int PREDICTION_MAX_FUTURE_SECS = ApiConfig.predictionMaxFutureSecs.getValue();
 
@@ -61,9 +68,16 @@ public class GtfsRtTripFeed {
 
     private final SimpleDateFormat gtfsRealtimeTimeFormatter = new SimpleDateFormat("HH:mm:ss");
 
+    @Autowired
+    private PredictionsInterface predictionsInterface;
+    @Autowired
+    private VehiclesInterface vehiclesInterface;
+    @Autowired
+    AgencyTimezoneCache agencyTimezoneCache;
+
     public GtfsRtTripFeed(String agencyId) {
         this.agencyId = agencyId;
-        this.gtfsRealtimeDateFormatter.setTimeZone(AgencyTimezoneCache.get(agencyId));
+        this.gtfsRealtimeDateFormatter.setTimeZone(agencyTimezoneCache.get(agencyId));
     }
 
     /**
@@ -75,8 +89,6 @@ public class GtfsRtTripFeed {
     private TripUpdate createTripUpdate(List<IpcPrediction> predsForTrip) {
         // Create the parent TripUpdate object that is returned.
         TripUpdate.Builder tripUpdate = TripUpdate.newBuilder();
-
-        VehiclesInterface vehiclesInterface = VehiclesServiceImpl.instance();
 
         // Add the trip descriptor information
         IpcPrediction firstPred = predsForTrip.get(0);
@@ -227,7 +239,7 @@ public class GtfsRtTripFeed {
             } else {
                 // Create feed entity for each schedule trip
                 FeedEntity.Builder feedEntity = FeedEntity.newBuilder()
-                                .setId(predsForTrip.get(0).getTripId());
+                        .setId(predsForTrip.get(0).getTripId());
                 try {
                     TripUpdate tripUpdate = createTripUpdate(predsForTrip);
                     feedEntity.setTripUpdate(tripUpdate);
@@ -271,12 +283,11 @@ public class GtfsRtTripFeed {
      * tripId.
      *
      * @return Map keyed on tripId of List of Predictions for the trip, or null if could not get
-     *     data from server.
+     * data from server.
      */
     private Map<String, List<IpcPrediction>> getPredictionsPerTrip() {
         // Get all the predictions, grouped by vehicle, from the server
-        List<IpcPredictionsForRouteStopDest> allPredictionsByStop = PredictionsServiceImpl.instance()
-                            .getAllPredictions(PREDICTION_MAX_FUTURE_SECS);
+        List<IpcPredictionsForRouteStopDest> allPredictionsByStop = predictionsInterface.getAllPredictions(PREDICTION_MAX_FUTURE_SECS);
 
         // Group the predictions by trip instead of by vehicle
         Map<String, List<IpcPrediction>> predictionsByTrip = new HashMap<>();

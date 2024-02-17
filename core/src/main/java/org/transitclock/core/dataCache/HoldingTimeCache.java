@@ -4,6 +4,9 @@ package org.transitclock.core.dataCache;
 import org.ehcache.Cache;
 import org.ehcache.CacheManager;
 import org.slf4j.Logger;
+import org.springframework.stereotype.Component;
+import org.transitclock.ApplicationContext;
+import org.transitclock.SingletonRegistry;
 import org.transitclock.core.dataCache.ehcache.CacheManagerFactory;
 import org.transitclock.domain.structs.HoldingTime;
 
@@ -12,22 +15,13 @@ import java.util.List;
 /**
  * @author Sean Óg Crudden
  */
+@Component
 public class HoldingTimeCache {
     private static final String cacheName = "HoldingTimeCache";
-    private static final HoldingTimeCache singleton = new HoldingTimeCache();
     private final Cache<HoldingTimeCacheKey, HoldingTime> cache;
 
-    /**
-     * Gets the singleton instance of this class.
-     *
-     * @return
-     */
-    public static HoldingTimeCache getInstance() {
-        return singleton;
-    }
 
-    private HoldingTimeCache() {
-        CacheManager cm = CacheManagerFactory.getInstance();
+    public HoldingTimeCache(CacheManager cm) {
         cache = cm.getCache(cacheName, HoldingTimeCacheKey.class, HoldingTime.class);
     }
 
