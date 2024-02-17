@@ -165,7 +165,7 @@ public class SqlUtils {
                 numDays = maxNumDays;
             }
 
-            SimpleDateFormat currentFormat = new SimpleDateFormat("dd-MM-yyyy");
+            SimpleDateFormat currentFormat = new SimpleDateFormat("MM-dd-yyyy");
             SimpleDateFormat requiredFormat = new SimpleDateFormat("yyyy-MM-dd");
             try {
                 beginDate = requiredFormat.format(currentFormat.parse(beginDate));
@@ -215,7 +215,7 @@ public class SqlUtils {
             numDays = maxNumDays;
         }
 
-        SimpleDateFormat currentFormat = new SimpleDateFormat("dd-MM-yyyy");
+        SimpleDateFormat currentFormat = new SimpleDateFormat("MM-dd-yyyy");
         SimpleDateFormat requiredFormat = new SimpleDateFormat("yyyy-MM-dd");
         try {
             beginDate = requiredFormat.format(currentFormat.parse(beginDate));
