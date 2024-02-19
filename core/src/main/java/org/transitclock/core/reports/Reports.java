@@ -123,7 +123,7 @@ public class Reports {
                 + date
                 + "') + trip_scheduled_times_list.arrival_time * interval '1 second'"
                 + "	 ELSE ADDeparture.scheduled_time"
-                + "	 END AS scheduled_time"
+                + "	 END AS scheduledTime"
                 + "	,CASE WHEN ADDeparture.scheduled_time ISNULL"
                 + "	 THEN regexp_replace(CAST(DATE_TRUNC('second', DATE('"
                 + date
