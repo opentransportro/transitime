@@ -1,6 +1,10 @@
 /* (C)2023 */
 package org.transitclock.utils;
 
+import lombok.extern.slf4j.Slf4j;
+import org.transitclock.domain.structs.Agency;
+import org.transitclock.gtfs.DbConfig;
+
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.ParseException;
@@ -9,8 +13,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
-import org.transitclock.domain.structs.Agency;
-import org.transitclock.gtfs.DbConfig;
 
 /**
  * Contains convenience methods for dealing with time issues.
@@ -21,6 +23,7 @@ import org.transitclock.gtfs.DbConfig;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class Time {
     // Some handy constants for dealing with time.
     // MS_PER_SEC and MS_PER_MIN are declared as integers since they after
@@ -59,7 +62,7 @@ public class Time {
 
     // These two are for reading in dates in various formats
     private static final DateFormat defaultDateFormat = SimpleDateFormat.getDateInstance(DateFormat.SHORT);
-    private static final DateFormat dateFormatDashesShortYear = new SimpleDateFormat("dd-MM-yy");
+    private static final DateFormat dateFormatDashesShortYear = new SimpleDateFormat("MM-dd-yy");
 
     private static final DateFormat readableDateFormat = new SimpleDateFormat("dd-MM-yyyy");
 
@@ -402,7 +405,7 @@ public class Time {
         try {
             return defaultDateFormat.parse(dateStr);
         } catch (ParseException e) {
-            e.printStackTrace();
+            logger.warn("Cannot parse {} using defaultDateFormat.", dateStr, e);
         }
         // Try using "-" instead of "/" as separator. Having the date formatter
         // specify only two digits for the year means it also works when 4
