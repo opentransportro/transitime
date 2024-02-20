@@ -3,10 +3,22 @@ package org.transitclock.domain.structs;
 
 import com.esotericsoftware.kryo.NotNull;
 import com.querydsl.jpa.impl.JPAQuery;
-import jakarta.persistence.*;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import jakarta.persistence.Column;
+import jakarta.persistence.DiscriminatorColumn;
+import jakarta.persistence.DiscriminatorType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
+import jakarta.persistence.Table;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
+import jakarta.persistence.Transient;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.CallbackException;
@@ -41,7 +53,9 @@ import java.util.List;
  * @author SkiBu Smith
  */
 @Entity
-@Data
+@Getter
+@Setter
+@RequiredArgsConstructor
 @DynamicUpdate
 @Table(name = "arrivals_departures",
     indexes = {
@@ -734,5 +748,127 @@ public abstract class ArrivalDeparture implements Lifecycle, Serializable {
      */
     public int getGtfsStopSequence() {
         return gtfsStopSeq;
+    }
+
+    /**
+     * Because using a composite Id Hibernate wants this member.
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        ArrivalDeparture other = (ArrivalDeparture) obj;
+        if (avlTime == null) {
+            if (other.avlTime != null)
+                return false;
+        } else if (!avlTime.equals(other.avlTime))
+            return false;
+        if (block == null) {
+            if (other.block != null)
+                return false;
+        } else if (!block.equals(other.block))
+            return false;
+        if (blockId == null) {
+            if (other.blockId != null)
+                return false;
+        } else if (!blockId.equals(other.blockId))
+            return false;
+        if (configRev != other.configRev)
+            return false;
+        if (directionId == null) {
+            if (other.directionId != null)
+                return false;
+        } else if (!directionId.equals(other.directionId))
+            return false;
+        if (gtfsStopSeq != other.gtfsStopSeq)
+            return false;
+        if (isArrival != other.isArrival)
+            return false;
+        if (routeId == null) {
+            if (other.routeId != null)
+                return false;
+        } else if (!routeId.equals(other.routeId))
+            return false;
+        if (routeShortName == null) {
+            if (other.routeShortName != null)
+                return false;
+        } else if (!routeShortName.equals(other.routeShortName))
+            return false;
+        if (scheduledTime == null) {
+            if (other.scheduledTime != null)
+                return false;
+        } else if (!scheduledTime.equals(other.scheduledTime))
+            return false;
+        if (serviceId == null) {
+            if (other.serviceId != null)
+                return false;
+        } else if (!serviceId.equals(other.serviceId))
+            return false;
+        if (stopId == null) {
+            if (other.stopId != null)
+                return false;
+        } else if (!stopId.equals(other.stopId))
+            return false;
+        if (stopOrder == null) {
+            if (other.stopOrder != null)
+                return false;
+        } else if (!stopOrder.equals(other.stopOrder))
+            return false;
+        if (stopPathIndex != other.stopPathIndex)
+            return false;
+        if (Float.floatToIntBits(stopPathLength) != Float
+                .floatToIntBits(other.stopPathLength))
+            return false;
+        if (time == null) {
+            if (other.time != null)
+                return false;
+        } else if (!time.equals(other.time))
+            return false;
+        if (tripId == null) {
+            if (other.tripId != null)
+                return false;
+        } else if (!tripId.equals(other.tripId))
+            return false;
+        if (tripIndex != other.tripIndex)
+            return false;
+        if (vehicleId == null) {
+            if (other.vehicleId != null)
+                return false;
+        } else if (!vehicleId.equals(other.vehicleId))
+            return false;
+        return true;
+    }
+
+    /**
+     * Because using a composite Id Hibernate wants this member.
+     */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((avlTime == null) ? 0 : avlTime.hashCode());
+        result = prime * result + ((block == null) ? 0 : block.hashCode());
+        result = prime * result + ((blockId == null) ? 0 : blockId.hashCode());
+        result = prime * result + configRev;
+        result = prime * result + ((directionId == null) ? 0 : directionId.hashCode());
+        result = prime * result + gtfsStopSeq;
+        result = prime * result + (isArrival ? 1231 : 1237);
+        result = prime * result + ((routeId == null) ? 0 : routeId.hashCode());
+        result = prime * result + ((routeShortName == null) ? 0 : routeShortName.hashCode());
+        result = prime * result + ((scheduledTime == null) ? 0 : scheduledTime.hashCode());
+        result = prime * result + ((serviceId == null) ? 0 : serviceId.hashCode());
+        result = prime * result + ((stopId == null) ? 0 : stopId.hashCode());
+        result = prime * result + ((stopOrder == null) ? 0 : stopOrder.hashCode());
+        result = prime * result + stopPathIndex;
+        result = prime * result + Float.floatToIntBits(stopPathLength);
+        result = prime * result + ((time == null) ? 0 : time.hashCode());
+        result = prime * result + ((tripId == null) ? 0 : tripId.hashCode());
+        result = prime * result + tripIndex;
+        result = prime * result + ((vehicleId == null) ? 0 : vehicleId.hashCode());
+        return result;
     }
 }
