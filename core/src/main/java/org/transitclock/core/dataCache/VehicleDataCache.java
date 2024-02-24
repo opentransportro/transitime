@@ -465,12 +465,13 @@ public class VehicleDataCache {
     public void updateVehicle(VehicleState vehicleState) {
         // Not a layover so departure time not provided
         long layoverDepartureTime = 0;
-        if (vehicleState.getMatch().isLayover()) {
+        var match = vehicleState.getMatch();
+        if (match != null && match.isLayover()) {
             IpcPrediction predsForVehicle = predictionDataCache
                     .getPredictionForVehicle(
                             vehicleState.getAvlReport().getVehicleId(),
                             vehicleState.getRouteShortName(dbConfig),
-                            vehicleState.getMatch().getStopPath().getStopId());
+                            match.getStopPath().getStopId());
             layoverDepartureTime = predsForVehicle != null ? predsForVehicle.getPredictionTime() : 0;
         }
         IpcVehicleComplete vehicle = new IpcVehicleComplete(dbConfig, vehicleState, layoverDepartureTime);
