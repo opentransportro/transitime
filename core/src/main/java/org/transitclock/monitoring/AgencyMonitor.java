@@ -11,6 +11,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.transitclock.config.data.AgencyConfig;
+import org.transitclock.core.AvlProcessor;
+import org.transitclock.core.BlockInfoProvider;
+import org.transitclock.core.dataCache.VehicleDataCache;
+import org.transitclock.domain.hibernate.DataDbLogger;
+import org.transitclock.gtfs.DbConfig;
 
 /**
  * For monitoring whether the core system is working properly. For calling all of the specific
@@ -30,22 +35,24 @@ public class AgencyMonitor {
     /**
      * Constructor declared private so have to use getInstance() to get an AgencyMonitor. Like a
      * singleton, but one AgencyMonitor for every agencyId.
-     *
-     * @param agencyId
      */
-    public AgencyMonitor() {
+    public AgencyMonitor(BlockInfoProvider blockInfoProvider,
+                         DbConfig dbConfig,
+                         DataDbLogger dataDbLogger,
+                         VehicleDataCache vehicleDataCache,
+                         AvlProcessor avlProcessor) {
         String agencyId = AgencyConfig.getAgencyId();
         // Create all the monitors and add them to the monitors list
-        monitors = new ArrayList<MonitorBase>();
-        monitors.add(new AvlFeedMonitor(agencyId));
-        monitors.add(new PredictabilityMonitor(agencyId));
-        monitors.add(new DatabaseQueueMonitor(agencyId));
-        monitors.add(new ActiveBlocksMonitor(agencyId));
+        monitors = new ArrayList<>();
+        monitors.add(new AvlFeedMonitor(agencyId, dataDbLogger, avlProcessor, blockInfoProvider));
+        monitors.add(new PredictabilityMonitor(agencyId, dataDbLogger, vehicleDataCache, blockInfoProvider));
+        monitors.add(new DatabaseQueueMonitor(agencyId, dataDbLogger));
+        monitors.add(new ActiveBlocksMonitor(agencyId, dataDbLogger, blockInfoProvider, dbConfig));
         if (enableSystemMonitoring != null && enableSystemMonitoring.equalsIgnoreCase("true")) {
-            monitors.add(new SystemMemoryMonitor(agencyId));
-            monitors.add(new SystemCpuMonitor(agencyId));
-            monitors.add(new SystemDiskSpaceMonitor(agencyId));
-            monitors.add(new DatabaseMonitor(agencyId));
+            monitors.add(new SystemMemoryMonitor(agencyId, dataDbLogger));
+            monitors.add(new SystemCpuMonitor(agencyId, dataDbLogger));
+            monitors.add(new SystemDiskSpaceMonitor(agencyId, dataDbLogger));
+            monitors.add(new DatabaseMonitor(agencyId, dataDbLogger));
         }
     }
 
@@ -88,7 +95,9 @@ public class AgencyMonitor {
         }
 
         // Return the concatenated error message if there were any
-        if (errorMessage.length() > 0) return errorMessage;
-        else return null;
+        if (!errorMessage.isEmpty())
+            return errorMessage;
+
+        return null;
     }
 }

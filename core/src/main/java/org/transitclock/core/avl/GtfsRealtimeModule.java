@@ -2,6 +2,7 @@
 package org.transitclock.core.avl;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 import org.transitclock.config.StringConfigValue;
 import org.transitclock.config.data.GtfsConfig;
 import org.transitclock.domain.structs.AvlReport;
@@ -19,9 +20,9 @@ import java.util.List;
  * @author SkiBu Smith
  */
 @Slf4j
+@Component
 public class GtfsRealtimeModule extends PollUrlAvlModule {
-    public GtfsRealtimeModule(String projectId) {
-        super(projectId);
+    public GtfsRealtimeModule() {
         // GTFS-realtime is already binary so don't want to get compressed
         // version since that would just be a waste.
         useCompression = false;

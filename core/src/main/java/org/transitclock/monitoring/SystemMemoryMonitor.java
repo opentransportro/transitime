@@ -7,6 +7,7 @@ import java.lang.reflect.Method;
 
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.config.data.MonitoringConfig;
+import org.transitclock.domain.hibernate.DataDbLogger;
 import org.transitclock.utils.StringUtils;
 
 /**
@@ -22,8 +23,8 @@ import org.transitclock.utils.StringUtils;
 @Slf4j
 public class SystemMemoryMonitor extends MonitorBase {
 
-    public SystemMemoryMonitor(String agencyId) {
-        super(agencyId);
+    public SystemMemoryMonitor(String agencyId, DataDbLogger dataDbLogger) {
+        super(agencyId, dataDbLogger);
     }
 
     /**

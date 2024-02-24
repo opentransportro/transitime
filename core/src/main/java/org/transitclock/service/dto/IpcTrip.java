@@ -4,8 +4,11 @@ package org.transitclock.service.dto;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.transitclock.domain.structs.Stop;
 import org.transitclock.domain.structs.TravelTimesForTrip;
 import org.transitclock.domain.structs.Trip;
+import org.transitclock.gtfs.DbConfig;
 import org.transitclock.utils.Time;
 
 /**
@@ -34,7 +37,7 @@ public class IpcTrip implements Serializable {
     private final List<IpcSchedTimes> scheduleTimes;
     private final TravelTimesForTrip travelTimes;
 
-    public IpcTrip(Trip dbTrip) {
+    public IpcTrip(Trip dbTrip, DbConfig dbConfig) {
         configRev = dbTrip.getConfigRev();
         id = dbTrip.getId();
         shortName = dbTrip.getShortName();
@@ -43,21 +46,21 @@ public class IpcTrip implements Serializable {
         directionId = dbTrip.getDirectionId();
         routeId = dbTrip.getRouteId();
         routeShortName = dbTrip.getRouteShortName();
-        routeName = dbTrip.getRouteName();
-        tripPattern = new IpcTripPattern(dbTrip.getTripPattern());
+        routeName = dbTrip.getRouteName(dbConfig);
+        tripPattern = new IpcTripPattern(dbTrip.getTripPattern(), dbConfig);
         serviceId = dbTrip.getServiceId();
         headsign = dbTrip.getHeadsign();
         blockId = dbTrip.getBlockId();
         shapeId = dbTrip.getShapeId();
 
         noSchedule = dbTrip.isNoSchedule();
-        scheduleTimes = new ArrayList<IpcSchedTimes>();
+        scheduleTimes = new ArrayList<>();
         for (int i = 0; i < dbTrip.getNumberStopPaths(); ++i) {
             String stopId = dbTrip.getTripPattern().getStopId(i);
             try {
-                scheduleTimes.add(new IpcSchedTimes(dbTrip.getScheduleTime(i), stopId));
-            } catch (Exception ex) {
-                continue;
+                Stop stop = dbConfig.getStop(stopId);
+                scheduleTimes.add(new IpcSchedTimes(dbTrip.getScheduleTime(i), stop));
+            } catch (Exception ignored) {
             }
         }
         travelTimes = dbTrip.getTravelTimes();

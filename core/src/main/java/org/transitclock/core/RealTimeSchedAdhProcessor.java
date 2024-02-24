@@ -4,10 +4,9 @@ package org.transitclock.core;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.transitclock.ApplicationContext;
-import org.transitclock.Core;
 import org.transitclock.domain.structs.ScheduleTime;
 import org.transitclock.domain.structs.Trip;
+import org.transitclock.gtfs.DbConfig;
 import org.transitclock.utils.Time;
 
 import java.util.Date;
@@ -22,6 +21,9 @@ import java.util.Date;
 public class RealTimeSchedAdhProcessor {
     @Autowired
     private TravelTimes travelTimes;
+
+    @Autowired
+    DbConfig dbConfig;
 
     /**
      * Determines the current schedule adherence for the vehicle. If vehicle at a stop with a
@@ -55,7 +57,7 @@ public class RealTimeSchedAdhProcessor {
             if (schedTime != null && schedTime.getDepartureTime() != null) {
                 // Determine the scheduled departure time in epoch time
                 long departureEpochTime =
-                        Core.getInstance().getTime().getEpochTime(schedTime.getDepartureTime(), avlTime);
+                        dbConfig.getTime().getEpochTime(schedTime.getDepartureTime(), avlTime);
 
                 // Wait stops are handled specially since if before the
                 // departure time then schedule adherence is 0. The scheduled
@@ -138,7 +140,7 @@ public class RealTimeSchedAdhProcessor {
 
         // Return the schedule adherence
         long expectedTime = avlTime.getTime() + travelTimeToStopMsec;
-        long departureEpochTime = Core.getInstance().getTime().getEpochTime(scheduleTime.getTime(), avlTime);
+        long departureEpochTime = dbConfig.getTime().getEpochTime(scheduleTime.getTime(), avlTime);
         TemporalDifference scheduleAdherence = new TemporalDifference(departureEpochTime - expectedTime);
         logger.debug(
                 "For vehicleId={} vehicle not at stop returning "
@@ -154,7 +156,7 @@ public class RealTimeSchedAdhProcessor {
      * We define effective schedule time as where the bus currently falls in the schedule based on
      * its current position.
      */
-    public static TemporalDifference generateEffectiveScheduleDifference(VehicleState vehicleState) {
+    public TemporalDifference generateEffectiveScheduleDifference(VehicleState vehicleState) {
         TemporalMatch match = vehicleState.getMatch();
         Trip trip = match.getTrip();
         long avlTime = match.getAvlTime();
@@ -165,7 +167,7 @@ public class RealTimeSchedAdhProcessor {
 
         if (previousStopPathIndex < 0) {
             // we are either before the trip or at the first stop (layover)
-            long departureEpoch = Core.getInstance()
+            long departureEpoch = dbConfig
                     .getTime()
                     .getEpochTime(trip.getScheduleTime(0).getTime(), avlTime);
 
@@ -179,7 +181,7 @@ public class RealTimeSchedAdhProcessor {
                 int tripIndex = match.getTripIndex();
                 if (tripIndex > 0) {
                     Trip prevTrip = match.getBlock().getTrip(tripIndex - 1);
-                    long epochEndTime = Core.getInstance().getTime().getEpochTime(prevTrip.getEndTime(), avlTime);
+                    long epochEndTime = dbConfig.getTime().getEpochTime(prevTrip.getEndTime(), avlTime);
 
                     difference = Math.min(0, avlTime - epochEndTime);
 
@@ -196,7 +198,7 @@ public class RealTimeSchedAdhProcessor {
             // If at stop, nextStopPathIndex can be for current stop or next stop depending
             // on match.atEndOfPathStop()
             int departureSecs = match.getAtStop().getScheduleTime().getTime();
-            long departureEpoch = Core.getInstance().getTime().getEpochTime(departureSecs, avlTime);
+            long departureEpoch = dbConfig.getTime().getEpochTime(departureSecs, avlTime);
             if (departureEpoch > avlTime) {
                 logger.debug("vehicleId {} has schedDev at stop of 0", vehicleId);
             }
@@ -219,7 +221,7 @@ public class RealTimeSchedAdhProcessor {
             effectiveStopTimeSec = (int) (fromStopTimeSecs + (pathTime * ratio));
         }
 
-        long effectiveScheduleTimeEpoch = Core.getInstance().getTime().getEpochTime(effectiveStopTimeSec, avlTime);
+        long effectiveScheduleTimeEpoch = dbConfig.getTime().getEpochTime(effectiveStopTimeSec, avlTime);
 
         logger.debug(
                 "vehicleId {} has interpolated schedDev of {}, avlTime={}, effective={}",

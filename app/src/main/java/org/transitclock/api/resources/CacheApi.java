@@ -17,6 +17,7 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.springframework.stereotype.Controller;
 import org.transitclock.api.data.ApiArrivalDepartures;
 import org.transitclock.api.data.ApiCacheDetails;
 import org.transitclock.api.data.ApiHistoricalAverage;
@@ -46,6 +47,7 @@ import org.transitclock.service.contract.PredictionAnalysisInterface;
  *
  * @author SkiBu Smith
  */
+@Controller
 @Path("/key/{key}/agency/{agency}")
 public class CacheApi {
 

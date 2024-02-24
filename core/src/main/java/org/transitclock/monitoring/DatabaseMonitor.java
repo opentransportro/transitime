@@ -3,6 +3,7 @@ package org.transitclock.monitoring;
 
 import java.util.List;
 import org.hibernate.HibernateException;
+import org.transitclock.domain.hibernate.DataDbLogger;
 import org.transitclock.domain.structs.DbTest;
 
 /**
@@ -12,9 +13,8 @@ import org.transitclock.domain.structs.DbTest;
  */
 public class DatabaseMonitor extends MonitorBase {
 
-    /********************** Member Functions **************************/
-    public DatabaseMonitor(String agencyId) {
-        super(agencyId);
+    public DatabaseMonitor(String agencyId, DataDbLogger dataDbLogger) {
+        super(agencyId, dataDbLogger);
     }
 
     /* (non-Javadoc)

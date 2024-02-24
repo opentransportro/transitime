@@ -1,7 +1,10 @@
 package org.transitclock.core.dataCache;
 
+import org.hibernate.Session;
 import org.transitclock.domain.structs.ArrivalDeparture;
 import org.transitclock.domain.structs.Headway;
+
+import java.util.Date;
 
 public class DummyDwellTimeModelCacheImpl implements DwellTimeModelCacheInterface {
     @Override
@@ -17,5 +20,10 @@ public class DummyDwellTimeModelCacheImpl implements DwellTimeModelCacheInterfac
     @Override
     public Long predictDwellTime(StopPathCacheKey cacheKey, Headway headway) {
         return 0L;
+    }
+
+    @Override
+    public void populateCacheFromDb(Session session, Date startDate, Date endDate) {
+        // do nothing
     }
 }

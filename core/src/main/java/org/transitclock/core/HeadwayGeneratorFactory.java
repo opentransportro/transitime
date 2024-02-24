@@ -4,6 +4,12 @@ package org.transitclock.core;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.transitclock.config.ClassConfigValue;
+import org.transitclock.core.dataCache.StopArrivalDepartureCacheInterface;
+import org.transitclock.core.dataCache.VehicleDataCache;
+import org.transitclock.core.dataCache.VehicleStateManager;
+import org.transitclock.core.headwaygenerator.LastArrivalsHeadwayGenerator;
+import org.transitclock.core.headwaygenerator.LastDepartureHeadwayGenerator;
+import org.transitclock.gtfs.DbConfig;
 import org.transitclock.utils.ClassInstantiator;
 
 /**
@@ -15,22 +21,22 @@ import org.transitclock.utils.ClassInstantiator;
  */
 @Configuration
 public class HeadwayGeneratorFactory {
-
-    // The name of the class to instantiate
     private static final ClassConfigValue className = new ClassConfigValue(
             "transitclock.core.headwayGeneratorClass",
             org.transitclock.core.HeadwayGeneratorDefaultImpl.class,
             "Specifies the name of the class used for generating headway data.");
 
-    private static HeadwayGenerator singleton = null;
-
     @Bean
-    public synchronized HeadwayGenerator headwayGenerator() {
-        // If the PredictionGenerator hasn't been created yet then do so now
-        if (singleton == null) {
-            singleton = ClassInstantiator.instantiate(className.getValue(), HeadwayGenerator.class);
+    public synchronized HeadwayGenerator headwayGenerator(VehicleDataCache vehicleDataCache,
+                                                          VehicleStateManager vehicleStateManager,
+                                                          StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface,
+                                                          DbConfig dbConfig) {
+        if (className.getValue() == LastArrivalsHeadwayGenerator.class) {
+            return new LastArrivalsHeadwayGenerator(vehicleDataCache, vehicleStateManager, stopArrivalDepartureCacheInterface, dbConfig);
+        } else if (className.getValue() == LastDepartureHeadwayGenerator.class) {
+            return new LastDepartureHeadwayGenerator(vehicleDataCache, vehicleStateManager, stopArrivalDepartureCacheInterface, dbConfig);
         }
 
-        return singleton;
+        return new HeadwayGeneratorDefaultImpl();
     }
 }

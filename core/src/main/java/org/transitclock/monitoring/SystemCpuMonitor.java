@@ -6,6 +6,7 @@ import java.util.GregorianCalendar;
 
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.config.data.MonitoringConfig;
+import org.transitclock.domain.hibernate.DataDbLogger;
 import org.transitclock.utils.StringUtils;
 import org.transitclock.utils.Time;
 
@@ -17,8 +18,8 @@ import org.transitclock.utils.Time;
 @Slf4j
 public class SystemCpuMonitor extends MonitorBase {
 
-    public SystemCpuMonitor(String agencyId) {
-        super(agencyId);
+    public SystemCpuMonitor(String agencyId, DataDbLogger dataDbLogger) {
+        super(agencyId, dataDbLogger);
     }
 
     /* (non-Javadoc)

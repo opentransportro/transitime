@@ -3,6 +3,7 @@ package org.transitclock.core.avl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONException;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.transitclock.config.data.AgencyConfig;
 import org.transitclock.config.data.AvlConfig;
 import org.transitclock.domain.structs.AvlReport;
@@ -38,10 +39,6 @@ public abstract class PollUrlAvlModule extends AvlModule {
     // feeds might be binary where don't want additional compression. A
     // superclass can override this value.
     protected boolean useCompression = true;
-
-    protected PollUrlAvlModule(String agencyId) {
-        super(agencyId);
-    }
 
     /**
      * Feed specific URL to use when accessing data. Will often be overridden by subclass.
@@ -162,6 +159,7 @@ public abstract class PollUrlAvlModule extends AvlModule {
      * processes it.
      */
     @Override
+    @Scheduled(fixedRate = 15_000)
     public void run() {
         try {
             // Process data

@@ -5,10 +5,11 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import org.transitclock.Core;
+
 import org.transitclock.domain.structs.Route;
 import org.transitclock.domain.structs.Stop;
 import org.transitclock.domain.structs.TripPattern;
+import org.transitclock.gtfs.DbConfig;
 
 /**
  * @author SkiBu Smith
@@ -25,21 +26,21 @@ public class IpcDirection implements Serializable {
      * @param dbRoute
      * @param directionId
      */
-    public IpcDirection(Route dbRoute, String directionId) {
+    public IpcDirection(Route dbRoute, DbConfig dbConfig, String directionId) {
         this.directionId = directionId;
 
         // Use the headsign name for the longest trip pattern for the
         // specified direction. Note: this isn't necessarily the best thing
         // to use but there is no human readable direction name specified in
         // GTFS.
-        TripPattern longestTripPattern = dbRoute.getLongestTripPatternForDirection(directionId);
+        TripPattern longestTripPattern = dbRoute.getLongestTripPatternForDirection(dbConfig, directionId);
         this.directionTitle = "To " + longestTripPattern.getHeadsign();
 
         // Determine ordered list of stops
         this.stops = new ArrayList<IpcStop>();
-        List<String> stopIds = dbRoute.getOrderedStopsByDirection().get(directionId);
+        List<String> stopIds = dbRoute.getOrderedStopsByDirection(dbConfig).get(directionId);
         for (String stopId : stopIds) {
-            Stop stop = Core.getInstance().getDbConfig().getStop(stopId);
+            Stop stop = dbConfig.getStop(stopId);
             this.stops.add(new IpcStop(stop, directionId));
         }
     }
@@ -52,14 +53,14 @@ public class IpcDirection implements Serializable {
      * @param directionId
      * @param ipcStops
      */
-    public IpcDirection(Route dbRoute, String directionId, List<IpcStop> ipcStops) {
+    public IpcDirection(Route dbRoute, DbConfig dbConfig, String directionId, List<IpcStop> ipcStops) {
         this.directionId = directionId;
 
         // Use the headsign name for the longest trip pattern for the
         // specified direction. Note: this isn't necessarily the best thing
         // to use but there is no human readable direction name specified in
         // GTFS.
-        TripPattern longestTripPattern = dbRoute.getLongestTripPatternForDirection(directionId);
+        TripPattern longestTripPattern = dbRoute.getLongestTripPatternForDirection(dbConfig, directionId);
         this.directionTitle = "To " + longestTripPattern.getHeadsign();
         this.stops = ipcStops;
     }

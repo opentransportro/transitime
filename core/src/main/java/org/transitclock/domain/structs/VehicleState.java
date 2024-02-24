@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.ToString;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Immutable;
+import org.transitclock.gtfs.DbConfig;
 
 /**
  * For persisting the vehicle state for the vehicle. Can be joined with AvlReport table in order to
@@ -85,14 +86,14 @@ public class VehicleState implements Serializable {
     @Column(name = "is_for_sched_based_predictions")
     private final Boolean isForSchedBasedPreds;
 
-    public VehicleState(org.transitclock.core.VehicleState vs) {
+    public VehicleState(org.transitclock.core.VehicleState vs, DbConfig dbConfig) {
         this.vehicleId = truncate(vs.getVehicleId(), 60);
         this.avlTime = vs.getAvlReport() == null ? null : vs.getAvlReport().getDate();
         this.blockId = vs.getBlock() == null ? null : vs.getBlock().getId();
         this.tripId = vs.getTrip() == null ? null : truncate(vs.getTrip().getId(), 60);
         this.tripShortName = vs.getTrip() == null ? null : truncate(vs.getTrip().getShortName(), 60);
         this.routeId = vs.getRouteId();
-        this.routeShortName = truncate(vs.getRouteShortName(), ROUTE_SHORT_NAME_MAX_LENGTH);
+        this.routeShortName = truncate(vs.getRouteShortName(dbConfig), ROUTE_SHORT_NAME_MAX_LENGTH);
         this.schedAdhMsec = vs.getRealTimeSchedAdh() == null
                 ? null
                 : vs.getRealTimeSchedAdh().getTemporalDifference();

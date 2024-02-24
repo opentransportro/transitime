@@ -14,7 +14,6 @@ import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Immutable;
 import org.hibernate.classic.Lifecycle;
-import org.transitclock.Core;
 import org.transitclock.core.TemporalMatch;
 import org.transitclock.core.VehicleState;
 import org.transitclock.domain.hibernate.HibernateUtils;
@@ -102,10 +101,10 @@ public class Match implements Lifecycle, Serializable {
     @Column(name = "at_stop")
     private final boolean atStop;
 
-    public Match(VehicleState vehicleState) {
+    public Match(VehicleState vehicleState, int configRev) {
         this.vehicleId = vehicleState.getVehicleId();
         this.avlTime = vehicleState.getAvlReport().getDate();
-        this.configRev = Core.getInstance().getDbConfig().getConfigRev();
+        this.configRev = configRev;
         this.serviceId = vehicleState.getBlock().getServiceId();
         this.blockId = vehicleState.getBlock().getId();
 

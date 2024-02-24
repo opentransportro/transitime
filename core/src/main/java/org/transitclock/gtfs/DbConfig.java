@@ -1,22 +1,10 @@
 /* (C)2023 */
 package org.transitclock.gtfs;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.transitclock.Core;
 import org.transitclock.core.ServiceUtils;
 import org.transitclock.domain.hibernate.HibernateUtils;
 import org.transitclock.domain.structs.Agency;
@@ -35,6 +23,15 @@ import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.MapKey;
 import org.transitclock.utils.SystemTime;
 import org.transitclock.utils.Time;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Reads all the configuration data from the database. The data is based on GTFS but is heavily
@@ -467,9 +464,9 @@ public class DbConfig {
      * @param trips
      * @return trip whose service ID is currently valid
      */
-    private static Trip getTripForCurrentService(List<Trip> trips) {
+    private Trip getTripForCurrentService(List<Trip> trips) {
         Date now = SystemTime.getDate();
-        Collection<String> currentServiceIds = Core.getInstance().getServiceUtils().getServiceIds(now);
+        Collection<String> currentServiceIds = serviceUtils.getServiceIds(now);
         for (Trip trip : trips) {
             for (String serviceId : currentServiceIds) {
                 if (trip.getServiceId().equals(serviceId)) {
@@ -664,8 +661,7 @@ public class DbConfig {
             // Service ID was not specified so determine current ones for now
             Date now = SystemTime.getDate();
 
-            Collection<String> currentServiceIds =
-                    Core.getInstance().getServiceUtils().getServiceIds(now);
+            Collection<String> currentServiceIds = serviceUtils.getServiceIds(now);
             for (String currentServiceId : currentServiceIds) {
                 Block block = getBlock(currentServiceId, blockId);
                 if (block != null) return block;
@@ -814,7 +810,6 @@ public class DbConfig {
      */
     public List<Calendar> getCurrentCalendars() {
         // Get list of currently active calendars
-        ServiceUtils serviceUtils = Core.getInstance().getServiceUtils();
         return serviceUtils.getCurrentCalendars(SystemTime.getMillis());
     }
 

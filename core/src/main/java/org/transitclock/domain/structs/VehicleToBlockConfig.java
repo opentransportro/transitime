@@ -11,7 +11,6 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.annotations.DynamicUpdate;
-import org.transitclock.Core;
 
 /**
  * For storing static configuration for vehicle in block.
@@ -60,22 +59,6 @@ public class VehicleToBlockConfig implements Serializable {
         this.assignmentDate = assignmentDate;
         this.validFrom = validFrom;
         this.validTo = validTo;
-    }
-
-    /**
-     * @param vehicleId vehicle ID * @param blockId block ID * @param tripId trip ID * @param
-     *     assignmentDate time * * @param validFrom time * * @param validTo time
-     */
-    public static VehicleToBlockConfig create(
-            String vehicleId, String blockId, String tripId, Date assignmentDate, Date validFrom, Date validTo) {
-        VehicleToBlockConfig vehicleToBlockConfig =
-                new VehicleToBlockConfig(vehicleId, blockId, tripId, assignmentDate, validFrom, validTo);
-
-        // Queue to write object to database
-        Core.getInstance().getDbLogger().add(vehicleToBlockConfig);
-
-        // Return new VehicleToBlockConfig
-        return vehicleToBlockConfig;
     }
 
     /** Needed because Hibernate requires no-arg constructor */

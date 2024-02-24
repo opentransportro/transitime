@@ -4,7 +4,6 @@ package org.transitclock.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.transitclock.ApplicationContext;
 import org.transitclock.monitoring.AgencyMonitor;
 import org.transitclock.service.contract.ServerStatusInterface;
 import org.transitclock.service.dto.IpcServerStatus;

@@ -31,10 +31,6 @@ import java.util.Date;
 @Slf4j
 public class GtfsUpdatedModule extends Module {
 
-    public GtfsUpdatedModule(String agencyId) {
-        super(agencyId);
-    }
-
     /**
      * Gets the GTFS file via http from the configured URL urlStr and stores it in the configured
      * directory dirName.

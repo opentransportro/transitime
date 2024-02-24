@@ -10,24 +10,19 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class CacheManagerFactory {
-
-    public static CacheManager singleton = null;
-
     @Bean
     public CacheManager cacheManager() {
-        if (singleton == null) {
-            URL xmlConfigUrl = CacheManagerFactory.class
-                    .getClassLoader()
-                    .getResource("ehcache.xml");
-            if (xmlConfigUrl == null) {
-                throw new RuntimeException("Could not find ehcache.xml");
-            }
-            XmlConfiguration xmlConfig = new XmlConfiguration(xmlConfigUrl);
-
-            singleton = CacheManagerBuilder.newCacheManager(xmlConfig);
-            singleton.init();
+        URL xmlConfigUrl = CacheManagerFactory.class
+                .getClassLoader()
+                .getResource("ehcache.xml");
+        if (xmlConfigUrl == null) {
+            throw new RuntimeException("Could not find ehcache.xml");
         }
+        XmlConfiguration xmlConfig = new XmlConfiguration(xmlConfigUrl);
 
-        return singleton;
+        CacheManager cm = CacheManagerBuilder.newCacheManager(xmlConfig);
+        cm.init();
+
+        return cm;
     }
 }

@@ -6,8 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.transitclock.ApplicationContext;
-import org.transitclock.core.BlocksInfo;
+import org.transitclock.core.BlockInfoProvider;
 import org.transitclock.core.dataCache.VehicleDataCache;
 import org.transitclock.domain.hibernate.HibernateUtils;
 import org.transitclock.domain.structs.Block;
@@ -15,6 +14,7 @@ import org.transitclock.domain.structs.QRoute;
 import org.transitclock.domain.structs.Trip;
 import org.transitclock.domain.structs.VehicleConfig;
 import org.transitclock.domain.structs.VehicleToBlockConfig;
+import org.transitclock.gtfs.DbConfig;
 import org.transitclock.service.contract.VehiclesInterface;
 import org.transitclock.service.dto.IpcActiveBlock;
 import org.transitclock.service.dto.IpcBlock;
@@ -25,10 +25,7 @@ import org.transitclock.service.dto.IpcVehicleGtfsRealtime;
 import org.transitclock.service.dto.IpcVehicleToBlockConfig;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * Implements the VehiclesInterface interface on the server side such that a VehiclessClient can
@@ -42,6 +39,10 @@ import java.util.List;
 public class VehiclesServiceImpl implements VehiclesInterface {
     @Autowired
     private VehicleDataCache vehicleDataCache;
+    @Autowired
+    private BlockInfoProvider blockInfoProvider;
+    @Autowired
+    private DbConfig dbConfig;
 
     /* (non-Javadoc)
      * @see org.transitclock.ipc.interfaces.VehiclesInterface#get()
@@ -190,12 +191,12 @@ public class VehiclesServiceImpl implements VehiclesInterface {
         // List of data to be returned
         List<IpcActiveBlock> results = new ArrayList<>();
         // Determine all the active blocks
-        List<Block> blocks = BlocksInfo.getCurrentlyActiveBlocks(routeIds, null, allowableBeforeTimeSecs, -1);
+        List<Block> blocks = blockInfoProvider.getCurrentlyActiveBlocks(routeIds, null, allowableBeforeTimeSecs, -1);
         // For each active block determine associated vehicle
         for (Block block : blocks) {
             IpcBlock ipcBlock;
             try {
-                ipcBlock = new IpcBlock(block);
+                ipcBlock = new IpcBlock(block, dbConfig);
             } catch (Exception ex) {
                 continue;
             }
@@ -205,7 +206,7 @@ public class VehiclesServiceImpl implements VehiclesInterface {
             // since can't get that info from the vehicle. This way the block
             // can be properly grouped with the associated route even when it
             // doesn't have a vehicle assigned.
-            int activeTripIndex = block.activeTripIndex(new Date(), allowableBeforeTimeSecs);
+            int activeTripIndex = block.activeTripIndex(dbConfig, new Date(), allowableBeforeTimeSecs);
 
             // Determine vehicles associated with the block if there are any
             Collection<String> vehicleIdsForBlock =
@@ -219,7 +220,7 @@ public class VehiclesServiceImpl implements VehiclesInterface {
             results.add(ipcBlockAndVehicle);
         }
         // Sort the results so that ordered by route and then block start time
-        IpcActiveBlock.sort(results);
+        results.sort(new BlockComparator(dbConfig));
 
         // Return results
         return results;
@@ -231,7 +232,7 @@ public class VehiclesServiceImpl implements VehiclesInterface {
     @Override
     public int getNumActiveBlocks(Collection<String> routeIds, int allowableBeforeTimeSecs) {
         // Determine all the active blocks
-        List<Block> blocks = BlocksInfo.getCurrentlyActiveBlocks(routeIds, null, allowableBeforeTimeSecs, -1);
+        List<Block> blocks = blockInfoProvider.getCurrentlyActiveBlocks(routeIds, null, allowableBeforeTimeSecs, -1);
 
         return blocks.size();
     }
@@ -245,12 +246,12 @@ public class VehiclesServiceImpl implements VehiclesInterface {
         // List of data to be returned
         List<IpcActiveBlock> results = new ArrayList<>();
         // Determine all the active blocks
-        List<Block> blocks = BlocksInfo.getCurrentlyActiveBlocks(routeIds, null, allowableBeforeTimeSecs, -1);
+        List<Block> blocks = blockInfoProvider.getCurrentlyActiveBlocks(routeIds, null, allowableBeforeTimeSecs, -1);
         // For each active block determine associated vehicle
         for (Block block : blocks) {
             try {
-                IpcBlock ipcBlock = new IpcBlock(block);
-                int activeTripIndex = block.activeTripIndex(new Date(), allowableBeforeTimeSecs);
+                IpcBlock ipcBlock = new IpcBlock(block, dbConfig);
+                int activeTripIndex = block.activeTripIndex(dbConfig, new Date(), allowableBeforeTimeSecs);
 
                 // Create and add the IpcActiveBlock, skipping the slow vehicle fetching
                 Trip tripForSorting = block.getTrip(activeTripIndex);
@@ -262,7 +263,7 @@ public class VehiclesServiceImpl implements VehiclesInterface {
             }
         }
         // Sort the results so that ordered by route and then block start time
-        IpcActiveBlock.sort(results);
+        results.sort(new BlockComparator(dbConfig));
 
         // Return results
         return results;
@@ -309,16 +310,16 @@ public class VehiclesServiceImpl implements VehiclesInterface {
         // List of data to be returned
         List<IpcActiveBlock> results = new ArrayList<>();
         // Determine all the active blocks
-        List<Block> blocks = BlocksInfo.getCurrentlyActiveBlocks(routeIds, null, allowableBeforeTimeSecs, -1);
+        List<Block> blocks = blockInfoProvider.getCurrentlyActiveBlocks(routeIds, null, allowableBeforeTimeSecs, -1);
         // For each active block determine associated vehicle
         for (Block block : blocks) {
-            IpcBlock ipcBlock = new IpcBlock(block);
+            IpcBlock ipcBlock = new IpcBlock(block, dbConfig);
             // If a block doesn't have a vehicle associated with it need
             // to determine which route a block is currently associated with
             // since can't get that info from the vehicle. This way the block
             // can be properly grouped with the associated route even when it
             // doesn't have a vehicle assigned.
-            int activeTripIndex = block.activeTripIndex(new Date(), allowableBeforeTimeSecs);
+            int activeTripIndex = block.activeTripIndex(dbConfig, new Date(), allowableBeforeTimeSecs);
 
             Trip tripForSorting = block.getTrip(activeTripIndex);
 
@@ -337,7 +338,7 @@ public class VehiclesServiceImpl implements VehiclesInterface {
             results.add(ipcBlockAndVehicle);
         }
         // Sort the results so that ordered by route and then block start time
-        IpcActiveBlock.sort(results);
+        results.sort(new BlockComparator(dbConfig));
 
         // Return results
         return results;
@@ -362,7 +363,7 @@ public class VehiclesServiceImpl implements VehiclesInterface {
     @Override
     public Collection<IpcVehicle> getVehiclesForBlocks() {
         List<String> vehicleIds = new ArrayList<>();
-        List<Block> blocks = BlocksInfo.getCurrentlyActiveBlocks();
+        List<Block> blocks = blockInfoProvider.getCurrentlyActiveBlocks();
         for (Block block : blocks) {
             Collection<String> vehicleIdsForBlock =
                     vehicleDataCache.getVehiclesByBlockId(block.getId());
@@ -400,4 +401,43 @@ public class VehiclesServiceImpl implements VehiclesInterface {
         }
         return result;
     }
+
+    /**
+     * For sorting a collection of IpcActiveBlock objects such that ordered by route order and then
+     * by block start time.
+     */
+    private static class BlockComparator implements Comparator<IpcActiveBlock> {
+        private final DbConfig dbConfig;
+        public BlockComparator(DbConfig dbConfig) {
+            this.dbConfig = dbConfig;
+        }
+        /**
+         * Returns negative if b1<b2, zero if b1=b2, and positive if b1>b2
+         */
+        @Override
+        public int compare(IpcActiveBlock b1, IpcActiveBlock b2) {
+            if (b1 == null && b2 == null) return 0;
+            if (b1 == null
+                    || b1.getTripForSorting() == null
+                    || b1.getTripForSorting().getRoute(dbConfig) == null
+                    || b1.getTripForSorting().getRoute(dbConfig).getRouteOrder() == null) return -1;
+            if (b2 == null
+                    || b2.getTripForSorting() == null
+                    || b2.getTripForSorting().getRoute(dbConfig) == null
+                    || b2.getTripForSorting().getRoute(dbConfig).getRouteOrder() == null) return 1;
+
+            int routeOrder1 = b1.getTripForSorting().getRoute(dbConfig).getRouteOrder();
+            int routeOrder2 = b2.getTripForSorting().getRoute(dbConfig).getRouteOrder();
+
+            if (routeOrder1 < routeOrder2) return -1;
+            if (routeOrder1 > routeOrder2) return 1;
+
+            // Route order is the same so order by trip start time
+            int blockStartTime1 = b1.getTripForSorting().getBlock(dbConfig).getStartTime();
+            int blockStartTime2 = b2.getTripForSorting().getBlock(dbConfig).getStartTime();
+            if (blockStartTime1 < blockStartTime2) return -1;
+            if (blockStartTime1 > blockStartTime2) return 1;
+            return 0;
+        }
+    };
 }

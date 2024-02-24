@@ -26,6 +26,8 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import org.transitclock.api.data.ApiActiveBlocks;
 import org.transitclock.api.data.ApiActiveBlocksRoutes;
 import org.transitclock.api.data.ApiAdherenceSummary;
@@ -62,6 +64,7 @@ import org.transitclock.domain.hibernate.HibernateUtils;
 import org.transitclock.domain.structs.Agency;
 import org.transitclock.domain.structs.ExportTable;
 import org.transitclock.domain.structs.Location;
+import org.transitclock.gtfs.DbConfig;
 import org.transitclock.service.dto.IpcActiveBlock;
 import org.transitclock.service.dto.IpcBlock;
 import org.transitclock.service.dto.IpcCalendar;
@@ -93,6 +96,7 @@ import org.transitclock.service.contract.VehiclesInterface;
  *
  * @author SkiBu Smith
  */
+@Controller
 @OpenAPIDefinition(
         info =
                 @Info(
@@ -110,6 +114,8 @@ import org.transitclock.service.contract.VehiclesInterface;
         servers = {@Server(url = "/api/v1")})
 @Path("/key/{key}/agency/{agency}")
 public class TransitimeApi {
+    @Autowired
+    DbConfig dbConfig;
 
     /**
      * Handles the "vehicles" command. Returns data for all vehicles or for the vehicles specified
@@ -1086,7 +1092,7 @@ public class TransitimeApi {
         try {
             // Get stops data from server
             ConfigInterface inter = stdParameters.getConfigInterface();
-            IpcDirectionsForRoute stopsForRoute = inter.getStops(routesIdOrShortNames);
+            IpcDirectionsForRoute stopsForRoute = inter.getStops(dbConfig, routesIdOrShortNames);
 
             // If the route doesn't exist then throw exception such that
             // Bad Request with an appropriate message is returned.

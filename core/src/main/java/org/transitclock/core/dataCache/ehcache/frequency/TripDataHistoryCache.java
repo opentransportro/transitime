@@ -7,10 +7,11 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.ehcache.Cache;
 import org.ehcache.CacheManager;
 import org.hibernate.Session;
-import org.transitclock.Core;
 import org.transitclock.config.data.CoreConfig;
-import org.transitclock.core.dataCache.*;
-import org.transitclock.core.dataCache.ehcache.CacheManagerFactory;
+import org.transitclock.core.dataCache.IpcArrivalDepartureComparator;
+import org.transitclock.core.dataCache.TripDataHistoryCacheInterface;
+import org.transitclock.core.dataCache.TripEvents;
+import org.transitclock.core.dataCache.TripKey;
 import org.transitclock.core.dataCache.frequency.FrequencyBasedHistoricalAverageCache;
 import org.transitclock.domain.structs.ArrivalDeparture;
 import org.transitclock.domain.structs.Block;
@@ -20,7 +21,6 @@ import org.transitclock.gtfs.DbConfig;
 import org.transitclock.gtfs.GtfsData;
 import org.transitclock.service.dto.IpcArrivalDeparture;
 
-import java.net.URL;
 import java.util.*;
 
 /**
@@ -38,15 +38,14 @@ public class TripDataHistoryCache implements TripDataHistoryCacheInterface {
     private static final String cacheByTrip = "arrivalDeparturesByTrip";
     private final Cache<TripKey, TripEvents> cache;
 
-    public TripDataHistoryCache(CacheManager cm) {
+    protected final DbConfig dbConfig;
+
+    public TripDataHistoryCache(CacheManager cm, DbConfig dbConfig) {
         cache = cm.getCache(cacheByTrip, TripKey.class, TripEvents.class);
+        this.dbConfig = dbConfig;
     }
 
-    /* (non-Javadoc)
-     * @see org.transitclock.core.dataCache.TripDataHistoryCacheInterface#getTripHistory(org.transitclock.core.dataCache.TripKey)
-     */
     @Override
-    @SuppressWarnings("unchecked")
     public List<IpcArrivalDeparture> getTripHistory(TripKey tripKey) {
 
         // logger.debug(cache.toString());
@@ -62,15 +61,11 @@ public class TripDataHistoryCache implements TripDataHistoryCacheInterface {
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.transitclock.core.dataCache.TripDataHistoryCacheInterface#putArrivalDeparture(org.transitclock.db.structs.ArrivalDeparture)
-     */
     @Override
     public synchronized TripKey putArrivalDeparture(ArrivalDeparture arrivalDeparture) {
 
         Block block = null;
         if (arrivalDeparture.getBlock() == null) {
-            DbConfig dbConfig = Core.getInstance().getDbConfig();
             block = dbConfig.getBlock(arrivalDeparture.getServiceId(), arrivalDeparture.getBlockId());
         } else {
             block = arrivalDeparture.getBlock();
@@ -85,8 +80,6 @@ public class TripDataHistoryCache implements TripDataHistoryCacheInterface {
             Date nearestDay = DateUtils.truncate(new Date(arrivalDeparture.getTime()), Calendar.DAY_OF_MONTH);
 
             nearestDay = DateUtils.addDays(nearestDay, i * -1);
-
-            DbConfig dbConfig = Core.getInstance().getDbConfig();
 
             Trip trip = dbConfig.getTrip(arrivalDeparture.getTripId());
 

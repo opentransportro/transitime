@@ -8,14 +8,11 @@ import org.ehcache.Cache;
 import org.ehcache.CacheManager;
 import org.hibernate.Session;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.transitclock.ApplicationContext;
-import org.transitclock.Core;
 import org.transitclock.core.DwellTimeDetails;
 import org.transitclock.core.TravelTimeDetails;
 import org.transitclock.core.dataCache.*;
-import org.transitclock.core.dataCache.ehcache.CacheManagerFactory;
+import org.transitclock.core.predictiongenerator.datafilter.TravelTimeDataFilter;
 import org.transitclock.domain.structs.ArrivalDeparture;
 import org.transitclock.domain.structs.QArrivalDeparture;
 import org.transitclock.domain.structs.Trip;
@@ -34,11 +31,15 @@ import java.util.List;
 public class ScheduleBasedHistoricalAverageCache {
     private static final String cacheName = "HistoricalAverageCache";
     private final Cache<StopPathCacheKey, HistoricalAverage> cache;
-    @Autowired
-    private TripDataHistoryCacheInterface tripDataHistoryCache;
+    private final TripDataHistoryCacheInterface tripDataHistoryCache;
+    private final DbConfig dbConfig;
+    private final TravelTimeDataFilter travelTimeDataFilter;
 
-    public ScheduleBasedHistoricalAverageCache(CacheManager cm) {
+    public ScheduleBasedHistoricalAverageCache(CacheManager cm, TripDataHistoryCacheInterface tripDataHistoryCache, DbConfig dbConfig, TravelTimeDataFilter travelTimeDataFilter) {
         cache = cm.getCache(cacheName, StopPathCacheKey.class, HistoricalAverage.class);
+        this.tripDataHistoryCache = tripDataHistoryCache;
+        this.dbConfig = dbConfig;
+        this.travelTimeDataFilter = travelTimeDataFilter;
     }
 
     public void logCache(Logger logger) {
@@ -61,8 +62,6 @@ public class ScheduleBasedHistoricalAverageCache {
     }
 
     public synchronized void putArrivalDeparture(ArrivalDeparture arrivalDeparture) throws Exception {
-        DbConfig dbConfig = Core.getInstance().getDbConfig();
-
         Trip trip = dbConfig.getTrip(arrivalDeparture.getTripId());
 
         if (trip != null && !trip.isNoSchedule()) {
@@ -117,7 +116,7 @@ public class ScheduleBasedHistoricalAverageCache {
                     .findPreviousDepartureEvent(arrivalDepartures, arrivalDeparture);
 
             if (previousEvent != null && arrivalDeparture != null && previousEvent.isDeparture()) {
-                return new TravelTimeDetails(previousEvent, arrivalDeparture);
+                return new TravelTimeDetails(previousEvent, arrivalDeparture, travelTimeDataFilter);
             }
         }
 

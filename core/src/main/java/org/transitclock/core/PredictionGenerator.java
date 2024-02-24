@@ -2,17 +2,15 @@
 package org.transitclock.core;
 
 import org.apache.commons.lang3.time.DateUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.transitclock.Core;
 import org.transitclock.config.data.PredictionConfig;
 import org.transitclock.core.dataCache.*;
-import org.transitclock.core.dataCache.ehcache.StopArrivalDepartureCache;
 import org.transitclock.core.predictiongenerator.datafilter.TravelTimeDataFilter;
 import org.transitclock.core.predictiongenerator.datafilter.TravelTimeFilterFactory;
+import org.transitclock.domain.hibernate.DataDbLogger;
 import org.transitclock.domain.structs.ArrivalDeparture;
 import org.transitclock.domain.structs.Block;
 import org.transitclock.domain.structs.PredictionEvent;
+import org.transitclock.domain.structs.Route;
 import org.transitclock.gtfs.DbConfig;
 import org.transitclock.service.dto.IpcArrivalDeparture;
 import org.transitclock.service.dto.IpcPrediction;
@@ -27,10 +25,20 @@ import java.util.*;
  * @author SkiBu Smith
  */
 public abstract class PredictionGenerator {
-    @Autowired
-    protected StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface;
-    @Autowired
-    protected TripDataHistoryCacheInterface tripDataHistoryCacheInterface;
+    protected final StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface;
+    protected final TripDataHistoryCacheInterface tripDataHistoryCacheInterface;
+    protected final DbConfig dbConfig;
+    protected final DataDbLogger dataDbLogger;
+    protected final TravelTimeDataFilter travelTimeDataFilter;
+
+    protected PredictionGenerator(StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface, TripDataHistoryCacheInterface tripDataHistoryCacheInterface, DbConfig dbConfig, DataDbLogger dataDbLogger, TravelTimeDataFilter travelTimeDataFilter) {
+        this.stopArrivalDepartureCacheInterface = stopArrivalDepartureCacheInterface;
+        this.tripDataHistoryCacheInterface = tripDataHistoryCacheInterface;
+        this.dbConfig = dbConfig;
+        this.dataDbLogger = dataDbLogger;
+        this.travelTimeDataFilter = travelTimeDataFilter;
+    }
+
     /**
      * Generates and returns the predictions for the vehicle.
      *
@@ -74,13 +82,13 @@ public abstract class PredictionGenerator {
                         IpcArrivalDeparture found;
 
                         if ((found = findMatchInList(nextStopList, currentArrivalDeparture)) != null) {
-                            TravelTimeDetails travelTimeDetails = new TravelTimeDetails(currentArrivalDeparture, found);
+                            TravelTimeDetails travelTimeDetails = new TravelTimeDetails(currentArrivalDeparture, found, travelTimeDataFilter);
                             if (travelTimeDetails.getTravelTime() > 0) {
                                 return travelTimeDetails;
 
                             } else {
                                 String description = found + " : " + currentArrivalDeparture;
-                                PredictionEvent.create(
+                                PredictionEvent predictionEvent = new PredictionEvent(
                                         currentVehicleState.getAvlReport(),
                                         currentVehicleState.getMatch(),
                                         PredictionEvent.TRAVELTIME_EXCEPTION,
@@ -90,6 +98,7 @@ public abstract class PredictionGenerator {
                                         travelTimeDetails.getArrival().getVehicleId(),
                                         travelTimeDetails.getArrival().getTime(),
                                         travelTimeDetails.getDeparture().getTime());
+                                dataDbLogger.add(predictionEvent);
                                 return null;
                             }
                         } else {
@@ -141,8 +150,6 @@ public abstract class PredictionGenerator {
                                 Block currentBlock = null;
                                 /* block is transient in arrival departure so when read from database need to get from dbconfig. */
 
-                                DbConfig dbConfig = Core.getInstance().getDbConfig();
-
                                 currentBlock = dbConfig.getBlock(
                                         currentArrivalDeparture.getServiceId(), currentArrivalDeparture.getBlockId());
 
@@ -183,8 +190,8 @@ public abstract class PredictionGenerator {
     protected VehicleState getClosetVechicle(
             List<VehicleState> vehiclesOnRoute, Indices indices, VehicleState currentVehicleState) {
 
-        Map<String, List<String>> stopsByDirection =
-                currentVehicleState.getTrip().getRoute().getOrderedStopsByDirection();
+        Route routeById = dbConfig.getRouteById(currentVehicleState.getTrip().getRouteId());
+        Map<String, List<String>> stopsByDirection = routeById.getOrderedStopsByDirection(dbConfig);
 
         List<String> routeStops =
                 stopsByDirection.get(currentVehicleState.getTrip().getDirectionId());
@@ -258,11 +265,10 @@ public abstract class PredictionGenerator {
 
                     if (arrival != null && departure != null) {
 
-                        TravelTimeDetails travelTimeDetails = new TravelTimeDetails(departure, arrival);
+                        TravelTimeDetails travelTimeDetails = new TravelTimeDetails(departure, arrival, travelTimeDataFilter);
 
                         if (travelTimeDetails.getTravelTime() != -1) {
-                            TravelTimeDataFilter travelTimefilter = TravelTimeFilterFactory.getInstance();
-                            if (!travelTimefilter.filter(
+                            if (!travelTimeDataFilter.filter(
                                     travelTimeDetails.getDeparture(), travelTimeDetails.getArrival())) {
                                 times.add(travelTimeDetails);
                                 num_found++;

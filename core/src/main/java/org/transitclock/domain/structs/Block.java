@@ -16,9 +16,9 @@ import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Type;
 import org.hibernate.collection.spi.PersistentList;
 import org.hibernate.internal.SessionImpl;
-import org.transitclock.Core;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.core.SpatialMatch;
+import org.transitclock.domain.hibernate.HibernateUtils;
 import org.transitclock.gtfs.DbConfig;
 import org.transitclock.utils.ExceptionUtils;
 import org.transitclock.utils.IntervalTimer;
@@ -370,9 +370,9 @@ public class Block implements Serializable {
      *     time. For this situation need to return first trip.
      * @return index of trip, or -1 if no match
      */
-    public int activeTripIndex(Date date, int allowableBeforeTimeSecs) {
+    public int activeTripIndex(DbConfig dbConfig, Date date, int allowableBeforeTimeSecs) {
         // Find matching trip
-        int secondsIntoDay = Core.getInstance().getTime().getSecondsIntoDay(date);
+        int secondsIntoDay = dbConfig.getTime().getSecondsIntoDay(date);
         int index = activeTripIndex(secondsIntoDay);
 
         // If match not found check a day into future and day into past
@@ -385,7 +385,7 @@ public class Block implements Serializable {
         // are considered to be active allowableBeforeTimeSecs before their
         // scheduled start time if the block is active then must be matching
         // to the first trip, so return 0.
-        if (index < 0 && isActive(date, allowableBeforeTimeSecs, -1)) return 0;
+        if (index < 0 && isActive(dbConfig, date, allowableBeforeTimeSecs, -1)) return 0;
 
         // Return result
         return index;
@@ -401,9 +401,9 @@ public class Block implements Serializable {
      *     today.
      * @return true if service ID for block as valid for other day
      */
-    private boolean serviceClassIsValidForDay(Date date, long offset) {
+    private boolean serviceClassIsValidForDay(DbConfig dbConfig, Date date, long offset) {
         long dateToCheck = date.getTime() + offset;
-        List<String> currentServiceIds = Core.getInstance().getServiceUtils().getServiceIdsForDay(dateToCheck);
+        List<String> currentServiceIds = dbConfig.getServiceUtils().getServiceIdsForDay(dateToCheck);
 
         return currentServiceIds.contains(serviceId);
     }
@@ -423,8 +423,8 @@ public class Block implements Serializable {
      *     then zero then block considered active up to the block end time.
      * @return True if the block is active for the specified date
      */
-    public boolean isActive(Date date, int allowableBeforeTimeSecs, int allowableAfterStartTimeSecs) {
-        int secsInDay = Core.getInstance().getTime().getSecondsIntoDay(date);
+    public boolean isActive(DbConfig dbConfig, Date date, int allowableBeforeTimeSecs, int allowableAfterStartTimeSecs) {
+        int secsInDay = dbConfig.getTime().getSecondsIntoDay(date);
 
         // Determine the allowable start and end times for when the block
         // is to be considered active
@@ -433,7 +433,7 @@ public class Block implements Serializable {
 
         // Handle normal situation where times are between midnight in the
         // morning and midnight in the evening
-        boolean serviceClassValidToday = serviceClassIsValidForDay(date, 0);
+        boolean serviceClassValidToday = serviceClassIsValidForDay(dbConfig, date, 0);
         if (serviceClassValidToday) {
             if (secsInDay > allowableStartTime && secsInDay < allowableEndTime) {
                 return true;
@@ -443,7 +443,7 @@ public class Block implements Serializable {
         // If the service class was valid yesterday then try adding 24 hours to
         // the time when checking if block active. This way handle situations
         // past midnight, but only if the block was actually active yesterday.
-        boolean serviceClassValidYesterday = serviceClassIsValidForDay(date, -Time.DAY_IN_MSECS);
+        boolean serviceClassValidYesterday = serviceClassIsValidForDay(dbConfig, date, -Time.DAY_IN_MSECS);
         if (serviceClassValidYesterday) {
             int secsInDayPastMidnight = secsInDay + Time.DAY_IN_SECS;
             if (secsInDayPastMidnight > allowableStartTime && secsInDayPastMidnight < allowableEndTime) {
@@ -455,7 +455,7 @@ public class Block implements Serializable {
         // from the time when checking if block active. This way handle
         // situations before midnight, but won't include a block that isn't
         // actually active the next day.
-        boolean serviceClassValidTomorrow = serviceClassIsValidForDay(date, Time.DAY_IN_MSECS);
+        boolean serviceClassValidTomorrow = serviceClassIsValidForDay(dbConfig, date, Time.DAY_IN_MSECS);
         if (serviceClassValidTomorrow) {
             int secsInDayBeforeMidnight = secsInDay - Time.SEC_PER_DAY;
             return secsInDayBeforeMidnight > allowableStartTime && secsInDayBeforeMidnight < allowableEndTime;
@@ -480,8 +480,8 @@ public class Block implements Serializable {
      *     then zero then block considered active up to the block end time.
      * @return True if the block is active for the specified date
      */
-    public boolean isActive(long epochTime, int allowableBeforeTimeSecs, int allowableAfterStartTimeSecs) {
-        return isActive(new Date(epochTime), allowableBeforeTimeSecs, allowableAfterStartTimeSecs);
+    public boolean isActive(DbConfig dbConfig, long epochTime, int allowableBeforeTimeSecs, int allowableAfterStartTimeSecs) {
+        return isActive(dbConfig, new Date(epochTime), allowableBeforeTimeSecs, allowableAfterStartTimeSecs);
     }
 
     /**
@@ -494,8 +494,8 @@ public class Block implements Serializable {
      * @param allowableBeforeTimeSecs
      * @return
      */
-    public boolean isActive(long epochTime, int allowableBeforeTimeSecs) {
-        return isActive(new Date(epochTime), allowableBeforeTimeSecs, -1);
+    public boolean isActive(DbConfig dbConfig, long epochTime, int allowableBeforeTimeSecs) {
+        return isActive(dbConfig, new Date(epochTime), allowableBeforeTimeSecs, -1);
     }
 
     /**
@@ -506,8 +506,8 @@ public class Block implements Serializable {
      * @param date
      * @return True if the block is active.
      */
-    public boolean isActive(Date date) {
-        return isActive(date, 0, -1);
+    public boolean isActive(DbConfig dbConfig, Date date) {
+        return isActive(dbConfig, date, 0, -1);
     }
 
     /**
@@ -518,8 +518,8 @@ public class Block implements Serializable {
      * @param epochTime
      * @return True if the block is active.
      */
-    public boolean isActive(long epochTime) {
-        return isActive(new Date(epochTime), 0, -1);
+    public boolean isActive(DbConfig dbConfig, long epochTime) {
+        return isActive(dbConfig, new Date(epochTime), 0, -1);
     }
 
     /**
@@ -530,8 +530,8 @@ public class Block implements Serializable {
      * @param allowableBeforeTimeSecs
      * @return true if within allowableBeforeTimeSecs before the start time of the block
      */
-    public boolean isBeforeStartTime(Date date, int allowableBeforeTimeSecs) {
-        int secsInDayForAvlReport = Core.getInstance().getTime().getSecondsIntoDay(date);
+    public boolean isBeforeStartTime(DbConfig dbConfig, Date date, int allowableBeforeTimeSecs) {
+        int secsInDayForAvlReport = dbConfig.getTime().getSecondsIntoDay(date);
 
         return (secsInDayForAvlReport > startTime - allowableBeforeTimeSecs && secsInDayForAvlReport < startTime)
                 // also handle where date before midnight but start time is after
@@ -553,8 +553,11 @@ public class Block implements Serializable {
      * @param tripsThatMatchTime
      * @return
      */
-    private static boolean addTripIfActive(
-            String vehicleId, int secsInDayForAvlReport, Trip trip, List<Trip> tripsThatMatchTime) {
+    private static boolean addTripIfActive(String vehicleId,
+                                           int secsInDayForAvlReport,
+                                           Trip trip,
+                                           List<Trip> tripsThatMatchTime,
+                                           DbConfig dbConfig) {
         int startTime = trip.getStartTime();
         int endTime = trip.getEndTime();
 
@@ -570,9 +573,9 @@ public class Block implements Serializable {
                                 + "startTime={}, endTime={}, "
                                 + "allowableEarlyForLayover={} secs, allowableLate={} secs, "
                                 + "vehicleId={}",
-                        trip.getBlock().getId(),
+                        trip.getBlock(dbConfig).getId(),
                         trip.getId(),
-                        trip.getBlock().getTripIndex(trip),
+                        trip.getBlock(dbConfig).getTripIndex(trip),
                         Time.timeOfDayStr(secsInDayForAvlReport),
                         Time.timeOfDayStr(trip.getStartTime()),
                         Time.timeOfDayStr(trip.getEndTime()),
@@ -586,7 +589,7 @@ public class Block implements Serializable {
 
         if (logger.isDebugEnabled())
             logger.debug(
-                    "block {} is not active for vehicleId {}", trip.getBlock().getId(), vehicleId);
+                    "block {} is not active for vehicleId {}", trip.getBlock(dbConfig).getId(), vehicleId);
 
         // Not a match so return false
         return false;
@@ -602,7 +605,7 @@ public class Block implements Serializable {
      * @param avlReport
      * @return List of Trips that are active. If none are active an empty list is returned.
      */
-    public List<Trip> getTripsCurrentlyActive(AvlReport avlReport) {
+    public List<Trip> getTripsCurrentlyActive(DbConfig dbConfig, AvlReport avlReport) {
         // Set for returning results
         List<Trip> tripsThatMatchTime = new ArrayList<Trip>();
 
@@ -614,22 +617,22 @@ public class Block implements Serializable {
         for (Trip trip : trips) {
             // If time of avlReport is within reasonable time of the trip
             // time then this trip should be returned.
-            int secsInDayForAvlReport = Core.getInstance().getTime().getSecondsIntoDay(avlReport.getDate());
+            int secsInDayForAvlReport = dbConfig.getTime().getSecondsIntoDay(avlReport.getDate());
 
             // If the trip is active then add it to the list of active trips
-            boolean tripIsActive = addTripIfActive(vehicleId, secsInDayForAvlReport, trip, tripsThatMatchTime);
+            boolean tripIsActive = addTripIfActive(vehicleId, secsInDayForAvlReport, trip, tripsThatMatchTime, dbConfig);
 
             // if trip wasn't active might be because trip actually starts before
             // midnight so should check for that special case.
             if (!tripIsActive)
                 tripIsActive =
-                        addTripIfActive(vehicleId, secsInDayForAvlReport - Time.SEC_PER_DAY, trip, tripsThatMatchTime);
+                        addTripIfActive(vehicleId, secsInDayForAvlReport - Time.SEC_PER_DAY, trip, tripsThatMatchTime, dbConfig);
 
             // if trip still wasn't active might be because trip goes past
             // midnight so should check for that special case.
             if (!tripIsActive)
                 tripIsActive =
-                        addTripIfActive(vehicleId, secsInDayForAvlReport + Time.SEC_PER_DAY, trip, tripsThatMatchTime);
+                        addTripIfActive(vehicleId, secsInDayForAvlReport + Time.SEC_PER_DAY, trip, tripsThatMatchTime, dbConfig);
         }
 
         // Returns results
@@ -678,7 +681,8 @@ public class Block implements Serializable {
      */
     public List<Trip> getTrips() {
         // If trips already lazy loaded then simply return them
-        if (Hibernate.isInitialized(trips)) return Collections.unmodifiableList(trips);
+        if (Hibernate.isInitialized(trips))
+            return Collections.unmodifiableList(trips);
 
         // Trips not yet lazy loaded so do so now.
         // It appears that lazy initialization is problematic when have multiple
@@ -693,8 +697,7 @@ public class Block implements Serializable {
         // thread can initialize at once and then access something
         // in trips that will cause it to be lazy loaded.
         synchronized (lazyLoadingSyncObject) {
-            logger.debug(
-                    "About to do lazy load for trips data for " + "blockId={} serviceId={}...", blockId, serviceId);
+            logger.debug("About to do lazy load for trips data for " + "blockId={} serviceId={}...", blockId, serviceId);
             IntervalTimer timer = new IntervalTimer();
 
             // Access the collection so that it is lazy loaded.
@@ -714,8 +717,7 @@ public class Block implements Serializable {
                     // If the session is different from the global
                     // session then need to attach the new session to the
                     // object.
-                    DbConfig dbConfig = Core.getInstance().getDbConfig();
-                    Session globalLazyLoadSession = dbConfig.getGlobalSession();
+                    Session globalLazyLoadSession = HibernateUtils.getSession();
                     if (session != globalLazyLoadSession) {
                         // The persistent object is using an old session so
                         // switch to new one
@@ -746,10 +748,7 @@ public class Block implements Serializable {
                 // object to new session.
                 Throwable rootCause = ExceptionUtils.getRootCause(e);
                 if (rootCause instanceof SocketTimeoutException || rootCause instanceof SocketException) {
-                    logger.error(
-                            "Socket timeout in getTrips() for "
-                                    + "blockId={}. Database might have been "
-                                    + "rebooted. Creating a new session.",
+                    logger.error("Socket timeout in getTrips() for blockId={}. Database might have been rebooted. Creating a new session.",
                             this.getId(),
                             e);
 
@@ -762,7 +761,7 @@ public class Block implements Serializable {
                     // to two live sessions. Tried using session.evict(this)
                     // but still got exception "Illegal attempt to associate
                     // a collection with two open sessions"
-                    PersistentList persistentListTrips = (PersistentList) trips;
+                    var persistentListTrips = (PersistentList<?>) trips;
                     var sessionImpl = persistentListTrips.getSession();
                     SessionImpl session = (SessionImpl) sessionImpl;
                     if (!session.isClosed()) {
@@ -786,10 +785,7 @@ public class Block implements Serializable {
                     // sure that the session used for the Block.trips is the same
                     // as the current session. Therefore if made it here then it
                     // means that definitely need to create new session.
-                    DbConfig dbConfig = Core.getInstance().getDbConfig();
-                    logger.info("CREATING NEW SESSION");
-                    dbConfig.createNewGlobalSession();
-                    Session globalLazyLoadSession = dbConfig.getGlobalSession();
+                    Session globalLazyLoadSession = HibernateUtils.getSession();
                     globalLazyLoadSession.update(this);
 
                     // Now that have attached a new session lazy load the trips
@@ -1057,7 +1053,7 @@ public class Block implements Serializable {
                     "In Block.getStopPath() stopPathIndex={} is out of " + "range for tripIndex={} trip={} of block={}",
                     stopPathIndex,
                     tripIndex,
-                    trip.toShortString(),
+                    trip, // trip.toShortString(),
                     this.toShortString());
             return null;
         }

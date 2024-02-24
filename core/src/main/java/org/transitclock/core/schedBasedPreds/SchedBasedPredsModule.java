@@ -3,22 +3,20 @@ package org.transitclock.core.schedBasedPreds;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.transitclock.ApplicationContext;
+import org.springframework.stereotype.Component;
 import org.transitclock.Module;
-import org.transitclock.Core;
 import org.transitclock.config.data.AgencyConfig;
 import org.transitclock.config.data.PredictionConfig;
 import org.transitclock.core.AvlProcessor;
-import org.transitclock.core.BlocksInfo;
-import org.transitclock.core.VehicleState;
+import org.transitclock.core.BlockInfoProvider;
 import org.transitclock.core.dataCache.VehicleDataCache;
 import org.transitclock.domain.structs.AvlReport;
 import org.transitclock.domain.structs.AvlReport.AssignmentType;
 import org.transitclock.domain.structs.Block;
 import org.transitclock.domain.structs.Location;
+import org.transitclock.gtfs.DbConfig;
 import org.transitclock.service.dto.IpcVehicle;
 import org.transitclock.service.dto.IpcVehicleComplete;
-import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.SystemTime;
 import org.transitclock.utils.Time;
 
@@ -46,15 +44,16 @@ import java.util.Set;
  * @author SkiBu Smith
  */
 @Slf4j
+@Component
 public class SchedBasedPredsModule extends Module {
     @Autowired
     private VehicleDataCache vehicleDataCache;
     @Autowired
     private AvlProcessor avlProcessor;
-
-    public SchedBasedPredsModule(String agencyId) {
-        super(agencyId);
-    }
+    @Autowired
+    private BlockInfoProvider blockInfoProvider;
+    @Autowired
+    private DbConfig dbConfig;
 
     /**
      * Goes through all the blocks to find which ones don't have vehicles. For those blocks create a
@@ -72,7 +71,7 @@ public class SchedBasedPredsModule extends Module {
         }
 
         // Determine which blocks are coming up or currently active
-        List<Block> activeBlocks = BlocksInfo.getCurrentlyActiveBlocks(
+        List<Block> activeBlocks = blockInfoProvider.getCurrentlyActiveBlocks(
                 null, // Get for all routes
                 blockIdsAlreadyAssigned,
                 PredictionConfig.beforeStartTimeMinutes.getValue() * Time.SEC_PER_MIN,
@@ -89,7 +88,7 @@ public class SchedBasedPredsModule extends Module {
                 String vehicleId = "block_" + block.getId() + "_schedBasedVehicle";
                 long referenceTime = SystemTime.getMillis();
                 long blockStartEpochTime =
-                        Core.getInstance().getTime().getEpochTime(block.getStartTime(), referenceTime);
+                        dbConfig.getTime().getEpochTime(block.getStartTime(), referenceTime);
                 Location location = block.getStartLoc();
                 if (location != null) {
                     AvlReport avlReport = new AvlReport(vehicleId, blockStartEpochTime, location, "Schedule");

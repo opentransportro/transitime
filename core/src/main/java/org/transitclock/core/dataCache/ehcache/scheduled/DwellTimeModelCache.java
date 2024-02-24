@@ -1,21 +1,21 @@
 /* (C)2023 */
 package org.transitclock.core.dataCache.ehcache.scheduled;
 
+import com.querydsl.jpa.impl.JPAQuery;
 import lombok.extern.slf4j.Slf4j;
 import org.ehcache.Cache;
 import org.ehcache.CacheManager;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.hibernate.Session;
 import org.transitclock.config.data.PredictionConfig;
 import org.transitclock.core.TemporalDifference;
 import org.transitclock.core.dataCache.DwellTimeModelCacheInterface;
-import org.transitclock.core.dataCache.StopArrivalDepartureCacheFactory;
 import org.transitclock.core.dataCache.StopArrivalDepartureCacheInterface;
 import org.transitclock.core.dataCache.StopArrivalDepartureCacheKey;
 import org.transitclock.core.dataCache.StopPathCacheKey;
 import org.transitclock.core.predictiongenerator.scheduled.dwell.DwellModel;
-import org.transitclock.core.predictiongenerator.scheduled.dwell.DwellTimeModelFactory;
 import org.transitclock.domain.structs.ArrivalDeparture;
 import org.transitclock.domain.structs.Headway;
+import org.transitclock.domain.structs.QArrivalDeparture;
 import org.transitclock.service.dto.IpcArrivalDeparture;
 
 import java.io.IOException;
@@ -29,16 +29,17 @@ import java.util.List;
  */
 @Slf4j
 public class DwellTimeModelCache implements DwellTimeModelCacheInterface {
+    private static final Integer minScheduleAdherence = PredictionConfig.minSceheduleAdherence.getValue();
+    private static final Integer maxScheduleAdherence = PredictionConfig.maxSceheduleAdherence.getValue();
     private static final String cacheName = "dwellTimeModelCache";
     private final Cache<StopPathCacheKey, DwellModel> cache;
+    private final DwellModel dwellModel;
+    private final StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface;
 
-    @Autowired
-    private DwellModel dwellModel;
-    @Autowired
-    private StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface;
-
-    public DwellTimeModelCache(CacheManager cm) throws IOException {
+    public DwellTimeModelCache(CacheManager cm, DwellModel dwellModel, StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface) {
         cache = cm.getCache(cacheName, StopPathCacheKey.class, DwellModel.class);
+        this.dwellModel = dwellModel;
+        this.stopArrivalDepartureCacheInterface = stopArrivalDepartureCacheInterface;
     }
 
     @Override
@@ -56,8 +57,6 @@ public class DwellTimeModelCache implements DwellTimeModelCacheInterface {
         model.putSample((int) dwellTime, (int) headway.getHeadway(), null);
         cache.put(key, model);
     }
-    private static final Integer minScheduleAdherence = PredictionConfig.minSceheduleAdherence.getValue();
-    private static final Integer maxScheduleAdherence = PredictionConfig.maxSceheduleAdherence.getValue();
 
     @Override
     public void addSample(ArrivalDeparture departure) {
@@ -173,5 +172,23 @@ public class DwellTimeModelCache implements DwellTimeModelCacheInterface {
             return Long.valueOf(model.predict((int) headway.getHeadway(), null));
 
         return null;
+    }
+
+    @Override
+    public void populateCacheFromDb(Session session, Date startDate, Date endDate) {
+        JPAQuery<ArrivalDeparture> query = new JPAQuery<>(session);
+        var qentity = QArrivalDeparture.arrivalDeparture;
+        List<ArrivalDeparture> results = query.from(qentity)
+                .where(qentity.time.between(startDate,endDate))
+                .orderBy(qentity.time.asc())
+                .fetch();
+
+        for (ArrivalDeparture result : results) {
+            try {
+                addSample(result);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

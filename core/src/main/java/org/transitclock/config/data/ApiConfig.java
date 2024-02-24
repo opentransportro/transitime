@@ -4,10 +4,9 @@ import org.transitclock.config.BooleanConfigValue;
 import org.transitclock.config.IntegerConfigValue;
 
 public class ApiConfig {
-    private static final int DEFAULT_MAX_GTFS_RT_CACHE_SECS = 15;
     public static IntegerConfigValue gtfsRtCacheSeconds = new IntegerConfigValue(
             "transitclock.api.gtfsRtCacheSeconds",
-            DEFAULT_MAX_GTFS_RT_CACHE_SECS,
+            15,
             "How long to cache GTFS Realtime");
 
 

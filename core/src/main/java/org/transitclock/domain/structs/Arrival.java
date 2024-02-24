@@ -5,6 +5,8 @@ import java.util.Date;
 
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
+import org.transitclock.gtfs.DbConfig;
+import org.transitclock.utils.Time;
 
 /**
  * For persisting an Arrival time.
@@ -16,11 +18,6 @@ import jakarta.persistence.Entity;
 public class Arrival extends ArrivalDeparture {
 
     public Arrival(
-            String vehicleId, Date time, Date avlTime, Block block, int tripIndex, int pathIndex, Date freqStartTime) {
-        super(vehicleId, time, avlTime, block, tripIndex, pathIndex, true, freqStartTime); // isArrival
-    }
-
-    public Arrival(
             int configRev,
             String vehicleId,
             Date time,
@@ -28,8 +25,9 @@ public class Arrival extends ArrivalDeparture {
             Block block,
             int tripIndex,
             int pathIndex,
-            Date freqStartTime) {
-        super(configRev, vehicleId, time, avlTime, block, tripIndex, pathIndex, true, freqStartTime); // isArrival
+            Date freqStartTime,
+            DbConfig dbConfig) {
+        super(configRev, vehicleId, time, avlTime, block, tripIndex, pathIndex, true, freqStartTime, dbConfig); // isArrival
     }
 
     /**
@@ -48,14 +46,16 @@ public class Arrival extends ArrivalDeparture {
      * @param newTime
      * @return The newly constructed Arrival with the new time.
      */
-    public Arrival withUpdatedTime(Date newTime) {
+    public Arrival withUpdatedTime(Date newTime, DbConfig dbConfig) {
         return new Arrival(
+                dbConfig.getConfigRev(),
                 getVehicleId(),
                 newTime,
                 getAvlTime(),
                 getBlock(),
                 getTripIndex(),
                 getStopPathIndex(),
-                this.getFreqStartTime());
+                this.getFreqStartTime(),
+                dbConfig);
     }
 }

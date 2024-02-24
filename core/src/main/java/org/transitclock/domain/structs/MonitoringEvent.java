@@ -7,7 +7,6 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Immutable;
-import org.transitclock.Core;
 import org.transitclock.domain.hibernate.HibernateUtils;
 import org.transitclock.utils.IntervalTimer;
 
@@ -56,7 +55,7 @@ public class MonitoringEvent implements Serializable {
     @Column(name = "value")
     private final double value;
 
-    private MonitoringEvent(Date time, String type, boolean triggered, String message, double value) {
+    public MonitoringEvent(Date time, String type, boolean triggered, String message, double value) {
         this.time = time;
         this.type = type;
         this.triggered = triggered;
@@ -67,16 +66,6 @@ public class MonitoringEvent implements Serializable {
         // "java.sql.SQLException: 'NaN' is not a valid numeric or approximate numeric value".
         // So if value is a NaN use 0.0 instead. Works fine with Postgres though.
         this.value = Double.isNaN(value) ? 0.0 : value;
-    }
-
-    public static MonitoringEvent create(Date time, String type, boolean triggered, String message, double value) {
-        MonitoringEvent monitoringEvent = new MonitoringEvent(time, type, triggered, message, value);
-
-        // Queue to write object to database
-        Core.getInstance().getDbLogger().add(monitoringEvent);
-
-        // Return new MonitoringEvent
-        return monitoringEvent;
     }
 
     /**

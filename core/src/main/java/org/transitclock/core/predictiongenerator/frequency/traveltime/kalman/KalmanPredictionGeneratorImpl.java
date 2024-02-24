@@ -3,29 +3,26 @@ package org.transitclock.core.predictiongenerator.frequency.traveltime.kalman;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.DateUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.transitclock.Core;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.config.data.PredictionConfig;
-import org.transitclock.core.Indices;
-import org.transitclock.core.SpatialMatch;
-import org.transitclock.core.TravelTimeDetails;
-import org.transitclock.core.VehicleState;
-import org.transitclock.core.dataCache.ErrorCache;
-import org.transitclock.core.dataCache.KalmanError;
-import org.transitclock.core.dataCache.KalmanErrorCacheKey;
-import org.transitclock.core.dataCache.TripDataHistoryCacheInterface;
+import org.transitclock.core.*;
+import org.transitclock.core.dataCache.*;
 import org.transitclock.core.dataCache.frequency.FrequencyBasedHistoricalAverageCache;
+import org.transitclock.core.holdingmethod.HoldingTimeGenerator;
 import org.transitclock.core.predictiongenerator.PredictionComponentElementsGenerator;
+import org.transitclock.core.predictiongenerator.bias.BiasAdjuster;
+import org.transitclock.core.predictiongenerator.datafilter.TravelTimeDataFilter;
 import org.transitclock.core.predictiongenerator.frequency.traveltime.average.HistoricalAveragePredictionGeneratorImpl;
 import org.transitclock.core.predictiongenerator.kalman.KalmanPrediction;
 import org.transitclock.core.predictiongenerator.kalman.KalmanPredictionResult;
 import org.transitclock.core.predictiongenerator.kalman.TripSegment;
 import org.transitclock.core.predictiongenerator.kalman.Vehicle;
 import org.transitclock.core.predictiongenerator.kalman.VehicleStopDetail;
+import org.transitclock.domain.hibernate.DataDbLogger;
 import org.transitclock.domain.structs.AvlReport;
 import org.transitclock.domain.structs.PredictionForStopPath;
 import org.transitclock.domain.structs.VehicleEvent;
+import org.transitclock.gtfs.DbConfig;
 import org.transitclock.utils.SystemTime;
 
 import java.util.Calendar;
@@ -37,13 +34,19 @@ import java.util.List;
  *     predictions for a frequency based service.
  */
 @Slf4j
-public class KalmanPredictionGeneratorImpl extends HistoricalAveragePredictionGeneratorImpl
-        implements PredictionComponentElementsGenerator {
+public class KalmanPredictionGeneratorImpl extends HistoricalAveragePredictionGeneratorImpl implements PredictionComponentElementsGenerator {
     private final String alternative = "LastVehiclePredictionGeneratorImpl";
-    @Autowired
-    protected TripDataHistoryCacheInterface tripCache;
-    @Autowired
-    protected ErrorCache kalmanErrorCache;
+    protected final ErrorCache kalmanErrorCache;
+
+    public KalmanPredictionGeneratorImpl(StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface,
+                                         TripDataHistoryCacheInterface tripDataHistoryCacheInterface,
+                                         DbConfig dbConfig,
+                                         DataDbLogger dataDbLogger,
+                                         TravelTimeDataFilter travelTimeDataFilter,
+                                         VehicleDataCache vehicleCache, HoldingTimeCache holdingTimeCache, StopPathPredictionCache stopPathPredictionCache, TravelTimes travelTimes, HoldingTimeGenerator holdingTimeGenerator, VehicleStateManager vehicleStateManager, RealTimeSchedAdhProcessor realTimeSchedAdhProcessor, BiasAdjuster biasAdjuster, FrequencyBasedHistoricalAverageCache frequencyBasedHistoricalAverageCache, ErrorCache kalmanErrorCache) {
+        super(stopArrivalDepartureCacheInterface, tripDataHistoryCacheInterface, dbConfig, dataDbLogger, travelTimeDataFilter, vehicleCache, holdingTimeCache, stopPathPredictionCache, travelTimes, holdingTimeGenerator, vehicleStateManager, realTimeSchedAdhProcessor, biasAdjuster, frequencyBasedHistoricalAverageCache);
+        this.kalmanErrorCache = kalmanErrorCache;
+    }
 
     /*
      * (non-Javadoc)
@@ -81,7 +84,7 @@ public class KalmanPredictionGeneratorImpl extends HistoricalAveragePredictionGe
                 Date nearestDay = DateUtils.truncate(avlReport.getDate(), Calendar.DAY_OF_MONTH);
 
                 List<TravelTimeDetails> lastDaysTimes = lastDaysTimes(
-                        tripCache,
+                        tripDataHistoryCacheInterface,
                         currentVehicleState.getTrip().getId(),
                         currentVehicleState.getTrip().getDirectionId(),
                         indices.getStopPathIndex(),
@@ -127,7 +130,7 @@ public class KalmanPredictionGeneratorImpl extends HistoricalAveragePredictionGe
 
                         TripSegment last_vehicle_segment = ts_day_0_k_1;
 
-                        Indices previousVehicleIndices = new Indices(travelTimeDetails.getArrival());
+                        Indices previousVehicleIndices = new Indices(travelTimeDetails.getArrival(), dbConfig);
 
                         KalmanError last_prediction_error =
                                 lastVehiclePredictionError(kalmanErrorCache, previousVehicleIndices);
@@ -157,14 +160,15 @@ public class KalmanPredictionGeneratorImpl extends HistoricalAveragePredictionGe
                                     + predictionTime
                                     + " Super predicts : "
                                     + alternatePrediction;
-                            VehicleEvent.create(
+                            VehicleEvent vehicleEvent = new VehicleEvent(
                                     vehicleState.getAvlReport(),
                                     vehicleState.getMatch(),
                                     VehicleEvent.PREDICTION_VARIATION,
                                     description,
                                     true, // predictable
                                     false, // becameUnpredictable
-                                    null); // supervisor
+                                    null);// supervisor
+                            dataDbLogger.add(vehicleEvent);
                         }
 
                         if (CoreConfig.storeTravelTimeStopPathPredictions.getValue()) {
@@ -177,7 +181,7 @@ public class KalmanPredictionGeneratorImpl extends HistoricalAveragePredictionGe
                                     "KALMAN",
                                     true,
                                     null);
-                            Core.getInstance().getDbLogger().add(predictionForStopPath);
+                            dataDbLogger.add(predictionForStopPath);
                             stopPathPredictionCache.putPrediction(predictionForStopPath);
                         }
                         return predictionTime;

@@ -1,9 +1,12 @@
 /* (C)2023 */
 package org.transitclock.core.dataCache;
 
+import org.ehcache.CacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.transitclock.config.ClassConfigValue;
+import org.transitclock.core.dataCache.ehcache.scheduled.DwellTimeModelCache;
+import org.transitclock.core.predictiongenerator.scheduled.dwell.DwellModel;
 import org.transitclock.utils.ClassInstantiator;
 
 /**
@@ -17,14 +20,14 @@ public class DwellTimeModelCacheFactory {
             DummyDwellTimeModelCacheImpl.class,
             "Specifies the class used to cache RLS data for a stop.");
 
-    private static DwellTimeModelCacheInterface singleton = null;
 
     @Bean
-    public DwellTimeModelCacheInterface dwellTimeModelCacheInterface() {
-        if (singleton == null && className.getValue() != null) {
-            singleton = ClassInstantiator.instantiate(className.getValue(), DwellTimeModelCacheInterface.class);
+    public DwellTimeModelCacheInterface dwellTimeModelCacheInterface(CacheManager cm, DwellModel dwellModel, StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface) {
+        var value = className.getValue();
+        if (value == DwellTimeModelCache.class) {
+            return new DwellTimeModelCache(cm, dwellModel, stopArrivalDepartureCacheInterface);
         }
 
-        return singleton;
+        return new DummyDwellTimeModelCacheImpl();
     }
 }

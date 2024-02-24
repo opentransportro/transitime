@@ -15,26 +15,10 @@ import org.transitclock.utils.Time;
  */
 @Slf4j
 public abstract class Module implements Runnable {
-    public static enum ExecutionType {
+    public enum ExecutionType {
         ONCE,
         FIXED_DELAY,
         FIXED_RATE
-    }
-
-    protected final String agencyId;
-
-    /**
-     * Constructor. Subclasses must implement a constructor that takes in agencyId and calls this
-     * constructor via super(agencyId).
-     *
-     * @param agencyId
-     */
-    protected Module(String agencyId) {
-        this.agencyId = agencyId;
-    }
-
-    protected String getAgencyId() {
-        return agencyId;
     }
 
     /**

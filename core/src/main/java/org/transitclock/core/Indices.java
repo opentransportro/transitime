@@ -2,7 +2,7 @@
 package org.transitclock.core;
 
 import java.io.Serializable;
-import org.transitclock.Core;
+
 import org.transitclock.domain.structs.ArrivalDeparture;
 import org.transitclock.domain.structs.Block;
 import org.transitclock.domain.structs.Route;
@@ -67,19 +67,15 @@ public class Indices implements Serializable {
         this.segmentIndex = spatialMatch.getSegmentIndex();
     }
 
-    public Indices(IpcArrivalDeparture event) {
-        DbConfig dbConfig = Core.getInstance().getDbConfig();
-
+    public Indices(IpcArrivalDeparture event, DbConfig dbConfig) {
         this.block = dbConfig.getBlock(event.getServiceId(), event.getBlockId());
         this.tripIndex = event.getTripIndex();
         this.stopPathIndex = event.getStopPathIndex();
     }
 
-    public Indices(ArrivalDeparture event) {
-
+    public Indices(ArrivalDeparture event, DbConfig dbConfig) {
         Block block;
         if (event.getBlock() == null) {
-            DbConfig dbConfig = Core.getInstance().getDbConfig();
             block = dbConfig.getBlock(event.getServiceId(), event.getBlockId());
         } else {
             block = event.getBlock();
@@ -144,7 +140,7 @@ public class Indices implements Serializable {
      *     trip.
      * @return The resulting Indices object
      */
-    public Indices increment(long epochTime) {
+    public Indices increment(long epochTime, DbConfig dbConfig) {
         ++segmentIndex;
         if (segmentIndex >= block.numSegments(tripIndex, stopPathIndex)) {
             segmentIndex = 0;
@@ -156,7 +152,7 @@ public class Indices implements Serializable {
                     // Handle no schedule assignments specially since usually
                     // looping around same trip.
                     int timeOfDaySecs =
-                            block.isNoSchedule() ? Core.getInstance().getTime().getSecondsIntoDay(epochTime) : 0;
+                            block.isNoSchedule() ? dbConfig.getTime().getSecondsIntoDay(epochTime) : 0;
                     if (timeOfDaySecs > getTrip().getEndTime()) ++tripIndex;
                 } else {
                     // Not a looping no schedule assignment so handle normally
@@ -211,11 +207,11 @@ public class Indices implements Serializable {
      *     Only needed for no schedule assignments.
      * @return Indices for the next StopPath for the assignment
      */
-    public Indices incrementStopPath(long epochTime) {
+    public Indices incrementStopPath(long epochTime, DbConfig dbConfig) {
         // Determine time of day in seconds. But only need to calculate it if
         // it is a no schedule block since only then is the time needed when
         // calling incrementStopPath(timeOfDaySecs)
-        int timeOfDaySecs = block.isNoSchedule() ? Core.getInstance().getTime().getSecondsIntoDay(epochTime) : 0;
+        int timeOfDaySecs = block.isNoSchedule() ? dbConfig.getTime().getSecondsIntoDay(epochTime) : 0;
         return incrementStopPath(timeOfDaySecs);
     }
 
@@ -227,8 +223,8 @@ public class Indices implements Serializable {
      *
      * @return Indices for the next StopPath for the assignment
      */
-    public Indices incrementStopPath() {
-        return incrementStopPath(SystemTime.getMillis());
+    public Indices incrementStopPath(DbConfig dbConfig) {
+        return incrementStopPath(SystemTime.getMillis(), dbConfig);
     }
 
     /**
@@ -328,7 +324,7 @@ public class Indices implements Serializable {
      * @param epochTime For when dealing with noSchedule assignment. Specifies current time of day
      * @return true if done with the block assignment
      */
-    public boolean pastEndOfBlock(long epochTime) {
+    public boolean pastEndOfBlock(long epochTime, DbConfig dbConfig) {
         Trip trip = getTrip();
 
         // If trip index indicates gone past end of block then return true
@@ -336,7 +332,7 @@ public class Indices implements Serializable {
 
         if (trip.isNoSchedule()) {
             // A noSchedule assignment so return true if past the end time
-            int timeOfDaySecs = Core.getInstance().getTime().getSecondsIntoDay(epochTime);
+            int timeOfDaySecs = dbConfig.getTime().getSecondsIntoDay(epochTime);
             return timeOfDaySecs > trip.getEndTime();
         } else {
             // Assignment has a schedule so handle normally
@@ -350,7 +346,7 @@ public class Indices implements Serializable {
      *
      * @return
      */
-    public boolean atEndOfBlock() {
+    public boolean atEndOfBlock(DbConfig dbConfig) {
         return tripIndex == block.numTrips() - 1
                 && stopPathIndex == block.numStopPaths(tripIndex) - 1
                 && segmentIndex == block.numSegments(tripIndex, stopPathIndex) - 1;
@@ -417,8 +413,6 @@ public class Indices implements Serializable {
     /**
      * Returns the schedule time for the trip and path indices specified
      *
-     * @param tripIndex
-     * @param stopPathIndex
      * @return the schedule time for the specified stop. Returns null if no schedule time associated
      *     with stop
      */
@@ -538,9 +532,9 @@ public class Indices implements Serializable {
      *
      * @return
      */
-    public Route getRoute() {
+    public Route getRoute(DbConfig dbConfig) {
         String routeId = getTrip().getRouteId();
-        return Core.getInstance().getDbConfig().getRouteById(routeId);
+        return dbConfig.getRouteById(routeId);
     }
 
     public int getSegmentIndex() {

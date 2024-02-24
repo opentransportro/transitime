@@ -10,7 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
-import org.transitclock.Core;
+import org.transitclock.gtfs.DbConfig;
 import org.transitclock.gtfs.TitleFormatter;
 import org.transitclock.gtfs.model.GtfsRoute;
 import org.transitclock.utils.OrderedCollection;
@@ -336,7 +336,7 @@ public class Route implements Serializable {
      *
      * @return
      */
-    public synchronized Collection<Stop> getStops() {
+    public synchronized Collection<Stop> getStops(DbConfig dbConfig) {
         // If stop collection already determined then simply return it
         if (stops != null) return stops;
 
@@ -346,7 +346,7 @@ public class Route implements Serializable {
         // is transient it is not stored in the db and therefore not
         // available to this client application. But it can be obtained
         // from the DbConfig.
-        List<TripPattern> tripPatternsForRoute = Core.getInstance().getDbConfig().getTripPatternsForRoute(id);
+        List<TripPattern> tripPatternsForRoute = dbConfig.getTripPatternsForRoute(id);
 
         // Stop list not yet determined so determine it now using
         // trip patterns.
@@ -358,7 +358,7 @@ public class Route implements Serializable {
                 // If already added this stop then continue to next one
                 if (stopMap.containsKey(stopId)) continue;
 
-                Stop stop = Core.getInstance().getDbConfig().getStop(stopId);
+                Stop stop = dbConfig.getStop(stopId);
                 stopMap.put(stopId, stop);
             }
         }
@@ -374,11 +374,11 @@ public class Route implements Serializable {
      * @param tripPatternId
      * @return
      */
-    public TripPattern getTripPattern(String tripPatternId) {
-        List<TripPattern> tripPatternsForRoute =
-                Core.getInstance().getDbConfig().getTripPatternsForRoute(getId());
+    public TripPattern getTripPattern(DbConfig dbConfig, String tripPatternId) {
+        List<TripPattern> tripPatternsForRoute = dbConfig.getTripPatternsForRoute(getId());
         for (TripPattern tripPattern : tripPatternsForRoute) {
-            if (tripPattern.getId().equals(tripPatternId)) return tripPattern;
+            if (Objects.equals(tripPattern.getId(), tripPatternId))
+                return tripPattern;
         }
 
         // Never found the specified trip pattern
@@ -389,12 +389,12 @@ public class Route implements Serializable {
      * Returns longest trip pattern for the directionId specified. Note: gets trip patterns from
      * Core, which means it works in the core application, not just when processing GTFS data.
      *
+     * @param dbConfig
      * @param directionId
      * @return
      */
-    public TripPattern getLongestTripPatternForDirection(String directionId) {
-        List<TripPattern> tripPatternsForRoute =
-                Core.getInstance().getDbConfig().getTripPatternsForRoute(getId());
+    public TripPattern getLongestTripPatternForDirection(DbConfig dbConfig, String directionId) {
+        List<TripPattern> tripPatternsForRoute = dbConfig.getTripPatternsForRoute(getId());
         TripPattern longestTripPatternForDir = null;
         for (TripPattern tripPattern : tripPatternsForRoute) {
             if (Objects.equals(tripPattern.getDirectionId(), directionId)) {
@@ -412,12 +412,12 @@ public class Route implements Serializable {
      *
      * @return
      */
-    public List<TripPattern> getLongestTripPatternForEachDirection() {
+    public List<TripPattern> getLongestTripPatternForEachDirection(DbConfig dbConfig) {
         List<TripPattern> tripPatterns = new ArrayList<>();
 
-        List<String> directionIds = getDirectionIds();
+        List<String> directionIds = getDirectionIds(dbConfig);
         for (String directionId : directionIds) {
-            tripPatterns.add(getLongestTripPatternForDirection(directionId));
+            tripPatterns.add(getLongestTripPatternForDirection(dbConfig, directionId));
         }
 
         return tripPatterns;
@@ -429,9 +429,8 @@ public class Route implements Serializable {
      * @param directionId
      * @return
      */
-    public List<TripPattern> getTripPatterns(String directionId) {
-        List<TripPattern> tripPatternsForRoute =
-                Core.getInstance().getDbConfig().getTripPatternsForRoute(getId());
+    public List<TripPattern> getTripPatterns(DbConfig dbConfig, String directionId) {
+        List<TripPattern> tripPatternsForRoute = dbConfig.getTripPatternsForRoute(getId());
         List<TripPattern> tripPatternsForDir = new ArrayList<>();
         for (TripPattern tripPattern : tripPatternsForRoute) {
             if (Objects.equals(tripPattern.getDirectionId(), directionId)) tripPatternsForDir.add(tripPattern);
@@ -445,8 +444,8 @@ public class Route implements Serializable {
      *
      * @return
      */
-    public List<String> getDirectionIds() {
-        List<TripPattern> tripPatternsForRoute = Core.getInstance().getDbConfig().getTripPatternsForRoute(getId());
+    public List<String> getDirectionIds(DbConfig dbConfig) {
+        List<TripPattern> tripPatternsForRoute = dbConfig.getTripPatternsForRoute(getId());
         if (tripPatternsForRoute == null) {
             return new ArrayList<>();
         }
@@ -463,7 +462,7 @@ public class Route implements Serializable {
      *
      * @return
      */
-    public synchronized Collection<org.transitclock.domain.structs.Vector> getPathSegments() {
+    public synchronized Collection<org.transitclock.domain.structs.Vector> getPathSegments(DbConfig dbConfig) {
         // If stop paths collection already determined then simply return it
         if (stopPaths != null) return stopPaths;
 
@@ -473,8 +472,7 @@ public class Route implements Serializable {
         // is transient it is not stored in the db and therefore not
         // available to this client application. But it can be obtained
         // from the DbConfig.
-        List<TripPattern> tripPatternsForRoute =
-                Core.getInstance().getDbConfig().getTripPatternsForRoute(id);
+        List<TripPattern> tripPatternsForRoute = dbConfig.getTripPatternsForRoute(id);
 
         Map<String, StopPath> stopPathMap = new HashMap<>();
         for (TripPattern tripPattern : tripPatternsForRoute) {
@@ -506,7 +504,7 @@ public class Route implements Serializable {
      *
      * @return Map keyed by direction ID and value of List of ordered stop IDs.
      */
-    public synchronized Map<String, List<String>> getOrderedStopsByDirection() {
+    public synchronized Map<String, List<String>> getOrderedStopsByDirection(DbConfig dbConfig) {
         // If already determined the stops return the cached map
         if (orderedStopsPerDirectionMap != null) return orderedStopsPerDirectionMap;
 
@@ -514,10 +512,10 @@ public class Route implements Serializable {
         orderedStopsPerDirectionMap = new HashMap<>();
 
         // For each direction
-        for (String directionId : getDirectionIds()) {
+        for (String directionId : getDirectionIds(dbConfig)) {
             // Determine ordered collection of stops for direction
             OrderedCollection orderedCollection = new OrderedCollection();
-            List<TripPattern> tripPatternsForDir = getTripPatterns(directionId);
+            List<TripPattern> tripPatternsForDir = getTripPatterns(dbConfig, directionId);
             List<List<String>> stopIdsForTripPatternList = new ArrayList<>();
             for (TripPattern tripPattern : tripPatternsForDir) {
                 List<String> stopIdsForTripPattern = tripPattern.getStopIds();
@@ -535,13 +533,13 @@ public class Route implements Serializable {
      * Initializes stopOrderByDirectionMap member if haven't done so yet. Used by getStopOrder().
      * Synchronized since can be access through multiple threads.
      */
-    private synchronized void createStopOrderByDirectionMapIfNeedTo() {
+    private synchronized void createStopOrderByDirectionMapIfNeedTo(DbConfig dbConfig) {
         // If map already created then done
         if (stopOrderByDirectionMap != null) return;
 
         // Map not yet created so create it now
         stopOrderByDirectionMap = new HashMap<>();
-        Map<String, List<String>> orderedStopsByDirection = getOrderedStopsByDirection();
+        Map<String, List<String>> orderedStopsByDirection = getOrderedStopsByDirection(dbConfig);
 
         // Create submap for each direction Id
         for (String directionId : orderedStopsByDirection.keySet()) {
@@ -577,9 +575,9 @@ public class Route implements Serializable {
      * @param stopIndex so that can handle stop being on trip multiple times
      * @return the stop order for the stop for the direction for the route
      */
-    public int getStopOrder(String directionId, String stopId, int stopIndex) {
+    public int getStopOrder(DbConfig dbConfig, String directionId, String stopId, int stopIndex) {
         // Make sure initialized
-        createStopOrderByDirectionMapIfNeedTo();
+        createStopOrderByDirectionMapIfNeedTo(dbConfig);
 
         // For the direction get the map of stop orders
         Map<String, List<Integer>> stopOrderMap = stopOrderByDirectionMap.get(directionId);

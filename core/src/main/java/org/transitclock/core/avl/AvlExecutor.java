@@ -2,6 +2,7 @@
 package org.transitclock.core.avl;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 import org.transitclock.config.data.AgencyConfig;
 import org.transitclock.config.data.AvlConfig;
 import org.transitclock.domain.structs.AvlReport;
@@ -22,10 +23,10 @@ import java.util.concurrent.*;
  * @author SkiBu Smith
  */
 @Slf4j
+@Component
 public class AvlExecutor {
 
     private static final int MAX_THREADS = 25;
-    private static AvlExecutor singleton;
     private final Executor avlClientExecutor;
     private final AvlReportProcessorFactory avlReportProcessorFactory;
 
@@ -68,18 +69,6 @@ public class AvlExecutor {
                 rejectedHandler);
     }
 
-    /**
-     * Returns singleton instance. Not synchronized since it is OK if an executor is replaced by a
-     * new one.
-     *
-     * @return the singleton AvlExecutor
-     */
-    public static synchronized AvlExecutor getInstance() {
-        if (singleton == null) {
-            singleton = new AvlExecutor(new DefaultAvlReportProcessorFactory());
-        }
-        return singleton;
-    }
 
     /**
      * Instead of writing AVL report to JMS topic this method directly processes it. By doing this

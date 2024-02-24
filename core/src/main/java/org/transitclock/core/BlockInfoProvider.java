@@ -7,7 +7,9 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.transitclock.Core;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.domain.structs.Block;
 import org.transitclock.gtfs.DbConfig;
@@ -19,9 +21,14 @@ import org.transitclock.utils.Time;
  *
  * @author SkiBu Smith
  */
-public class BlocksInfo {
+@Component
+public class BlockInfoProvider {
 
+    private final DbConfig dbConfig;
 
+    public BlockInfoProvider(DbConfig dbConfig) {
+        this.dbConfig = dbConfig;
+    }
 
     /**
      * Looks at all blocks that are for the current service ID and returns list of ones that will
@@ -31,27 +38,23 @@ public class BlocksInfo {
      *     block is considered to be active.
      * @return blocks that are about to start. Can be empty list but will not be null.
      */
-    public static List<Block> getBlocksAboutToStart(int beforeStartTimeSecs) {
+    public List<Block> getBlocksAboutToStart(int beforeStartTimeSecs) {
         // The list to be returned
         List<Block> aboutToStartBlocks = new ArrayList<>(1000);
-
-        Core core = Core.getInstance();
-        if (core == null) return aboutToStartBlocks;
 
         // Determine which service IDs are currently active.
         // Yes, there can be multiple ones active at once.
         Date now = SystemTime.getDate();
-        Collection<String> currentServiceIds = core.getServiceUtils().getServiceIds(now);
+        Collection<String> currentServiceIds = dbConfig.getServiceUtils().getServiceIds(now);
 
         // For each service ID ...
         for (String serviceId : currentServiceIds) {
-            DbConfig dbConfig = core.getDbConfig();
             Collection<Block> blocks = dbConfig.getBlocks(serviceId);
 
             // If the block is about to be or currently active then
             // add it to the list to be returned
             for (Block block : blocks) {
-                if (block.isBeforeStartTime(now, beforeStartTimeSecs)) aboutToStartBlocks.add(block);
+                if (block.isBeforeStartTime(dbConfig, now, beforeStartTimeSecs)) aboutToStartBlocks.add(block);
             }
         }
 
@@ -64,7 +67,7 @@ public class BlocksInfo {
      *
      * @return List of currently active blocks. Will not be null.
      */
-    public static List<Block> getCurrentlyActiveBlocks() {
+    public List<Block> getCurrentlyActiveBlocks() {
         return getCurrentlyActiveBlocks(
                 null, null, CoreConfig.blockactiveForTimeBeforeSecs.getValue(), CoreConfig.blockactiveForTimeAfterSecs.getValue());
     }
@@ -84,7 +87,7 @@ public class BlocksInfo {
      *     then zero then block considered active up to the block end time.
      * @return List of currently active blocks. Will not be null.
      */
-    public static List<Block> getCurrentlyActiveBlocks(
+    public List<Block> getCurrentlyActiveBlocks(
             Collection<String> routeIds,
             Set<String> blockIdsToIgnore,
             int allowableBeforeTimeSecs,
@@ -92,20 +95,17 @@ public class BlocksInfo {
         // The list to be returned
         List<Block> activeBlocks = new ArrayList<>(1000);
 
-        Core core = Core.getInstance();
-        if (core == null) return activeBlocks;
-
         // Determine which service IDs are currently active
         long now = SystemTime.getMillis();
-        List<String> currentServiceIds = core.getServiceUtils().getServiceIdsForDay(now);
+        List<String> currentServiceIds = dbConfig.getServiceUtils().getServiceIdsForDay(now);
         Set<String> serviceIds = new HashSet<>(currentServiceIds);
 
         // If current time is just a couple of hours after midnight then need
         // to also look at service IDs for previous day as well since a block
         // from the previous day might still be running after midnight.
-        int secsInDayForAvlReport = Core.getInstance().getTime().getSecondsIntoDay(now);
+        int secsInDayForAvlReport = dbConfig.getTime().getSecondsIntoDay(now);
         if (secsInDayForAvlReport < 4 * Time.HOUR_IN_SECS) {
-            List<String> previousDayServiceIds = core.getServiceUtils().getServiceIdsForDay(now - Time.DAY_IN_MSECS);
+            List<String> previousDayServiceIds = dbConfig.getServiceUtils().getServiceIdsForDay(now - Time.DAY_IN_MSECS);
             serviceIds.addAll(previousDayServiceIds);
         }
 
@@ -113,13 +113,12 @@ public class BlocksInfo {
         // service IDs from the next day since a block might start soon after
         // midnight.
         if (secsInDayForAvlReport > Time.DAY_IN_SECS - allowableBeforeTimeSecs) {
-            List<String> nextDayServiceIds = core.getServiceUtils().getServiceIdsForDay(now + Time.DAY_IN_MSECS);
+            List<String> nextDayServiceIds = dbConfig.getServiceUtils().getServiceIdsForDay(now + Time.DAY_IN_MSECS);
             serviceIds.addAll(nextDayServiceIds);
         }
 
         // For each service ID ...
         for (String serviceId : serviceIds) {
-            DbConfig dbConfig = core.getDbConfig();
             Collection<Block> blocks = dbConfig.getBlocks(serviceId);
 
             // If the block is about to be or currently active then
@@ -144,7 +143,7 @@ public class BlocksInfo {
 
                 // If block currently active and is for specified route then
                 // add it to the list
-                if (block.isActive(now, allowableBeforeTimeSecs, allowableAfterStartTimeSecs) && forSpecifiedRoute)
+                if (block.isActive(dbConfig, now, allowableBeforeTimeSecs, allowableAfterStartTimeSecs) && forSpecifiedRoute)
                     activeBlocks.add(block);
             }
         }

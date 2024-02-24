@@ -27,6 +27,8 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.transitclock.api.EmbeddedJspStarter;
 import org.transitclock.api.utils.ApiLoggingFilter;
 import org.transitclock.api.utils.WebLoggingFilter;
@@ -35,10 +37,7 @@ import org.transitclock.config.ConfigFileReader;
 import org.transitclock.config.data.AgencyConfig;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.config.data.DbSetupConfig;
-import org.transitclock.core.dataCache.StopArrivalDepartureCacheFactory;
-import org.transitclock.core.dataCache.StopArrivalDepartureCacheInterface;
-import org.transitclock.core.dataCache.TripDataHistoryCacheFactory;
-import org.transitclock.core.dataCache.TripDataHistoryCacheInterface;
+import org.transitclock.core.dataCache.*;
 import org.transitclock.core.dataCache.ehcache.CacheManagerFactory;
 import org.transitclock.core.dataCache.frequency.FrequencyBasedHistoricalAverageCache;
 import org.transitclock.core.dataCache.scheduled.ScheduleBasedHistoricalAverageCache;
@@ -65,6 +64,8 @@ import static org.transitclock.utils.ApplicationShutdownSupport.addShutdownHook;
 @Slf4j
 @Getter
 @SpringBootApplication
+@EnableScheduling
+@EnableConfigurationProperties({ApplicationProperties.class})
 public class Application implements ApplicationRunner {
     private static final String WEBROOT_INDEX = "/webroot/";
     @Autowired
@@ -76,8 +77,11 @@ public class Application implements ApplicationRunner {
     @Autowired
     StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface;
     @Autowired
+    DwellTimeModelCacheInterface dwellTimeModelCacheInterface;
+    @Autowired
     CacheManager cacheManager;
-
+    @Autowired
+    ApiKeyManager apiKeyManager;
 
 
     @SneakyThrows
@@ -100,8 +104,6 @@ public class Application implements ApplicationRunner {
     public void run(ApplicationArguments args) throws Exception {
         var cli = parseAndValidateCmdLine(args.getSourceArgs());
 
-        // instantiate flyway & migrate
-        migrate();
         if(cli.shouldLoadGtfs()) {
             loadGtfs(cli);
         }
@@ -110,14 +112,6 @@ public class Application implements ApplicationRunner {
         run(cli);
     }
 
-
-    private void migrate() {
-        Flyway flyway = Flyway.configure()
-                .loggers("slf4j")
-                .dataSource(DbSetupConfig.getConnectionUrl(), DbSetupConfig.getDbUserName(), DbSetupConfig.getDbPassword())
-                .load();
-        flyway.migrate();
-    }
 
     private void loadGtfs(CommandLineParameters cli) {
         GtfsFileProcessor processor = GtfsFileProcessor.createGtfsFileProcessor(cli);
@@ -143,9 +137,6 @@ public class Application implements ApplicationRunner {
                 }
             });
 
-            // Initialize the core now
-            Core core = Core.createCore(agencyId, ApplicationContext.moduleRegistry());
-
             Server server = createWebserver(cli);
             server.start();
             logger.info("Go to http://localhost:{} in your browser", cli.port);
@@ -157,8 +148,7 @@ public class Application implements ApplicationRunner {
 
     private void createApiKey() {
         try {
-            ApplicationContext.singletonRegistry()
-                    .get(ApiKeyManager.class)
+            apiKeyManager
                     .generateApiKey(
                             "Sean Og Crudden",
                             "http://www.transitclock.org",
@@ -227,6 +217,18 @@ public class Application implements ApplicationRunner {
                         CoreConfig.cacheReloadStartTimeStr.getValue(),
                         CoreConfig.cacheReloadEndTimeStr.getValue());
                 stopArrivalDepartureCacheInterface
+                        .populateCacheFromDb(
+                                session,
+                                new Date(Time.parse(CoreConfig.cacheReloadStartTimeStr.getValue()).getTime()),
+                                new Date(Time.parse(CoreConfig.cacheReloadEndTimeStr.getValue()).getTime())
+                        );
+            }
+            if (dwellTimeModelCacheInterface != null) {
+                logger.debug(
+                        "Populating DwellTimeModelCacheInterface cache for period {} to {}",
+                        CoreConfig.cacheReloadStartTimeStr.getValue(),
+                        CoreConfig.cacheReloadEndTimeStr.getValue());
+                dwellTimeModelCacheInterface
                         .populateCacheFromDb(
                                 session,
                                 new Date(Time.parse(CoreConfig.cacheReloadStartTimeStr.getValue()).getTime()),

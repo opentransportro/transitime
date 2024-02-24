@@ -6,7 +6,6 @@ import java.util.Date;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
-import org.transitclock.Core;
 
 @Entity
 @DynamicUpdate
@@ -71,6 +70,7 @@ public class Headway implements Serializable {
     private Date secondDeparture;
 
     public Headway(
+            int configRev,
             long headway,
             Date creationTime,
             String vehicleId,
@@ -81,7 +81,7 @@ public class Headway implements Serializable {
             Date firstDeparture,
             Date secondDeparture) {
 
-        this.configRev = Core.getInstance().getDbConfig().getConfigRev();
+        this.configRev = configRev;
         this.headway = headway;
         this.creationTime = creationTime;
         this.vehicleId = vehicleId;

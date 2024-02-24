@@ -8,6 +8,7 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.StreamingOutput;
+import org.springframework.stereotype.Controller;
 import org.transitclock.api.data.gtfs.GtfsRtTripFeed;
 import org.transitclock.api.data.gtfs.GtfsRtVehicleFeed;
 import org.transitclock.api.utils.StandardParameters;
@@ -18,6 +19,7 @@ import org.transitclock.gtfs.realtime.OctalDecoder;
  *
  * @author SkiBu Smith
  */
+@Controller
 @Path("/key/{key}/agency/{agency}")
 public class GtfsRealtimeApi {
     /**

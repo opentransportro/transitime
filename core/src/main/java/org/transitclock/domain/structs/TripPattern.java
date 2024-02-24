@@ -633,9 +633,9 @@ public class TripPattern implements Serializable, Lifecycle {
      * @param i
      * @return
      */
-    public String getStopName(int i) {
-        return stopPaths.get(i).getStopName();
-    }
+//    public String getStopName(int i) {
+//        return stopPaths.get(i).getStopName();
+//    }
 
     /**
      * Gets the pathId of the specified stop

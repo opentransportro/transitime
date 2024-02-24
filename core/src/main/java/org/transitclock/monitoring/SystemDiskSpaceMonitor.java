@@ -4,6 +4,7 @@ package org.transitclock.monitoring;
 import java.io.File;
 
 import org.transitclock.config.data.MonitoringConfig;
+import org.transitclock.domain.hibernate.DataDbLogger;
 import org.transitclock.utils.StringUtils;
 
 /**
@@ -12,8 +13,8 @@ import org.transitclock.utils.StringUtils;
  * @author SkiBu Smith
  */
 public class SystemDiskSpaceMonitor extends MonitorBase {
-    public SystemDiskSpaceMonitor(String agencyId) {
-        super(agencyId);
+    public SystemDiskSpaceMonitor(String agencyId, DataDbLogger dataDbLogger) {
+        super(agencyId, dataDbLogger);
     }
 
     /* (non-Javadoc)

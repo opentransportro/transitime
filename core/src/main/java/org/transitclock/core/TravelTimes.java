@@ -2,12 +2,13 @@
 package org.transitclock.core;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.transitclock.Core;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.domain.structs.Location;
 import org.transitclock.domain.structs.ScheduleTime;
 import org.transitclock.domain.structs.TravelTimesForStopPath;
+import org.transitclock.gtfs.DbConfig;
 import org.transitclock.utils.Time;
 
 import java.util.Date;
@@ -22,6 +23,12 @@ import java.util.Date;
 @Component
 @Slf4j
 public class TravelTimes {
+    private final DbConfig dbConfig;
+
+    public TravelTimes(DbConfig dbConfig) {
+        this.dbConfig = dbConfig;
+    }
+
     /**
      * Determines travel time as the crows flies to cover the distance. Intended to be used for
      * seeing if have enough time to deadhead to a breakpoint. Just a very crude approximation since
@@ -120,7 +127,7 @@ public class TravelTimes {
      *     needs to be somewhat close to the time.
      * @return The scheduled epoch time in msecs, or -1 if stop doesn't have a schedule time.
      */
-    public static long scheduledDepartureTime(Indices indices, long referenceTime) {
+    public long scheduledDepartureTime(Indices indices, long referenceTime) {
         // Make sure method called appropriately
         if (!indices.isWaitStop()) {
             logger.error("Called scheduledDepartureTimePlusWaitTime() for stop that is not a wait stop. {}", indices);
@@ -145,8 +152,7 @@ public class TravelTimes {
         }
 
         // Get and return the scheduled departure time as an epoch time
-        Time timeUtil = Core.getInstance().getTime();
-        return timeUtil.getEpochTime(scheduledDepartureTimeSecs, new Date(referenceTime));
+        return dbConfig.getTime().getEpochTime(scheduledDepartureTimeSecs, new Date(referenceTime));
     }
 
     /**
@@ -463,7 +469,7 @@ public class TravelTimes {
      * @return travel time in msec between matches. Returns 0 if match2 is before match1
      */
     public int expectedTravelTimeBetweenMatches(String vehicleId, Date time, SpatialMatch match1, SpatialMatch match2) {
-        int timeOfDaySecs = Core.getInstance().getTime().getSecondsIntoDay(time);
+        int timeOfDaySecs = dbConfig.getTime().getSecondsIntoDay(time);
         return expectedTravelTimeBetweenMatches(vehicleId, timeOfDaySecs, match1, match2);
     }
 }

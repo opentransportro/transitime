@@ -6,7 +6,6 @@ import java.util.Date;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
-import org.transitclock.Core;
 
 @Entity
 @Data
@@ -79,6 +78,7 @@ public class HoldingTime implements Serializable {
     }
 
     public HoldingTime(
+            int configRev,
             Date holdingTime,
             Date creationTime,
             String vehicleId,
@@ -90,7 +90,7 @@ public class HoldingTime implements Serializable {
             Date arrivalTime,
             boolean hasD1,
             int numberPredictionsUsed) {
-        this.configRev = Core.getInstance().getDbConfig().getConfigRev();
+        this.configRev = configRev;
         this.holdingTime = holdingTime;
         this.creationTime = creationTime;
         this.vehicleId = vehicleId;
@@ -102,21 +102,6 @@ public class HoldingTime implements Serializable {
         this.arrivalUsed = arrivalUsed;
         this.hasD1 = hasD1;
         this.numberPredictionsUsed = numberPredictionsUsed;
-    }
-
-    public HoldingTime(HoldingTime holdingTimeToCopy, Date holdingTime) {
-        this.configRev = Core.getInstance().getDbConfig().getConfigRev();
-        this.holdingTime = holdingTime;
-        this.creationTime = holdingTimeToCopy.creationTime;
-        this.vehicleId = holdingTimeToCopy.vehicleId;
-        this.stopId = holdingTimeToCopy.stopId;
-        this.tripId = holdingTimeToCopy.tripId;
-        this.routeId = holdingTimeToCopy.routeId;
-        this.arrivalPredictionUsed = holdingTimeToCopy.arrivalPredictionUsed;
-        this.arrivalTime = holdingTimeToCopy.arrivalTime;
-        this.arrivalUsed = holdingTimeToCopy.arrivalUsed;
-        this.hasD1 = holdingTimeToCopy.hasD1;
-        this.numberPredictionsUsed = holdingTimeToCopy.numberPredictionsUsed;
     }
 
     public Date getTimeToLeave(Date currentTime) {

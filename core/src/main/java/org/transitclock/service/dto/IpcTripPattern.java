@@ -7,6 +7,7 @@ import java.util.List;
 import org.transitclock.domain.structs.Extent;
 import org.transitclock.domain.structs.StopPath;
 import org.transitclock.domain.structs.TripPattern;
+import org.transitclock.gtfs.DbConfig;
 
 /**
  * Configuration information for a TripPattern. For IPC.
@@ -25,7 +26,7 @@ public class IpcTripPattern implements Serializable {
     private final String shapeId;
     private final List<IpcStopPath> stopPaths;
 
-    public IpcTripPattern(TripPattern dbTripPattern) {
+    public IpcTripPattern(TripPattern dbTripPattern, DbConfig dbConfig) {
         this.configRev = dbTripPattern.getConfigRev();
         this.id = dbTripPattern.getId();
         this.headsign = dbTripPattern.getHeadsign();
@@ -35,8 +36,10 @@ public class IpcTripPattern implements Serializable {
         this.extent = dbTripPattern.getExtent();
         this.shapeId = dbTripPattern.getShapeId();
 
-        this.stopPaths = new ArrayList<IpcStopPath>();
-        for (StopPath stopPath : dbTripPattern.getStopPaths()) this.stopPaths.add(new IpcStopPath(stopPath));
+        this.stopPaths = new ArrayList<>();
+        for (StopPath stopPath : dbTripPattern.getStopPaths()) {
+            this.stopPaths.add(new IpcStopPath(stopPath, dbConfig));
+        }
     }
 
     @Override

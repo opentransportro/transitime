@@ -2,24 +2,19 @@
 package org.transitclock.service.dto;
 
 import javax.annotation.concurrent.Immutable;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
-import org.transitclock.ApplicationContext;
 import org.transitclock.core.BlockAssignmentMethod;
 import org.transitclock.core.SpatialMatch;
 import org.transitclock.core.TemporalDifference;
 import org.transitclock.core.VehicleState;
-import org.transitclock.core.dataCache.PredictionDataCache;
-import org.transitclock.domain.structs.AvlReport.AssignmentType;
 import org.transitclock.domain.structs.Location;
+import org.transitclock.domain.structs.Stop;
 import org.transitclock.domain.structs.Trip;
+import org.transitclock.gtfs.DbConfig;
 import org.transitclock.utils.SystemTime;
 import org.transitclock.utils.Time;
 
@@ -73,16 +68,17 @@ public class IpcVehicle implements Serializable {
     /**
      * Constructs a new Vehicle object from data in a VehicleState object.
      *
+     * @param dbConfig
      * @param vs
      */
-    public IpcVehicle(VehicleState vs, long layoverDepartureTime) {
+    public IpcVehicle(DbConfig dbConfig, VehicleState vs, long layoverDepartureTime) {
         this.vehicleName = vs.getVehicleName();
         this.blockAssignmentMethod = vs.getAssignmentMethod();
         this.avl = new IpcAvl(vs.getAvlReport());
         this.heading = vs.getHeading();
         this.routeId = vs.getRouteId();
-        this.routeShortName = vs.getRouteShortName();
-        this.routeName = vs.getRouteName();
+        this.routeShortName = vs.getRouteShortName(dbConfig);
+        this.routeName = vs.getRouteName(dbConfig);
         Trip trip = vs.getTrip();
 
         if (trip != null) {
@@ -119,10 +115,11 @@ public class IpcVehicle implements Serializable {
 
             // If vehicle is at a stop then "next" stop will actually be
             // the current stop.
+            Stop stop = dbConfig.getStop(match.getStopPath().getStopId());
             this.nextStopId = match.getStopPath().getStopId();
-            this.nextStopName = match.getStopPath().getStopName();
+            this.nextStopName = stop.getName();
 
-            this.vehicleType = match.getRoute().getType();
+            this.vehicleType = match.getRoute(dbConfig).getType();
 
             if (vs.getTripCounter() != null && vs.getTripStartTime(vs.getTripCounter()) != null) {
                 this.freqStartTime = vs.getTripStartTime(vs.getTripCounter());

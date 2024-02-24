@@ -40,7 +40,7 @@ public class CoreConfig {
     }
 
     public static IntegerConfigValue daysPopulateHistoricalCache = new IntegerConfigValue(
-            "transitclock.cache.core.daysPopulateHistoricalCache",
+            "transitclock.core.cache.daysPopulateHistoricalCache",
             0,
             "How many days data to read in to populate historical cache on start up.");
 
@@ -55,7 +55,7 @@ public class CoreConfig {
     }
 
     public static BooleanConfigValue storeDataInDatabase = new BooleanConfigValue(
-            "transitclock.db.storeDataInDatabase",
+            "transitclock.core.storeDataInDatabase",
             true,
             "When in playback mode or some other situations don't "
                     + "want to store generated data such as arrivals/"
@@ -731,16 +731,6 @@ public class CoreConfig {
         return eventHistoryMaxSize.getValue();
     }
 
-    public static String getPidFileDirectory() {
-        return pidFileDirectory.getValue();
-    }
-
-    private static final StringConfigValue pidFileDirectory = new StringConfigValue(
-            "transitclock.core.pidDirectory",
-            "/usr/local/transitclock/",
-            "Directory where pid file should be written. The pid file "
-                    + "can be used by monit to make sure that core process is "
-                    + "always running.");
 
 
 
@@ -903,15 +893,6 @@ public class CoreConfig {
             -1,
             "Is the adjustment up or down? Set +1 or -1.");
 
-
-    public static IntegerConfigValue maxDwellTimeAllowedInModel = new IntegerConfigValue(
-            "org.transitclock.core.dataCache.jcs.maxDwellTimeAllowedInModel",
-            2 * Time.MS_PER_MIN,
-            "Max dwell time to be considered in dwell RLS algotithm.");
-    public static LongConfigValue maxHeadwayAllowedInModel = new LongConfigValue(
-            "org.transitclock.core.dataCache.jcs.maxHeadwayAllowedInModel",
-            Time.MS_PER_HOUR,
-            "Max headway to be considered in dwell RLS algotithm.");
 
     public static DoubleConfigValue lambda = new DoubleConfigValue(
             "org.transitclock.core.dataCache.jcs.lambda",

@@ -4,22 +4,20 @@ package org.transitclock.core.predictiongenerator.frequency.traveltime.average;
 import java.util.Date;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.transitclock.ApplicationContext;
-import org.transitclock.Core;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.config.data.PredictionConfig;
-import org.transitclock.core.Indices;
-import org.transitclock.core.SpatialMatch;
-import org.transitclock.core.VehicleState;
-import org.transitclock.core.dataCache.HistoricalAverage;
-import org.transitclock.core.dataCache.StopPathCacheKey;
-import org.transitclock.core.dataCache.StopPathPredictionCache;
+import org.transitclock.core.*;
+import org.transitclock.core.dataCache.*;
 import org.transitclock.core.dataCache.frequency.FrequencyBasedHistoricalAverageCache;
+import org.transitclock.core.holdingmethod.HoldingTimeGenerator;
 import org.transitclock.core.predictiongenerator.PredictionComponentElementsGenerator;
+import org.transitclock.core.predictiongenerator.bias.BiasAdjuster;
+import org.transitclock.core.predictiongenerator.datafilter.TravelTimeDataFilter;
 import org.transitclock.core.predictiongenerator.lastvehicle.LastVehiclePredictionGeneratorImpl;
+import org.transitclock.domain.hibernate.DataDbLogger;
 import org.transitclock.domain.structs.AvlReport;
 import org.transitclock.domain.structs.PredictionForStopPath;
+import org.transitclock.gtfs.DbConfig;
 import org.transitclock.utils.SystemTime;
 
 /**
@@ -31,8 +29,17 @@ import org.transitclock.utils.SystemTime;
 @Slf4j
 public class HistoricalAveragePredictionGeneratorImpl extends LastVehiclePredictionGeneratorImpl implements PredictionComponentElementsGenerator {
     private final String alternative = "LastVehiclePredictionGeneratorImpl";
-    @Autowired
-    protected FrequencyBasedHistoricalAverageCache frequencyBasedHistoricalAverageCache;
+    protected final FrequencyBasedHistoricalAverageCache frequencyBasedHistoricalAverageCache;
+
+    public HistoricalAveragePredictionGeneratorImpl(StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface,
+                                                    TripDataHistoryCacheInterface tripDataHistoryCacheInterface,
+                                                    DbConfig dbConfig,
+                                                    DataDbLogger dataDbLogger,
+                                                    TravelTimeDataFilter travelTimeDataFilter,
+                                                    VehicleDataCache vehicleCache, HoldingTimeCache holdingTimeCache, StopPathPredictionCache stopPathPredictionCache, TravelTimes travelTimes, HoldingTimeGenerator holdingTimeGenerator, VehicleStateManager vehicleStateManager, RealTimeSchedAdhProcessor realTimeSchedAdhProcessor, BiasAdjuster biasAdjuster, FrequencyBasedHistoricalAverageCache frequencyBasedHistoricalAverageCache) {
+        super(stopArrivalDepartureCacheInterface, tripDataHistoryCacheInterface, dbConfig, dataDbLogger, travelTimeDataFilter, vehicleCache, holdingTimeCache, stopPathPredictionCache, travelTimes, holdingTimeGenerator, vehicleStateManager, realTimeSchedAdhProcessor, biasAdjuster);
+        this.frequencyBasedHistoricalAverageCache = frequencyBasedHistoricalAverageCache;
+    }
 
     /* (non-Javadoc)
      * @see org.transitclock.core.predictiongenerator.KalmanPredictionGeneratorImpl#getTravelTimeForPath(org.transitclock.core.Indices, org.transitclock.db.structs.AvlReport)
@@ -69,7 +76,7 @@ public class HistoricalAveragePredictionGeneratorImpl extends LastVehiclePredict
                             "HISTORICAL AVERAGE",
                             true,
                             time);
-                    Core.getInstance().getDbLogger().add(predictionForStopPath);
+                    dataDbLogger.add(predictionForStopPath);
                     stopPathPredictionCache.putPrediction(predictionForStopPath);
                 }
 
@@ -115,7 +122,7 @@ public class HistoricalAveragePredictionGeneratorImpl extends LastVehiclePredict
                         "PARTIAL HISTORICAL AVERAGE",
                         true,
                         time);
-                Core.getInstance().getDbLogger().add(predictionForStopPath);
+                dataDbLogger.add(predictionForStopPath);
                 stopPathPredictionCache.putPrediction(predictionForStopPath);
             }
             return (long) value;
@@ -151,7 +158,7 @@ public class HistoricalAveragePredictionGeneratorImpl extends LastVehiclePredict
                             "HISTORICAL AVERAGE",
                             false,
                             time);
-                    Core.getInstance().getDbLogger().add(predictionForStopPath);
+                    dataDbLogger.add(predictionForStopPath);
                     stopPathPredictionCache.putPrediction(predictionForStopPath);
                 }
 

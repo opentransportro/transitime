@@ -3,18 +3,19 @@ package org.transitclock.core;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.transitclock.ApplicationContext;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 import org.transitclock.Module;
 import org.transitclock.config.data.AgencyConfig;
 import org.transitclock.config.data.PredictionConfig;
 import org.transitclock.config.data.TimeoutConfig;
+import org.transitclock.core.avl.AvlReportRegistry;
 import org.transitclock.core.dataCache.VehicleDataCache;
 import org.transitclock.core.dataCache.VehicleStateManager;
-import org.transitclock.core.schedBasedPreds.SchedBasedPredsModule;
 import org.transitclock.domain.structs.AvlReport;
 import org.transitclock.domain.structs.Block;
 import org.transitclock.domain.structs.VehicleEvent;
-import org.transitclock.utils.IntervalTimer;
+import org.transitclock.gtfs.DbConfig;
 import org.transitclock.utils.SystemTime;
 import org.transitclock.utils.Time;
 
@@ -34,37 +35,20 @@ import java.util.Map;
  * @author SkiBu Smith
  */
 @Slf4j
+@Component
 public class TimeoutHandlerModule extends Module {
     @Autowired
-    VehicleDataCache vehicleDataCache;
+    private VehicleDataCache vehicleDataCache;
     @Autowired
     private VehicleStateManager vehicleStateManager;
     @Autowired
     private AvlProcessor avlProcessor;
+    @Autowired
+    private DbConfig dbConfig;
+    @Autowired
+    AvlReportRegistry avlReportRegistry;
 
-    // For keeping track of the last AVL report for each vehicle. Keyed on
-    // vehicle ID. Synchronize map modifications since elsewhere the elements
-    // can be removed from the map.
-    private final Map<String, AvlReport> avlReportsMap = new HashMap<>();
 
-    /** Constructor */
-    public TimeoutHandlerModule(String agencyId) {
-        super(agencyId);
-    }
-
-    /**
-     * Stores the specified AVL report into map so know the last time received AVL data for the
-     * vehicle.
-     *
-     * @param avlReport AVL report to store
-     */
-    public void storeAvlReport(AvlReport avlReport) {
-        // Synchronize map modifications since elsewhere the elements can be removed
-        // from the map.
-        synchronized (avlReportsMap) {
-            avlReportsMap.put(avlReport.getVehicleId(), avlReport);
-        }
-    }
 
     /**
      * Removes the specified vehicle from the VehicleDataCache if configured to do so
@@ -202,7 +186,7 @@ public class TimeoutHandlerModule extends Module {
 
         // If block not active anymore then must have reached end of block then
         // should remove the schedule based vehicle
-        if (!block.isActive(now, PredictionConfig.beforeStartTimeMinutes.getValue() * Time.SEC_PER_MIN)) {
+        if (!block.isActive(dbConfig, now, PredictionConfig.beforeStartTimeMinutes.getValue() * Time.SEC_PER_MIN)) {
             return "Schedule based predictions to be "
                     + "removed for block "
                     + vehicleState.getBlock().getId()
@@ -216,7 +200,7 @@ public class TimeoutHandlerModule extends Module {
         // If block is active but it is beyond the allowable number of minutes past the
         // the block start time then should remove the schedule based vehicle
         if (PredictionConfig.afterStartTimeMinutes.getValue() >= 0) {
-            long scheduledDepartureTime = vehicleState.getMatch().getScheduledWaitStopTime();
+            long scheduledDepartureTime = vehicleState.getMatch().getScheduledWaitStopTime(dbConfig.getTime());
             if (scheduledDepartureTime >= 0) {
                 // There is a scheduled departure time. Make sure not too
                 // far past it
@@ -274,7 +258,7 @@ public class TimeoutHandlerModule extends Module {
 
         // It has been a long time since an AVL report so see if also past the
         // scheduled time for the wait stop
-        long scheduledDepartureTime = vehicleState.getMatch().getScheduledWaitStopTime();
+        long scheduledDepartureTime = vehicleState.getMatch().getScheduledWaitStopTime(dbConfig.getTime());
         if (scheduledDepartureTime >= 0) {
             // There is a scheduled departure time. Make sure not too
             // far past it
@@ -322,42 +306,39 @@ public class TimeoutHandlerModule extends Module {
         // that doesn't work for playback.
         long now = SystemTime.getMillis();
 
-        // Sync access to avlReportsMap since it can be simultaneously
-        // modified elsewhere
-        synchronized (avlReportsMap) {
-            // Using an Iterator instead of for(AvlReport a : map.values())
-            // because removing elements while iterating. Way to do this without
-            // getting concurrent access exception is to use an Iterator.
-            Iterator<AvlReport> mapIterator = avlReportsMap.values().iterator();
-            while (mapIterator.hasNext()) {
-                AvlReport avlReport = mapIterator.next();
+        // Using an Iterator instead of for(AvlReport a : map.values())
+        // because removing elements while iterating. Way to do this without
+        // getting concurrent access exception is to use an Iterator.
+        Iterator<AvlReport> mapIterator = avlReportRegistry.avlReportList().iterator();
+        while (mapIterator.hasNext()) {
+            AvlReport avlReport = mapIterator.next();
 
-                // Get state of vehicle and handle based on it
-                VehicleState vehicleState = vehicleStateManager.getVehicleState(avlReport.getVehicleId());
+            // Get state of vehicle and handle based on it
+            VehicleState vehicleState = vehicleStateManager.getVehicleState(avlReport.getVehicleId());
 
-                // Need to synchronize on vehicleState since it might be getting
-                // modified via a separate main AVL processing executor thread.
-                synchronized (vehicleState) {
-                    if (!vehicleState.isPredictable()) {
-                        // Vehicle is not predictable
-                        handleNotPredictablePossibleTimeout(vehicleState, now, mapIterator);
-                    } else if (vehicleState.isForSchedBasedPreds()) {
-                        // Handle schedule based predictions vehicle
-                        handleSchedBasedPredsPossibleTimeout(vehicleState, now, mapIterator);
-                    } else if (vehicleState.isWaitStop()) {
-                        // Handle where vehicle is at a wait stop
-                        handleWaitStopPossibleTimeout(vehicleState, now, mapIterator);
-                    } else {
-                        // Not a special case. Simply determine if vehicle
-                        // timed out
-                        handlePredictablePossibleTimeout(vehicleState, now, mapIterator);
-                    }
+            // Need to synchronize on vehicleState since it might be getting
+            // modified via a separate main AVL processing executor thread.
+            synchronized (vehicleState) {
+                if (!vehicleState.isPredictable()) {
+                    // Vehicle is not predictable
+                    handleNotPredictablePossibleTimeout(vehicleState, now, mapIterator);
+                } else if (vehicleState.isForSchedBasedPreds()) {
+                    // Handle schedule based predictions vehicle
+                    handleSchedBasedPredsPossibleTimeout(vehicleState, now, mapIterator);
+                } else if (vehicleState.isWaitStop()) {
+                    // Handle where vehicle is at a wait stop
+                    handleWaitStopPossibleTimeout(vehicleState, now, mapIterator);
+                } else {
+                    // Not a special case. Simply determine if vehicle
+                    // timed out
+                    handlePredictablePossibleTimeout(vehicleState, now, mapIterator);
                 }
             }
         }
     }
 
     @Override
+    @Scheduled(fixedRate = 30_000, initialDelay = 30_000)
     public void run() {
         try {
             // Do the actual work

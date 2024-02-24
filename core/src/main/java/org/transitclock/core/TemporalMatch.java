@@ -25,32 +25,20 @@ public class TemporalMatch extends SpatialMatch {
     @Override
     public String toString() {
         return "TemporalMatch ["
-                + "temporalDifference="
-                + temporalDifference
-                + ", avlTime="
-                + Time.dateTimeStrMsec(avlTime)
-                + ", blockId="
-                + block.getId()
-                + ", tripIndex="
-                + tripIndex
-                + ", gtfsStopSeq="
-                + getStopPath().getGtfsStopSeq()
-                + ", stopPathIndex="
-                + stopPathIndex
-                + ", segmentIndex="
-                + segmentIndex
-                + ", isLayover="
-                + isLayover()
-                + ", distanceToSegment="
-                + Geo.distanceFormat(distanceToSegment)
-                + ", distanceAlongSegment="
-                + Geo.distanceFormat(distanceAlongSegment)
-                + ", distanceAlongStopPath="
-                + Geo.distanceFormat(getDistanceAlongStopPath())
-                + ", atStop="
-                + atStop
-                + ", trip="
-                + getTrip().toShortString()
+                + "temporalDifference=" + temporalDifference
+                + ", avlTime=" + Time.dateTimeStrMsec(avlTime)
+                + ", blockId=" + block.getId()
+                + ", tripIndex=" + tripIndex
+                + ", gtfsStopSeq=" + getStopPath().getGtfsStopSeq()
+                + ", stopPathIndex=" + stopPathIndex
+                + ", segmentIndex=" + segmentIndex
+                + ", isLayover=" + isLayover()
+                + ", distanceToSegment=" + Geo.distanceFormat(distanceToSegment)
+                + ", distanceAlongSegment=" + Geo.distanceFormat(distanceAlongSegment)
+                + ", distanceAlongStopPath=" + Geo.distanceFormat(getDistanceAlongStopPath())
+                + ", atStop=" + atStop
+//                + ", trip=" + getTrip()
+//                + getTrip().toShortString()
                 + "]";
     }
 

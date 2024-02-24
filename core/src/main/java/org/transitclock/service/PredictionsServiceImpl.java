@@ -4,9 +4,9 @@ package org.transitclock.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.transitclock.ApplicationContext;
 import org.transitclock.core.dataCache.PredictionDataCache;
 import org.transitclock.domain.structs.Location;
+import org.transitclock.gtfs.DbConfig;
 import org.transitclock.gtfs.StopsByLocation;
 import org.transitclock.gtfs.StopsByLocation.StopInfo;
 import org.transitclock.service.contract.PredictionsInterface;
@@ -33,6 +33,8 @@ public class PredictionsServiceImpl implements PredictionsInterface {
     private PredictionDataCache predictionDataCache;
     @Autowired
     private StopsByLocation stopsByLocation;
+    @Autowired
+    private DbConfig dbConfig;
 
     /* (non-Javadoc)
      * @see org.transitclock.ipc.interfaces.PredictionsInterface#get(java.lang.String, java.lang.String, int)
@@ -126,7 +128,7 @@ public class PredictionsServiceImpl implements PredictionsInterface {
                 // for routes that are not currently in service. This could be
                 // useful to show messages, such as there being no service for
                 // the route due to a parade.
-                IpcPredictionsForRouteStopDest emptyPredsForStop = new IpcPredictionsForRouteStopDest(
+                IpcPredictionsForRouteStopDest emptyPredsForStop = new IpcPredictionsForRouteStopDest(dbConfig,
                         stopInfo.tripPattern, stopInfo.stopId, stopInfo.distanceToStop);
                 results.add(emptyPredsForStop);
             } else {

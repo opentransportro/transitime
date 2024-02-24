@@ -4,12 +4,10 @@ package org.transitclock.monitoring;
 import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.transitclock.ApplicationContext;
 import org.transitclock.config.data.MonitoringConfig;
 import org.transitclock.core.AvlProcessor;
-import org.transitclock.core.BlocksInfo;
+import org.transitclock.core.BlockInfoProvider;
+import org.transitclock.domain.hibernate.DataDbLogger;
 import org.transitclock.domain.structs.Block;
 import org.transitclock.utils.Time;
 
@@ -21,13 +19,14 @@ import org.transitclock.utils.Time;
  * @author SkiBu Smith
  */
 @Slf4j
-@Component
 public class AvlFeedMonitor extends MonitorBase {
-    @Autowired
-    private AvlProcessor avlProcessor;
+    private final AvlProcessor avlProcessor;
+    private final BlockInfoProvider blockInfoProvider;
 
-    public AvlFeedMonitor(String agencyId) {
-        super(agencyId);
+    public AvlFeedMonitor(String agencyId, DataDbLogger dataDbLogger, AvlProcessor avlProcessor, BlockInfoProvider blockInfoProvider) {
+        super(agencyId, dataDbLogger);
+        this.avlProcessor = avlProcessor;
+        this.blockInfoProvider = blockInfoProvider;
     }
 
     /**
@@ -85,7 +84,7 @@ public class AvlFeedMonitor extends MonitorBase {
      */
     @Override
     protected boolean acceptableEvenIfTriggered() {
-        List<Block> activeBlocks = BlocksInfo.getCurrentlyActiveBlocks();
+        List<Block> activeBlocks = blockInfoProvider.getCurrentlyActiveBlocks();
         if (activeBlocks.isEmpty()) {
             setAcceptableEvenIfTriggeredMessage("No currently active blocks " + "so AVL feed considered to be OK.");
             return true;

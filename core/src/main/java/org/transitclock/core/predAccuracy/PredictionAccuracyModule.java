@@ -7,15 +7,15 @@ import java.util.concurrent.ConcurrentHashMap;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.transitclock.ApplicationContext;
 import org.transitclock.Module;
-import org.transitclock.Core;
 import org.transitclock.config.data.PredictionAccuracyConfig;
 import org.transitclock.core.dataCache.PredictionDataCache;
+import org.transitclock.domain.hibernate.DataDbLogger;
 import org.transitclock.domain.structs.ArrivalDeparture;
 import org.transitclock.domain.structs.PredictionAccuracy;
 import org.transitclock.domain.structs.Route;
 import org.transitclock.domain.structs.TripPattern;
+import org.transitclock.gtfs.DbConfig;
 import org.transitclock.service.dto.IpcPrediction;
 import org.transitclock.service.dto.IpcPredictionsForRouteStopDest;
 import org.transitclock.utils.IntervalTimer;
@@ -32,7 +32,6 @@ import org.transitclock.utils.Time;
  */
 @Slf4j
 public class PredictionAccuracyModule extends Module {
-
     // The map that contains all of the predictions to be used for prediction
     // accuracy analysis. Each value is a list of predictions because can have
     // more than a single prediction stored in memory for a vehicle/stop.
@@ -40,7 +39,11 @@ public class PredictionAccuracyModule extends Module {
     // class by using the static method handleArrivalDeparture().
     private static final Map<PredictionKey, List<PredAccuracyPrediction>> predictionMap = new ConcurrentHashMap<>();
     @Autowired
-    private PredictionDataCache predictionDataCache;
+    protected PredictionDataCache predictionDataCache;
+    @Autowired
+    protected DbConfig dbConfig;
+    @Autowired
+    protected DataDbLogger dataDbLogger;
 
     @Data
     public static class RouteAndStops {
@@ -58,10 +61,6 @@ public class PredictionAccuracyModule extends Module {
         public String toString() {
             return "PredictionKey [" + "vehicleId=" + o1 + ", directionId=" + o2 + ", stopId=" + o3 + "]";
         }
-    }
-
-    public PredictionAccuracyModule(String agencyId) {
-        super(agencyId);
     }
 
 
@@ -96,12 +95,12 @@ public class PredictionAccuracyModule extends Module {
         List<RouteAndStops> list = new ArrayList<>();
 
         // For each route...
-        List<Route> routes = Core.getInstance().getDbConfig().getRoutes();
+        List<Route> routes = dbConfig.getRoutes();
         for (Route route : routes) {
             RouteAndStops routeStopInfo = new RouteAndStops(route.getId());
             list.add(routeStopInfo);
 
-            List<TripPattern> tripPatterns = route.getLongestTripPatternForEachDirection();
+            List<TripPattern> tripPatterns = route.getLongestTripPatternForEachDirection(dbConfig);
             for (TripPattern tripPattern : tripPatterns) {
                 List<String> stopIdsForTripPattern = tripPattern.getStopIds();
 
@@ -187,7 +186,7 @@ public class PredictionAccuracyModule extends Module {
 
                     // Store prediction accuracy info so can note that
                     // a bad prediction was made
-                    storePredictionAccuracyInfo(pred, null);
+                    storePredictionAccuracyInfo(dbConfig, dataDbLogger, pred, null);
                 } else {
                     ++numPredictionsInMemory;
                     logger.debug("Prediction currently held in memory. {}", pred);
@@ -266,7 +265,7 @@ public class PredictionAccuracyModule extends Module {
      *
      * @param arrivalDeparture The arrival or departure that was generated
      */
-    public static void handleArrivalDeparture(ArrivalDeparture arrivalDeparture) {
+    public static void handleArrivalDeparture(DbConfig dbConfig, DataDbLogger dataDbLogger, ArrivalDeparture arrivalDeparture) {
         // Get the List of predictions for the vehicle/direction/stop
         PredictionKey key = new PredictionKey(
                 arrivalDeparture.getVehicleId(), arrivalDeparture.getDirectionId(), arrivalDeparture.getStopId());
@@ -297,8 +296,9 @@ public class PredictionAccuracyModule extends Module {
             // another vehicle substituted in for the original assignment. This
             // is especially true for MBTA Commuter Rail
             String tripIdOrShortName = pred.getTripId();
+            String tripShortName = dbConfig.getTrip(arrivalDeparture.getTripId()).getTripShortName();
             if (!tripIdOrShortName.equals(arrivalDeparture.getTripId())
-                    && !tripIdOrShortName.equals(arrivalDeparture.getTripShortName())) {
+                    && !tripIdOrShortName.equals(tripShortName)) {
                 continue;
             }
 
@@ -314,7 +314,7 @@ public class PredictionAccuracyModule extends Module {
 
             // There is a match so store the prediction accuracy info into the
             // database
-            storePredictionAccuracyInfo(pred, arrivalDeparture);
+            storePredictionAccuracyInfo(dbConfig, dataDbLogger, pred, arrivalDeparture);
 
             // Remove the prediction that was matched
             predIterator.remove();
@@ -329,15 +329,17 @@ public class PredictionAccuracyModule extends Module {
      * @param arrivalDeparture The corresponding arrival/departure information. Can be null to
      *     indicate that for a prediction no corresponding arrival/departure was ever determined.
      */
-    private static void storePredictionAccuracyInfo(PredAccuracyPrediction pred, ArrivalDeparture arrivalDeparture) {
+    private static void storePredictionAccuracyInfo(DbConfig dbConfig, DataDbLogger dataDbLogger, PredAccuracyPrediction pred, ArrivalDeparture arrivalDeparture) {
         // If no corresponding arrival/departure found for prediction
         // then use null for arrival/departure time to indicate such.
         Date arrivalDepartureTime = arrivalDeparture != null ? new Date(arrivalDeparture.getTime()) : null;
 
+        Route routeById = dbConfig.getRouteById(pred.getRouteId());
         // Combine the arrival/departure with the corresponding prediction
         // and create PredictionAccuracy object
         PredictionAccuracy predAccuracy = new PredictionAccuracy(
                 pred.getRouteId(),
+                routeById.getShortName(),
                 pred.getDirectionId(),
                 pred.getStopId(),
                 pred.getTripId(),
@@ -352,7 +354,7 @@ public class PredictionAccuracyModule extends Module {
         // Add the prediction accuracy object to the db logger so that
         // it gets written to database
         logger.debug("Storing prediction accuracy object to db. {}", predAccuracy);
-        Core.getInstance().getDbLogger().add(predAccuracy);
+        dataDbLogger.add(predAccuracy);
     }
 
     @Override

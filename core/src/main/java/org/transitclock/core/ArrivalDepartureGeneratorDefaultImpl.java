@@ -5,18 +5,17 @@ import java.util.ArrayList;
 import java.util.Date;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.transitclock.ApplicationContext;
-import org.transitclock.Core;
-import org.transitclock.config.ArrivalsDeparturesConfig;
+import org.transitclock.config.data.ArrivalsDeparturesConfig;
 import org.transitclock.config.data.AgencyConfig;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.core.dataCache.*;
 import org.transitclock.core.dataCache.frequency.FrequencyBasedHistoricalAverageCache;
 import org.transitclock.core.dataCache.scheduled.ScheduleBasedHistoricalAverageCache;
 import org.transitclock.core.holdingmethod.HoldingTimeGenerator;
-import org.transitclock.core.holdingmethod.HoldingTimeGeneratorFactory;
 import org.transitclock.core.predAccuracy.PredictionAccuracyModule;
+import org.transitclock.domain.hibernate.DataDbLogger;
 import org.transitclock.domain.structs.*;
+import org.transitclock.gtfs.DbConfig;
 import org.transitclock.service.dto.IpcArrivalDeparture;
 import org.transitclock.utils.Time;
 
@@ -74,6 +73,10 @@ public class ArrivalDepartureGeneratorDefaultImpl implements ArrivalDepartureGen
     StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface;
     @Autowired
     DwellTimeModelCacheInterface dwellTimeModelCacheInterface;
+    @Autowired
+    DataDbLogger dataDbLogger;
+    @Autowired
+    DbConfig dbConfig;
 
 
     /**
@@ -106,8 +109,8 @@ public class ArrivalDepartureGeneratorDefaultImpl implements ArrivalDepartureGen
         Indices indices = oldMatch.getIndices();
         Indices newMatchIndices = newMatch.getIndices();
         int stopsTraversedCnt = 0;
-        while (!indices.pastEndOfBlock(avlReport.getTime()) && indices.isEarlierStopPathThan(newMatchIndices)) {
-            indices.incrementStopPath(avlReport.getTime());
+        while (!indices.pastEndOfBlock(avlReport.getTime(), dbConfig) && indices.isEarlierStopPathThan(newMatchIndices)) {
+            indices.incrementStopPath(avlReport.getTime(), dbConfig);
             ++stopsTraversedCnt;
         }
 
@@ -205,13 +208,15 @@ public class ArrivalDepartureGeneratorDefaultImpl implements ArrivalDepartureGen
         }
 
         Departure departure = new Departure(
+                dbConfig.getConfigRev(),
                 vehicleState.getVehicleId(),
                 new Date(departureTime),
                 vehicleState.getAvlReport().getDate(),
                 block,
                 tripIndex,
                 stopPathIndex,
-                freqStartDate);
+                freqStartDate,
+                dbConfig);
         updateCache(vehicleState, departure);
         logger.debug("Creating departure: {}", departure);
         return departure;
@@ -238,13 +243,15 @@ public class ArrivalDepartureGeneratorDefaultImpl implements ArrivalDepartureGen
         }
 
         Arrival arrival = new Arrival(
+                dbConfig.getConfigRev(),
                 vehicleState.getVehicleId(),
                 new Date(arrivalTime),
                 vehicleState.getAvlReport().getDate(),
                 block,
                 tripIndex,
                 stopPathIndex,
-                freqStartDate);
+                freqStartDate,
+                dbConfig);
 
         updateCache(vehicleState, arrival);
         logger.debug("Creating arrival: {}", arrival);
@@ -401,7 +408,7 @@ public class ArrivalDepartureGeneratorDefaultImpl implements ArrivalDepartureGen
         }
 
         // Queue to store object into db
-        Core.getInstance().getDbLogger().add(arrivalDeparture);
+        dataDbLogger.add(arrivalDeparture);
 
         /* add event to vehicle state. Will increment tripCounter if the last arrival in a trip */
         VehicleState vehicleState = vehicleStateManager.getVehicleState(arrivalDeparture.getVehicleId());
@@ -409,7 +416,7 @@ public class ArrivalDepartureGeneratorDefaultImpl implements ArrivalDepartureGen
         vehicleState.incrementTripCounter(arrivalDeparture, vehicleStateManager);
 
         // Generate prediction accuracy info as appropriate
-        PredictionAccuracyModule.handleArrivalDeparture(arrivalDeparture);
+        PredictionAccuracyModule.handleArrivalDeparture(dbConfig, dataDbLogger, arrivalDeparture);
     }
 
     /**
@@ -417,7 +424,7 @@ public class ArrivalDepartureGeneratorDefaultImpl implements ArrivalDepartureGen
      * made more obvious.
      *
      * @param vehicleState
-     * @param arrivalDeparture
+     * @param departure
      */
     private void logEventIfVehicleDepartedEarlyOrLate(VehicleState vehicleState, Departure departure) {
         // If departure not for terminal then can ignore
@@ -431,8 +438,8 @@ public class ArrivalDepartureGeneratorDefaultImpl implements ArrivalDepartureGen
         // If vehicle left too early then record an event
         if (schAdh.isEarlierThan(CoreConfig.getAllowableEarlyDepartureTimeForLoggingEvent())) {
             // Create description for VehicleEvent
-            Stop stop = Core.getInstance().getDbConfig().getStop(departure.getStopId());
-            Route route = Core.getInstance().getDbConfig().getRouteById(departure.getRouteId());
+            Stop stop = dbConfig.getStop(departure.getStopId());
+            Route route = dbConfig.getRouteById(departure.getRouteId());
             String description = "Vehicle "
                     + departure.getVehicleId()
                     + " left stop "
@@ -447,21 +454,22 @@ public class ArrivalDepartureGeneratorDefaultImpl implements ArrivalDepartureGen
                     + Time.timeStr(departure.getScheduledTime());
 
             // Create, store in db, and log the VehicleEvent
-            VehicleEvent.create(
+            VehicleEvent vehicleEvent = new VehicleEvent(
                     vehicleState.getAvlReport(),
                     vehicleState.getMatch(),
                     VehicleEvent.LEFT_TERMINAL_EARLY,
                     description,
                     true, // predictable
                     false, // becameUnpredictable
-                    null); // supervisor
+                    null);// supervisor
+            dataDbLogger.add(vehicleEvent);
         }
 
         // If vehicle left too late then record an event
         if (schAdh.isLaterThan(CoreConfig.getAllowableLateDepartureTimeForLoggingEvent())) {
             // Create description for VehicleEvent
-            Stop stop = Core.getInstance().getDbConfig().getStop(departure.getStopId());
-            Route route = Core.getInstance().getDbConfig().getRouteById(departure.getRouteId());
+            Stop stop = dbConfig.getStop(departure.getStopId());
+            Route route = dbConfig.getRouteById(departure.getRouteId());
             String description = "Vehicle "
                     + departure.getVehicleId()
                     + " left stop "
@@ -476,14 +484,16 @@ public class ArrivalDepartureGeneratorDefaultImpl implements ArrivalDepartureGen
                     + Time.timeStr(departure.getScheduledTime());
 
             // Create, store in db, and log the VehicleEvent
-            VehicleEvent.create(
+            VehicleEvent vehicleEvent = new VehicleEvent(
                     vehicleState.getAvlReport(),
                     vehicleState.getMatch(),
                     VehicleEvent.LEFT_TERMINAL_LATE,
                     description,
                     true, // predictable
                     false, // becameUnpredictable
-                    null); // supervisor
+                    null);// supervisor
+
+            dataDbLogger.add(vehicleEvent);
         }
     }
 
@@ -627,7 +637,7 @@ public class ArrivalDepartureGeneratorDefaultImpl implements ArrivalDepartureGen
                             Time.dateTimeStrMsec(newDepartureTime));
                 }
                 departureTime = newDepartureTime;
-                arrivalToStoreInDb = arrivalToStoreInDb.withUpdatedTime(new Date(newArrivalTime));
+                arrivalToStoreInDb = arrivalToStoreInDb.withUpdatedTime(new Date(newArrivalTime), dbConfig);
             }
 
             // Now that have the corrected arrival time store it in db
@@ -705,7 +715,7 @@ public class ArrivalDepartureGeneratorDefaultImpl implements ArrivalDepartureGen
 
         // Use match right at the departed stop. This way we are including the
         // time it takes to get from the actual stop to the new match.
-        SpatialMatch matchJustAfterStop = oldMatch.getMatchAdjustedToBeginningOfPath();
+        SpatialMatch matchJustAfterStop = oldMatch.getMatchAdjustedToBeginningOfPath(dbConfig);
 
         // Determine departure info for the old stop by using the current
         // AVL report and subtracting the expected travel time to get from
@@ -863,7 +873,7 @@ public class ArrivalDepartureGeneratorDefaultImpl implements ArrivalDepartureGen
             // The new match is after the stop so subtract the travel time
             // from the stop to the match from the AVL time to get the
             // arrivalTimeBasedOnNewMatch.
-            SpatialMatch matchJustAfterStop = newMatch.getMatchAdjustedToBeginningOfPath();
+            SpatialMatch matchJustAfterStop = newMatch.getMatchAdjustedToBeginningOfPath(dbConfig);
 
             int travelTimeFromStoptoNewMatchMsec = travelTimes
                     .expectedTravelTimeBetweenMatches(vehicleId, avlReport.getDate(), matchJustAfterStop, newMatch);
@@ -960,7 +970,7 @@ public class ArrivalDepartureGeneratorDefaultImpl implements ArrivalDepartureGen
         while (indices.isEarlierStopPathThan(newIndices)) {
             if (indices.getTravelTimeForPath() == 0) ++counter;
             if (indices.getStopTimeForPath() == 0) ++counter;
-            indices.incrementStopPath();
+            indices.incrementStopPath(dbConfig);
         }
 
         return counter;
@@ -1028,14 +1038,14 @@ public class ArrivalDepartureGeneratorDefaultImpl implements ArrivalDepartureGen
         // just beyond the stop.
         VehicleAtStopInfo oldVehicleAtStopInfo = oldMatch.getAtStop();
         Indices indices = oldVehicleAtStopInfo != null
-                ? oldVehicleAtStopInfo.clone().incrementStopPath(endTime)
+                ? oldVehicleAtStopInfo.clone().incrementStopPath(endTime, dbConfig)
                 : oldMatch.getIndices();
 
         VehicleAtStopInfo newVehicleAtStopInfo = newMatch.getAtStop();
         Indices endIndices = newVehicleAtStopInfo != null ? newVehicleAtStopInfo.clone() : newMatch.getIndices();
 
         // Determine time to first stop
-        SpatialMatch matchAtNextStop = oldMatch.getMatchAtJustBeforeNextStop();
+        SpatialMatch matchAtNextStop = oldMatch.getMatchAtJustBeforeNextStop(dbConfig);
         long travelTimeToFirstStop = travelTimes
                 .expectedTravelTimeBetweenMatches(vehicleId, avlDate, oldMatch, matchAtNextStop);
         double timeWithoutSpeedRatio = travelTimeToFirstStop;
@@ -1071,9 +1081,11 @@ public class ArrivalDepartureGeneratorDefaultImpl implements ArrivalDepartureGen
 
             // Determine travel time to next time for next time through
             // the while loop
-            indices.incrementStopPath();
+            indices.incrementStopPath(dbConfig);
             double pathTravelTime = block.getStopPathTravelTime(indices.getTripIndex(), indices.getStopPathIndex());
-            if (pathTravelTime * speedRatio < 1.0) pathTravelTime = 1.0 / speedRatio;
+            if (pathTravelTime * speedRatio < 1.0) {
+                pathTravelTime = 1.0 / speedRatio;
+            }
             timeWithoutSpeedRatio += pathTravelTime;
             arrivalTime = beginTime + Math.round(timeWithoutSpeedRatio * speedRatio);
         }

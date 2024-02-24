@@ -2,9 +2,10 @@
 package org.transitclock.monitoring;
 
 import java.util.Date;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 import org.transitclock.config.data.MonitoringConfig;
+import org.transitclock.domain.hibernate.DataDbLogger;
 import org.transitclock.domain.structs.MonitoringEvent;
 import org.transitclock.utils.Time;
 
@@ -14,9 +15,11 @@ import org.transitclock.utils.Time;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public abstract class MonitorBase {
 
     protected final String agencyId;
+    protected final DataDbLogger dataDbLogger;
 
     // wasTriggered indicates if last time monitor was checked whether the
     // system was triggered and the acceptableIfTriggered wasn't true. For
@@ -33,15 +36,14 @@ public abstract class MonitorBase {
     // A value for the monitor that can be logged into database.
     private double value;
 
-    private static final Logger logger = LoggerFactory.getLogger(MonitorBase.class);
-
     /**
      * Constructor.
      *
      * @param agencyId Identifies agency
      */
-    public MonitorBase(String agencyId) {
+    public MonitorBase(String agencyId, DataDbLogger dataDbLogger) {
         this.agencyId = agencyId;
+        this.dataDbLogger = dataDbLogger;
     }
 
     /**
@@ -81,7 +83,8 @@ public abstract class MonitorBase {
         // acceptableEvenIfTriggered is true, which is good because it allows
         // one to see in the db what really happened.
         if (isTriggered || wasTriggered) {
-            MonitoringEvent.create(new Date(), type(), isTriggered, getMessage(), value);
+            MonitoringEvent monitoringEvent = new MonitoringEvent(new Date(), type(), isTriggered, getMessage(), value);
+            dataDbLogger.add(monitoringEvent);
         }
 
         // Handle notifications according to change of monitoring state. If

@@ -6,12 +6,8 @@ import java.io.Serializable;
 import java.util.Date;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Immutable;
-import org.transitclock.Core;
 import org.transitclock.core.TemporalMatch;
 import org.transitclock.utils.SystemTime;
 
@@ -121,7 +117,7 @@ public class PredictionEvent implements Serializable {
     private final Date departureTime;
 
 
-    private PredictionEvent(
+    public PredictionEvent(
             Date time,
             Date avlTime,
             String vehicleId,
@@ -160,57 +156,7 @@ public class PredictionEvent implements Serializable {
         this.departureTime = departureTime;
     }
 
-    public static PredictionEvent create(
-            Date time,
-            Date avlTime,
-            String vehicleId,
-            String eventType,
-            String description,
-            Location location,
-            String routeId,
-            String routeShortName,
-            String blockId,
-            String serviceId,
-            String tripId,
-            String stopId,
-            String arrivalStopId,
-            String departureStopId,
-            String referenceVehicleId,
-            Date arrivalTime,
-            Date departureTime) {
-        PredictionEvent predictionEvent = new PredictionEvent(
-                time,
-                avlTime,
-                vehicleId,
-                eventType,
-                description,
-                location,
-                routeId,
-                routeShortName,
-                blockId,
-                serviceId,
-                tripId,
-                stopId,
-                arrivalStopId,
-                departureStopId,
-                referenceVehicleId,
-                arrivalTime,
-                departureTime);
-
-        // Queue to write object to database
-        Core.getInstance().getDbLogger().add(predictionEvent);
-
-        // Return new predictionEvent
-        return predictionEvent;
-    }
-
-    /**
-     * A simpler way to create a VehicleEvent that gets a lot of its info from the avlReport and
-     * match params. This also logs it and queues it to be stored in database. The match param can
-     * be null.
-     * @return The VehicleEvent constructed
-     */
-    public static PredictionEvent create(
+    public PredictionEvent(
             AvlReport avlReport,
             TemporalMatch match,
             String eventType,
@@ -220,28 +166,18 @@ public class PredictionEvent implements Serializable {
             String referenceVehicleId,
             Date arrivalTime,
             Date departureTime) {
-        // Get a log of the info from the possibly null match param
-        String routeId = match == null ? null : match.getTrip().getRouteId();
-        String routeShortName = match == null ? null : match.getTrip().getRouteShortName();
-        String blockId = match == null ? null : match.getBlock().getId();
-        String serviceId = match == null ? null : match.getBlock().getServiceId();
-        String tripId = match == null ? null : match.getTrip().getId();
-        String stopId = match == null ? null : match.getStopPath().getStopId();
-
-        // Create and return the VehicleEvent
-        return create(
-                SystemTime.getDate(),
+        this(SystemTime.getDate(),
                 avlReport.getDate(),
                 avlReport.getVehicleId(),
                 eventType,
                 description,
                 avlReport.getLocation(),
-                routeId,
-                routeShortName,
-                blockId,
-                serviceId,
-                tripId,
-                stopId,
+                match == null ? null : match.getTrip().getRouteId(),
+                match == null ? null : match.getTrip().getRouteShortName(),
+                match == null ? null : match.getBlock().getId(),
+                match == null ? null : match.getBlock().getServiceId(),
+                match == null ? null : match.getTrip().getId(),
+                match == null ? null : match.getStopPath().getStopId(),
                 arrivalStopId,
                 departureStopId,
                 referenceVehicleId,

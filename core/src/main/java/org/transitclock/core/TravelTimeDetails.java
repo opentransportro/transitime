@@ -10,12 +10,16 @@ import org.transitclock.service.dto.IpcArrivalDeparture;
 
 @Slf4j
 @Getter
-@RequiredArgsConstructor
 public class TravelTimeDetails {
-    private static final TravelTimeDataFilter dataFilter = TravelTimeFilterFactory.getInstance();
-
     private final IpcArrivalDeparture departure;
     private final IpcArrivalDeparture arrival;
+    private final TravelTimeDataFilter travelTimeDataFilter;
+
+    public TravelTimeDetails(IpcArrivalDeparture departure, IpcArrivalDeparture arrival, TravelTimeDataFilter travelTimeDataFilter) {
+        this.departure = departure;
+        this.arrival = arrival;
+        this.travelTimeDataFilter = travelTimeDataFilter;
+    }
 
 
     public long getTravelTime() {
@@ -32,7 +36,7 @@ public class TravelTimeDetails {
 
     public boolean sanityCheck() {
         if (this.arrival != null && this.departure != null && arrival.isArrival() && departure.isDeparture()) {
-            return !dataFilter.filter(departure, arrival);
+            return !travelTimeDataFilter.filter(departure, arrival);
         }
 
         return false;

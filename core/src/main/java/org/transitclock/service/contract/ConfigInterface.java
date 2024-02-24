@@ -2,6 +2,7 @@
 package org.transitclock.service.contract;
 
 import org.transitclock.domain.structs.Agency;
+import org.transitclock.gtfs.DbConfig;
 import org.transitclock.service.dto.IpcBlock;
 import org.transitclock.service.dto.IpcCalendar;
 import org.transitclock.service.dto.IpcDirectionsForRoute;
@@ -59,12 +60,13 @@ public interface ConfigInterface {
     /**
      * Returns stops for each direction for a route.
      *
+     * @param dbConfig
      * @param routeIdOrShortName Specifies which route to provide data for. routeShortName is often
-     *     used instead of routeId since routeIds unfortunately often change when there is a
-     *     schedule change.
+     *                           used instead of routeId since routeIds unfortunately often change when there is a
+     *                           schedule change.
      * @return
      */
-    IpcDirectionsForRoute getStops(String routeIdOrShortName);
+    IpcDirectionsForRoute getStops(DbConfig dbConfig, String routeIdOrShortName);
 
     /**
      * Returns block info for specified blockId and serviceId. Includes all trip and trip pattern

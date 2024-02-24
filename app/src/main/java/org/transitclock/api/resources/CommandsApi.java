@@ -28,10 +28,13 @@ import jakarta.ws.rs.core.Response;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import org.transitclock.api.data.ApiCommandAck;
 import org.transitclock.api.utils.StandardParameters;
 import org.transitclock.api.utils.WebUtils;
 import org.transitclock.domain.GenericQuery;
+import org.transitclock.domain.hibernate.DataDbLogger;
 import org.transitclock.domain.structs.AvlReport;
 import org.transitclock.domain.structs.AvlReport.AssignmentType;
 import org.transitclock.domain.structs.ExportTable;
@@ -41,11 +44,13 @@ import org.transitclock.service.dto.IpcTrip;
 import org.transitclock.service.contract.CommandsInterface;
 import org.transitclock.service.contract.ConfigInterface;
 
+@Controller
 @Path("/key/{key}/agency/{agency}")
 public class CommandsApi {
 
     private static final String AVL_SOURCE = "API";
-
+    @Autowired
+    private DataDbLogger dataDbLogger;
     /**
      * Reads in a single AVL report specified by the query string parameters v=vehicleId
      * &t=epochTimeInMsec&lat=latitude&lon=longitude&s=speed(optional) &h=heading(option) . Can also
@@ -466,7 +471,8 @@ public class CommandsApi {
         stdParameters.validate();
 
         try {
-            ExportTable.create(new SimpleDateFormat("MM-dd-yyyy").parse(avlDate), 1, "avl_" + avlDate + ".csv");
+            ExportTable exportTable = new ExportTable(new SimpleDateFormat("MM-dd-yyyy").parse(avlDate), 1, "avl_" + avlDate + ".csv");
+            dataDbLogger.add(exportTable);
 
         } catch (Exception ex) {
             // If problem getting data then return a Bad Request

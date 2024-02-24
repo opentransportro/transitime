@@ -9,7 +9,6 @@ import org.hibernate.CallbackException;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.classic.Lifecycle;
-import org.transitclock.Core;
 
 /**
  * A database object for persisting information on how accurate a prediction was compared to the
@@ -105,6 +104,7 @@ public class PredictionAccuracy implements Lifecycle, Serializable {
 
     public PredictionAccuracy(
             String routeId,
+            String routeShortName,
             String directionId,
             String stopId,
             String tripId,
@@ -116,9 +116,7 @@ public class PredictionAccuracy implements Lifecycle, Serializable {
             String vehicleId,
             Boolean affectedByWaitStop) {
         this.routeId = routeId;
-
-        Route route = Core.getInstance().getDbConfig().getRouteById(routeId);
-        this.routeShortName = route.getShortName();
+        this.routeShortName = routeShortName;
         this.directionId = directionId;
         this.stopId = stopId;
         this.tripId = tripId;

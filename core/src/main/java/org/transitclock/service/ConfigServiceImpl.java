@@ -4,7 +4,6 @@ package org.transitclock.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.transitclock.Core;
 import org.transitclock.core.dataCache.PredictionDataCache;
 import org.transitclock.core.dataCache.VehicleDataCache;
 import org.transitclock.domain.structs.Agency;
@@ -46,6 +45,8 @@ public class ConfigServiceImpl implements ConfigInterface {
     private VehicleDataCache vehicleDataCache;
     @Autowired
     private PredictionDataCache predictionDataCache;
+    @Autowired
+    private DbConfig dbConfig;
 
     public ConfigServiceImpl() {
     }
@@ -59,7 +60,6 @@ public class ConfigServiceImpl implements ConfigInterface {
      * @return The Route, or null if no such route
      */
     private Route getRoute(String routeIdOrShortName) {
-        DbConfig dbConfig = Core.getInstance().getDbConfig();
         Route dbRoute = dbConfig.getRouteByShortName(routeIdOrShortName);
         if (dbRoute == null) {
             dbRoute = dbConfig.getRouteById(routeIdOrShortName);
@@ -73,8 +73,6 @@ public class ConfigServiceImpl implements ConfigInterface {
      */
     @Override
     public Collection<IpcRouteSummary> getRoutes() {
-        // Get the db route info
-        DbConfig dbConfig = Core.getInstance().getDbConfig();
         var dbRoutes = dbConfig.getRoutes();
 
         return dbRoutes
@@ -97,7 +95,7 @@ public class ConfigServiceImpl implements ConfigInterface {
 
         var location = getLocationOfNextPredictedVehicle(dbRoute, directionId, stopId);
         // Convert db route into an ipc route and return it
-        return new IpcRoute(dbRoute, directionId, stopId, tripPatternId, location);
+        return new IpcRoute(dbRoute, dbConfig, directionId, stopId, tripPatternId, location);
     }
 
     /**
@@ -140,10 +138,9 @@ public class ConfigServiceImpl implements ConfigInterface {
 
         // If no route specified then return data for all routes
         if (routeIdsOrShortNames == null || routeIdsOrShortNames.isEmpty()) {
-            DbConfig dbConfig = Core.getInstance().getDbConfig();
             List<Route> dbRoutes = dbConfig.getRoutes();
             for (Route dbRoute : dbRoutes) {
-                IpcRoute ipcRoute = new IpcRoute(dbRoute, null, null, null, null);
+                IpcRoute ipcRoute = new IpcRoute(dbRoute, dbConfig, null, null, null, null);
                 routes.add(ipcRoute);
             }
         } else {
@@ -153,7 +150,7 @@ public class ConfigServiceImpl implements ConfigInterface {
                 Route dbRoute = getRoute(routeIdOrShortName);
                 if (dbRoute == null) continue;
 
-                IpcRoute ipcRoute = new IpcRoute(dbRoute, null, null, null, null);
+                IpcRoute ipcRoute = new IpcRoute(dbRoute, dbConfig, null, null, null, null);
                 routes.add(ipcRoute);
             }
         }
@@ -165,13 +162,13 @@ public class ConfigServiceImpl implements ConfigInterface {
      * @see org.transitclock.ipc.interfaces.ConfigInterface#getStops(java.lang.String)
      */
     @Override
-    public IpcDirectionsForRoute getStops(String routeIdOrShortName) {
+    public IpcDirectionsForRoute getStops(DbConfig dbConfig, String routeIdOrShortName) {
         // Get the db route info
         Route dbRoute = getRoute(routeIdOrShortName);
         if (dbRoute == null) return null;
 
         // Return the ipc route
-        return new IpcDirectionsForRoute(dbRoute);
+        return new IpcDirectionsForRoute(dbConfig, dbRoute);
     }
 
     /* (non-Javadoc)
@@ -179,14 +176,14 @@ public class ConfigServiceImpl implements ConfigInterface {
      */
     @Override
     public IpcBlock getBlock(String blockId, String serviceId) {
-        Block dbBlock = Core.getInstance().getDbConfig().getBlock(serviceId, blockId);
+        Block dbBlock = dbConfig.getBlock(serviceId, blockId);
 
         // If no such block then return null since can't create a IpcBlock
         if (dbBlock == null) {
             return null;
         }
 
-        return new IpcBlock(dbBlock);
+        return new IpcBlock(dbBlock, dbConfig);
     }
 
     /* (non-Javadoc)
@@ -198,11 +195,11 @@ public class ConfigServiceImpl implements ConfigInterface {
         List<IpcBlock> ipcBlocks = new ArrayList<>();
 
         // Get the blocks with specified ID
-        Collection<Block> dbBlocks = Core.getInstance().getDbConfig().getBlocksForAllServiceIds(blockId);
+        Collection<Block> dbBlocks = dbConfig.getBlocksForAllServiceIds(blockId);
 
         // Convert blocks from DB into IpcBlocks
         for (Block dbBlock : dbBlocks) {
-            ipcBlocks.add(new IpcBlock(dbBlock));
+            ipcBlocks.add(new IpcBlock(dbBlock, dbConfig));
         }
 
         // Return result
@@ -214,12 +211,12 @@ public class ConfigServiceImpl implements ConfigInterface {
      */
     @Override
     public IpcTrip getTrip(String tripId) {
-        Trip dbTrip = Core.getInstance().getDbConfig().getTrip(tripId);
+        Trip dbTrip = dbConfig.getTrip(tripId);
 
         // If couldn't find a trip with the specified trip_id then see if a
         // trip has the trip_short_name specified.
         if (dbTrip == null) {
-            dbTrip = Core.getInstance().getDbConfig().getTripUsingTripShortName(tripId);
+            dbTrip = dbConfig.getTripUsingTripShortName(tripId);
         }
 
         // If no such trip then return null since can't create a IpcTrip
@@ -227,7 +224,7 @@ public class ConfigServiceImpl implements ConfigInterface {
             return null;
         }
 
-        return new IpcTrip(dbTrip);
+        return new IpcTrip(dbTrip, dbConfig);
     }
 
     /* (non-Javadoc)
@@ -235,8 +232,6 @@ public class ConfigServiceImpl implements ConfigInterface {
      */
     @Override
     public List<IpcTripPattern> getTripPatterns(String routeIdOrShortName) {
-        DbConfig dbConfig = Core.getInstance().getDbConfig();
-
         Route dbRoute = getRoute(routeIdOrShortName);
         if (dbRoute == null) return null;
 
@@ -245,7 +240,7 @@ public class ConfigServiceImpl implements ConfigInterface {
 
         List<IpcTripPattern> tripPatterns = new ArrayList<>();
         for (TripPattern dbTripPattern : dbTripPatterns) {
-            tripPatterns.add(new IpcTripPattern(dbTripPattern));
+            tripPatterns.add(new IpcTripPattern(dbTripPattern, dbConfig));
         }
         return tripPatterns;
     }
@@ -255,7 +250,7 @@ public class ConfigServiceImpl implements ConfigInterface {
      */
     @Override
     public List<Agency> getAgencies() {
-        return Core.getInstance().getDbConfig().getAgencies();
+        return dbConfig.getAgencies();
     }
 
     /* (non-Javadoc)
@@ -268,10 +263,10 @@ public class ConfigServiceImpl implements ConfigInterface {
         if (dbRoute == null) return null;
 
         // Determine the blocks for the route for all service IDs
-        List<Block> blocksForRoute = Core.getInstance().getDbConfig().getBlocksForRoute(dbRoute.getId());
+        List<Block> blocksForRoute = dbConfig.getBlocksForRoute(dbRoute.getId());
 
         // Convert blocks to list of IpcSchedule objects and return
-        return IpcSchedule.createSchedules(dbRoute, blocksForRoute);
+        return IpcSchedule.createSchedules(dbRoute, blocksForRoute, dbConfig);
     }
 
     /* (non-Javadoc)
@@ -280,7 +275,7 @@ public class ConfigServiceImpl implements ConfigInterface {
     @Override
     public List<IpcCalendar> getCurrentCalendars() {
         // Get list of currently active calendars
-        List<Calendar> calendarList = Core.getInstance().getDbConfig().getCurrentCalendars();
+        List<Calendar> calendarList = dbConfig.getCurrentCalendars();
 
         // Convert Calendar list to IpcCalendar list
         List<IpcCalendar> ipcCalendarList = new ArrayList<>();
@@ -297,7 +292,7 @@ public class ConfigServiceImpl implements ConfigInterface {
     @Override
     public List<IpcCalendar> getAllCalendars() {
         // Get list of currently active calendars
-        List<Calendar> calendarList = Core.getInstance().getDbConfig().getCalendars();
+        List<Calendar> calendarList = dbConfig.getCalendars();
 
         // Convert Calendar list to IpcCalendar list
         List<IpcCalendar> ipcCalendarList = new ArrayList<>();
@@ -328,7 +323,7 @@ public class ConfigServiceImpl implements ConfigInterface {
     public List<String> getServiceIds() {
         // Convert the Set from getServiceIds() to a List since need
         // to use a List for IPC due to serialization.
-        return new ArrayList<>(Core.getInstance().getDbConfig().getServiceIds());
+        return new ArrayList<>(dbConfig.getServiceIds());
     }
 
     /* (non-Javadoc)
@@ -338,7 +333,7 @@ public class ConfigServiceImpl implements ConfigInterface {
     public List<String> getCurrentServiceIds() {
         // Convert the Set from getCurrentServiceIds() to a List since need
         // to use a List for IPC due to serialization.
-        return new ArrayList<>(Core.getInstance().getDbConfig().getCurrentServiceIds());
+        return new ArrayList<>(dbConfig.getCurrentServiceIds());
     }
 
     /* (non-Javadoc)
@@ -346,7 +341,7 @@ public class ConfigServiceImpl implements ConfigInterface {
      */
     @Override
     public List<String> getTripIds() {
-        var trips = Core.getInstance().getDbConfig().getTrips().values();
+        var trips = dbConfig.getTrips().values();
         return trips.stream()
                 .map(Trip::getId)
                 .collect(Collectors.toList());
@@ -357,7 +352,7 @@ public class ConfigServiceImpl implements ConfigInterface {
      */
     @Override
     public List<String> getBlockIds() {
-        var blocks = Core.getInstance().getDbConfig().getBlocks();
+        var blocks = dbConfig.getBlocks();
         return blocks.stream()
                 .map(Block::getId)
                 .distinct()
@@ -373,7 +368,7 @@ public class ConfigServiceImpl implements ConfigInterface {
             return getBlockIds();
         }
 
-        var blocks = Core.getInstance().getDbConfig().getBlocks(serviceId);
+        var blocks = dbConfig.getBlocks(serviceId);
         return blocks.stream()
                 .map(Block::getId)
                 .distinct()

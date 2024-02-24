@@ -4,6 +4,7 @@ package org.transitclock.core;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.domain.structs.Block;
 import org.transitclock.domain.structs.Trip;
+import org.transitclock.gtfs.DbConfig;
 import org.transitclock.utils.SystemTime;
 
 /**
@@ -56,7 +57,7 @@ public class VehicleAtStopInfo extends Indices {
      * @return true if vehicle at end of block
      */
     @Override
-    public boolean atEndOfBlock() {
+    public boolean atEndOfBlock(DbConfig dbConfig) {
         Block block = getBlock();
         if (block.isNoSchedule()) {
             // frequency based blocks last until the last trip completes
@@ -66,6 +67,7 @@ public class VehicleAtStopInfo extends Indices {
             int secondsBeforeTrip = CoreConfig.getAllowableEarlySeconds();
             int secondsAfterTrip = CoreConfig.getAllowableLateSeconds();
             return !block.isActive(
+                    dbConfig,
                     SystemTime.getDate(),
                     secondsBeforeTrip,
                     blockDuration + tripDuration + secondsAfterTrip);

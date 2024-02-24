@@ -21,11 +21,7 @@ public class KalmanErrorCache implements ErrorCache {
         cache = cm.getCache(cacheName, KalmanErrorCacheKey.class, KalmanError.class);
     }
 
-    /* (non-Javadoc)
-     * @see org.transitime.core.dataCache.ErrorCache#getErrorValue(org.transitime.core.Indices)
-     */
     @Override
-    @SuppressWarnings("unchecked")
     public synchronized KalmanError getErrorValue(Indices indices) {
         KalmanErrorCacheKey key = new KalmanErrorCacheKey(indices);
         return cache.get(key);
@@ -35,10 +31,8 @@ public class KalmanErrorCache implements ErrorCache {
      * @see org.transitime.core.dataCache.ErrorCache#getErrorValue(org.transitime.core.dataCache.KalmanErrorCacheKey)
      */
     @Override
-    @SuppressWarnings("unchecked")
     public synchronized KalmanError getErrorValue(KalmanErrorCacheKey key) {
-        KalmanError result = cache.get(key);
-        return result;
+        return cache.get(key);
     }
 
     /* (non-Javadoc)

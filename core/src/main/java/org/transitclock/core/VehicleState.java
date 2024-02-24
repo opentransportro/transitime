@@ -1,28 +1,17 @@
 /* (C)2023 */
 package org.transitclock.core;
 
-import java.util.*;
-
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.transitclock.ApplicationContext;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.core.dataCache.VehicleStateManager;
-import org.transitclock.domain.structs.Arrival;
-import org.transitclock.domain.structs.ArrivalDeparture;
-import org.transitclock.domain.structs.AvlReport;
+import org.transitclock.domain.structs.*;
 import org.transitclock.domain.structs.AvlReport.AssignmentType;
-import org.transitclock.domain.structs.Block;
-import org.transitclock.domain.structs.Headway;
-import org.transitclock.domain.structs.HoldingTime;
-import org.transitclock.domain.structs.Location;
-import org.transitclock.domain.structs.StopPath;
-import org.transitclock.domain.structs.Trip;
-import org.transitclock.domain.structs.VectorWithHeading;
+import org.transitclock.gtfs.DbConfig;
 import org.transitclock.service.dto.IpcPrediction;
 import org.transitclock.utils.StringUtils;
 import org.transitclock.utils.Time;
+
+import java.util.*;
 
 /**
  * Keeps track of vehicle state including its block assignment, where it last matched to its
@@ -43,7 +32,7 @@ public class VehicleState {
 
     private boolean predictable;
     // First is most recent
-    private final LinkedList<TemporalMatch> temporalMatchHistory = new LinkedList<TemporalMatch>();
+    private final LinkedList<TemporalMatch> temporalMatchHistory = new LinkedList<>();
     // First is most recent
     private final LinkedList<AvlReport> avlReportHistory = new LinkedList<AvlReport>();
     private List<IpcPrediction> predictions;
@@ -405,9 +394,9 @@ public class VehicleState {
      *
      * @return route short name or null
      */
-    public String getRouteShortName() {
+    public String getRouteShortName(DbConfig dbConfig) {
         Trip trip = getTrip();
-        return trip != null ? trip.getRouteShortName() : null;
+        return trip != null ? trip.getRouteShortName(dbConfig) : null;
     }
 
     /**
@@ -417,9 +406,9 @@ public class VehicleState {
      *
      * @return route name or null
      */
-    public String getRouteName() {
+    public String getRouteName(DbConfig dbConfig) {
         Trip trip = getTrip();
-        return trip != null ? trip.getRouteName() : null;
+        return trip != null ? trip.getRouteName(dbConfig) : null;
     }
 
     /**
@@ -564,7 +553,7 @@ public class VehicleState {
      * @param avlReport For determining possibly new assignment
      * @return True if new assignment such that vehicle needs to be matched to the new assignment.
      */
-    public boolean hasNewAssignment(AvlReport avlReport) {
+    public boolean hasNewAssignment(AvlReport avlReport, BlockAssigner blockAssigner) {
         // If no assignment specified in AVL report then should continue to use
         // previous assignment.
         if (avlReport.getAssignmentType() == AssignmentType.UNSET) return false;
@@ -582,13 +571,13 @@ public class VehicleState {
 
         // Not block assignment so try trip ID or trip short name assignment
         if (avlReport.isTripIdAssignmentType() || avlReport.isTripShortNameAssignmentType()) {
-            Block avlBlock = BlockAssigner.getInstance().getBlockAssignment(avlReport);
+            Block avlBlock = blockAssigner.getBlockAssignment(avlReport);
             return block != avlBlock;
         }
 
         // Not block or trip assignment so try route assignment
         if (avlReport.isRouteIdAssignmentType()) {
-            String routeId = BlockAssigner.getInstance().getRouteIdAssignment(avlReport);
+            String routeId = blockAssigner.getRouteIdAssignment(avlReport);
             if (routeId != null) {
                 String newAssignment = routeId;
                 // Use Objects.equals() since either the existing assignment or
@@ -621,7 +610,7 @@ public class VehicleState {
      * @param avlReport
      * @return True if vehicle already had the assignment but it was problematic
      */
-    public boolean previousAssignmentProblematic(AvlReport avlReport) {
+    public boolean previousAssignmentProblematic(AvlReport avlReport, BlockAssigner blockAssigner) {
         // If the previous assignment is not problematic because it wasn't
         // grabbed or terminated then it is definitely not problematic.
         if (assignmentMethod != BlockAssignmentMethod.ASSIGNMENT_GRABBED
@@ -629,7 +618,7 @@ public class VehicleState {
 
         // If the AVL report indicates a new assignment then don't have to
         // worry about the old one being problematic
-        if (hasNewAssignment(avlReport)) return false;
+        if (hasNewAssignment(avlReport, blockAssigner)) return false;
 
         // Got same assignment from AVL feed that was previously problematic.
         // If the old problem assignment was somewhat recent then return true.

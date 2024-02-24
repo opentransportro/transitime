@@ -6,7 +6,6 @@ import java.util.Date;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.DynamicUpdate;
-import org.transitclock.Core;
 import org.transitclock.service.dto.IpcPrediction;
 
 /**
@@ -72,34 +71,8 @@ public class Prediction implements Serializable {
     @Column(name = "gtfs_stop_sequence")
     private final int gtfsStopSeq;
 
-    public Prediction(
-            long predictionTime,
-            long avlTime,
-            long creationTime,
-            String vehicleId,
-            String stopId,
-            String tripId,
-            String routeId,
-            boolean affectedByWaitStop,
-            boolean isArrival,
-            boolean schedBasedPred,
-            int gtfsStopSeq) {
-        this.configRev = Core.getInstance().getDbConfig().getConfigRev();
-        this.predictionTime = new Date(predictionTime);
-        this.avlTime = new Date(avlTime);
-        this.creationTime = new Date(creationTime);
-        this.vehicleId = vehicleId;
-        this.stopId = stopId;
-        this.tripId = tripId;
-        this.routeId = routeId;
-        this.affectedByWaitStop = affectedByWaitStop;
-        this.isArrival = isArrival;
-        this.schedBasedPred = schedBasedPred;
-        this.gtfsStopSeq = gtfsStopSeq;
-    }
-
-    public Prediction(IpcPrediction prediction) {
-        this.configRev = Core.getInstance().getDbConfig().getConfigRev();
+    public Prediction(int configRev, IpcPrediction prediction) {
+        this.configRev = configRev;
         this.predictionTime = new Date(prediction.getPredictionTime());
         this.avlTime = new Date(prediction.getAvlTime());
         this.creationTime = new Date(prediction.getCreationTime());

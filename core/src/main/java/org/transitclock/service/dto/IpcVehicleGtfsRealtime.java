@@ -3,7 +3,7 @@ package org.transitclock.service.dto;
 
 import java.io.IOException;
 import java.util.Date;
-import org.transitclock.Core;
+
 import org.transitclock.core.BlockAssignmentMethod;
 import org.transitclock.core.SpatialMatch;
 import org.transitclock.core.TemporalDifference;
@@ -11,6 +11,7 @@ import org.transitclock.core.TemporalMatch;
 import org.transitclock.core.VehicleState;
 import org.transitclock.domain.structs.StopPath;
 import org.transitclock.domain.structs.Trip;
+import org.transitclock.gtfs.DbConfig;
 import org.transitclock.utils.SystemTime;
 import org.transitclock.utils.Time;
 
@@ -54,10 +55,11 @@ public class IpcVehicleGtfsRealtime extends IpcVehicle {
     /**
      * The constructor used on the server side
      *
+     * @param dbConfig
      * @param vs
      */
-    public IpcVehicleGtfsRealtime(VehicleState vs, long layoverDepartureTime) {
-        super(vs, layoverDepartureTime);
+    public IpcVehicleGtfsRealtime(DbConfig dbConfig, VehicleState vs, long layoverDepartureTime) {
+        super(dbConfig, vs, layoverDepartureTime);
 
         // Get the match. If match is just after a stop then adjust
         // it to just before the stop so that can determine proper
@@ -77,7 +79,7 @@ public class IpcVehicleGtfsRealtime extends IpcVehicle {
             // proper timezone is used. This unfortunately is a bit expensive.
             int time = vs.getTrip().getStartTime();
             Date currentTime = SystemTime.getDate();
-            this.tripStartEpochTime = Core.getInstance().getTime().getEpochTime(time, currentTime);
+            this.tripStartEpochTime = dbConfig.getTime().getEpochTime(time, currentTime);
             Trip trip = vs.getTrip();
             this.isTripUnscheduled = trip != null && trip.isNoSchedule() && !trip.isExactTimesHeadway();
         } else {
@@ -89,37 +91,6 @@ public class IpcVehicleGtfsRealtime extends IpcVehicle {
         }
     }
 
-    /**
-     * Constructor used for when deserializing a proxy object.
-     *
-     * @param blockId
-     * @param blockAssignmentMethod
-     * @param avl
-     * @param pathHeading
-     * @param routeId
-     * @param routeShortName
-     * @param routeName
-     * @param tripId
-     * @param tripStartDateStr
-     * @param tripPatternId
-     * @param isTripUnscheduled
-     * @param directionId
-     * @param headsign
-     * @param predictable
-     * @param schedBasedPred
-     * @param realTimeSchdAdh
-     * @param isDelayed
-     * @param isLayover
-     * @param layoverDepartureTime
-     * @param nextStopId
-     * @param nextStopName
-     * @param vehicleType
-     * @param atStopId
-     * @param atOrNextStopId
-     * @param atOrNextGtfsStopSeq
-     * @param holdingTime
-     * @param isCanceled
-     */
     public IpcVehicleGtfsRealtime(
             String blockId,
             BlockAssignmentMethod blockAssignmentMethod,
@@ -199,7 +170,6 @@ public class IpcVehicleGtfsRealtime extends IpcVehicle {
         protected boolean isCanceled;
         protected boolean isTripUnscheduled;
         private static final short currentSerializationVersion = 0;
-        private static final long serialVersionUID = 5804716921925188073L;
 
         protected GtfsRealtimeVehicleSerializationProxy(IpcVehicleGtfsRealtime v) {
             super(v);

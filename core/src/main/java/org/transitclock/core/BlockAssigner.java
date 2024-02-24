@@ -3,7 +3,8 @@ package org.transitclock.core;
 
 import java.util.Collection;
 import lombok.extern.slf4j.Slf4j;
-import org.transitclock.Core;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.transitclock.domain.structs.AvlReport;
 import org.transitclock.domain.structs.Block;
 import org.transitclock.domain.structs.Trip;
@@ -16,21 +17,12 @@ import org.transitclock.utils.Time;
  * @author SkiBu Smith
  */
 @Slf4j
+@Component
 public class BlockAssigner {
+    private final DbConfig dbConfig;
 
-    // Singleton class
-    private static final BlockAssigner singleton = new BlockAssigner();
-
-    /** Constructor private since singleton class */
-    private BlockAssigner() {}
-
-    /**
-     * Returns the BlockAssigner singleton
-     *
-     * @return
-     */
-    public static synchronized BlockAssigner getInstance() {
-        return singleton;
+    public BlockAssigner(DbConfig dbConfig) {
+        this.dbConfig = dbConfig;
     }
 
     /**
@@ -51,22 +43,19 @@ public class BlockAssigner {
     public Block getBlockAssignment(AvlReport avlReport) {
         // If vehicle has assignment...
         if (avlReport != null && avlReport.getAssignmentId() != null) {
-            DbConfig config = Core.getInstance().getDbConfig();
-
             // If using block assignment...
             if (avlReport.isBlockIdAssignmentType()) {
-                ServiceUtils serviceUtis = Core.getInstance().getServiceUtils();
-                Collection<String> serviceIds = serviceUtis.getServiceIds(avlReport.getDate());
+                Collection<String> serviceIds = dbConfig.getServiceUtils().getServiceIds(avlReport.getDate());
                 // Go through all current service IDs to find the block
                 // that is currently active
                 Block activeBlock = null;
                 for (String serviceId : serviceIds) {
-                    Block blockForServiceId = config.getBlock(serviceId, avlReport.getAssignmentId());
+                    Block blockForServiceId = dbConfig.getBlock(serviceId, avlReport.getAssignmentId());
                     // If there is a block for the current service ID
                     if (blockForServiceId != null) {
                         // If found a best match so far then remember it
                         if (activeBlock == null
-                                || blockForServiceId.isActive(avlReport.getTime(), 90 * Time.MIN_IN_SECS)) {
+                                || blockForServiceId.isActive(dbConfig, avlReport.getTime(), 90 * Time.MIN_IN_SECS)) {
                             activeBlock = blockForServiceId;
                             logger.debug(
                                     "For vehicleId={} and serviceId={} "
@@ -90,9 +79,9 @@ public class BlockAssigner {
                 return activeBlock;
             } else if (avlReport.isTripIdAssignmentType()) {
                 // Using trip ID
-                Trip trip = config.getTrip(avlReport.getAssignmentId());
-                if (trip != null && trip.getBlock() != null) {
-                    Block block = trip.getBlock();
+                Trip trip = dbConfig.getTrip(avlReport.getAssignmentId());
+                if (trip != null && trip.getBlock(dbConfig) != null) {
+                    Block block = trip.getBlock(dbConfig);
                     logger.debug(
                             "For vehicleId={} the trip assignment from "
                                     + "the AVL feed is tripId={} which corresponds to "
@@ -111,9 +100,9 @@ public class BlockAssigner {
             } else if (avlReport.isTripShortNameAssignmentType()) {
                 // Using trip short name
                 String tripShortName = avlReport.getAssignmentId();
-                Trip trip = config.getTripUsingTripShortName(tripShortName);
+                Trip trip = dbConfig.getTripUsingTripShortName(tripShortName);
                 if (trip != null) {
-                    Block block = trip.getBlock();
+                    Block block = trip.getBlock(dbConfig);
                     logger.debug(
                             "For vehicleId={} the trip assignment from "
                                     + "the AVL feed is tripShortName={} which "
@@ -147,9 +136,8 @@ public class BlockAssigner {
         if (avlReport != null && avlReport.getAssignmentId() != null && avlReport.isRouteIdAssignmentType()) {
             // Route ID specified so return it
             return avlReport.getAssignmentId();
-        } else {
-            // No route ID specified in AVL feed so return null
-            return null;
         }
+        // No route ID specified in AVL feed so return null
+        return null;
     }
 }

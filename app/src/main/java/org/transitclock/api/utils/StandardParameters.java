@@ -10,9 +10,7 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.ResponseBuilder;
 import jakarta.ws.rs.core.Response.Status;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.transitclock.ApplicationContext;
 import org.transitclock.domain.ApiKeyManager;
-import org.transitclock.service.*;
 import org.transitclock.service.contract.*;
 
 /**

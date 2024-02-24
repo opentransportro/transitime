@@ -4,7 +4,6 @@ package org.transitclock.core;
 import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
-import org.transitclock.Core;
 import org.transitclock.domain.structs.Block;
 import org.transitclock.domain.structs.Location;
 import org.transitclock.domain.structs.Route;
@@ -13,6 +12,7 @@ import org.transitclock.domain.structs.StopPath;
 import org.transitclock.domain.structs.Trip;
 import org.transitclock.domain.structs.Vector;
 import org.transitclock.domain.structs.VectorWithHeading;
+import org.transitclock.gtfs.DbConfig;
 import org.transitclock.utils.Geo;
 import org.transitclock.utils.Time;
 
@@ -90,7 +90,7 @@ public class SpatialMatch {
      * @param newTrip The new trip to use for the copy. It is assumed to be for the same trip
      *     pattern. It can be for a separate block.
      */
-    public SpatialMatch(SpatialMatch toCopy, Trip newTrip) {
+    public SpatialMatch(DbConfig dbConfig, SpatialMatch toCopy, Trip newTrip) {
         if (toCopy.getTrip().getTripPattern() != newTrip.getTripPattern())
             logger.error(
                     "Trying to create a copy of a SpatialMatch using a "
@@ -102,8 +102,8 @@ public class SpatialMatch {
         this.avlTime = toCopy.avlTime;
 
         // Use the new block and trip index info
-        this.block = newTrip.getBlock();
-        this.tripIndex = newTrip.getBlock().getTripIndex(newTrip);
+        this.block = newTrip.getBlock(dbConfig);
+        this.tripIndex = newTrip.getBlock(dbConfig).getTripIndex(newTrip);
 
         this.stopPathIndex = toCopy.stopPathIndex;
         this.segmentIndex = toCopy.segmentIndex;
@@ -116,7 +116,7 @@ public class SpatialMatch {
             this.atStop = null;
         } else {
             this.atStop = new VehicleAtStopInfo(
-                    newTrip.getBlock(), this.tripIndex, toCopy.atStop().getStopPathIndex());
+                    newTrip.getBlock(dbConfig), this.tripIndex, toCopy.atStop().getStopPathIndex());
         }
         // recomupte predictedLocation for above reasons as well
         this.predictedLocation = toCopy.computeLocation(toCopy.getIndices(), toCopy.distanceAlongSegment);
@@ -330,7 +330,7 @@ public class SpatialMatch {
      *
      * @return SpatialMatch adjusted so it is at beginning of path for the stop
      */
-    public SpatialMatch getMatchAdjustedToBeginningOfPath() {
+    public SpatialMatch getMatchAdjustedToBeginningOfPath(DbConfig dbConfig) {
         // If not at a stop then we have a problem
         if (atStop == null) {
             logger.error("Wrongly called "
@@ -344,7 +344,7 @@ public class SpatialMatch {
         // then decrement the indices so will point to proper stop path.
         Indices indices = getIndices();
         if (!atBeginningOfPathStop()) {
-            indices.incrementStopPath();
+            indices.incrementStopPath(dbConfig);
         }
 
         // Create a new SpatialMatch that is at the beginning of
@@ -365,7 +365,7 @@ public class SpatialMatch {
      *
      * @return This match or one after the stop if at end of stop path
      */
-    private SpatialMatch getMatchAfterStopIfAtStop() {
+    private SpatialMatch getMatchAfterStopIfAtStop(DbConfig dbConfig) {
         // If the spatialMatch is not just before a stop then return
         // spatialMatch. The spatialMatch is just before a stop if
         // atStop trip and path indices are the same as for the match.
@@ -373,7 +373,7 @@ public class SpatialMatch {
 
         // The spatialMatch is just before a stop so create a new spatial
         // match but use the beginning of the next path.
-        Indices nextPathIndices = getIndices().incrementStopPath();
+        Indices nextPathIndices = getIndices().incrementStopPath(dbConfig);
         return new SpatialMatch(this, nextPathIndices, 0.0);
     }
 
@@ -383,10 +383,10 @@ public class SpatialMatch {
      *
      * @return
      */
-    public SpatialMatch getMatchAtJustBeforeNextStop() {
+    public SpatialMatch getMatchAtJustBeforeNextStop(DbConfig dbConfig) {
         // First need to get on the proper path. If just before a stop
         // then need to get a match just after that stop.
-        SpatialMatch m = getMatchAfterStopIfAtStop();
+        SpatialMatch m = getMatchAfterStopIfAtStop(dbConfig);
 
         int segmentIndex = block.numSegments(m.getTripIndex(), m.getStopPathIndex()) - 1;
         Vector segmentVector = block.getSegmentVector(m.getTripIndex(), m.getStopPathIndex(), segmentIndex);
@@ -540,12 +540,11 @@ public class SpatialMatch {
      * @return the scheduled epoch time vehicle is to leave the stop. Returns -1 if not at a stop or
      *     the stop doesn't have a scheduled departure time.
      */
-    public long getScheduledWaitStopTime() {
+    public long getScheduledWaitStopTime(Time time) {
         int secondsIntoDay = getScheduledWaitStopTimeSecs();
         if (secondsIntoDay < 0) return -1;
 
-        long scheduledDepartureTime = Core.getInstance().getTime().getEpochTime(secondsIntoDay, avlTime);
-        return scheduledDepartureTime;
+        return time.getEpochTime(secondsIntoDay, avlTime);
     }
 
     /**
@@ -584,7 +583,7 @@ public class SpatialMatch {
      * @param otherSpatialMatch
      * @return Distance in meters between the matches
      */
-    public double distanceBetweenMatches(SpatialMatch otherSpatialMatch) {
+    public double distanceBetweenMatches(SpatialMatch otherSpatialMatch, DbConfig dbConfig) {
         // Determine the distances from the beginning of the stop paths
         // and the matches
         double distanceAlongFirstPath = getDistanceAlongStopPath();
@@ -598,14 +597,13 @@ public class SpatialMatch {
         double totalStopPathDistances = 0.0;
         while (indices.isEarlierStopPathThan(endIndices)) {
             totalStopPathDistances += indices.getStopPath().getLength();
-            indices.incrementStopPath();
+            indices.incrementStopPath(dbConfig);
         }
 
         // Now determine total distance between matches. Note that for
         // the first path the distance is the length of the stop path
         // minus the distance of the first match along the path.
-        double distanceBetweenMatches = totalStopPathDistances - distanceAlongFirstPath + distanceAlongLastPath;
-        return distanceBetweenMatches;
+        return totalStopPathDistances - distanceAlongFirstPath + distanceAlongLastPath;
     }
 
     /**
@@ -615,7 +613,7 @@ public class SpatialMatch {
      * @param otherSpatialMatch
      * @return true if there is a wait stop between this match and the other match
      */
-    public boolean traversedWaitStop(SpatialMatch otherSpatialMatch) {
+    public boolean traversedWaitStop(SpatialMatch otherSpatialMatch, DbConfig dbConfig) {
         // If either this match or the other match are at a wait stop then
         // indeed a wait stop is in effect
         VehicleAtStopInfo atStop = getAtStop();
@@ -629,7 +627,7 @@ public class SpatialMatch {
         while (indices.isEarlierStopPathThan(endIndices)) {
             if (indices.isWaitStop()) return true;
 
-            indices.incrementStopPath();
+            indices.incrementStopPath(dbConfig);
         }
 
         return false;
@@ -748,10 +746,9 @@ public class SpatialMatch {
                 + Geo.distanceFormat(distanceAlongSegment)
                 + ", distanceAlongStopPath="
                 + Geo.distanceFormat(getDistanceAlongStopPath())
-                + ", atStop="
-                + atStop
-                + ", trip="
-                + getTrip().toShortString()
+                + ", atStop=" + atStop
+//                + ", trip=" + getTrip()
+//                + getTrip().toShortString()
                 + "]";
     }
 
@@ -775,8 +772,8 @@ public class SpatialMatch {
         return block.getTrips().get(tripIndex);
     }
 
-    public Route getRoute() {
-        return getTrip().getRoute();
+    public Route getRoute(DbConfig dbConfig) {
+        return getTrip().getRoute(dbConfig);
     }
 
     /**

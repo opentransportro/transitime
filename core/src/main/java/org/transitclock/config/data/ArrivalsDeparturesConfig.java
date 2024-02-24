@@ -1,5 +1,6 @@
-package org.transitclock.config;
+package org.transitclock.config.data;
 
+import org.transitclock.config.IntegerConfigValue;
 import org.transitclock.utils.Time;
 
 public class ArrivalsDeparturesConfig {

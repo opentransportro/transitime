@@ -1,18 +1,17 @@
 /* (C)2023 */
 package org.transitclock.core.holdingmethod;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.transitclock.ApplicationContext;
-import org.transitclock.Core;
 import org.transitclock.config.data.HoldingConfig;
 import org.transitclock.core.VehicleState;
 import org.transitclock.core.dataCache.PredictionDataCache;
-import org.transitclock.core.dataCache.StopArrivalDepartureCacheFactory;
 import org.transitclock.core.dataCache.StopArrivalDepartureCacheInterface;
 import org.transitclock.core.dataCache.StopArrivalDepartureCacheKey;
+import org.transitclock.domain.hibernate.DataDbLogger;
 import org.transitclock.domain.structs.ArrivalDeparture;
 import org.transitclock.domain.structs.HoldingTime;
+import org.transitclock.gtfs.DbConfig;
 import org.transitclock.service.dto.IpcArrivalDeparture;
 import org.transitclock.service.dto.IpcPrediction;
 import org.transitclock.service.dto.IpcPredictionsForRouteStopDest;
@@ -26,11 +25,12 @@ import java.util.List;
  * @author Sean Óg Crudden Simple holding time generator.
  */
 @Slf4j
+@RequiredArgsConstructor
 public class SimpleHoldingTimeGeneratorImpl implements HoldingTimeGenerator {
-    @Autowired
-    private PredictionDataCache predictionDataCache;
-    @Autowired
-    private StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface;
+    private final PredictionDataCache predictionDataCache;
+    private final StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface;
+    private final DataDbLogger dataDbLogger;
+    private final DbConfig dbConfig;
 
     public HoldingTime generateHoldingTime(VehicleState vehicleState, IpcArrivalDeparture event) {
         if (event.isArrival() && isControlStop(event.getStopId(), event.getStopPathIndex())) {
@@ -53,6 +53,7 @@ public class SimpleHoldingTimeGeneratorImpl implements HoldingTimeGenerator {
                 logger.debug("Holding time for : {} is {}.", event, holdingTimeValue);
 
                 HoldingTime holdingTime = new HoldingTime(
+                        dbConfig.getConfigRev(),
                         new Date(current_vehicle_arrival_time + holdingTimeValue),
                         SystemTime.getDate(),
                         event.getVehicleId(),
@@ -66,7 +67,7 @@ public class SimpleHoldingTimeGeneratorImpl implements HoldingTimeGenerator {
                         0);
 
                 if (HoldingConfig.storeHoldingTimes.getValue())
-                    Core.getInstance().getDbLogger().add(holdingTime);
+                    dataDbLogger.add(holdingTime);
 
                 return holdingTime;
 
@@ -76,7 +77,8 @@ public class SimpleHoldingTimeGeneratorImpl implements HoldingTimeGenerator {
                         event.getStopId());
 
                 long current_vehicle_arrival_time = event.getTime().getTime();
-                HoldingTime holdingTime = new HoldingTime(
+                return new HoldingTime(
+                        dbConfig.getConfigRev(),
                         new Date(current_vehicle_arrival_time),
                         SystemTime.getDate(),
                         event.getVehicleId(),
@@ -88,7 +90,6 @@ public class SimpleHoldingTimeGeneratorImpl implements HoldingTimeGenerator {
                         new Date(event.getTime().getTime()),
                         false,
                         0);
-                return holdingTime;
             }
         }
         // Return null so has no effect.

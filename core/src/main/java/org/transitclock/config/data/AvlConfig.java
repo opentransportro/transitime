@@ -50,14 +50,12 @@ public class AvlConfig {
     private static final DoubleConfigValue maxAvlSpeed = new DoubleConfigValue(
             "transitclock.avl.maxSpeed",
             31.3, // 31.3m/s = 70mph
-            "Max speed between AVL reports for a vehicle. If this "
-                    + "value is exceeded then the AVL report is ignored.");
+            "Max speed between AVL reports for a vehicle. If this value is exceeded then the AVL report is ignored.");
 
     private static DoubleConfigValue alternativeMaxSpeed = new DoubleConfigValue(
             "transitclock.avl.alternativemaxspeed",
             15.0, // 31.3m/s = 70mph
-            "Alernative max speed between AVL reports for a vehicle. If this "
-                    + "value is exceeded then the AVL report is ignored.");
+            "Alternative max speed between AVL reports for a vehicle. If this value is exceeded then the AVL report is ignored.");
 
     public static DoubleConfigValue getAlternativeMaxSpeed() {
         return alternativeMaxSpeed;
@@ -227,14 +225,7 @@ public class AvlConfig {
                     + "debugging then can set this param to false.");
 
 
-    public static String getCsvAvlFeedFileName() {
-        return csvAvlFeedFileName.getValue();
-    }
 
-    public static StringConfigValue csvAvlFeedFileName = new StringConfigValue(
-            "transitclock.avl.csvAvlFeedFileName",
-            "/Users/Mike/cvsAvlData/testAvlData.csv",
-            "The name of the CSV file containing AVL data to process.");
 
     public static BooleanConfigValue processInRealTime = new BooleanConfigValue(
             "transitclock.avl.processInRealTime",

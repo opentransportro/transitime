@@ -5,19 +5,21 @@ import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.transitclock.ApplicationContext;
-import org.transitclock.Core;
 import org.transitclock.config.data.AgencyConfig;
 import org.transitclock.config.data.BlockAssignerConfig;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.core.SpatialMatcher.MatchingType;
 import org.transitclock.core.autoAssigner.AutoBlockAssigner;
+import org.transitclock.core.autoAssigner.AutoBlockAssignerFactory;
+import org.transitclock.core.avl.AvlReportRegistry;
 import org.transitclock.core.dataCache.PredictionDataCache;
 import org.transitclock.core.dataCache.VehicleDataCache;
 import org.transitclock.core.dataCache.VehicleStateManager;
+import org.transitclock.domain.hibernate.DataDbLogger;
 import org.transitclock.domain.hibernate.HibernateUtils;
 import org.transitclock.domain.structs.*;
 import org.transitclock.domain.structs.AvlReport.AssignmentType;
+import org.transitclock.gtfs.DbConfig;
 import org.transitclock.utils.*;
 
 import java.util.*;
@@ -52,6 +54,21 @@ public class AvlProcessor {
     @Autowired
     private RealTimeSchedAdhProcessor realTimeSchedAdhProcessor;
 
+    @Autowired
+    private AvlReportRegistry avlReportRegistry;
+
+    @Autowired
+    DbConfig dbConfig;
+
+    @Autowired
+    DataDbLogger dataDbLogger;
+
+    @Autowired
+    BlockAssigner blockAssigner;
+
+    @Autowired
+    AutoBlockAssignerFactory autoBlockAssignerFactory;
+
     // For keeping track of how long since received an AVL report so
     // can determine if AVL feed is up.
     private AvlReport lastRegularReportProcessed;
@@ -73,14 +90,15 @@ public class AvlProcessor {
         AvlReport avlReport = vehicleState.getAvlReport();
         TemporalMatch lastMatch = vehicleState.getMatch();
         boolean wasPredictable = vehicleState.isPredictable();
-        VehicleEvent.create(
+        VehicleEvent event = new VehicleEvent(
                 avlReport,
                 lastMatch,
                 vehicleEvent,
                 eventDescription,
                 false, // predictable
                 wasPredictable, // becameUnpredictable
-                null); // supervisor
+                null);// supervisor
+        dataDbLogger.add(event);
 
         // Update the state of the vehicle
         vehicleState.setMatch(null);
@@ -158,14 +176,14 @@ public class AvlProcessor {
             return false;
 
         // Determine distance traveled between the matches
-        double distanceTraveled = previousMatch.distanceBetweenMatches(bestTemporalMatch);
+        double distanceTraveled = previousMatch.distanceBetweenMatches(bestTemporalMatch, dbConfig);
 
         double minDistance = CoreConfig.getMinDistanceForNoProgress();
         if (distanceTraveled < minDistance) {
             // Determine if went through any wait stops since if did then
             // vehicle wasn't stuck in traffic. It was simply stopped at
             // layover.
-            boolean traversedWaitStop = previousMatch.traversedWaitStop(bestTemporalMatch);
+            boolean traversedWaitStop = previousMatch.traversedWaitStop(bestTemporalMatch, dbConfig);
             if (!traversedWaitStop) {
                 // Determine how much time elapsed between AVL reports
                 long timeBetweenAvlReports = vehicleState.getAvlReport().getTime() - previousMatch.getAvlTime();
@@ -224,14 +242,14 @@ public class AvlProcessor {
         if (previousMatch == null) return false;
 
         // Determine distance traveled between the matches
-        double distanceTraveled = previousMatch.distanceBetweenMatches(currentMatch);
+        double distanceTraveled = previousMatch.distanceBetweenMatches(currentMatch, dbConfig);
 
         double minDistance = CoreConfig.getMinDistanceForDelayed();
         if (distanceTraveled < minDistance) {
             // Determine if went through any wait stops since if did then
             // vehicle wasn't stuck in traffic. It was simply stopped at
             // layover.
-            boolean traversedWaitStop = previousMatch.traversedWaitStop(currentMatch);
+            boolean traversedWaitStop = previousMatch.traversedWaitStop(currentMatch, dbConfig);
             if (!traversedWaitStop) {
                 // Mark vehicle as being delayed
                 vehicleState.setIsDelayed(true);
@@ -258,14 +276,15 @@ public class AvlProcessor {
                 // If vehicle newly delayed then also create a VehicleEvent
                 // indicating such
                 if (!wasDelayed) {
-                    VehicleEvent.create(
+                    VehicleEvent vehicleEvent = new VehicleEvent(
                             vehicleState.getAvlReport(),
                             vehicleState.getMatch(),
                             VehicleEvent.DELAYED,
                             description,
                             true, // predictable
                             false, // becameUnpredictable
-                            null); // supervisor
+                            null);// supervisor
+                    dataDbLogger.add(vehicleEvent);
                 }
 
                 // Return that vehicle indeed delayed
@@ -299,7 +318,8 @@ public class AvlProcessor {
                 vehicleState);
 
         // Find possible spatial matches
-        List<SpatialMatch> spatialMatches = SpatialMatcher.getSpatialMatches(vehicleState);
+        SpatialMatcher spatialMatcher = new SpatialMatcher(dbConfig);
+        List<SpatialMatch> spatialMatches = spatialMatcher.getSpatialMatches(vehicleState);
         logger.debug(
                 "For vehicleId={} found the following {} spatial " + "matches: {}",
                 vehicleState.getVehicleId(),
@@ -418,23 +438,23 @@ public class AvlProcessor {
             predictable = true;
             block = bestMatch.getBlock();
             logger.info(
-                    "vehicleId={} matched to {}Id={}. " + "Vehicle is now predictable. Match={}",
+                    "vehicleId={} matched to {}Id={}. Vehicle is now predictable.",
                     vehicleId,
                     assignmentType,
-                    assignmentId,
-                    bestMatch);
+                    assignmentId);
 
             // Record a corresponding VehicleEvent
             String eventDescription =
                     "Vehicle successfully matched to " + assignmentType + " assignment and is now predictable.";
-            VehicleEvent.create(
+            VehicleEvent vehicleEvent = new VehicleEvent(
                     avlReport,
                     bestMatch,
                     VehicleEvent.PREDICTABLE,
                     eventDescription,
                     true, // predictable
                     false, // becameUnpredictable
-                    null); // supervisor
+                    null);// supervisor
+            dataDbLogger.add(vehicleEvent);
         } else {
             logger.debug(
                     "For vehicleId={} could not assign to {}Id={}. "
@@ -488,14 +508,15 @@ public class AvlProcessor {
                     + " from match "
                     + matchLocation;
 
-            VehicleEvent.create(
+            VehicleEvent vehicleEvent = new VehicleEvent(
                     vehicleState.getAvlReport(),
                     bestMatch,
                     VehicleEvent.AVL_CONFLICT,
                     eventDescription,
                     true, // predictable
                     false, // becameUnpredictable
-                    null); // supervisor
+                    null);// supervisor
+            dataDbLogger.add(vehicleEvent);
         }
     }
 
@@ -523,10 +544,10 @@ public class AvlProcessor {
         // Multiple services can be active on a given day. Therefore need
         // to look at all the active ones to find out what blocks are active...
         List<Block> allBlocksForRoute = new ArrayList<>();
-        ServiceUtils serviceUtils = Core.getInstance().getServiceUtils();
+        ServiceUtils serviceUtils = dbConfig.getServiceUtils();
         Collection<String> serviceIds = serviceUtils.getServiceIds(avlReport.getDate());
         for (String serviceId : serviceIds) {
-            List<Block> blocksForService = Core.getInstance().getDbConfig().getBlocksForRoute(serviceId, routeId);
+            List<Block> blocksForService = dbConfig.getBlocksForRoute(serviceId, routeId);
             if (blocksForService != null) {
                 allBlocksForRoute.addAll(blocksForService);
             }
@@ -541,7 +562,7 @@ public class AvlProcessor {
             // because looking at each trip means all the trip data including
             // travel times needs to be lazy loaded, which can be slow.
             // Override by setting transitclock.core.ignoreInactiveBlocks to false
-            if (!block.isActive(avlReport.getDate()) && CoreConfig.ignoreInactiveBlocks.getValue()) {
+            if (!block.isActive(dbConfig, avlReport.getDate()) && CoreConfig.ignoreInactiveBlocks.getValue()) {
                 if (logger.isDebugEnabled()) {
                     logger.debug(
                             "For vehicleId={} ignoring block ID {} with "
@@ -558,7 +579,7 @@ public class AvlProcessor {
 
             // Determine which trips for the block are active. If none then
             // continue to the next block
-            List<Trip> potentialTrips = block.getTripsCurrentlyActive(avlReport);
+            List<Trip> potentialTrips = block.getTripsCurrentlyActive(dbConfig, avlReport);
             if (potentialTrips.isEmpty()) continue;
 
             logger.debug(
@@ -568,12 +589,13 @@ public class AvlProcessor {
                     potentialTrips);
 
             // Get the potential spatial matches
-            List<SpatialMatch> spatialMatchesForBlock = SpatialMatcher.getSpatialMatches(
+            List<SpatialMatch> spatialMatchesForBlock = new SpatialMatcher(dbConfig).getSpatialMatches(
                     vehicleState.getAvlReport(), block, potentialTrips, MatchingType.AUTO_ASSIGNING_MATCHING);
 
             // Add appropriate spatial matches to list
             for (SpatialMatch spatialMatch : spatialMatchesForBlock) {
-                if (!SpatialMatcher.problemMatchDueToLackOfHeadingInfo(
+                SpatialMatcher spatialMatcher = new SpatialMatcher(dbConfig);
+                if (!spatialMatcher.problemMatchDueToLackOfHeadingInfo(
                                 spatialMatch, vehicleState, MatchingType.AUTO_ASSIGNING_MATCHING)
                         && matchOkForRouteMatching(spatialMatch)) allPotentialSpatialMatchesForRoute.add(spatialMatch);
             }
@@ -620,8 +642,8 @@ public class AvlProcessor {
         // MatchingType.AUTO_ASSIGNING_MATCHING, because the AVL feed is
         // specifying the block assignment so it should find a match even
         // if it pretty far off.
-        List<Trip> potentialTrips = block.getTripsCurrentlyActive(avlReport);
-        List<SpatialMatch> spatialMatches = SpatialMatcher.getSpatialMatches(
+        List<Trip> potentialTrips = block.getTripsCurrentlyActive(dbConfig, avlReport);
+        List<SpatialMatch> spatialMatches = new SpatialMatcher(dbConfig).getSpatialMatches(
                 vehicleState.getAvlReport(), block, potentialTrips, MatchingType.STANDARD_MATCHING);
         logger.debug(
                 "For vehicleId={} and blockId={} spatial matches={}",
@@ -638,7 +660,8 @@ public class AvlProcessor {
         // is acceptable then don't consider this a match. Instead, wait till
         // get another AVL report at a different location so can see if making
         // progress along route in proper direction.
-        if (SpatialMatcher.problemMatchDueToLackOfHeadingInfo(
+        SpatialMatcher spatialMatcher = new SpatialMatcher(dbConfig);
+        if (spatialMatcher.problemMatchDueToLackOfHeadingInfo(
                 bestMatch, vehicleState, MatchingType.STANDARD_MATCHING)) {
             logger.debug(
                     "Found match but could not confirm that heading is "
@@ -876,7 +899,7 @@ public class AvlProcessor {
         AvlReport avlReport = vehicleState.getAvlReport();
 
         // Remove old block assignment if there was one
-        if (vehicleState.isPredictable() && vehicleState.hasNewAssignment(avlReport)) {
+        if (vehicleState.isPredictable() && vehicleState.hasNewAssignment(avlReport, blockAssigner)) {
             String eventDescription = "For vehicleId="
                     + vehicleState.getVehicleId()
                     + " the vehicle assignment is being "
@@ -888,13 +911,13 @@ public class AvlProcessor {
 
         // If the vehicle has a block assignment from the AVLFeed
         // then use it.
-        Block block = BlockAssigner.getInstance().getBlockAssignment(avlReport);
+        Block block = blockAssigner.getBlockAssignment(avlReport);
         if (block != null) {
             // There is a block assignment from AVL feed so use it.
             return matchVehicleToBlockAssignment(block, vehicleState);
         } else {
             // If there is a route assignment from AVL feed us it
-            String routeId = BlockAssigner.getInstance().getRouteIdAssignment(avlReport);
+            String routeId = blockAssigner.getRouteIdAssignment(avlReport);
             if (routeId != null) {
                 // There is a route assignment so use it
                 return matchVehicleToRouteAssignment(routeId, vehicleState);
@@ -988,7 +1011,7 @@ public class AvlProcessor {
         logger.info("Trying to automatically assign vehicleId={}", vehicleState.getVehicleId());
 
         // Try to match vehicle to a block assignment if that feature is enabled
-        AutoBlockAssigner autoAssigner = new AutoBlockAssigner(vehicleState);
+        var autoAssigner = autoBlockAssignerFactory.createAssigner(vehicleState);
         TemporalMatch bestMatch = autoAssigner.autoAssignVehicleToBlockIfEnabled();
         if (bestMatch != null) {
             // Successfully matched vehicle to block so make vehicle predictable
@@ -1050,7 +1073,7 @@ public class AvlProcessor {
         TemporalMatch temporalMatch = vehicleState.getMatch();
         if (temporalMatch != null) {
             VehicleAtStopInfo atStopInfo = temporalMatch.getAtStop();
-            if (atStopInfo != null && atStopInfo.atEndOfBlock()) {
+            if (atStopInfo != null && atStopInfo.atEndOfBlock(dbConfig)) {
                 logger.info(
                         "For vehicleId={} the end of the block={} " + "was reached so will make vehicle unpredictable",
                         vehicleState.getVehicleId(),
@@ -1100,8 +1123,8 @@ public class AvlProcessor {
                 && vehicleState.getMatch().getAtStop() != null) {
             // Create description for VehicleEvent
             String stopId = vehicleState.getMatch().getStopPath().getStopId();
-            Stop stop = Core.getInstance().getDbConfig().getStop(stopId);
-            Route route = vehicleState.getMatch().getRoute();
+            Stop stop = dbConfig.getStop(stopId);
+            Route route = vehicleState.getMatch().getRoute(dbConfig);
             VehicleAtStopInfo stopInfo = vehicleState.getMatch().getAtStop();
             Integer scheduledDepartureTime = stopInfo.getScheduleTime().getDepartureTime();
 
@@ -1119,14 +1142,15 @@ public class AvlProcessor {
                     + Time.timeOfDayStr(scheduledDepartureTime);
 
             // Create, store in db, and log the VehicleEvent
-            VehicleEvent.create(
+            VehicleEvent vehicleEvent = new VehicleEvent(
                     vehicleState.getAvlReport(),
                     vehicleState.getMatch(),
                     VehicleEvent.NOT_LEAVING_TERMINAL,
                     description,
                     true, // predictable
                     false, // becameUnpredictable
-                    null); // supervisor
+                    null);// supervisor
+            dataDbLogger.add(vehicleEvent);
         }
 
         // Make sure the schedule adherence is reasonable
@@ -1206,10 +1230,10 @@ public class AvlProcessor {
             // Do the matching depending on the old and the new assignment
             // for the vehicle.
             boolean matchAlreadyPredictableVehicle =
-                    vehicleState.isPredictable() && !vehicleState.hasNewAssignment(avlReport);
+                    vehicleState.isPredictable() && !vehicleState.hasNewAssignment(avlReport, blockAssigner);
             boolean matchToNewAssignment = avlReport.hasValidAssignment()
-                    && (!vehicleState.isPredictable() || vehicleState.hasNewAssignment(avlReport))
-                    && !vehicleState.previousAssignmentProblematic(avlReport);
+                    && (!vehicleState.isPredictable() || vehicleState.hasNewAssignment(avlReport, blockAssigner))
+                    && !vehicleState.previousAssignmentProblematic(avlReport, blockAssigner);
 
             if (matchAlreadyPredictableVehicle) {
                 // Vehicle was already assigned and assignment hasn't
@@ -1293,8 +1317,8 @@ public class AvlProcessor {
 
             // Write out current vehicle state to db so can join it with AVL
             // data from db and get historical context of AVL report.
-            var dbVehicleState = new org.transitclock.domain.structs.VehicleState(vehicleState);
-            Core.getInstance().getDbLogger().add(dbVehicleState);
+            var dbVehicleState = new org.transitclock.domain.structs.VehicleState(vehicleState, dbConfig);
+            dataDbLogger.add(dbVehicleState);
         }
     }
 
@@ -1421,14 +1445,12 @@ public class AvlProcessor {
 
         // Store the AVL report into the database
         if (!CoreConfig.onlyNeedArrivalDepartures() && !avlReport.isForSchedBasedPreds())
-            Core.getInstance().getDbLogger().add(avlReport);
+            dataDbLogger.add(avlReport);
 
         // If any vehicles have timed out then handle them. This is done
         // here instead of using a regular timer so that it will work
         // even when in playback mode or when reading batch data.
-        ApplicationContext.moduleRegistry()
-                .getTimeoutHandlerModule()
-                .storeAvlReport(avlReport);
+        avlReportRegistry.storeAvlReport(avlReport);
 
         // Do the low level work of matching vehicle and then generating results
         lowLevelProcessAvlReport(avlReport, false);

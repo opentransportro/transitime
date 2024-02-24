@@ -4,10 +4,11 @@ package org.transitclock.service.dto;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import org.transitclock.Core;
+
 import org.transitclock.domain.structs.ScheduleTime;
 import org.transitclock.domain.structs.StopPath;
 import org.transitclock.domain.structs.Trip;
+import org.transitclock.gtfs.DbConfig;
 
 /**
  * For describing a trip as part of a schedule
@@ -26,24 +27,18 @@ public class IpcSchedTrip implements Serializable {
      * Constructor. Goes through the complete ordered list of stops for the direction and creates
      * the corresponding IpcSchedTime objects for each one, even if there is no scheduled time for
      * that stop for the specified trip.
-     *
-     * @param blockId
-     * @param tripId
-     * @param scheduleTimes
      */
-    public IpcSchedTrip(Trip trip) {
-        super();
-
+    public IpcSchedTrip(Trip trip, DbConfig dbConfig) {
         this.blockId = trip.getBlockId();
         this.tripId = trip.getId();
         this.tripShortName = trip.getShortName();
         this.tripHeadsign = trip.getHeadsign();
-        this.scheduleTimes = new ArrayList<IpcSchedTime>();
+        this.scheduleTimes = new ArrayList<>();
 
         // Actually fill in the schedule times
         // First, get list of ordered stop IDs for the direction
         List<String> orderedStopIds =
-                trip.getRoute().getOrderedStopsByDirection().get(trip.getDirectionId());
+                trip.getRoute(dbConfig).getOrderedStopsByDirection(dbConfig).get(trip.getDirectionId());
 
         // Set the schedule times for each ordered stop for the route/direction.
         // If no scheduled time for the stop then use a null time.
@@ -66,7 +61,7 @@ public class IpcSchedTrip implements Serializable {
                         // Create a IpcScheduleTime with a time of null so can still
                         // be added to the schedule trip.
                         String stopId = orderedStopIds.get(i);
-                        addNullScheduleTime(stopId);
+                        addNullScheduleTime(stopId, dbConfig);
                     }
 
                     // Update currentStopIdxInOrderedStops since have dealt with up to
@@ -74,8 +69,9 @@ public class IpcSchedTrip implements Serializable {
                     currentStopIdxInOrderedStops = stopIdxInOrderedStops + 1;
 
                     ScheduleTime scheduleTime = trip.getScheduleTime(stopIdxInTrip);
+                    String stopName = dbConfig.getStop(stopPathInTrip.getStopId()).getName();
                     IpcSchedTime ipcScheduleTime =
-                            new IpcSchedTime(stopIdInTrip, stopPathInTrip.getStopName(), scheduleTime.getTime());
+                            new IpcSchedTime(stopIdInTrip, stopName, scheduleTime.getTime());
                     scheduleTimes.add(ipcScheduleTime);
 
                     // Done with this stop in the trip so continue to the
@@ -91,7 +87,7 @@ public class IpcSchedTrip implements Serializable {
             // Create a IpcScheduleTime with a time of null so can still
             // be added to the schedule trip.
             String stopId = orderedStopIds.get(i);
-            addNullScheduleTime(stopId);
+            addNullScheduleTime(stopId, dbConfig);
         }
 
         // FIXME
@@ -149,10 +145,10 @@ public class IpcSchedTrip implements Serializable {
         //		}
     }
 
-    private void addNullScheduleTime(String stopId) {
+    private void addNullScheduleTime(String stopId, DbConfig dbConfig) {
         // Create a IpcScheduleTime with a time of null so can still
         // be added to the schedule trip.
-        String stopName = Core.getInstance().getDbConfig().getStop(stopId).getName();
+        String stopName = dbConfig.getStop(stopId).getName();
         IpcSchedTime ipcScheduleTime = new IpcSchedTime(stopId, stopName, null);
         scheduleTimes.add(ipcScheduleTime);
     }

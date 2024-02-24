@@ -27,11 +27,10 @@ import org.hibernate.Session;
 import org.hibernate.annotations.DiscriminatorOptions;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.classic.Lifecycle;
-import org.transitclock.Core;
-import org.transitclock.config.data.AgencyConfig;
 import org.transitclock.config.data.DbSetupConfig;
 import org.transitclock.core.TemporalDifference;
 import org.transitclock.domain.hibernate.HibernateUtils;
+import org.transitclock.gtfs.DbConfig;
 import org.transitclock.utils.Geo;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.Time;
@@ -204,17 +203,6 @@ public abstract class ArrivalDeparture implements Lifecycle, Serializable {
         DEPARTURES
     }
 
-    /**
-     * Constructor called when creating an ArrivalDeparture object to be stored in db.
-     *
-     * @param vehicleId
-     * @param time
-     * @param avlTime
-     * @param block
-     * @param tripIndex
-     * @param stopPathIndex
-     * @param isArrival
-     */
     protected ArrivalDeparture(
             int configRev,
             String vehicleId,
@@ -224,7 +212,8 @@ public abstract class ArrivalDeparture implements Lifecycle, Serializable {
             int tripIndex,
             int stopPathIndex,
             boolean isArrival,
-            Date freqStartTime) {
+            Date freqStartTime,
+            DbConfig dbConfig) {
         this.vehicleId = vehicleId;
         this.time = time;
         this.avlTime = avlTime;
@@ -242,7 +231,7 @@ public abstract class ArrivalDeparture implements Lifecycle, Serializable {
             StopPath stopPath = trip.getStopPath(stopPathIndex);
             String stopId = stopPath.getStopId();
             // Determine and store stop order
-            this.stopOrder = trip.getRoute().getStopOrder(trip.getDirectionId(), stopId, stopPathIndex);
+            this.stopOrder = trip.getRoute(dbConfig).getStopOrder(dbConfig, trip.getDirectionId(), stopId, stopPathIndex);
 
             // Determine the schedule time, which is a bit complicated.
             // Of course, only do this for schedule based assignments.
@@ -256,10 +245,10 @@ public abstract class ArrivalDeparture implements Lifecycle, Serializable {
             if (!trip.isNoSchedule()) {
                 ScheduleTime scheduleTime = trip.getScheduleTime(stopPathIndex);
                 if (stopPath.isLastStopInTrip() && scheduleTime.getArrivalTime() != null && isArrival) {
-                    long epochTime = Core.getInstance().getTime().getEpochTime(scheduleTime.getArrivalTime(), time);
+                    long epochTime = dbConfig.getTime().getEpochTime(scheduleTime.getArrivalTime(), time);
                     scheduledEpochTime = new Date(epochTime);
                 } else if (!stopPath.isLastStopInTrip() && scheduleTime.getDepartureTime() != null && !isArrival) {
-                    long epochTime = Core.getInstance().getTime().getEpochTime(scheduleTime.getDepartureTime(), time);
+                    long epochTime = dbConfig.getTime().getEpochTime(scheduleTime.getDepartureTime(), time);
                     scheduledEpochTime = new Date(epochTime);
                 }
             }
@@ -284,28 +273,6 @@ public abstract class ArrivalDeparture implements Lifecycle, Serializable {
             this.serviceId = "";
             this.stopOrder = 0;
         }
-    }
-
-    protected ArrivalDeparture(
-            String vehicleId,
-            Date time,
-            Date avlTime,
-            Block block,
-            int tripIndex,
-            int stopPathIndex,
-            boolean isArrival,
-            Date freqStartTime) {
-
-        this(
-                Core.getInstance().getDbConfig().getConfigRev(),
-                vehicleId,
-                time,
-                avlTime,
-                block,
-                tripIndex,
-                stopPathIndex,
-                isArrival,
-                freqStartTime);
     }
 
     protected ArrivalDeparture() {
@@ -673,21 +640,6 @@ public abstract class ArrivalDeparture implements Lifecycle, Serializable {
     }
 
     /**
-     * Returns the trip short name for the trip associated with the arrival/departure.
-     *
-     * @return trip short name for the trip associated with the arrival/departure or null if there
-     *     is a problem
-     */
-    public String getTripShortName() {
-        Trip trip = Core.getInstance().getDbConfig().getTrip(tripId);
-        if (trip != null) {
-            return trip.getShortName();
-        }
-
-        return null;
-    }
-
-    /**
      * The schedule time will only be set if the schedule info was available from the GTFS data and
      * it is the proper type of arrival or departure stop (there is an arrival schedule time and
      * this is the last stop for a trip and and this is an arrival time OR there is a departure
@@ -724,16 +676,6 @@ public abstract class ArrivalDeparture implements Lifecycle, Serializable {
 
         // Return the schedule adherence
         return new TemporalDifference(scheduledTime.getTime() - time.getTime());
-    }
-
-    /**
-     * Returns the Stop object associated with the arrival/departure. Will only be valid for the
-     * Core system where the configuration has been read in.
-     *
-     * @return The Stop associated with the arrival/departure
-     */
-    public Stop getStop() {
-        return Core.getInstance().getDbConfig().getStop(stopId);
     }
 
     /**

@@ -9,14 +9,13 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.transitclock.ApplicationContext;
-import org.transitclock.Core;
 import org.transitclock.core.VehicleState;
 import org.transitclock.core.dataCache.VehicleStateManager;
 import org.transitclock.domain.structs.Route;
 import org.transitclock.domain.structs.Stop;
 import org.transitclock.domain.structs.Trip;
 import org.transitclock.domain.structs.TripPattern;
+import org.transitclock.gtfs.DbConfig;
 import org.transitclock.utils.Geo;
 import org.transitclock.utils.TrimmableArrayList;
 
@@ -52,19 +51,20 @@ public class IpcPredictionsForRouteStopDest implements Serializable {
     /**
      * Constructor for creating a IpcPredictionsForRouteStopDest on the server side.
      *
+     * @param dbConfig
      * @param trip
      * @param stopId
      * @param distanceToStop How far stop is away from user. If predictions are not location based
-     *     then use value of Double.NaN.
+     *                       then use value of Double.NaN.
      */
-    public IpcPredictionsForRouteStopDest(Trip trip, String stopId, double distanceToStop) {
+    public IpcPredictionsForRouteStopDest(DbConfig dbConfig, Trip trip, String stopId, double distanceToStop) {
         this.routeId = trip != null ? trip.getRouteId() : null;
         this.routeShortName = trip != null ? trip.getRouteShortName() : null;
-        this.routeName = trip != null ? trip.getRouteName() : null;
-        this.routeOrder = trip != null ? trip.getRoute().getRouteOrder() : -1;
+        this.routeName = trip != null ? trip.getRouteName(dbConfig) : null;
+        this.routeOrder = trip != null ? trip.getRoute(dbConfig).getRouteOrder() : -1;
         this.stopId = stopId;
 
-        Stop stop = Core.getInstance().getDbConfig().getStop(stopId);
+        Stop stop = dbConfig.getStop(stopId);
         this.stopName = stop != null ? stop.getName() : null;
         this.stopCode = stop != null ? stop.getCode() : null;
 
@@ -81,17 +81,17 @@ public class IpcPredictionsForRouteStopDest implements Serializable {
      * @param stopId
      * @param distanceToStop
      */
-    public IpcPredictionsForRouteStopDest(TripPattern tripPattern, String stopId, double distanceToStop) {
+    public IpcPredictionsForRouteStopDest(DbConfig dbConfig, TripPattern tripPattern, String stopId, double distanceToStop) {
         this.routeId = tripPattern.getRouteId();
         this.routeShortName = tripPattern.getRouteShortName();
-        Route route = Core.getInstance().getDbConfig().getRouteById(tripPattern.getRouteId());
+        Route route = dbConfig.getRouteById(tripPattern.getRouteId());
         if (route == null) {
             throw new IllegalArgumentException("RouteId=" + tripPattern.getRouteId() + " does not exist.");
         }
         this.routeName = route.getName();
         this.routeOrder = route.getRouteOrder();
         this.stopId = stopId;
-        Stop stop = Core.getInstance().getDbConfig().getStop(stopId);
+        Stop stop = dbConfig.getStop(stopId);
         this.stopName = stop != null ? stop.getName() : null;
         this.stopCode = stop != null ? stop.getCode() : null;
 
@@ -189,13 +189,13 @@ public class IpcPredictionsForRouteStopDest implements Serializable {
      * @param stopId
      * @param distanceToStop
      */
-    public IpcPredictionsForRouteStopDest(
+    public IpcPredictionsForRouteStopDest(DbConfig dbConfig,
             String routeShortName, String directionId, String stopId, double distanceToStop) {
-        Route route = Core.getInstance().getDbConfig().getRouteByShortName(routeShortName);
+        Route route = dbConfig.getRouteByShortName(routeShortName);
         if (route == null) {
             throw new IllegalArgumentException("routeShortName=" + routeShortName + " does not exist.");
         }
-        Stop stop = Core.getInstance().getDbConfig().getStop(stopId);
+        Stop stop = dbConfig.getStop(stopId);
         if (stop == null) {
             throw new IllegalArgumentException("stopId=" + stopId + " does not exist.");
         }

@@ -5,9 +5,7 @@ import com.querydsl.jpa.impl.JPAQuery;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.DateUtils;
 import org.hibernate.Session;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.transitclock.Core;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.core.dataCache.*;
 import org.transitclock.domain.structs.ArrivalDeparture;
@@ -30,14 +28,15 @@ import java.util.concurrent.ConcurrentHashMap;
 public class FrequencyBasedHistoricalAverageCache {
 
     private final Map<StopPathKey, TreeMap<Long, HistoricalAverage>> m = new ConcurrentHashMap<>();
+    private final TripDataHistoryCacheInterface tripDataHistoryCacheInterface;
+    private final DbConfig dbConfig;
 
-    @Autowired
-    private TripDataHistoryCacheInterface tripDataHistoryCacheInterface;
-
-    public FrequencyBasedHistoricalAverageCache() {}
+    public FrequencyBasedHistoricalAverageCache(TripDataHistoryCacheInterface tripDataHistoryCacheInterface, DbConfig dbConfig) {
+        this.tripDataHistoryCacheInterface = tripDataHistoryCacheInterface;
+        this.dbConfig = dbConfig;
+    }
 
     public String toString() {
-
         String totalsString = "";
         for (StopPathKey key : m.keySet()) {
             Map<Long, HistoricalAverage> values = new TreeMap<>();
@@ -103,8 +102,6 @@ public class FrequencyBasedHistoricalAverageCache {
     }
 
     public synchronized void putArrivalDeparture(ArrivalDeparture arrivalDeparture) throws Exception {
-        DbConfig dbConfig = Core.getInstance().getDbConfig();
-
         Trip trip = dbConfig.getTrip(arrivalDeparture.getTripId());
 
         if (trip != null && trip.isNoSchedule()) {

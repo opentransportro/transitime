@@ -1,11 +1,10 @@
 /* (C)2023 */
 package org.transitclock.core.autoAssigner;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.transitclock.ApplicationContext;
-import org.transitclock.Core;
 import org.transitclock.config.data.BlockAssignerConfig;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.core.*;
@@ -14,6 +13,7 @@ import org.transitclock.core.dataCache.VehicleStateManager;
 import org.transitclock.domain.structs.AvlReport;
 import org.transitclock.domain.structs.Block;
 import org.transitclock.domain.structs.Trip;
+import org.transitclock.gtfs.DbConfig;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.Time;
 
@@ -38,39 +38,29 @@ import static org.transitclock.config.data.BlockAssignerConfig.allowableLateSeco
  * @author SkiBu Smith
  */
 @Slf4j
-@Component
+@RequiredArgsConstructor
 public class AutoBlockAssigner {
 
     // For keeping track of last time vehicle auto assigned so that can limit
     // how frequently it is done. Keyed on vehicleId
     private static final Map<String, Long> timeVehicleLastAutoAssigned = new HashMap<>();
 
+    // Contains the results of spatial matching the avl report to the
+    // specified trip pattern. Keyed on trip pattern ID. Note: since the spatial
+    // matches are cached and reused the block member will not be correct
+    private final Map<String, SpatialMatch> spatialMatchCache = new HashMap<>();
 
     // The vehicle state is repeatedly used, so it is a member, so it doesn't
     // have to be passed around to various methods.
     private final VehicleState vehicleState;
 
-    // Contains the results of spatial matching the avl report to the
-    // specified trip pattern. Keyed on trip pattern ID. Note: since the spatial
-    // matches are cached and reused the block member will not be correct
-    private final Map<String, SpatialMatch> spatialMatchCache = new HashMap<>();
-    @Autowired
-    private VehicleDataCache vehicleDataCache;
-    @Autowired
-    private TravelTimes travelTimes;
-    @Autowired
-    private VehicleStateManager vehicleStateManager;
-    @Autowired
-    private TemporalMatcher temporalMatcher;
+    private final VehicleDataCache vehicleDataCache;
+    private final TravelTimes travelTimes;
+    private final VehicleStateManager vehicleStateManager;
+    private final TemporalMatcher temporalMatcher;
+    private final DbConfig dbConfig;
+    private final BlockInfoProvider blockInfoProvider;
 
-    /**
-     * Constructor
-     *
-     * @param vehicleState Info on the vehicle to match
-     */
-    public AutoBlockAssigner(VehicleState vehicleState) {
-        this.vehicleState = vehicleState;
-    }
 
     /**
      * @return the current AVL report from vehicleState member
@@ -133,7 +123,7 @@ public class AutoBlockAssigner {
      */
     private List<Block> unassignedActiveBlocks() {
         List<Block> currentlyUnassignedBlocks = new ArrayList<>();
-        List<Block> activeBlocks = BlocksInfo.getCurrentlyActiveBlocks();
+        List<Block> activeBlocks = blockInfoProvider.getCurrentlyActiveBlocks();
         for (Block block : activeBlocks) {
             if (isBlockUnassigned(block.getId())) {
                 // No vehicles assigned to this active block so should see
@@ -162,8 +152,8 @@ public class AutoBlockAssigner {
         // not layovers. Won't be a layover match anyways since this method
         // is only for use with no schedule assignments.
         AvlReport avlReport = vehicleState.getAvlReport();
-        List<Trip> potentialTrips = block.getTripsCurrentlyActive(avlReport);
-        var spatialMatches = SpatialMatcher.getSpatialMatchesForAutoAssigning(getAvlReport(), block, potentialTrips);
+        List<Trip> potentialTrips = block.getTripsCurrentlyActive(dbConfig, avlReport);
+        var spatialMatches = new SpatialMatcher(dbConfig).getSpatialMatchesForAutoAssigning(getAvlReport(), block, potentialTrips);
         if (spatialMatches.isEmpty()) {
             return null;
         }
@@ -171,13 +161,13 @@ public class AutoBlockAssigner {
         // Determine all possible spatial matches for the previous AVL report so
         // that can make sure that it too matches the assignment.
         AvlReport previousAvlReport = getPreviousAvlReport();
-        var prevSpatialMatches = SpatialMatcher.getSpatialMatchesForAutoAssigning(previousAvlReport, block, potentialTrips);
+        var prevSpatialMatches = new SpatialMatcher(dbConfig).getSpatialMatchesForAutoAssigning(previousAvlReport, block, potentialTrips);
         if (prevSpatialMatches.isEmpty()) {
             return null;
         }
 
         // Determine params needed in the following for loop
-        int timeOfDayInSecs = Core.getInstance().getTime().getSecondsIntoDay(previousAvlReport.getTime());
+        int timeOfDayInSecs = dbConfig.getTime().getSecondsIntoDay(previousAvlReport.getTime());
         long avlTimeDifferenceMsec = avlReport.getTime() - previousAvlReport.getTime();
 
         // Go through each spatial match for both the current AVL report and
@@ -236,7 +226,7 @@ public class AutoBlockAssigner {
 
         // Determine which trips are currently active so that don't bother
         // looking at all trips
-        final List<Trip> activeTrips = block.getTripsCurrentlyActive(avlReport);
+        final List<Trip> activeTrips = block.getTripsCurrentlyActive(dbConfig, avlReport);
 
         // Determine trips that need to look at for spatial matches because
         // haven't looked at the associated trip pattern yet.
@@ -268,7 +258,7 @@ public class AutoBlockAssigner {
                     // The cached match has the wrong trip info so need
                     // to create an equivalent match with the proper trip block
                     // info
-                    SpatialMatch matchWithProperBlock = new SpatialMatch(previouslyFoundMatch, trip);
+                    SpatialMatch matchWithProperBlock = new SpatialMatch(dbConfig, previouslyFoundMatch, trip);
 
                     // Add to list of spatial matches to return
                     spatialMatches.add(matchWithProperBlock);
@@ -308,7 +298,7 @@ public class AutoBlockAssigner {
         // spatial matches that are not layovers. If match is to a layover can
         // ignore it since layover matches are far too flexible to really be
         // considered a spatial match
-        var newSpatialMatches = SpatialMatcher.getSpatialMatchesForAutoAssigning(avlReport, block, tripsNeedToInvestigate);
+        var newSpatialMatches = new SpatialMatcher(dbConfig).getSpatialMatchesForAutoAssigning(avlReport, block, tripsNeedToInvestigate);
 
         // Add newly discovered matches to the cache and to the list of spatial
         // matches to be returned
@@ -376,10 +366,10 @@ public class AutoBlockAssigner {
     private List<SpatialMatch> getSpatialMatchesWithoutCache(AvlReport avlReport, Block block) {
         // Determine which trips are currently active so that don't bother
         // looking at all trips
-         var activeTrips = block.getTripsCurrentlyActive(avlReport);
+         var activeTrips = block.getTripsCurrentlyActive(dbConfig, avlReport);
 
         // Get and return the spatial matches
-        return SpatialMatcher.getSpatialMatchesForAutoAssigning(avlReport, block, activeTrips);
+        return new SpatialMatcher(dbConfig).getSpatialMatchesForAutoAssigning(avlReport, block, activeTrips);
     }
 
     /**
@@ -560,7 +550,7 @@ public class AutoBlockAssigner {
         // routes, then look at all active blocks.
         List<Block> blocksToExamine = CoreConfig.exclusiveBlockAssignments()
                 ? unassignedActiveBlocks()
-                : BlocksInfo.getCurrentlyActiveBlocks();
+                : blockInfoProvider.getCurrentlyActiveBlocks();
 
         if (blocksToExamine.isEmpty()) {
             logger.info("No currently active blocks to assign vehicleId={} to.", vehicleId);

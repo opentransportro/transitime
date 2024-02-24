@@ -6,7 +6,6 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.annotations.DynamicUpdate;
-import org.transitclock.Core;
 
 import jakarta.persistence.*;
 import java.io.Serializable;
@@ -49,19 +48,6 @@ public class ExportTable implements Serializable {
 
     @Column(name = "file")
     private byte[] file;
-
-    public static ExportTable create(Date dataDate, int exportType, String fileName) {
-        ExportTable exportElement = new ExportTable(dataDate, exportType, fileName);
-
-        // Log VehicleToBlockConfig in log file
-        logger.info(exportElement.toString());
-
-        // Queue to write object to database
-        Core.getInstance().getDbLogger().add(exportElement);
-
-        // Return new VehicleToBlockConfig
-        return exportElement;
-    }
 
     public ExportTable(Date dataDate, int exportType, String fileName) {
         this.dataDate = dataDate;

@@ -10,21 +10,17 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-import org.transitclock.ApplicationContext;
 import org.transitclock.api.utils.AgencyTimezoneCache;
 import org.transitclock.config.data.ApiConfig;
 import org.transitclock.core.holdingmethod.PredictionTimeComparator;
 import org.transitclock.service.contract.PredictionsInterface;
+import org.transitclock.service.contract.VehiclesInterface;
 import org.transitclock.service.dto.IpcPrediction;
 import org.transitclock.service.dto.IpcPredictionsForRouteStopDest;
 import org.transitclock.service.dto.IpcVehicleConfig;
-import org.transitclock.service.contract.VehiclesInterface;
-import org.transitclock.service.PredictionsServiceImpl;
-import org.transitclock.service.VehiclesServiceImpl;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.Time;
 
-import java.rmi.RemoteException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 

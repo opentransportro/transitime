@@ -8,15 +8,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.transitclock.ApplicationContext;
-import org.transitclock.Core;
-import org.transitclock.core.dataCache.PredictionDataCache;
-import org.transitclock.core.dataCache.VehicleDataCache;
 import org.transitclock.domain.structs.Location;
 import org.transitclock.domain.structs.Route;
 import org.transitclock.domain.structs.Stop;
 import org.transitclock.domain.structs.StopPath;
 import org.transitclock.domain.structs.TripPattern;
+import org.transitclock.gtfs.DbConfig;
 
 /**
  * Describes a route such that it can e displayed in a UI. Consists of all the info in a
@@ -36,6 +33,7 @@ public class IpcRoute extends IpcRouteSummary {
      * remaining part of the trip specified by stopId and tripPatternId.
      *
      * @param dbRoute       The route object as read from the db
+     * @param dbConfig
      * @param directionId   Set if want to know which part of route is major and which is minor.
      *                      Otherwise set to null.
      * @param stopId        Set if want to know which part of route is major and which is minor. Otherwise
@@ -44,14 +42,14 @@ public class IpcRoute extends IpcRouteSummary {
      *                      Otherwise set to null.
      * @param location
      */
-    public IpcRoute(Route dbRoute, String directionId, String stopId, String tripPatternId, Location location) {
+    public IpcRoute(Route dbRoute, DbConfig dbConfig, String directionId, String stopId, String tripPatternId, Location location) {
         // Construct the core part of the route, everything but
         // the stops and paths.
         super(dbRoute);
 
         // Create Collections of stops and paths
-        stops = createStops(dbRoute, directionId, stopId, tripPatternId);
-        shapes = createShapes(dbRoute, directionId, stopId, tripPatternId);
+        stops = createStops(dbRoute, dbConfig, directionId, stopId, tripPatternId);
+        shapes = createShapes(dbRoute, dbConfig, directionId, stopId, tripPatternId);
         locationOfNextPredictedVehicle = location;
     }
 
@@ -60,23 +58,24 @@ public class IpcRoute extends IpcRouteSummary {
      * stopId is set then returns the longest trip pattern that serves the specified stopId. If both
      * tripPatternId and stopId are null then returns longest trip pattern each direction.
      *
-     * @param dbRoute The route to get the trip patterns for
-     * @param directionId Set if want to know which part of route is major and which is minor.
-     *     Otherwise set to null.
-     * @param stopId Used only when tripPatternId is null. In that case determines which trip
-     *     patterns are appropriate.
+     * @param dbRoute       The route to get the trip patterns for
+     * @param dbConfig
+     * @param directionId   Set if want to know which part of route is major and which is minor.
+     *                      Otherwise set to null.
+     * @param stopId        Used only when tripPatternId is null. In that case determines which trip
+     *                      patterns are appropriate.
      * @param tripPatternId The specified trip pattern to get. If null then will use longest trip
-     *     pattern for each direction.
+     *                      pattern for each direction.
      * @return List of trip patterns for specified stopId and tripPatternId
      */
     private static List<TripPattern> getUiTripPatterns(
-            Route dbRoute, String directionId, String stopId, String tripPatternId) {
+            Route dbRoute, DbConfig dbConfig, String directionId, String stopId, String tripPatternId) {
         // For returning results
         List<TripPattern> tripPatterns = new ArrayList<TripPattern>();
 
         // If tripPatternId specified then return that trip pattern
         if (tripPatternId != null) {
-            TripPattern tripPattern = dbRoute.getTripPattern(tripPatternId);
+            TripPattern tripPattern = dbRoute.getTripPattern(dbConfig, tripPatternId);
             if (tripPattern != null) tripPatterns.add(tripPattern);
             return tripPatterns;
         } else {
@@ -85,7 +84,7 @@ public class IpcRoute extends IpcRouteSummary {
             // trip pattern for direction)...
             if (directionId == null && stopId != null) {
                 // Determine longest trip pattern that serves the stop
-                List<TripPattern> longestTripPatterns = dbRoute.getLongestTripPatternForEachDirection();
+                List<TripPattern> longestTripPatterns = dbRoute.getLongestTripPatternForEachDirection(dbConfig);
                 for (TripPattern tripPattern : longestTripPatterns) {
                     if (tripPattern.servesStop(stopId)) {
                         tripPatterns.add(tripPattern);
@@ -97,12 +96,12 @@ public class IpcRoute extends IpcRouteSummary {
                 if (directionId != null) {
                     // directionId specified so return longest trip pattern
                     // just for this direction
-                    tripPatterns.add(dbRoute.getLongestTripPatternForDirection(directionId));
+                    tripPatterns.add(dbRoute.getLongestTripPatternForDirection(dbConfig, directionId));
                     return tripPatterns;
                 } else {
                     // directionId not specified so return longest trip
                     // patterns for each direction
-                    return dbRoute.getLongestTripPatternForEachDirection();
+                    return dbRoute.getLongestTripPatternForEachDirection(dbConfig);
                 }
             }
         }
@@ -118,19 +117,20 @@ public class IpcRoute extends IpcRouteSummary {
      * can be indicated specially in the UI.
      *
      * @param dbRoute
-     * @param directionId Set if want to know which part of route is major and which is minor.
-     *     Otherwise set to null.
+     * @param dbConfig
+     * @param directionId   Set if want to know which part of route is major and which is minor.
+     *                      Otherwise set to null.
      * @param stopId
      * @param tripPatternId
      * @return
      */
     private static IpcDirectionsForRoute createStops(
-            Route dbRoute, String directionId, String stopId, String tripPatternId) {
+            Route dbRoute, DbConfig dbConfig, String directionId, String stopId, String tripPatternId) {
         // Get the ordered stop IDs per direction for the route
-        Map<String, List<String>> orderedStopsByDirection = dbRoute.getOrderedStopsByDirection();
+        Map<String, List<String>> orderedStopsByDirection = dbRoute.getOrderedStopsByDirection(dbConfig);
 
         // For determining which stops are part of the UI trip patterns
-        List<TripPattern> uiTripPatterns = getUiTripPatterns(dbRoute, directionId, stopId, tripPatternId);
+        List<TripPattern> uiTripPatterns = getUiTripPatterns(dbRoute, dbConfig, directionId, stopId, tripPatternId);
 
         // Go through all the stops for the route and put corresponding IpcStops
         // into IpcDirections.
@@ -169,11 +169,11 @@ public class IpcRoute extends IpcRouteSummary {
                 }
                 // Create the IpcStop and add it to the list of stops for the
                 // current direction
-                Stop stop = Core.getInstance().getDbConfig().getStop(currentStopId);
+                Stop stop = dbConfig.getStop(currentStopId);
                 IpcStop ipcStop = new IpcStop(stop, isUiStop, currentDirectionId, stopPathLength);
                 ipcStopsForDirection.add(ipcStop);
             }
-            ipcDirections.add(new IpcDirection(dbRoute, currentDirectionId, ipcStopsForDirection));
+            ipcDirections.add(new IpcDirection(dbRoute, dbConfig, currentDirectionId, ipcStopsForDirection));
         }
 
         // Returns results
@@ -186,14 +186,15 @@ public class IpcRoute extends IpcRouteSummary {
      * specially in the UI.
      *
      * @param dbRoute
-     * @param directionId Set if want to know which part of route is major and which is minor.
-     *     Otherwise set to null.
+     * @param dbConfig
+     * @param directionId   Set if want to know which part of route is major and which is minor.
+     *                      Otherwise set to null.
      * @param stopId
      * @param tripPatternId
      * @return
      */
     private static Collection<IpcShape> createShapes(
-            Route dbRoute, String directionId, String stopId, String tripPatternId) {
+            Route dbRoute, DbConfig dbConfig, String directionId, String stopId, String tripPatternId) {
         // Create the stops and shapes arrays for this object
         Collection<IpcShape> shapes = new ArrayList<IpcShape>();
 
@@ -205,7 +206,7 @@ public class IpcRoute extends IpcRouteSummary {
         // pattern.	Add these as UI stops and paths. If tripPatternId not
         // specified then use the longest trip pattern for each direction
         // as a UI trip pattern.
-        List<TripPattern> uiTripPatterns = getUiTripPatterns(dbRoute, directionId, stopId, tripPatternId);
+        List<TripPattern> uiTripPatterns = getUiTripPatterns(dbRoute, dbConfig, directionId, stopId, tripPatternId);
         for (TripPattern tripPattern : uiTripPatterns) {
             // Create a special UI shape for the part of this trip pattern
             // that is after the specified stop.
@@ -246,7 +247,7 @@ public class IpcRoute extends IpcRouteSummary {
         // Add all the non-UI paths for the route
         IpcShape ipcShape = null;
         List<TripPattern> tripPatternsForRoute =
-                Core.getInstance().getDbConfig().getTripPatternsForRoute(dbRoute.getId());
+                dbConfig.getTripPatternsForRoute(dbRoute.getId());
         for (TripPattern tripPattern : tripPatternsForRoute) {
             boolean begginingOfSpan = true;
             for (StopPath stopPath : tripPattern.getStopPaths()) {

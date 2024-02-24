@@ -7,9 +7,9 @@ import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.Date;
 
-import org.transitclock.Core;
 import org.transitclock.domain.structs.AvlReport;
 import org.transitclock.domain.structs.Trip;
+import org.transitclock.gtfs.DbConfig;
 import org.transitclock.utils.StringUtils;
 import org.transitclock.utils.SystemTime;
 import org.transitclock.utils.Time;
@@ -101,6 +101,7 @@ public class IpcPrediction implements Serializable {
      * @param tripCounter
      */
     public IpcPrediction(
+            DbConfig dbConfig,
             AvlReport avlReport,
             String stopId,
             int gtfsStopSeq,
@@ -136,7 +137,7 @@ public class IpcPrediction implements Serializable {
         this.creationTime = avlReport.getTimeProcessed();
 
         Date currentTime = SystemTime.getDate();
-        this.tripStartEpochTime = Core.getInstance().getTime().getEpochTime(trip.getStartTime(), currentTime);
+        this.tripStartEpochTime = dbConfig.getTime().getEpochTime(trip.getStartTime(), currentTime);
 
         this.affectedByWaitStop = affectedByWaitStop;
         this.driverId = avlReport.getDriverId();

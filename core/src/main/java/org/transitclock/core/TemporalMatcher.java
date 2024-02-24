@@ -6,12 +6,11 @@ import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.transitclock.ApplicationContext;
-import org.transitclock.Core;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.domain.structs.AvlReport;
 import org.transitclock.domain.structs.Location;
 import org.transitclock.domain.structs.Trip;
+import org.transitclock.gtfs.DbConfig;
 import org.transitclock.utils.Geo;
 import org.transitclock.utils.Time;
 
@@ -27,6 +26,9 @@ import org.transitclock.utils.Time;
 public class TemporalMatcher {
     @Autowired
     private TravelTimes travelTimes;
+
+    @Autowired
+    DbConfig dbConfig;
 
     /**
      * For the spatial match, determines how far off in time the vehicle is from what is expected
@@ -75,7 +77,7 @@ public class TemporalMatcher {
         int msecIntoDayVehicleExpectedToBeAtMatch = tripStartTimeSecs * 1000 + travelTimeForCurrentTrip;
 
         // Need to convert everything to Date or to secsInDay so can do comparison
-        int avlTimeIntoDayMsec = Core.getInstance().getTime().getMsecsIntoDay(date);
+        int avlTimeIntoDayMsec = dbConfig.getTime().getMsecsIntoDay(date);
         int earlyMsec = msecIntoDayVehicleExpectedToBeAtMatch - avlTimeIntoDayMsec;
 
         // Also check if 24 hours early late so that can work even for when
@@ -131,10 +133,6 @@ public class TemporalMatcher {
      * layover then the expected travel time will be 0. For this situation need to determine if
      * still within the layover time, meaning that the time difference is 0, or if the vehicle is
      * instead late since the layover time has already passed.
-     *
-     * @param vehicleState
-     * @param spatialMatches
-     * @return
      */
     private TemporalDifference temporalDifferenceForSpecialLayover(
             VehicleState vehicleState, SpatialMatch spatialMatch, int expectedTravelTimeMsec) {
@@ -152,7 +150,7 @@ public class TemporalMatcher {
             // difference should be 0. But if it is after the departure
             // time then the vehicle is behind where it should be.
             int departureTimeSecs = spatialMatch.getScheduledWaitStopTimeSecs();
-            long scheduledDepartureTime = Core.getInstance().getTime().getEpochTime(departureTimeSecs, avlTime);
+            long scheduledDepartureTime = dbConfig.getTime().getEpochTime(departureTimeSecs, avlTime);
             if (avlTime.getTime() > scheduledDepartureTime) {
                 // Vehicle should have already left so it is late
                 logger.debug(
@@ -267,7 +265,7 @@ public class TemporalMatcher {
 
         // If not after the scheduled time then false
         long avlTime = spatialMatch.getAvlTime();
-        long waitStopSchedTime = spatialMatch.getScheduledWaitStopTime();
+        long waitStopSchedTime = spatialMatch.getScheduledWaitStopTime(dbConfig.getTime());
         if (avlTime < waitStopSchedTime) return false;
 
         // If distance from layover not increasing then false
@@ -515,9 +513,9 @@ public class TemporalMatcher {
      * @param trip
      * @return
      */
-    private static boolean canDeadheadToBeginningOfTripInTime(AvlReport avlReport, Trip trip) {
+    private boolean canDeadheadToBeginningOfTripInTime(AvlReport avlReport, Trip trip) {
         long tripStartTimeMsecs = trip.getStartTime() * 1000;
-        long msecsIntoDay = Core.getInstance().getTime().getMsecsIntoDay(avlReport.getDate(), tripStartTimeMsecs);
+        long msecsIntoDay = dbConfig.getTime().getMsecsIntoDay(avlReport.getDate(), tripStartTimeMsecs);
         // If AVL report is from before the start time of the trip
         // then see if have enough time to travel there.
         if (msecsIntoDay < tripStartTimeMsecs) {
@@ -529,14 +527,14 @@ public class TemporalMatcher {
             double distance = avlReport.getLocation().distance(tripStartLoc);
             int crowFliesTimeMsec = TravelTimes.travelTimeAsTheCrowFlies(distance);
             boolean canDeadhead = crowFliesTimeMsec < availableTimeMsec;
-            trip.getBlock().getTripIndex(trip);
+            trip.getBlock(dbConfig).getTripIndex(trip);
             logger.debug(
                     "For vehicleId={} determining if can deadhead to "
                             + "beginning of tripIndex={} tripId={}. msecsIntoDay={} "
                             + "tripStartTimeMsecs={} distance={} availableTimeMsec={} "
                             + "crowFliesTimeMsec={} canDeadhead={}",
                     avlReport.getVehicleId(),
-                    trip.getIndexInBlock(),
+                    trip.getIndexInBlock(dbConfig),
                     trip.getId(),
                     Time.timeOfDayStr(msecsIntoDay / 1000),
                     Time.timeOfDayStr(tripStartTimeMsecs / 1000),
@@ -553,7 +551,7 @@ public class TemporalMatcher {
                         + "future so can't deadhead to it. msecsIntoDay={} "
                         + "tripStartTimeMsecs={}",
                 avlReport.getVehicleId(),
-                trip.getIndexInBlock(),
+                trip.getIndexInBlock(dbConfig),
                 trip.getId(),
                 Time.timeOfDayStr(msecsIntoDay / 1000),
                 Time.timeOfDayStr(tripStartTimeMsecs / 1000));

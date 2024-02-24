@@ -6,14 +6,12 @@ import com.google.transit.realtime.GtfsRealtime.FeedMessage;
 import com.google.transit.realtime.GtfsRealtime.TripUpdate;
 import com.google.transit.realtime.GtfsRealtime.TripUpdate.StopTimeUpdate;
 import lombok.extern.slf4j.Slf4j;
-import org.transitclock.Core;
 import org.transitclock.config.data.GtfsConfig;
 import org.transitclock.core.predAccuracy.PredAccuracyPrediction;
 import org.transitclock.core.predAccuracy.PredictionAccuracyModule;
 import org.transitclock.domain.structs.ScheduleTime;
 import org.transitclock.domain.structs.StopPath;
 import org.transitclock.domain.structs.Trip;
-import org.transitclock.gtfs.DbConfig;
 
 import java.net.URL;
 import java.util.Calendar;
@@ -28,16 +26,6 @@ import java.util.List;
  */
 @Slf4j
 public class GTFSRealtimePredictionAccuracyModule extends PredictionAccuracyModule {
-
-
-    /**
-     * @param agencyId
-     * @throws Exception
-     */
-    public GTFSRealtimePredictionAccuracyModule(String agencyId) throws Exception {
-        super(agencyId);
-    }
-
     /**
      * Gets GTFS realtime feed all routes from URL and return FeedMessage
      *
@@ -74,8 +62,6 @@ public class GTFSRealtimePredictionAccuracyModule extends PredictionAccuracyModu
         if (feed == null) return;
 
         // So can look up direction in database
-        DbConfig dbConfig = Core.getInstance().getDbConfig();
-
         logger.info("Processing GTFS-rt feed.....");
 
         for (FeedEntity entity : feed.getEntityList()) {

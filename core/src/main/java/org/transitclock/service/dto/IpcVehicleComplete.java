@@ -11,6 +11,7 @@ import org.transitclock.core.SpatialMatch;
 import org.transitclock.core.TemporalDifference;
 import org.transitclock.core.VehicleState;
 import org.transitclock.domain.structs.Trip;
+import org.transitclock.gtfs.DbConfig;
 import org.transitclock.utils.Geo;
 import org.transitclock.utils.Time;
 
@@ -35,10 +36,11 @@ public class IpcVehicleComplete extends IpcVehicleGtfsRealtime {
     /**
      * The constructor.
      *
-     * @param vs The current vehicle state. Must not be null.
+     * @param dbConfig
+     * @param vs       The current vehicle state. Must not be null.
      */
-    public IpcVehicleComplete(VehicleState vs, long layoverDepartureTime) {
-        super(vs, layoverDepartureTime);
+    public IpcVehicleComplete(DbConfig dbConfig, VehicleState vs, long layoverDepartureTime) {
+        super(dbConfig, vs, layoverDepartureTime);
 
         // If vehicle assigned then can set the parameters
         Trip trip = vs.getTrip();

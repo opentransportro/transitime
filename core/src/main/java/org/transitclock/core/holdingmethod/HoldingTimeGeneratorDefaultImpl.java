@@ -1,16 +1,15 @@
 /* (C)2023 */
 package org.transitclock.core.holdingmethod;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.transitclock.ApplicationContext;
-import org.transitclock.Core;
 import org.transitclock.config.data.HoldingConfig;
 import org.transitclock.core.VehicleState;
 import org.transitclock.core.dataCache.*;
+import org.transitclock.domain.hibernate.DataDbLogger;
 import org.transitclock.domain.structs.ArrivalDeparture;
 import org.transitclock.domain.structs.HoldingTime;
-import org.transitclock.service.contract.HoldingTimeInterface;
+import org.transitclock.gtfs.DbConfig;
 import org.transitclock.service.dto.IpcArrivalDeparture;
 import org.transitclock.service.dto.IpcPrediction;
 import org.transitclock.service.dto.IpcPredictionsForRouteStopDest;
@@ -31,19 +30,15 @@ import java.util.List;
  *     <p>This is a WIP.
  */
 @Slf4j
+@RequiredArgsConstructor
 public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
-    @Autowired
-    private PredictionDataCache predictionDataCache;
-    @Autowired
-    private VehicleDataCache vehicleDataCache;
-    @Autowired
-    private HoldingTimeCache holdingTimeCache;
-    @Autowired
-    private VehicleStateManager vehicleStateManager;
-    @Autowired
-    private HoldingTimeGenerator holdingTimeGenerator;
-    @Autowired
-    private StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface;
+    private final PredictionDataCache predictionDataCache;
+    private final StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface;
+    private final DataDbLogger dataDbLogger;
+    private final DbConfig dbConfig;
+    private final VehicleDataCache vehicleDataCache;
+    private final HoldingTimeCache holdingTimeCache;
+    private final VehicleStateManager vehicleStateManager;
 
     public HoldingTime generateHoldingTime(VehicleState vehicleState, IpcArrivalDeparture event) {
 
@@ -121,6 +116,7 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
                             HoldingConfig.maxPredictionsForHoldingTimeCalculation.getValue());
 
                     HoldingTime holdingTime = new HoldingTime(
+                            dbConfig.getConfigRev(),
                             new Date(current_vehicle_arrival_time + holdingTimeValue),
                             SystemTime.getDate(),
                             event.getVehicleId(),
@@ -136,7 +132,7 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
                     logger.debug("Holding time for : {} is {}.", event, holdingTime);
 
                     if (HoldingConfig.storeHoldingTimes.getValue())
-                        Core.getInstance().getDbLogger().add(holdingTime);
+                        dataDbLogger.add(holdingTime);
 
                     return holdingTime;
                 } else {
@@ -147,6 +143,7 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
                             lastVehicleDepartureByHoldingTime.getHoldingTime().getTime());
 
                     HoldingTime holdingTime = new HoldingTime(
+                            dbConfig.getConfigRev(),
                             new Date(current_vehicle_arrival_time + holdingTimeValue),
                             SystemTime.getDate(),
                             event.getVehicleId(),
@@ -162,7 +159,7 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
                     logger.debug("Holding time for : {} is {}.", event, holdingTime);
 
                     if (HoldingConfig.storeHoldingTimes.getValue())
-                        Core.getInstance().getDbLogger().add(holdingTime);
+                        dataDbLogger.add(holdingTime);
 
                     return holdingTime;
                 }
@@ -196,6 +193,7 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
                             HoldingConfig.maxPredictionsForHoldingTimeCalculation.getValue());
 
                     HoldingTime holdingTime = new HoldingTime(
+                            dbConfig.getConfigRev(),
                             new Date(current_vehicle_arrival_time + holdingTimeValue),
                             SystemTime.getDate(),
                             event.getVehicleId(),
@@ -211,7 +209,7 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
                     logger.debug("Holding time for : {} is {}.", event, holdingTime);
 
                     if (HoldingConfig.storeHoldingTimes.getValue())
-                        Core.getInstance().getDbLogger().add(holdingTime);
+                        dataDbLogger.add(holdingTime);
 
                     return holdingTime;
                 } else {
@@ -224,6 +222,7 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
                     logger.debug("Holding time for : {} is {}.", event, holdingTimeValue);
 
                     HoldingTime holdingTime = new HoldingTime(
+                            dbConfig.getConfigRev(),
                             new Date(current_vehicle_arrival_time + holdingTimeValue),
                             SystemTime.getDate(),
                             event.getVehicleId(),
@@ -237,7 +236,7 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
                             0);
 
                     if (HoldingConfig.storeHoldingTimes.getValue())
-                        Core.getInstance().getDbLogger().add(holdingTime);
+                        dataDbLogger.add(holdingTime);
 
                     return holdingTime;
                 }
@@ -249,6 +248,7 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
                 long current_vehicle_arrival_time = event.getTime().getTime();
                 // TODO WHY BOTHER?
                 HoldingTime holdingTime = new HoldingTime(
+                        dbConfig.getConfigRev(),
                         new Date(current_vehicle_arrival_time),
                         SystemTime.getDate(),
                         event.getVehicleId(),
@@ -262,7 +262,7 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
                         0);
 
                 if (HoldingConfig.storeHoldingTimes.getValue())
-                    Core.getInstance().getDbLogger().add(holdingTime);
+                    dataDbLogger.add(holdingTime);
 
                 return holdingTime;
             }
@@ -278,7 +278,7 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
         List<String> ordered = null;
         for (VehicleState currentVehicleState : vehicleStateManager.getVehiclesState()) {
             if (currentVehicleState.getTrip() != null
-                    && currentVehicleState.getTrip().getRoute().getId().equals(routeId)
+                    && currentVehicleState.getTrip().getRoute(dbConfig).getId().equals(routeId)
                     && currentVehicleState.isPredictable()) {
                 count++;
                 unordered.add(currentVehicleState);
@@ -520,6 +520,7 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
                                 HoldingConfig.maxPredictionsForHoldingTimeCalculation.getValue());
 
                         holdingTime = new HoldingTime(
+                                dbConfig.getConfigRev(),
                                 new Date(arrivalPrediction.getPredictionTime() + holdingTimeValue),
                                 SystemTime.getDate(),
                                 arrivalPrediction.getVehicleId(),
@@ -534,7 +535,7 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
 
                         logger.debug("Holding time for : {} is {}.", arrivalPrediction, holdingTime);
                         if (HoldingConfig.storeHoldingTimes.getValue())
-                            Core.getInstance().getDbLogger().add(holdingTime);
+                            dataDbLogger.add(holdingTime);
 
                     } else if (lastDeparture.getTime().getTime() <= forwardDeparturePrediction.getPredictionTime()) {
                         long holdingTimeValue = calculateHoldingTime(
@@ -544,6 +545,7 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
                                 HoldingConfig.maxPredictionsForHoldingTimeCalculation.getValue());
 
                         holdingTime = new HoldingTime(
+                                dbConfig.getConfigRev(),
                                 new Date(arrivalPrediction.getPredictionTime() + holdingTimeValue),
                                 SystemTime.getDate(),
                                 arrivalPrediction.getVehicleId(),
@@ -558,7 +560,7 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
 
                         logger.debug("Holding time for : {} is {}.", arrivalPrediction, holdingTime);
                         if (HoldingConfig.storeHoldingTimes.getValue())
-                            Core.getInstance().getDbLogger().add(holdingTime);
+                            dataDbLogger.add(holdingTime);
                     }
                 } else if (forwardDeparturePrediction != null) {
                     long holdingTimeValue = calculateHoldingTime(
@@ -568,6 +570,7 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
                             HoldingConfig.maxPredictionsForHoldingTimeCalculation.getValue());
 
                     holdingTime = new HoldingTime(
+                            dbConfig.getConfigRev(),
                             new Date(arrivalPrediction.getPredictionTime() + holdingTimeValue),
                             SystemTime.getDate(),
                             arrivalPrediction.getVehicleId(),
@@ -581,7 +584,7 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
                             N.length);
                     logger.debug("Holding time for : {} is {}.", arrivalPrediction, holdingTime);
                     if (HoldingConfig.storeHoldingTimes.getValue()) {
-                        Core.getInstance().getDbLogger().add(holdingTime);
+                        dataDbLogger.add(holdingTime);
                     }
 
                 } else if (lastDeparture != null) {
@@ -592,6 +595,7 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
                             HoldingConfig.maxPredictionsForHoldingTimeCalculation.getValue());
 
                     holdingTime = new HoldingTime(
+                            dbConfig.getConfigRev(),
                             new Date(arrivalPrediction.getPredictionTime() + holdingTimeValue),
                             SystemTime.getDate(),
                             arrivalPrediction.getVehicleId(),
@@ -605,7 +609,7 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
                             N.length);
                     logger.debug("Holding time for : {} is {}.", arrivalPrediction, holdingTime);
                     if (HoldingConfig.storeHoldingTimes.getValue()) {
-                        Core.getInstance().getDbLogger().add(holdingTime);
+                        dataDbLogger.add(holdingTime);
                     }
                 }
 
@@ -628,6 +632,7 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
                     }
                     if (holdingTimeValue != null) {
                         holdingTime = new HoldingTime(
+                                dbConfig.getConfigRev(),
                                 new Date(arrivalPrediction.getPredictionTime() + holdingTimeValue),
                                 SystemTime.getDate(),
                                 arrivalPrediction.getVehicleId(),
@@ -643,7 +648,7 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
                         logger.debug("Holding time for : {} is {}.", arrivalPrediction, holdingTime);
 
                         if (HoldingConfig.storeHoldingTimes.getValue())
-                            Core.getInstance().getDbLogger().add(holdingTime);
+                            dataDbLogger.add(holdingTime);
 
                         return holdingTime;
                     } else {
@@ -651,6 +656,7 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
                                 "Did not calucate holding time for some strange reason.",
                                 arrivalPrediction.getStopId());
                         holdingTime = new HoldingTime(
+                                dbConfig.getConfigRev(),
                                 new Date(arrivalPrediction.getPredictionTime()),
                                 SystemTime.getDate(),
                                 arrivalPrediction.getVehicleId(),
@@ -664,7 +670,7 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
                                 0);
 
                         if (HoldingConfig.storeHoldingTimes.getValue())
-                            Core.getInstance().getDbLogger().add(holdingTime);
+                            dataDbLogger.add(holdingTime);
 
                         return holdingTime;
                     }
@@ -675,6 +681,7 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
                             arrivalPrediction.getStopId());
                     long current_vehicle_arrival_time = arrivalPrediction.getPredictionTime();
                     holdingTime = new HoldingTime(
+                            dbConfig.getConfigRev(),
                             new Date(current_vehicle_arrival_time),
                             SystemTime.getDate(),
                             arrivalPrediction.getVehicleId(),
@@ -688,7 +695,7 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
                             0);
 
                     if (HoldingConfig.storeHoldingTimes.getValue())
-                        Core.getInstance().getDbLogger().add(holdingTime);
+                        dataDbLogger.add(holdingTime);
 
                     return holdingTime;
                 }
@@ -822,7 +829,7 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
                     IpcArrivalDeparture lastArrival = getLastVehicleArrivalEvent(
                             arrivalDeparture.getStopId(), otherState.getVehicleId(), arrivalDeparture.getAvlTime());
 
-                    HoldingTime otherHoldingTime = holdingTimeGenerator.generateHoldingTime(otherState, lastArrival);
+                    HoldingTime otherHoldingTime = generateHoldingTime(otherState, lastArrival);
 
                     holdingTimeCache.putHoldingTime(otherHoldingTime);
 

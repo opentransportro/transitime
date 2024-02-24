@@ -2,6 +2,8 @@
 package org.transitclock.utils;
 
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 /**
  * Inherits from ConcurrentHashMap but allows null key to be used. The methods that use the key are
@@ -11,8 +13,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author SkiBu Smith
  */
 public class ConcurrentHashMapNullKeyOk<K, V> extends ConcurrentHashMap<K, V> {
-
-    private static final long serialVersionUID = 6527928623559466566L;
 
     public ConcurrentHashMapNullKeyOk() {
         super();
@@ -55,6 +55,11 @@ public class ConcurrentHashMapNullKeyOk<K, V> extends ConcurrentHashMap<K, V> {
 
     public V putIfAbsent(K key, V value) {
         return super.putIfAbsent((K) modKey(key), value);
+    }
+
+    @Override
+    public V computeIfAbsent(K key, Function<? super K, ? extends V> mappingFunction) {
+        return super.computeIfAbsent((K) modKey(key), mappingFunction);
     }
 
     public V remove(Object key) {

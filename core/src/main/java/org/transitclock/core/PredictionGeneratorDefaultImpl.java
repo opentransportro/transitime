@@ -2,18 +2,14 @@
 package org.transitclock.core;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.transitclock.ApplicationContext;
-import org.transitclock.Core;
-import org.transitclock.core.dataCache.HoldingTimeCache;
-import org.transitclock.core.dataCache.StopPathPredictionCache;
-import org.transitclock.core.dataCache.VehicleStateManager;
+import org.transitclock.core.dataCache.*;
 import org.transitclock.core.holdingmethod.HoldingTimeGenerator;
-import org.transitclock.core.holdingmethod.HoldingTimeGeneratorFactory;
 import org.transitclock.core.predictiongenerator.PredictionComponentElementsGenerator;
 import org.transitclock.core.predictiongenerator.bias.BiasAdjuster;
-import org.transitclock.core.predictiongenerator.bias.BiasAdjusterFactory;
+import org.transitclock.core.predictiongenerator.datafilter.TravelTimeDataFilter;
+import org.transitclock.domain.hibernate.DataDbLogger;
 import org.transitclock.domain.structs.*;
+import org.transitclock.gtfs.DbConfig;
 import org.transitclock.service.dto.IpcPrediction;
 import org.transitclock.service.dto.IpcPrediction.ArrivalOrDeparture;
 import org.transitclock.utils.Geo;
@@ -49,16 +45,36 @@ import static org.transitclock.config.data.CoreConfig.*;
  */
 @Slf4j
 public class PredictionGeneratorDefaultImpl extends PredictionGenerator implements PredictionComponentElementsGenerator {
-    @Autowired
-    protected HoldingTimeCache holdingTimeCache;
-    @Autowired
-    protected StopPathPredictionCache stopPathPredictionCache;
-    @Autowired
-    protected TravelTimes travelTimes;
-    @Autowired
-    protected HoldingTimeGenerator holdingTimeGenerator;
-    @Autowired
-    protected VehicleStateManager vehicleStateManager;
+    protected final HoldingTimeCache holdingTimeCache;
+    protected final StopPathPredictionCache stopPathPredictionCache;
+    protected final TravelTimes travelTimes;
+    protected final HoldingTimeGenerator holdingTimeGenerator;
+    protected final VehicleStateManager vehicleStateManager;
+    protected final RealTimeSchedAdhProcessor realTimeSchedAdhProcessor;
+    protected final BiasAdjuster biasAdjuster;
+
+    public PredictionGeneratorDefaultImpl(StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface,
+                                          TripDataHistoryCacheInterface tripDataHistoryCacheInterface,
+                                          DbConfig dbConfig,
+                                          DataDbLogger dataDbLogger,
+                                          TravelTimeDataFilter travelTimeDataFilter,
+                                          HoldingTimeCache holdingTimeCache,
+                                          StopPathPredictionCache stopPathPredictionCache,
+                                          TravelTimes travelTimes,
+                                          HoldingTimeGenerator holdingTimeGenerator,
+                                          VehicleStateManager vehicleStateManager,
+                                          RealTimeSchedAdhProcessor realTimeSchedAdhProcessor,
+                                          BiasAdjuster biasAdjuster) {
+
+        super(stopArrivalDepartureCacheInterface, tripDataHistoryCacheInterface, dbConfig, dataDbLogger, travelTimeDataFilter);
+        this.holdingTimeCache = holdingTimeCache;
+        this.stopPathPredictionCache = stopPathPredictionCache;
+        this.travelTimes = travelTimes;
+        this.holdingTimeGenerator = holdingTimeGenerator;
+        this.vehicleStateManager = vehicleStateManager;
+        this.realTimeSchedAdhProcessor = realTimeSchedAdhProcessor;
+        this.biasAdjuster = biasAdjuster;
+    }
 
     /**
      * Generates prediction for the stop specified by the indices parameter. It will be an arrival
@@ -95,10 +111,7 @@ public class PredictionGeneratorDefaultImpl extends PredictionGenerator implemen
         String stopId = path.getStopId();
         int gtfsStopSeq = path.getGtfsStopSeq();
 
-        if (BiasAdjusterFactory.getInstance() != null) {
-            BiasAdjuster adjuster = BiasAdjusterFactory.getInstance();
-            predictionTime = avlReport.getTime() + adjuster.adjustPrediction(predictionTime - avlReport.getTime());
-        }
+        predictionTime = avlReport.getTime() + biasAdjuster.adjustPrediction(predictionTime - avlReport.getTime());
 
         Trip trip = indices.getTrip();
 
@@ -114,6 +127,7 @@ public class PredictionGeneratorDefaultImpl extends PredictionGenerator implemen
         if ((indices.atEndOfTrip() || useArrivalTimes) && !indices.isWaitStop()) {
             // Create and return arrival time for this stop
             return new IpcPrediction(
+                    dbConfig,
                     avlReport,
                     stopId,
                     gtfsStopSeq,
@@ -175,7 +189,7 @@ public class PredictionGeneratorDefaultImpl extends PredictionGenerator implemen
                 // the schedule time. But if after the scheduled time then use
                 // the prediction time, which indicates when it is going to arrive
                 // at the stop, but also adjust for stop wait time.
-                long scheduledDepartureTime = TravelTimes.scheduledDepartureTime(indices, arrivalTime);
+                long scheduledDepartureTime = travelTimes.scheduledDepartureTime(indices, arrivalTime);
                 long expectedDepartureTime = Math.max(arrivalTime + expectedStopTimeMsec, scheduledDepartureTime);
                 if (expectedDepartureTime > scheduledDepartureTime) {
                     logger.info(
@@ -236,6 +250,7 @@ public class PredictionGeneratorDefaultImpl extends PredictionGenerator implemen
                     long predictionForNextStopCalculation = expectedDepartureTime;
                     long predictionForUser = expectedDepartureTimeWithoutStopWaitTime;
                     return new IpcPrediction(
+                            dbConfig,
                             avlReport,
                             stopId,
                             gtfsStopSeq,
@@ -256,6 +271,7 @@ public class PredictionGeneratorDefaultImpl extends PredictionGenerator implemen
                     // Use the expected departure times, possibly adjusted for
                     // stop wait times
                     return new IpcPrediction(
+                            dbConfig,
                             avlReport,
                             stopId,
                             gtfsStopSeq,
@@ -276,6 +292,7 @@ public class PredictionGeneratorDefaultImpl extends PredictionGenerator implemen
                 // Create and return the departure prediction for this
                 // non-wait-stop stop
                 return new IpcPrediction(
+                        dbConfig,
                         avlReport,
                         stopId,
                         gtfsStopSeq,
@@ -370,7 +387,7 @@ public class PredictionGeneratorDefaultImpl extends PredictionGenerator implemen
             boolean lateSoMarkAsUncertain =
                     lateSoMarkSubsequentTripsAsUncertain && indices.getTripIndex() > currentTripIndex;
 
-            int delay = RealTimeSchedAdhProcessor
+            int delay = realTimeSchedAdhProcessor
                     .generateEffectiveScheduleDifference(vehicleState)
                     .getTemporalDifference() / 1000;
 
@@ -487,9 +504,9 @@ public class PredictionGeneratorDefaultImpl extends PredictionGenerator implemen
                     }
                 }
             }
-            indices.incrementStopPath(predictionTime);
+            indices.incrementStopPath(predictionTime, dbConfig);
             // If reached end of block then done
-            if (indices.pastEndOfBlock(predictionTime)) {
+            if (indices.pastEndOfBlock(predictionTime, dbConfig)) {
                 logger.debug("For vehicleId={} reached end of block when generating predictions.",
                         vehicleState.getVehicleId());
                 break;
@@ -521,7 +538,7 @@ public class PredictionGeneratorDefaultImpl extends PredictionGenerator implemen
                     "TRANSITIME DEFAULT",
                     true,
                     null);
-            Core.getInstance().getDbLogger().add(predictionForStopPath);
+            dataDbLogger.add(predictionForStopPath);
             stopPathPredictionCache.putPrediction(predictionForStopPath);
         }
         return indices.getTravelTimeForPath();

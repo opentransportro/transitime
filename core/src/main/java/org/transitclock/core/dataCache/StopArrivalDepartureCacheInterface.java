@@ -10,9 +10,9 @@ import java.util.List;
 
 public interface StopArrivalDepartureCacheInterface {
 
-    public List<IpcArrivalDeparture> getStopHistory(StopArrivalDepartureCacheKey key);
+    List<IpcArrivalDeparture> getStopHistory(StopArrivalDepartureCacheKey key);
 
-    public StopArrivalDepartureCacheKey putArrivalDeparture(ArrivalDeparture arrivalDeparture);
+    StopArrivalDepartureCacheKey putArrivalDeparture(ArrivalDeparture arrivalDeparture);
 
-    public void populateCacheFromDb(Session session, Date startDate, Date endDate);
+    void populateCacheFromDb(Session session, Date startDate, Date endDate);
 }

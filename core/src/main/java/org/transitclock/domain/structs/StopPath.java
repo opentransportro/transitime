@@ -8,14 +8,10 @@ import java.util.List;
 
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.CallbackException;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.classic.Lifecycle;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.transitclock.Core;
 import org.transitclock.config.data.CoreConfig;
 
 /**
@@ -255,15 +251,6 @@ public class StopPath implements Serializable, Lifecycle {
         return stopPathId;
     }
 
-    /**
-     * Provides the name of the stop as obtained by a Core predictor. Cannot be used with other
-     * applications.
-     *
-     * @return the name of the stop
-     */
-    public String getStopName() {
-        return Core.getInstance().getDbConfig().getStop(stopId).getName();
-    }
 
     /**
      * Locations are not available when StopPath is first created so need to be able to set them

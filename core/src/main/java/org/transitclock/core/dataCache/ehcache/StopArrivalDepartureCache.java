@@ -6,10 +6,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.ehcache.Cache;
 import org.ehcache.CacheManager;
 import org.hibernate.Session;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.transitclock.ApplicationContext;
-import org.transitclock.core.dataCache.*;
+import org.transitclock.core.dataCache.StopArrivalDepartureCacheInterface;
+import org.transitclock.core.dataCache.StopArrivalDepartureCacheKey;
+import org.transitclock.core.dataCache.StopEvents;
 import org.transitclock.domain.structs.ArrivalDeparture;
 import org.transitclock.domain.structs.QArrivalDeparture;
 import org.transitclock.service.dto.IpcArrivalDeparture;
@@ -27,23 +26,15 @@ import java.util.List;
  *     perhaps using Infinispan.
  */
 @Slf4j
-@Component
 public class StopArrivalDepartureCache implements StopArrivalDepartureCacheInterface {
     private static final String cacheByStop = "arrivalDeparturesByStop";
     private final Cache<StopArrivalDepartureCacheKey, StopEvents> cache;
-    @Autowired
-    private DwellTimeModelCacheInterface dwellTimeModelCacheInterface;
 
     public StopArrivalDepartureCache(CacheManager cm) {
         cache = cm.getCache(cacheByStop, StopArrivalDepartureCacheKey.class, StopEvents.class);
     }
 
 
-    /* (non-Javadoc)
-     * @see org.transitime.core.dataCache.ehcache.StopArrivalDepartureCacheInterface#getStopHistory(org.transitime.core.dataCache.StopArrivalDepartureCacheKey)
-     */
-
-    @SuppressWarnings("unchecked")
     public synchronized List<IpcArrivalDeparture> getStopHistory(StopArrivalDepartureCacheKey key) {
         Calendar date = Calendar.getInstance();
         date.setTime(key.getDate());
@@ -74,9 +65,10 @@ public class StopArrivalDepartureCache implements StopArrivalDepartureCacheInter
         date.set(Calendar.MINUTE, 0);
         date.set(Calendar.SECOND, 0);
         date.set(Calendar.MILLISECOND, 0);
-        if (arrivalDeparture.getStop() != null) {
+        if (arrivalDeparture.getStopId() != null) {
+
             StopArrivalDepartureCacheKey key =
-                    new StopArrivalDepartureCacheKey(arrivalDeparture.getStop().getId(), date.getTime());
+                    new StopArrivalDepartureCacheKey(arrivalDeparture.getStopId(), date.getTime());
 
             StopEvents element = cache.get(key);
 
@@ -112,12 +104,6 @@ public class StopArrivalDepartureCache implements StopArrivalDepartureCacheInter
 
         for (ArrivalDeparture result : results) {
             putArrivalDeparture(result);
-            // TODO might be better with its own populateCacheFromdb
-            try {
-                dwellTimeModelCacheInterface.addSample(result);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
         }
     }
 }

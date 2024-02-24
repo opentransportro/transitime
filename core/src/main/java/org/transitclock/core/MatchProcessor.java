@@ -4,14 +4,13 @@ package org.transitclock.core;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.transitclock.ApplicationContext;
-import org.transitclock.Core;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.core.dataCache.PredictionDataCache;
 import org.transitclock.domain.hibernate.DataDbLogger;
 import org.transitclock.domain.structs.Headway;
 import org.transitclock.domain.structs.Match;
 import org.transitclock.domain.structs.Prediction;
+import org.transitclock.gtfs.DbConfig;
 import org.transitclock.service.dto.IpcPrediction;
 import org.transitclock.utils.Time;
 
@@ -28,6 +27,8 @@ import java.util.List;
 public class MatchProcessor {
     @Autowired
     private DataDbLogger dbLogger;
+    @Autowired
+    private DbConfig dbConfig;
     @Autowired
     private PredictionDataCache predictionDataCache;
     @Autowired
@@ -55,7 +56,7 @@ public class MatchProcessor {
                 // If prediction not too far into the future then ...
                 if (prediction.getPredictionTime() - prediction.getAvlTime()
                         < ((long) CoreConfig.getMaxPredictionsTimeForDbSecs() * Time.MS_PER_SEC)) {
-                    dbLogger.add(new Prediction(prediction));
+                    dbLogger.add(new Prediction(dbConfig.getConfigRev(), prediction));
 
                 } else {
                     logger.debug(
@@ -113,7 +114,7 @@ public class MatchProcessor {
     private void processSpatialMatch(VehicleState vehicleState) {
         logger.debug("Processing spatial match for vehicleId={}", vehicleState.getVehicleId());
 
-        Match match = new Match(vehicleState);
+        Match match = new Match(vehicleState, dbConfig.getConfigRev());
         logger.debug("{}", match);
 
         // Store match in database if it is not at a stop. The reason only

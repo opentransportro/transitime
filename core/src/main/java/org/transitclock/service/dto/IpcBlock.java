@@ -4,10 +4,11 @@ package org.transitclock.service.dto;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import org.transitclock.Core;
+
 import org.transitclock.domain.structs.Block;
 import org.transitclock.domain.structs.Route;
 import org.transitclock.domain.structs.Trip;
+import org.transitclock.gtfs.DbConfig;
 import org.transitclock.utils.Time;
 
 /**
@@ -26,7 +27,7 @@ public class IpcBlock implements Serializable {
     private final List<IpcTrip> trips;
     private final List<IpcRouteSummary> routeSummaries;
 
-    public IpcBlock(Block dbBlock) {
+    public IpcBlock(Block dbBlock, DbConfig dbConfig) {
         configRev = dbBlock.getConfigRev();
         id = dbBlock.getId();
         serviceId = dbBlock.getServiceId();
@@ -35,12 +36,12 @@ public class IpcBlock implements Serializable {
 
         trips = new ArrayList<IpcTrip>();
         for (Trip dbTrip : dbBlock.getTrips()) {
-            trips.add(new IpcTrip(dbTrip));
+            trips.add(new IpcTrip(dbTrip, dbConfig));
         }
 
-        routeSummaries = new ArrayList<IpcRouteSummary>();
+        routeSummaries = new ArrayList<>();
         for (String routeId : dbBlock.getRouteIds()) {
-            Route dbRoute = Core.getInstance().getDbConfig().getRouteById(routeId);
+            Route dbRoute = dbConfig.getRouteById(routeId);
             routeSummaries.add(new IpcRouteSummary(dbRoute));
         }
     }

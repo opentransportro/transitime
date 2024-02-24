@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.transitclock.ApplicationContext;
 import org.transitclock.core.AvlProcessor;
 import org.transitclock.core.TemporalMatch;
 import org.transitclock.core.VehicleState;
@@ -13,6 +12,7 @@ import org.transitclock.core.avl.AvlExecutor;
 import org.transitclock.core.dataCache.PredictionDataCache;
 import org.transitclock.core.dataCache.VehicleDataCache;
 import org.transitclock.core.dataCache.VehicleStateManager;
+import org.transitclock.domain.hibernate.DataDbLogger;
 import org.transitclock.domain.hibernate.HibernateUtils;
 import org.transitclock.domain.structs.AvlReport;
 import org.transitclock.domain.structs.VehicleEvent;
@@ -37,6 +37,10 @@ public class CommandsServiceImpl implements CommandsInterface {
     private AvlProcessor avlProcessor;
     @Autowired
     private VehicleStateManager vehicleStateManager;
+    @Autowired
+    private DataDbLogger dataDbLogger;
+    @Autowired
+    private AvlExecutor avlExecutor;
 
     public CommandsServiceImpl() {
     }
@@ -52,7 +56,7 @@ public class CommandsServiceImpl implements CommandsInterface {
         // Use AvlExecutor to actually process the data using a thread executor
         AvlReport avlReport = new AvlReport(avlData);
         logger.debug("Processing AVL report {}", avlReport);
-        AvlExecutor.getInstance().processAvlReport(avlReport);
+        avlExecutor.processAvlReport(avlReport);
 
         // Return that was successful
         return null;
@@ -70,7 +74,7 @@ public class CommandsServiceImpl implements CommandsInterface {
             // Use AvlExecutor to actually process the data using a thread executor
             AvlReport avlReport = new AvlReport(avlData);
             logger.debug("Processing AVL report {}", avlReport);
-            AvlExecutor.getInstance().processAvlReport(avlReport);
+            avlExecutor.processAvlReport(avlReport);
         }
 
         // Return that was successful
@@ -88,14 +92,16 @@ public class CommandsServiceImpl implements CommandsInterface {
 
         String vehicleEvent = "Command called to make vehicleId unpredicable. ";
         String eventDescription = "Command called to make vehicleId unpredicable. ";
-        VehicleEvent.create(
+        VehicleEvent vehicleEvent1 = new VehicleEvent(
                 avlReport,
                 lastMatch,
                 vehicleEvent,
                 eventDescription,
                 false, // predictable
                 wasPredictable, // becameUnpredictable
-                null); // supervisor
+                null);// supervisor
+        dataDbLogger.add(vehicleEvent1);
+
 
         // Update the state of the vehicle
         vehicleState.setMatch(null);
@@ -170,7 +176,8 @@ public class CommandsServiceImpl implements CommandsInterface {
     @Override
     public String addVehicleToBlock(
             String vehicleId, String blockId, String tripId, Date assignmentDate, Date validFrom, Date validTo) {
-        VehicleToBlockConfig.create(vehicleId, blockId, tripId, assignmentDate, validFrom, validTo);
+        VehicleToBlockConfig vehicleToBlockConfig = new VehicleToBlockConfig(vehicleId, blockId, tripId, assignmentDate, validFrom, validTo);
+        dataDbLogger.add(vehicleToBlockConfig);
         return null;
     }
 

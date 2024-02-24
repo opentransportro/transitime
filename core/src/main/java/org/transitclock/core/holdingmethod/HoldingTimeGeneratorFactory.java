@@ -1,9 +1,13 @@
 /* (C)2023 */
 package org.transitclock.core.holdingmethod;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.transitclock.config.ClassConfigValue;
+import org.transitclock.core.dataCache.*;
+import org.transitclock.domain.hibernate.DataDbLogger;
+import org.transitclock.gtfs.DbConfig;
 import org.transitclock.utils.ClassInstantiator;
 
 /**
@@ -17,14 +21,20 @@ public class HoldingTimeGeneratorFactory {
             DummyHoldingTimeGeneratorImpl.class,
             "Specifies the name of the class used for generating " + "holding times.");
 
-    private static HoldingTimeGenerator singleton = null;
-
     @Bean
-    public HoldingTimeGenerator holdingTimeGenerator() {
-        if (singleton == null && className.getValue() != null) {
-            singleton = ClassInstantiator.instantiate(className.getValue(), HoldingTimeGenerator.class);
+    public HoldingTimeGenerator holdingTimeGenerator(PredictionDataCache predictionDataCache,
+                                                     StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface,
+                                                     DataDbLogger dataDbLogger,
+                                                     DbConfig dbConfig,
+                                                     VehicleDataCache vehicleDataCache,
+                                                     HoldingTimeCache holdingTimeCache,
+                                                     VehicleStateManager vehicleStateManager) {
+        if (className.getValue() == HoldingTimeGeneratorDefaultImpl.class) {
+            return new HoldingTimeGeneratorDefaultImpl(predictionDataCache, stopArrivalDepartureCacheInterface, dataDbLogger, dbConfig, vehicleDataCache, holdingTimeCache, vehicleStateManager);
+        } else if(className.getValue() == SimpleHoldingTimeGeneratorImpl.class) {
+            return new SimpleHoldingTimeGeneratorImpl(predictionDataCache, stopArrivalDepartureCacheInterface, dataDbLogger, dbConfig);
         }
 
-        return singleton;
+        return new DummyHoldingTimeGeneratorImpl();
     }
 }

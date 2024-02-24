@@ -3,6 +3,8 @@ package org.transitclock.domain.structs;
 
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
+import org.transitclock.gtfs.DbConfig;
+
 import java.util.Date;
 
 /**
@@ -13,28 +15,6 @@ import java.util.Date;
 @Entity
 @DiscriminatorValue(value = "DEPARTURE")
 public class Departure extends ArrivalDeparture {
-    /**
-     * Simple constructor
-     *
-     * @param vehicleId
-     * @param time
-     * @param avlTime So can match arrival to the AVL report that generated it
-     * @param blockId
-     * @param stopId
-     * @param tripId
-     * @param tripIndex
-     * @param stopPathIndex
-     */
-    public Departure(
-            String vehicleId,
-            Date time,
-            Date avlTime,
-            Block block,
-            int tripIndex,
-            int stopPathIndex,
-            Date freqStartTime) {
-        super(vehicleId, time, avlTime, block, tripIndex, stopPathIndex, false, freqStartTime); // isArrival
-    }
 
     public Departure(
             int configRev,
@@ -44,8 +24,9 @@ public class Departure extends ArrivalDeparture {
             Block block,
             int tripIndex,
             int stopPathIndex,
-            Date freqStartTime) {
-        super(configRev, vehicleId, time, avlTime, block, tripIndex, stopPathIndex, false, freqStartTime); // isArrival
+            Date freqStartTime,
+            DbConfig dbConfig) {
+        super(configRev, vehicleId, time, avlTime, block, tripIndex, stopPathIndex, false, freqStartTime, dbConfig); // isArrival
     }
 
     /**

@@ -8,16 +8,8 @@ import org.transitclock.utils.SystemTime;
 
 @Slf4j
 public class PlaybackPredictionAccuracyModule extends PredictionAccuracyModule {
-    public PlaybackPredictionAccuracyModule(String agencyId) {
-        super(agencyId);
-    }
-
     @Override
     public void run() {
-        // TODO Auto-generated method stub
-        // Log that module successfully started
-        logger.info("Started module {} for agencyId={}", getClass().getName(), getAgencyId());
-
         // Run forever
         PlaybackIntervalTimer timer = new PlaybackIntervalTimer();
         while (true) {

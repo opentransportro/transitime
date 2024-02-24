@@ -224,12 +224,12 @@ public class UpdateTravelTimes {
     private static void writeNewTripDataToDb(Session session, Map<String, Trip> tripMap) {
         // Log the trips. Only do this if debug enabled because the
         // trip info along with travel times is really verbose.
-        if (logger.isDebugEnabled()) {
-            logger.debug("The trips with the new trip times are:");
-            for (Trip trip : tripMap.values()) {
-                logger.debug(trip.toLongString());
-            }
-        }
+//        if (logger.isDebugEnabled()) {
+//            logger.debug("The trips with the new trip times are:");
+//            for (Trip trip : tripMap.values()) {
+//                logger.debug(trip.toLongString());
+//            }
+//        }
 
         // Write out the trips to the database. This also writes out the
         // cascading data which includes the new travel times.

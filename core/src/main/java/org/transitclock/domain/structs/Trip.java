@@ -11,9 +11,6 @@ import java.util.List;
 import java.util.Map;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.CallbackException;
 import org.hibernate.HibernateException;
@@ -23,7 +20,7 @@ import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.classic.Lifecycle;
 import org.hibernate.collection.spi.PersistentList;
-import org.transitclock.Core;
+import org.transitclock.domain.hibernate.HibernateUtils;
 import org.transitclock.gtfs.DbConfig;
 import org.transitclock.gtfs.TitleFormatter;
 import org.transitclock.gtfs.model.GtfsTrip;
@@ -406,7 +403,6 @@ public class Trip implements Lifecycle, Serializable {
      * @throws HibernateException
      */
     public static Map<String, Trip> getTrips(Session session, int configRev) throws HibernateException {
-        // Setup the query
         List<Trip> tripsList = session.createQuery("FROM Trip WHERE configRev = :configRev", Trip.class)
                 .setParameter("configRev", configRev)
                 .list();
@@ -468,129 +464,129 @@ public class Trip implements Lifecycle, Serializable {
                 .executeUpdate();
     }
 
-    /* (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
-    @Override
-    public String toString() {
-        // Note: the '\n' at beginning is so that when output list of trips
-        // each will be on new line
-        return "\n    Trip ["
-                + "configRev="
-                + configRev
-                + ", tripId="
-                + tripId
-                + ", tripShortName="
-                + tripShortName
-                + ", tripPatternId="
-                + (tripPattern != null ? tripPattern.getId() : "null")
-                + ", tripIndexInBlock="
-                + getIndexInBlock()
-                + ", startTime="
-                + Time.timeOfDayStr(startTime)
-                + ", endTime="
-                + Time.timeOfDayStr(endTime)
-                + (headsign != null ? ", headsign=\"" + headsign + "\"" : "")
-                + ", directionId="
-                + directionId
-                + ", routeId="
-                + routeId
-                + ", routeShortName="
-                + routeShortName
-                + (noSchedule ? ", noSchedule=" + noSchedule : "")
-                + (exactTimesHeadway ? ", exactTimesHeadway=" + exactTimesHeadway : "")
-                + ", serviceId="
-                + serviceId
-                + ", blockId="
-                + blockId
-                + ", shapeId="
-                + shapeId
-                //				+ ", scheduledTimesList=" + scheduledTimesList
-                + "]";
-    }
+//    /* (non-Javadoc)
+//     * @see java.lang.Object#toString()
+//     */
+//    @Override
+//    public String toString() {
+//        // Note: the '\n' at beginning is so that when output list of trips
+//        // each will be on new line
+//        return "\n    Trip ["
+//                + "configRev="
+//                + configRev
+//                + ", tripId="
+//                + tripId
+//                + ", tripShortName="
+//                + tripShortName
+//                + ", tripPatternId="
+//                + (tripPattern != null ? tripPattern.getId() : "null")
+//                + ", tripIndexInBlock="
+//                + getIndexInBlock()
+//                + ", startTime="
+//                + Time.timeOfDayStr(startTime)
+//                + ", endTime="
+//                + Time.timeOfDayStr(endTime)
+//                + (headsign != null ? ", headsign=\"" + headsign + "\"" : "")
+//                + ", directionId="
+//                + directionId
+//                + ", routeId="
+//                + routeId
+//                + ", routeShortName="
+//                + routeShortName
+//                + (noSchedule ? ", noSchedule=" + noSchedule : "")
+//                + (exactTimesHeadway ? ", exactTimesHeadway=" + exactTimesHeadway : "")
+//                + ", serviceId="
+//                + serviceId
+//                + ", blockId="
+//                + blockId
+//                + ", shapeId="
+//                + shapeId
+//                //				+ ", scheduledTimesList=" + scheduledTimesList
+//                + "]";
+//    }
 
-    /**
-     * Similar to toString() but also includes full TripPattern and travelTimes
-     *
-     * @return
-     */
-    public String toLongString() {
-        return "Trip ["
-                + "configRev="
-                + configRev
-                + ", tripId="
-                + tripId
-                + ", tripShortName="
-                + tripShortName
-                + ", tripPatternId="
-                + (tripPattern != null ? tripPattern.getId() : "null")
-                + ", tripPattern="
-                + tripPattern
-                + ", tripIndexInBlock="
-                + getIndexInBlock()
-                + ", startTime="
-                + Time.timeOfDayStr(startTime)
-                + ", endTime="
-                + Time.timeOfDayStr(endTime)
-                + (headsign != null ? ", headsign=\"" + headsign + "\"" : "")
-                + ", directionId="
-                + directionId
-                + ", routeId="
-                + routeId
-                + ", routeShortName="
-                + routeShortName
-                + (noSchedule ? ", noSchedule=" + noSchedule : "")
-                + (exactTimesHeadway ? ", exactTimesHeadway=" + exactTimesHeadway : "")
-                + ", serviceId="
-                + serviceId
-                + ", blockId="
-                + blockId
-                + ", shapeId="
-                + shapeId
-                + ", scheduledTimesList="
-                + scheduledTimesList
-                + ", travelTimes="
-                + travelTimes
-                + "]";
-    }
+//    /**
+//     * Similar to toString() but also includes full TripPattern and travelTimes
+//     *
+//     * @return
+//     */
+//    public String toLongString() {
+//        return "Trip ["
+//                + "configRev="
+//                + configRev
+//                + ", tripId="
+//                + tripId
+//                + ", tripShortName="
+//                + tripShortName
+//                + ", tripPatternId="
+//                + (tripPattern != null ? tripPattern.getId() : "null")
+//                + ", tripPattern="
+//                + tripPattern
+//                + ", tripIndexInBlock="
+//                + getIndexInBlock()
+//                + ", startTime="
+//                + Time.timeOfDayStr(startTime)
+//                + ", endTime="
+//                + Time.timeOfDayStr(endTime)
+//                + (headsign != null ? ", headsign=\"" + headsign + "\"" : "")
+//                + ", directionId="
+//                + directionId
+//                + ", routeId="
+//                + routeId
+//                + ", routeShortName="
+//                + routeShortName
+//                + (noSchedule ? ", noSchedule=" + noSchedule : "")
+//                + (exactTimesHeadway ? ", exactTimesHeadway=" + exactTimesHeadway : "")
+//                + ", serviceId="
+//                + serviceId
+//                + ", blockId="
+//                + blockId
+//                + ", shapeId="
+//                + shapeId
+//                + ", scheduledTimesList="
+//                + scheduledTimesList
+//                + ", travelTimes="
+//                + travelTimes
+//                + "]";
+//    }
 
-    /**
-     * Similar to toString() but doesn't include scheduledTimesMap which can be quite verbose since
-     * it often contains times for many stops.
-     *
-     * @return
-     */
-    public String toShortString() {
-        return "Trip ["
-                + "tripId="
-                + tripId
-                + ", tripShortName="
-                + tripShortName
-                + ", tripPatternId="
-                + (tripPattern != null ? tripPattern.getId() : "null")
-                + ", tripIndexInBlock="
-                + getIndexInBlock()
-                + ", startTime="
-                + Time.timeOfDayStr(startTime)
-                + ", endTime="
-                + Time.timeOfDayStr(endTime)
-                + (headsign != null ? ", headsign=\"" + headsign + "\"" : "")
-                + ", directionId="
-                + directionId
-                + ", routeId="
-                + routeId
-                + ", routeShortName="
-                + routeShortName
-                + (noSchedule ? ", noSchedule=" + noSchedule : "")
-                + (exactTimesHeadway ? ", exactTimesHeadway=" + exactTimesHeadway : "")
-                + ", serviceId="
-                + serviceId
-                + ", blockId="
-                + blockId
-                + ", shapeId="
-                + shapeId
-                + "]";
-    }
+//    /**
+//     * Similar to toString() but doesn't include scheduledTimesMap which can be quite verbose since
+//     * it often contains times for many stops.
+//     *
+//     * @return
+//     */
+//    public String toShortString() {
+//        return "Trip ["
+//                + "tripId="
+//                + tripId
+//                + ", tripShortName="
+//                + tripShortName
+//                + ", tripPatternId="
+//                + (tripPattern != null ? tripPattern.getId() : "null")
+//                + ", tripIndexInBlock="
+//                + getIndexInBlock()
+//                + ", startTime="
+//                + Time.timeOfDayStr(startTime)
+//                + ", endTime="
+//                + Time.timeOfDayStr(endTime)
+//                + (headsign != null ? ", headsign=\"" + headsign + "\"" : "")
+//                + ", directionId="
+//                + directionId
+//                + ", routeId="
+//                + routeId
+//                + ", routeShortName="
+//                + routeShortName
+//                + (noSchedule ? ", noSchedule=" + noSchedule : "")
+//                + (exactTimesHeadway ? ", exactTimesHeadway=" + exactTimesHeadway : "")
+//                + ", serviceId="
+//                + serviceId
+//                + ", blockId="
+//                + blockId
+//                + ", shapeId="
+//                + shapeId
+//                + "]";
+//    }
 
     /**
      * @return the tripId
@@ -612,8 +608,8 @@ public class Trip implements Lifecycle, Serializable {
      *
      * @return the routeShortName
      */
-    public String getRouteShortName() {
-        return routeShortName != null ? routeShortName : getRouteName();
+    public String getRouteShortName(DbConfig dbConfig) {
+        return routeShortName != null ? routeShortName : getRouteName(dbConfig);
     }
 
     /**
@@ -623,10 +619,8 @@ public class Trip implements Lifecycle, Serializable {
      *
      * @return The route or null if no Core object available
      */
-    public Route getRoute() {
+    public Route getRoute(DbConfig dbConfig) {
         if (route == null) {
-            DbConfig dbConfig = Core.getInstance().getDbConfig();
-            if (dbConfig == null) return null;
             route = dbConfig.getRouteById(routeId);
         }
         return route;
@@ -640,8 +634,8 @@ public class Trip implements Lifecycle, Serializable {
      *
      * @return The route name or null if Core object not available
      */
-    public String getRouteName() {
-        Route route = getRoute();
+    public String getRouteName(DbConfig dbConfig) {
+        Route route = getRoute(dbConfig);
         if (route == null) {
             return null;
         }
@@ -667,14 +661,7 @@ public class Trip implements Lifecycle, Serializable {
      *
      * @return
      */
-    public Block getBlock() {
-        // If not part of the core project where DbConfig is available
-        // then just return null.
-        Core core = Core.getInstance();
-        if (core == null) return null;
-        DbConfig dbConfig = core.getDbConfig();
-        if (dbConfig == null) return null;
-
+    public Block getBlock(DbConfig dbConfig) {
         // Part of core project so return the Block
         return dbConfig.getBlock(serviceId, blockId);
     }
@@ -686,9 +673,9 @@ public class Trip implements Lifecycle, Serializable {
      *
      * @return The index of the trip in the block or -1 if block info not available.
      */
-    public int getIndexInBlock() {
+    public int getIndexInBlock(DbConfig dbConfig) {
         // If block info no available then simply return -1
-        Block block = getBlock();
+        Block block = getBlock(dbConfig);
         if (block == null) return -1;
 
         // Block info available so return the trip index
@@ -710,7 +697,7 @@ public class Trip implements Lifecycle, Serializable {
             // instead find a way to manage sessions more consistently
             var session = persistentListTimes.getSession();
             if (session == null) {
-                Session globalLazyLoadSession = Core.getInstance().getDbConfig().getGlobalSession();
+                Session globalLazyLoadSession = HibernateUtils.getSession();
                 globalLazyLoadSession.merge(this);
             }
         }

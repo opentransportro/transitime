@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import lombok.NonNull;
 import org.springframework.stereotype.Component;
 import org.transitclock.core.VehicleState;
 
@@ -22,17 +23,8 @@ public class VehicleStateManager {
     // since getVehiclesState() returns values() of the map which can be
     // accessed while the map is being modified with new data via another
     // thread. Otherwise could get a ConcurrentModificationException.
-    private final Map<String, VehicleState> vehicleMap = new ConcurrentHashMap<String, VehicleState>();
+    private final Map<String, VehicleState> vehicleMap = new ConcurrentHashMap<>();
 
-
-    /**
-     * Adds VehicleState for the vehicle to the map so that it can be retrieved later.
-     *
-     * @param state The VehicleState to be added to the map
-     */
-    private void putVehicleState(VehicleState state) {
-        vehicleMap.put(state.getVehicleId(), state);
-    }
 
     /**
      * Returns vehicle state for the specified vehicle. Vehicle state is kept in a map. If
@@ -48,13 +40,8 @@ public class VehicleStateManager {
      * @param vehicleId
      * @return the VehicleState for the vehicle
      */
-    public VehicleState getVehicleState(String vehicleId) {
-        VehicleState vehicleState = vehicleMap.get(vehicleId);
-        if (vehicleState == null) {
-            vehicleState = new VehicleState(vehicleId);
-            putVehicleState(vehicleState);
-        }
-        return vehicleState;
+    public VehicleState getVehicleState(@NonNull String vehicleId) {
+        return vehicleMap.computeIfAbsent(vehicleId, VehicleState::new);
     }
 
     /**

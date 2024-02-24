@@ -12,7 +12,6 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Immutable;
-import org.transitclock.Core;
 import org.transitclock.core.TemporalMatch;
 import org.transitclock.domain.hibernate.HibernateUtils;
 import org.transitclock.utils.IntervalTimer;
@@ -156,7 +155,6 @@ public class VehicleEvent implements Serializable {
             String serviceId,
             String tripId,
             String stopId) {
-        super();
         this.time = time;
         this.avlTime = avlTime;
         this.vehicleId = vehicleId;
@@ -176,46 +174,6 @@ public class VehicleEvent implements Serializable {
         this.stopId = stopId;
     }
 
-    public static VehicleEvent create(
-            Date time,
-            Date avlTime,
-            String vehicleId,
-            String eventType,
-            String description,
-            boolean predictable,
-            boolean becameUnpredictable,
-            String supervisor,
-            Location location,
-            String routeId,
-            String routeShortName,
-            String blockId,
-            String serviceId,
-            String tripId,
-            String stopId) {
-        VehicleEvent vehicleEvent = new VehicleEvent(
-                time,
-                avlTime,
-                vehicleId,
-                eventType,
-                description,
-                predictable,
-                becameUnpredictable,
-                supervisor,
-                location,
-                routeId,
-                routeShortName,
-                blockId,
-                serviceId,
-                tripId,
-                stopId);
-
-        // Queue to write object to database
-        Core.getInstance().getDbLogger().add(vehicleEvent);
-
-        // Return new VehicleEvent
-        return vehicleEvent;
-    }
-
     /**
      * A simpler way to create a VehicleEvent that gets a lot of its info from the avlReport and
      * match params. This also logs it and queues it to be stored in database. The match param can
@@ -223,7 +181,7 @@ public class VehicleEvent implements Serializable {
      *
      * @return The VehicleEvent constructed
      */
-    public static VehicleEvent create(
+    public VehicleEvent(
             AvlReport avlReport,
             TemporalMatch match,
             String eventType,
@@ -231,16 +189,7 @@ public class VehicleEvent implements Serializable {
             boolean predictable,
             boolean becameUnpredictable,
             String supervisor) {
-        // Get a log of the info from the possibly null match param
-        String routeId = match == null ? null : match.getTrip().getRouteId();
-        String routeShortName = match == null ? null : match.getTrip().getRouteShortName();
-        String blockId = match == null ? null : match.getBlock().getId();
-        String serviceId = match == null ? null : match.getBlock().getServiceId();
-        String tripId = match == null ? null : match.getTrip().getId();
-        String stopId = match == null ? null : match.getStopPath().getStopId();
-
-        // Create and return the VehicleEvent
-        return create(
+        this(
                 SystemTime.getDate(),
                 avlReport.getDate(),
                 avlReport.getVehicleId(),
@@ -250,12 +199,12 @@ public class VehicleEvent implements Serializable {
                 becameUnpredictable,
                 supervisor,
                 avlReport.getLocation(),
-                routeId,
-                routeShortName,
-                blockId,
-                serviceId,
-                tripId,
-                stopId);
+                match == null ? null : match.getTrip().getRouteId(),
+                match == null ? null : match.getTrip().getRouteShortName(),
+                match == null ? null : match.getBlock().getId(),
+                match == null ? null : match.getBlock().getServiceId(),
+                match == null ? null : match.getTrip().getId(),
+                match == null ? null : match.getStopPath().getStopId());
     }
 
     /**

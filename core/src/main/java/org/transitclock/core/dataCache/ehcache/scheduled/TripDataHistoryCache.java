@@ -7,9 +7,7 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.ehcache.Cache;
 import org.ehcache.CacheManager;
 import org.hibernate.Session;
-import org.transitclock.Core;
 import org.transitclock.core.dataCache.*;
-import org.transitclock.core.dataCache.ehcache.CacheManagerFactory;
 import org.transitclock.domain.structs.ArrivalDeparture;
 import org.transitclock.domain.structs.QArrivalDeparture;
 import org.transitclock.domain.structs.Trip;
@@ -17,7 +15,6 @@ import org.transitclock.gtfs.DbConfig;
 import org.transitclock.gtfs.GtfsData;
 import org.transitclock.service.dto.IpcArrivalDeparture;
 
-import java.net.URL;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -33,9 +30,11 @@ public class TripDataHistoryCache implements TripDataHistoryCacheInterface {
     private static final boolean debug = false;
     private static final String cacheByTrip = "arrivalDeparturesByTrip";
     private final Cache<TripKey, TripEvents> cache;
+    private final DbConfig dbConfig;
 
-    public TripDataHistoryCache(CacheManager cm) {
+    public TripDataHistoryCache(CacheManager cm, DbConfig dbConfig) {
         cache = cm.getCache(cacheByTrip, TripKey.class, TripEvents.class);
+        this.dbConfig = dbConfig;
     }
 
     @Override
@@ -64,8 +63,6 @@ public class TripDataHistoryCache implements TripDataHistoryCacheInterface {
             Date nearestDay = DateUtils.truncate(new Date(arrivalDeparture.getTime()), Calendar.DAY_OF_MONTH);
 
             nearestDay = DateUtils.addDays(nearestDay, i * -1);
-
-            DbConfig dbConfig = Core.getInstance().getDbConfig();
 
             Trip trip = dbConfig.getTrip(arrivalDeparture.getTripId());
 

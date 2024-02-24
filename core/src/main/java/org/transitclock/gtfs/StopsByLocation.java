@@ -1,13 +1,7 @@
 /* (C)2023 */
 package org.transitclock.gtfs;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.transitclock.ApplicationContext;
-import org.transitclock.Core;
 import org.transitclock.core.dataCache.PredictionDataCache;
 import org.transitclock.domain.structs.Location;
 import org.transitclock.domain.structs.Route;
@@ -15,6 +9,9 @@ import org.transitclock.domain.structs.StopPath;
 import org.transitclock.domain.structs.TripPattern;
 import org.transitclock.service.dto.IpcPredictionsForRouteStopDest;
 import org.transitclock.utils.Geo;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * For determining which stops are near a location. This information can then be used to provide
@@ -24,13 +21,19 @@ import org.transitclock.utils.Geo;
  */
 @Component
 public class StopsByLocation {
-    @Autowired
-    PredictionDataCache predictionDataCache;
+    private final PredictionDataCache predictionDataCache;
+    private final DbConfig dbConfig;
+
     // When looking for nearest stop should bias a bit to the next one
     // in the trip pattern. This way if a user is in between two stops
     // it will match to the second one, giving the passenger a bit more
     // time to get there plus less travel time on the bus.
     private static final double BIAS_TO_NEXT_STOP_OFFSET = 40.0;
+
+    public StopsByLocation(PredictionDataCache predictionDataCache, DbConfig dbConfig) {
+        this.predictionDataCache = predictionDataCache;
+        this.dbConfig = dbConfig;
+    }
 
     /** For describing a stop. Can be used to look up corresponding predictions. */
     public static class StopInfo {
@@ -165,7 +168,6 @@ public class StopsByLocation {
         List<StopInfo> results = new ArrayList<StopInfo>();
 
         // Find closest stops for every route...
-        DbConfig dbConfig = Core.getInstance().getDbConfig();
         for (Route route : dbConfig.getRoutes()) {
             // If the specified location is not within the distance of the route
             // then can skip this route
@@ -178,12 +180,12 @@ public class StopsByLocation {
             // trip pattern find closest stop. Then look at predictions
             // for those stops. Use the stop that provides the most useful
             // predictions.
-            for (String directionId : route.getDirectionIds()) {
+            for (String directionId : route.getDirectionIds(dbConfig)) {
                 // So can look at matches for all trip patterns for direction
                 // at once.
                 List<StopInfo> matchesForDirection = new ArrayList<StopInfo>();
 
-                List<TripPattern> tripPatternsForDirection = route.getTripPatterns(directionId);
+                List<TripPattern> tripPatternsForDirection = route.getTripPatterns(dbConfig, directionId);
                 for (TripPattern tripPattern : tripPatternsForDirection) {
                     // Determine the closest stop for the trip pattern
                     StopInfo stopInfo = determineClosestStop(tripPattern, loc, maxDistance);

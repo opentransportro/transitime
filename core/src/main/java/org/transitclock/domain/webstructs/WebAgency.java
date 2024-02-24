@@ -8,17 +8,13 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.annotations.DynamicUpdate;
-import org.transitclock.ApplicationContext;
 import org.transitclock.config.data.DbSetupConfig;
 import org.transitclock.domain.hibernate.HibernateUtils;
 import org.transitclock.domain.structs.Agency;
-import org.transitclock.service.contract.ConfigInterface;
-import org.transitclock.service.ConfigServiceImpl;
 import org.transitclock.utils.Encryption;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.Time;
 
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

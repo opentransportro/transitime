@@ -2,7 +2,7 @@
 package org.transitclock.service.dto;
 
 import java.io.Serializable;
-import org.transitclock.Core;
+
 import org.transitclock.domain.structs.ScheduleTime;
 import org.transitclock.domain.structs.Stop;
 import org.transitclock.utils.Time;
@@ -19,11 +19,10 @@ public class IpcSchedTimes implements Serializable {
     private final String stopId;
     private final String stopName;
 
-    public IpcSchedTimes(ScheduleTime dbScheduleTime, String stopId) {
+    public IpcSchedTimes(ScheduleTime dbScheduleTime, Stop stop) {
         this.arrivalTime = dbScheduleTime.getArrivalTime();
         this.departureTime = dbScheduleTime.getDepartureTime();
-        this.stopId = stopId;
-        Stop stop = Core.getInstance().getDbConfig().getStop(stopId);
+        this.stopId = stop.getId();
         this.stopName = stop.getName();
     }
 

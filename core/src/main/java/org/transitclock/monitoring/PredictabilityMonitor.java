@@ -5,12 +5,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.transitclock.ApplicationContext;
 import org.transitclock.config.data.MonitoringConfig;
-import org.transitclock.core.BlocksInfo;
+import org.transitclock.core.BlockInfoProvider;
 import org.transitclock.core.dataCache.VehicleDataCache;
+import org.transitclock.domain.hibernate.DataDbLogger;
 import org.transitclock.domain.structs.Block;
 import org.transitclock.utils.StringUtils;
 
@@ -20,13 +18,14 @@ import org.transitclock.utils.StringUtils;
  *
  * @author SkiBu Smith
  */
-@Component
 public class PredictabilityMonitor extends MonitorBase {
-    @Autowired
-    private VehicleDataCache vehicleDataCache;
+    private final VehicleDataCache vehicleDataCache;
+    private final BlockInfoProvider blockInfoProvider;
 
-    public PredictabilityMonitor(String agencyId) {
-        super(agencyId);
+    public PredictabilityMonitor(String agencyId, DataDbLogger dataDbLogger, VehicleDataCache vehicleDataCache, BlockInfoProvider blockInfoProvider) {
+        super(agencyId, dataDbLogger);
+        this.vehicleDataCache = vehicleDataCache;
+        this.blockInfoProvider = blockInfoProvider;
     }
 
     /**
@@ -42,7 +41,7 @@ public class PredictabilityMonitor extends MonitorBase {
         // Determine number of currently active blocks.
         // If there are no currently active blocks then don't need to be
         // getting AVL data so return 0
-        List<Block> activeBlocks = BlocksInfo.getCurrentlyActiveBlocks();
+        List<Block> activeBlocks = blockInfoProvider.getCurrentlyActiveBlocks();
         if (activeBlocks.isEmpty()) {
             setMessage("No currently active blocks so predictability " + "considered to be OK.");
             return 1.0;

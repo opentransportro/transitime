@@ -14,24 +14,21 @@ import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.transitclock.Core;
 import org.transitclock.config.data.AgencyConfig;
 import org.transitclock.core.VehicleState;
+import org.transitclock.domain.hibernate.DataDbLogger;
 import org.transitclock.domain.hibernate.HibernateUtils;
 import org.transitclock.domain.structs.AvlReport;
 import org.transitclock.domain.structs.Route;
 import org.transitclock.domain.structs.VehicleConfig;
+import org.transitclock.gtfs.DbConfig;
 import org.transitclock.service.dto.IpcPrediction;
 import org.transitclock.service.dto.IpcVehicleComplete;
 import org.transitclock.utils.ConcurrentHashMapNullKeyOk;
 import org.transitclock.utils.SystemTime;
 import org.transitclock.utils.Time;
-
-import static org.transitclock.domain.structs.QMatch.match;
 
 /**
  * For storing and retrieving vehicle information that can be used by clients. Is updated every time
@@ -48,28 +45,28 @@ import static org.transitclock.domain.structs.QMatch.match;
 public class VehicleDataCache {
 
     // Keyed by vehicle ID
-    private final Map<String, IpcVehicleComplete> vehiclesMap = new ConcurrentHashMap<String, IpcVehicleComplete>();
+    private final Map<String, IpcVehicleComplete> vehiclesMap = new ConcurrentHashMap<>();
 
     // Keyed by route_short_name. Key is null for vehicles that have not
     // been successfully associated with a route. For each route there is a
     // submap that is keyed by vehicle.
     private final Map<String, Map<String, IpcVehicleComplete>> vehiclesByRouteMap =
-            new ConcurrentHashMapNullKeyOk<String, Map<String, IpcVehicleComplete>>();
+            new ConcurrentHashMapNullKeyOk<>();
 
     // So can determine vehicles associated with a block ID. Keyed on
     // block ID. Each block can have a list of vehicle IDs. Though rare
     // there are situations where multiple vehicles might have the
     // same assignment, such as for unscheduled assignments.
-    private final Map<String, List<String>> vehicleIdsByBlockMap = new ConcurrentHashMapNullKeyOk<String, List<String>>();
+    private final Map<String, List<String>> vehicleIdsByBlockMap = new ConcurrentHashMapNullKeyOk<>();
 
     // Keeps track of vehicle static config info. If new vehicle encountered
     // in AVL feed then this map is updated and the new VehicleConfig is also
     // written to the database. Using HashMap instead of ConcurrentHashMap
     // since synchronizing puts anyways.
-    private final ConcurrentHashMap<String, VehicleConfig> vehicleConfigsMap = new ConcurrentHashMap<String, VehicleConfig>();
+    private final ConcurrentHashMap<String, VehicleConfig> vehicleConfigsMap = new ConcurrentHashMap<>();
 
     // So can quickly look up vehicle config using tracker ID
-    private final Map<String, VehicleConfig> vehicleConfigByTrackerIdMap = new HashMap<String, VehicleConfig>();
+    private final Map<String, VehicleConfig> vehicleConfigByTrackerIdMap = new HashMap<>();
 
     // So can determine how long since data was read from db
     private long dbReadTime;
@@ -79,8 +76,17 @@ public class VehicleDataCache {
     // obsolete and shouldn't be displayed.
     private static final int MAX_AGE_MSEC = 15 * Time.MS_PER_MIN;
 
-    @Autowired
-    private PredictionDataCache predictionDataCache;
+    private final PredictionDataCache predictionDataCache;
+
+    private final DataDbLogger dataDbLogger;
+
+    private final DbConfig dbConfig;
+
+    public VehicleDataCache(PredictionDataCache predictionDataCache, DataDbLogger dataDbLogger, DbConfig dbConfig) {
+        this.predictionDataCache = predictionDataCache;
+        this.dataDbLogger = dataDbLogger;
+        this.dbConfig = dbConfig;
+    }
 
 
     /**
@@ -101,7 +107,6 @@ public class VehicleDataCache {
         } catch (HibernateException e) {
             logger.error("Exception reading in VehicleConfig data. {}", e.getMessage(), e);
         }
-        // Always close the session
     }
 
     /** Reads in vehicle config data from db if haven't done so yet. */
@@ -150,7 +155,7 @@ public class VehicleDataCache {
                             + "VehicleConfig to database.",
                     vehicleId);
             // Write the vehicle to the database
-            Core.getInstance().getDbLogger().add(vehicleConfig);
+            dataDbLogger.add(vehicleConfig);
         } else {
             if (vehicleName != null) {
                 if (!vehicleName.equals(absent.getName())) {
@@ -267,7 +272,7 @@ public class VehicleDataCache {
         // If couldn't get vehicles by route short name try using
         // the route ID.
         if (vehicleMapForRoute == null) {
-            Route route = Core.getInstance().getDbConfig().getRouteById(routeIdOrShortName);
+            Route route = dbConfig.getRouteById(routeIdOrShortName);
             if (route != null) {
                 vehicleMapForRoute = vehiclesByRouteMap.get(route.getShortName());
             }
@@ -464,11 +469,11 @@ public class VehicleDataCache {
             IpcPrediction predsForVehicle = predictionDataCache
                     .getPredictionForVehicle(
                             vehicleState.getAvlReport().getVehicleId(),
-                            vehicleState.getRouteShortName(),
+                            vehicleState.getRouteShortName(dbConfig),
                             vehicleState.getMatch().getStopPath().getStopId());
             layoverDepartureTime = predsForVehicle != null ? predsForVehicle.getPredictionTime() : 0;
         }
-        IpcVehicleComplete vehicle = new IpcVehicleComplete(vehicleState, layoverDepartureTime);
+        IpcVehicleComplete vehicle = new IpcVehicleComplete(dbConfig, vehicleState, layoverDepartureTime);
         IpcVehicleComplete originalVehicle = vehiclesMap.get(vehicle.getId());
 
         logger.debug("Adding to VehicleDataCache vehicle={}", vehicle);

@@ -3,15 +3,17 @@ package org.transitclock.core.dataCache;
 
 import org.transitclock.domain.structs.HoldingTime;
 
+import java.io.Serializable;
+
 /**
  * @author Sean Óg Crudden
  */
-public class HoldingTimeCacheKey implements java.io.Serializable {
-    /** */
-    private static final long serialVersionUID = 2621110737961919479L;
+public class HoldingTimeCacheKey implements Serializable {
+    private String stopid;
+    private String vehicleId;
+    private String tripId;
 
     public HoldingTimeCacheKey(String stopid, String vehicleId, String tripId) {
-        super();
         this.stopid = stopid;
         this.vehicleId = vehicleId;
         this.tripId = tripId;
@@ -66,10 +68,6 @@ public class HoldingTimeCacheKey implements java.io.Serializable {
     public void setVehicleId(String vehicleId) {
         this.vehicleId = vehicleId;
     }
-
-    private String stopid;
-    private String vehicleId;
-    private String tripId;
 
     public String getTripId() {
         return tripId;

@@ -2,9 +2,7 @@
 package org.transitclock.core.dataCache;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.transitclock.Core;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.config.data.PredictionConfig;
 import org.transitclock.core.VehicleState;
@@ -42,8 +40,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 @Component
 public class PredictionDataCache {
-    @Autowired
-    VehicleStateManager vehicleStateManager;
+    private final VehicleStateManager vehicleStateManager;
+    private final DbConfig dbConfig;
 
     // Contains lists of predictions per route/stop. Also want to group
     // predictions by destination/trip head sign together so that can
@@ -61,8 +59,13 @@ public class PredictionDataCache {
     // PredictionsForRouteStop for a route/stop and synchronize any changes and
     // access to it so if multiple threads are making changes on a route/stop
     // those changes will be coherent and information will not be lost.
-    private final ConcurrentHashMap<MapKey, List<IpcPredictionsForRouteStopDest>> predictionsMap =
+    private final Map<MapKey, List<IpcPredictionsForRouteStopDest>> predictionsMap =
             new ConcurrentHashMap<>(1000);
+
+    public PredictionDataCache(VehicleStateManager vehicleStateManager, DbConfig dbConfig) {
+        this.vehicleStateManager = vehicleStateManager;
+        this.dbConfig = dbConfig;
+    }
 
     /**
      * Returns the current time. Can be based on the systems clock but when in playback mode will be
@@ -96,8 +99,6 @@ public class PredictionDataCache {
             String stopIdOrCode,
             int maxPredictionsPerStop,
             double distanceToStop) {
-        DbConfig dbConfig = Core.getInstance().getDbConfig();
-
         // Determine the routeShortName so can be used for maps in
         // the low-level methods of this class. Can be null to specify
         // getting data for all routes.
@@ -122,7 +123,7 @@ public class PredictionDataCache {
         if (dbConfig.getStop(stopIdOrCode) == null) {
             try {
                 Integer stopCode = Integer.parseInt(stopIdOrCode);
-                Stop stop = Core.getInstance().getDbConfig().getStop(stopCode);
+                Stop stop = dbConfig.getStop(stopCode);
 
                 // If no such stop then complain
                 if (stop == null) throw new IllegalArgumentException("Stop " + stopIdOrCode + " not valid");
@@ -204,7 +205,7 @@ public class PredictionDataCache {
         // display in the UI.
         if (clonedPredictions.isEmpty()) {
             IpcPredictionsForRouteStopDest pred =
-                    new IpcPredictionsForRouteStopDest(routeShortName, directionId, stopIdOrCode, distanceToStop);
+                    new IpcPredictionsForRouteStopDest(dbConfig, routeShortName, directionId, stopIdOrCode, distanceToStop);
             clonedPredictions.add(pred);
         }
 
@@ -515,7 +516,7 @@ public class PredictionDataCache {
         } else {
             // No route specified so get predictions for all routes for the stop
             predictionsForStop = new ArrayList<>();
-            Collection<Route> routes = Core.getInstance().getDbConfig().getRoutesForStop(stopId);
+            Collection<Route> routes = dbConfig.getRoutesForStop(stopId);
             for (Route route : routes) {
                 MapKey key = MapKey.create(route.getShortName(), stopId);
                 List<IpcPredictionsForRouteStopDest> predsForRoute = predictionsMap.get(key);
@@ -557,7 +558,7 @@ public class PredictionDataCache {
             // The PredictionsForRouteStopDest was not yet created for the
             // route/stop/destination so create it now and add it to list
             // of PredictionsForRouteStopDest objects for the route/stop.
-            IpcPredictionsForRouteStopDest preds = new IpcPredictionsForRouteStopDest(trip, stopId, Double.NaN);
+            IpcPredictionsForRouteStopDest preds = new IpcPredictionsForRouteStopDest(dbConfig, trip, stopId, Double.NaN);
             predictionsForRouteStop.add(preds);
             return preds;
         }

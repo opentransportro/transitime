@@ -1,9 +1,14 @@
 /* (C)2023 */
 package org.transitclock.core.predictiongenerator.bias;
 
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.transitclock.config.ClassConfigValue;
 import org.transitclock.utils.ClassInstantiator;
 
+import javax.sound.sampled.Line;
+
+@Configuration
 public class BiasAdjusterFactory {
     private static BiasAdjuster singleton = null;
 
@@ -13,10 +18,14 @@ public class BiasAdjusterFactory {
             DummyBiasAdjuster.class,
             "Specifies the name of the class used to adjust the bias of a predction.");
 
-    public static BiasAdjuster getInstance() {
-        if (singleton == null && className.getValue() != null) {
-            singleton = ClassInstantiator.instantiate(className.getValue(), BiasAdjuster.class);
+    @Bean
+    public BiasAdjuster biasAdjuster() {
+        if(className.getValue() == ExponentialBiasAdjuster.class) {
+            return new ExponentialBiasAdjuster();
+        } else if (className.getValue() == LinearBiasAdjuster.class) {
+            return new LinearBiasAdjuster();
         }
-        return singleton;
+
+        return new DummyBiasAdjuster();
     }
 }

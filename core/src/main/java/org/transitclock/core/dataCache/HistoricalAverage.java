@@ -1,31 +1,19 @@
 /* (C)2023 */
 package org.transitclock.core.dataCache;
 
+import lombok.ToString;
+
 import java.io.Serializable;
 
-/**
- * @author Sean Og Crudden
- */
+@ToString
 public class HistoricalAverage implements Serializable {
-
-    /** */
-    private static final long serialVersionUID = 2103092627208174290L;
-
-    @Override
-    public String toString() {
-        return "HistoricalAverage [count=" + count + ", average=" + average + "]";
-    }
+    private int count;
+    double average;
 
     public HistoricalAverage() {
-        super();
         count = 0;
         average = 0;
     }
-
-    private int count;
-
-    double average;
-
     public int getCount() {
         return count;
     }

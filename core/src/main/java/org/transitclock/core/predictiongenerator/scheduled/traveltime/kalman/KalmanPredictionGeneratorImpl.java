@@ -3,16 +3,19 @@ package org.transitclock.core.predictiongenerator.scheduled.traveltime.kalman;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.DateUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.transitclock.Core;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.config.data.PredictionConfig;
 import org.transitclock.core.*;
 import org.transitclock.core.dataCache.*;
+import org.transitclock.core.holdingmethod.HoldingTimeGenerator;
+import org.transitclock.core.predictiongenerator.bias.BiasAdjuster;
+import org.transitclock.core.predictiongenerator.datafilter.TravelTimeDataFilter;
 import org.transitclock.core.predictiongenerator.kalman.*;
+import org.transitclock.domain.hibernate.DataDbLogger;
 import org.transitclock.domain.structs.AvlReport;
 import org.transitclock.domain.structs.PredictionEvent;
 import org.transitclock.domain.structs.PredictionForStopPath;
+import org.transitclock.gtfs.DbConfig;
 import org.transitclock.utils.SystemTime;
 
 import java.util.Calendar;
@@ -29,10 +32,17 @@ public class KalmanPredictionGeneratorImpl extends PredictionGeneratorDefaultImp
 
     private final String alternative = "PredictionGeneratorDefaultImpl";
 
-    @Autowired
-    private TripDataHistoryCacheInterface tripCache;
-    @Autowired
-    private ErrorCache kalmanErrorCache;
+    private final ErrorCache kalmanErrorCache;
+
+    public KalmanPredictionGeneratorImpl(StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface,
+                                         TripDataHistoryCacheInterface tripDataHistoryCacheInterface,
+                                         DbConfig dbConfig,
+                                         DataDbLogger dataDbLogger,
+                                         TravelTimeDataFilter travelTimeDataFilter,
+                                         HoldingTimeCache holdingTimeCache, StopPathPredictionCache stopPathPredictionCache, TravelTimes travelTimes, HoldingTimeGenerator holdingTimeGenerator, VehicleStateManager vehicleStateManager, RealTimeSchedAdhProcessor realTimeSchedAdhProcessor, BiasAdjuster biasAdjuster, ErrorCache kalmanErrorCache) {
+        super(stopArrivalDepartureCacheInterface, tripDataHistoryCacheInterface, dbConfig, dataDbLogger, travelTimeDataFilter, holdingTimeCache, stopPathPredictionCache, travelTimes, holdingTimeGenerator, vehicleStateManager, realTimeSchedAdhProcessor, biasAdjuster);
+        this.kalmanErrorCache = kalmanErrorCache;
+    }
 
     /*
      * (non-Javadoc)
@@ -62,7 +72,7 @@ public class KalmanPredictionGeneratorImpl extends PredictionGeneratorDefaultImp
                 Date nearestDay = DateUtils.truncate(avlReport.getDate(), Calendar.DAY_OF_MONTH);
 
                 List<TravelTimeDetails> lastDaysTimes = lastDaysTimes(
-                        tripCache,
+                        tripDataHistoryCacheInterface,
                         currentVehicleState.getTrip().getId(),
                         currentVehicleState.getTrip().getDirectionId(),
                         indices.getStopPathIndex(),
@@ -101,7 +111,7 @@ public class KalmanPredictionGeneratorImpl extends PredictionGeneratorDefaultImp
 
                         TripSegment ts_day_0_k_1 = new TripSegment(originDetail, destinationDetail_0_k_1);
                         TripSegment last_vehicle_segment = ts_day_0_k_1;
-                        Indices previousVehicleIndices = new Indices(travelTimeDetails.getArrival());
+                        Indices previousVehicleIndices = new Indices(travelTimeDetails.getArrival(), dbConfig);
 
                         KalmanError last_prediction_error =
                                 lastVehiclePredictionError(kalmanErrorCache, previousVehicleIndices);
@@ -132,7 +142,7 @@ public class KalmanPredictionGeneratorImpl extends PredictionGeneratorDefaultImp
 
                                 logger.warn(description);
 
-                                PredictionEvent.create(
+                                PredictionEvent predictionEvent = new PredictionEvent(
                                         avlReport,
                                         vehicleState.getMatch(),
                                         PredictionEvent.PREDICTION_VARIATION,
@@ -142,6 +152,7 @@ public class KalmanPredictionGeneratorImpl extends PredictionGeneratorDefaultImp
                                         travelTimeDetails.getArrival().getVehicleId(),
                                         travelTimeDetails.getArrival().getTime(),
                                         travelTimeDetails.getDeparture().getTime());
+                                dataDbLogger.add(predictionEvent);
                             }
                         }
 
@@ -157,7 +168,7 @@ public class KalmanPredictionGeneratorImpl extends PredictionGeneratorDefaultImp
                                     "KALMAN",
                                     true,
                                     null);
-                            Core.getInstance().getDbLogger().add(predictionForStopPath);
+                            dataDbLogger.add(predictionForStopPath);
                             stopPathPredictionCache.putPrediction(predictionForStopPath);
                         }
                         return predictionTime;

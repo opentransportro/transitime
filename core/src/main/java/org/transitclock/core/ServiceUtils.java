@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
-import org.transitclock.Core;
 import org.transitclock.domain.structs.Agency;
 import org.transitclock.domain.structs.Calendar;
 import org.transitclock.domain.structs.CalendarDate;
@@ -253,7 +252,7 @@ public class ServiceUtils {
      */
     public Collection<String> getServiceIds(Date epochTime) {
         List<String> serviceIdsForDay = getServiceIdsForDay(epochTime);
-        Time time = Core.getInstance().getTime();
+        Time time = dbConfig.getTime();
         if (time.getSecondsIntoDay(epochTime)
                 > minutesIntoMorningToIncludePreviousServiceIds.getValue() * Time.MIN_IN_SECS) return serviceIdsForDay;
 

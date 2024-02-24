@@ -1,20 +1,16 @@
 /* (C)2023 */
 package org.transitclock.core.avl;
 
-import java.util.HashMap;
-import java.util.Map;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
-import org.transitclock.ApplicationContext;
-import org.transitclock.SingletonRegistry;
 import org.transitclock.config.data.AgencyConfig;
 import org.transitclock.config.data.AvlConfig;
 import org.transitclock.core.AvlProcessor;
 import org.transitclock.domain.structs.AvlReport;
 import org.transitclock.utils.Time;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Receives AVL data from the AvlExecutor or JMS, determines if AVL should be filtered, and
@@ -24,22 +20,19 @@ import org.transitclock.utils.Time;
  */
 @Getter
 @Slf4j
-@Component
-@Scope("prototype")
 public class AvlReportProcessor implements Runnable {
     // List of current AVL reports by vehicle. Useful for determining last
     // report so can filter out new report if the same as the old one.
     // Keyed on vehicle ID.
     private static final Map<String, AvlReport> avlReports = new HashMap<>();
 
-    // The AVL report being processed
     private final AvlReport avlReport;
 
-    @Autowired
-    private AvlProcessor avlProcessor;
+    private final AvlProcessor avlProcessor;
 
-    public AvlReportProcessor(AvlReport avlReport) {
+    public AvlReportProcessor(AvlReport avlReport, AvlProcessor avlProcessor) {
         this.avlReport = avlReport;
+        this.avlProcessor = avlProcessor;
     }
 
     /**

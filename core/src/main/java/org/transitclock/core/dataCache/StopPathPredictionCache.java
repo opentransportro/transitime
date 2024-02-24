@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.ehcache.Cache;
 import org.ehcache.CacheManager;
 import org.springframework.stereotype.Component;
-import org.transitclock.ApplicationContext;
 import org.transitclock.domain.structs.PredictionForStopPath;
 
 import java.util.ArrayList;

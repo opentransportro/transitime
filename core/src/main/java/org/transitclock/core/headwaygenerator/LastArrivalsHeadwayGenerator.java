@@ -1,22 +1,21 @@
 /* (C)2023 */
 package org.transitclock.core.headwaygenerator;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.transitclock.ApplicationContext;
+import lombok.RequiredArgsConstructor;
 import org.transitclock.core.HeadwayGenerator;
 import org.transitclock.core.VehicleState;
-import org.transitclock.core.dataCache.StopArrivalDepartureCacheFactory;
 import org.transitclock.core.dataCache.StopArrivalDepartureCacheInterface;
 import org.transitclock.core.dataCache.StopArrivalDepartureCacheKey;
 import org.transitclock.core.dataCache.VehicleDataCache;
 import org.transitclock.core.dataCache.VehicleStateManager;
 import org.transitclock.domain.structs.Headway;
+import org.transitclock.gtfs.DbConfig;
 import org.transitclock.service.dto.IpcArrivalDeparture;
 import org.transitclock.service.dto.IpcVehicleComplete;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @author Sean Óg Crudden
@@ -27,13 +26,12 @@ import org.transitclock.service.dto.IpcVehicleComplete;
  *     <p>Maybe should be a list and have a predicted headway at each stop along the route. So key
  *     for headway could be (stop, vehicle, trip, start_time).
  */
+@RequiredArgsConstructor
 public class LastArrivalsHeadwayGenerator implements HeadwayGenerator {
-    @Autowired
-    private VehicleDataCache vehicleDataCache;
-    @Autowired
-    private VehicleStateManager vehicleStateManager;
-    @Autowired
-    private StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface;
+    private final VehicleDataCache vehicleDataCache;
+    private final VehicleStateManager vehicleStateManager;
+    private final StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface;
+    private final DbConfig dbConfig;
 
     @Override
     public Headway generate(VehicleState vehicleState) {
@@ -90,6 +88,7 @@ public class LastArrivalsHeadwayGenerator implements HeadwayGenerator {
                                             .getTime());
 
                     Headway headway = new Headway(
+                            dbConfig.getConfigRev(),
                             headwayTime,
                             new Date(date),
                             vehicleId,

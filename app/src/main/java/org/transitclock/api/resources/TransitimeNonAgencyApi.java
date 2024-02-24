@@ -7,7 +7,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.transitclock.ApplicationContext;
+import org.springframework.stereotype.Controller;
 import org.transitclock.api.data.ApiAgencies;
 import org.transitclock.api.data.ApiAgency;
 import org.transitclock.api.data.ApiNearbyPredictionsForAgencies;
@@ -18,11 +18,9 @@ import org.transitclock.api.utils.WebUtils;
 import org.transitclock.domain.structs.Agency;
 import org.transitclock.domain.structs.Location;
 import org.transitclock.domain.webstructs.WebAgency;
-import org.transitclock.service.dto.IpcPredictionsForRouteStopDest;
 import org.transitclock.service.contract.ConfigInterface;
 import org.transitclock.service.contract.PredictionsInterface;
-import org.transitclock.service.ConfigServiceImpl;
-import org.transitclock.service.PredictionsServiceImpl;
+import org.transitclock.service.dto.IpcPredictionsForRouteStopDest;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -38,6 +36,7 @@ import java.util.List;
  *
  * @author SkiBu Smith
  */
+@Controller
 @Path("/key/{key}")
 @Component
 public class TransitimeNonAgencyApi {

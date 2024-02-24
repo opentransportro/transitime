@@ -15,6 +15,7 @@ import org.transitclock.domain.structs.Block;
 import org.transitclock.domain.structs.Route;
 import org.transitclock.domain.structs.ScheduleTime;
 import org.transitclock.domain.structs.Trip;
+import org.transitclock.gtfs.DbConfig;
 import org.transitclock.utils.MapKey;
 
 /**
@@ -53,7 +54,6 @@ public class IpcSchedule implements Serializable {
      * @param serviceName
      */
     private IpcSchedule(Route route, String directionId, String directionName, String serviceId, String serviceName) {
-        super();
         this.routeId = route.getId();
         this.routeName = route.getName();
         this.directionId = directionId;
@@ -62,7 +62,7 @@ public class IpcSchedule implements Serializable {
         this.serviceName = serviceName;
 
         // Also deal with transient members
-        this.trips = new ArrayList<Trip>();
+        this.trips = new ArrayList<>();
     }
 
     /**
@@ -120,7 +120,7 @@ public class IpcSchedule implements Serializable {
      */
     private void sortTrips() {
         // Use special comparator to do the sorting
-        Collections.sort(trips, new Comparator<Trip>() {
+        trips.sort(new Comparator<Trip>() {
             @Override
             public int compare(Trip o1, Trip o2) {
                 // Find a common stop so can compare times
@@ -158,14 +158,14 @@ public class IpcSchedule implements Serializable {
      * Finishes configuring the IpcSchedule object by going through all the trips, sorting them, and
      * creating corresponding list of IpcScheduleTrips.
      */
-    private void processTrips() {
+    private void processTrips(DbConfig dbConfig) {
         // Now that all trips added, sort them
         sortTrips();
 
         // Store the sorted trips as a list of IpcScheduleTrips
-        ipcScheduleTrips = new ArrayList<IpcSchedTrip>();
+        ipcScheduleTrips = new ArrayList<>();
         for (Trip trip : trips) {
-            IpcSchedTrip ipcScheduleTrip = new IpcSchedTrip(trip);
+            IpcSchedTrip ipcScheduleTrip = new IpcSchedTrip(trip, dbConfig);
             ipcScheduleTrips.add(ipcScheduleTrip);
         }
 
@@ -209,7 +209,7 @@ public class IpcSchedule implements Serializable {
      * @param scheduleList List to be sorted
      */
     private static void sortSchedules(List<IpcSchedule> scheduleList) {
-        Collections.sort(scheduleList, new Comparator<IpcSchedule>() {
+        scheduleList.sort(new Comparator<IpcSchedule>() {
             @Override
             public int compare(IpcSchedule o1, IpcSchedule o2) {
                 if (o1.getServiceId().equals(o2.getServiceId())) {
@@ -240,10 +240,11 @@ public class IpcSchedule implements Serializable {
      *
      * @param route
      * @param blocksForRoute
+     * @param dbConfig
      * @return
      */
-    public static List<IpcSchedule> createSchedules(Route route, List<Block> blocksForRoute) {
-        Map<ServiceDirectionKey, IpcSchedule> schedulesMap = new HashMap<ServiceDirectionKey, IpcSchedule>();
+    public static List<IpcSchedule> createSchedules(Route route, List<Block> blocksForRoute, DbConfig dbConfig) {
+        Map<ServiceDirectionKey, IpcSchedule> schedulesMap = new HashMap<>();
 
         // Go through all the blocks and populate the schedulesMap and the
         // tripsMap.
@@ -275,11 +276,11 @@ public class IpcSchedule implements Serializable {
         // Now that all the trips have been processed, finish processing of
         // each IpcSchedule
         for (IpcSchedule ipcSchedule : schedulesMap.values()) {
-            ipcSchedule.processTrips();
+            ipcSchedule.processTrips(dbConfig);
         }
 
         // Convert to a list of IpcSchedules and sort them
-        List<IpcSchedule> scheduleList = new ArrayList<IpcSchedule>(schedulesMap.values());
+        List<IpcSchedule> scheduleList = new ArrayList<>(schedulesMap.values());
         sortSchedules(scheduleList);
 
         // Return the sorted schedules
