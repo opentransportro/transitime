@@ -7,8 +7,8 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class ControlStop {
-    String stopPathIndex;
-    String stopId;
+    private String stopPathIndex;
+    private String stopId;
 
     public ControlStop(String combined) {
         if (combined.contains(":")) {

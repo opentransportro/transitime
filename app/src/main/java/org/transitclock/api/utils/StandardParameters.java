@@ -8,10 +8,6 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.ResponseBuilder;
-import jakarta.ws.rs.core.Response.Status;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.transitclock.domain.ApiKeyManager;
-import org.transitclock.service.contract.*;
 
 /**
  * For getting the standard parameters from the URI used to access the feed. Includes the key,
@@ -42,33 +38,6 @@ public class StandardParameters {
     @Context
     HttpServletRequest request;
 
-
-    @Autowired
-    private ApiKeyManager manager;
-
-    @Autowired
-    private PredictionsInterface predictionsInterface;
-
-    @Autowired
-    private CacheQueryInterface cacheQueryInterface;
-
-    @Autowired
-    private PredictionAnalysisInterface predictionAnalysisInterface;
-
-    @Autowired
-    private ServerStatusInterface serverStatusInterface;
-
-    @Autowired
-    private VehiclesInterface vehiclesInterface;
-
-    @Autowired
-    private CommandsInterface commandsInterface;
-
-    @Autowired
-    private ConfigInterface configInterface;
-
-    @Autowired
-    private HoldingTimeInterface holdingTimeInterface;
 
     /**
      * Returns the media type to use for the response based on optional accept header and the
@@ -126,19 +95,7 @@ public class StandardParameters {
         return mediaType;
     }
 
-    /**
-     * Makes sure not access feed too much and that the key is valid. If there is a problem then
-     * throws a WebApplicationException.
-     *
-     * @throws WebApplicationException
-     */
-    public void validate() throws WebApplicationException {
-        // Make sure the application key is valid
-        if (!manager.isKeyValid(getKey())) {
-            throw WebUtils.badRequestException(
-                    Status.UNAUTHORIZED.getStatusCode(), "Application key \"" + getKey() + "\" is not valid.");
-        }
-    }
+
 
     /**
      * For creating a Response of a single object of the appropriate media type.
@@ -159,108 +116,6 @@ public class StandardParameters {
 
         // Return the response
         return responseBuilder.build();
-    }
-
-    /**
-     * Gets the VehiclesInterface for the specified agencyId. If not valid then throws
-     * WebApplicationException.
-     *
-     * @return The VehiclesInterface
-     */
-    public VehiclesInterface getVehiclesInterface() throws WebApplicationException {
-        if (vehiclesInterface == null) throw WebUtils.badRequestException("Agency ID " + agencyId + " is not valid");
-
-        return vehiclesInterface;
-    }
-
-    /**
-     * Gets the CommandsInterface for the specified agencyId. If not valid then throws
-     * WebApplicationException.
-     *
-     * @return The CommandsInterface
-     */
-    public CommandsInterface getCommandsInterface() throws WebApplicationException {
-        if (commandsInterface == null) throw WebUtils.badRequestException("Agency ID " + agencyId + " is not valid");
-
-        return commandsInterface;
-    }
-
-    /**
-     * Gets the PredictionsInterface for the agencyId specified as part of the standard parameters.
-     * If not valid then throws WebApplicationException.
-     *
-     * @return The VehiclesInterface
-     */
-    public PredictionsInterface getPredictionsInterface() throws WebApplicationException {
-        if (predictionsInterface == null)
-            throw WebUtils.badRequestException("Agency ID " + agencyId + " is not valid");
-
-        return predictionsInterface;
-    }
-
-    /**
-     * Gets the ConfigInterface for the specified agencyId. If not valid then throws
-     * WebApplicationException.
-     *
-     * @return The VehiclesInterface
-     */
-    public ConfigInterface getConfigInterface() throws WebApplicationException {
-        if (configInterface == null) {
-            throw WebUtils.badRequestException("Agency ID " + agencyId + " is not valid");
-        }
-
-        return configInterface;
-    }
-
-    /**
-     * Gets the ServerStatusInterface for the specified agencyId. If not valid then throws
-     * WebApplicationException.
-     *
-     * @return The VehiclesInterface
-     */
-    public ServerStatusInterface getServerStatusInterface() throws WebApplicationException {
-        if (serverStatusInterface == null)
-            throw WebUtils.badRequestException("Agency ID " + agencyId + " is not valid");
-
-        return serverStatusInterface;
-    }
-
-    /**
-     * Gets the CacheQueryInterface for the specified agencyId. If not valid then throws
-     * WebApplicationException.
-     *
-     * @return The CacheQueryInterface
-     */
-    public CacheQueryInterface getCacheQueryInterface() throws WebApplicationException {
-        if (cacheQueryInterface == null)
-            throw WebUtils.badRequestException("Agency ID " + agencyId + " is not valid");
-
-        return cacheQueryInterface;
-    }
-
-    /**
-     * Gets the PredictionAnalysisInterface for the specified agencyId. If not valid then throws
-     * WebApplicationException.
-     *
-     * @return The PredictionAnalysisInterface
-     */
-    public PredictionAnalysisInterface getPredictionAnalysisInterface() throws WebApplicationException {
-        if (predictionAnalysisInterface == null)
-            throw WebUtils.badRequestException("Agency ID " + agencyId + " is not valid");
-
-        return predictionAnalysisInterface;
-    }
-
-    /**
-     * Gets the HoldingTimeInterface for the specified agencyId. If not valid then throws
-     * WebApplicationException.
-     *
-     * @return The PredictionAnalysisInterface
-     */
-    public HoldingTimeInterface getHoldingTimeInterface() {
-        if (holdingTimeInterface == null) throw WebUtils.badRequestException("Agency ID " + agencyId + " is not valid");
-
-        return holdingTimeInterface;
     }
 
     /**

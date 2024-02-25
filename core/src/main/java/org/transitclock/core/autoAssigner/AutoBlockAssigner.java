@@ -38,7 +38,6 @@ import static org.transitclock.config.data.BlockAssignerConfig.allowableLateSeco
  * @author SkiBu Smith
  */
 @Slf4j
-@RequiredArgsConstructor
 public class AutoBlockAssigner {
 
     // For keeping track of last time vehicle auto assigned so that can limit
@@ -60,6 +59,16 @@ public class AutoBlockAssigner {
     private final TemporalMatcher temporalMatcher;
     private final DbConfig dbConfig;
     private final BlockInfoProvider blockInfoProvider;
+
+    public AutoBlockAssigner(VehicleState vehicleState, VehicleDataCache vehicleDataCache, TravelTimes travelTimes, VehicleStateManager vehicleStateManager, TemporalMatcher temporalMatcher, DbConfig dbConfig, BlockInfoProvider blockInfoProvider) {
+        this.vehicleState = vehicleState;
+        this.vehicleDataCache = vehicleDataCache;
+        this.travelTimes = travelTimes;
+        this.vehicleStateManager = vehicleStateManager;
+        this.temporalMatcher = temporalMatcher;
+        this.dbConfig = dbConfig;
+        this.blockInfoProvider = blockInfoProvider;
+    }
 
 
     /**

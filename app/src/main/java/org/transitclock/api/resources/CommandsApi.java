@@ -29,6 +29,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import org.transitclock.api.data.ApiCommandAck;
 import org.transitclock.api.utils.StandardParameters;
@@ -44,9 +45,9 @@ import org.transitclock.service.dto.IpcTrip;
 import org.transitclock.service.contract.CommandsInterface;
 import org.transitclock.service.contract.ConfigInterface;
 
-@Controller
+@Component
 @Path("/key/{key}/agency/{agency}")
-public class CommandsApi {
+public class CommandsApi extends BaseApiResource {
 
     private static final String AVL_SOURCE = "API";
     @Autowired
@@ -116,7 +117,7 @@ public class CommandsApi {
                     String assignmentTypeStr)
             throws WebApplicationException {
         // Make sure request is valid
-        stdParameters.validate();
+        validate(stdParameters);
 
         if (vehicleId == null || vehicleId.isEmpty())
             throw WebUtils.badRequestException("Must specify vehicle ID using " + "\"v=vehicleId\"");
@@ -126,8 +127,6 @@ public class CommandsApi {
 
         try {
             // Get RMI interface for sending the command
-            CommandsInterface inter = stdParameters.getCommandsInterface();
-
             // Create and send an IpcAvl report to the server
             AvlReport avlReport = new AvlReport(vehicleId, time, lat, lon, speed, heading, AVL_SOURCE);
 
@@ -142,7 +141,7 @@ public class CommandsApi {
             }
 
             IpcAvl ipcAvl = new IpcAvl(avlReport);
-            inter.pushAvl(ipcAvl);
+            commandsInterface.pushAvl(ipcAvl);
 
             // Create the acknowledgment and return it as JSON or XML
             ApiCommandAck ack = new ApiCommandAck(true, "AVL processed");
@@ -210,7 +209,7 @@ public class CommandsApi {
             @Parameter(description = "Json of avl report.", required = true) InputStream requestBody)
             throws WebApplicationException {
         // Make sure request is valid
-        stdParameters.validate();
+        validate(stdParameters);
 
         Collection<IpcAvl> avlData = new ArrayList<IpcAvl>();
         try {
@@ -248,8 +247,7 @@ public class CommandsApi {
             }
 
             // Get RMI interface and send the AVL data to server
-            CommandsInterface inter = stdParameters.getCommandsInterface();
-            inter.pushAvl(avlData);
+            commandsInterface.pushAvl(avlData);
         } catch (JSONException | IOException e) {
             // If problem getting data then return a Bad Request
             throw WebUtils.badRequestException(e);
@@ -273,12 +271,10 @@ public class CommandsApi {
             @Parameter(description = "List of vechilesId.") @QueryParam(value = "v") List<String> vehicleIds)
             throws WebApplicationException {
         // Make sure request is valid
-        stdParameters.validate();
-
-        CommandsInterface inter = stdParameters.getCommandsInterface();
+        validate(stdParameters);
 
         for (String vehicleId : vehicleIds) {
-            inter.setVehicleUnpredictable(vehicleId);
+            commandsInterface.setVehicleUnpredictable(vehicleId);
         }
 
         ApiCommandAck ack = new ApiCommandAck(true, "Vehicle reset");
@@ -313,7 +309,7 @@ public class CommandsApi {
             @Parameter(description = "headsign.", required = true) @QueryParam(value = "headsign") String headsign)
             throws WebApplicationException {
         // Make sure request is valid
-        stdParameters.validate();
+        validate(stdParameters);
 
         try {
             // Store the arrival time in the db
@@ -348,16 +344,13 @@ public class CommandsApi {
             @Parameter(description = "tripId to be marked as canceled.", required = true) @PathParam("tripId")
                     String tripId,
             @Parameter(description = "start trip time", required = false) @QueryParam(value = "at") DateTimeParam at) {
-        stdParameters.validate();
+        validate(stdParameters);
         String result;
-        CommandsInterface inter = stdParameters.getCommandsInterface();
-        // We need to get the block id in order to get the vehicle
-        ConfigInterface cofingInterface = stdParameters.getConfigInterface();
-        IpcTrip ipcTrip = cofingInterface.getTrip(tripId);
+        IpcTrip ipcTrip = configInterface.getTrip(tripId);
         if (ipcTrip == null) {
             throw WebUtils.badRequestException("TripId=" + tripId + " does not exist.");
         }
-        result = inter.cancelTrip(tripId, at == null ? null : at.getDate());
+        result = commandsInterface.cancelTrip(tripId, at == null ? null : at.getDate());
 
         if (result == null) {
             return stdParameters.createResponse(new ApiCommandAck(true, "Processed"));
@@ -379,16 +372,13 @@ public class CommandsApi {
             @Parameter(description = "tripId to remove calceled satate.", required = true) @PathParam("tripId")
                     String tripId,
             @Parameter(description = "start trip time", required = false) @QueryParam(value = "at") DateTimeParam at) {
-        stdParameters.validate();
+        validate(stdParameters);
         String result = null;
-        CommandsInterface inter = stdParameters.getCommandsInterface();
-        // We need to get the block id in order to get the vehicle
-        ConfigInterface cofingInterface = stdParameters.getConfigInterface();
-        IpcTrip ipcTrip = cofingInterface.getTrip(tripId);
+        IpcTrip ipcTrip = configInterface.getTrip(tripId);
         if (ipcTrip == null) {
             throw WebUtils.badRequestException("TripId=" + tripId + " does not exist.");
         }
-        result = inter.reenableTrip(tripId, at == null ? null : at.getDate());
+        result = commandsInterface.reenableTrip(tripId, at == null ? null : at.getDate());
         if (result == null) {
             return stdParameters.createResponse(new ApiCommandAck(true, "Processed"));
         }
@@ -409,7 +399,7 @@ public class CommandsApi {
             @Parameter(description = "Json of vehicle to block.", required = true) InputStream requestBody)
             throws WebApplicationException {
         // Make sure request is valid
-        stdParameters.validate();
+        validate(stdParameters);
         String result = null;
 
         try {
@@ -418,9 +408,8 @@ public class CommandsApi {
             long validFrom = jsonObj.getLong("validFrom");
             long validTo = jsonObj.getLong("validTo");
             String blockId = jsonObj.getString("blockId");
-            CommandsInterface inter = stdParameters.getCommandsInterface();
 
-            result = inter.addVehicleToBlock(
+            result = commandsInterface.addVehicleToBlock(
                     vehicleId, blockId, "", new Date(), new Date(validFrom * 1000), new Date(validTo * 1000));
         } catch (JSONException | IOException e) {
             // If problem getting data then return a Bad Request
@@ -443,11 +432,9 @@ public class CommandsApi {
             @Parameter(description = "vehicle to block id to remove.", required = true) @PathParam("id") long id)
             throws WebApplicationException {
         // Make sure request is valid
-        stdParameters.validate();
+        validate(stdParameters);
         try {
-            CommandsInterface inter = stdParameters.getCommandsInterface();
-
-            inter.removeVehicleToBlock(id);
+            commandsInterface.removeVehicleToBlock(id);
         } catch (Exception e) {
             // If problem getting data then return a Bad Request
             throw WebUtils.badRequestException(e);
@@ -468,7 +455,7 @@ public class CommandsApi {
             @Parameter(description = "AVL date(MM-DD-YYYY).") @QueryParam(value = "avlDate") String avlDate)
             throws WebApplicationException {
         // Make sure request is valid
-        stdParameters.validate();
+        validate(stdParameters);
 
         try {
             ExportTable exportTable = new ExportTable(new SimpleDateFormat("MM-dd-yyyy").parse(avlDate), 1, "avl_" + avlDate + ".csv");

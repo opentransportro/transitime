@@ -26,12 +26,18 @@ import java.util.List;
  *     <p>Maybe should be a list and have a predicted headway at each stop along the route. So key
  *     for headway could be (stop, vehicle, trip, start_time).
  */
-@RequiredArgsConstructor
 public class LastArrivalsHeadwayGenerator implements HeadwayGenerator {
     private final VehicleDataCache vehicleDataCache;
     private final VehicleStateManager vehicleStateManager;
     private final StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface;
     private final DbConfig dbConfig;
+
+    public LastArrivalsHeadwayGenerator(VehicleDataCache vehicleDataCache, VehicleStateManager vehicleStateManager, StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface, DbConfig dbConfig) {
+        this.vehicleDataCache = vehicleDataCache;
+        this.vehicleStateManager = vehicleStateManager;
+        this.stopArrivalDepartureCacheInterface = stopArrivalDepartureCacheInterface;
+        this.dbConfig = dbConfig;
+    }
 
     @Override
     public Headway generate(VehicleState vehicleState) {

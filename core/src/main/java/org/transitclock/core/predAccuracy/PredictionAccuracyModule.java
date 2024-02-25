@@ -70,7 +70,6 @@ public class PredictionAccuracyModule extends Module {
     @Override
     public void run() {
         IntervalTimer timer = new IntervalTimer();
-
         try {
             getAndProcessData(getRoutesAndStops(), SystemTime.getDate());
 

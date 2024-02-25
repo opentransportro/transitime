@@ -1,0 +1,981 @@
+{
+  "properties": [
+    {
+      "name": "transitclock.core.agencyId",
+      "defaultValue": "null",
+      "type": "java.lang.String",
+      "description": "Specifies the ID of the agency. Used for the database name and in the logback configuration to specify the directory where to put the log files."
+    },
+    {
+      "name": "transitclock.api.gtfsRtCacheSeconds",
+      "defaultValue": "15",
+      "type": "java.lang.Integer",
+      "description": "How long to cache GTFS Realtime"
+    },
+    {
+      "name": "transitclock.api.predictionMaxFutureSecs",
+      "defaultValue": "3600",
+      "type": "java.lang.Integer",
+      "description": "Number of seconds in the future to accept predictions before"
+    },
+    {
+      "name": "transitclock.api.includeTripUpdateDelay",
+      "defaultValue": "false",
+      "type": "java.lang.Boolean",
+      "description": "Whether or not to include delay in the TripUpdate message"
+    },
+    {
+      "name": "transitclock.arrivalsDepartures.maxStopsWhenNoPreviousMatch",
+      "defaultValue": "1",
+      "type": "java.lang.Integer",
+      "description": "If vehicle just became predictable as indicated by no previous match then still want to determine arrival/departure times for earlier stops so that won't miss recording data for them them. But only want to go so far. Otherwise could be generating fake arrival/departure times when vehicle did not actually traverse that stop."
+    },
+    {
+      "name": "transitclock.arrivalsDepartures.maxStopsBetweenMatches",
+      "defaultValue": "12",
+      "type": "java.lang.Integer",
+      "description": "If between AVL reports the vehicle appears to traverse many stops then something is likely wrong with the matching. So this parameter is used to limit how many arrivals/departures are created between AVL reports."
+    },
+    {
+      "name": "transitclock.arrivalsDepartures.allowableDifferenceBetweenAvlTimeSecs",
+      "defaultValue": "86400",
+      "type": "java.lang.Integer",
+      "description": "If the time of a determine arrival/departure is really different from the AVL time then something must be wrong and the situation will be logged."
+    },
+    {
+      "name": "transitclock.avl.feedPollingRateSecs",
+      "defaultValue": "5",
+      "type": "java.lang.Integer",
+      "description": "How frequently an AVL feed should be polled for new data."
+    },
+    {
+      "name": "transitclock.avl.feedTimeoutInMSecs",
+      "defaultValue": "10000",
+      "type": "java.lang.Integer",
+      "description": "For when polling AVL XML feed. The feed logs error if the timeout value is exceeded when performing the XML request."
+    },
+    {
+      "name": "transitclock.avl.maxSpeed",
+      "defaultValue": "31.3",
+      "type": "java.lang.Double",
+      "description": "Max speed between AVL reports for a vehicle. If this value is exceeded then the AVL report is ignored."
+    },
+    {
+      "name": "transitclock.avl.alternativemaxspeed",
+      "defaultValue": "15.0",
+      "type": "java.lang.Double",
+      "description": "Alternative max speed between AVL reports for a vehicle. If this value is exceeded then the AVL report is ignored."
+    },
+    {
+      "name": "transitclock.avl.maxStopPathsAhead",
+      "defaultValue": "999",
+      "type": "java.lang.Integer",
+      "description": "Max stopPaths ahead to look for match."
+    },
+    {
+      "name": "transitclock.avl.minSpeedForValidHeading",
+      "defaultValue": "1.5",
+      "type": "java.lang.Double",
+      "description": "If AVL report speed is below this threshold then the heading is not considered valid."
+    },
+    {
+      "name": "transitclock.avl.minLatitude",
+      "defaultValue": "15.0",
+      "type": "java.lang.Float",
+      "description": "For filtering out bad AVL reports. The default values of latitude 15.0 to 55.0 and longitude of -135.0 to -60.0 are for North America, including Mexico and Canada. Can see maps of lat/lon at http://www.mapsofworld.com/lat_long/north-america.html"
+    },
+    {
+      "name": "transitclock.avl.maxLatitude",
+      "defaultValue": "55.0",
+      "type": "java.lang.Float",
+      "description": "For filtering out bad AVL reports. The default values of latitude 15.0 to 55.0 and longitude of -135.0 to -60.0 are for North America, including Mexico and Canada. Can see maps of lat/lon at http://www.mapsofworld.com/lat_long/north-america.html"
+    },
+    {
+      "name": "transitclock.avl.minLongitude",
+      "defaultValue": "-135.0",
+      "type": "java.lang.Float",
+      "description": "For filtering out bad AVL reports. The default values of latitude 15.0 to 55.0 and longitude of -135.0 to -60.0 are for North America, including Mexico and Canada. Can see maps of lat/lon at http://www.mapsofworld.com/lat_long/north-america.html"
+    },
+    {
+      "name": "transitclock.avl.maxLongitude",
+      "defaultValue": "-60.0",
+      "type": "java.lang.Float",
+      "description": "For filtering out bad AVL reports. The default values of latitude 15.0 to 55.0 and longitude of -135.0 to -60.0 are for North America, including Mexico and Canada. Can see maps of lat/lon at http://www.mapsofworld.com/lat_long/north-america.html"
+    },
+    {
+      "name": "transitclock.avl.unpredictableAssignmentsRegEx",
+      "defaultValue": "",
+      "type": "java.lang.String",
+      "description": "So can filter out unpredictable assignments such as for training coaches, service vehicles, or simply vehicles that are not in service and should not be attempted to be made predictable. Returns empty string, the default value if transitclock.avl.unpredictableAssignmentsRegEx is not set."
+    },
+    {
+      "name": "transitclock.avl.minTimeBetweenAvlReportsSecs",
+      "defaultValue": "5",
+      "type": "java.lang.Integer",
+      "description": "Minimum allowable time in seconds between AVL reports for a vehicle. If get a report closer than this number of seconds to the previous one then the new report is filtered out and not processed. Important for when reporting rate is really high, such as every few seconds."
+    },
+    {
+      "name": "transitclock.avl.url",
+      "defaultValue": "null",
+      "type": "java.lang.String",
+      "description": "The URL of the AVL feed to poll."
+    },
+    {
+      "name": "transitclock.avl.authenticationUser",
+      "defaultValue": "null",
+      "type": "java.lang.String",
+      "description": "If authentication used for the feed then this specifies the user."
+    },
+    {
+      "name": "transitclock.avl.authenticationPassword",
+      "defaultValue": "null",
+      "type": "java.lang.String",
+      "description": "If authentication used for the feed then this specifies the password."
+    },
+    {
+      "name": "transitclock.avl.shouldProcessAvl",
+      "defaultValue": "true",
+      "type": "java.lang.Boolean",
+      "description": "Usually want to process the AVL data when it is read in so that predictions and such are generated. But if debugging then can set this param to false."
+    },
+    {
+      "name": "transitclock.avl.processInRealTime",
+      "defaultValue": "false",
+      "type": "java.lang.Boolean",
+      "description": "For when getting batch of AVL data from a CSV file. When true then when reading in do at the same speed as when the AVL was created. Set to false it you just want to read in as fast as possible."
+    },
+    {
+      "name": "transitclock.avl.queueSize",
+      "defaultValue": "2000",
+      "type": "java.lang.Integer",
+      "description": "How many items to go into the blocking AVL queue before need to wait for queue to have space. Should be approximately 50% more than the number of reports that will be read during a single AVL polling cycle. If too big then wasteful. If too small then not all the data will be rejected by the ThreadPoolExecutor. "
+    },
+    {
+      "name": "transitclock.avl.numThreads",
+      "defaultValue": "1",
+      "type": "java.lang.Integer",
+      "description": "How many threads to be used for processing the AVL data. For most applications just using a single thread is probably sufficient and it makes the logging simpler since the messages will not be interleaved. But for large systems with lots of vehicles then should use multiple threads, such as 3-15 so that more of the cores are used."
+    },
+    {
+      "name": "transitclock.autoBlockAssigner.autoAssignerEnabled",
+      "defaultValue": "false",
+      "type": "java.lang.Boolean",
+      "description": "Set to true to enable the auto assignment feature where the system tries to assign vehicle to an available block"
+    },
+    {
+      "name": "transitclock.autoBlockAssigner.ignoreAvlAssignments",
+      "defaultValue": "false",
+      "type": "java.lang.Boolean",
+      "description": "For when want to test automatic assignments. When set to true then system ignores assignments from AVL feed so vehicles need to be automatically assigned instead"
+    },
+    {
+      "name": "transitclock.autoBlockAssigner.minDistanceFromCurrentReport",
+      "defaultValue": "100.0",
+      "type": "java.lang.Double",
+      "description": "AutoBlockAssigner looks at two AVL reports to match vehicle. This parameter specifies how far away those AVL reports need to be sure that the vehicle really is moving and in service. If getting incorrect matches then this value should likely be increased."
+    },
+    {
+      "name": "transitclock.autoBlockAssigner.allowableEarlySeconds",
+      "defaultValue": "180",
+      "type": "java.lang.Integer",
+      "description": "How early a vehicle can be in seconds and still be automatically assigned to a block"
+    },
+    {
+      "name": "transitclock.autoBlockAssigner.allowableLateSeconds",
+      "defaultValue": "300",
+      "type": "java.lang.Integer",
+      "description": "How late a vehicle can be in seconds and still be automatically assigned to a block"
+    },
+    {
+      "name": "transitclock.autoBlockAssigner.minTimeBetweenAutoAssigningSecs",
+      "defaultValue": "30",
+      "type": "java.lang.Integer",
+      "description": "Minimum time per vehicle that can do auto assigning. Auto assigning is computationally expensive, especially when there are many blocks. Don't need to do it that frequently. Especially important for agencies with high reporting rates. So this param allows one to limit how frequently auto assigner called for vehicle"
+    },
+    {
+      "name": "transitclock.core.timezone",
+      "defaultValue": "null",
+      "type": "java.lang.String",
+      "description": "For setting timezone for application. Ideally would get timezone from the agency db but once a Hibernate session factory is created, such as for reading timezone from db, then it is too late to set the timezone. Therefore this provides ability to set it manually."
+    },
+    {
+      "name": "transitclock.core.cache.daysPopulateHistoricalCache",
+      "defaultValue": "0",
+      "type": "java.lang.Integer",
+      "description": "How many days data to read in to populate historical cache on start up."
+    },
+    {
+      "name": "transitclock.core.storeDataInDatabase",
+      "defaultValue": "true",
+      "type": "java.lang.Boolean",
+      "description": "When in playback mode or some other situations don't want to store generated data such as arrivals/departures, events, and such to the database because only debugging."
+    },
+    {
+      "name": "transitclock.core.onlyNeedArrivalDepartures",
+      "defaultValue": "false",
+      "type": "java.lang.Boolean",
+      "description": "When batching large amount of AVL data through system to generate improved schedule time (as has been done for Zhengzhou) it takes huge amount of time to process everything. To speed things up you can set -Dtransitclock.core.onlyNeedArrivalDepartures=true such that the system will be sped up by not generating nor logging predictions, not logging AVL data nor storing it in db, and not logging nor storing match data in db."
+    },
+    {
+      "name": "transitclock.core.pauseIfDbQueueFilling",
+      "defaultValue": "false",
+      "type": "java.lang.Boolean",
+      "description": "When in batch mode can flood db with lots of objects. Iftransitclock.core.pauseIfDbQueueFilling is set to true then when objects are put into the DataDbLogger queue the calling thread will be temporarily suspended so that the separate thread can run to write to the db and thereby empty out the queue."
+    },
+    {
+      "name": "transitclock.core.maxDistanceFromSegment",
+      "defaultValue": "60.0",
+      "type": "java.lang.Double",
+      "description": "How far a location can be from a path segment and still be considered a match. Can be overridden on a per route basis via max_distance supplemental column of route GTFS data. When auto assigning, the parameter transitclock.core.maxDistanceFromSegmentForAutoAssigning is used instead."
+    },
+    {
+      "name": "transitclock.core.maxDistanceFromSegmentForAutoAssigning",
+      "defaultValue": "60.0",
+      "type": "java.lang.Double",
+      "description": "How far a location can be from a path segment and still be considered a match when auto assigning a vehicle. Auto assigning is treated separately because sometimes need to make maxDistanceFromSegment really lenient because vehicles do not always follow same route. This is especially true with deviated fixed route service. But don't want the distance to be too lenient when auto assigning because if too lenient then would match to multiple routes and therefore no assignment would be made because the matches would be ambiguous. Therefore maxDistanceFromSegmentForAutoAssigning should be lessthan or equal to maxDistanceFromSegment."
+    },
+    {
+      "name": "transitclock.core.allowableNumberOfBadMatches",
+      "defaultValue": "2",
+      "type": "java.lang.Integer",
+      "description": "How many bad spatial/temporal matches a predictable vehicle can have in a row before the vehicle is made unpredictable."
+    },
+    {
+      "name": "transitclock.core.maxHeadingOffsetFromSegment",
+      "defaultValue": "360.0",
+      "type": "java.lang.Float",
+      "description": "How far heading in degrees of vehicle can be away from path segment and still be considered a match. Needs to be pretty lenient because stopPaths and heading might not be that accurate."
+    },
+    {
+      "name": "transitclock.core.distanceFromEndOfBlockForInitialMatching",
+      "defaultValue": "250.0",
+      "type": "java.lang.Double",
+      "description": "For initial matching of vehicle to block assignment. If vehicle is closer than this distance from the end of the block then the spatial match will not be used. This is to prevent a vehicle that has already completed its block from wrongly being assigned to that block again."
+    },
+    {
+      "name": "transitclock.core.distanceFromLastStopForEndMatching",
+      "defaultValue": "250.0",
+      "type": "java.lang.Double",
+      "description": "How close vehicle needs to be from the last stop of the block such that the next AVL report should possibly be considered to match to the end of the block. This is important for determining the arrival time at the laststop of the block even if don't get an AVL report near that stop."
+    },
+    {
+      "name": "transitclock.core.deadheadingShortVersusLongDistance",
+      "defaultValue": "1000.0",
+      "type": "java.lang.Float",
+      "description": "For determining if enough time to deadhead to beginning of a trip. If vehicles are far away then they are more likely to be able to travel faster because they could take a freeway or other fast road. But when get closer then will be on regular streets and will travel more slowly. The parameters should be set in a conservative way such that the travel time is underestimated by using slower speeds than will actually encounter. This way the vehicle will arrive after the predicted time which means that passenger won't miss the bus."
+    },
+    {
+      "name": "transitclock.core.shortDistanceDeadheadingSpeed",
+      "defaultValue": "4.0",
+      "type": "java.lang.Float",
+      "description": "Part of determining if enough time to deadhead to layover."
+    },
+    {
+      "name": "transitclock.core.longDistanceDeadheadingSpeed",
+      "defaultValue": "10.0",
+      "type": "java.lang.Float",
+      "description": "Part of determining if enough time to deadhead to layover."
+    },
+    {
+      "name": "transitclock.core.maxPredictionTimeForDbSecs",
+      "defaultValue": "1800",
+      "type": "java.lang.Integer",
+      "description": "For determining if prediction should be stored in db. Set to 0 to never store predictions. A very large number of predictions is created so be careful with this value so that the db doesn't get filled up too quickly."
+    },
+    {
+      "name": "transitclock.core.allowableEarlyForLayoverSeconds",
+      "defaultValue": "3600",
+      "type": "java.lang.Integer",
+      "description": "How early a vehicle can be and still be matched to a layover. Needs to be pretty large because sometimes vehicles will be assigned to a layover quite early, and want to be able to make the vehicle predictable and generate predictions far in advance. Don't want it to be too large, like 90 minutes, though because then could match incorrectly if vehicle simply stays at terminal."
+    },
+    {
+      "name": "transitclock.core.allowableEarlySeconds",
+      "defaultValue": "900",
+      "type": "java.lang.Integer",
+      "description": "How early a vehicle can be and still be matched to its block assignment. If when a new AVL report is received for a predictable vehicle and it is found with respect to the real-time schedule adherence to be earlier than this value the vehicle will be made unpredictable."
+    },
+    {
+      "name": "transitclock.core.allowableLateSeconds",
+      "defaultValue": "5400",
+      "type": "java.lang.Integer",
+      "description": "How late a vehicle can be and still be matched to its block assignment. If when a new AVL report is received for a predictable vehicle and it is found with respect to the real-time schedule adherence to be later than this value the vehicle will be made unpredictable."
+    },
+    {
+      "name": "transitclock.core.allowableEarlySecondsForInitialMatching",
+      "defaultValue": "600",
+      "type": "java.lang.Integer",
+      "description": "How early a vehicle can be in seconds and still be matched to its block assignment."
+    },
+    {
+      "name": "transitclock.core.allowableLateSecondsForInitialMatching",
+      "defaultValue": "1200",
+      "type": "java.lang.Integer",
+      "description": "How late a vehicle can be in seconds and still be matched to its block assignment."
+    },
+    {
+      "name": "transitclock.core.distanceBetweenAvlsForInitialMatchingWithoutHeading",
+      "defaultValue": "100.0",
+      "type": "java.lang.Double",
+      "description": "For initial matching vehicle to assignment when there isn't any heading information. In that case also want to match to previous AVL report. This parameter specifies how far, as the crow flies, the previous AVL report to be used from the VehicleState AvlReport history is from the current AvlReport."
+    },
+    {
+      "name": "transitclock.core.distanceFromLayoverForEarlyDeparture",
+      "defaultValue": "180.0",
+      "type": "java.lang.Double",
+      "description": "How far along path past a layover stop a vehicle needs to be in order for it to be considered an early departure instead of just moving around within the layover. Needs to be a decent distance since the stop locations are not always accurate."
+    },
+    {
+      "name": "transitclock.core.layoverDistance",
+      "defaultValue": "2000.0",
+      "type": "java.lang.Double",
+      "description": "How far vehicle can be away from layover stop and still match to it. For when not deadheading to a trip. This can be useful to determine when a vehicle is pulled out of service when it is expected to be at a layover and start the next trip. Should usually be a pretty large value so that vehicles are not taken out of service just because they drive a bit away from the stop for the layover, which is pretty common."
+    },
+    {
+      "name": "transitclock.core.allowableEarlyTimeForEarlyDepartureSecs",
+      "defaultValue": "300",
+      "type": "java.lang.Integer",
+      "description": "How early in seconds a vehicle can have left terminal and have it be considered an early departure instead of just moving around within the layover. Don't want to mistakingly think that vehicles moving around during layover have started their trip early. Therefore this value should be limited to just a few minutes since vehicles usually don't leave early."
+    },
+    {
+      "name": "transitclock.core.allowableEarlyDepartureTimeForLoggingEvent",
+      "defaultValue": "60",
+      "type": "java.lang.Integer",
+      "description": "How early in seconds a vehicle can depart a terminal before it registers a VehicleEvent indicating a problem."
+    },
+    {
+      "name": "transitclock.core.allowableLateDepartureTimeForLoggingEvent",
+      "defaultValue": "240",
+      "type": "java.lang.Integer",
+      "description": "How late in seconds a vehicle can depart a terminal before it registers a VehicleEvent indicating a problem."
+    },
+    {
+      "name": "transitclock.core.allowableLateAtTerminalForLoggingEvent",
+      "defaultValue": "60",
+      "type": "java.lang.Integer",
+      "description": "If a vehicle is sitting at a terminal and provides another GPS report indicating that it is more than this much later, in seconds, than the configured departure time then a VehicleEvent is created to record the problem."
+    },
+    {
+      "name": "transitclock.core.beforeStopDistance",
+      "defaultValue": "50.0",
+      "type": "java.lang.Double",
+      "description": "How far a vehicle can be ahead of a stop in meters and be considered to have arrived."
+    },
+    {
+      "name": "transitclock.core.afterStopDistance",
+      "defaultValue": "50.0",
+      "type": "java.lang.Double",
+      "description": "How far a vehicle can be past a stop in meters and still be considered at the stop."
+    },
+    {
+      "name": "transitclock.core.defaultBreakTimeSec",
+      "defaultValue": "0",
+      "type": "java.lang.Integer",
+      "description": "How long driver is expected to have a break for a stop."
+    },
+    {
+      "name": "transitclock.core.earlyToLateRatio",
+      "defaultValue": "3.0",
+      "type": "java.lang.Double",
+      "description": "How much worse it is for a vehicle to be early as opposed to late when determining schedule adherence."
+    },
+    {
+      "name": "transitclock.core.exclusiveBlockAssignments",
+      "defaultValue": "true",
+      "type": "java.lang.Boolean",
+      "description": "True if block assignments should be exclusive. If set to true then when a vehicle is assigned to a block the system will unassign any other vehicles that were assigned to the block. Important for when AVL system doesn't always provide logout info. Also used by the AutoBlockAssigner to determine which active blocks to possibly assign a vehicle to. For no schedule routes can set to false to allow multiple vehicles be assigned to a route."
+    },
+    {
+      "name": "transitclock.core.timeForDeterminingNoProgress",
+      "defaultValue": "480000",
+      "type": "java.lang.Integer",
+      "description": "The interval in msec at which look at vehicle's history to determine if it is not making any progress. A valueof 0 disables this feature. If vehicle is found to not be making progress it is made unpredictable."
+    },
+    {
+      "name": "transitclock.core.minDistanceForNoProgress",
+      "defaultValue": "60.0",
+      "type": "java.lang.Double",
+      "description": "Minimum distance vehicle is expected to travel over timeForDeterminingNoProgress to indicate vehicle is making progress. If vehicle is found to not be making progress it is made unpredictable."
+    },
+    {
+      "name": "transitclock.core.timeForDeterminingDelayedSecs",
+      "defaultValue": "240",
+      "type": "java.lang.Integer",
+      "description": "The interval in msec at which look at vehicle's history to determine if it is delayed."
+    },
+    {
+      "name": "transitclock.core.minDistanceForDelayed",
+      "defaultValue": "60.0",
+      "type": "java.lang.Double",
+      "description": "Minimum distance vehicle is expected to travel over timeForDeterminingDelayed to indicate vehicle is delayed."
+    },
+    {
+      "name": "transitclock.core.matchHistoryMaxSize",
+      "defaultValue": "20",
+      "type": "java.lang.Integer",
+      "description": "How many matches are kept in history for vehicle so that can can do things such as look back at history to determine if vehicle has broken down. Should be large enough so can store all matchets generated over timeForDeterminingNoProgress. If GPS rate is high then this value will need to be high as well."
+    },
+    {
+      "name": "transitclock.core.avlHistoryMaxSize",
+      "defaultValue": "20",
+      "type": "java.lang.Integer",
+      "description": "How many AVL reports are kept in history for vehicle so that can can do things such as look back at history to determine if vehicle has broken down. Should be large enough so can store all AVL reports received over timeForDeterminingNoProgress. If GPS rate is high then this value will need to be high as well."
+    },
+    {
+      "name": "transitclock.core.eventHistoryMaxSize",
+      "defaultValue": "20",
+      "type": "java.lang.Integer",
+      "description": "How many arrival depature event reports are kept in history for vehicle so that can can do things such as look back at history"
+    },
+    {
+      "name": "transitclock.core.maxPredictionsTimeSecs",
+      "defaultValue": "1800",
+      "type": "java.lang.Integer",
+      "description": "How far forward into the future should generate predictions for."
+    },
+    {
+      "name": "transitclock.core.generateHoldingTimeWhenPredictionWithin",
+      "defaultValue": "0",
+      "type": "java.lang.Long",
+      "description": "If the prediction is less than this number of milliseconds from current time then use it to generate a holding time"
+    },
+    {
+      "name": "transitclock.core.useArrivalPredictionsForNormalStops",
+      "defaultValue": "true",
+      "type": "java.lang.Boolean",
+      "description": "For specifying whether to use arrival predictions or departure predictions for normal, non-wait time, stops."
+    },
+    {
+      "name": "transitclock.core.maxLateCutoffPredsForNextTripsSecs",
+      "defaultValue": "2147483647",
+      "type": "java.lang.Integer",
+      "description": "If a vehicle is further behind schedule than this amount then predictions for subsequent trips will be marked as being uncertain. This is useful for when another vehicle might take over the next trip for the block due to vehicle being late."
+    },
+    {
+      "name": "transitclock.core.useExactSchedTimeForWaitStops",
+      "defaultValue": "true",
+      "type": "java.lang.Boolean",
+      "description": "The predicted time for wait stops includes the historic wait stop time. This means it will be a bit after the configured schedule time. But some might not want to see such adjusted times. Plus just showing the schedule time is more conservative, and therefore usually better. If this value is set to true then the actual schedule time will be used. If false then the schedule time plus the wait stop time will be used."
+    },
+    {
+      "name": "transitclock.core.useHoldingTimeInPrediction",
+      "defaultValue": "false",
+      "type": "java.lang.Boolean",
+      "description": "Add holding time to prediction."
+    },
+    {
+      "name": "transitclock.core.terminalDistanceForRouteMatching",
+      "defaultValue": "100.0",
+      "type": "java.lang.Double",
+      "description": "How far vehicle must be away from the terminal before doing initial matching. This is important because when vehicle is at terminal don't know which trip it it should be matched to until vehicle has left the terminal."
+    },
+    {
+      "name": "transitclock.core.allowableBadAssignments",
+      "defaultValue": "0",
+      "type": "java.lang.Integer",
+      "description": "If get a bad assignment, such as no assignment, but no more than allowableBadAssignments then will use the previous assignment. Useful for when assignment part of AVL feed doesn't always provide a valid assignment."
+    },
+    {
+      "name": "transitclock.core.emailMessagesWhenAssignmentGrabImproper",
+      "defaultValue": "false",
+      "type": "java.lang.Boolean",
+      "description": "When one vehicle gets assigned by AVL feed but another vehicle already has that assignment then sometimes the assignment to the new vehicle would be incorrect. Could be that vehicle was never logged out or simply got bad assignment. For this situation it can be useful to receive error message via e-mail. But can get too many such e-mails. This property allows one to control those e-mails."
+    },
+    {
+      "name": "transitclock.core.maxDistanceForAssignmentGrab",
+      "defaultValue": "10000.0",
+      "type": "java.lang.Double",
+      "description": "For when another vehicles gets assignment and needs to grab it from another vehicle. The new vehicle must match to route within maxDistanceForAssignmentGrab in order to grab the assignment."
+    },
+    {
+      "name": "transitclock.core.maxMatchDistanceFromAVLRecord",
+      "defaultValue": "500.0",
+      "type": "java.lang.Double",
+      "description": "For logging distance between spatial match and actual AVL assignment "
+    },
+    {
+      "name": "transitclock.core.ignoreInactiveBlocks",
+      "defaultValue": "true",
+      "type": "java.lang.Boolean",
+      "description": "If the block isn't active at this time then ignore it. This way don't look at each trip to see if it is active which is important because looking at each trip means all the trip data including travel times needs to be lazy loaded, which can be slow."
+    },
+    {
+      "name": "transitclock.core.storeTravelTimeStopPathPredictions",
+      "defaultValue": "false",
+      "type": "java.lang.Boolean",
+      "description": "This is set to true to record all travelTime  predictions for individual stopPaths generated. Useful for comparing performance of differant algorithms. (MAPE comparison). Not for normal use as will generate massive amounts of data."
+    },
+    {
+      "name": "transitclock.core.storeDwellTimeStopPathPredictions",
+      "defaultValue": "false",
+      "type": "java.lang.Boolean",
+      "description": "This is set to true to record all travelTime  predictions for individual dwell times generated. Useful for comparing performance of differant algorithms. (MAPE comparison). Not for normal use as will generate massive amounts of data."
+    },
+    {
+      "name": "transitclock.core.spatialMatchToLayoversAllowedForAutoAssignment",
+      "defaultValue": "false",
+      "type": "java.lang.Boolean",
+      "description": "Allow auto assigner consider spatial matches to layovers. Experimental."
+    },
+    {
+      "name": "transitclock.blockLoading.agressive",
+      "defaultValue": "false",
+      "type": "java.lang.Boolean",
+      "description": "Set true to eagerly fetch all blocks into memory on startup"
+    },
+    {
+      "name": "org.transitclock.core.predictiongenerator.bias.exponential.b",
+      "defaultValue": "1.1",
+      "type": "java.lang.Double",
+      "description": "Base number to be raised to the power of the horizon minutes. y=a(b^x)+c."
+    },
+    {
+      "name": "org.transitclock.core.predictiongenerator.bias.exponential.a",
+      "defaultValue": "0.5",
+      "type": "java.lang.Double",
+      "description": "Multiple.y=a(b^x)+c."
+    },
+    {
+      "name": "org.transitclock.core.predictiongenerator.bias.exponential.c",
+      "defaultValue": "-0.5",
+      "type": "java.lang.Double",
+      "description": "Constant. y=a(b^x)+c."
+    },
+    {
+      "name": "org.transitclock.core.predictiongenerator.bias.exponential.updown",
+      "defaultValue": "-1",
+      "type": "java.lang.Integer",
+      "description": "Is the adjustment up or down? Set +1 or -1."
+    },
+    {
+      "name": "org.transitclock.core.dataCache.jcs.lambda",
+      "defaultValue": "0.75",
+      "type": "java.lang.Double",
+      "description": "This sets the rate at which the RLS algorithm forgets old values. Value are between 0 and 1. With 0 being the most forgetful."
+    },
+    {
+      "name": "org.transitclock.core.predictiongenerator.bias.linear.rate",
+      "defaultValue": "6.0E-4",
+      "type": "java.lang.Double",
+      "description": "Rate at which percentage adjustment changes with horizon."
+    },
+    {
+      "name": "org.transitclock.core.predictiongenerator.bias.linear.updown",
+      "defaultValue": "-1",
+      "type": "java.lang.Integer",
+      "description": "Is the adjustment up or down? Set +1 or -1."
+    },
+    {
+      "name": "transitclock.core.blockactiveForTimeBeforeSecs",
+      "defaultValue": "0",
+      "type": "java.lang.Integer",
+      "description": "Now many seconds before the start of a block it will be considered active."
+    },
+    {
+      "name": "transitclock.core.blockactiveForTimeAfterSecs",
+      "defaultValue": "-1",
+      "type": "java.lang.Integer",
+      "description": "Now many seconds after the end of a block it will be considered active."
+    },
+    {
+      "name": "transitclock.core.maxDwellTime",
+      "defaultValue": "600000",
+      "type": "java.lang.Integer",
+      "description": "This is a maximum dwell time at a stop to be taken into account for cache or prediction calculations."
+    },
+    {
+      "name": "transitclock.core.frequency.minTravelTimeFilterValue",
+      "defaultValue": "0",
+      "type": "java.lang.Integer",
+      "description": "The value to be included in average calculation for Travel times must exceed this value."
+    },
+    {
+      "name": "transitclock.core.frequency.maxTravelTimeFilterValue",
+      "defaultValue": "600000",
+      "type": "java.lang.Integer",
+      "description": "The value to be included in average calculation for Travel times must be less than this value."
+    },
+    {
+      "name": "transitclock.core.frequency.minDwellTimeFilterValue",
+      "defaultValue": "0",
+      "type": "java.lang.Integer",
+      "description": "The value to be included in average calculation for dwell time must exceed this value."
+    },
+    {
+      "name": "transitclock.core.frequency.maxDwellTimeFilterValue",
+      "defaultValue": "600000",
+      "type": "java.lang.Integer",
+      "description": "The value to be included in average calculation for dwell time must be less this value."
+    },
+    {
+      "name": "transitclock.core.frequency.cacheIncrementsForFrequencyService",
+      "defaultValue": "10800",
+      "type": "java.lang.Integer",
+      "description": "This is the intervals size of the day that the average is applied to. "
+    },
+    {
+      "name": "transitclock.core.cacheReloadStartTimeStr",
+      "defaultValue": "",
+      "type": "java.lang.String",
+      "description": "Date and time of when to start reading arrivaldepartures to inform caches."
+    },
+    {
+      "name": "transitclock.core.cacheReloadEndTimeStr",
+      "defaultValue": "",
+      "type": "java.lang.String",
+      "description": "Date and time of when to end reading arrivaldepartures to inform caches."
+    },
+    {
+      "name": "transitclock.gtfs.capitalize",
+      "defaultValue": "false",
+      "type": "java.lang.Boolean",
+      "description": "Sometimes GTFS titles have all capital letters or other capitalization issues. If set to true then will properly capitalize titles when process GTFS data. But note that this can require using regular expressions to fix things like acronyms that actually should be all caps."
+    },
+    {
+      "name": "transitclock.gtfs.url",
+      "defaultValue": "null",
+      "type": "java.lang.String",
+      "description": "URL where to retrieve the GTFS file."
+    },
+    {
+      "name": "transitclock.gtfs.dirName",
+      "defaultValue": "null",
+      "type": "java.lang.String",
+      "description": "Directory on agency server where to place the GTFS file."
+    },
+    {
+      "name": "transitclock.gtfs.intervalMsec",
+      "defaultValue": "14400000",
+      "type": "java.lang.Long",
+      "description": "How long to wait before checking if GTFS file has changed on web"
+    },
+    {
+      "name": "transitclock.gtfs.routeIdFilterRegEx",
+      "defaultValue": "null",
+      "type": "java.lang.String",
+      "description": "Route is included only if route_id matches the this regular expression. If only want routes with \"SPECIAL\" in the id then would use \".*SPECIAL.*\". If want to filter out such trips would instead use the complicated \"^((?!SPECIAL).)*$\" or \"^((?!(SPECIAL1|SPECIAL2)).)*$\" if want to filter out two names. The default value of null causes all routes to be included."
+    },
+    {
+      "name": "transitclock.gtfs.tripIdFilterRegEx",
+      "defaultValue": "null",
+      "type": "java.lang.String",
+      "description": "Trip is included only if trip_id matches the this regular expression. If only want trips with \"SPECIAL\" in the id then would use \".*SPECIAL.*\". If want to filter out such trips would instead use the complicated \"^((?!SPECIAL).)*$\" or \"^((?!(SPECIAL1|SPECIAL2)).)*$\" if want to filter out two names. The default value of null causes all trips to be included."
+    },
+    {
+      "name": "transitclock.gtfs.stopCodeBaseValue",
+      "defaultValue": "null",
+      "type": "java.lang.Integer",
+      "description": "If agency doesn't specify stop codes but simply wants to have them be a based number plus the stop ID then this parameter can specify the base value. "
+    },
+    {
+      "name": "transitclock.gtfs.minDistanceBetweenStopsToDisambiguateHeadsigns",
+      "defaultValue": "1000.0",
+      "type": "java.lang.Double",
+      "description": "When disambiguating headsigns by appending the too stop name of the last stop, won't disambiguate if the last stops for the trips with the same headsign differ by less than this amount."
+    },
+    {
+      "name": "transitclock.gtfs.outputPathsAndStopsForGraphingRouteIds",
+      "defaultValue": "null",
+      "type": "java.lang.String",
+      "description": "Outputs data for specified routes grouped by trip pattern.The resulting data can be visualized on a map by cuttingand pasting it in to http://www.gpsvisualizer.com/map_inputSeparate multiple route ids with commas"
+    },
+    {
+      "name": "transitclock.avl.gtfsRealtimeFeedURI",
+      "defaultValue": "null",
+      "type": "java.lang.String",
+      "description": "The URI of the GTFS-realtime feed to use."
+    },
+    {
+      "name": "transitclock.predAccuracy.gtfsTripUpdateUrl",
+      "defaultValue": "http://127.0.0.1:8091/trip-updates",
+      "type": "java.lang.String",
+      "description": "URL to access gtfs-rt trip updates."
+    },
+    {
+      "name": "transitclock.gtfs.tripShortNameRegEx",
+      "defaultValue": "null",
+      "type": "java.lang.String",
+      "description": "For agencies where trip short name not specified can use this regular expression to determine the short name from the trip ID by specifying a grouping. For example, to get name before a - would use something like \"(.*?)-\""
+    },
+    {
+      "name": "transitclock.gtfs.blockIdRegEx",
+      "defaultValue": "null",
+      "type": "java.lang.String",
+      "description": "For agencies where block ID from GTFS datda needs to be modified to match that of the AVL feed. Can use this regular expression to determine the proper block ID  by specifying a grouping. For example, to get name after a \"xx-\" would use something like \"xx-(.*)\""
+    },
+    {
+      "name": "transitclock.holding.storeHoldingTimes",
+      "defaultValue": "true",
+      "type": "java.lang.Boolean",
+      "description": "This is set to true to record all holding times."
+    },
+    {
+      "name": "transitclock.holding.maxPredictionsForHoldingTimeCalculation",
+      "defaultValue": "3",
+      "type": "java.lang.Integer",
+      "description": "This is the maximim number of arrival predictions to include in holding time calculation"
+    },
+    {
+      "name": "transitclock.holding.usearrivalevents",
+      "defaultValue": "true",
+      "type": "java.lang.Boolean",
+      "description": "Generate a holding time on arrival events."
+    },
+    {
+      "name": "transitclock.holding.usearrivalpredictions",
+      "defaultValue": "true",
+      "type": "java.lang.Boolean",
+      "description": "Generate a holding time on arrival predictions."
+    },
+    {
+      "name": "transitclock.holding.regenerateondeparture",
+      "defaultValue": "false",
+      "type": "java.lang.Boolean",
+      "description": "Regenerate a holding time for all vehicles at control point when a vehicle departs the control point."
+    },
+    {
+      "name": "transitclock.holding.plannedHeadwayMsec",
+      "defaultValue": "540000",
+      "type": "java.lang.Integer",
+      "description": "Planned Headway"
+    },
+    {
+      "name": "transitclock.holding.controlStops",
+      "defaultValue": "null",
+      "type": "java.lang.String",
+      "description": "This is a list of stops to generate holding times for."
+    },
+    {
+      "name": "transitclock.monitoring.maxQueueFraction",
+      "defaultValue": "0.4",
+      "type": "java.lang.Double",
+      "description": "If database queue fills up by more than this 0.0 - 1.0 fraction then database monitoring is triggered."
+    },
+    {
+      "name": "transitclock.monitoring.maxQueueFractionGap",
+      "defaultValue": "0.1",
+      "type": "java.lang.Double",
+      "description": "When transitioning from triggered to untriggered don't want to send out an e-mail right away if actually dithering. Therefore will only send out OK e-mail if the value is now below maxQueueFraction - maxQueueFractionGap "
+    },
+    {
+      "name": "transitclock.monitoring.minPredictableBlocks",
+      "defaultValue": "0.5",
+      "type": "java.lang.Double",
+      "description": "The minimum fraction of currently active blocks that should have a predictable vehicle"
+    },
+    {
+      "name": "transitclock.monitoring.minPredictableBlocksGap",
+      "defaultValue": "0.25",
+      "type": "java.lang.Double",
+      "description": "When transitioning from triggered to untriggered don't want to send out an e-mail right away if actually dithering. Therefore will only send out OK e-mail if the value is now above minPredictableBlocks + minPredictableBlocksGap "
+    },
+    {
+      "name": "transitclock.monitoring.minimumPredictableVehicles",
+      "defaultValue": "3",
+      "type": "java.lang.Integer",
+      "description": "When looking at small number of vehicles it is too easy to get below minimumPredictableBlocks. So number of predictable vehicles is increased to this amount if below when determining the fraction."
+    },
+    {
+      "name": "transitclock.monitoring.cpuThreshold",
+      "defaultValue": "0.99",
+      "type": "java.lang.Double",
+      "description": "If CPU load averaged over a minute exceeds this 0.0 - 1.0 value then CPU monitoring is triggered."
+    },
+    {
+      "name": "transitclock.monitoring.cpuThresholdGap",
+      "defaultValue": "0.1",
+      "type": "java.lang.Double",
+      "description": "When transitioning from triggered to untriggered don't want to send out an e-mail right away if actually dithering. Therefore will only send out OK e-mail if the value is now below cpuThreshold - cpuThresholdGap "
+    },
+    {
+      "name": "transitclock.monitoring.allowableNoAvlSecs",
+      "defaultValue": "300",
+      "type": "java.lang.Integer",
+      "description": "How long in seconds that can not receive valid AVL data before monitoring triggers an alert."
+    },
+    {
+      "name": "transitclock.monitoring.avlFeedEmailRecipients",
+      "defaultValue": "monitoring@transitclock.org",
+      "type": "java.lang.String",
+      "description": "Comma separated list of e-mail addresses indicating who should be e-mail when monitor state changes for AVL feed."
+    },
+    {
+      "name": "transitclock.monitoring.emailRecipients",
+      "defaultValue": "null",
+      "type": "java.lang.String",
+      "description": "Comma separated list of e-mail addresses indicating who should be e-mailed when monitor state changes."
+    },
+    {
+      "name": "transitclock.monitoring.retryTimeoutSecs",
+      "defaultValue": "5",
+      "type": "java.lang.Integer",
+      "description": "How long in seconds system should wait before rexamining monitor. This way a short lived outage can be ignored. 0 seconds means do not retry."
+    },
+    {
+      "name": "transitclock.monitoring.secondsBetweenMonitorinPolling",
+      "defaultValue": "120",
+      "type": "java.lang.Integer",
+      "description": "How frequently an monitoring should be run to look for problems."
+    },
+    {
+      "name": "transitclock.monitoring.usableDiskSpaceThreshold",
+      "defaultValue": "1073741824",
+      "type": "java.lang.Long",
+      "description": "If usable disk space is less than this value then file space monitoring is triggered."
+    },
+    {
+      "name": "transitclock.monitoring.usableDiskSpaceThresholdGap",
+      "defaultValue": "104857600",
+      "type": "java.lang.Long",
+      "description": "When transitioning from triggered to untriggered don't want to send out an e-mail right away if actually dithering. Therefore will only send out OK e-mail if the value is now above usableDiskSpaceThreshold + usableDiskSpaceThresholdGap "
+    },
+    {
+      "name": "transitclock.monitoring.availableFreePhysicalMemoryThreshold",
+      "defaultValue": "10485760",
+      "type": "java.lang.Long",
+      "description": "If available free physical memory is less than this value then free memory monitoring is triggered. This should be relatively small since on Linux the operating system will use most of the memory for buffers and such when it is available. Therefore even when only a small amount of memory is available the system is still OK."
+    },
+    {
+      "name": "transitclock.monitoring.availableFreePhysicalMemoryThresholdGap",
+      "defaultValue": "157286400",
+      "type": "java.lang.Long",
+      "description": "When transitioning from triggered to untriggered don't want to send out an e-mail right away if actually dithering. Therefore will only send out OK e-mail if the value is now above availableFreePhysicalMemoryThreshold + availableFreePhysicalMemoryThresholdGap "
+    },
+    {
+      "name": "transitclock.predAccuracy.pollingRateMsec",
+      "defaultValue": "240000",
+      "type": "java.lang.Integer",
+      "description": "How frequently to query predictions for determining prediction accuracy."
+    },
+    {
+      "name": "transitclock.predAccuracy.maxPredTimeMinutes",
+      "defaultValue": "15",
+      "type": "java.lang.Integer",
+      "description": "Maximum time into the future for a pediction for it to be stored in memory for prediction accuracy analysis."
+    },
+    {
+      "name": "transitclock.predAccuracy.maxPredStalenessMinutes",
+      "defaultValue": "15",
+      "type": "java.lang.Integer",
+      "description": "Maximum time in minutes a prediction cam be into the past before it is removed from memory because no corresponding arrival/departure time was determined."
+    },
+    {
+      "name": "transitclock.predAccuracy.stopsPerTrip",
+      "defaultValue": "5",
+      "type": "java.lang.Integer",
+      "description": "Number of stops per trip pattern that should collect prediction data for each polling cycle."
+    },
+    {
+      "name": "transitclock.predAccuracy.maxRandomStopSelectionsPerTrip",
+      "defaultValue": "100",
+      "type": "java.lang.Integer",
+      "description": "Max number of random stops to look at to get the stopsPerTrip."
+    },
+    {
+      "name": "transitclock.predAccuracy.maxLatenessComparedToPredictionMsec",
+      "defaultValue": "1500000",
+      "type": "java.lang.Integer",
+      "description": "How late in msec a vehicle can arrive/departure a stop compared to the prediction and still have the prediction be considered a match."
+    },
+    {
+      "name": "transitclock.predAccuracy.maxEarlynessComparedToPredictionMsec",
+      "defaultValue": "900000",
+      "type": "java.lang.Integer",
+      "description": "How early in msec a vehicle can arrive/departure a stop compared to the prediction and still have the prediction be considered a match."
+    },
+    {
+      "name": "transitclock.service.minutesIntoMorningToIncludePreviousServiceIds",
+      "defaultValue": "240",
+      "type": "java.lang.Integer",
+      "description": "Early in the morning also want to include at service IDs for previous day since a block might have started on that day. But don't want to always include previous day service IDs since that confuses things. Therefore just include them if before this time of the day, in minutes."
+    },
+    {
+      "name": "transitclock.timeout.pollingRateSecs",
+      "defaultValue": "30",
+      "type": "java.lang.Integer",
+      "description": "Specifies in seconds how frequently the TimeoutHandler should actually look for timeouts. Don't want to do this too frequently because because TimeoutHandler.handlePossibleTimeout() is called with every new AVL report and it has to look at every vehicle to see if has been timed out."
+    },
+    {
+      "name": "transitclock.timeout.allowableNoAvlSecs",
+      "defaultValue": "360",
+      "type": "java.lang.Integer",
+      "description": "For AVL timeouts. If don't get an AVL report for the vehicle in this amount of time in seconds then the vehicle will be made non-predictable."
+    },
+    {
+      "name": "transitclock.timeout.allowableNoAvlAfterSchedDepartSecs",
+      "defaultValue": "360",
+      "type": "java.lang.Integer",
+      "description": "If a vehicle is at a wait stop, such as sitting at a terminal, and doesn't provide an AVL report for this number of seconds then the vehicle is made unpredictable. Important because sometimes vehicles don't report AVL at terminals because they are powered down. But don't want to continue to provide predictions for long after scheduled departure time if vehicle taken out of service."
+    },
+    {
+      "name": "transitclock.timeout.removeTimedOutVehiclesFromVehicleDataCache",
+      "defaultValue": "false",
+      "type": "java.lang.Boolean",
+      "description": "When timing out vehicles, the default behavior is to make the vehicle unpredictable but leave it in the VehicleDataCache. When set to true, a timeout will also remove the vehicle from the VehicleDataCache. This can be useful in situations where it is not desirable to include timed out vehicles in data feeds, e.g. the GTFS Realtime vehicle positions feed."
+    },
+    {
+      "name": "transitclock.traveltimes.fractionLimitForStopTimes",
+      "defaultValue": "0.7",
+      "type": "java.lang.Double",
+      "description": "For when determining stop times. Throws out outliers."
+    },
+    {
+      "name": "transitclock.traveltimes.fractionLimitForTravelTimes",
+      "defaultValue": "0.7",
+      "type": "java.lang.Double",
+      "description": "For when determining travel times. Throws out outliers."
+    },
+    {
+      "name": "transitclock.travelTimes.resetEarlyTerminalDepartures",
+      "defaultValue": "true",
+      "type": "java.lang.Boolean",
+      "description": "For some agencies vehicles won't be departing terminal early. If an early departure is detected for such an agency then will use the schedule time since the arrival time is likely a mistake."
+    },
+    {
+      "name": "transitclock.traveltimes.maxTravelTimeSegmentLength",
+      "defaultValue": "250.0",
+      "type": "java.lang.Double",
+      "description": "The longest a travel time segment can be. If a stop path is longer than this distance then it will be divided into multiple travel time segments of even length."
+    },
+    {
+      "name": "transitclock.traveltimes.minSegmentSpeedMps",
+      "defaultValue": "0.0",
+      "type": "java.lang.Double",
+      "description": "If a travel time segment is determined to have a lower speed than this value in meters/sec then the travel time will be increased to meet this limit. Purpose is to make sure that don't get invalid travel times due to bad data."
+    },
+    {
+      "name": "transitclock.traveltimes.maxSegmentSpeedMps",
+      "defaultValue": "27.0",
+      "type": "java.lang.Double",
+      "description": "If a travel time segment is determined to have a higher speed than this value in meters/second then the travel time will be decreased to meet this limit. Purpose is to make sure that don't get invalid travel times due to bad data."
+    },
+    {
+      "name": "transitclock.tripdatacache.tripDataCacheMaxAgeSec",
+      "defaultValue": "1296000",
+      "type": "java.lang.Integer",
+      "description": "How old an arrivaldeparture has to be before it is removed from the cache "
+    },
+    {
+      "name": "transitclock.updates.pageDbReads",
+      "defaultValue": "true",
+      "type": "java.lang.Boolean",
+      "description": "page database reads to break up long reads. It may impact performance on MySql"
+    },
+    {
+      "name": "transitclock.updates.pageSize",
+      "defaultValue": "50000",
+      "type": "java.lang.Integer",
+      "description": "Number of records to read in at a time"
+    },
+    {
+      "name": "transitclock.web.mapTileUrl",
+      "defaultValue": "http://otile4.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png",
+      "type": "java.lang.String",
+      "description": "Specifies the URL used by Leaflet maps to fetch map tiles."
+    },
+    {
+      "name": "transitclock.web.mapTileCopyright",
+      "defaultValue": "MapQuest",
+      "type": "java.lang.String",
+      "description": "For displaying as map attributing for the where map tiles from."
+    }
+  ] }

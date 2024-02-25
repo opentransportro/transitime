@@ -38,7 +38,6 @@ import org.transitclock.config.data.AgencyConfig;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.config.data.DbSetupConfig;
 import org.transitclock.core.dataCache.*;
-import org.transitclock.core.dataCache.ehcache.CacheManagerFactory;
 import org.transitclock.core.dataCache.frequency.FrequencyBasedHistoricalAverageCache;
 import org.transitclock.core.dataCache.scheduled.ScheduleBasedHistoricalAverageCache;
 import org.transitclock.domain.ApiKeyManager;

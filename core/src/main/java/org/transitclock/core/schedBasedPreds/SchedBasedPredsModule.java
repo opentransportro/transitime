@@ -46,14 +46,17 @@ import java.util.Set;
 @Slf4j
 @Component
 public class SchedBasedPredsModule extends Module {
-    @Autowired
-    private VehicleDataCache vehicleDataCache;
-    @Autowired
-    private AvlProcessor avlProcessor;
-    @Autowired
-    private BlockInfoProvider blockInfoProvider;
-    @Autowired
-    private DbConfig dbConfig;
+    private final VehicleDataCache vehicleDataCache;
+    private final AvlProcessor avlProcessor;
+    private final BlockInfoProvider blockInfoProvider;
+    private final DbConfig dbConfig;
+
+    public SchedBasedPredsModule(VehicleDataCache vehicleDataCache, AvlProcessor avlProcessor, BlockInfoProvider blockInfoProvider, DbConfig dbConfig) {
+        this.vehicleDataCache = vehicleDataCache;
+        this.avlProcessor = avlProcessor;
+        this.blockInfoProvider = blockInfoProvider;
+        this.dbConfig = dbConfig;
+    }
 
     /**
      * Goes through all the blocks to find which ones don't have vehicles. For those blocks create a

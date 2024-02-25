@@ -8,11 +8,15 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.StreamingOutput;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.transitclock.api.data.gtfs.GtfsRtTripFeed;
 import org.transitclock.api.data.gtfs.GtfsRtVehicleFeed;
+import org.transitclock.api.utils.AgencyTimezoneCache;
 import org.transitclock.api.utils.StandardParameters;
 import org.transitclock.gtfs.realtime.OctalDecoder;
+import org.transitclock.service.contract.PredictionsInterface;
+import org.transitclock.service.contract.VehiclesInterface;
 
 /**
  * Contains API commands for the GTFS-realtime API.
@@ -21,7 +25,9 @@ import org.transitclock.gtfs.realtime.OctalDecoder;
  */
 @Controller
 @Path("/key/{key}/agency/{agency}")
-public class GtfsRealtimeApi {
+public class GtfsRealtimeApi extends BaseApiResource {
+    @Autowired
+    AgencyTimezoneCache agencyTimezoneCache;
     /**
      * For getting GTFS-realtime Vehicle Positions data for all vehicles.
      *
@@ -45,7 +51,7 @@ public class GtfsRealtimeApi {
             String format) throws WebApplicationException {
 
         // Make sure request is valid
-        stdParameters.validate();
+        validate(stdParameters);
 
         // Determine if output should be in human-readable format or in
         // standard binary GTFS-realtime format.
@@ -61,7 +67,7 @@ public class GtfsRealtimeApi {
         StreamingOutput stream = outputStream -> {
             try {
                 FeedMessage message = GtfsRtVehicleFeed.getPossiblyCachedMessage(
-                        stdParameters.getAgencyId());
+                        stdParameters.getAgencyId(), vehiclesInterface, agencyTimezoneCache);
 
                 // Output in human-readable format or in standard binary
                 // format
@@ -106,7 +112,7 @@ public class GtfsRealtimeApi {
             String format) throws WebApplicationException {
 
         // Make sure request is valid
-        stdParameters.validate();
+        validate(stdParameters);
 
         // Determine if output should be in human readable format or in
         // standard binary GTFS-realtime format.
@@ -122,7 +128,7 @@ public class GtfsRealtimeApi {
         StreamingOutput stream = outputStream -> {
             try {
                 FeedMessage message = GtfsRtTripFeed.getPossiblyCachedMessage(
-                        stdParameters.getAgencyId());
+                        stdParameters.getAgencyId(), predictionsInterface, vehiclesInterface, agencyTimezoneCache);
 
                 // Output in human-readable format or in standard binary
                 // format

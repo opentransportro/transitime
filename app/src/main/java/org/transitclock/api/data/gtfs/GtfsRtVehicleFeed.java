@@ -27,8 +27,6 @@ import java.util.Date;
  * @author SkiBu Smith
  */
 @Slf4j
-@Component
-@Scope("prototype")
 public class GtfsRtVehicleFeed {
 
     private final String agencyId;
@@ -36,13 +34,13 @@ public class GtfsRtVehicleFeed {
     // For outputting date in GTFS-realtime format
     private SimpleDateFormat gtfsRealtimeDateFormatter = new SimpleDateFormat("yyyyMMdd");
     private SimpleDateFormat gtfsRealtimeTimeFormatter = new SimpleDateFormat("HH:mm:ss");
-    @Autowired
-    private VehiclesInterface vehiclesInterface ;
-    @Autowired
-    AgencyTimezoneCache agencyTimezoneCache;
+    private final VehiclesInterface vehiclesInterface ;
+    private final AgencyTimezoneCache agencyTimezoneCache;
 
-    public GtfsRtVehicleFeed(String agencyId) {
+    public GtfsRtVehicleFeed(String agencyId, VehiclesInterface vehiclesInterface, AgencyTimezoneCache agencyTimezoneCache) {
         this.agencyId = agencyId;
+        this.vehiclesInterface = vehiclesInterface;
+        this.agencyTimezoneCache = agencyTimezoneCache;
         this.gtfsRealtimeDateFormatter.setTimeZone(agencyTimezoneCache.get(agencyId));
     }
 
@@ -249,7 +247,7 @@ public class GtfsRtVehicleFeed {
      * @param agencyId
      * @return
      */
-    public static FeedMessage getPossiblyCachedMessage(String agencyId) {
+    public static FeedMessage getPossiblyCachedMessage(String agencyId, VehiclesInterface vehiclesInterface, AgencyTimezoneCache agencyTimezoneCache) {
         FeedMessage feedMessage = vehicleFeedDataCache.get(agencyId);
         if (feedMessage != null) return feedMessage;
 
@@ -259,7 +257,7 @@ public class GtfsRtVehicleFeed {
             feedMessage = vehicleFeedDataCache.get(agencyId);
             if (feedMessage != null) return feedMessage;
 
-            GtfsRtVehicleFeed feed = new GtfsRtVehicleFeed(agencyId);
+            GtfsRtVehicleFeed feed = new GtfsRtVehicleFeed(agencyId, vehiclesInterface, agencyTimezoneCache);
             feedMessage = feed.createMessage();
             vehicleFeedDataCache.put(agencyId, feedMessage);
         }

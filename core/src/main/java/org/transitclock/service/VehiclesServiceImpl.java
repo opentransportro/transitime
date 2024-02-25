@@ -27,22 +27,18 @@ import org.transitclock.service.dto.IpcVehicleToBlockConfig;
 import java.io.Serializable;
 import java.util.*;
 
-/**
- * Implements the VehiclesInterface interface on the server side such that a VehiclessClient can
- * make RMI calls in order to obtain vehicle information. The vehicle information is provided using
- * org.transitclock.ipc.data.Vehicle objects.
- *
- * @author SkiBu Smith
- */
 @Slf4j
 @Component
 public class VehiclesServiceImpl implements VehiclesInterface {
-    @Autowired
-    private VehicleDataCache vehicleDataCache;
-    @Autowired
-    private BlockInfoProvider blockInfoProvider;
-    @Autowired
-    private DbConfig dbConfig;
+    private final VehicleDataCache vehicleDataCache;
+    private final BlockInfoProvider blockInfoProvider;
+    private final DbConfig dbConfig;
+
+    public VehiclesServiceImpl(VehicleDataCache vehicleDataCache, BlockInfoProvider blockInfoProvider, DbConfig dbConfig) {
+        this.vehicleDataCache = vehicleDataCache;
+        this.blockInfoProvider = blockInfoProvider;
+        this.dbConfig = dbConfig;
+    }
 
     /* (non-Javadoc)
      * @see org.transitclock.ipc.interfaces.VehiclesInterface#get()

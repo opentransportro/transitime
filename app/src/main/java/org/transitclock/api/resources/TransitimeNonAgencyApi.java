@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
@@ -36,15 +37,13 @@ import java.util.List;
  *
  * @author SkiBu Smith
  */
-@Controller
 @Path("/key/{key}")
 @Component
-public class TransitimeNonAgencyApi {
+@RequiredArgsConstructor
+public class TransitimeNonAgencyApi extends BaseApiResource {
 
-    @Autowired
-    private PredictionsInterface predictionsInterface;
-    @Autowired
-    private ConfigInterface configInterface;
+    private final PredictionsInterface predictionsInterface;
+    private final ConfigInterface configInterface;
 
     /**
      * For "agencies" command. Returns information for all configured agencies.
@@ -62,7 +61,7 @@ public class TransitimeNonAgencyApi {
             tags = {"base data", "agency"})
     public Response getAgencies(@BeanParam StandardParameters stdParameters) throws WebApplicationException {
         // Make sure request is valid
-        stdParameters.validate();
+        validate(stdParameters);
 
         // For each agency handled by this server create an ApiAgencies
         // and return the list.
@@ -119,7 +118,7 @@ public class TransitimeNonAgencyApi {
             @QueryParam(value = "numPreds") @DefaultValue("3") int numberPredictions)
             throws WebApplicationException {
         // Make sure request is valid
-        stdParameters.validate();
+        validate(stdParameters);
 
         if (maxDistance > PredsByLoc.MAX_MAX_DISTANCE)
             throw WebUtils.badRequestException("Maximum maxDistance parameter "

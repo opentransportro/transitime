@@ -15,6 +15,7 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import org.transitclock.api.data.siri.SiriStopMonitoring;
 import org.transitclock.api.data.siri.SiriVehiclesMonitoring;
@@ -31,9 +32,9 @@ import org.transitclock.service.contract.VehiclesInterface;
  *
  * @author SkiBu Smith
  */
-@Controller
+@Component
 @Path("/key/{key}/agency/{agency}")
-public class SiriApi {
+public class SiriApi extends BaseApiResource {
 
     /**
      * Returns vehicleMonitoring vehicle information in SIRI format. Can specify vehicleIds,
@@ -63,19 +64,17 @@ public class SiriApi {
                     List<String> routesIdOrShortNames)
             throws WebApplicationException {
         // Make sure request is valid
-        stdParameters.validate();
+        validate(stdParameters);
 
         try {
             // Get Vehicle data from server
-            VehiclesInterface inter = stdParameters.getVehiclesInterface();
-
             Collection<IpcVehicleComplete> vehicles;
             if (!routesIdOrShortNames.isEmpty()) {
-                vehicles = inter.getCompleteForRoute(routesIdOrShortNames);
+                vehicles = vehiclesInterface.getCompleteForRoute(routesIdOrShortNames);
             } else if (!vehicleIds.isEmpty()) {
-                vehicles = inter.getComplete(vehicleIds);
+                vehicles = vehiclesInterface.getComplete(vehicleIds);
             } else {
-                vehicles = inter.getComplete();
+                vehicles = vehiclesInterface.getComplete();
             }
 
             // Determine and return SiriStopMonitoring response
@@ -120,13 +119,11 @@ public class SiriApi {
                     int numberPredictions)
             throws WebApplicationException {
         // Make sure request is valid
-        stdParameters.validate();
+        validate(stdParameters);
 
         try {
             // Get prediction data from server
-            PredictionsInterface inter = stdParameters.getPredictionsInterface();
-
-            List<IpcPredictionsForRouteStopDest> preds = inter.get(routeIdOrShortName, stopId, numberPredictions);
+            List<IpcPredictionsForRouteStopDest> preds = predictionsInterface.get(routeIdOrShortName, stopId, numberPredictions);
 
             // For each prediction also need corresponding vehicle so can create
             // the absurdly large MonitoredVehicleJourney element.
@@ -136,8 +133,7 @@ public class SiriApi {
                     vehicleIds.add(individualPred.getVehicleId());
                 }
             }
-            VehiclesInterface vehicleInter = stdParameters.getVehiclesInterface();
-            Collection<IpcVehicleComplete> vehicles = vehicleInter.getComplete(vehicleIds);
+            Collection<IpcVehicleComplete> vehicles = vehiclesInterface.getComplete(vehicleIds);
 
             // Determine SiriStopMonitoring response
             SiriStopMonitoring siriStopMonitoring =

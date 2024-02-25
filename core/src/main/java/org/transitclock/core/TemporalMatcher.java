@@ -24,11 +24,13 @@ import org.transitclock.utils.Time;
 @Slf4j
 @Component
 public class TemporalMatcher {
-    @Autowired
-    private TravelTimes travelTimes;
+    private final TravelTimes travelTimes;
+    private final DbConfig dbConfig;
 
-    @Autowired
-    DbConfig dbConfig;
+    public TemporalMatcher(TravelTimes travelTimes, DbConfig dbConfig) {
+        this.travelTimes = travelTimes;
+        this.dbConfig = dbConfig;
+    }
 
     /**
      * For the spatial match, determines how far off in time the vehicle is from what is expected

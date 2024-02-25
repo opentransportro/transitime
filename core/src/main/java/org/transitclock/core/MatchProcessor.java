@@ -2,7 +2,6 @@
 package org.transitclock.core;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.core.dataCache.PredictionDataCache;
@@ -25,24 +24,25 @@ import java.util.List;
 @Slf4j
 @Component
 public class MatchProcessor {
-    @Autowired
-    private DataDbLogger dbLogger;
-    @Autowired
-    private DbConfig dbConfig;
-    @Autowired
-    private PredictionDataCache predictionDataCache;
-    @Autowired
-    private HeadwayGenerator headwayGenerator;
-    @Autowired
-    private ArrivalDepartureGenerator arrivalDepartureGenerator;
-    @Autowired
-    private PredictionGenerator predictionGenerator;
+    private final DataDbLogger dbLogger;
+    private final DbConfig dbConfig;
+    private final PredictionDataCache predictionDataCache;
+    private final HeadwayGenerator headwayGenerator;
+    private final ArrivalDepartureGenerator arrivalDepartureGenerator;
+    private final PredictionGenerator predictionGenerator;
+
+    public MatchProcessor(DataDbLogger dbLogger, DbConfig dbConfig, PredictionDataCache predictionDataCache, HeadwayGenerator headwayGenerator, ArrivalDepartureGenerator arrivalDepartureGenerator, PredictionGenerator predictionGenerator) {
+        this.dbLogger = dbLogger;
+        this.dbConfig = dbConfig;
+        this.predictionDataCache = predictionDataCache;
+        this.headwayGenerator = headwayGenerator;
+        this.arrivalDepartureGenerator = arrivalDepartureGenerator;
+        this.predictionGenerator = predictionGenerator;
+    }
 
     /**
      * Generates the new predictions for the vehicle based on the new match stored in the vehicle
      * state. Updates vehicle state, the predictions cache, and stores predictions in database.
-     *
-     * @param vehicleState
      */
     private void processPredictions(VehicleState vehicleState) {
         logger.debug("Processing predictions for vehicleId={}", vehicleState.getVehicleId());
@@ -79,8 +79,6 @@ public class MatchProcessor {
 
     /**
      * Generates the headway info based on the new match stored in the vehicle state.
-     *
-     * @param vehicleState
      */
     private void processHeadways(VehicleState vehicleState) {
         logger.debug("Processing headways for vehicleId={}", vehicleState.getVehicleId());
@@ -96,8 +94,6 @@ public class MatchProcessor {
     /**
      * Generates the arrival/departure info based on the new match stored in the vehicle state.
      * Stores the arrival/departure info into database.
-     *
-     * @param vehicleState
      */
     private void processArrivalDepartures(VehicleState vehicleState) {
         logger.debug("Processing arrivals/departures for vehicleId={}", vehicleState.getVehicleId());
@@ -108,8 +104,6 @@ public class MatchProcessor {
     /**
      * Stores the spatial match in log file and to database so can be processed later to determine
      * expected travel times.
-     *
-     * @param vehicleState
      */
     private void processSpatialMatch(VehicleState vehicleState) {
         logger.debug("Processing spatial match for vehicleId={}", vehicleState.getVehicleId());
@@ -134,8 +128,6 @@ public class MatchProcessor {
      * Called when vehicle is matched successfully. Generates predictions arrival/departure times,
      * headways and such. But if vehicle should be ignored because part of consist then don't do
      * anything.
-     *
-     * @param vehicleState
      */
     public void generateResultsOfMatch(VehicleState vehicleState) {
         // Make sure everything ok

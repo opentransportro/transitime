@@ -36,8 +36,6 @@ import java.util.*;
  * @author SkiBu Smith
  */
 @Slf4j
-@Component
-@Scope("prototype")
 public class GtfsRtTripFeed {
     private static final int PREDICTION_MAX_FUTURE_SECS = ApiConfig.predictionMaxFutureSecs.getValue();
 
@@ -64,15 +62,15 @@ public class GtfsRtTripFeed {
 
     private final SimpleDateFormat gtfsRealtimeTimeFormatter = new SimpleDateFormat("HH:mm:ss");
 
-    @Autowired
-    private PredictionsInterface predictionsInterface;
-    @Autowired
-    private VehiclesInterface vehiclesInterface;
-    @Autowired
-    AgencyTimezoneCache agencyTimezoneCache;
+    private final PredictionsInterface predictionsInterface;
+    private final VehiclesInterface vehiclesInterface;
+    private final AgencyTimezoneCache agencyTimezoneCache;
 
-    public GtfsRtTripFeed(String agencyId) {
+    public GtfsRtTripFeed(String agencyId, PredictionsInterface predictionsInterface, VehiclesInterface vehiclesInterface, AgencyTimezoneCache agencyTimezoneCache) {
         this.agencyId = agencyId;
+        this.predictionsInterface = predictionsInterface;
+        this.vehiclesInterface = vehiclesInterface;
+        this.agencyTimezoneCache = agencyTimezoneCache;
         this.gtfsRealtimeDateFormatter.setTimeZone(agencyTimezoneCache.get(agencyId));
     }
 
@@ -330,7 +328,7 @@ public class GtfsRtTripFeed {
      * @param agencyId
      * @return
      */
-    public static FeedMessage getPossiblyCachedMessage(String agencyId) {
+    public static FeedMessage getPossiblyCachedMessage(String agencyId, PredictionsInterface predictionsInterface, VehiclesInterface vehiclesInterface, AgencyTimezoneCache agencyTimezoneCache) {
         FeedMessage feedMessage = tripFeedDataCache.get(agencyId);
         if (feedMessage != null) return feedMessage;
 
@@ -340,7 +338,7 @@ public class GtfsRtTripFeed {
             feedMessage = tripFeedDataCache.get(agencyId);
             if (feedMessage != null) return feedMessage;
 
-            GtfsRtTripFeed feed = new GtfsRtTripFeed(agencyId);
+            GtfsRtTripFeed feed = new GtfsRtTripFeed(agencyId, predictionsInterface, vehiclesInterface, agencyTimezoneCache);
             feedMessage = feed.createMessage();
             tripFeedDataCache.put(agencyId, feedMessage);
         }

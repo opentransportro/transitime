@@ -1,6 +1,7 @@
 /* (C)2023 */
 package org.transitclock.core;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.transitclock.config.ClassConfigValue;
@@ -23,12 +24,8 @@ import org.transitclock.gtfs.DbConfig;
  */
 @Configuration
 public class PredictionGeneratorFactory {
-
-    // The name of the class to instantiate
-    private static final ClassConfigValue className = new ClassConfigValue(
-            "transitclock.core.predictionGeneratorClass",
-            org.transitclock.core.PredictionGeneratorDefaultImpl.class,
-            "Specifies the name of the class used for generating prediction data.");
+    @Value("${transitclock.factory.prediction-generator:org.transitclock.core.PredictionGeneratorDefaultImpl}")
+    private Class<?> neededClass;
 
     @Bean
     public synchronized PredictionGenerator predictionGenerator(StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface,
@@ -48,7 +45,7 @@ public class PredictionGeneratorFactory {
                                                                 DwellTimeModelCacheInterface dwellTimeModelCacheInterface,
                                                                 FrequencyBasedHistoricalAverageCache frequencyBasedHistoricalAverageCache,
                                                                 ScheduleBasedHistoricalAverageCache scheduleBasedHistoricalAverageCache) {
-        Class<?> desiredGenerator = className.getValue();
+        Class<?> desiredGenerator = neededClass;
         if (desiredGenerator == org.transitclock.core.predictiongenerator.scheduled.dwell.DwellTimePredictionGeneratorImpl.class) {
             return new org.transitclock.core.predictiongenerator.scheduled.dwell.DwellTimePredictionGeneratorImpl(
                     stopArrivalDepartureCacheInterface,

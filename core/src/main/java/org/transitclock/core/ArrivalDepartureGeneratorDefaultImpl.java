@@ -55,28 +55,31 @@ import org.transitclock.utils.Time;
  */
 @Slf4j
 public class ArrivalDepartureGeneratorDefaultImpl implements ArrivalDepartureGenerator {
-    @Autowired
-    private ScheduleBasedHistoricalAverageCache scheduleBasedHistoricalAverageCache;
-    @Autowired
-    private FrequencyBasedHistoricalAverageCache frequencyBasedHistoricalAverageCache;
-    @Autowired
-    private HoldingTimeCache holdingTimeCache;
-    @Autowired
-    private VehicleStateManager vehicleStateManager;
-    @Autowired
-    private HoldingTimeGenerator holdingTimeGenerator;
-    @Autowired
-    private TravelTimes travelTimes;
-    @Autowired
-    TripDataHistoryCacheInterface tripDataHistoryCacheInterface;
-    @Autowired
-    StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface;
-    @Autowired
-    DwellTimeModelCacheInterface dwellTimeModelCacheInterface;
-    @Autowired
-    DataDbLogger dataDbLogger;
-    @Autowired
-    DbConfig dbConfig;
+    private final ScheduleBasedHistoricalAverageCache scheduleBasedHistoricalAverageCache;
+    private final FrequencyBasedHistoricalAverageCache frequencyBasedHistoricalAverageCache;
+    private final HoldingTimeCache holdingTimeCache;
+    private final VehicleStateManager vehicleStateManager;
+    private final HoldingTimeGenerator holdingTimeGenerator;
+    private final TravelTimes travelTimes;
+    private final TripDataHistoryCacheInterface tripDataHistoryCacheInterface;
+    private final StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface;
+    private final DwellTimeModelCacheInterface dwellTimeModelCacheInterface;
+    private final DataDbLogger dataDbLogger;
+    private final DbConfig dbConfig;
+
+    public ArrivalDepartureGeneratorDefaultImpl(ScheduleBasedHistoricalAverageCache scheduleBasedHistoricalAverageCache, FrequencyBasedHistoricalAverageCache frequencyBasedHistoricalAverageCache, HoldingTimeCache holdingTimeCache, VehicleStateManager vehicleStateManager, HoldingTimeGenerator holdingTimeGenerator, TravelTimes travelTimes, TripDataHistoryCacheInterface tripDataHistoryCacheInterface, StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface, DwellTimeModelCacheInterface dwellTimeModelCacheInterface, DataDbLogger dataDbLogger, DbConfig dbConfig) {
+        this.scheduleBasedHistoricalAverageCache = scheduleBasedHistoricalAverageCache;
+        this.frequencyBasedHistoricalAverageCache = frequencyBasedHistoricalAverageCache;
+        this.holdingTimeCache = holdingTimeCache;
+        this.vehicleStateManager = vehicleStateManager;
+        this.holdingTimeGenerator = holdingTimeGenerator;
+        this.travelTimes = travelTimes;
+        this.tripDataHistoryCacheInterface = tripDataHistoryCacheInterface;
+        this.stopArrivalDepartureCacheInterface = stopArrivalDepartureCacheInterface;
+        this.dwellTimeModelCacheInterface = dwellTimeModelCacheInterface;
+        this.dataDbLogger = dataDbLogger;
+        this.dbConfig = dbConfig;
+    }
 
 
     /**
@@ -360,26 +363,26 @@ public class ArrivalDepartureGeneratorDefaultImpl implements ArrivalDepartureGen
      * For making sure that the arrival/departure time is reasonably close to the AVL time.
      * Otherwise this indicates there was a problem determining the arrival/departure time.
      *
-     * @param time
-     * @param avlReport
+     * @param arrivalDeparture
      * @return true if arrival/departure time within 30 minutes of the AVL report time.
      */
     private boolean timeReasonable(ArrivalDeparture arrivalDeparture) {
-        long delta = Math.abs(arrivalDeparture.getAvlTime().getTime()
-                - arrivalDeparture.getDate().getTime());
-        if (delta < ArrivalsDeparturesConfig.allowableDifferenceBetweenAvlTimeSecs.getValue() * Time.MS_PER_SEC) return true;
-        else {
-            logger.error(
-                    "For {} arrival or departure time of {} is more than "
-                            + "{} secs away from the AVL time of {}. Therefore not "
-                            + "storing this time. {}",
-                    AgencyConfig.getAgencyId(),
-                    arrivalDeparture.getDate(),
-                    ArrivalsDeparturesConfig.allowableDifferenceBetweenAvlTimeSecs.getValue(),
-                    arrivalDeparture.getAvlTime(),
-                    arrivalDeparture);
-            return false;
+        long delta = Math.abs(arrivalDeparture.getAvlTime().getTime() - arrivalDeparture.getDate().getTime());
+
+        if (delta < ArrivalsDeparturesConfig.allowableDifferenceBetweenAvlTimeSecs.getValue() * Time.MS_PER_SEC) {
+            return true;
         }
+
+        logger.error(
+                "For {} arrival or departure time of {} is more than "
+                        + "{} secs away from the AVL time of {}. Therefore not "
+                        + "storing this time. {}",
+                AgencyConfig.getAgencyId(),
+                arrivalDeparture.getDate(),
+                ArrivalsDeparturesConfig.allowableDifferenceBetweenAvlTimeSecs.getValue(),
+                arrivalDeparture.getAvlTime(),
+                arrivalDeparture);
+        return false;
     }
 
     /**
@@ -392,7 +395,6 @@ public class ArrivalDepartureGeneratorDefaultImpl implements ArrivalDepartureGen
      * @param arrivalDeparture
      */
     protected void storeInDbAndLog(ArrivalDeparture arrivalDeparture) {
-
         // If arrival/departure time too far from the AVL time then something
         // must be wrong. For this situation don't store the arrival/departure
         // into db.

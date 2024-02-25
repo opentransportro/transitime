@@ -1,0 +1,200 @@
+spring:
+#  cache:
+#    jcache:
+#      config: classpath:ehcache.xml
+  mvc:
+    view:
+      prefix: /webroot/
+      suffix: .jsp
+    servlet:
+      path: /test
+
+
+transitclock:
+  factory:
+    headway-generator: org.transitclock.core.headwaygenerator.LastArrivalsHeadwayGenerator
+    prediction-generator: org.transitclock.core.PredictionGeneratorDefaultImpl
+  api:
+    gtfsRtCacheSeconds: 15
+    includeTripUpdateDelay: false
+    predictionMaxFutureSecs: 3600
+  arrivalsDepartures:
+    allowableDifferenceBetweenAvlTimeSecs: 86400
+    maxStopsBetweenMatches: 12
+    maxStopsWhenNoPreviousMatch: 1
+  autoBlockAssigner:
+    allowableEarlySeconds: 180
+    allowableLateSeconds: 300
+    autoAssignerEnabled: false
+    ignoreAvlAssignments: false
+    minDistanceFromCurrentReport: 100.0
+    minTimeBetweenAutoAssigningSecs: 30
+  avl:
+    alternativemaxspeed: 15.0
+    authenticationPassword: 'null'
+    authenticationUser: 'null'
+    feedPollingRateSecs: 5
+    feedTimeoutInMSecs: 10000
+    gtfsRealtimeFeedURI: 'null'
+    maxLatitude: 55.0
+    maxLongitude: -60.0
+    maxSpeed: 31.3
+    maxStopPathsAhead: 999
+    minLatitude: 15.0
+    minLongitude: -135.0
+    minSpeedForValidHeading: 1.5
+    minTimeBetweenAvlReportsSecs: 5
+    numThreads: 1
+    processInRealTime: false
+    queueSize: 2000
+    shouldProcessAvl: true
+    unpredictableAssignmentsRegEx: ''
+    url: 'null'
+  blockLoading:
+    agressive: false
+  core:
+    afterStopDistance: 50.0
+    agencyId: 'null'
+    allowableBadAssignments: 0
+    allowableEarlyDepartureTimeForLoggingEvent: 60
+    allowableEarlyForLayoverSeconds: 3600
+    allowableEarlySeconds: 900
+    allowableEarlySecondsForInitialMatching: 600
+    allowableEarlyTimeForEarlyDepartureSecs: 300
+    allowableLateAtTerminalForLoggingEvent: 60
+    allowableLateDepartureTimeForLoggingEvent: 240
+    allowableLateSeconds: 5400
+    allowableLateSecondsForInitialMatching: 1200
+    allowableNumberOfBadMatches: 2
+    avlHistoryMaxSize: 20
+    beforeStopDistance: 50.0
+    blockactiveForTimeAfterSecs: -1
+    blockactiveForTimeBeforeSecs: 0
+    cache:
+      daysPopulateHistoricalCache: 0
+    cacheReloadEndTimeStr: ''
+    cacheReloadStartTimeStr: ''
+    deadheadingShortVersusLongDistance: 1000.0
+    defaultBreakTimeSec: 0
+    distanceBetweenAvlsForInitialMatchingWithoutHeading: 100.0
+    distanceFromEndOfBlockForInitialMatching: 250.0
+    distanceFromLastStopForEndMatching: 250.0
+    distanceFromLayoverForEarlyDeparture: 180.0
+    earlyToLateRatio: 3.0
+    emailMessagesWhenAssignmentGrabImproper: false
+    eventHistoryMaxSize: 20
+    exclusiveBlockAssignments: true
+    frequency:
+      cacheIncrementsForFrequencyService: 10800
+      maxDwellTimeFilterValue: 600000
+      maxTravelTimeFilterValue: 600000
+      minDwellTimeFilterValue: 0
+      minTravelTimeFilterValue: 0
+    generateHoldingTimeWhenPredictionWithin: 0
+    ignoreInactiveBlocks: true
+    layoverDistance: 2000.0
+    longDistanceDeadheadingSpeed: 10.0
+    matchHistoryMaxSize: 20
+    maxDistanceForAssignmentGrab: 10000.0
+    maxDistanceFromSegment: 60.0
+    maxDistanceFromSegmentForAutoAssigning: 60.0
+    maxDwellTime: 600000
+    maxHeadingOffsetFromSegment: 360.0
+    maxLateCutoffPredsForNextTripsSecs: 2147483647
+    maxMatchDistanceFromAVLRecord: 500.0
+    maxPredictionTimeForDbSecs: 1800
+    maxPredictionsTimeSecs: 1800
+    minDistanceForDelayed: 60.0
+    minDistanceForNoProgress: 60.0
+    onlyNeedArrivalDepartures: false
+    pauseIfDbQueueFilling: false
+    shortDistanceDeadheadingSpeed: 4.0
+    spatialMatchToLayoversAllowedForAutoAssignment: false
+    storeDataInDatabase: true
+    storeDwellTimeStopPathPredictions: false
+    storeTravelTimeStopPathPredictions: false
+    terminalDistanceForRouteMatching: 100.0
+    timeForDeterminingDelayedSecs: 240
+    timeForDeterminingNoProgress: 480000
+    timezone: 'null'
+    useArrivalPredictionsForNormalStops: true
+    useExactSchedTimeForWaitStops: true
+    useHoldingTimeInPrediction: false
+    prediction-generator:
+      bias:
+        exponential:
+          a: 0.5
+          b: 1.1
+          c: -0.5
+          updown: -1
+        linear:
+          rate: 6.0E-4
+          updown: -1
+  gtfs:
+    blockIdRegEx: 'null'
+    capitalize: false
+    dirName: 'null'
+    intervalMsec: 14400000
+    minDistanceBetweenStopsToDisambiguateHeadsigns: 1000.0
+    outputPathsAndStopsForGraphingRouteIds: 'null'
+    routeIdFilterRegEx: 'null'
+    stopCodeBaseValue: 'null'
+    tripIdFilterRegEx: 'null'
+    tripShortNameRegEx: 'null'
+    url: 'null'
+  holding:
+    controlStops: 'null'
+    maxPredictionsForHoldingTimeCalculation: 3
+    plannedHeadwayMsec: 540000
+    regenerateondeparture: false
+    storeHoldingTimes: true
+    usearrivalevents: true
+    usearrivalpredictions: true
+  monitoring:
+    allowableNoAvlSecs: 300
+    availableFreePhysicalMemoryThreshold: 10485760
+    availableFreePhysicalMemoryThresholdGap: 157286400
+    avlFeedEmailRecipients: monitoring@transitclock.org
+    cpuThreshold: 0.99
+    cpuThresholdGap: 0.1
+    emailRecipients: 'null'
+    maxQueueFraction: 0.4
+    maxQueueFractionGap: 0.1
+    minPredictableBlocks: 0.5
+    minPredictableBlocksGap: 0.25
+    minimumPredictableVehicles: 3
+    retryTimeoutSecs: 5
+    secondsBetweenMonitorinPolling: 120
+    usableDiskSpaceThreshold: 1073741824
+    usableDiskSpaceThresholdGap: 104857600
+  predAccuracy:
+    gtfsTripUpdateUrl: http://127.0.0.1:8091/trip-updates
+    maxEarlynessComparedToPredictionMsec: 900000
+    maxLatenessComparedToPredictionMsec: 1500000
+    maxPredStalenessMinutes: 15
+    maxPredTimeMinutes: 15
+    maxRandomStopSelectionsPerTrip: 100
+    pollingRateMsec: 240000
+    stopsPerTrip: 5
+  service:
+    minutesIntoMorningToIncludePreviousServiceIds: 240
+  timeout:
+    allowableNoAvlAfterSchedDepartSecs: 360
+    allowableNoAvlSecs: 360
+    pollingRateSecs: 30
+    removeTimedOutVehiclesFromVehicleDataCache: false
+  travelTimes:
+    resetEarlyTerminalDepartures: true
+    fractionLimitForStopTimes: 0.7
+    fractionLimitForTravelTimes: 0.7
+    maxSegmentSpeedMps: 27.0
+    maxTravelTimeSegmentLength: 250.0
+    minSegmentSpeedMps: 0.0
+  tripdatacache:
+    tripDataCacheMaxAgeSec: 1296000
+  updates:
+    pageDbReads: true
+    pageSize: 50000
+  web:
+    mapTileCopyright: MapQuest
+    mapTileUrl: http://otile4.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png

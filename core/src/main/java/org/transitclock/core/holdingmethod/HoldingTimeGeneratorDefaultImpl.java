@@ -30,7 +30,6 @@ import java.util.List;
  *     <p>This is a WIP.
  */
 @Slf4j
-@RequiredArgsConstructor
 public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
     private final PredictionDataCache predictionDataCache;
     private final StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface;
@@ -39,6 +38,16 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
     private final VehicleDataCache vehicleDataCache;
     private final HoldingTimeCache holdingTimeCache;
     private final VehicleStateManager vehicleStateManager;
+
+    public HoldingTimeGeneratorDefaultImpl(PredictionDataCache predictionDataCache, StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface, DataDbLogger dataDbLogger, DbConfig dbConfig, VehicleDataCache vehicleDataCache, HoldingTimeCache holdingTimeCache, VehicleStateManager vehicleStateManager) {
+        this.predictionDataCache = predictionDataCache;
+        this.stopArrivalDepartureCacheInterface = stopArrivalDepartureCacheInterface;
+        this.dataDbLogger = dataDbLogger;
+        this.dbConfig = dbConfig;
+        this.vehicleDataCache = vehicleDataCache;
+        this.holdingTimeCache = holdingTimeCache;
+        this.vehicleStateManager = vehicleStateManager;
+    }
 
     public HoldingTime generateHoldingTime(VehicleState vehicleState, IpcArrivalDeparture event) {
 

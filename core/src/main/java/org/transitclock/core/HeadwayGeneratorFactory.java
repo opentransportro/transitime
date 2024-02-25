@@ -1,6 +1,7 @@
 /* (C)2023 */
 package org.transitclock.core;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.transitclock.config.ClassConfigValue;
@@ -21,19 +22,17 @@ import org.transitclock.utils.ClassInstantiator;
  */
 @Configuration
 public class HeadwayGeneratorFactory {
-    private static final ClassConfigValue className = new ClassConfigValue(
-            "transitclock.core.headwayGeneratorClass",
-            org.transitclock.core.HeadwayGeneratorDefaultImpl.class,
-            "Specifies the name of the class used for generating headway data.");
+    @Value("${transitclock.factory.headway-generator:org.transitclock.core.HeadwayGeneratorDefaultImpl}")
+    private Class<?> neededClass;
 
     @Bean
-    public synchronized HeadwayGenerator headwayGenerator(VehicleDataCache vehicleDataCache,
+    public HeadwayGenerator headwayGenerator(VehicleDataCache vehicleDataCache,
                                                           VehicleStateManager vehicleStateManager,
                                                           StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface,
                                                           DbConfig dbConfig) {
-        if (className.getValue() == LastArrivalsHeadwayGenerator.class) {
+        if (neededClass == LastArrivalsHeadwayGenerator.class) {
             return new LastArrivalsHeadwayGenerator(vehicleDataCache, vehicleStateManager, stopArrivalDepartureCacheInterface, dbConfig);
-        } else if (className.getValue() == LastDepartureHeadwayGenerator.class) {
+        } else if (neededClass == LastDepartureHeadwayGenerator.class) {
             return new LastDepartureHeadwayGenerator(vehicleDataCache, vehicleStateManager, stopArrivalDepartureCacheInterface, dbConfig);
         }
 

@@ -15,6 +15,7 @@ import org.transitclock.config.data.AgencyConfig;
  *
  * @author SkiBu Smith
  */
+@Getter
 @Slf4j
 public abstract class ConfigValue<T> {
     // Name of the param. Also used as Java property name

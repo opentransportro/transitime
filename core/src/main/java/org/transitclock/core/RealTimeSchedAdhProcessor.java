@@ -19,11 +19,13 @@ import java.util.Date;
 @Slf4j
 @Component
 public class RealTimeSchedAdhProcessor {
-    @Autowired
-    private TravelTimes travelTimes;
+    private final TravelTimes travelTimes;
+    private final DbConfig dbConfig;
 
-    @Autowired
-    DbConfig dbConfig;
+    public RealTimeSchedAdhProcessor(TravelTimes travelTimes, DbConfig dbConfig) {
+        this.travelTimes = travelTimes;
+        this.dbConfig = dbConfig;
+    }
 
     /**
      * Determines the current schedule adherence for the vehicle. If vehicle at a stop with a

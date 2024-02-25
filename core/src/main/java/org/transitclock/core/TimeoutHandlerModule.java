@@ -37,17 +37,19 @@ import java.util.Map;
 @Slf4j
 @Component
 public class TimeoutHandlerModule extends Module {
-    @Autowired
-    private VehicleDataCache vehicleDataCache;
-    @Autowired
-    private VehicleStateManager vehicleStateManager;
-    @Autowired
-    private AvlProcessor avlProcessor;
-    @Autowired
-    private DbConfig dbConfig;
-    @Autowired
-    AvlReportRegistry avlReportRegistry;
+    private final VehicleDataCache vehicleDataCache;
+    private final VehicleStateManager vehicleStateManager;
+    private final AvlProcessor avlProcessor;
+    private final DbConfig dbConfig;
+    private final AvlReportRegistry avlReportRegistry;
 
+    public TimeoutHandlerModule(VehicleDataCache vehicleDataCache, VehicleStateManager vehicleStateManager, AvlProcessor avlProcessor, DbConfig dbConfig, AvlReportRegistry avlReportRegistry) {
+        this.vehicleDataCache = vehicleDataCache;
+        this.vehicleStateManager = vehicleStateManager;
+        this.avlProcessor = avlProcessor;
+        this.dbConfig = dbConfig;
+        this.avlReportRegistry = avlReportRegistry;
+    }
 
 
     /**

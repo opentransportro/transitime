@@ -21,9 +21,14 @@ import java.util.TimeZone;
 @Slf4j
 @Component
 public class AgencyTimezoneCache {
-    private final Map<String, TimeZone> timezonesMap = new HashMap<>();
-    @Autowired
-    private ConfigInterface configInterface;
+    private final ConfigInterface configInterface;
+    private final Map<String, TimeZone> timezonesMap;
+
+    public AgencyTimezoneCache(ConfigInterface configInterface) {
+        this.configInterface = configInterface;
+        timezonesMap = new HashMap<>();
+    }
+
     /**
      * Returns the TimeZone for the agency specified by the agencyId. The timezone is obtained from
      * the core agency server. Therefore it is cached to reduce requests to the server.

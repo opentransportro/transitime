@@ -28,21 +28,15 @@ import static org.transitclock.config.data.ServiceConfig.minutesIntoMorningToInc
  */
 @Slf4j
 public class ServiceUtils {
-
     private final GregorianCalendar calendar;
-
     private final DbConfig dbConfig;
     /**
      * ServiceUtils constructor. Creates reusable GregorianCalendar and sets the timezone so that
      * the calendar can be reused.
-     *
-     * @param timezoneName See http://en.wikipedia.org/wiki/List_of_tz_zones
      */
     public ServiceUtils(DbConfig dbConfig) {
-
         Agency agency = dbConfig.getFirstAgency();
         this.calendar = agency != null ? new GregorianCalendar(agency.getTimeZone()) : new GregorianCalendar();
-
         this.dbConfig = dbConfig;
     }
 

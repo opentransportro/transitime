@@ -25,12 +25,18 @@ import java.util.List;
  * @author Sean Óg Crudden Simple holding time generator.
  */
 @Slf4j
-@RequiredArgsConstructor
 public class SimpleHoldingTimeGeneratorImpl implements HoldingTimeGenerator {
     private final PredictionDataCache predictionDataCache;
     private final StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface;
     private final DataDbLogger dataDbLogger;
     private final DbConfig dbConfig;
+
+    public SimpleHoldingTimeGeneratorImpl(PredictionDataCache predictionDataCache, StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface, DataDbLogger dataDbLogger, DbConfig dbConfig) {
+        this.predictionDataCache = predictionDataCache;
+        this.stopArrivalDepartureCacheInterface = stopArrivalDepartureCacheInterface;
+        this.dataDbLogger = dataDbLogger;
+        this.dbConfig = dbConfig;
+    }
 
     public HoldingTime generateHoldingTime(VehicleState vehicleState, IpcArrivalDeparture event) {
         if (event.isArrival() && isControlStop(event.getStopId(), event.getStopPathIndex())) {
