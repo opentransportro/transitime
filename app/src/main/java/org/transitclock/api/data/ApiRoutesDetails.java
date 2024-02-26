@@ -25,7 +25,6 @@ public class ApiRoutesDetails {
     @XmlElement(name = "routes")
     private List<ApiRouteDetails> routesData;
 
-    /********************** Member Functions **************************/
 
     /**
      * Need a no-arg constructor for Jersey. Otherwise get really obtuse "MessageBodyWriter not

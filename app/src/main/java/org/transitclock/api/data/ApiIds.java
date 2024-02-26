@@ -17,7 +17,6 @@ public class ApiIds {
     @XmlElement
     private List<String> ids;
 
-    /********************** Member Functions **************************/
 
     /**
      * Need a no-arg constructor for Jersey. Otherwise get really obtuse "MessageBodyWriter not

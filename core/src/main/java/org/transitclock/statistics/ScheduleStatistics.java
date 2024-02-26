@@ -47,7 +47,6 @@ public class ScheduleStatistics {
 
     private static final Logger logger = LoggerFactory.getLogger(ScheduleStatistics.class);
 
-    /********************** Member Functions **************************/
 
     /**
      * For containing the results of processing AVL based arrival/departure times as part of

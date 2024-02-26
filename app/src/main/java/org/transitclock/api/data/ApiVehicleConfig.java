@@ -36,7 +36,6 @@ public class ApiVehicleConfig {
     @XmlAttribute
     private String name;
 
-    /********************** Member Functions **************************/
 
     /**
      * Need a no-arg constructor for Jersey. Otherwise get really obtuse "MessageBodyWriter not

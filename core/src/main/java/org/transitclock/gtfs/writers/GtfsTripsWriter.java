@@ -13,7 +13,6 @@ import org.transitclock.utils.csv.CsvWriterBase;
  */
 public class GtfsTripsWriter extends CsvWriterBase {
 
-    /********************** Member Functions **************************/
 
     /**
      * Creates file writer and writes the header.

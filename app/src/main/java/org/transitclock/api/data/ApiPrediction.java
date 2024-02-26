@@ -71,7 +71,6 @@ public class ApiPrediction {
     @XmlAttribute(name = "affectedByLayover")
     private String affectedByLayover;
 
-    /********************** Member Functions **************************/
 
     /**
      * Need a no-arg constructor for Jersey. Otherwise get really obtuse "MessageBodyWriter not

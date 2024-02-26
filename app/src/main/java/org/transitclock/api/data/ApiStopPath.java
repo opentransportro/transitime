@@ -49,7 +49,6 @@ public class ApiStopPath {
     @XmlAttribute
     private Double pathLength;
 
-    /********************** Member Functions **************************/
 
     /**
      * Need a no-arg constructor for Jersey. Otherwise get really obtuse "MessageBodyWriter not

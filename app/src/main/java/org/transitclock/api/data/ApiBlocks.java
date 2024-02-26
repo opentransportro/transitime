@@ -19,7 +19,6 @@ public class ApiBlocks {
     @XmlElement(name = "block")
     private List<ApiBlock> blocksData;
 
-    /********************** Member Functions **************************/
 
     /**
      * Need a no-arg constructor for Jersey. Otherwise get really obtuse "MessageBodyWriter not

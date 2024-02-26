@@ -21,7 +21,6 @@ public class SiriFramedVehicleJourneyRef {
     @XmlElement(name = "DatedVehicleJourneyRef")
     private String datedVehicleJourneyRef;
 
-    /********************** Member Functions **************************/
 
     /**
      * Need a no-arg constructor for Jersey for JSON. Otherwise get really obtuse "MessageBodyWriter

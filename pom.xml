@@ -22,9 +22,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>17</java.version>
-        <kotlin.version>1.9.22</kotlin.version>
         <querydsl.version>5.0.0</querydsl.version>
-        <hibernate.version>6.2.13.Final</hibernate.version>
     </properties>
 
     <dependencyManagement>

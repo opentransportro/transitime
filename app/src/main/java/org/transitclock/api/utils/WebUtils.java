@@ -2,13 +2,8 @@
 package org.transitclock.api.utils;
 
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.ws.rs.WebApplicationException;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.Response.Status;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.transitclock.api.exception.BadRequestException;
 
 /**
  * Utilities for web based API.
@@ -32,9 +27,9 @@ public class WebUtils {
      * @param ex the exception which will be logged Message to be provided as part of the response.
      * @return Exception to be thrown
      */
-    public static WebApplicationException badRequestException(Throwable ex) {
+    public static BadRequestException badRequestException(Throwable ex) {
         logger.error("Bad Request", ex);
-        return badRequestException(ex, Status.BAD_REQUEST.getStatusCode(), ex.getMessage());
+        return badRequestException(ex.getMessage());
     }
 
     /**
@@ -43,35 +38,8 @@ public class WebUtils {
      * @param s Message to be provided as part of the response.
      * @return Exception to be thrown
      */
-    public static WebApplicationException badRequestException(String s) {
-        return badRequestException(Status.BAD_REQUEST.getStatusCode(), s);
-    }
-
-    public static WebApplicationException badRequestException(Throwable cause, int response, String s) {
-        return new WebApplicationException(
-                cause,
-                Response.status(response)
-                        .entity(s)
-                        .type(MediaType.TEXT_PLAIN)
-                        .header("Access-Control-Allow-Origin", "*")
-                        .build());
-    }
-
-    /**
-     * Convenience method for when need to throw a special HTTP response exception, such as 429
-     * which means Too Many Requests. See http://en.wikipedia.org/wiki/List_of_HTTP_status_codes for
-     * details of possible response codes.
-     *
-     * @param response
-     * @param s
-     * @return
-     */
-    public static WebApplicationException badRequestException(int response, String s) {
-        return new WebApplicationException(Response.status(response)
-                .entity(s)
-                .type(MediaType.TEXT_PLAIN)
-                .header("Access-Control-Allow-Origin", "*")
-                .build());
+    public static BadRequestException badRequestException(String s) {
+        return new BadRequestException(s);
     }
 
     /**

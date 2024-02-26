@@ -53,7 +53,6 @@ public class ApiRouteDetails {
     @XmlElement
     private ApiLocation locationOfNextPredictedVehicle;
 
-    /********************** Member Functions **************************/
 
     /**
      * Need a no-arg constructor for Jersey. Otherwise get really obtuse "MessageBodyWriter not

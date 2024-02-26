@@ -11,6 +11,7 @@ import org.hibernate.annotations.DynamicUpdate;
 import org.transitclock.config.data.DbSetupConfig;
 import org.transitclock.domain.hibernate.HibernateUtils;
 import org.transitclock.domain.structs.Agency;
+import org.transitclock.service.contract.ConfigInterface;
 import org.transitclock.utils.Encryption;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.Time;
@@ -142,14 +143,13 @@ public class WebAgency {
      *
      * @return The Agency object, or null if can't access the agency via RMI
      */
-    public Agency getAgency() {
+    public Agency getAgency(ConfigInterface inter) {
         // If agency hasn't been accessed yet do so now...
         //TODO: need to find a way to add this back
-//        if (agency == null) {
-//            ConfigInterface inter = ApplicationContext.singleton(ConfigServiceImpl.class);
-//            List<Agency> agencies = inter.getAgencies();
-//            agency = agencies.isEmpty() ? null : agencies.get(0);
-//        }
+        if (agency == null) {
+            List<Agency> agencies = inter.getAgencies();
+            agency = agencies.isEmpty() ? null : agencies.get(0);
+        }
 
         // Return the RMI based agency object
         return agency;

@@ -4,18 +4,17 @@ package org.transitclock.api.resources;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import jakarta.ws.rs.WebApplicationException;
 
 public class DateTimeParam {
 
     private LocalDateTime date;
 
-    public DateTimeParam(String in) throws WebApplicationException {
+    public DateTimeParam(String in) {
         try {
             date = LocalDateTime.parse(in, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
 
         } catch (Exception exception) {
-            throw new WebApplicationException(400);
+            throw new RuntimeException("400");
         }
     }
 

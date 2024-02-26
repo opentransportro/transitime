@@ -29,7 +29,6 @@ public class GtfsAgency extends CsvBase {
     private final String agencyPhone;
     private final String agencyFareUrl;
 
-    /********************** Member Functions **************************/
 
     /**
      * @param record

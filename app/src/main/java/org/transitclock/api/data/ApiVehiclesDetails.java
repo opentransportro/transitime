@@ -26,7 +26,6 @@ public class ApiVehiclesDetails {
     @XmlElement(name = "vehicles")
     private List<ApiVehicleDetails> vehiclesData;
 
-    /********************** Member Functions **************************/
 
     /**
      * Need a no-arg constructor for Jersey. Otherwise get really obtuse "MessageBodyWriter not
@@ -42,12 +41,9 @@ public class ApiVehiclesDetails {
      * @param uiTypesForVehicles Specifies how vehicles should be drawn in UI. Can be NORMAL,
      *     SECONDARY, or MINOR
      * @param assigned
-     * @throws InvocationTargetException
-     * @throws IllegalAccessException
      */
     public ApiVehiclesDetails(
-            Collection<IpcVehicle> vehicles, String agencyId, Map<String, UiMode> uiTypesForVehicles, boolean assigned)
-            throws IllegalAccessException, InvocationTargetException {
+            Collection<IpcVehicle> vehicles, String agencyId, Map<String, UiMode> uiTypesForVehicles, boolean assigned) {
         // Get Time object based on timezone for agency
         WebAgency webAgency = WebAgency.getCachedWebAgency(agencyId);
         Agency agency = webAgency.getAgency();

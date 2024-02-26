@@ -83,7 +83,6 @@ public class SiriMonitoredCall {
         }
     }
 
-    /********************** Member Functions **************************/
 
     /**
      * Need a no-arg constructor for Jersey for JSON. Otherwise get really obtuse "MessageBodyWriter

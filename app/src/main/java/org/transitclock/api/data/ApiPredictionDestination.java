@@ -26,7 +26,6 @@ public class ApiPredictionDestination {
     @XmlElement(name = "pred")
     private List<ApiPrediction> predictions;
 
-    /********************** Member Functions **************************/
 
     /**
      * Need a no-arg constructor for Jersey. Otherwise get really obtuse "MessageBodyWriter not

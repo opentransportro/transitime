@@ -15,7 +15,6 @@ import java.util.List;
  */
 public class Statistics {
 
-    /********************** Member Functions **************************/
 
     /**
      * Returns a list of values that was passed in but with the worst outlier filtered out. If there

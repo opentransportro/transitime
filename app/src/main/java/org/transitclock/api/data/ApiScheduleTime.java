@@ -17,7 +17,6 @@ public class ApiScheduleTime {
     @XmlAttribute
     private Integer timeSecs;
 
-    /********************** Member Functions **************************/
 
     /**
      * Need a no-arg constructor for Jersey. Otherwise get really obtuse "MessageBodyWriter not

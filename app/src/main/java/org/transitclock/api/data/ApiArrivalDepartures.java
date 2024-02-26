@@ -20,7 +20,6 @@ public class ApiArrivalDepartures {
     @XmlElement(name = "arrivalDeparture")
     private List<ApiArrivalDeparture> arrivalDeparturesData;
 
-    /********************** Member Functions **************************/
 
     /**
      * Need a no-arg constructor for Jersey. Otherwise get really obtuse "MessageBodyWriter not

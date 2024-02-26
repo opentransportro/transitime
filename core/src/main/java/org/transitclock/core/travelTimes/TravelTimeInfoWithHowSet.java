@@ -16,7 +16,6 @@ public class TravelTimeInfoWithHowSet extends TravelTimeInfo {
 
     private final HowSet howSet;
 
-    /********************** Member Functions **************************/
 
     /**
      * Simple constructor.

@@ -24,7 +24,6 @@ public class ApiDirection {
     @XmlElement(name = "stop")
     private List<ApiStop> stops;
 
-    /********************** Member Functions **************************/
 
     /**
      * Need a no-arg constructor for Jersey. Otherwise get really obtuse "MessageBodyWriter not

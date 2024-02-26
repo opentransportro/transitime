@@ -54,7 +54,7 @@ public class ApiHoldingTime {
 
     protected ApiHoldingTime() {}
 
-    public ApiHoldingTime(IpcHoldingTime ipcHoldingTime) throws IllegalAccessException, InvocationTargetException {
+    public ApiHoldingTime(IpcHoldingTime ipcHoldingTime) {
         this.holdingTime = ipcHoldingTime.getHoldingTime();
         this.creationTime = ipcHoldingTime.getCreationTime();
         this.vehicleId = ipcHoldingTime.getVehicleId();

@@ -30,7 +30,6 @@ public class GtfsFrequency extends CsvBase {
 
     private final Boolean exactTimes;
 
-    /********************** Member Functions **************************/
 
     /**
      * Creates a GtfsFrequency object by reading the data from the CSVRecord.

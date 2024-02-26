@@ -31,7 +31,6 @@ public class ApiActiveBlocksRoute {
     @XmlElement(name = "block")
     private List<ApiActiveBlock> activeBlocks;
 
-    /********************** Member Functions **************************/
 
     /**
      * Need a no-arg constructor for Jersey. Otherwise get really obtuse "MessageBodyWriter not

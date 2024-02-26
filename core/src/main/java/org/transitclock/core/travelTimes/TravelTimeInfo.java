@@ -22,7 +22,6 @@ public class TravelTimeInfo {
 
     public static final int STOP_TIME_NOT_VALID = -1;
 
-    /********************** Member Functions **************************/
     public TravelTimeInfo(
             Trip trip, int stopPathIndex, int stopTime, List<Integer> travelTimes, double travelTimeSegLength) {
         this.trip = trip;

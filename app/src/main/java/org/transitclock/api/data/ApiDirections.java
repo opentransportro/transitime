@@ -20,7 +20,6 @@ public class ApiDirections {
     @XmlElement(name = "direction")
     private List<ApiDirection> directionsData;
 
-    /********************** Member Functions **************************/
 
     /**
      * Need a no-arg constructor for Jersey. Otherwise get really obtuse "MessageBodyWriter not

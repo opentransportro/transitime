@@ -1,13 +1,11 @@
 /* (C)2023 */
 package org.transitclock.api.utils;
 
-import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.ws.rs.*;
-import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.Response.ResponseBuilder;
+import lombok.Data;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.BindParam;
+import org.springframework.web.bind.annotation.PathVariable;
 
 /**
  * For getting the standard parameters from the URI used to access the feed. Includes the key,
@@ -15,29 +13,37 @@ import jakarta.ws.rs.core.Response.ResponseBuilder;
  *
  * @author SkiBu Smith
  */
+@Data
 public class StandardParameters {
-    @PathParam("key")
-    @Parameter(description = "Application key to access this api.")
+    @BindParam("key")
+//    @Parameter(description = "Application key to access this api.")
     private String key;
 
-    @PathParam("agency")
-    @Parameter(description = "Specify the agency the request is intended to.")
+    @BindParam("agency")
+//    @Parameter(description = "Specify the agency the request is intended to.")
     private String agencyId;
 
-    @QueryParam("format")
+    @BindParam("format")
     private String formatOverride;
 
     // Note: Specifying a default value so that don't get a
     // 400 bad request when using wget and headers not set. But
     // this isn't enough. Still getting Bad Request. But leaving
     // this in as documentation that it was tried.
-    @HeaderParam("accept")
-    @DefaultValue("application/json")
+//    @HeaderParam("accept")
+//    @DefaultValue("application/json")
     String acceptHeader;
 
-    @Context
+//    @Context
     HttpServletRequest request;
 
+    public void setAgency(String agencyId) {
+        this.agencyId = agencyId;
+    }
+
+    public String getAgency() {
+        return agencyId;
+    }
 
     /**
      * Returns the media type to use for the response based on optional accept header and the
@@ -53,46 +59,47 @@ public class StandardParameters {
      *
      * @return The resulting media type
      */
-    public String getMediaType() throws WebApplicationException {
-        // Use default of APPLICATION_JSON
-        String mediaType = MediaType.APPLICATION_JSON;
-
-        // If mediaType specified (to something besides "*/*") in accept
-        // header then start with it.
-        if (acceptHeader != null && !acceptHeader.contains("*/*")) {
-            if (acceptHeader.contains(MediaType.APPLICATION_JSON))
-                mediaType = MediaType.APPLICATION_JSON;
-            else if (acceptHeader.contains(MediaType.APPLICATION_XML))
-                mediaType = MediaType.APPLICATION_XML;
-            else
-                throw WebUtils.badRequestException("Accept header \"Accept: "
-                        + acceptHeader
-                        + "\" is not valid. Must be \""
-                        + MediaType.APPLICATION_JSON
-                        + "\" or \""
-                        + MediaType.APPLICATION_XML
-                        + "\"");
-        }
-
-        // If mediaType format is overridden using the query string format
-        // parameter then use it.
-        if (formatOverride != null) {
-            // Always use lower case
-            formatOverride = formatOverride.toLowerCase();
-
-            // If mediaType override set properly then use it
-            mediaType = switch (formatOverride) {
-                case "json" -> MediaType.APPLICATION_JSON;
-                case "xml" -> MediaType.APPLICATION_XML;
-                case "human" -> MediaType.TEXT_PLAIN;
-                default -> throw WebUtils.badRequestException("Format \"format="
-                        + formatOverride
-                        + "\" from query string not valid. "
-                        + "Format must be \"json\" or \"xml\"");
-            };
-        }
-
-        return mediaType;
+    public String getMediaType() throws RuntimeException {
+        return "text/plain";
+//        // Use default of APPLICATION_JSON
+//        String mediaType = MediaType.APPLICATION_JSON;
+//
+//        // If mediaType specified (to something besides "*/*") in accept
+//        // header then start with it.
+//        if (acceptHeader != null && !acceptHeader.contains("*/*")) {
+//            if (acceptHeader.contains(MediaType.APPLICATION_JSON))
+//                mediaType = MediaType.APPLICATION_JSON;
+//            else if (acceptHeader.contains(MediaType.APPLICATION_XML))
+//                mediaType = MediaType.APPLICATION_XML;
+//            else
+//                throw WebUtils.badRequestException("Accept header \"Accept: "
+//                        + acceptHeader
+//                        + "\" is not valid. Must be \""
+//                        + MediaType.APPLICATION_JSON
+//                        + "\" or \""
+//                        + MediaType.APPLICATION_XML
+//                        + "\"");
+//        }
+//
+//        // If mediaType format is overridden using the query string format
+//        // parameter then use it.
+//        if (formatOverride != null) {
+//            // Always use lower case
+//            formatOverride = formatOverride.toLowerCase();
+//
+//            // If mediaType override set properly then use it
+//            mediaType = switch (formatOverride) {
+//                case "json" -> MediaType.APPLICATION_JSON;
+//                case "xml" -> MediaType.APPLICATION_XML;
+//                case "human" -> MediaType.TEXT_PLAIN;
+//                default -> throw WebUtils.badRequestException("Format \"format="
+//                        + formatOverride
+//                        + "\" from query string not valid. "
+//                        + "Format must be \"json\" or \"xml\"");
+//            };
+//        }
+//
+//        return mediaType;
     }
 
 
@@ -103,19 +110,8 @@ public class StandardParameters {
      * @param object Object to be returned in XML or JSON
      * @return The created response in the proper media type.
      */
-    public Response createResponse(Object object) {
-        // Start building the response
-        ResponseBuilder responseBuilder = Response.ok(object);
-
-        // Since this is a truly open API intended to be used by
-        // other web pages allow cross-origin requests.
-        responseBuilder.header("Access-Control-Allow-Origin", "*");
-
-        // Specify media type of XML or JSON
-        responseBuilder.type(getMediaType());
-
-        // Return the response
-        return responseBuilder.build();
+    public <T> ResponseEntity<T> createResponse(T object) {
+        return ResponseEntity.ok(object);
     }
 
     /**

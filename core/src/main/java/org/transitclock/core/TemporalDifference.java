@@ -22,7 +22,6 @@ public class TemporalDifference implements Serializable {
 
     private static final long serialVersionUID = 3306638473792296250L;
 
-    /********************** Member Functions **************************/
 
     /**
      * @param temporalDifferenceMsec Positive means vehicle is ahead of where expected, negative

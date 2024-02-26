@@ -1,14 +1,3 @@
-spring:
-#  cache:
-#    jcache:
-#      config: classpath:ehcache.xml
-  mvc:
-    view:
-      prefix: /webroot/
-      suffix: .jsp
-    servlet:
-      path: /test
-
 
 transitclock:
   factory:

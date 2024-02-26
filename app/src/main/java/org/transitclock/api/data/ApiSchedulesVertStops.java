@@ -28,7 +28,6 @@ public class ApiSchedulesVertStops {
     @XmlElement(name = "schedule")
     private List<ApiScheduleVertStops> schedules;
 
-    /********************** Member Functions **************************/
 
     /**
      * Need a no-arg constructor for Jersey. Otherwise get really obtuse "MessageBodyWriter not

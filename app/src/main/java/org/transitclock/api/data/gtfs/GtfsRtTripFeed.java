@@ -64,13 +64,11 @@ public class GtfsRtTripFeed {
 
     private final PredictionsInterface predictionsInterface;
     private final VehiclesInterface vehiclesInterface;
-    private final AgencyTimezoneCache agencyTimezoneCache;
 
     public GtfsRtTripFeed(String agencyId, PredictionsInterface predictionsInterface, VehiclesInterface vehiclesInterface, AgencyTimezoneCache agencyTimezoneCache) {
         this.agencyId = agencyId;
         this.predictionsInterface = predictionsInterface;
         this.vehiclesInterface = vehiclesInterface;
-        this.agencyTimezoneCache = agencyTimezoneCache;
         this.gtfsRealtimeDateFormatter.setTimeZone(agencyTimezoneCache.get(agencyId));
     }
 

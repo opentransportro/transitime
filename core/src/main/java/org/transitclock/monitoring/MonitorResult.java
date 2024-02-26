@@ -15,7 +15,6 @@ public class MonitorResult implements Serializable {
 
     private static final long serialVersionUID = 8865389000445125279L;
 
-    /********************** Member Functions **************************/
     public MonitorResult(String type, String message) {
         this.type = type;
         this.message = message;

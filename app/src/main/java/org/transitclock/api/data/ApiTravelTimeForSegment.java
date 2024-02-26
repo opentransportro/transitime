@@ -28,7 +28,6 @@ public class ApiTravelTimeForSegment {
     @XmlAttribute
     private Double speedInMetersPerSec;
 
-    /********************** Member Functions **************************/
 
     /**
      * Need a no-arg constructor for Jersey. Otherwise get really obtuse "MessageBodyWriter not

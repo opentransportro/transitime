@@ -25,7 +25,6 @@ public class ApiExportsData implements Serializable {
     @XmlElement(name = "exports")
     private List<ApiExportData> exportsData;
 
-    /********************** Member Functions **************************/
 
     /**
      * Need a no-arg constructor for Jersey. Otherwise get really obtuse "MessageBodyWriter not

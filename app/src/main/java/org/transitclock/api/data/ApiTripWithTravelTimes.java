@@ -16,7 +16,6 @@ public class ApiTripWithTravelTimes extends ApiTrip {
     @XmlElement
     private ApiTravelTimes travelTimes;
 
-    /********************** Member Functions **************************/
 
     /** No args constructor needed for Jersey since this class is a @XmlRootElement */
     protected ApiTripWithTravelTimes() {}

@@ -21,7 +21,6 @@ public class ApiVehicleToBlockConfigs {
     @XmlElement(name = "vehicleToBlock")
     private List<ApiVehicleToBlockConfig> vehiclesData;
 
-    /********************** Member Functions **************************/
 
     /**
      * Need a no-arg constructor for Jersey. Otherwise get really obtuse "MessageBodyWriter not
@@ -37,12 +36,9 @@ public class ApiVehicleToBlockConfigs {
      * @param uiTypesForVehicles Specifies how vehicles should be drawn in UI. Can be NORMAL,
      *     SECONDARY, or MINOR
      * @param assigned
-     * @throws InvocationTargetException
-     * @throws IllegalAccessException
      */
-    public ApiVehicleToBlockConfigs(Collection<IpcVehicleToBlockConfig> vehicles)
-            throws IllegalAccessException, InvocationTargetException {
-        vehiclesData = new ArrayList<ApiVehicleToBlockConfig>();
+    public ApiVehicleToBlockConfigs(Collection<IpcVehicleToBlockConfig> vehicles) {
+        vehiclesData = new ArrayList<>();
 
         for (IpcVehicleToBlockConfig vehicleToBlock : vehicles) {
             vehiclesData.add(new ApiVehicleToBlockConfig(vehicleToBlock));

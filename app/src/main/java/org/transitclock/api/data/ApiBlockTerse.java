@@ -40,7 +40,6 @@ public class ApiBlockTerse {
     @XmlElement(name = "routes")
     private List<ApiRoute> routeSummaries;
 
-    /********************** Member Functions **************************/
 
     /**
      * Need a no-arg constructor for Jersey. Otherwise get really obtuse "MessageBodyWriter not

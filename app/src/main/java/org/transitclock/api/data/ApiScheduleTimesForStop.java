@@ -23,7 +23,6 @@ public class ApiScheduleTimesForStop {
     @XmlElement(name = "time")
     private List<ApiScheduleTime> times;
 
-    /********************** Member Functions **************************/
 
     /**
      * Need a no-arg constructor for Jersey. Otherwise get really obtuse "MessageBodyWriter not

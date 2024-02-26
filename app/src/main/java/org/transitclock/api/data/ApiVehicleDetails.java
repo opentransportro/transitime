@@ -138,7 +138,7 @@ public class ApiVehicleDetails extends ApiVehicleAbstract {
      * @throws IllegalAccessException
      */
     public ApiVehicleDetails(IpcVehicle vehicle, Time timeForAgency, UiMode... uiType)
-            throws IllegalAccessException, InvocationTargetException {
+             {
         super(vehicle, uiType.length > 0 ? uiType[0] : UiMode.NORMAL);
 
         routeName = vehicle.getRouteName();

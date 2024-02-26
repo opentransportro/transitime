@@ -45,7 +45,6 @@ public class ApiShape {
     private static final String LOOP_PATTERN = "circular";
     private static final String LINAR_PATTER = "linear";
 
-    /********************** Member Functions **************************/
 
     /**
      * Need a no-arg constructor for Jersey. Otherwise get really obtuse "MessageBodyWriter not

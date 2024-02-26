@@ -20,7 +20,6 @@ public class ApiPredictionsForStopPath {
     @XmlElement(name = "prediction")
     private List<ApiPredictionForStopPath> predictionsForStopPath;
 
-    /********************** Member Functions **************************/
 
     /**
      * Need a no-arg constructor for Jersey. Otherwise get really obtuse "MessageBodyWriter not

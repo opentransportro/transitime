@@ -2,25 +2,21 @@
 package org.transitclock.api.resources;
 
 import io.swagger.v3.oas.annotations.Operation;
-import jakarta.ws.rs.*;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Controller;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.transitclock.api.data.ApiAgencies;
 import org.transitclock.api.data.ApiAgency;
 import org.transitclock.api.data.ApiNearbyPredictionsForAgencies;
 import org.transitclock.api.data.ApiPredictions;
 import org.transitclock.api.utils.PredsByLoc;
 import org.transitclock.api.utils.StandardParameters;
-import org.transitclock.api.utils.WebUtils;
 import org.transitclock.domain.structs.Agency;
 import org.transitclock.domain.structs.Location;
 import org.transitclock.domain.webstructs.WebAgency;
-import org.transitclock.service.contract.ConfigInterface;
-import org.transitclock.service.contract.PredictionsInterface;
 import org.transitclock.service.dto.IpcPredictionsForRouteStopDest;
 
 import java.util.ArrayList;
@@ -37,29 +33,24 @@ import java.util.List;
  *
  * @author SkiBu Smith
  */
-@Path("/key/{key}")
-@Component
-@RequiredArgsConstructor
+@RestController
+@RequestMapping("/key/{key}")
 public class TransitimeNonAgencyApi extends BaseApiResource {
-
-    private final PredictionsInterface predictionsInterface;
-    private final ConfigInterface configInterface;
-
     /**
      * For "agencies" command. Returns information for all configured agencies.
      *
      * @param stdParameters
      * @return
-     * @throws WebApplicationException
      */
-    @Path("/command/agencies")
-    @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @GetMapping(
+        value = "/command/agencies",
+        produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE}
+    )
     @Operation(
             summary = "Rerives all tha agencies managed by the server.",
             description = "Rerives all tha agencies managed by the server.",
             tags = {"base data", "agency"})
-    public Response getAgencies(@BeanParam StandardParameters stdParameters) throws WebApplicationException {
+    public ResponseEntity<ApiAgencies> getAgencies(StandardParameters stdParameters) {
         // Make sure request is valid
         validate(stdParameters);
 
@@ -87,7 +78,7 @@ public class TransitimeNonAgencyApi extends BaseApiResource {
             }
         }
         ApiAgencies apiAgencies = new ApiAgencies(apiAgencyList);
-        return stdParameters.createResponse(apiAgencies);
+        return ResponseEntity.ok(apiAgencies);
     }
 
     /**
@@ -101,60 +92,54 @@ public class TransitimeNonAgencyApi extends BaseApiResource {
      * @param maxDistance How far away a stop can be from the lat/lon. Default is 1,500 m.
      * @param numberPredictions Maximum number of predictions to return. Default value is 3.
      * @return
-     * @throws WebApplicationException
      */
-    @Path("/command/predictionsByLoc")
-    @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @GetMapping(
+        value = "/command/predictionsByLoc",
+        produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE}
+    )
     @Operation(
             summary = "Gets predictions from server by location",
             description = "Gets a list of prediction by location for all angencies managed by the api.",
             tags = {"prediction"})
-    public Response getPredictions(
-            @BeanParam StandardParameters stdParameters,
-            @QueryParam(value = "lat") Double lat,
-            @QueryParam(value = "lon") Double lon,
-            @QueryParam(value = "maxDistance") @DefaultValue("1500.0") double maxDistance,
-            @QueryParam(value = "numPreds") @DefaultValue("3") int numberPredictions)
-            throws WebApplicationException {
+    public ResponseEntity<ApiNearbyPredictionsForAgencies> getPredictions(
+            StandardParameters stdParameters,
+            @RequestParam(name = "lat") Double lat,
+            @RequestParam(name = "lon") Double lon,
+            @RequestParam(name = "maxDistance", defaultValue = "1500.0") double maxDistance,
+            @RequestParam(name = "numPreds", defaultValue = "3") int numberPredictions) {
         // Make sure request is valid
         validate(stdParameters);
 
         if (maxDistance > PredsByLoc.MAX_MAX_DISTANCE)
-            throw WebUtils.badRequestException("Maximum maxDistance parameter "
-                    + "is "
-                    + PredsByLoc.MAX_MAX_DISTANCE
-                    + "m but "
-                    + maxDistance
-                    + "m was specified in the request.");
+            throw new RuntimeException("Maximum maxDistance parameter "
+                + "is "
+                + PredsByLoc.MAX_MAX_DISTANCE
+                + "m but "
+                + maxDistance
+                + "m was specified in the request.");
 
-        try {
-            ApiNearbyPredictionsForAgencies predsForAgencies = new ApiNearbyPredictionsForAgencies();
+        ApiNearbyPredictionsForAgencies predsForAgencies = new ApiNearbyPredictionsForAgencies();
 
-            // For each nearby agency...
-            List<String> nearbyAgencies = PredsByLoc.getNearbyAgencies(lat, lon, maxDistance);
-            for (String agencyId : nearbyAgencies) {
-                // Get predictions by location for the agency
-                List<IpcPredictionsForRouteStopDest> predictions =
-                        predictionsInterface.get(new Location(lat, lon), maxDistance, numberPredictions);
+        // For each nearby agency...
+        List<String> nearbyAgencies = PredsByLoc.getNearbyAgencies(configInterface, lat, lon, maxDistance);
+        for (String agencyId : nearbyAgencies) {
+            // Get predictions by location for the agency
+            List<IpcPredictionsForRouteStopDest> predictions =
+                predictionsInterface.get(new Location(lat, lon), maxDistance, numberPredictions);
 
-                // Convert predictions to API object
-                ApiPredictions predictionsData = new ApiPredictions(predictions);
+            // Convert predictions to API object
+            ApiPredictions predictionsData = new ApiPredictions(predictions);
 
-                // Add additional agency related info so can describe the
-                // agency in the API.
-                WebAgency webAgency = WebAgency.getCachedWebAgency(agencyId);
-                String agencyName = webAgency.getAgencyName();
-                predictionsData.set(agencyId, agencyName);
+            // Add additional agency related info so can describe the
+            // agency in the API.
+            WebAgency webAgency = WebAgency.getCachedWebAgency(agencyId);
+            String agencyName = webAgency.getAgencyName();
+            predictionsData.set(agencyId, agencyName);
 
-                // Add the predictions for the agency to the predictions to
-                // be returned
-                predsForAgencies.addPredictionsForAgency(predictionsData);
-            }
-            return stdParameters.createResponse(predsForAgencies);
-        } catch (Exception e) {
-            // If problem getting data then return a Bad Request
-            throw WebUtils.badRequestException(e);
+            // Add the predictions for the agency to the predictions to
+            // be returned
+            predsForAgencies.addPredictionsForAgency(predictionsData);
         }
+        return ResponseEntity.ok(predsForAgencies);
     }
 }

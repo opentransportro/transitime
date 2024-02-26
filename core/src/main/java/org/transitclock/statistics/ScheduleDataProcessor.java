@@ -168,7 +168,6 @@ public class ScheduleDataProcessor {
         }
     }
 
-    /********************** Member Functions **************************/
 
     /**
      * @param gtfsDirectoryName

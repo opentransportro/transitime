@@ -35,12 +35,10 @@ public class GtfsRtVehicleFeed {
     private SimpleDateFormat gtfsRealtimeDateFormatter = new SimpleDateFormat("yyyyMMdd");
     private SimpleDateFormat gtfsRealtimeTimeFormatter = new SimpleDateFormat("HH:mm:ss");
     private final VehiclesInterface vehiclesInterface ;
-    private final AgencyTimezoneCache agencyTimezoneCache;
 
     public GtfsRtVehicleFeed(String agencyId, VehiclesInterface vehiclesInterface, AgencyTimezoneCache agencyTimezoneCache) {
         this.agencyId = agencyId;
         this.vehiclesInterface = vehiclesInterface;
-        this.agencyTimezoneCache = agencyTimezoneCache;
         this.gtfsRealtimeDateFormatter.setTimeZone(agencyTimezoneCache.get(agencyId));
     }
 
@@ -147,7 +145,7 @@ public class GtfsRtVehicleFeed {
         for (IpcVehicleGtfsRealtime vehicle : vehicles) {
 
             IpcAvl newAvl = new IpcAvl(
-                    vehicle.getVehicleName(),
+                    vehicle.getVehicleName() == null ? vehicle.getId() : vehicle.getVehicleName(),
                     vehicle.getAvl().getTime(),
                     vehicle.getAvl().getLatitude(),
                     vehicle.getAvl().getLongitude(),

@@ -25,7 +25,6 @@ public class ApiScheduleArrDepTime {
     @XmlAttribute
     private String stopName;
 
-    /********************** Member Functions **************************/
 
     /**
      * Need a no-arg constructor for Jersey. Otherwise get really obtuse "MessageBodyWriter not

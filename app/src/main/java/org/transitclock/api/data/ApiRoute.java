@@ -26,7 +26,6 @@ public class ApiRoute {
     @XmlAttribute
     private String type;
 
-    /********************** Member Functions **************************/
 
     /**
      * Need a no-arg constructor for Jersey. Otherwise get really obtuse "MessageBodyWriter not

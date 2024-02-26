@@ -83,7 +83,6 @@ public class SiriMonitoredVehicleJourney {
     @XmlElement(name = "OnwardCalls")
     private String onwardCalls;
 
-    /********************** Member Functions **************************/
 
     /**
      * Need a no-arg constructor for Jersey for JSON. Otherwise get really obtuse "MessageBodyWriter

@@ -45,7 +45,6 @@ public class ApiPredictionRouteStop {
     @XmlElement(name = "dest")
     private List<ApiPredictionDestination> destinations;
 
-    /********************** Member Functions **************************/
 
     /**
      * Need a no-arg constructor for Jersey. Otherwise get really obtuse "MessageBodyWriter not

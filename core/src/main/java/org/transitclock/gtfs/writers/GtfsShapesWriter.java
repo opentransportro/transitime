@@ -17,7 +17,6 @@ public class GtfsShapesWriter extends CsvWriterBase {
 
     private static final DecimalFormat sixDigitFormatter = new DecimalFormat("0.000000");
 
-    /********************** Member Functions **************************/
 
     /**
      * Creates file writer and writes the header.

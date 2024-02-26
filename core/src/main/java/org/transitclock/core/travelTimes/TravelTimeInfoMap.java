@@ -29,7 +29,6 @@ public class TravelTimeInfoMap {
     // ID.
     private final Map<String, TravelTimesByStopMap> travelTimesByTripPatternMap = new HashMap<String, TravelTimesByStopMap>();
 
-    /********************** Member Functions **************************/
 
     /**
      * Adds the new TravelTimeInfo object to the static travelTimesByTripPattern map so that can

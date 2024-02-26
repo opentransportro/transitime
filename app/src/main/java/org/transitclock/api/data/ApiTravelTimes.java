@@ -28,7 +28,6 @@ public class ApiTravelTimes {
     @XmlElement(name = "travelTimesForStopPath")
     private List<ApiTravelTimesForStopPath> travelTimesForStopPaths;
 
-    /********************** Member Functions **************************/
 
     /**
      * Need a no-arg constructor for Jersey. Otherwise get really obtuse "MessageBodyWriter not

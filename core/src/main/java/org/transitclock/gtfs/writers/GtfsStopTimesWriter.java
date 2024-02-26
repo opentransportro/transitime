@@ -18,7 +18,6 @@ import org.transitclock.utils.csv.CsvWriterBase;
  */
 public class GtfsStopTimesWriter extends CsvWriterBase {
 
-    /********************** Member Functions **************************/
 
     /**
      * Creates file writer and writes the header.

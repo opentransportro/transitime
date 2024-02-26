@@ -1,36 +1,16 @@
-/* (C)2023 */
+//* (C)2023 */
 package org.transitclock.api.resources;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.rmi.RemoteException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import jakarta.ws.rs.BeanParam;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.DefaultValue;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.QueryParam;
-import jakarta.ws.rs.WebApplicationException;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
 import org.transitclock.api.data.ApiCommandAck;
 import org.transitclock.api.utils.StandardParameters;
 import org.transitclock.api.utils.WebUtils;
@@ -42,11 +22,19 @@ import org.transitclock.domain.structs.ExportTable;
 import org.transitclock.domain.structs.MeasuredArrivalTime;
 import org.transitclock.service.dto.IpcAvl;
 import org.transitclock.service.dto.IpcTrip;
-import org.transitclock.service.contract.CommandsInterface;
-import org.transitclock.service.contract.ConfigInterface;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
 
 @Component
-@Path("/key/{key}/agency/{agency}")
+@RequestMapping("/key/{key}/agency/{agency}")
 public class CommandsApi extends BaseApiResource {
 
     private static final String AVL_SOURCE = "API";
@@ -68,37 +56,36 @@ public class CommandsApi extends BaseApiResource {
      * @param assignmentId (optional)
      * @param assignmentTypeStr (optional)
      * @return ApiCommandAck response indicating whether successful
-     * @throws WebApplicationException
+     * @
      */
-    @Path("/command/pushAvl")
-    @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @GetMapping(
+        value = "/command/pushAvl",
+        produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE }
+    )
     @Operation(
             summary = "Reads in a single AVL report specified by the query string parameters",
             description = "Reads in a single AVL report specified by the query string parameters.",
             tags = {"operation", "vehicle", "avl"})
-    public Response pushAvlData(
-            @BeanParam StandardParameters stdParameters,
+    public ResponseEntity<ApiCommandAck> pushAvlData(
+            StandardParameters stdParameters,
             @Parameter(description = "VehicleId. Unique identifier of the vehicle.", required = true)
-                    @QueryParam(value = "v")
+                    @RequestParam(value = "v")
                     String vehicleId,
-            @Parameter(description = "GPS epoch time in msec.", required = true) @QueryParam(value = "t") long time,
+            @Parameter(description = "GPS epoch time in msec.", required = true) @RequestParam(value = "t") long time,
             @Parameter(description = "Latitude of AVL reporte. Decimal degrees.", required = true)
-                    @QueryParam(value = "lat")
+                    @RequestParam(value = "lat")
                     double lat,
             @Parameter(description = "Longitude of AVL reporte. Decimal degrees.", required = true)
-                    @QueryParam(value = "lon")
+                    @RequestParam(value = "lon")
                     double lon,
             @Parameter(description = "Speed of AVL reporte. m/s.", required = false)
-                    @QueryParam(value = "s")
-                    @DefaultValue("NaN")
+                    @RequestParam(value = "s", defaultValue = "NaN")
                     float speed,
             @Parameter(
                             description = "Heading of AVL report. Degrees. 0 degrees=North. Should be set"
                                     + " to Float.NaN if speed not available",
                             required = false)
-                    @QueryParam(value = "h")
-                    @DefaultValue("NaN")
+                    @RequestParam(value = "h", defaultValue = "NaN")
                     float heading,
             @Parameter(
                             description = "Indicates the assignmet id of the AVL report according to the"
@@ -106,16 +93,16 @@ public class CommandsApi extends BaseApiResource {
                                     + " ROUTE_ID, the assingment ID should be one route_id"
                                     + " loaded in the system.",
                             required = false)
-                    @QueryParam(value = "assignmentId")
+                    @RequestParam(value = "assignmentId")
                     String assignmentId,
             @Parameter(
                             description = "Indicates the assignmet type of the AV report. This parameter"
                                     + " can take the next values:"
                                     + " <ul><li>ROUTE_ID</li><li>TRIP_ID</li>TRIP_SHORT_NAME</li>"
                                     + " </ul>")
-                    @QueryParam(value = "assignmentType")
+                    @RequestParam(value = "assignmentType")
                     String assignmentTypeStr)
-            throws WebApplicationException {
+             {
         // Make sure request is valid
         validate(stdParameters);
 
@@ -188,11 +175,12 @@ public class CommandsApi extends BaseApiResource {
      * @param stdParameters
      * @param requestBody
      * @return ApiCommandAck response indicating whether successful
-     * @throws WebApplicationException
+     * @
      */
-    @Path("/command/pushAvl")
-    @POST
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @PostMapping(
+        value = "/command/pushAvl",
+        produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE }
+    )
     @Operation(
             summary = "Reads in a single AVL report in the message body.",
             description = "Reads in a single AVL report specified by the query string parameters."
@@ -204,10 +192,10 @@ public class CommandsApi extends BaseApiResource {
                     + " TRIP_ID\"  where assignmentType can be BLOCK_ID, ROUTE_ID, TRIP_ID, or "
                     + " TRIP_SHORT_NAME.",
             tags = {"operation", "vehicle", "avl"})
-    public Response pushAvlData(
-            @BeanParam StandardParameters stdParameters,
+    public ResponseEntity<ApiCommandAck> pushAvlData(
+            StandardParameters stdParameters,
             @Parameter(description = "Json of avl report.", required = true) InputStream requestBody)
-            throws WebApplicationException {
+             {
         // Make sure request is valid
         validate(stdParameters);
 
@@ -258,18 +246,19 @@ public class CommandsApi extends BaseApiResource {
         return stdParameters.createResponse(ack);
     }
 
-    @Path("/command/resetVehicle")
-    @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @GetMapping(
+        value = "/command/resetVehicle",
+        produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE }
+    )
     @Operation(
             summary = "Reset a vehicle",
             description = "This is to give the means of manually setting a vehicle unpredictable and"
                     + " unassigned so it will be reassigned quickly.",
             tags = {"command", "vehicle"})
-    public Response getVehicles(
-            @BeanParam StandardParameters stdParameters,
-            @Parameter(description = "List of vechilesId.") @QueryParam(value = "v") List<String> vehicleIds)
-            throws WebApplicationException {
+    public ResponseEntity<ApiCommandAck> getVehicles(
+            StandardParameters stdParameters,
+            @Parameter(description = "List of vechilesId.") @RequestParam(value = "v") List<String> vehicleIds)
+             {
         // Make sure request is valid
         validate(stdParameters);
 
@@ -289,25 +278,26 @@ public class CommandsApi extends BaseApiResource {
      * @param routeId
      * @param stopId
      * @return
-     * @throws WebApplicationException
+     * @
      */
-    @Path("/command/pushMeasuredArrivalTime")
-    @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @GetMapping(
+        value = "/command/pushMeasuredArrivalTime",
+        produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE }
+    )
     @Operation(
             summary = "Reads in information from request and stores arrival information into db",
             description = "For storing a measured arrival time so that can see if measured arrival time"
                     + " via GPS is accurate.",
             tags = {"command"})
-    public Response pushAvlData(
-            @BeanParam StandardParameters stdParameters,
-            @Parameter(description = "Route id", required = true) @QueryParam(value = "r") String routeId,
-            @Parameter(description = "Route short name.", required = true) @QueryParam(value = "rShortName")
+    public ResponseEntity<ApiCommandAck> pushAvlData(
+            StandardParameters stdParameters,
+            @Parameter(description = "Route id", required = true) @RequestParam(value = "r") String routeId,
+            @Parameter(description = "Route short name.", required = true) @RequestParam(value = "rShortName")
                     String routeShortName,
-            @Parameter(description = "Route stop id.", required = true) @QueryParam(value = "s") String stopId,
-            @Parameter(description = "Direcction id.", required = true) @QueryParam(value = "d") String directionId,
-            @Parameter(description = "headsign.", required = true) @QueryParam(value = "headsign") String headsign)
-            throws WebApplicationException {
+            @Parameter(description = "Route stop id.", required = true) @RequestParam(value = "s") String stopId,
+            @Parameter(description = "Direcction id.", required = true) @RequestParam(value = "d") String directionId,
+            @Parameter(description = "headsign.", required = true) @RequestParam(value = "headsign") String headsign)
+             {
         // Make sure request is valid
         validate(stdParameters);
 
@@ -331,19 +321,20 @@ public class CommandsApi extends BaseApiResource {
     }
 
     // WORK IN PROGRESS
-    @Path("/command/cancelTrip/{tripId}")
-    @GET // SHOULD BE POST,IT IS AN UPDATE
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @PostMapping(
+        value = "/command/cancelTrip/{tripId}",
+        produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE }
+    )
     @Operation(
             summary = "Cancel a trip in order to be shown in GTFS realtime.",
             description = "<font color=\"#FF0000\">Experimental. It will work olny with the correct"
                     + " version.</font> It cancel a trip that has no vechilce assigned.",
             tags = {"command", "trip"})
-    public Response cancelTrip(
-            @BeanParam StandardParameters stdParameters,
-            @Parameter(description = "tripId to be marked as canceled.", required = true) @PathParam("tripId")
+    public ResponseEntity<ApiCommandAck> cancelTrip(
+            StandardParameters stdParameters,
+            @Parameter(description = "tripId to be marked as canceled.", required = true) @PathVariable("tripId")
                     String tripId,
-            @Parameter(description = "start trip time", required = false) @QueryParam(value = "at") DateTimeParam at) {
+            @Parameter(description = "start trip time", required = false) @RequestParam(value = "at") DateTimeParam at) {
         validate(stdParameters);
         String result;
         IpcTrip ipcTrip = configInterface.getTrip(tripId);
@@ -359,19 +350,20 @@ public class CommandsApi extends BaseApiResource {
         return stdParameters.createResponse(new ApiCommandAck(true, result));
     }
 
-    @Path("/command/reenableTrip/{tripId}")
-    @GET // SHOULD BE POST,IT IS AN UPDATE
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @PostMapping(
+        value = "/command/reenableTrip/{tripId}",
+        produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE }
+    )
     @Operation(
             summary = "Cancel a trip in order to be shown in GTFS realtime.",
             description = "<font color=\"#FF0000\">Experimental. It will work olny with the correct"
                     + " version.</font> It cancel a trip that has no vechilce assigned.",
             tags = {"command", "trip"})
-    public Response reenableTrip(
-            @BeanParam StandardParameters stdParameters,
-            @Parameter(description = "tripId to remove calceled satate.", required = true) @PathParam("tripId")
+    public ResponseEntity<ApiCommandAck> reenableTrip(
+            StandardParameters stdParameters,
+            @Parameter(description = "tripId to remove calceled satate.", required = true) @PathVariable("tripId")
                     String tripId,
-            @Parameter(description = "start trip time", required = false) @QueryParam(value = "at") DateTimeParam at) {
+            @Parameter(description = "start trip time", required = false) @RequestParam(value = "at") DateTimeParam at) {
         validate(stdParameters);
         String result = null;
         IpcTrip ipcTrip = configInterface.getTrip(tripId);
@@ -390,14 +382,15 @@ public class CommandsApi extends BaseApiResource {
             summary = "Add vehicles to block",
             description = "Add vehicles to block",
             tags = {"vehicle", "block"})
-    @Path("/command/vehicleToBlock")
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response addVehicleToBlock(
-            @BeanParam StandardParameters stdParameters,
+    @PostMapping(
+        value = "/command/vehicleToBlock",
+        produces = {MediaType.APPLICATION_JSON_VALUE },
+        consumes = {MediaType.APPLICATION_JSON_VALUE }
+    )
+    public ResponseEntity<ApiCommandAck> addVehicleToBlock(
+            StandardParameters stdParameters,
             @Parameter(description = "Json of vehicle to block.", required = true) InputStream requestBody)
-            throws WebApplicationException {
+             {
         // Make sure request is valid
         validate(stdParameters);
         String result = null;
@@ -423,14 +416,13 @@ public class CommandsApi extends BaseApiResource {
             summary = "Add vehicles to block",
             description = "Add vehicles to block",
             tags = {"vehicle", "block"})
-    @Path("/command/removeVehicleToBlock/{id}")
-    @GET
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response removeVehicleToBlock(
-            @BeanParam StandardParameters stdParameters,
-            @Parameter(description = "vehicle to block id to remove.", required = true) @PathParam("id") long id)
-            throws WebApplicationException {
+    @GetMapping(value = "/command/removeVehicleToBlock/{id}",
+        produces = {MediaType.APPLICATION_JSON_VALUE },
+        consumes = {MediaType.APPLICATION_JSON_VALUE })
+    public ResponseEntity<ApiCommandAck> removeVehicleToBlock(
+            StandardParameters stdParameters,
+            @Parameter(description = "vehicle to block id to remove.", required = true) @PathVariable("id") long id)
+             {
         // Make sure request is valid
         validate(stdParameters);
         try {
@@ -446,14 +438,13 @@ public class CommandsApi extends BaseApiResource {
             summary = "Add AVL export",
             description = "Add AVL export",
             tags = {"report", "avl"})
-    @Path("/command/addAVLExport")
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response addAVLReport(
-            @BeanParam StandardParameters stdParameters,
-            @Parameter(description = "AVL date(MM-DD-YYYY).") @QueryParam(value = "avlDate") String avlDate)
-            throws WebApplicationException {
+    @PostMapping(value = "/command/addAVLExport",
+        produces = {MediaType.APPLICATION_JSON_VALUE },
+        consumes = {MediaType.APPLICATION_JSON_VALUE })
+    public ResponseEntity<ApiCommandAck> addAVLReport(
+            StandardParameters stdParameters,
+            @Parameter(description = "AVL date(MM-DD-YYYY).") @RequestParam(value = "avlDate") String avlDate)
+             {
         // Make sure request is valid
         validate(stdParameters);
 

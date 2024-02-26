@@ -23,7 +23,6 @@ public class ApiScheduleTrip {
     @XmlAttribute
     private String blockId;
 
-    /********************** Member Functions **************************/
 
     /**
      * Need a no-arg constructor for Jersey. Otherwise get really obtuse "MessageBodyWriter not

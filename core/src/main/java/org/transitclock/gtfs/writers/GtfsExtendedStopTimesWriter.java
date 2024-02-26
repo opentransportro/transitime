@@ -16,7 +16,6 @@ import org.transitclock.utils.StringUtils;
  */
 public class GtfsExtendedStopTimesWriter extends GtfsStopTimesWriter {
 
-    /********************** Member Functions **************************/
 
     /**
      * Creates file writer and writes the header.
