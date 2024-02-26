@@ -1,7 +1,7 @@
 /* (C)2023 */
 package org.transitclock.domain;
 
-import org.apache.commons.text.StringEscapeUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 
 import java.sql.SQLException;
 import java.util.List;
