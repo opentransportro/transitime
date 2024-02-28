@@ -67,6 +67,76 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>org.openapitools</groupId>
+                <artifactId>openapi-generator-maven-plugin</artifactId>
+                <!-- RELEASE_VERSION -->
+                <version>7.3.0</version>
+                <!-- /RELEASE_VERSION -->
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${project.basedir}/src/main/resources/spec/transitclock.yaml</inputSpec>
+                            <addCompileSourceRoot>true</addCompileSourceRoot>
+                            <generatorName>spring</generatorName>
+                            <generateAliasAsModel>true</generateAliasAsModel>
+                            <generateSupportingFiles>false</generateSupportingFiles>
+                            <generateApis>true</generateApis>
+                            <generateApiDocumentation>false</generateApiDocumentation>
+                            <generateApiTests>false</generateApiTests>
+                            <apiPackage>org.transitclock.api</apiPackage>
+                            <generateModels>true</generateModels>
+                            <generateModelDocumentation>false</generateModelDocumentation>
+                            <generateModelTests>false</generateModelTests>
+                            <modelPackage>org.transitclock.api.dto</modelPackage>
+                            <modelNameSuffix>Dto</modelNameSuffix>
+                            <openapiNormalizer>REF_AS_PARENT_IN_ALLOF=true,REFACTOR_ALLOF_WITH_PROPERTIES_ONLY=true</openapiNormalizer>
+                            <configOptions>
+                                <useJakartaEe>true</useJakartaEe>
+                                <generatedConstructorWithRequiredArgs>false</generatedConstructorWithRequiredArgs>
+                                <containerDefaultToNull>true</containerDefaultToNull>
+                                <requestMappingMode>api_interface</requestMappingMode>
+                                <title>transitclock-api</title>
+
+                                <openApiNullable>false</openApiNullable>
+                                <library>spring-boot</library>
+                                <useTags>true</useTags>
+                                <interfaceOnly>true</interfaceOnly>
+                                <skipDefaultInterface>true</skipDefaultInterface>
+                                <useOptional>true</useOptional>
+                                <dateLibrary>java8</dateLibrary>
+                                <useBeanValidation>false</useBeanValidation>
+                                <performBeanValidation>true</performBeanValidation>
+                                <serializableModel>false</serializableModel>
+                                <bigDecimalAsString>false</bigDecimalAsString>
+                                <sortParamsByRequiredFlag>true</sortParamsByRequiredFlag>
+                                <ensureUniqueParams>true</ensureUniqueParams>
+                            </configOptions>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>add-generated-sources</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${project.build.directory}/generated-sources/swagger/src/main/generated</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>

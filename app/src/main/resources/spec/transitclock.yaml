@@ -1,0 +1,2734 @@
+openapi: 3.0.1
+info:
+  title: TransitClockAPI
+  description: |-
+    TheTransitClock is an open source transit information system. It’s
+    core function is to provide and analyze arrival predictions for transit systems.<br>Here
+    you will find the detailed description of The Transit Clock API.<br>For more information
+    visit <a href="https://thetransitclock.github.io/">thetransitclock.github.io.</a><br>
+    The original documentation can be found in <a href="https://github.com/Transitime/core/wiki/API">Api
+    doc</a>.
+  version: "1.0"
+servers:
+  - url: /api/v1
+security:
+  - apiKey: [ ]
+paths:
+  /command/cacheinfo:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+      - $ref: '#/components/parameters/header.agencyId'
+    get:
+      security:
+        - apiKeyHeader: []
+      tags:
+        - cache
+      summary: Returns the number of entries in the cacheName cache.
+      description: Returns the number of entries in the cacheName cache. The name
+        is passed through the cachename parameter.
+      operationId: getCacheInfo
+      parameters:
+        - name: cachename
+          in: query
+          description: Name of the cache
+          required: true
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: { }
+            application/xml: { }
+  /command/frequencybasedhistoricalaveragecachekeys:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+      - $ref: '#/components/parameters/header.agencyId'
+    get:
+      tags:
+        - cache
+      summary: Gets a list of the keys that have values in the historical average
+        cache for frequency based services.
+      description: Gets a list of the keys that have values in the historical average
+        cache for frequency based services.<font color="#FF0000">This is not completed
+        and should not be used.<font>
+      operationId: getFrequencyBasedHistoricalAverageCacheKeys
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: { }
+            application/xml: { }
+  /command/historicalaveragecachedata:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+      - $ref: '#/components/parameters/header.agencyId'
+    get:
+      tags:
+        - cache
+      summary: Returns the historical cache value for an individual stop path index
+        of a trip.
+      description: Returns the historical cache value for an individual stop path
+        index of a trip.
+      operationId: getHistoricalAverageCacheData
+      parameters:
+        - name: tripId
+          in: query
+          description: Trip Id
+          required: true
+          schema:
+            type: string
+        - name: stopPathIndex
+          in: query
+          description: Stop path index
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: { }
+            application/xml: { }
+  /command/getholdingtime:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+      - $ref: '#/components/parameters/header.agencyId'
+    get:
+      tags:
+        - cache
+      summary: Returns the IpcHoldingTime for a specific stop Id and vehicle Id.
+      description: Returns the IpcHoldingTime for a specific stop Id and vehicle Id.
+      operationId: getHoldingTime
+      parameters:
+        - name: stopId
+          in: query
+          description: Stop id
+          required: true
+          schema:
+            type: string
+        - name: vehicleId
+          in: query
+          description: Vehicle id
+          required: true
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: { }
+            application/xml: { }
+  /command/holdingtimecachekeys:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+      - $ref: '#/components/parameters/header.agencyId'
+    get:
+      tags:
+        - cache
+      summary: Gets a list of the keys for the holding times in the cache.
+      description: Gets a list of the keys for the holding times in the cache.
+      operationId: getHoldingTimeCacheKeys
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: { }
+            application/xml: { }
+  /command/kalmanerrorcachekeys:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+      - $ref: '#/components/parameters/header.agencyId'
+    get:
+      tags:
+        - kalman
+        - cache
+      summary: Gets the list of Kalman Cache error.
+      description: Gets the list of Kalman Cache error.
+      operationId: getKalmanErrorCacheKeys
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: { }
+            application/xml: { }
+  /command/getkalmanerrorvalue:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+      - $ref: '#/components/parameters/header.agencyId'
+    get:
+      tags:
+        - kalman
+        - cache
+      summary: Returns the latest Kalman error value for a the stop path of a trip.
+      description: Returns the latest Kalman error value for a the stop path of a
+        trip.
+      operationId: getKalmanErrorValue
+      parameters:
+        - name: tripId
+          in: query
+          description: Trip Id
+          required: true
+          schema:
+            type: string
+        - name: stopPathIndex
+          in: query
+          description: Stop path index
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: { }
+            application/xml: { }
+  /command/scheduledbasedhistoricalaveragecachekeys:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+      - $ref: '#/components/parameters/header.agencyId'
+    get:
+      tags:
+        - cache
+      summary: Gets a list of the keys that have values in the historical average
+        cache for schedules based services.
+      description: Gets a list of the keys that have values in the historical average
+        cache for schedules based services.
+      operationId: getSchedulesBasedHistoricalAverageCacheKeys
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: { }
+            application/xml: { }
+  /command/stoparrivaldeparturecachedata:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+      - $ref: '#/components/parameters/header.agencyId'
+    get:
+      tags:
+        - cache
+      summary: Returns a list of current arrival or departure events for a specified
+        stop that are in the cache.
+      description: Returns a list of current arrival or departure events for a specified
+        stop that are in the cache.
+      operationId: getStopArrivalDepartureCacheData
+      parameters:
+        - name: stopid
+          in: query
+          description: Stop Id.
+          required: true
+          schema:
+            type: string
+        - name: date
+          in: query
+          schema:
+            type: string
+            format: date-time
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: { }
+            application/xml: { }
+  /command/getstoppathpredictions:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+      - $ref: '#/components/parameters/header.agencyId'
+    get:
+      tags:
+        - cache
+      summary: Returns a list of predictions for a the stop path of a trip.
+      description: Returns a list of predictions for a the stop path of a trip.
+      operationId: getStopPathPredictions
+      parameters:
+        - name: algorithm
+          in: query
+          description: Algorith used for calculating the perdiction
+          schema:
+            type: string
+        - name: tripId
+          in: query
+          description: Trip Id
+          required: true
+          schema:
+            type: string
+        - name: stopPathIndex
+          in: query
+          description: Stop path index
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: date
+          in: query
+          description: Specified the date.
+          required: true
+          schema:
+            $ref: '#/components/schemas/DateParam'
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: { }
+            application/xml: { }
+  /command/triparrivaldeparturecachedata:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+      - $ref: '#/components/parameters/header.agencyId'
+    get:
+      tags:
+        - cache
+      summary: Returns the arrivals and departures for a trip on a specific day and
+        start time.
+      description: Returns a list  of the arrivals and departures for a trip on a
+        specific day and start time.Either tripId or date must be specified.
+      operationId: getTripArrivalDepartureCacheData
+      parameters:
+
+        - name: tripId
+          in: query
+          description: "if specified, returns the list for that tripId."
+          schema:
+            type: string
+        - name: date
+          in: query
+          description: "if specified, returns the list for that date."
+          schema:
+            $ref: '#/components/schemas/DateParam'
+        - name: starttime
+          in: query
+          description: "if specified, returns the list for that starttime."
+          schema:
+            type: integer
+            format: int32
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: { }
+            application/xml: { }
+  /command/addAVLExport:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+      - $ref: '#/components/parameters/header.agencyId'
+    post:
+      tags:
+        - report
+        - avl
+      summary: Add AVL export
+      description: Add AVL export
+      operationId: addAVLReport
+      parameters:
+
+        - name: avlDate
+          in: query
+          description: AVL date(MM-DD-YYYY).
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: { }
+  /command/vehicleToBlock:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+      - $ref: '#/components/parameters/header.agencyId'
+    post:
+      tags:
+        - vehicle
+        - block
+      summary: Add vehicles to block
+      description: Add vehicles to block
+      operationId: addVehicleToBlock
+      requestBody:
+        description: Json of vehicle to block.
+        content:
+          application/json:
+            schema:
+              type: object
+        required: true
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: { }
+  /command/cancelTrip/{tripId}:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+      - $ref: '#/components/parameters/header.agencyId'
+    delete:
+      tags:
+        - command
+        - trip
+      summary: Cancel a trip in order to be shown in GTFS realtime.
+      description: <font color="#FF0000">Experimental. It will work olny with the
+        correct version.</font> It cancel a trip that has no vechilce assigned.
+      operationId: cancelTrip
+      parameters:
+
+        - name: tripId
+          in: path
+          description: tripId to be marked as canceled.
+          required: true
+          schema:
+            type: string
+        - name: at
+          in: query
+          description: start trip time
+          schema:
+            $ref: '#/components/schemas/DateTimeParam'
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: { }
+            application/xml: { }
+  /command/resetVehicle:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+      - $ref: '#/components/parameters/header.agencyId'
+    get:
+      tags:
+        - command
+        - vehicle
+      summary: Reset a vehicle
+      description: This is to give the means of manually setting a vehicle unpredictable
+        and unassigned so it will be reassigned quickly.
+      operationId: getVehicles
+      parameters:
+        - name: v
+          in: query
+          description: List of vechilesId.
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: { }
+            application/xml: { }
+  /command/pushAvl:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+      - $ref: '#/components/parameters/header.agencyId'
+    get:
+      tags:
+        - operation
+        - vehicle
+        - avl
+      summary: Reads in a single AVL report specified by the query string parameters
+      description: Reads in a single AVL report specified by the query string parameters.
+      operationId: pushAvlData_2
+      parameters:
+
+        - name: v
+          in: query
+          description: VehicleId. Unique identifier of the vehicle.
+          required: true
+          schema:
+            type: string
+        - name: t
+          in: query
+          description: GPS epoch time in msec.
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: lat
+          in: query
+          description: Latitude of AVL reporte. Decimal degrees.
+          required: true
+          schema:
+            type: number
+            format: double
+        - name: lon
+          in: query
+          description: Longitude of AVL reporte. Decimal degrees.
+          required: true
+          schema:
+            type: number
+            format: double
+        - name: s
+          in: query
+          description: Speed of AVL reporte. m/s.
+          schema:
+            type: number
+            format: float
+        - name: h
+          in: query
+          description: Heading of AVL report. Degrees. 0 degrees=North. Should be set
+            to Float.NaN if speed not available
+          schema:
+            type: number
+            format: float
+        - name: assignmentId
+          in: query
+          description: "Indicates the assignmet id of the AVL report according to the\
+          \ assingment tyoe. For example, if assingment type is ROUTE_ID, the assingment\
+          \ ID should be one route_id loaded in the system."
+          schema:
+            type: string
+        - name: assignmentType
+          in: query
+          description: "Indicates the assignmet type of the AV report. This parameter\
+          \ can take the next values: <ul><li>ROUTE_ID</li><li>TRIP_ID</li>TRIP_SHORT_NAME</li>\
+          \ </ul>"
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: { }
+            application/xml: { }
+    post:
+      tags:
+        - operation
+        - vehicle
+        - avl
+      summary: Reads in a single AVL report in the message body.
+      description: "Reads in a single AVL report specified by the query string parameters.\
+        \ <p>{avl: [{v: \"vehicleId1\", t: epochTimeMsec, lat: latitude, lon: longitude,\
+        \ s:speed(optional), h:heading(optional)},\r\n  {v: \"vehicleId2\", t: epochTimeMsec,\
+        \ lat: latitude, lon: longitude,  s: speed(optional), h: heading(optional)},\
+        \  {etc...}]</p>. Can also specify assignment info using  \"assignmentId:\
+        \ 4321, assignmentType: TRIP_ID\"  where assignmentType can be BLOCK_ID, ROUTE_ID,\
+        \ TRIP_ID, or  TRIP_SHORT_NAME."
+      operationId: pushAvlData
+      requestBody:
+        description: Json of avl report.
+        content:
+          '*/*':
+            schema:
+              type: object
+        required: true
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: { }
+            application/xml: { }
+  /command/pushMeasuredArrivalTime:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+      - $ref: '#/components/parameters/header.agencyId'
+    get:
+      tags:
+        - command
+      summary: Reads in information from request and stores arrival information into
+        db
+      description: For storing a measured arrival time so that can see if measured
+        arrival time via GPS is accurate.
+      operationId: pushAvlData_1
+      parameters:
+
+        - name: r
+          in: query
+          description: Route id
+          required: true
+          schema:
+            type: string
+        - name: rShortName
+          in: query
+          description: Route short name.
+          required: true
+          schema:
+            type: string
+        - name: s
+          in: query
+          description: Route stop id.
+          required: true
+          schema:
+            type: string
+        - name: d
+          in: query
+          description: Direcction id.
+          required: true
+          schema:
+            type: string
+        - name: headsign
+          in: query
+          description: headsign.
+          required: true
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: { }
+            application/xml: { }
+  /command/reenableTrip/{tripId}:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+      - $ref: '#/components/parameters/header.agencyId'
+    get:
+      tags:
+        - command
+        - trip
+      summary: Cancel a trip in order to be shown in GTFS realtime.
+      description: <font color="#FF0000">Experimental. It will work olny with the
+        correct version.</font> It cancel a trip that has no vechilce assigned.
+      operationId: reenableTrip
+      parameters:
+
+        - name: tripId
+          in: path
+          description: tripId to remove calceled satate.
+          required: true
+          schema:
+            type: string
+        - name: at
+          in: query
+          description: start trip time
+          schema:
+            $ref: '#/components/schemas/DateTimeParam'
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: { }
+            application/xml: { }
+  /command/removeVehicleToBlock/{id}:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+      - $ref: '#/components/parameters/header.agencyId'
+    get:
+      tags:
+        - vehicle
+        - block
+      summary: Add vehicles to block
+      description: Add vehicles to block
+      operationId: removeVehicleToBlock
+      parameters:
+
+        - name: id
+          in: path
+          description: vehicle to block id to remove.
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: { }
+  /command/gtfs-rt/tripUpdates:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+      - $ref: '#/components/parameters/header.agencyId'
+    get:
+      tags:
+        - GTFS
+        - feed
+      summary: GTFS-realtime trip data.
+      description: Gets real time trip feed. It might be in human readeable format
+        or binary.
+      operationId: getGtfsRealtimeTripFeed
+      parameters:
+
+        - name: format
+          in: query
+          description: "If specified as human, it will get the output in human readable\
+          \ format. Otherwise will output data in binary format"
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            text/plain: { }
+            application/octet-stream: { }
+  /command/gtfs-rt/vehiclePositions:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+      - $ref: '#/components/parameters/header.agencyId'
+    get:
+      tags:
+        - GTFS
+        - feed
+      summary: GTFS-realtime Vehicle Positions data for all vehicles.
+      description: Gets real time vehicle position feed. It might be in human readeable
+        format or binary.
+      operationId: getGtfsRealtimeVehiclePositionsFeed
+      parameters:
+
+        - name: format
+          in: query
+          description: "If specified as human, it will get the output in human readable\
+          \ format. Otherwise will output data in binary format"
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            text/plain: { }
+            application/octet-stream: { }
+  /command/siri/vehicleMonitoring:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+      - $ref: '#/components/parameters/header.agencyId'
+    get:
+      tags:
+        - SIRI
+        - feed
+      summary: Returns vehicleMonitoring vehicle information in SIRI format.
+      description: "It is possible to specify vehicleIds, routeIds, or routeShortNames\
+        \ to get subset of data. If not specified then vehicle information for entire\
+        \ agency is returned."
+      operationId: getVehicles_1
+      parameters:
+
+        - name: v
+          in: query
+          description: List of vehicles id
+          schema:
+            type: array
+            items:
+              type: string
+        - name: r
+          in: query
+          description: List of routesId or routeShortName
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: { }
+            application/xml: { }
+  /command/siri/stopMonitoring:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+      - $ref: '#/components/parameters/header.agencyId'
+    get:
+      tags:
+        - SIRI
+        - feed
+      summary: Returns stopMonitoring vehicle information in SIRI format.
+      description: "It is possible to specify vehicleIds, routeIds, or routeShortNames\
+        \ to get subset of data. It is possible to specify the number of perdictions\
+        \ per stop. If not specified then vehicle information for entire agency is\
+        \ returned."
+      operationId: getVehicles_2
+      parameters:
+
+        - name: r
+          in: query
+          description: RoutesId or routeShortName
+          required: true
+          schema:
+            type: string
+        - name: s
+          in: query
+          description: StopIds
+          required: true
+          schema:
+            type: string
+        - name: numPreds
+          in: query
+          description: Number of predictions
+          schema:
+            type: integer
+            format: int32
+            default: 3
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: { }
+            application/xml: { }
+  /command/activeBlockByRouteNameWithVehicles:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+      - $ref: '#/components/parameters/header.agencyId'
+    get:
+      tags:
+        - prediction
+        - trip
+        - block
+        - route
+        - vehicle
+      summary: Gets which blocks are active by routeName.
+      description: "Retrives a list routes with its  active blocks, including the\
+        \ vechicles. Optionally can be filered accorditn to routesIdOrShortNames params.Every\
+        \ trip is associated with a block."
+      operationId: getActiveBlockByRouteNameWithVehicles
+      parameters:
+
+        - name: r
+          in: query
+          description: "if set, retrives only active blocks belongind to the route name\
+          \ specified."
+          schema:
+            type: string
+        - name: t
+          in: query
+          description: A block will be active if the time is between the block start
+            time minus allowableBeforeTimeSecs and the block end time
+          schema:
+            type: integer
+            format: int32
+            default: 0
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: { }
+            application/xml: { }
+  /command/activeBlockByRouteWithVehicles:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+      - $ref: '#/components/parameters/header.agencyId'
+    get:
+      tags:
+        - prediction
+        - trip
+        - block
+        - route
+        - vehicle
+      summary: Gets which blocks are active by route.
+      description: "Retrives a list routes with its  active blocks, including the\
+        \ vechicles. Optionally can be filered accorditn to routesIdOrShortNames params.Every\
+        \ trip is associated with a block."
+      operationId: getActiveBlockByRouteWithVehicles
+      parameters:
+
+        - name: r
+          in: query
+          description: "if set, retrives only active blocks belongind to the route.\
+          \ It might be routeId or route shrot name."
+          schema:
+            type: string
+        - name: t
+          in: query
+          description: A block will be active if the time is between the block start
+            time minus allowableBeforeTimeSecs and the block end time
+          schema:
+            type: integer
+            format: int32
+            default: 0
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: { }
+            application/xml: { }
+  /command/activeBlocks:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+      - $ref: '#/components/parameters/header.agencyId'
+    get:
+      tags:
+        - prediction
+        - trip
+        - block
+      summary: Gets which blocks are active
+      description: Retrives a list of active blocks. Optionally can be filered accorditn
+        to routesIdOrShortNames params.Every trip is associated with a block.
+      operationId: getActiveBlocks
+      parameters:
+
+        - name: r
+          in: query
+          description: "if set, retrives only active blocks belongind to the route.\
+          \ It might be routeId or route shrot name."
+          schema:
+            type: array
+            items:
+              type: string
+        - name: t
+          in: query
+          description: A block will be active if the time is between the block start
+            time minus allowableBeforeTimeSecs and the block end time
+          schema:
+            type: integer
+            format: int32
+            default: 0
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: { }
+            application/xml: { }
+  /command/activeBlocksByRoute:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+      - $ref: '#/components/parameters/header.agencyId'
+    get:
+      tags:
+        - prediction
+        - trip
+        - block
+        - route
+      summary: Gets which blocks are active by route
+      description: Retrives a list routes with its  active blocks. Optionally can
+        be filered according to routesIdOrShortNames params.Every trip is associated
+        with a block.
+      operationId: getActiveBlocksByRoute
+      parameters:
+
+        - name: r
+          in: query
+          description: "if set, retrives only active blocks belongind to the route.\
+          \ It might be routeId or route shrot name."
+          schema:
+            type: array
+            items:
+              type: string
+        - name: t
+          in: query
+          description: A block will be active if the time is between the block start
+            time minus allowableBeforeTimeSecs and the block end time
+          schema:
+            type: integer
+            format: int32
+            default: 0
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: { }
+            application/xml: { }
+  /command/activeBlocksByRouteWithoutVehicles:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+      - $ref: '#/components/parameters/header.agencyId'
+    get:
+      tags:
+        - prediction
+        - trip
+        - block
+        - route
+      summary: Gets which blocks are active by route.
+      description: "Retrives a list routes with its  active blocks, without the vechicles.\
+        \ Optionally can be filered accorditn to routesIdOrShortNames params.Every\
+        \ trip is associated with a block."
+      operationId: getActiveBlocksByRouteWithoutVehicles
+      parameters:
+
+        - name: r
+          in: query
+          description: "if set, retrives only active blocks belongind to the route.\
+          \ It might be routeId or route shrot name."
+          schema:
+            type: array
+            items:
+              type: string
+        - name: t
+          in: query
+          description: A block will be active if the time is between the block start
+            time minus allowableBeforeTimeSecs and the block end time
+          schema:
+            type: integer
+            format: int32
+            default: 0
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: { }
+            application/xml: { }
+  /command/agencyGroup:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+      - $ref: '#/components/parameters/header.agencyId'
+    get:
+      tags:
+        - base data
+        - agency
+      summary: Retrives agency infomation.
+      description: "Retrives agency infomation, including extent."
+      operationId: getAgencyGroup
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: { }
+            application/xml: { }
+  /command/allCalendars:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+      - $ref: '#/components/parameters/header.agencyId'
+    get:
+      tags:
+        - base data
+        - calendar
+        - serviceId
+      summary: Retrives all calendar infomation.
+      description: Retrives all calendar infomation.
+      operationId: getAllCalendars
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: { }
+            application/xml: { }
+  /reports/avlReport:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+      - $ref: '#/components/parameters/header.agencyId'
+    get:
+      tags:
+        - report
+        - vehicle
+      summary: Returns avl report.
+      description: Returns avl report.
+      operationId: getAvlReport
+      parameters:
+
+        - name: v
+          in: query
+          description: Vehicle id
+          schema:
+            type: string
+        - name: beginDate
+          in: query
+          description: Begin date(MM-DD-YYYY.
+          schema:
+            type: string
+        - name: numDays
+          in: query
+          description: Num days.
+          schema:
+            type: integer
+            format: int32
+        - name: beginTime
+          in: query
+          description: Begin time(HH:MM)
+          schema:
+            type: string
+        - name: endTime
+          in: query
+          description: End time(HH:MM)
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: { }
+            application/xml: { }
+  /command/block:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+      - $ref: '#/components/parameters/header.agencyId'
+    get:
+      tags:
+        - base data
+        - trip
+        - block
+      summary: Retrives configuration data for the specified block ID and service
+        ID
+      description: Retrives configuration data for the specified block ID and service
+        ID. Includes all sub-data such as trips ans trip patterns.Every trip is associated
+        with a block.
+      operationId: getBlock
+      parameters:
+
+        - name: blockId
+          in: query
+          description: Block id to be asked.
+          required: true
+          schema:
+            type: string
+        - name: serviceId
+          in: query
+          description: Service id to be asked.
+          required: true
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: { }
+            application/xml: { }
+  /command/blockIds:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+      - $ref: '#/components/parameters/header.agencyId'
+    get:
+      tags:
+        - base data
+        - trip
+        - block
+      summary: Retrives a list of all blockId for the specified service ID
+      description: Retrives a list of all blockId for the specified service ID.Every
+        trip is associated with a block.
+      operationId: getBlockIds
+      parameters:
+
+        - name: serviceId
+          in: query
+          description: "if set, returns only the data for that serviceId."
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: { }
+            application/xml: { }
+  /command/blocks:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+      - $ref: '#/components/parameters/header.agencyId'
+    get:
+      tags:
+        - base data
+        - trip
+        - block
+      summary: Retrives configuration data for the specified block ID
+      description: Retrives configuration data for the specified block ID. Includes
+        all sub-data such as trips and trip.Every trip is associated with a block.
+      operationId: getBlocks
+      parameters:
+
+        - name: blockId
+          in: query
+          description: Block id to be asked.
+          required: true
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: { }
+            application/xml: { }
+  /command/blocksTerse:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+      - $ref: '#/components/parameters/header.agencyId'
+    get:
+      tags:
+        - base data
+        - trip
+        - block
+      summary: Retrives configuration data for the specified block ID.
+      description: Retrives configuration data for the specified block ID. It does
+        not include trip patterns.Every trip is associated with a block.
+      operationId: getBlocksTerse
+      parameters:
+
+        - name: blockId
+          in: query
+          description: Block id to be asked.
+          required: true
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: { }
+            application/xml: { }
+  /command/currentCalendars:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+      - $ref: '#/components/parameters/header.agencyId'
+    get:
+      tags:
+        - base data
+        - calendar
+        - serviceId
+      summary: Retrives current calendar infomation.
+      description: Retrives current calendar infomation. Only teh calendar that applies
+        to current day
+      operationId: getCurrentCalendars
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: { }
+            application/xml: { }
+  /command/currentServerTime:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+      - $ref: '#/components/parameters/header.agencyId'
+    get:
+      tags:
+        - server status
+      summary: Retrives server time.
+      description: Retrives server time
+      operationId: getCurrentServerTime
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: { }
+            application/xml: { }
+  /command/currentServiceIds:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+      - $ref: '#/components/parameters/header.agencyId'
+    get:
+      tags:
+        - base data
+        - serviceId
+      summary: Retrieves current service id.
+      description: Retries current service id.
+      operationId: getCurrentServiceIds
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: { }
+            application/xml: { }
+  /command/getExportFile:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+      - $ref: '#/components/parameters/header.agencyId'
+    get:
+      summary: Return export file
+      description: Return export file
+      operationId: getExportById
+      parameters:
+
+        - name: id
+          in: query
+          description: Id eksportu
+          schema:
+            type: integer
+            format: int64
+      responses:
+        default:
+          description: default response
+          content:
+            application/octet-stream: { }
+  /command/exports:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+      - $ref: '#/components/parameters/header.agencyId'
+    get:
+      summary: Returns exports list
+      description: Returns exports list
+      operationId: getExports
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: { }
+            application/xml: { }
+  /reports/lastAvlJsonData:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+      - $ref: '#/components/parameters/header.agencyId'
+    get:
+      tags:
+        - report
+        - avl
+        - vehicle
+      summary: Returns AVL Json data for last 24 hours.
+      description: Returns AVL Json data for last 24 hours.
+      operationId: getLastAvlJsonData
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: { }
+            application/xml: { }
+  /command/predictions:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+      - $ref: '#/components/parameters/header.agencyId'
+    get:
+      tags:
+        - prediction
+      summary: Gets predictions from server
+      operationId: getPredictions
+      parameters:
+
+        - name: rs
+          in: query
+          description: List of route/stops to return predictions for. If route not specified
+            then data will be returned for all routes for the specified stop. The route
+            specifier is the route id or the route short name. It is often best to use
+            route short name for consistency across configuration changes (route ID
+            is not consistent for many agencies). The stop specified can either be the
+            stop ID or the stop code. Each route/stop is separated by the "|" character
+            so for example the query string could have "rs=43|2029&rs=43|3029"
+          schema:
+            type: array
+            items:
+              type: string
+        - name: s
+          in: query
+          description: List of stops to return predictions for. Can use either stop
+            ID or stop code.
+          schema:
+            type: array
+            items:
+              type: string
+        - name: numPreds
+          in: query
+          description: Maximum number of predictions to return.
+          schema:
+            type: integer
+            format: int32
+            default: 3
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: { }
+            application/xml: { }
+  /command/predictionsByLoc:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+      - $ref: '#/components/parameters/header.agencyId'
+    get:
+      tags:
+        - prediction
+      summary: Gets predictions from server by location
+      operationId: getPredictions_1
+      parameters:
+
+        - name: lat
+          in: query
+          description: Latitude of the location in decimal degrees.
+          required: true
+          schema:
+            type: number
+            format: double
+        - name: lon
+          in: query
+          description: Longitude of the location in decimal degrees.
+          required: true
+          schema:
+            type: number
+            format: double
+        - name: maxDistance
+          in: query
+          description: How far away a stop can be from the location (lat/lon).
+          schema:
+            type: number
+            format: double
+            default: 1500.0
+        - name: numPreds
+          in: query
+          description: Maximum number of predictions to return.
+          schema:
+            type: integer
+            format: int32
+            default: 3
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: { }
+            application/xml: { }
+  /command/rmiStatus:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+      - $ref: '#/components/parameters/header.agencyId'
+    get:
+      tags:
+        - server status
+      summary: Retrives RMI status information.
+      description: Retrives RMI server status information.
+      operationId: getRmiStatus
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: { }
+            application/xml: { }
+  /command/routesDetails:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+      - $ref: '#/components/parameters/header.agencyId'
+    get:
+      tags:
+        - base data
+        - route
+      summary: Provides detailed information for a route.
+      description: Provides detailed information for a route includes all stops and
+        paths such that it can be drawn in a map.
+      operationId: getRouteDetails
+      parameters:
+
+        - name: r
+          in: query
+          description: "List of routeId or routeShortName. Example: r=1&r=2"
+          schema:
+            type: array
+            items:
+              type: string
+        - name: d
+          in: query
+          description: If set then only the shape for specified direction is marked
+            as being for the UI.
+          schema:
+            type: string
+        - name: s
+          in: query
+          description: If set then only this stop and the remaining ones on the trip
+            pattern are marked as being for the UI and can be highlighted. Useful for
+            when want to emphasize in the UI only  the stops that are of interest to
+            the user.
+          schema:
+            type: string
+        - name: tripPattern
+          in: query
+          description: If set then only the specified trip pattern is marked as being
+            for the UI
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: { }
+            application/xml: { }
+  /command/routes:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+      - $ref: '#/components/parameters/header.agencyId'
+    get:
+      tags:
+        - base data
+        - route
+      summary: Gets the list of routes.
+      description: "Gets a list of the existing routes in the server. It might be\
+        \ filtered according to routeId or routeShortName. If more than one route\
+        \ have the same shortName, it is possible to specify keepDuplicates parameter\
+        \ to show all of them. "
+      operationId: getRoutes
+      parameters:
+
+        - name: r
+          in: query
+          description: "List of routeId or routeShortName. Example: r=1&r=2"
+          schema:
+            type: array
+            items:
+              type: string
+        - name: keepDuplicates
+          in: query
+          description: Return all routes when more than one have the same shortName.
+          schema:
+            type: boolean
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: { }
+            application/xml: { }
+  /command/scheduleHorizStops:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+      - $ref: '#/components/parameters/header.agencyId'
+    get:
+      tags:
+        - base data
+        - schedule
+      summary: Retrives schedule for the specified route.
+      description: "Retrives schedule for the specified route.  The data is output\
+        \ such that the stops are listed horizontally (and the trips are vertical).\
+        \ For when there are a good number of stops but not as many trips, such as\
+        \ for commuter rail."
+      operationId: getScheduleHorizStops
+      parameters:
+
+        - name: r
+          in: query
+          description: Specifies the routeId or routeShortName.
+          required: true
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: { }
+            application/xml: { }
+  /command/scheduleVertStops:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+      - $ref: '#/components/parameters/header.agencyId'
+    get:
+      tags:
+        - base data
+        - schedule
+      summary: Retrives schedule for the specified route.
+      description: "Retrives schedule for the specified route.  The data is output\
+        \ such that the stops are listed vertically (and the trips are horizontal).\
+        \ For when there are a good number of stops but not as many trips, such as\
+        \ for commuter rail."
+      operationId: getScheduleVertStops
+      parameters:
+
+        - name: r
+          in: query
+          description: Specifies the routeId or routeShortName.
+          required: true
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: { }
+            application/xml: { }
+  /command/serverStatus:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+      - $ref: '#/components/parameters/header.agencyId'
+    get:
+      tags:
+        - server status
+      summary: Retrives server status information.
+      description: Retrives server status information.
+      operationId: getServerStatus
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: { }
+            application/xml: { }
+  /command/serviceIds:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+      - $ref: '#/components/parameters/header.agencyId'
+    get:
+      tags:
+        - base data
+        - serviceId
+      summary: Retrives all service id.
+      description: Retrives all service id.
+      operationId: getServiceIds
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: { }
+            application/xml: { }
+  /command/stops:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+      - $ref: '#/components/parameters/header.agencyId'
+    get:
+      tags:
+        - base data
+        - stop
+      summary: Retrives bus stops from the server.
+      description: "Returns all stops associated with a route, grouped by direction.\
+        \ Useful for creating a UI where user needs to select a stop from a list."
+      operationId: getStops
+      parameters:
+
+        - name: r
+          in: query
+          description: "if set, retrives only busstops belongind to the route. It might\
+          \ be routeId or route shrot name."
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: { }
+            application/xml: { }
+  /command/trip:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+      - $ref: '#/components/parameters/header.agencyId'
+    get:
+      tags:
+        - base data
+        - trip
+      summary: Gets the configuration data of a trip.
+      description: Gets the configuration data of a trip
+      operationId: getTrip
+      parameters:
+
+        - name: tripId
+          in: query
+          description: Trip id
+          required: true
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: { }
+            application/xml: { }
+  /command/tripIds:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+      - $ref: '#/components/parameters/header.agencyId'
+    get:
+      tags:
+        - base data
+        - trip
+      summary: Retrives a list of all tripIds
+      description: Retrives a list of all tripIds.
+      operationId: getTripIds
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: { }
+            application/xml: { }
+  /command/tripPatterns:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+      - $ref: '#/components/parameters/header.agencyId'
+    get:
+      tags:
+        - base data
+        - trip
+      summary: Retrives a list of all trip patters.
+      description: Retrives a list of all trip patters for the specific routeId or
+        routeShortName.
+      operationId: getTripPatterns
+      parameters:
+        - name: r
+          in: query
+          description: Specifies the routeId or routeShortName.
+          required: true
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: { }
+            application/xml: { }
+  /command/tripWithTravelTimes:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+      - $ref: '#/components/parameters/header.agencyId'
+    get:
+      tags:
+        - base data
+        - trip
+      summary: Gets the configuration data of a trip.
+      description: Gets the configuration data of a trip. Includes all sub-data such
+        as trip patterns
+      operationId: getTripWithTravelTimes
+      parameters:
+        - name: tripId
+          in: query
+          description: Trip id
+          required: true
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: { }
+            application/xml: { }
+  /reports/tripWithTravelTimes:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+      - $ref: '#/components/parameters/header.agencyId'
+    get:
+      tags:
+        - base data
+        - trip
+      summary: Gets the arrivals and departures data of a trip.
+      description: Gets the arrivals and departures data of a trip.
+      operationId: getTripWithTravelTimes_1
+      parameters:
+        - name: tripId
+          in: query
+          description: Trip id
+          required: true
+          schema:
+            type: string
+        - name: date
+          in: query
+          description: Begin date(YYYY-MM-DD).
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: { }
+            application/xml: { }
+  /reports/tripsByDate:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+      - $ref: '#/components/parameters/header.agencyId'
+    get:
+      tags:
+        - base data
+        - trip
+      summary: Gets the trips by date.
+      description: Gets the trips by date.
+      operationId: getTrips
+      parameters:
+        - name: date
+          in: query
+          description: Date(YYYY-MM-DD).
+          required: true
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: { }
+            application/xml: { }
+  /reports/tripsWithTravelTimes:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+      - $ref: '#/components/parameters/header.agencyId'
+    get:
+      tags:
+        - base data
+        - trips
+      summary: Gets the arrivals and departures data of a trips.
+      description: Gets the arrivals and departures data of a trips.
+      operationId: getTripsWithTravelTimes
+      parameters:
+        - name: date
+          in: query
+          description: Begin date(YYYY-MM-DD).
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: { }
+            application/xml: { }
+  /command/vehicleAdherenceSummary:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+      - $ref: '#/components/parameters/header.agencyId'
+    get:
+      tags:
+        - prediction
+      summary: "Returns the counters  for the number of current vehicles running early,\
+        \ late or on time. "
+      description: "Returns the amount of vehicles running  early, late or on time.\
+        \ Besides specify the amount of vehicles no predictables and the amount of\
+        \ active blocks."
+      operationId: getVehicleAdherenceSummary
+      parameters:
+        - name: allowableEarlySec
+          in: query
+          description: The number of seconds early a vehicle has to be before it is
+            considered in the early counter.
+          schema:
+            type: integer
+            format: int32
+            default: 0
+        - name: allowableLateSec
+          in: query
+          description: The number of seconds early a vehicle has to be before it is
+            considered in the late counter.
+          schema:
+            type: integer
+            format: int32
+            default: 0
+        - name: t
+          in: query
+          description: A block will be active if the time is between the block start
+            time minus allowableBeforeTimeSecs (t) and the block end time
+          schema:
+            type: integer
+            format: int32
+            default: 0
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: { }
+            application/xml: { }
+  /command/vehicleConfigs:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+      - $ref: '#/components/parameters/header.agencyId'
+    get:
+      tags:
+        - vehicle
+      summary: Returns a list of vehilces with its configurarion.
+      description: "Returns a list of vehicles coniguration which inclides description,\
+        \ capacity, type and crushCapacity."
+      operationId: getVehicleConfigs
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: { }
+            application/xml: { }
+  /command/vehicleIds:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+      - $ref: '#/components/parameters/header.agencyId'
+    get:
+      tags:
+        - vehicle
+      summary: Gets the list of vehicles Id
+      operationId: getVehicleIds
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: { }
+            application/xml: { }
+  /command/vehicleLocation:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+      - $ref: '#/components/parameters/header.agencyId'
+    get:
+      tags:
+        - vehicle
+      summary: It gets the location for the specified vehicle.
+      description: It gets the location for the specified vehicle.
+      operationId: getVehicleLocation
+      parameters:
+
+        - name: v
+          in: query
+          description: Specifies the vehicle from which to get the location from.
+          required: true
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: { }
+            application/xml: { }
+  /command/vehicles:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+      - $ref: '#/components/parameters/header.agencyId'
+    get:
+      tags:
+        - vehicle
+        - prediction
+      summary: Returns data for all vehicles or for the vehicles specified via the
+        query string.
+      description: Returns data for all vehicles or for the vehicles specified via
+        the query string.
+      operationId: getVehicles_3
+      parameters:
+
+        - name: v
+          in: query
+          description: Vehicles is list.
+          schema:
+            type: array
+            items:
+              type: string
+        - name: r
+          in: query
+          description: Specifies which vehicles to get data for.
+          schema:
+            type: array
+            items:
+              type: string
+        - name: s
+          in: query
+          description: Specifies a stop so can get predictions for routes and determine
+            which vehicles are the ones generating the predictions. The other vehicles
+            are labeled as minor so they can be drawn specially in the UI.
+          schema:
+            type: string
+        - name: numPreds
+          in: query
+          description: Number of predictions to show.
+          schema:
+            type: integer
+            format: int32
+            default: 2
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: { }
+            application/xml: { }
+  /command/vehiclesDetails:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+      - $ref: '#/components/parameters/header.agencyId'
+    get:
+      tags:
+        - vehicle
+      summary: Returns detailed data for all vehicles or for the vehicles specified
+        via the query string
+      description: "Returns detailed data for all vehicles or for the vehicles specified\
+        \ via the query string. This data  includes things not necessarily intended\
+        \ for the public, such as schedule adherence and driver IDs."
+      operationId: getVehiclesDetails
+      parameters:
+
+        - name: v
+          in: query
+          description: Specifies which vehicles to get data for
+          schema:
+            type: array
+            items:
+              type: string
+        - name: r
+          in: query
+          description: Specifies which routes to get data for
+          schema:
+            type: array
+            items:
+              type: string
+        - name: s
+          in: query
+          description: 'Specifies a stop so can get predictions for routes and determine
+          which vehicles are the ones generating the predictions. The other vehicles
+          are labeled as minor so they can be drawn specially in the UI. '
+          schema:
+            type: string
+        - name: numPreds
+          in: query
+          description: ' For when determining which vehicles are generating thepredictions
+          so can label minor vehicles'
+          schema:
+            type: integer
+            format: int32
+            default: 3
+        - name: onlyAssigned
+          in: query
+          description: ' Return only assigned vehicles'
+          schema:
+            type: boolean
+            default: false
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: { }
+            application/xml: { }
+  /command/vehiclesToBlock:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+      - $ref: '#/components/parameters/header.agencyId'
+    get:
+      tags:
+        - block
+      summary: Returns data for vehicles assignment for specific block in current
+        day
+      description: Returns data for vehicles assignment for specific block in current
+        day
+      operationId: getVehiclesToBlock
+      parameters:
+
+        - name: blockId
+          in: query
+          description: Block id
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: { }
+            application/xml: { }
+  /reports/scheduleAdh:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+      - $ref: '#/components/parameters/header.agencyId'
+    get:
+      tags:
+        - report
+        - route
+        - schedule adherence
+      summary: Returns schedule adherence report.
+      description: Returns schedule adherence report.
+      operationId: scheduleAdhReport
+      parameters:
+        - name: r
+          in: query
+          description: Route id
+          schema:
+            type: string
+        - name: beginDate
+          in: query
+          description: Begin date(MM-DD-YYYY.
+          schema:
+            type: string
+        - name: numDays
+          in: query
+          description: Num days.
+          schema:
+            type: integer
+            format: int32
+        - name: beginTime
+          in: query
+          description: Begin time(HH:MM)
+          schema:
+            type: string
+        - name: endTime
+          in: query
+          description: End time(HH:MM)
+          schema:
+            type: string
+        - name: allowableEarly
+          in: query
+          description: Allowable early in minutes
+          schema:
+            type: string
+            default: 1.0
+        - name: allowableLate
+          in: query
+          description: Allowable late in minutes
+          schema:
+            type: string
+            default: 1.0
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: { }
+            application/xml: { }
+  /command/agencies:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+    get:
+      tags:
+        - base data
+        - agency
+      summary: Rerives all tha agencies managed by the server.
+      description: Rerives all tha agencies managed by the server.
+      operationId: getAgencies
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: { }
+            application/xml: { }
+  /command/predictions-by-loc:
+    parameters:
+      - $ref: '#/components/parameters/header.apiKey'
+    get:
+      tags:
+        - prediction
+      summary: Gets predictions from server by location
+      description: Gets a list of prediction by location for all angencies managed
+        by the api.
+      operationId: getPredictions_2
+      parameters:
+        - name: lat
+          in: query
+          schema:
+            type: number
+            format: double
+        - name: lon
+          in: query
+          schema:
+            type: number
+            format: double
+        - name: maxDistance
+          in: query
+          schema:
+            type: number
+            format: double
+            default: 1500.0
+        - name: numPreds
+          in: query
+          schema:
+            type: integer
+            format: int32
+            default: 3
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: { }
+            application/xml: { }
+components:
+  securitySchemes:
+    apiKey:
+      description: API key received for consuming the API.
+      type: apiKey
+      in: header
+      name: X-ApiKey
+  parameters:
+    header.apiKey:
+      name: X-ApiKey
+      in: header
+      description: The api key that should be used
+      required: true
+      allowEmptyValue: false
+      schema:
+        type: string
+        format: uuid
+    header.agencyId:
+      name: X-AgencyId
+      in: header
+      description: The agency scope of the request that should be used
+      required: true
+      allowEmptyValue: false
+      schema:
+        type: string
+
+  schemas:
+    CommandsInterface:
+      type: object
+      properties:
+        vehicleUnpredictable:
+          type: string
+          writeOnly: true
+    Agency:
+      type: object
+      properties:
+        configRev:
+          type: integer
+          format: int32
+        agencyName:
+          type: string
+        agencyId:
+          type: string
+        agencyUrl:
+          type: string
+        agencyTimezone:
+          type: string
+        agencyLang:
+          type: string
+        agencyPhone:
+          type: string
+        agencyFareUrl:
+          type: string
+        extent:
+          $ref: '#/components/schemas/Extent'
+        timezone:
+          type: object
+          properties:
+            displayName:
+              type: string
+            id:
+              type: string
+            dstsavings:
+              type: integer
+              format: int32
+            rawOffset:
+              type: integer
+              format: int32
+          writeOnly: true
+        time:
+          $ref: '#/components/schemas/Time'
+        name:
+          type: string
+        id:
+          type: string
+        timeZone:
+          type: object
+          properties:
+            displayName:
+              type: string
+            id:
+              type: string
+            dstsavings:
+              type: integer
+              format: int32
+            rawOffset:
+              type: integer
+              format: int32
+        url:
+          type: string
+        timeZoneStr:
+          type: string
+        lang:
+          type: string
+        phone:
+          type: string
+        fareUrl:
+          type: string
+    ConfigInterface:
+      type: object
+      properties:
+        agencies:
+          type: array
+          items:
+            $ref: '#/components/schemas/Agency'
+        routes:
+          type: array
+          items:
+            $ref: '#/components/schemas/IpcRouteSummary'
+        serviceIds:
+          type: array
+          items:
+            type: string
+        currentCalendars:
+          type: array
+          items:
+            $ref: '#/components/schemas/IpcCalendar'
+        currentServiceIds:
+          type: array
+          items:
+            type: string
+        blockIds:
+          type: array
+          items:
+            type: string
+        allCalendars:
+          type: array
+          items:
+            $ref: '#/components/schemas/IpcCalendar'
+        vehicleIds:
+          type: array
+          items:
+            type: string
+        tripIds:
+          type: array
+          items:
+            type: string
+    Extent:
+      type: object
+      properties:
+        minLat:
+          type: number
+          format: double
+        maxLat:
+          type: number
+          format: double
+        minLon:
+          type: number
+          format: double
+        maxLon:
+          type: number
+          format: double
+    IpcCalendar:
+      type: object
+      properties:
+        serviceId:
+          type: string
+        monday:
+          type: boolean
+        tuesday:
+          type: boolean
+        wednesday:
+          type: boolean
+        thursday:
+          type: boolean
+        friday:
+          type: boolean
+        saturday:
+          type: boolean
+        sunday:
+          type: boolean
+        startDate:
+          type: string
+        endDate:
+          type: string
+    IpcRouteSummary:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        shortName:
+          type: string
+        longName:
+          type: string
+        extent:
+          $ref: '#/components/schemas/Extent'
+        type:
+          type: string
+        color:
+          type: string
+        textColor:
+          type: string
+    Time:
+      type: object
+    IpcAvl:
+      type: object
+      properties:
+        vehicleId:
+          type: string
+        time:
+          type: integer
+          format: int64
+        latitude:
+          type: number
+          format: float
+        longitude:
+          type: number
+          format: float
+        speed:
+          type: number
+          format: float
+        heading:
+          type: number
+          format: float
+        source:
+          type: string
+        assignmentId:
+          type: string
+        assignmentType:
+          type: string
+          enum:
+            - UNSET
+            - BLOCK_ID
+            - BLOCK_FOR_SCHED_BASED_PREDS
+            - ROUTE_ID
+            - TRIP_ID
+            - TRIP_SHORT_NAME
+            - PREVIOUS
+        driverId:
+          type: string
+        licensePlate:
+          type: string
+        passengerCount:
+          type: integer
+          format: int32
+    IpcHoldingTime:
+      type: object
+      properties:
+        holdingTime:
+          type: string
+          format: date-time
+        creationTime:
+          type: string
+          format: date-time
+        currentTime:
+          type: string
+          format: date-time
+        vehicleId:
+          type: string
+        stopId:
+          type: string
+        tripId:
+          type: string
+        routeId:
+          type: string
+        arrivalPredictionUsed:
+          type: boolean
+        arrivalUsed:
+          type: boolean
+        arrivalTime:
+          type: string
+          format: date-time
+        hasD1:
+          type: boolean
+        numberPredictionsUsed:
+          type: integer
+          format: int32
+    IpcVehicle:
+      type: object
+      properties:
+        vehicleName:
+          type: string
+        blockId:
+          type: string
+        blockAssignmentMethod:
+          type: string
+          enum:
+            - AVL_FEED_BLOCK_ASSIGNMENT
+            - AVL_FEED_ROUTE_ASSIGNMENT
+            - BLOCK_FEED
+            - AUTO_ASSIGNER
+            - ASSIGNMENT_TERMINATED
+            - ASSIGNMENT_GRABBED
+            - COULD_NOT_MATCH
+        avl:
+          $ref: '#/components/schemas/IpcAvl'
+        heading:
+          type: number
+          format: float
+        routeId:
+          type: string
+        routeShortName:
+          type: string
+        routeName:
+          type: string
+        tripId:
+          type: string
+        tripPatternId:
+          type: string
+        directionId:
+          type: string
+        headsign:
+          type: string
+        predictable:
+          type: boolean
+        realTimeSchedAdh:
+          $ref: '#/components/schemas/TemporalDifference'
+        layoverDepartureTime:
+          type: integer
+          format: int64
+        nextStopId:
+          type: string
+        nextStopName:
+          type: string
+        vehicleType:
+          type: string
+        freqStartTime:
+          type: integer
+          format: int64
+        holdingTime:
+          $ref: '#/components/schemas/IpcHoldingTime'
+        predictedLatitude:
+          type: number
+          format: double
+        predictedLongitude:
+          type: number
+          format: double
+        id:
+          type: string
+        latitude:
+          type: number
+          format: float
+        longitude:
+          type: number
+          format: float
+        speed:
+          type: number
+          format: float
+        layover:
+          type: boolean
+        licensePlate:
+          type: string
+        atStop:
+          type: boolean
+        delayed:
+          type: boolean
+        forSchedBasedPred:
+          type: boolean
+        gpsTime:
+          type: integer
+          format: int64
+    IpcVehicleComplete:
+      type: object
+      properties:
+        vehicleName:
+          type: string
+        blockId:
+          type: string
+        blockAssignmentMethod:
+          type: string
+          enum:
+            - AVL_FEED_BLOCK_ASSIGNMENT
+            - AVL_FEED_ROUTE_ASSIGNMENT
+            - BLOCK_FEED
+            - AUTO_ASSIGNER
+            - ASSIGNMENT_TERMINATED
+            - ASSIGNMENT_GRABBED
+            - COULD_NOT_MATCH
+        avl:
+          $ref: '#/components/schemas/IpcAvl'
+        heading:
+          type: number
+          format: float
+        routeId:
+          type: string
+        routeShortName:
+          type: string
+        routeName:
+          type: string
+        tripId:
+          type: string
+        tripPatternId:
+          type: string
+        directionId:
+          type: string
+        headsign:
+          type: string
+        predictable:
+          type: boolean
+        realTimeSchedAdh:
+          $ref: '#/components/schemas/TemporalDifference'
+        layoverDepartureTime:
+          type: integer
+          format: int64
+        nextStopId:
+          type: string
+        nextStopName:
+          type: string
+        vehicleType:
+          type: string
+        freqStartTime:
+          type: integer
+          format: int64
+        holdingTime:
+          $ref: '#/components/schemas/IpcHoldingTime'
+        predictedLatitude:
+          type: number
+          format: double
+        predictedLongitude:
+          type: number
+          format: double
+        atStop:
+          type: boolean
+        atOrNextStopId:
+          type: string
+        atOrNextGtfsStopSeq:
+          type: integer
+          format: int32
+        tripStartEpochTime:
+          type: integer
+          format: int64
+        originStopId:
+          type: string
+        destinationId:
+          type: string
+        distanceToNextStop:
+          type: number
+          format: double
+        distanceOfNextStopFromTripStart:
+          type: number
+          format: double
+        distanceAlongTrip:
+          type: number
+          format: double
+        headway:
+          type: number
+          format: double
+        canceled:
+          type: boolean
+        tripUnscheduled:
+          type: boolean
+        id:
+          type: string
+        latitude:
+          type: number
+          format: float
+        longitude:
+          type: number
+          format: float
+        speed:
+          type: number
+          format: float
+        layover:
+          type: boolean
+        licensePlate:
+          type: string
+        delayed:
+          type: boolean
+        forSchedBasedPred:
+          type: boolean
+        gpsTime:
+          type: integer
+          format: int64
+    IpcVehicleConfig:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: integer
+          format: int32
+        description:
+          type: string
+        capacity:
+          type: integer
+          format: int32
+        crushCapacity:
+          type: integer
+          format: int32
+        nonPassengerVehicle:
+          type: boolean
+        name:
+          type: string
+    IpcVehicleGtfsRealtime:
+      type: object
+      properties:
+        vehicleName:
+          type: string
+        blockId:
+          type: string
+        blockAssignmentMethod:
+          type: string
+          enum:
+            - AVL_FEED_BLOCK_ASSIGNMENT
+            - AVL_FEED_ROUTE_ASSIGNMENT
+            - BLOCK_FEED
+            - AUTO_ASSIGNER
+            - ASSIGNMENT_TERMINATED
+            - ASSIGNMENT_GRABBED
+            - COULD_NOT_MATCH
+        avl:
+          $ref: '#/components/schemas/IpcAvl'
+        heading:
+          type: number
+          format: float
+        routeId:
+          type: string
+        routeShortName:
+          type: string
+        routeName:
+          type: string
+        tripId:
+          type: string
+        tripPatternId:
+          type: string
+        directionId:
+          type: string
+        headsign:
+          type: string
+        predictable:
+          type: boolean
+        realTimeSchedAdh:
+          $ref: '#/components/schemas/TemporalDifference'
+        layoverDepartureTime:
+          type: integer
+          format: int64
+        nextStopId:
+          type: string
+        nextStopName:
+          type: string
+        vehicleType:
+          type: string
+        freqStartTime:
+          type: integer
+          format: int64
+        holdingTime:
+          $ref: '#/components/schemas/IpcHoldingTime'
+        predictedLatitude:
+          type: number
+          format: double
+        predictedLongitude:
+          type: number
+          format: double
+        atStop:
+          type: boolean
+        atOrNextStopId:
+          type: string
+        atOrNextGtfsStopSeq:
+          type: integer
+          format: int32
+        tripStartEpochTime:
+          type: integer
+          format: int64
+        canceled:
+          type: boolean
+        tripUnscheduled:
+          type: boolean
+        id:
+          type: string
+        latitude:
+          type: number
+          format: float
+        longitude:
+          type: number
+          format: float
+        speed:
+          type: number
+          format: float
+        layover:
+          type: boolean
+        licensePlate:
+          type: string
+        delayed:
+          type: boolean
+        forSchedBasedPred:
+          type: boolean
+        gpsTime:
+          type: integer
+          format: int64
+    TemporalDifference:
+      type: object
+      properties:
+        withinBounds:
+          type: boolean
+        withinBoundsForInitialMatching:
+          type: boolean
+        temporalDifference:
+          type: integer
+          format: int32
+    VehiclesInterface:
+      type: object
+      properties:
+        vehicleConfigs:
+          type: array
+          items:
+            $ref: '#/components/schemas/IpcVehicleConfig'
+        complete:
+          type: array
+          items:
+            $ref: '#/components/schemas/IpcVehicleComplete'
+        gtfsRealtime:
+          type: array
+          items:
+            $ref: '#/components/schemas/IpcVehicleGtfsRealtime'
+        vehiclesForBlocks:
+          type: array
+          items:
+            $ref: '#/components/schemas/IpcVehicle'
+    PredictionsInterface:
+      type: object
+    ServerStatusInterface:
+      type: object
+      properties:
+        currentServerTime:
+          type: string
+          format: date-time
+    CacheQueryInterface:
+      type: object
+      properties:
+        scheduledBasedHistoricalAverageCacheKeys:
+          type: array
+          items:
+            $ref: '#/components/schemas/IpcHistoricalAverageCacheKey'
+        kalmanErrorCacheKeys:
+          type: array
+          items:
+            $ref: '#/components/schemas/IpcKalmanErrorCacheKey'
+        holdingTimeCacheKeys:
+          type: array
+          items:
+            $ref: '#/components/schemas/IpcHoldingTimeCacheKey'
+        frequencyBasedHistoricalAverageCacheKeys:
+          type: array
+          items:
+            $ref: '#/components/schemas/IpcHistoricalAverageCacheKey'
+    IpcHistoricalAverageCacheKey:
+      type: object
+      properties:
+        tripId:
+          type: string
+        stopPathIndex:
+          type: integer
+          format: int32
+    IpcHoldingTimeCacheKey:
+      type: object
+      properties:
+        stopid:
+          type: string
+        vehicleId:
+          type: string
+        tripId:
+          type: string
+    IpcKalmanErrorCacheKey:
+      type: object
+      properties:
+        tripId:
+          type: string
+        stopPathIndex:
+          type: integer
+          format: int32
+    PredictionAnalysisInterface:
+      type: object
+    HoldingTimeInterface:
+      type: object
+    DateParam:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+    DateTimeParam:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date-time
+        timeStamp:
+          type: integer
+          format: int64
