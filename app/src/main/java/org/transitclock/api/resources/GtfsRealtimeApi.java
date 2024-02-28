@@ -23,7 +23,7 @@ import org.transitclock.api.utils.StandardParameters;
  * @author SkiBu Smith
  */
 @RestController
-@RequestMapping("/key/{key}/agency/{agency}")
+@RequestMapping("/api/v1/key/{key}/agency/{agency}")
 public class GtfsRealtimeApi extends BaseApiResource {
     private final AgencyTimezoneCache agencyTimezoneCache;
 

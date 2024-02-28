@@ -1,3 +1,18 @@
+spring:
+  application:
+    name: TempoMat
+
+server:
+  port: 8080
+  servlet:
+    jsp:
+      registered: true
+      init-parameters:
+        dirAllowed: true
+    context-parameters:
+      org.apache.jasper.XML_BLOCK_EXTERNAL: false
+      tomcat.util.scan.StandardJarScanFilter.jarsToScan: "taglibs-standard-impl-*"
+      tomcat.util.scan.StandardJarScanFilter.jarsToSkip: "apache-*,ecj-*,jetty-*,asm-*,javax.servlet-*,hk2-*,javax.annotation-*,taglibs-standard-spec-*"
 
 transitclock:
   factory:
@@ -24,7 +39,6 @@ transitclock:
     authenticationUser: 'null'
     feedPollingRateSecs: 5
     feedTimeoutInMSecs: 10000
-    gtfsRealtimeFeedURI: 'null'
     maxLatitude: 55.0
     maxLongitude: -60.0
     maxSpeed: 31.3
@@ -119,18 +133,19 @@ transitclock:
         linear:
           rate: 6.0E-4
           updown: -1
-  gtfs:
-    blockIdRegEx: 'null'
-    capitalize: false
-    dirName: 'null'
-    intervalMsec: 14400000
-    minDistanceBetweenStopsToDisambiguateHeadsigns: 1000.0
-    outputPathsAndStopsForGraphingRouteIds: 'null'
-    routeIdFilterRegEx: 'null'
-    stopCodeBaseValue: 'null'
-    tripIdFilterRegEx: 'null'
-    tripShortNameRegEx: 'null'
-    url: 'null'
+#  gtfs:
+#    auto-update:
+#      enabled: true
+#      url:
+#      dirName: 'null'
+#      intervalMsec: 14400000
+#    blockIdRegEx: 'null'
+#    capitalize: false
+#    minDistanceBetweenStopsToDisambiguateHeadsigns: 1000.0
+#    outputPathsAndStopsForGraphingRouteIds: 'null'
+#    routeIdFilterRegEx: 'null'
+#    tripIdFilterRegEx: 'null'
+#    tripShortNameRegEx: 'null'
   holding:
     controlStops: 'null'
     maxPredictionsForHoldingTimeCalculation: 3

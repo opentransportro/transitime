@@ -59,7 +59,7 @@ import java.util.stream.Collectors;
                                 + " href=\"https://github.com/Transitime/core/wiki/API\">Api"
                                 + " doc</a>."),
         servers = {@Server(url = "/api/v1")})
-@RequestMapping("/key/{key}/agency/{agency}")
+@RequestMapping("/api/v1/key/{key}/agency/{agency}")
 @RequiredArgsConstructor
 public class TransitimeApi extends BaseApiResource {
     // For specifying how vehicles should be drawn in the UI.
@@ -358,10 +358,10 @@ public class TransitimeApi extends BaseApiResource {
     public ResponseEntity<ApiVehiclesDetails> getVehiclesDetails(
             StandardParameters stdParameters,
             @Parameter(description = "Specifies which vehicles to get data for", required = false)
-            @RequestParam(value = "v", required = false)
+            @RequestParam(value = "v", required = false, defaultValue = "")
             List<String> vehicleIds,
             @Parameter(description = "Specifies which routes to get data for", required = false)
-            @RequestParam(value = "r", required = false)
+            @RequestParam(value = "r", required = false, defaultValue = "")
             List<String> routesIdOrShortNames,
             @Parameter(description = "Specifies a stop so can get predictions for routes and"
                     + " determine which vehicles are the ones generating the"
@@ -712,11 +712,11 @@ public class TransitimeApi extends BaseApiResource {
     public ResponseEntity<ApiRoutes> getRoutes(
             StandardParameters stdParameters,
             @Parameter(description = "List of routeId or routeShortName. Example: r=1&r=2", required = false)
-                    @RequestParam(value = "r")
-                    List<String> routeIdsOrShortNames,
+            @RequestParam(value = "r", required = false)
+            List<String> routeIdsOrShortNames,
             @Parameter(description = "Return all routes when more than one have the same shortName.", required = false)
-                    @RequestParam(value = "keepDuplicates")
-                    Boolean keepDuplicates) {
+            @RequestParam(value = "keepDuplicates", required = false)
+            Boolean keepDuplicates) {
 
         // Make sure request is valid
         validate(stdParameters);
@@ -806,13 +806,13 @@ public class TransitimeApi extends BaseApiResource {
     public ResponseEntity<ApiRoutesDetails> getRouteDetails(
             StandardParameters stdParameters,
             @Parameter(description = "List of routeId or routeShortName. Example: r=1&r=2", required = false)
-                    @RequestParam(value = "r")
+            @RequestParam(value = "r", required = false)
                     List<String> routeIdsOrShortNames,
             @Parameter(
                             description = "If set then only the shape for specified direction is marked"
                                     + " as being for the UI.",
                             required = false)
-                    @RequestParam(value = "d")
+            @RequestParam(value = "d", required = false)
                     String directionId,
             @Parameter(
                             description = "If set then only this stop and the remaining ones on the trip"
@@ -820,13 +820,13 @@ public class TransitimeApi extends BaseApiResource {
                                     + " highlighted. Useful for when want to emphasize in the"
                                     + " UI only  the stops that are of interest to the user.",
                             required = false)
-                    @RequestParam(value = "s")
+                    @RequestParam(value = "s", required = false)
                     String stopId,
             @Parameter(
                             description =
                                     "If set then only the specified trip pattern is marked as being" + " for the UI",
                             required = false)
-                    @RequestParam(value = "tripPattern")
+                    @RequestParam(value = "tripPattern", required = false)
                     String tripPatternId) {
         // Make sure request is valid
         validate(stdParameters);
@@ -882,7 +882,7 @@ public class TransitimeApi extends BaseApiResource {
                             description = "if set, retrives only busstops belongind to the route. "
                                     + "It might be routeId or route shrot name.",
                             required = false)
-                    @RequestParam(value = "r")
+                    @RequestParam(value = "r", required = false)
                     String routesIdOrShortNames) {
 
         // Make sure request is valid
@@ -926,9 +926,11 @@ public class TransitimeApi extends BaseApiResource {
             tags = {"base data", "trip", "block"})
     public ResponseEntity<ApiBlock> getBlock(
             StandardParameters stdParameters,
-            @Parameter(description = "Block id to be asked.", required = true) @RequestParam(value = "blockId")
+            @Parameter(description = "Block id to be asked.", required = true)
+            @RequestParam(value = "blockId")
                     String blockId,
-            @Parameter(description = "Service id to be asked.", required = true) @RequestParam(value = "serviceId")
+            @Parameter(description = "Service id to be asked.", required = true)
+            @RequestParam(value = "serviceId")
                     String serviceId) {
 
         // Make sure request is valid

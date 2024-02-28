@@ -5,16 +5,19 @@ import com.beust.jcommander.ParameterException;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.ehcache.CacheManager;
 import org.hibernate.Session;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.transitclock.config.CRLFLogConverter;
 import org.transitclock.config.ConfigFileReader;
 import org.transitclock.config.data.AgencyConfig;
 import org.transitclock.config.data.CoreConfig;
@@ -29,11 +32,10 @@ import org.transitclock.utils.Time;
 import org.transitclock.utils.threading.UncaughtExceptionHandler;
 
 import java.io.FileNotFoundException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
+import java.net.*;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Optional;
 import java.util.TimeZone;
 
 import static org.transitclock.utils.ApplicationShutdownSupport.addShutdownHook;
@@ -45,20 +47,26 @@ import static org.transitclock.utils.ApplicationShutdownSupport.addShutdownHook;
 @EnableConfigurationProperties({ApplicationProperties.class})
 public class Application implements ApplicationRunner {
     private static final String WEBROOT_INDEX = "/webroot/";
-    @Autowired
-    FrequencyBasedHistoricalAverageCache frequencyBasedHistoricalAverageCache;
-    @Autowired
-    ScheduleBasedHistoricalAverageCache scheduleBasedHistoricalAverageCache;
-    @Autowired
-    TripDataHistoryCacheInterface tripDataHistoryCacheInterface;
-    @Autowired
-    StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface;
-    @Autowired
-    DwellTimeModelCacheInterface dwellTimeModelCacheInterface;
-    @Autowired
-    CacheManager cacheManager;
-    @Autowired
-    ApiKeyManager apiKeyManager;
+
+    private final Environment env;
+    private final FrequencyBasedHistoricalAverageCache frequencyBasedHistoricalAverageCache;
+    private final ScheduleBasedHistoricalAverageCache scheduleBasedHistoricalAverageCache;
+    private final TripDataHistoryCacheInterface tripDataHistoryCacheInterface;
+    private final StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface;
+    private final DwellTimeModelCacheInterface dwellTimeModelCacheInterface;
+    private final CacheManager cacheManager;
+    private final ApiKeyManager apiKeyManager;
+
+    public Application(Environment env, FrequencyBasedHistoricalAverageCache frequencyBasedHistoricalAverageCache, ScheduleBasedHistoricalAverageCache scheduleBasedHistoricalAverageCache, TripDataHistoryCacheInterface tripDataHistoryCacheInterface, StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface, DwellTimeModelCacheInterface dwellTimeModelCacheInterface, CacheManager cacheManager, ApiKeyManager apiKeyManager) {
+        this.env = env;
+        this.frequencyBasedHistoricalAverageCache = frequencyBasedHistoricalAverageCache;
+        this.scheduleBasedHistoricalAverageCache = scheduleBasedHistoricalAverageCache;
+        this.tripDataHistoryCacheInterface = tripDataHistoryCacheInterface;
+        this.stopArrivalDepartureCacheInterface = stopArrivalDepartureCacheInterface;
+        this.dwellTimeModelCacheInterface = dwellTimeModelCacheInterface;
+        this.cacheManager = cacheManager;
+        this.apiKeyManager = apiKeyManager;
+    }
 
 
     @SneakyThrows
@@ -74,7 +82,44 @@ public class Application implements ApplicationRunner {
 
         ConfigFileReader.processConfig();
         var application = new SpringApplication(Application.class);
-        application.run(args);
+        ConfigurableEnvironment environment = application.run(args).getEnvironment();
+        logApplicationStartup(environment);
+    }
+
+    private static void logApplicationStartup(Environment env) {
+        String protocol = Optional.ofNullable(env.getProperty("server.ssl.key-store")).map(key -> "https").orElse("http");
+        String applicationName = env.getProperty("spring.application.name");
+        String serverPort = Optional.ofNullable(env.getProperty("server.port")).orElse("8080");
+        String contextPath = Optional
+            .ofNullable(env.getProperty("server.servlet.context-path"))
+            .filter(StringUtils::isNotBlank)
+            .orElse("/");
+        String hostAddress = "localhost";
+        try {
+            hostAddress = InetAddress.getLocalHost().getHostAddress();
+        } catch (UnknownHostException e) {
+            logger.warn("The host name could not be determined, using `localhost` as fallback");
+        }
+        logger.info(
+            CRLFLogConverter.CRLF_SAFE_MARKER,
+            """
+
+            ----------------------------------------------------------
+            \tApplication '{}' is running! Access URLs:
+            \tLocal: \t\t{}://localhost:{}{}
+            \tExternal: \t{}://{}:{}{}
+            \tProfile(s): \t{}
+            ----------------------------------------------------------""",
+            applicationName,
+            protocol,
+            serverPort,
+            contextPath,
+            protocol,
+            hostAddress,
+            serverPort,
+            contextPath,
+            env.getActiveProfiles().length == 0 ? env.getDefaultProfiles() : env.getActiveProfiles()
+        );
     }
 
     @Override
@@ -96,7 +141,6 @@ public class Application implements ApplicationRunner {
     }
 
     private void run(CommandLineParameters cli) {
-        String agencyId = AgencyConfig.getAgencyId();
         try {
             try {
                 populateCaches();
@@ -338,7 +382,7 @@ public class Application implements ApplicationRunner {
 //        holderDefault.setInitParameter("resourceBase", baseUri.toASCIIString());
 //        holderDefault.setInitParameter("dirAllowed", "true");
 //        holderDefault.setInitOrder(0);
-//        servletContextHandler.addServlet(holderDefault, "/");
+//        servletContextHandler.addServlet(holderDefault, "/");`
 //
 //        ServletHolder docServlet = new ServletHolder("doc", ServletContainer.class);
 //        docServlet.setInitParameter("jersey.config.server.provider.packages", "io.swagger.v3.jaxrs2.integration.resources,org.transitclock.api.resources,org.transitclock.api.utils");

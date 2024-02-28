@@ -487,17 +487,27 @@ public class ApplicationProperties {
         // Sometimes GTFS titles have all capital letters or other capitalization issues. If set to true then will properly capitalize titles when process GTFS data. But note that this can require using regular expressions to fix things like acronyms that actually should be all caps.
         private Boolean capitalize = false;
 
-        // config param: transitclock.gtfs.url
-        // URL where to retrieve the GTFS file.
-        private String url = null;
+        @Data
+        public static class AutoUpdate {
+            // config param: transitclock.gtfs.url
+            // URL where to retrieve the GTFS file.
+            private boolean enabled = false;
+            // config param: transitclock.gtfs.url
+            // URL where to retrieve the GTFS file.
+            private String url = null;
 
-        // config param: transitclock.gtfs.dirName
-        // Directory on agency server where to place the GTFS file.
-        private String dirName = null;
+            // config param: transitclock.gtfs.dirName
+            // Directory on agency server where to place the GTFS file.
+            private String dirName = "/var/transitclock/gtfs";
 
-        // config param: transitclock.gtfs.intervalMsec
-        // How long to wait before checking if GTFS file has changed on web
-        private Long intervalMsec = 14400000L;
+            // config param: transitclock.gtfs.intervalMsec
+            // How long to wait before checking if GTFS file has changed on web
+            private Long intervalMsec = 14400000L;
+        }
+
+        private AutoUpdate autoUpdate = new AutoUpdate();
+
+
 
         // config param: transitclock.gtfs.routeIdFilterRegEx
         // Route is included only if route_id matches the this regular expression. If only want routes with "SPECIAL" in the id then would use ".*SPECIAL.*". If want to filter out such trips would instead use the complicated "^((?!SPECIAL).)*$" or "^((?!(SPECIAL1|SPECIAL2)).)*$" if want to filter out two names. The default value of null causes all routes to be included.
@@ -534,6 +544,7 @@ public class ApplicationProperties {
         private String blockIdRegEx = null;
 
     }
+    private Gtfs gtfs = new Gtfs();
 
     @Data
     public static class Holding {

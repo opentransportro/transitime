@@ -687,7 +687,7 @@ updateRate=MSEC (optional, for specifying update rate for vehicle locations.
             / interpolationSteps;
         var interpolatedLoc = [interpolatedLat, interpolatedLon];
 
-//	console.log("interpolating vehicleId=" + vehicleMarker.vehicleData.id + " cnt=" + cnt + 
+//	console.log("interpolating vehicleId=" + vehicleMarker.vehicleData.id + " cnt=" + cnt +
 //			" interpolatedLat=" + interpolatedLat + " interpolatedLon=" + interpolatedLon);
 
         // Update all markers sto have interpolated location

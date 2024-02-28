@@ -34,7 +34,7 @@ import java.util.Date;
 import java.util.List;
 
 @Component
-@RequestMapping("/key/{key}/agency/{agency}")
+@RequestMapping("/api/v1/key/{key}/agency/{agency}")
 public class CommandsApi extends BaseApiResource {
 
     private static final String AVL_SOURCE = "API";

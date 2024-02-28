@@ -3,6 +3,10 @@ package org.transitclock.gtfs;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpStatus;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+import org.transitclock.ApplicationProperties;
 import org.transitclock.Module;
 import org.transitclock.config.data.AgencyConfig;
 import org.transitclock.config.data.GtfsConfig;
@@ -29,90 +33,13 @@ import java.util.Date;
  * @author SkiBu Smith
  */
 @Slf4j
+@Component
+@ConditionalOnProperty(name = "transitclock.gtfs.auto-update.enabled", havingValue = "true")
 public class GtfsUpdatedModule extends Module {
+    private final ApplicationProperties.Gtfs gtfsConfig;
 
-    /**
-     * Gets the GTFS file via http from the configured URL urlStr and stores it in the configured
-     * directory dirName.
-     *
-     * <p>If file on web server last modified time is not newer than the local file then the file
-     * will not actually be downloaded.
-     *
-     * <p>If file is downloaded then users and e-mailed.
-     */
-    public static void get() {
-        logger.info("Checking to see if GTFS should be downloaded " + "because it was modified. {}", GtfsConfig.url.getValue());
-
-        // Construct the getter
-        HttpGetFile httpGetFile = new HttpGetFile(GtfsConfig.url.getValue(), GtfsConfig.dirName.getValue());
-
-        // If file hasn't been modified then don't want to download it
-        // since it can be large. Therefore determine age of previously
-        // downloaded file and use If-Modified-Since to only actually
-        // get the file if it is newer on the web server
-        File file = new File(httpGetFile.getFullFileName());
-        boolean fileAlreadyExists = file.exists();
-
-        if (fileAlreadyExists) {
-            // Get the last modified time of the local file. Add 10 minutes
-            // since the web server might be load balanced and the files
-            // on the different servers might have slightly different last
-            // modified times. To make sure that don't keep downloading
-            // from the different servers until get the file with most
-            // recent modified time add 10 minutes to the time to indicate
-            // that as long as the local file is within 10 minutes of the
-            // remote file that it is ok.
-            long lastModified = file.lastModified() + 10 * Time.MS_PER_MIN;
-
-            httpGetFile.addRequestHeader("If-Modified-Since", Time.httpDate(lastModified));
-
-            logger.debug(
-                    "The file {} already exists so using " + "If-Modified-Since header of \"{}\" or {} msec.",
-                    httpGetFile.getFullFileName(),
-                    Time.httpDate(lastModified),
-                    lastModified);
-        }
-
-        try {
-            // Actually get the file from web server
-            int httpResponseCode = httpGetFile.getFile();
-
-            // If got a new file (instead of getting a NOT MODIFIED
-            // response) then send message to those monitoring so that
-            // the GTFS file can be processed.
-            if (httpResponseCode == HttpStatus.SC_OK) {
-                if (fileAlreadyExists)
-                    logger.info(
-                            "Got remote file because version on web server " + "is newer. Url={} dir={}",
-                            httpGetFile.getFullFileName(),
-                            GtfsConfig.dirName.getValue());
-                else
-                    logger.info(
-                            "Got remote file because didn't have a local " + "copy of it. Url={} dir={}",
-                            httpGetFile.getFullFileName(),
-                            GtfsConfig.dirName.getValue());
-
-                // Make copy of GTFS zip file in separate directory for archival
-                archive(httpGetFile.getFullFileName());
-            } else if (httpResponseCode == HttpStatus.SC_NOT_MODIFIED) {
-                // If not modified then don't need to do anything
-                logger.info(
-                        "Remote GTFS file {} not updated (got "
-                                + "HTTP NOT_MODIFIED status 304) since the local "
-                                + "one  at {} has last modified date of {}",
-                        GtfsConfig.url.getValue(),
-                        httpGetFile.getFullFileName(),
-                        new Date(file.lastModified()));
-            } else {
-                // Got unexpected response so log issue
-                logger.error(
-                        "Error retrieving remote GTFS file {} . Http " + "response code={}",
-                        GtfsConfig.url.getValue(),
-                        httpResponseCode);
-            }
-        } catch (IOException e) {
-            logger.error("Error retrieving {} . {}", GtfsConfig.url.getValue(), e.getMessage());
-        }
+    public GtfsUpdatedModule(ApplicationProperties properties) {
+        this.gtfsConfig = properties.getGtfs();
     }
 
     /**
@@ -154,11 +81,79 @@ public class GtfsUpdatedModule extends Module {
      * @see java.lang.Runnable#run()
      */
     @Override
+    @Scheduled(fixedRateString = "${transitclock.gtfs.auto-update.intervalMsec}")
     public void run() {
+        logger.info("Checking to see if GTFS should be downloaded " + "because it was modified. {}", gtfsConfig.getAutoUpdate().getUrl());
+
+        // Construct the getter
+        HttpGetFile httpGetFile = new HttpGetFile(GtfsConfig.url.getValue(), GtfsConfig.dirName.getValue());
+
+        // If file hasn't been modified then don't want to download it
+        // since it can be large. Therefore determine age of previously
+        // downloaded file and use If-Modified-Since to only actually
+        // get the file if it is newer on the web server
+        File file = new File(httpGetFile.getFullFileName());
+        boolean fileAlreadyExists = file.exists();
+
+        if (fileAlreadyExists) {
+            // Get the last modified time of the local file. Add 10 minutes
+            // since the web server might be load balanced and the files
+            // on the different servers might have slightly different last
+            // modified times. To make sure that don't keep downloading
+            // from the different servers until get the file with most
+            // recent modified time add 10 minutes to the time to indicate
+            // that as long as the local file is within 10 minutes of the
+            // remote file that it is ok.
+            long lastModified = file.lastModified() + 10 * Time.MS_PER_MIN;
+
+            httpGetFile.addRequestHeader("If-Modified-Since", Time.httpDate(lastModified));
+
+            logger.debug(
+                "The file {} already exists so using " + "If-Modified-Since header of \"{}\" or {} msec.",
+                httpGetFile.getFullFileName(),
+                Time.httpDate(lastModified),
+                lastModified);
+        }
+
         try {
-            get();
-        } catch (Exception e) {
-            logger.error("Exception in GtfsUpdatedModule for agencyId={}", AgencyConfig.getAgencyId(), e);
+            // Actually get the file from web server
+            int httpResponseCode = httpGetFile.getFile();
+
+            // If got a new file (instead of getting a NOT MODIFIED
+            // response) then send message to those monitoring so that
+            // the GTFS file can be processed.
+            if (httpResponseCode == HttpStatus.SC_OK) {
+                if (fileAlreadyExists)
+                    logger.info(
+                        "Got remote file because version on web server " + "is newer. Url={} dir={}",
+                        httpGetFile.getFullFileName(),
+                        gtfsConfig.getAutoUpdate().getDirName());
+                else
+                    logger.info(
+                        "Got remote file because didn't have a local " + "copy of it. Url={} dir={}",
+                        httpGetFile.getFullFileName(),
+                        gtfsConfig.getAutoUpdate().getDirName());
+
+                // Make copy of GTFS zip file in separate directory for archival
+                archive(httpGetFile.getFullFileName());
+            } else if (httpResponseCode == HttpStatus.SC_NOT_MODIFIED) {
+                // If not modified then don't need to do anything
+                logger.info(
+                    "Remote GTFS file {} not updated (got "
+                        + "HTTP NOT_MODIFIED status 304) since the local "
+                        + "one  at {} has last modified date of {}",
+                    gtfsConfig.getAutoUpdate().getUrl(),
+                    httpGetFile.getFullFileName(),
+                    new Date(file.lastModified()));
+            } else {
+                // Got unexpected response so log issue
+                logger.error(
+                    "Error retrieving remote GTFS file {} . Http " + "response code={}",
+                    gtfsConfig.getAutoUpdate().getUrl(),
+                    httpResponseCode);
+            }
+        } catch (IOException e) {
+            logger.error("Error retrieving {} . {}", GtfsConfig.url.getValue(), e.getMessage());
         }
     }
 

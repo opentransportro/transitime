@@ -2,6 +2,7 @@
 package org.transitclock.core.avl;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.transitclock.config.StringConfigValue;
 import org.transitclock.config.data.GtfsConfig;
@@ -21,6 +22,7 @@ import java.util.List;
  */
 @Slf4j
 @Component
+@ConditionalOnProperty(name = "transitclock.avl.gtfsRealtimeFeedURI")
 public class GtfsRealtimeModule extends PollUrlAvlModule {
     public GtfsRealtimeModule() {
         // GTFS-realtime is already binary so don't want to get compressed

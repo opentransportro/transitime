@@ -26,7 +26,7 @@ import java.util.List;
  * @author SkiBu Smith
  */
 @RestController
-@RequestMapping("/key/{key}/agency/{agency}")
+@RequestMapping("/api/v1/key/{key}/agency/{agency}")
 public class SiriApi extends BaseApiResource {
 
     /**

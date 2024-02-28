@@ -34,7 +34,7 @@ import java.util.List;
  * @author SkiBu Smith
  */
 @RestController
-@RequestMapping("/key/{key}")
+@RequestMapping("/api/v1/key/{key}")
 public class TransitimeNonAgencyApi extends BaseApiResource {
     /**
      * For "agencies" command. Returns information for all configured agencies.

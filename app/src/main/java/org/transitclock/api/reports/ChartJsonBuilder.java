@@ -1,7 +1,7 @@
 /* (C)2023 */
 package org.transitclock.api.reports;
 
-import org.apache.commons.text.StringEscapeUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.transitclock.utils.StringUtils;
 
 import java.util.ArrayList;
