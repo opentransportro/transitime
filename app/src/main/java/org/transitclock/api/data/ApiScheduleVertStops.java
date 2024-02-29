@@ -1,13 +1,15 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import java.util.ArrayList;
-import java.util.List;
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
+import lombok.Data;
 import org.transitclock.service.dto.IpcSchedTime;
 import org.transitclock.service.dto.IpcSchedTrip;
 import org.transitclock.service.dto.IpcSchedule;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Represents a schedule for a route for a specific direction and service class. Stops are listed
@@ -16,6 +18,7 @@ import org.transitclock.service.dto.IpcSchedule;
  *
  * @author SkiBu Smith
  */
+@Data
 public class ApiScheduleVertStops {
 
     @XmlAttribute

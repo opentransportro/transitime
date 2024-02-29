@@ -1,19 +1,22 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import java.util.ArrayList;
-import java.util.List;
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import org.transitclock.service.dto.IpcServerStatus;
+import lombok.Data;
 import org.transitclock.monitoring.MonitorResult;
+import org.transitclock.service.dto.IpcServerStatus;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Server status for an agency server
  *
  * @author SkiBu Smith
  */
+@Data
 @XmlRootElement(name = "serverStatus")
 public class ApiServerStatus {
 

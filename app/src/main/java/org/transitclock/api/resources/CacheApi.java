@@ -9,6 +9,11 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
+
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.ws.rs.BeanParam;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
@@ -46,7 +51,7 @@ import org.transitclock.service.contract.PredictionAnalysisInterface;
  *
  * @author SkiBu Smith
  */
-@Path("/key/{key}/agency/{agency}")
+@Path("")
 public class CacheApi {
 
     @Path("/command/kalmanerrorcachekeys")
@@ -55,7 +60,12 @@ public class CacheApi {
     @Operation(
             summary = "Gets the list of Kalman Cache error.",
             description = "Gets the list of Kalman Cache error.",
-            tags = {"kalman", "cache"})
+            tags = {"cache"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Ok", content = {
+                    @Content(schema = @Schema(implementation = ApiKalmanErrorCacheKeys.class))
+            })
+    })
     public Response getKalmanErrorCacheKeys(@BeanParam StandardParameters stdParameters)
             throws WebApplicationException {
         try {
@@ -84,6 +94,11 @@ public class CacheApi {
             description = "Gets a list of the keys that have values in the historical average cache for"
                     + " schedules based services.",
             tags = {"cache"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Ok", content = {
+                    @Content(schema = @Schema(implementation = ApiHistoricalAverageCacheKeys.class))
+            })
+    })
     public Response getSchedulesBasedHistoricalAverageCacheKeys(@BeanParam StandardParameters stdParameters)
             throws WebApplicationException {
         try {
@@ -115,6 +130,11 @@ public class CacheApi {
                     + " frequency based services.<font color=\"#FF0000\">This is not completed"
                     + " and should not be used.<font>",
             tags = {"cache"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Ok", content = {
+                    @Content(schema = @Schema(implementation = ApiHistoricalAverageCacheKeys.class))
+            })
+    })
     public Response getFrequencyBasedHistoricalAverageCacheKeys(@BeanParam StandardParameters stdParameters)
             throws WebApplicationException {
         try {
@@ -142,6 +162,11 @@ public class CacheApi {
             summary = "Gets a list of the keys for the holding times in the cache.",
             description = "Gets a list of the keys for the holding times in the cache.",
             tags = {"cache"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Ok", content = {
+                    @Content(schema = @Schema(implementation = ApiHoldingTimeCacheKeys.class))
+            })
+    })
     public Response getHoldingTimeCacheKeys(@BeanParam StandardParameters stdParameters)
             throws WebApplicationException {
         try {
@@ -165,7 +190,7 @@ public class CacheApi {
      * Returns info about a cache.
      *
      * @param stdParameters
-     * @param cachename this is the name of the cache to get the size of.
+     * @param cachename     this is the name of the cache to get the size of.
      * @return
      * @throws WebApplicationException
      */
@@ -177,10 +202,15 @@ public class CacheApi {
             description = "Returns the number of entries in the cacheName cache. The name is passed"
                     + " throug the cachename parameter.",
             tags = {"cache"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Ok", content = {
+                    @Content(schema = @Schema(implementation = ApiCacheDetails.class))
+            })
+    })
     public Response getCacheInfo(
             @BeanParam StandardParameters stdParameters,
             @Parameter(description = "Name of the cache", required = true) @QueryParam(value = "cachename")
-                    String cachename)
+            String cachename)
             throws WebApplicationException {
         try {
 
@@ -206,6 +236,11 @@ public class CacheApi {
             description = "Returns a list of current arrival or departure events for a specified stop"
                     + " that are in the cache.",
             tags = {"cache"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Ok", content = {
+                    @Content(schema = @Schema(implementation = IpcArrivalDeparture.class))
+            })
+    })
     public Response getStopArrivalDepartureCacheData(
             @BeanParam StandardParameters stdParameters,
             @Parameter(description = "Stop Id.", required = true) @QueryParam(value = "stopid") String stopid,
@@ -235,17 +270,22 @@ public class CacheApi {
             description = "Returns a list  of the arrivals and departures for a trip on a specific day"
                     + " and start time.Either tripId or date must be specified.",
             tags = {"cache"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Ok", content = {
+                    @Content(schema = @Schema(implementation = ApiArrivalDepartures.class))
+            })
+    })
     public Response getTripArrivalDepartureCacheData(
             @BeanParam StandardParameters stdParameters,
             @Parameter(description = "if specified, returns the list for that tripId.", required = false)
-                    @QueryParam(value = "tripId")
-                    String tripid,
+            @QueryParam(value = "tripId")
+            String tripid,
             @Parameter(description = "if specified, returns the list for that date.", required = false)
-                    @QueryParam(value = "date")
-                    DateParam date,
+            @QueryParam(value = "date")
+            DateParam date,
             @Parameter(description = "if specified, returns the list for that starttime.", required = false)
-                    @QueryParam(value = "starttime")
-                    Integer starttime)
+            @QueryParam(value = "starttime")
+            Integer starttime)
             throws WebApplicationException {
         try {
 
@@ -269,18 +309,23 @@ public class CacheApi {
      * This will give the historical cache value for an individual stop path
      * index of a trip private String tripId; private Integer stopPathIndex;
      */
-    @Path("/command/historicalaveragecachedata")
+    @Path("/command/historical-average-cache-data")
     @GET
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Operation(
             summary = "Returns the historical cache value for an individual stop path index of a" + " trip.",
             description = "Returns the historical cache value for an individual stop path index of a" + " trip.",
             tags = {"cache"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Ok", content = {
+                    @Content(schema = @Schema(implementation = ApiHistoricalAverage.class))
+            })
+    })
     public Response getHistoricalAverageCacheData(
             @BeanParam StandardParameters stdParameters,
             @Parameter(description = "Trip Id", required = true) @QueryParam(value = "tripId") String tripId,
             @Parameter(description = "Stop path index", required = true) @QueryParam(value = "stopPathIndex")
-                    Integer stopPathIndex) {
+            Integer stopPathIndex) {
         try {
 
             CacheQueryInterface cachequeryInterface = stdParameters.getCacheQueryInterface();
@@ -303,12 +348,17 @@ public class CacheApi {
     @Operation(
             summary = "Returns the latest Kalman error value for a the stop path of a trip.",
             description = "Returns the latest Kalman error value for a the stop path of a trip.",
-            tags = {"kalman", "cache"})
+            tags = {"cache"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Ok", content = {
+                    @Content(schema = @Schema(implementation = Double.class))
+            })
+    })
     public Response getKalmanErrorValue(
             @BeanParam StandardParameters stdParameters,
             @Parameter(description = "Trip Id", required = true) @QueryParam(value = "tripId") String tripId,
             @Parameter(description = "Stop path index", required = true) @QueryParam(value = "stopPathIndex")
-                    Integer stopPathIndex) {
+            Integer stopPathIndex) {
         try {
 
             CacheQueryInterface cachequeryInterface = stdParameters.getCacheQueryInterface();
@@ -332,17 +382,22 @@ public class CacheApi {
             summary = "Returns a list of predictions for a the stop path of a trip.",
             description = "Returns a list of predictions for a the stop path of a trip.",
             tags = {"cache"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Ok", content = {
+                    @Content(schema = @Schema(implementation = ApiPredictionsForStopPath.class))
+            })
+    })
     // TODO: (vsperez) I believe date is not used at all
     public Response getStopPathPredictions(
             @BeanParam StandardParameters stdParameters,
             @Parameter(description = "Algorith used for calculating the perdiction", required = false)
-                    @QueryParam(value = "algorithm")
-                    String algorithm,
+            @QueryParam(value = "algorithm")
+            String algorithm,
             @Parameter(description = "Trip Id", required = true) @QueryParam(value = "tripId") String tripId,
             @Parameter(description = "Stop path index", required = true) @QueryParam(value = "stopPathIndex")
-                    Integer stopPathIndex,
+            Integer stopPathIndex,
             @Parameter(description = "Specified the date.", required = true) @QueryParam(value = "date")
-                    DateParam date) {
+            DateParam date) {
         try {
             LocalTime midnight = LocalTime.MIDNIGHT;
             Date end_date = null;
@@ -381,6 +436,11 @@ public class CacheApi {
             summary = "Returns the IpcHoldingTime for a specific stop Id and vehicle Id.",
             description = "Returns the IpcHoldingTime for a specific stop Id and vehicle Id.",
             tags = {"cache"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Ok", content = {
+                    @Content(schema = @Schema(implementation = ApiHoldingTime.class))
+            })
+    })
     public Response getHoldingTime(
             @BeanParam StandardParameters stdParameters,
             @Parameter(description = "Stop id", required = true) @QueryParam(value = "stopId") String stopId,

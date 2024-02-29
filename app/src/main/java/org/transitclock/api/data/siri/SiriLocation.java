@@ -2,6 +2,7 @@
 package org.transitclock.api.data.siri;
 
 import jakarta.xml.bind.annotation.XmlElement;
+import lombok.Data;
 import org.transitclock.utils.Geo;
 
 /**
@@ -9,6 +10,7 @@ import org.transitclock.utils.Geo;
  *
  * @author SkiBu Smith
  */
+@Data
 public class SiriLocation {
 
     @XmlElement(name = "Longitude")

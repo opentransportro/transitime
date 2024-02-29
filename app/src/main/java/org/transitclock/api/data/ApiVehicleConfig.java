@@ -4,6 +4,7 @@ package org.transitclock.api.data;
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlType;
+import lombok.Data;
 import org.transitclock.service.dto.IpcVehicleConfig;
 
 /**
@@ -11,6 +12,7 @@ import org.transitclock.service.dto.IpcVehicleConfig;
  *
  * @author SkiBu Smith
  */
+@Data
 @XmlRootElement(name = "vehicleConfig")
 @XmlType(propOrder = {"id", "type", "description", "capacity", "crushCapacity", "nonPassengerVehicle", "name"})
 public class ApiVehicleConfig {

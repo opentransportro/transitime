@@ -1,12 +1,13 @@
 /* (C)2023 */
 package org.transitclock.api.data.siri;
 
-import java.text.DateFormat;
-import java.util.Date;
 import jakarta.xml.bind.annotation.XmlElement;
 import org.transitclock.service.dto.IpcPrediction;
 import org.transitclock.service.dto.IpcVehicleComplete;
 import org.transitclock.utils.StringUtils;
+
+import java.text.DateFormat;
+import java.util.Date;
 
 /**
  * For SIRI MonitorCall element.

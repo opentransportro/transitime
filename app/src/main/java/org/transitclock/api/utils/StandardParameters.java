@@ -1,7 +1,10 @@
 /* (C)2023 */
 package org.transitclock.api.utils;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.PatternProperties;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
@@ -20,12 +23,14 @@ import org.transitclock.service.contract.*;
  * @author SkiBu Smith
  */
 public class StandardParameters {
-    @PathParam("key")
-    @Parameter(description = "Application key to access this api.")
+//    @PathParam("key")
+    @HeaderParam("X-ApiKey")
+    @Parameter(name = "X-ApiKey", description = "Application key to access this api.", in = ParameterIn.HEADER, required = true, allowEmptyValue = false)
     private String key;
 
-    @PathParam("agency")
-    @Parameter(description = "Specify the agency the request is intended to.")
+//    @PathParam("agency")
+    @HeaderParam("X-AgencyId")
+    @Parameter(name = "X-AgencyId", description = "Specify the agency the request is intended to.", in = ParameterIn.HEADER, required = true, allowEmptyValue = true)
     private String agencyId;
 
     @QueryParam("format")
@@ -37,6 +42,7 @@ public class StandardParameters {
     // this in as documentation that it was tried.
     @HeaderParam("accept")
     @DefaultValue("application/json")
+    @Parameter(name = "Accept", in = ParameterIn.HEADER, required = false)
     String acceptHeader;
 
     @Context
@@ -57,6 +63,7 @@ public class StandardParameters {
      *
      * @return The resulting media type
      */
+    @Hidden
     public String getMediaType() throws WebApplicationException {
         // Use default of APPLICATION_JSON
         String mediaType = MediaType.APPLICATION_JSON;
@@ -105,6 +112,7 @@ public class StandardParameters {
      *
      * @throws WebApplicationException
      */
+    @Hidden
     public void validate() throws WebApplicationException {
         // Make sure the application key is valid
         ApiKeyManager manager = ApiKeyManager.getInstance();
@@ -120,6 +128,7 @@ public class StandardParameters {
      * @param object Object to be returned in XML or JSON
      * @return The created response in the proper media type.
      */
+    @Hidden
     public Response createResponse(Object object) {
         // Start building the response
         ResponseBuilder responseBuilder = Response.ok(object);
@@ -141,6 +150,7 @@ public class StandardParameters {
      *
      * @return The VehiclesInterface
      */
+    @Hidden
     public VehiclesInterface getVehiclesInterface() throws WebApplicationException {
         VehiclesInterface vehiclesInterface = VehiclesServiceImpl.instance();
         if (vehiclesInterface == null) throw WebUtils.badRequestException("Agency ID " + agencyId + " is not valid");
@@ -154,6 +164,7 @@ public class StandardParameters {
      *
      * @return The CommandsInterface
      */
+    @Hidden
     public CommandsInterface getCommandsInterface() throws WebApplicationException {
         CommandsInterface commandsInterface = CommandsServiceImpl.instance();
         if (commandsInterface == null) throw WebUtils.badRequestException("Agency ID " + agencyId + " is not valid");
@@ -167,6 +178,7 @@ public class StandardParameters {
      *
      * @return The VehiclesInterface
      */
+    @Hidden
     public PredictionsInterface getPredictionsInterface() throws WebApplicationException {
         PredictionsInterface predictionsInterface = PredictionsServiceImpl.instance();
         if (predictionsInterface == null) throw WebUtils.badRequestException("Agency ID " + agencyId + " is not valid");
@@ -180,6 +192,7 @@ public class StandardParameters {
      *
      * @return The VehiclesInterface
      */
+    @Hidden
     public ConfigInterface getConfigInterface() throws WebApplicationException {
         ConfigInterface configInterface = ConfigServiceImpl.instance();
         if (configInterface == null) {
@@ -195,6 +208,7 @@ public class StandardParameters {
      *
      * @return The VehiclesInterface
      */
+    @Hidden
     public ServerStatusInterface getServerStatusInterface() throws WebApplicationException {
         ServerStatusInterface serverStatusInterface = ServerStatusServiceImpl.instance();
         if (serverStatusInterface == null)
@@ -209,6 +223,7 @@ public class StandardParameters {
      *
      * @return The CacheQueryInterface
      */
+    @Hidden
     public CacheQueryInterface getCacheQueryInterface() throws WebApplicationException {
         CacheQueryInterface cachequeryInterface = CacheQueryServiceImpl.instance();
         if (cachequeryInterface == null) throw WebUtils.badRequestException("Agency ID " + agencyId + " is not valid");
@@ -222,6 +237,7 @@ public class StandardParameters {
      *
      * @return The PredictionAnalysisInterface
      */
+    @Hidden
     public PredictionAnalysisInterface getPredictionAnalysisInterface() throws WebApplicationException {
         PredictionAnalysisInterface predictionAnalysisInterface = PredictionAnalysisServiceImpl.instance();
         if (predictionAnalysisInterface == null)
@@ -236,6 +252,7 @@ public class StandardParameters {
      *
      * @return The PredictionAnalysisInterface
      */
+    @Hidden
     public HoldingTimeInterface getHoldingTimeInterface() {
         HoldingTimeInterface holdingTimeInterface = HoldingTimeServiceImpl.instance();
         if (holdingTimeInterface == null) throw WebUtils.badRequestException("Agency ID " + agencyId + " is not valid");
@@ -266,6 +283,7 @@ public class StandardParameters {
      *
      * @return
      */
+    @Hidden
     public HttpServletRequest getRequest() {
         return request;
     }

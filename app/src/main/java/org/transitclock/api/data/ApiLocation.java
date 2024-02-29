@@ -1,6 +1,7 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
+import lombok.Data;
 import org.transitclock.domain.structs.Location;
 
 /**
@@ -12,6 +13,7 @@ import org.transitclock.domain.structs.Location;
  *
  * @author SkiBu Smith
  */
+@Data
 public class ApiLocation extends ApiTransientLocation {
 
     /********************** Member Functions **************************/

@@ -2,12 +2,14 @@
 package org.transitclock.api.data;
 
 import jakarta.xml.bind.annotation.XmlAttribute;
+import lombok.Data;
 
 /**
  * Contains minimal for a stop for a schedule
  *
  * @author Michael
  */
+@Data
 public class ApiScheduleStop {
     @XmlAttribute
     private String stopId;

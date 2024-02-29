@@ -353,7 +353,7 @@ public class Application {
         servletContextHandler.addServlet(holderDefault, "/");
 
         ServletHolder docServlet = new ServletHolder("doc", ServletContainer.class);
-        docServlet.setInitParameter("jersey.config.server.provider.packages", "io.swagger.v3.jaxrs2.integration.resources,org.transitclock.api.resources,org.transitclock.api.utils");
+        docServlet.setInitParameter("jersey.config.server.provider.packages", "io.swagger.v3.jaxrs2.integration.resources,org.transitclock.api");
         docServlet.setInitOrder(0);
         servletContextHandler.addServlet(docServlet, "/doc/*");
 

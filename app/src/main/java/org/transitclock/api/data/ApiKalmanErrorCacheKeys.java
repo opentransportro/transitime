@@ -1,18 +1,22 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
+import lombok.Data;
+import org.transitclock.service.dto.IpcKalmanErrorCacheKey;
+
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
-import org.transitclock.service.dto.IpcKalmanErrorCacheKey;
 
 /**
  * @author Sean Og Crudden
  */
+@Data
 @XmlRootElement(name = "KalmanErrorCacheKeys")
-public class ApiKalmanErrorCacheKeys {
+public class ApiKalmanErrorCacheKeys implements Serializable {
 
     @XmlElement(name = "KalmanErrorCacheKey")
     private List<ApiKalmanErrorCacheKey> apiKalmanErrorCacheKeys;

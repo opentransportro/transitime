@@ -1,19 +1,21 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
+import lombok.Data;
+import org.transitclock.domain.structs.Agency;
+import org.transitclock.service.dto.IpcRoute;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
-import org.transitclock.domain.structs.Agency;
-import org.transitclock.service.dto.IpcRoute;
 
 /**
  * When have a list of routes.
  *
  * @author Michael
- */
+ */@Data
 @XmlRootElement
 public class ApiRoutesDetails {
     // So can easily get agency name when getting routes. Useful for db reports

@@ -3,6 +3,7 @@ package org.transitclock.api.data;
 
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlType;
+import lombok.Data;
 import org.transitclock.api.resources.TransitimeApi.UiMode;
 import org.transitclock.service.dto.IpcVehicle;
 
@@ -14,6 +15,7 @@ import org.transitclock.service.dto.IpcVehicle;
  *
  * @author SkiBu Smith
  */
+@Data
 @XmlRootElement
 @XmlType(
         propOrder = {

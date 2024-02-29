@@ -1,26 +1,24 @@
 /* (C)2023 */
 package org.transitclock.api.data.siri;
 
+import jakarta.xml.bind.annotation.*;
+import lombok.Data;
+import org.transitclock.api.utils.AgencyTimezoneCache;
+import org.transitclock.service.dto.IpcVehicleComplete;
+import org.transitclock.utils.Time;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-import jakarta.xml.bind.annotation.XmlAttribute;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
-import jakarta.xml.bind.annotation.XmlTransient;
-import jakarta.xml.bind.annotation.XmlType;
-import org.transitclock.api.utils.AgencyTimezoneCache;
-import org.transitclock.service.dto.IpcVehicleComplete;
-import org.transitclock.utils.Time;
 
 /**
  * Top level XML element for SIRI VehicleMonitoring command.
  *
  * @author SkiBu Smith
- */
+ */@Data
 @XmlRootElement(name = "Siri")
 @XmlType(propOrder = {"version", "xmlns", "delivery"})
 public class SiriVehiclesMonitoring {

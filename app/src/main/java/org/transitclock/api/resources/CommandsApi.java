@@ -13,25 +13,26 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-import jakarta.ws.rs.BeanParam;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.DefaultValue;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.QueryParam;
-import jakarta.ws.rs.WebApplicationException;
+
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.hibernate.Session;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.transitclock.api.data.ApiCommandAck;
+import org.transitclock.api.data.ApiExportData;
+import org.transitclock.api.data.ApiExportsData;
+import org.transitclock.api.data.ApiKalmanErrorCacheKeys;
 import org.transitclock.api.utils.StandardParameters;
 import org.transitclock.api.utils.WebUtils;
 import org.transitclock.domain.GenericQuery;
+import org.transitclock.domain.hibernate.HibernateUtils;
 import org.transitclock.domain.structs.AvlReport;
 import org.transitclock.domain.structs.AvlReport.AssignmentType;
 import org.transitclock.domain.structs.ExportTable;
@@ -40,8 +41,7 @@ import org.transitclock.service.dto.IpcAvl;
 import org.transitclock.service.dto.IpcTrip;
 import org.transitclock.service.contract.CommandsInterface;
 import org.transitclock.service.contract.ConfigInterface;
-
-@Path("/key/{key}/agency/{agency}")
+@Path("")
 public class CommandsApi {
 
     private static final String AVL_SOURCE = "API";
@@ -70,23 +70,28 @@ public class CommandsApi {
     @Operation(
             summary = "Reads in a single AVL report specified by the query string parameters",
             description = "Reads in a single AVL report specified by the query string parameters.",
-            tags = {"operation", "vehicle", "avl"})
+            tags = {"command"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Ok", content = {
+                    @Content(schema = @Schema(implementation = ApiCommandAck.class))
+            })
+    })
     public Response pushAvlData(
             @BeanParam StandardParameters stdParameters,
             @Parameter(description = "VehicleId. Unique identifier of the vehicle.", required = true)
-                    @QueryParam(value = "v")
-                    String vehicleId,
+            @QueryParam(value = "v")
+            String vehicleId,
             @Parameter(description = "GPS epoch time in msec.", required = true) @QueryParam(value = "t") long time,
             @Parameter(description = "Latitude of AVL reporte. Decimal degrees.", required = true)
-                    @QueryParam(value = "lat")
-                    double lat,
+            @QueryParam(value = "lat")
+            double lat,
             @Parameter(description = "Longitude of AVL reporte. Decimal degrees.", required = true)
-                    @QueryParam(value = "lon")
-                    double lon,
+            @QueryParam(value = "lon")
+            double lon,
             @Parameter(description = "Speed of AVL reporte. m/s.", required = false)
-                    @QueryParam(value = "s")
-                    @DefaultValue("NaN")
-                    float speed,
+            @QueryParam(value = "s")
+            @DefaultValue("NaN")
+            float speed,
             @Parameter(
                             description = "Heading of AVL report. Degrees. 0 degrees=North. Should be set"
                                     + " to Float.NaN if speed not available",
@@ -199,7 +204,12 @@ public class CommandsApi {
                     + " specify assignment info using  \"assignmentId: 4321, assignmentType:"
                     + " TRIP_ID\"  where assignmentType can be BLOCK_ID, ROUTE_ID, TRIP_ID, or "
                     + " TRIP_SHORT_NAME.",
-            tags = {"operation", "vehicle", "avl"})
+            tags = {"command"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Ok", content = {
+                    @Content(schema = @Schema(implementation = ApiCommandAck.class))
+            })
+    })
     public Response pushAvlData(
             @BeanParam StandardParameters stdParameters,
             @Parameter(description = "Json of avl report.", required = true) InputStream requestBody)
@@ -256,16 +266,21 @@ public class CommandsApi {
     }
 
     @Path("/command/resetVehicle")
-    @GET
+    @DELETE
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Operation(
             summary = "Reset a vehicle",
             description = "This is to give the means of manually setting a vehicle unpredictable and"
                     + " unassigned so it will be reassigned quickly.",
-            tags = {"command", "vehicle"})
+            tags = {"command"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Ok", content = {
+                    @Content(schema = @Schema(implementation = ApiCommandAck.class))
+            })
+    })
     public Response getVehicles(
             @BeanParam StandardParameters stdParameters,
-            @Parameter(description = "List of vechilesId.") @QueryParam(value = "v") List<String> vehicleIds)
+            @Parameter(description = "List of vechile ids.", required = true) @QueryParam(value = "v") List<String> vehicleIds)
             throws WebApplicationException {
         // Make sure request is valid
         stdParameters.validate();
@@ -298,6 +313,11 @@ public class CommandsApi {
             description = "For storing a measured arrival time so that can see if measured arrival time"
                     + " via GPS is accurate.",
             tags = {"command"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Ok", content = {
+                    @Content(schema = @Schema(implementation = ApiCommandAck.class))
+            })
+    })
     public Response pushAvlData(
             @BeanParam StandardParameters stdParameters,
             @Parameter(description = "Route id", required = true) @QueryParam(value = "r") String routeId,
@@ -331,13 +351,18 @@ public class CommandsApi {
 
     // WORK IN PROGRESS
     @Path("/command/cancelTrip/{tripId}")
-    @GET // SHOULD BE POST,IT IS AN UPDATE
+    @DELETE // SHOULD BE POST,IT IS AN UPDATE
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Operation(
             summary = "Cancel a trip in order to be shown in GTFS realtime.",
             description = "<font color=\"#FF0000\">Experimental. It will work olny with the correct"
                     + " version.</font> It cancel a trip that has no vechilce assigned.",
-            tags = {"command", "trip"})
+            tags = {"command"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Ok", content = {
+                    @Content(schema = @Schema(implementation = ApiCommandAck.class))
+            })
+    })
     public Response cancelTrip(
             @BeanParam StandardParameters stdParameters,
             @Parameter(description = "tripId to be marked as canceled.", required = true) @PathParam("tripId")
@@ -362,14 +387,19 @@ public class CommandsApi {
     }
 
     @Path("/command/reenableTrip/{tripId}")
-    @GET // SHOULD BE POST,IT IS AN UPDATE
+    @PUT // SHOULD BE POST,IT IS AN UPDATE
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Operation(
             summary = "Cancel a trip in order to be shown in GTFS realtime.",
-            description = "<font color=\"#FF0000\">Experimental. It will work olny with the correct"
-                    + " version.</font> It cancel a trip that has no vechilce assigned.",
-            tags = {"command", "trip"})
-    public Response reenableTrip(
+            description = "<font color=\"#FF0000\">Experimental. It will work only with the correct"
+                    + " version.</font> It cancel a trip that has no vehicle assigned.",
+            tags = {"command"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Ok", content = {
+                    @Content(schema = @Schema(implementation = ApiCommandAck.class))
+            })
+    })
+    public Response reEnableTrip(
             @BeanParam StandardParameters stdParameters,
             @Parameter(description = "tripId to remove calceled satate.", required = true) @PathParam("tripId")
                     String tripId,
@@ -394,11 +424,16 @@ public class CommandsApi {
     @Operation(
             summary = "Add vehicles to block",
             description = "Add vehicles to block",
-            tags = {"vehicle", "block"})
+            tags = {"command"})
     @Path("/command/vehicleToBlock")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Ok", content = {
+                    @Content(schema = @Schema(implementation = ApiCommandAck.class))
+            })
+    })
     public Response addVehicleToBlock(
             @BeanParam StandardParameters stdParameters,
             @Parameter(description = "Json of vehicle to block.", required = true) InputStream requestBody)
@@ -426,14 +461,19 @@ public class CommandsApi {
     }
 
     @Operation(
-            summary = "Add vehicles to block",
-            description = "Add vehicles to block",
-            tags = {"vehicle", "block"})
-    @Path("/command/removeVehicleToBlock/{id}")
-    @GET
+            summary = "Removes vehicles from block",
+            description = "Remove vehicles from block",
+            tags = {"command"})
+    @Path("/command/removeVehicleFromBlock/{id}")
+    @DELETE
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response removeVehicleToBlock(
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Ok", content = {
+                    @Content(schema = @Schema(implementation = ApiCommandAck.class))
+            })
+    })
+    public Response removeVehicleFromBlock(
             @BeanParam StandardParameters stdParameters,
             @Parameter(description = "vehicle to block id to remove.", required = true) @PathParam("id") long id)
             throws WebApplicationException {
@@ -453,11 +493,16 @@ public class CommandsApi {
     @Operation(
             summary = "Add AVL export",
             description = "Add AVL export",
-            tags = {"report", "avl"})
+            tags = {"command"})
     @Path("/command/addAVLExport")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Ok", content = {
+                    @Content(schema = @Schema(implementation = ApiCommandAck.class))
+            })
+    })
     public Response addAVLReport(
             @BeanParam StandardParameters stdParameters,
             @Parameter(description = "AVL date(MM-DD-YYYY).") @QueryParam(value = "avlDate") String avlDate)
@@ -473,5 +518,62 @@ public class CommandsApi {
             throw WebUtils.badRequestException(ex);
         }
         return stdParameters.createResponse(new ApiCommandAck(true, "Processed"));
+    }
+
+    @Operation(summary = "Returns exports list", description = "Returns exports list",
+            tags = {"command"})
+    @Path("/command/exports")
+    @GET
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Ok", content = {
+                    @Content(schema = @Schema(implementation = ApiExportData.class))
+            })
+    })
+    public Response getExports(@BeanParam StandardParameters stdParameters) throws WebApplicationException {
+        stdParameters.validate();
+        try (Session session = HibernateUtils.getSession()) {
+            try {
+                ApiExportsData result = new ApiExportsData(ExportTable.getExportTable(session));
+
+                return stdParameters.createResponse(result);
+            } catch (Exception e) {
+                // If problem getting data then return a Bad Request
+                throw WebUtils.badRequestException(e);
+            }
+        }
+    }
+
+    @Operation(summary = "Return export file", description = "Return export file",
+            tags = {"command"})
+    @Path("/command/getExportFile")
+    @GET
+    @Produces(MediaType.APPLICATION_OCTET_STREAM)
+
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Ok", content = {
+                    @Content(schema = @Schema(implementation = ApiExportData.class))
+            })
+    })
+    public Response getExportById(
+            @BeanParam StandardParameters stdParameters,
+            @Parameter(description = "Id eksportu") @QueryParam(value = "id") long id)
+            throws WebApplicationException {
+        stdParameters.validate();
+        Session session = HibernateUtils.getSession();
+        try {
+            ExportTable result = ExportTable.getExportFile(session, id).get(0);
+
+            session.close();
+            // return ApiVehicles response
+            // return stdParameters.createResponse(result);
+            return Response.ok(result.getFile(), MediaType.APPLICATION_OCTET_STREAM)
+                    .header("Content-Disposition", "attachment; filename=\"" + result.getFileName() + "\"")
+                    .build();
+        } catch (Exception e) {
+            // If problem getting data then return a Bad Request
+            session.close();
+            throw WebUtils.badRequestException(e);
+        }
     }
 }

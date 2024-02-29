@@ -1,22 +1,26 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
+import lombok.Data;
 import org.transitclock.domain.webstructs.WebAgency;
 import org.transitclock.service.dto.IpcActiveBlock;
 import org.transitclock.service.dto.IpcTrip;
 import org.transitclock.service.dto.IpcVehicle;
 import org.transitclock.utils.Time;
 
+import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 /**
  * @author SkiBu Smith
  */
-public class ApiActiveBlock {
+@Data
+public class ApiActiveBlock implements Serializable {
 
     @XmlAttribute
     private String id;

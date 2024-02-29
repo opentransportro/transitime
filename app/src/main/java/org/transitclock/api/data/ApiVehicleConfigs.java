@@ -1,20 +1,19 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 import jakarta.xml.bind.annotation.XmlElementRef;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import lombok.Data;
 import org.transitclock.service.dto.IpcVehicleConfig;
+
+import java.util.*;
 
 /**
  * For when have collection of ApiVehicleConfig
  *
  * @author SkiBu Smith
  */
+@Data
 @XmlRootElement(name = "vehicleConfigs")
 public class ApiVehicleConfigs {
 

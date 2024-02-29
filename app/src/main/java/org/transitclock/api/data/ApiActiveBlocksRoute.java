@@ -1,18 +1,21 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
+import jakarta.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlElement;
+import lombok.Data;
+import org.transitclock.service.dto.IpcActiveBlock;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
-import jakarta.xml.bind.annotation.XmlAttribute;
-import jakarta.xml.bind.annotation.XmlElement;
-import org.transitclock.service.dto.IpcActiveBlock;
 
 /**
  * A route for when outputting active blocks
  *
  * @author SkiBu Smith
  */
+@Data
 public class ApiActiveBlocksRoute {
 
     // ID of route
@@ -43,16 +46,11 @@ public class ApiActiveBlocksRoute {
         this.id = id;
         this.shortName = shortName;
         this.name = name;
-
-        activeBlocks = new ArrayList<ApiActiveBlock>();
+        activeBlocks = new ArrayList<>();
     }
 
     public void add(IpcActiveBlock ipcActiveBlock, String agencyId)
             throws IllegalAccessException, InvocationTargetException {
         activeBlocks.add(new ApiActiveBlock(ipcActiveBlock, agencyId));
-    }
-
-    public String getName() {
-        return name;
     }
 }

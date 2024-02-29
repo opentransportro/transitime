@@ -1,16 +1,18 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import java.lang.reflect.InvocationTargetException;
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlType;
+import lombok.Data;
 import org.transitclock.api.resources.TransitimeApi.UiMode;
 import org.transitclock.core.BlockAssignmentMethod;
 import org.transitclock.service.dto.IpcVehicle;
 import org.transitclock.service.dto.IpcVehicleComplete;
 import org.transitclock.utils.Time;
+
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * Contains data for a single vehicle with additional info that is meant more for management than
@@ -18,6 +20,7 @@ import org.transitclock.utils.Time;
  *
  * @author SkiBu Smith
  */
+@Data
 @XmlRootElement
 @XmlType(
         propOrder = {

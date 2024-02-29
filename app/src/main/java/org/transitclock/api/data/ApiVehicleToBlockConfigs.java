@@ -1,13 +1,15 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
+import lombok.Data;
+import org.transitclock.service.dto.IpcVehicleToBlockConfig;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
-import org.transitclock.service.dto.IpcVehicleToBlockConfig;
 
 /**
  * For when have list of VehicleDetails. By using this class can control the element name when data
@@ -15,6 +17,7 @@ import org.transitclock.service.dto.IpcVehicleToBlockConfig;
  *
  * @author SkiBu Smith
  */
+@Data
 @XmlRootElement
 public class ApiVehicleToBlockConfigs {
 

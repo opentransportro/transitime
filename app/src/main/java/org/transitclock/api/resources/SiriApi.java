@@ -6,6 +6,11 @@ import io.swagger.v3.oas.annotations.Parameter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.ws.rs.BeanParam;
 import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
@@ -15,6 +20,7 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.transitclock.api.data.ApiCommandAck;
 import org.transitclock.api.data.siri.SiriStopMonitoring;
 import org.transitclock.api.data.siri.SiriVehiclesMonitoring;
 import org.transitclock.api.utils.StandardParameters;
@@ -30,7 +36,7 @@ import org.transitclock.service.contract.VehiclesInterface;
  *
  * @author SkiBu Smith
  */
-@Path("/key/{key}/agency/{agency}")
+@Path("siri")
 public class SiriApi {
 
     /**
@@ -44,7 +50,7 @@ public class SiriApi {
      * @return The response
      * @throws WebApplicationException
      */
-    @Path("/command/siri/vehicleMonitoring")
+    @Path("/vehicleMonitoring")
     @GET
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Operation(
@@ -52,7 +58,12 @@ public class SiriApi {
             description = "It is possible to specify vehicleIds, routeIds, or routeShortNames to get"
                     + " subset of data. If not specified then vehicle information for entire"
                     + " agency is returned.",
-            tags = {"SIRI", "feed"})
+            tags = {"SIRI"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Ok", content = {
+                    @Content(schema = @Schema(implementation = SiriVehiclesMonitoring.class))
+            })
+    })
     public Response getVehicles(
             @BeanParam StandardParameters stdParameters,
             @Parameter(description = "List of vehicles id", required = false) @QueryParam(value = "v")
@@ -97,7 +108,7 @@ public class SiriApi {
      * @return
      * @throws WebApplicationException
      */
-    @Path("/command/siri/stopMonitoring")
+    @Path("/stopMonitoring")
     @GET
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Operation(
@@ -106,7 +117,12 @@ public class SiriApi {
                     + " subset of data. It is possible to specify the number of perdictions per"
                     + " stop. If not specified then vehicle information for entire agency is"
                     + " returned.",
-            tags = {"SIRI", "feed"})
+            tags = {"SIRI"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Ok", content = {
+                    @Content(schema = @Schema(implementation = SiriStopMonitoring.class))
+            })
+    })
     public Response getVehicles(
             @BeanParam StandardParameters stdParameters,
             @Parameter(description = "RoutesId or routeShortName", required = true) @QueryParam(value = "r")

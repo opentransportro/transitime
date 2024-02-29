@@ -1,21 +1,23 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
+import lombok.Data;
+import org.transitclock.domain.structs.ExportTable;
+
 import java.io.Serializable;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
-import org.transitclock.domain.structs.ExportTable;
 
 /**
  * For when have list of exports. By using this class can control the element name when data is
  * output.
  *
  * @author Hubert goEuropa
- */
+ */@Data
 @XmlRootElement
 public class ApiExportsData implements Serializable {
 

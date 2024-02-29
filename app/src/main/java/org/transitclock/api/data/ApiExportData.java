@@ -1,16 +1,19 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import java.util.Date;
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import lombok.Data;
 import org.transitclock.domain.structs.ExportTable;
+
+import java.util.Date;
 
 /**
  * For storing static configuration for vehicle in block.
  *
  * @author Hubert GoEuropa
  */
+@Data
 @XmlRootElement
 public class ApiExportData {
 

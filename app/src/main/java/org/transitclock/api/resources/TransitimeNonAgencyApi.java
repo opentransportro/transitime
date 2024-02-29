@@ -2,13 +2,14 @@
 package org.transitclock.api.resources;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.transitclock.api.data.ApiAgencies;
-import org.transitclock.api.data.ApiAgency;
-import org.transitclock.api.data.ApiNearbyPredictionsForAgencies;
-import org.transitclock.api.data.ApiPredictions;
+import org.transitclock.api.data.*;
 import org.transitclock.api.utils.PredsByLoc;
 import org.transitclock.api.utils.StandardParameters;
 import org.transitclock.api.utils.WebUtils;
@@ -35,10 +36,8 @@ import java.util.List;
  *
  * @author SkiBu Smith
  */
-@Path("/key/{key}")
+@Path("")
 public class TransitimeNonAgencyApi {
-
-    /********************** Member Functions **************************/
 
     /**
      * For "agencies" command. Returns information for all configured agencies.
@@ -51,10 +50,16 @@ public class TransitimeNonAgencyApi {
     @GET
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Operation(
-            summary = "Rerives all tha agencies managed by the server.",
-            description = "Rerives all tha agencies managed by the server.",
-            tags = {"base data", "agency"})
-    public Response getAgencies(@BeanParam StandardParameters stdParameters) throws WebApplicationException {
+            summary = "Retrieves all tha agencies managed by the server.",
+            description = "Retrieves all tha agencies managed by the server.",
+            tags = {"agency"})
+
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Ok", content = {
+                    @Content(schema = @Schema(implementation = ApiAgencies.class))
+            })
+    })
+    public Response getAllAgencies(@BeanParam StandardParameters stdParameters) throws WebApplicationException {
         // Make sure request is valid
         stdParameters.validate();
 
@@ -99,14 +104,20 @@ public class TransitimeNonAgencyApi {
      * @return
      * @throws WebApplicationException
      */
-    @Path("/command/predictionsByLoc")
+    @Path("/command/bounded-predictions")
     @GET
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Operation(
             summary = "Gets predictions from server by location",
-            description = "Gets a list of prediction by location for all angencies managed by the api.",
+            description = "Gets a list of prediction by location for all agencies managed by the api.",
             tags = {"prediction"})
-    public Response getPredictions(
+
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Ok", content = {
+                    @Content(schema = @Schema(implementation = ApiNearbyPredictionsForAgencies.class))
+            })
+    })
+    public Response getBoundedPredictions(
             @BeanParam StandardParameters stdParameters,
             @QueryParam(value = "lat") Double lat,
             @QueryParam(value = "lon") Double lon,

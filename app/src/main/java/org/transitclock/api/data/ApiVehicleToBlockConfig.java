@@ -3,6 +3,7 @@ package org.transitclock.api.data;
 
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlType;
+import lombok.Data;
 import org.transitclock.service.dto.IpcVehicleToBlockConfig;
 
 /**
@@ -13,6 +14,7 @@ import org.transitclock.service.dto.IpcVehicleToBlockConfig;
  *
  * @author SkiBu Smith
  */
+@Data
 @XmlRootElement
 @XmlType(propOrder = {"id", "vehicleId", "blockId", "tripId", "validFrom", "validTo", "assignmentDate"})
 public class ApiVehicleToBlockConfig extends ApiVehicleToBlockConfigAbstract {

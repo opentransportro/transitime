@@ -3,6 +3,7 @@ package org.transitclock.api.data;
 
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import lombok.Data;
 import org.transitclock.service.dto.IpcPrediction;
 import org.transitclock.utils.Time;
 
@@ -10,7 +11,7 @@ import org.transitclock.utils.Time;
  * Contains data for a single prediction.
  *
  * @author SkiBu Smith
- */
+ */@Data
 @XmlRootElement
 public class ApiPrediction {
 

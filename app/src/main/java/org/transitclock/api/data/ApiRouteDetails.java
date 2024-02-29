@@ -1,22 +1,25 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import java.util.ArrayList;
-import java.util.List;
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import lombok.Data;
 import org.transitclock.domain.structs.Location;
 import org.transitclock.service.dto.IpcDirection;
 import org.transitclock.service.dto.IpcDirectionsForRoute;
 import org.transitclock.service.dto.IpcRoute;
 import org.transitclock.service.dto.IpcShape;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Provides detailed information for a route include stops and shape info.
  *
  * @author SkiBu Smith
  */
+@Data
 @XmlRootElement(name = "route")
 public class ApiRouteDetails {
 

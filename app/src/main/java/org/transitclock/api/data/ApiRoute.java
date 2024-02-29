@@ -2,6 +2,7 @@
 package org.transitclock.api.data;
 
 import jakarta.xml.bind.annotation.XmlAttribute;
+import lombok.Data;
 import org.transitclock.service.dto.IpcRouteSummary;
 
 /**
@@ -9,6 +10,7 @@ import org.transitclock.service.dto.IpcRouteSummary;
  *
  * @author SkiBu Smith
  */
+@Data
 public class ApiRoute {
 
     @XmlAttribute

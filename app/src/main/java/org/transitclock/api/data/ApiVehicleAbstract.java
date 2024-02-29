@@ -4,6 +4,7 @@ package org.transitclock.api.data;
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlTransient;
+import lombok.Data;
 import org.transitclock.api.resources.TransitimeApi.UiMode;
 import org.transitclock.service.dto.IpcVehicle;
 
@@ -20,6 +21,7 @@ import org.transitclock.service.dto.IpcVehicle;
  *
  * @author SkiBu Smith
  */
+@Data
 @XmlTransient
 public abstract class ApiVehicleAbstract {
 

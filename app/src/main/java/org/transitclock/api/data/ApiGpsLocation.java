@@ -3,6 +3,7 @@ package org.transitclock.api.data;
 
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlType;
+import lombok.Data;
 import org.transitclock.service.dto.IpcVehicle;
 import org.transitclock.utils.MathUtils;
 import org.transitclock.utils.Time;
@@ -12,6 +13,7 @@ import org.transitclock.utils.Time;
  *
  * @author SkiBu Smith
  */
+@Data
 @XmlType(propOrder = {"lat", "lon", "time", "speed", "heading"})
 public class ApiGpsLocation extends ApiTransientLocation {
 

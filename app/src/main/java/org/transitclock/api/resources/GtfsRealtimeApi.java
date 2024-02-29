@@ -4,10 +4,15 @@ package org.transitclock.api.resources;
 import com.google.transit.realtime.GtfsRealtime.FeedMessage;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.StreamingOutput;
+import org.transitclock.api.data.ApiCommandAck;
 import org.transitclock.api.data.gtfs.GtfsRtTripFeed;
 import org.transitclock.api.data.gtfs.GtfsRtVehicleFeed;
 import org.transitclock.api.utils.StandardParameters;
@@ -18,7 +23,7 @@ import org.transitclock.gtfs.realtime.OctalDecoder;
  *
  * @author SkiBu Smith
  */
-@Path("/key/{key}/agency/{agency}")
+@Path("/gtfs-rt/")
 public class GtfsRealtimeApi {
     /**
      * For getting GTFS-realtime Vehicle Positions data for all vehicles.
@@ -29,13 +34,18 @@ public class GtfsRealtimeApi {
      * @return
      * @throws WebApplicationException
      */
-    @Path("/command/gtfs-rt/vehiclePositions")
+    @Path("/vehiclePositions")
     @GET
     @Produces({MediaType.TEXT_PLAIN, MediaType.APPLICATION_OCTET_STREAM})
     @Operation(
             summary = "GTFS-realtime Vehicle Positions data for all vehicles.",
             description = "Gets real time vehicle position feed. It might be in human readeable format or" + " binary.",
-            tags = {"GTFS", "feed"})
+            tags = {"GTFS"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Ok", content = {
+                    @Content(schema = @Schema(implementation = FeedMessage.class))
+            })
+    })
     public Response getGtfsRealtimeVehiclePositionsFeed(
             final @BeanParam StandardParameters stdParameters,
             @Parameter(description = "If specified as human, it will get the output in human readable format. Otherwise will output data in binary format")
@@ -90,13 +100,18 @@ public class GtfsRealtimeApi {
      * @return
      * @throws WebApplicationException
      */
-    @Path("/command/gtfs-rt/tripUpdates")
+    @Path("/tripUpdates")
     @GET
     @Produces({MediaType.TEXT_PLAIN, MediaType.APPLICATION_OCTET_STREAM})
     @Operation(
             summary = "GTFS-realtime trip data.",
             description = "Gets real time trip feed. It might be in human readeable format or binary.",
-            tags = {"GTFS", "feed"})
+            tags = {"GTFS"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Ok", content = {
+                    @Content(schema = @Schema(implementation = FeedMessage.class))
+            })
+    })
     public Response getGtfsRealtimeTripFeed(
             final @BeanParam StandardParameters stdParameters,
             @Parameter(description = "If specified as human, it will get the output in human readable format. Otherwise will output data in binary format")

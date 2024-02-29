@@ -1,16 +1,18 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
+import lombok.Data;
+import org.transitclock.service.dto.IpcHoldingTimeCacheKey;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
-import org.transitclock.service.dto.IpcHoldingTimeCacheKey;
 
 /**
  * @author Sean Óg Crudden
- */
+ */@Data
 @XmlRootElement(name = "HoldingTimeCacheKeys")
 public class ApiHoldingTimeCacheKeys {
 
