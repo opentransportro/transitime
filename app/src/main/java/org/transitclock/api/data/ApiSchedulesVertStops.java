@@ -17,7 +17,8 @@ import java.util.List;
  * rail.
  *
  * @author SkiBu Smith
- */@Data
+ */
+@Data
 @XmlRootElement(name = "schedules")
 public class ApiSchedulesVertStops {
 

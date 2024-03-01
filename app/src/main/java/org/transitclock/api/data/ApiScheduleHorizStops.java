@@ -3,6 +3,7 @@ package org.transitclock.api.data;
 
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
+import lombok.Data;
 import org.transitclock.service.dto.IpcSchedTime;
 import org.transitclock.service.dto.IpcSchedTrip;
 import org.transitclock.service.dto.IpcSchedule;
@@ -16,6 +17,7 @@ import java.util.List;
  *
  * @author SkiBu Smith
  */
+@Data
 public class ApiScheduleHorizStops {
 
     @XmlAttribute
