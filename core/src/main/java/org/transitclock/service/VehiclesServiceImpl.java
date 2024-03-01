@@ -33,11 +33,13 @@ public class VehiclesServiceImpl implements VehiclesInterface {
     private final VehicleDataCache vehicleDataCache;
     private final BlockInfoProvider blockInfoProvider;
     private final DbConfig dbConfig;
+    private final BlockComparator blockComparator;
 
     public VehiclesServiceImpl(VehicleDataCache vehicleDataCache, BlockInfoProvider blockInfoProvider, DbConfig dbConfig) {
         this.vehicleDataCache = vehicleDataCache;
         this.blockInfoProvider = blockInfoProvider;
         this.dbConfig = dbConfig;
+        this.blockComparator = new BlockComparator(dbConfig);
     }
 
     /* (non-Javadoc)
@@ -216,7 +218,7 @@ public class VehiclesServiceImpl implements VehiclesInterface {
             results.add(ipcBlockAndVehicle);
         }
         // Sort the results so that ordered by route and then block start time
-        results.sort(new BlockComparator(dbConfig));
+        results.sort(blockComparator);
 
         // Return results
         return results;
@@ -290,7 +292,7 @@ public class VehiclesServiceImpl implements VehiclesInterface {
                     .from(qentity)
                     .select(qentity.id);
             if (routeName != null && !routeName.isEmpty()) {
-                query.where(qentity.name.eq(routeName));
+                query.where(qentity.name.eq(routeName.trim()));
             }
             routeIds = query
                     .groupBy(qentity.id)

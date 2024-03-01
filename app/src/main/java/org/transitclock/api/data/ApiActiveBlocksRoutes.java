@@ -38,7 +38,7 @@ public class ApiActiveBlocksRoutes {
      */
     public ApiActiveBlocksRoutes(Collection<IpcActiveBlock> activeBlocks, String agencyId)
             throws IllegalAccessException, InvocationTargetException {
-        routeData = new ArrayList<ApiActiveBlocksRoute>();
+        routeData = new ArrayList<>();
 
         ApiActiveBlocksRoute apiRoute = null;
         for (IpcActiveBlock activeBlock : activeBlocks) {

@@ -43,7 +43,7 @@ public class ApiActiveBlocksRoute {
         this.shortName = shortName;
         this.name = name;
 
-        activeBlocks = new ArrayList<ApiActiveBlock>();
+        activeBlocks = new ArrayList<>();
     }
 
     public void add(IpcActiveBlock ipcActiveBlock, String agencyId)

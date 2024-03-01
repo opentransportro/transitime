@@ -48,7 +48,7 @@ public class PredsByLoc {
 
         // For each agency get the extent
         for (WebAgency webAgency : webAgencies) {
-            Agency agency = webAgency.getAgency(configInterface);
+            Agency agency = webAgency.getAgency();
             if (agency != null) {
                 agencyExtentsCache.put(webAgency.getAgencyId(), agency.getExtent());
             }

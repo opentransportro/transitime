@@ -28,12 +28,6 @@
         <li><a href="../maps/schAdhMap.jsp?a=<%= agencyId %>"
                title="Shows current real-time schedule adherence of vehicles in map">
             <fmt:message key="div.ScheduleAdherenceMap"/></a></li>
-        <li><a href="serverStatus.jsp?a=<%= agencyId %>"
-               title="Shows how well system is running, including the AVL feed">
-            <fmt:message key="div.ss"/></a></li>
-        <li><a href="dbDiskSpace.jsp?a=<%= agencyId %>"
-               title="Shows how much disk space is being used by the database. Currently only works for agencies where PostgreSQL database is used.">
-            <fmt:message key="div.ddsu"/></a></li>
     </ul>
 </div>
 </body>

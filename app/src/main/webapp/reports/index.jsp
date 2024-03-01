@@ -32,8 +32,8 @@
             <fmt:message key="div.prediction"/></a></li>
         <li><a href="predAccuracyIntervalsParams.jsp?a=<%= agencyId %>"
                title="Shows average prediction accuracy for each prediction length. Also
-hows upper and lower bounds. Allows one to see for a specified percentage 
-what the prediction accuracy is for predictions that lie between the 
+hows upper and lower bounds. Allows one to see for a specified percentage
+what the prediction accuracy is for predictions that lie between the
 specified accuracy range.">
             <fmt:message key="div.PredictionAccuracyIntervalChart"/></a></li>
         <li><a href="predAccuracyScatterParams.jsp?a=<%= agencyId %>"
@@ -91,7 +91,7 @@ finding specific issues with predictions.">
         <fmt:message key="div.schedulebystop"/> V3</a></li>
     <li><a href="schAdhByTimeParams.jsp?a=<%= agencyId %>"
            title="Displays historic schedule adherence data for a route grouped by
-    how early/late. The resulting bell curve shows the distribution of 
+    how early/late. The resulting bell curve shows the distribution of
     early/late times. ">
         <fmt:message key="div.earlylate"/></a></li>
 </ul>
@@ -113,9 +113,6 @@ finding specific issues with predictions.">
     <li><a href="../status/activeBlocks.jsp?a=<%= agencyId %>"
            title="Shows how many block assignments are currently active and if they have assigned vehicles">
         <fmt:message key="div.acbiveblock"/></a></li>
-    <li><a href="../status/serverStatus.jsp?a=<%= agencyId %>"
-           title="Shows how well system is running, including the AVL feed">
-        <fmt:message key="div.ss"/></a></li>
 </ul>
 
 </div>
