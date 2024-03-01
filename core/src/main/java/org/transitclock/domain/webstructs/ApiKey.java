@@ -24,17 +24,17 @@ import java.util.List;
 @Table(name = "api_keys")
 public class ApiKey implements Serializable {
 
-    @Column(length = 80)
+    @Column(length = 80, name = "applicationname")
     @Id
     private final String applicationName;
 
-    @Column(length = 20)
+    @Column(length = 20, name = "applicationkey")
     private final String applicationKey;
 
-    @Column(length = 80)
+    @Column(length = 80, name = "applicationurl")
     private final String applicationUrl;
 
-    @Column(length = 80)
+    @Column(length = 80, name = "email")
     private final String email;
 
     @Column(length = 80)

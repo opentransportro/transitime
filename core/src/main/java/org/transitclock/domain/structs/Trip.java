@@ -87,6 +87,10 @@ public class Trip implements Lifecycle, Serializable {
     // So can determine all the stops and stopPaths associated with trip
     // Note that needs to be FetchType.EAGER because otherwise get a Javassist HibernateException.
     @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumns({
+        @JoinColumn(name = "trippattern_id", referencedColumnName = "id"),
+        @JoinColumn(name = "trippattern_config_rev", referencedColumnName = "config_rev")
+    })
     @Cascade({CascadeType.SAVE_UPDATE})
     private TripPattern tripPattern;
 
@@ -98,6 +102,9 @@ public class Trip implements Lifecycle, Serializable {
     // We are sharing travel times so need a ManyToOne mapping
     @ManyToOne(fetch = FetchType.EAGER)
     @Cascade({CascadeType.SAVE_UPDATE})
+    @JoinColumns({
+        @JoinColumn(name = "traveltimes_id", referencedColumnName = "id")
+    })
     private TravelTimesForTrip travelTimes;
 
     // Contains schedule time for each stop as obtained from GTFS
