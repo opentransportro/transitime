@@ -1,20 +1,23 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import java.util.ArrayList;
-import java.util.List;
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import lombok.Data;
 import org.transitclock.service.dto.IpcSchedTimes;
 import org.transitclock.service.dto.IpcTrip;
 import org.transitclock.utils.Time;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Specifies how trip data is formatted for the API.
  *
  * @author SkiBu Smith
  */
+@Data
 @XmlRootElement(name = "trip")
 public class ApiTrip {
 

@@ -1,10 +1,12 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import java.util.Date;
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlTransient;
+import lombok.Data;
 import org.transitclock.service.dto.IpcVehicleToBlockConfig;
+
+import java.util.Date;
 
 /**
  * This class exists so that can have multiple subclasses that inherent from each other while still
@@ -19,6 +21,7 @@ import org.transitclock.service.dto.IpcVehicleToBlockConfig;
  *
  * @author SkiBu Smith
  */
+@Data
 @XmlTransient
 public abstract class ApiVehicleToBlockConfigAbstract {
 

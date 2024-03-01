@@ -3,6 +3,7 @@ package org.transitclock.api.data;
 
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlType;
+import lombok.Data;
 import org.transitclock.service.dto.IpcStop;
 
 /**
@@ -13,6 +14,7 @@ import org.transitclock.service.dto.IpcStop;
  *
  * @author SkiBu Smith
  */
+@Data
 @XmlType(propOrder = {"id", "lat", "lon", "name", "code", "minor", "pathLength"})
 public class ApiStop extends ApiTransientLocation {
 

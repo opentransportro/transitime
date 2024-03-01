@@ -1,12 +1,13 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import java.util.ArrayList;
-import java.util.List;
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
 import org.transitclock.service.dto.IpcSchedTime;
 import org.transitclock.service.dto.IpcSchedTrip;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Contains the schedule times for a trip. For when outputting stops horizontally.

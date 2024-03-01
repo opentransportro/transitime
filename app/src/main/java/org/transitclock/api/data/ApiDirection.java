@@ -1,12 +1,13 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import java.util.ArrayList;
-import java.util.List;
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
 import org.transitclock.service.dto.IpcDirection;
 import org.transitclock.service.dto.IpcStop;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A single direction, containing stops

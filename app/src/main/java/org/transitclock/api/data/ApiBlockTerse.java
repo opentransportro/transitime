@@ -1,21 +1,24 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import java.util.ArrayList;
-import java.util.List;
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import lombok.Data;
 import org.transitclock.service.dto.IpcBlock;
 import org.transitclock.service.dto.IpcRouteSummary;
 import org.transitclock.service.dto.IpcTrip;
 import org.transitclock.utils.Time;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Describes a block in terse form, without schedule and trip pattern info
  *
  * @author SkiBu Smith
  */
+@Data
 @XmlRootElement(name = "block")
 public class ApiBlockTerse {
 

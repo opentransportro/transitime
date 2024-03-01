@@ -1,13 +1,15 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import java.util.ArrayList;
-import java.util.List;
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import lombok.Data;
 import org.transitclock.service.dto.IpcSchedule;
 
+import java.util.ArrayList;
+import java.util.List;
+@Data
 @XmlRootElement(name = "schedules")
 public class ApiSchedulesHorizStops {
 

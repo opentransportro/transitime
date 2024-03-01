@@ -2,6 +2,7 @@
 package org.transitclock.api.data;
 
 import jakarta.xml.bind.annotation.XmlAttribute;
+import lombok.Data;
 import org.transitclock.utils.Geo;
 import org.transitclock.utils.MathUtils;
 import org.transitclock.utils.Time;
@@ -11,6 +12,7 @@ import org.transitclock.utils.Time;
  *
  * @author SkiBu Smith
  */
+@Data
 public class ApiTravelTimeForSegment {
 
     @XmlAttribute

@@ -1,19 +1,22 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import java.util.ArrayList;
-import java.util.List;
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
+import lombok.Data;
 import org.transitclock.domain.structs.TravelTimesForStopPath;
 import org.transitclock.domain.structs.TravelTimesForStopPath.HowSet;
 import org.transitclock.utils.MathUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Represents travel times for a stop path
  *
  * @author SkiBu Smith
  */
+@Data
 public class ApiTravelTimesForStopPath {
 
     @XmlAttribute

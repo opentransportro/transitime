@@ -1,21 +1,20 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import lombok.Data;
 import org.transitclock.service.dto.IpcActiveBlock;
+
+import java.lang.reflect.InvocationTargetException;
+import java.util.*;
 
 /**
  * Collection of ActiveBlocks
  *
  * @author SkiBu Smith
  */
+@Data
 @XmlRootElement(name = "blocks")
 public class ApiActiveBlocks {
 

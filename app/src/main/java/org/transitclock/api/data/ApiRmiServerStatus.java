@@ -1,15 +1,16 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
+import lombok.Data;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
-
 /**
  * @author SkiBu Smith
- */
+ */@Data
 @XmlRootElement(name = "rmiServerStatus")
 public class ApiRmiServerStatus {
 

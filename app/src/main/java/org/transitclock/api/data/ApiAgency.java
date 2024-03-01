@@ -1,16 +1,19 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import java.util.TimeZone;
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
+import lombok.Data;
 import org.transitclock.domain.structs.Agency;
+
+import java.util.TimeZone;
 
 /**
  * Contains API info for an agency.
  *
  * @author SkiBu Smith
  */
+@Data
 public class ApiAgency {
 
     @XmlAttribute

@@ -3,7 +3,9 @@ package org.transitclock.api.data;
 
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import lombok.Data;
 
+@Data
 @XmlRootElement(name = "acknowledgment")
 public class ApiCommandAck {
     @XmlAttribute

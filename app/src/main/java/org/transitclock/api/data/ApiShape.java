@@ -1,19 +1,22 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import java.util.ArrayList;
-import java.util.List;
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
+import lombok.Data;
 import org.transitclock.domain.structs.Location;
 import org.transitclock.service.dto.IpcShape;
 import org.transitclock.utils.Geo;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A portion of a shape that defines a trip pattern. A List of ApiLocation objects.
  *
  * @author SkiBu Smith
  */
+@Data
 public class ApiShape {
 
     @XmlAttribute(name = "tripPattern")

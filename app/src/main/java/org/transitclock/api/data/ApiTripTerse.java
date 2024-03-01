@@ -3,6 +3,7 @@ package org.transitclock.api.data;
 
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import lombok.Data;
 import org.transitclock.service.dto.IpcTrip;
 import org.transitclock.utils.Time;
 
@@ -11,6 +12,7 @@ import org.transitclock.utils.Time;
  *
  * @author SkiBu Smith
  */
+@Data
 @XmlRootElement(name = "trip")
 public class ApiTripTerse {
 

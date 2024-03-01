@@ -3,6 +3,7 @@ package org.transitclock.api.data;
 
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlTransient;
+import lombok.Data;
 import org.transitclock.utils.ChinaGpsOffset;
 import org.transitclock.utils.MathUtils;
 
@@ -16,6 +17,7 @@ import org.transitclock.utils.MathUtils;
  *
  * @author SkiBu Smith
  */
+@Data
 @XmlTransient
 public class ApiTransientLocation {
 

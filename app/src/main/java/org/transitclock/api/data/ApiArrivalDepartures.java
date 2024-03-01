@@ -1,19 +1,22 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
+import lombok.Data;
+import org.transitclock.service.dto.IpcArrivalDeparture;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
-import org.transitclock.service.dto.IpcArrivalDeparture;
 
 /**
  * An ordered list of routes.
  *
  * @author SkiBu Smith
  */
+@Data
 @XmlRootElement(name = "arrivalDepartures")
 public class ApiArrivalDepartures {
 
@@ -36,7 +39,7 @@ public class ApiArrivalDepartures {
      */
     public ApiArrivalDepartures(Collection<IpcArrivalDeparture> arrivalDepartures)
             throws IllegalAccessException, InvocationTargetException {
-        arrivalDeparturesData = new ArrayList<ApiArrivalDeparture>();
+        arrivalDeparturesData = new ArrayList<>();
         for (IpcArrivalDeparture arrivalDeparture : arrivalDepartures) {
             ApiArrivalDeparture apiArrivalDeparture = new ApiArrivalDeparture(arrivalDeparture);
             arrivalDeparturesData.add(apiArrivalDeparture);

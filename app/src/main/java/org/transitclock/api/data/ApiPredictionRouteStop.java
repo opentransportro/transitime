@@ -1,20 +1,22 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import java.util.ArrayList;
-import java.util.List;
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import lombok.Data;
 import org.transitclock.service.dto.IpcPredictionsForRouteStopDest;
 import org.transitclock.utils.MathUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * List of ApiPredictionDestination objects along with supporting information. Used to output
  * predictions for a particular stop where the predictions are grouped by headsign.
  *
  * @author SkiBu Smith
- */
+ */@Data
 @XmlRootElement
 public class ApiPredictionRouteStop {
 

@@ -1,10 +1,11 @@
 /* (C)2023 */
 package org.transitclock.api.data.siri;
 
-import java.text.DateFormat;
-import java.util.Date;
 import jakarta.xml.bind.annotation.XmlElement;
 import org.transitclock.service.dto.IpcVehicle;
+
+import java.text.DateFormat;
+import java.util.Date;
 
 /**
  * Describes the trip

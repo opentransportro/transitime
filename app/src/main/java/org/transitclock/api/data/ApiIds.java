@@ -1,16 +1,18 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import java.util.List;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import lombok.Data;
 import org.transitclock.utils.StringUtils;
+
+import java.util.List;
 
 /**
  * For outputting simple list of sorted alpha-number IDs
  *
  * @author SkiBu Smith
- */
+ */@Data
 @XmlRootElement
 public class ApiIds {
 

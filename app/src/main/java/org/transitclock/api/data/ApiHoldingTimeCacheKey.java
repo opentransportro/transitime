@@ -3,8 +3,9 @@ package org.transitclock.api.data;
 
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import lombok.Data;
 import org.transitclock.service.dto.IpcHoldingTimeCacheKey;
-
+@Data
 @XmlRootElement(name = "HoldingTimeCacheKey")
 public class ApiHoldingTimeCacheKey {
 

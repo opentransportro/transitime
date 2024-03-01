@@ -1,12 +1,14 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.Date;
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import lombok.Data;
 import org.transitclock.service.dto.IpcHoldingTime;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.Date;
+@Data
 @XmlRootElement(name = "holdingtime")
 public class ApiHoldingTime {
 

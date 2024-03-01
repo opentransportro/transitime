@@ -1,10 +1,11 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import java.util.ArrayList;
-import java.util.List;
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Contains the schedule times for a stop for each trip for the route/direction/service. For when

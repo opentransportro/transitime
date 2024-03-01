@@ -1,18 +1,21 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import java.util.ArrayList;
-import java.util.List;
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
+import lombok.Data;
 import org.transitclock.service.dto.IpcStopPath;
 import org.transitclock.service.dto.IpcTripPattern;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A single trip pattern
  *
  * @author SkiBu Smith
  */
+@Data
 public class ApiTripPattern {
 
     @XmlAttribute

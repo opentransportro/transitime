@@ -3,6 +3,7 @@ package org.transitclock.api.data;
 
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import lombok.Data;
 
 /**
  * For when have list of VehicleDetails. By using this class can control the element name when data
@@ -10,6 +11,7 @@ import jakarta.xml.bind.annotation.XmlRootElement;
  *
  * @author SkiBu Smith
  */
+@Data
 @XmlRootElement
 public class ApiCacheDetails {
 

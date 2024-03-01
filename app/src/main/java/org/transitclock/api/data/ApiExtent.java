@@ -2,6 +2,7 @@
 package org.transitclock.api.data;
 
 import jakarta.xml.bind.annotation.XmlAttribute;
+import lombok.Data;
 import org.transitclock.domain.structs.Extent;
 import org.transitclock.utils.MathUtils;
 
@@ -10,6 +11,7 @@ import org.transitclock.utils.MathUtils;
  *
  * @author SkiBu Smith
  */
+@Data
 public class ApiExtent {
 
     @XmlAttribute
