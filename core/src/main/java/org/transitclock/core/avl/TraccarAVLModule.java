@@ -31,6 +31,7 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import static org.transitclock.config.data.TraccarConfig.*;
 
