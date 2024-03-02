@@ -1,6 +1,7 @@
 /* (C)2023 */
-package org.transitclock.core;
+package org.transitclock.core.headwaygenerator;
 
+import org.transitclock.core.VehicleState;
 import org.transitclock.domain.structs.Headway;
 
 /**

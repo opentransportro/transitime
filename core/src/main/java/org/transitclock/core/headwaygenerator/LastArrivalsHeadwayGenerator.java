@@ -1,8 +1,6 @@
 /* (C)2023 */
 package org.transitclock.core.headwaygenerator;
 
-import lombok.RequiredArgsConstructor;
-import org.transitclock.core.HeadwayGenerator;
 import org.transitclock.core.VehicleState;
 import org.transitclock.core.dataCache.StopArrivalDepartureCacheInterface;
 import org.transitclock.core.dataCache.StopArrivalDepartureCacheKey;
@@ -26,7 +24,7 @@ import java.util.List;
  *     <p>Maybe should be a list and have a predicted headway at each stop along the route. So key
  *     for headway could be (stop, vehicle, trip, start_time).
  */
-public class LastArrivalsHeadwayGenerator implements HeadwayGenerator {
+class LastArrivalsHeadwayGenerator implements HeadwayGenerator {
     private final VehicleDataCache vehicleDataCache;
     private final VehicleStateManager vehicleStateManager;
     private final StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface;

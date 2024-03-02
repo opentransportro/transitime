@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.core.dataCache.PredictionDataCache;
+import org.transitclock.core.headwaygenerator.HeadwayGenerator;
 import org.transitclock.domain.hibernate.DataDbLogger;
 import org.transitclock.domain.structs.Headway;
 import org.transitclock.domain.structs.Match;
