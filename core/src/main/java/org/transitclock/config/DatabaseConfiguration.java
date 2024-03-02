@@ -5,8 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.flywaydb.core.Flyway;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.transitclock.config.data.AgencyConfig;
-import org.transitclock.config.data.CoreConfig;
+import org.transitclock.ApplicationProperties;
 import org.transitclock.config.data.DbSetupConfig;
 import org.transitclock.core.ServiceUtils;
 import org.transitclock.domain.hibernate.DataDbLogger;
@@ -20,6 +19,12 @@ import java.util.TimeZone;
 @Slf4j
 @Configuration
 public class DatabaseConfiguration {
+    private final ApplicationProperties properties;
+
+    public DatabaseConfiguration(ApplicationProperties properties) {
+        this.properties = properties;
+    }
+
     @PostConstruct
     private void migrate() {
         Flyway flyway = Flyway.configure()
@@ -31,7 +36,7 @@ public class DatabaseConfiguration {
 
     @Bean
     DbConfig dbConfig() {
-        String agencyId = AgencyConfig.getAgencyId();
+        String agencyId = properties.getCore().getAgencyId();
         // Read in config rev from ActiveRevisions table in db
         ActiveRevision activeRevision = ActiveRevision.get(agencyId);
 
@@ -78,7 +83,10 @@ public class DatabaseConfiguration {
 
     @Bean
     DataDbLogger dataDbLogger() {
-        String agencyId = AgencyConfig.getAgencyId();
+        ApplicationProperties.Core coreConfig = properties.getCore();
+        String agencyId = coreConfig.getAgencyId();
+        boolean storeDataInDatabase = coreConfig.getStoreDataInDatabase();
+        boolean pauseIfDbQueueFilling = coreConfig.getPauseIfDbQueueFilling();
         // Create the DataDBLogger so that generated data can be stored
         // to database via a robust queue. But don't actually log data
         // if in playback mode since then would be writing data again
@@ -89,6 +97,6 @@ public class DatabaseConfiguration {
         // This is strange since setting TimeZone.setDefault() is supposed
         // to work across all threads it appears that sometimes it wouldn't
         // work if Db logger started first.
-        return DataDbLogger.getDataDbLogger(agencyId, CoreConfig.storeDataInDatabase(), CoreConfig.pauseIfDbQueueFilling());
+        return new DataDbLogger(agencyId, storeDataInDatabase, pauseIfDbQueueFilling);
     }
 }

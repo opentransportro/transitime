@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import org.transitclock.core.AvlProcessor;
 import org.transitclock.core.TemporalMatch;
 import org.transitclock.core.VehicleState;
-import org.transitclock.core.avl.AvlExecutor;
+import org.transitclock.core.avl.AvlReportProcessor;
 import org.transitclock.core.dataCache.PredictionDataCache;
 import org.transitclock.core.dataCache.VehicleDataCache;
 import org.transitclock.core.dataCache.VehicleStateManager;
@@ -40,7 +40,7 @@ public class CommandsServiceImpl implements CommandsInterface {
     @Autowired
     private DataDbLogger dataDbLogger;
     @Autowired
-    private AvlExecutor avlExecutor;
+    private AvlReportProcessor avlReportProcessor;
 
     public CommandsServiceImpl() {
     }
@@ -56,7 +56,7 @@ public class CommandsServiceImpl implements CommandsInterface {
         // Use AvlExecutor to actually process the data using a thread executor
         AvlReport avlReport = new AvlReport(avlData);
         logger.debug("Processing AVL report {}", avlReport);
-        avlExecutor.processAvlReport(avlReport);
+        avlReportProcessor.process(avlReport);
 
         // Return that was successful
         return null;
@@ -74,7 +74,7 @@ public class CommandsServiceImpl implements CommandsInterface {
             // Use AvlExecutor to actually process the data using a thread executor
             AvlReport avlReport = new AvlReport(avlData);
             logger.debug("Processing AVL report {}", avlReport);
-            avlExecutor.processAvlReport(avlReport);
+            avlReportProcessor.process(avlReport);
         }
 
         // Return that was successful

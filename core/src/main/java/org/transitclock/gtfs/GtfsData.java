@@ -26,13 +26,8 @@ import java.util.regex.Pattern;
 @Slf4j
 @Getter
 public class GtfsData {
-
-
     private static Pattern routeIdFilterRegExPattern = null;
-
     private static Pattern tripIdFilterRegExPattern = null;
-
-
 
     // Set by constructor. Specifies where to find data files
     private final String gtfsDirectoryName;
@@ -64,7 +59,7 @@ public class GtfsData {
 
     // List of routes that can be stored in db. The result is not ordered by route_order
     // since that isn't needed as part of processing GTFS data.
-    private List<Route> routes;
+    private Map<String, Route> routesMap;
 
     // For keeping track of which routes are just sub-routes of a parent.
     // For these the route will not be configured separately and the
@@ -186,9 +181,9 @@ public class GtfsData {
         // Deal with the ActiveRevisions. First, store the original travel times
         // rev since need it to read in old travel time data.
         ActiveRevision originalRevs = ActiveRevision.get(session);
-        originalTravelTimesRev = originalRevs.getTravelTimesRev();
+        this.originalTravelTimesRev = originalRevs.getTravelTimesRev();
 
-        // If should store the new revs in database (make them active)
+        // If we should store the new revs in database (make them active)
         // then use the originalRevs read from db since they will be
         // written out when session is closed
         if (shouldStoreNewRevs) {
@@ -367,7 +362,7 @@ public class GtfsData {
 
         // Now that the GtfsRoute objects have been created, create
         // the corresponding map of Route objects
-        routes = new ArrayList<>();
+        routesMap = new HashMap<>();
         Set<String> routeIds = gtfsRoutesMap.keySet();
         int numberOfRoutesWithoutTrips = 0;
         for (String routeId : routeIds) {
@@ -403,11 +398,12 @@ public class GtfsData {
 
             // Create the route object and add it to the container
             Route route = new Route(revs.getConfigRev(), gtfsRoute, tripPatternsForRoute, titleFormatter);
-            routes.add(route);
+            routesMap.put(routeId, route);
         }
 
         // Sort the routes so that can determine the route order for each one.
         // Uses GTFS route_order when available and uses route_name when not.
+        ArrayList<Route> routes = new ArrayList<>(routesMap.values());
         routes.sort(Route.routeComparator);
 
         // Determine and set route order for each route if it is not already set
@@ -454,7 +450,9 @@ public class GtfsData {
 
         // Put GtfsStop objects in Map so easy to find the right ones
         gtfsStopsMap = new HashMap<>(gtfsStops.size());
-        for (GtfsStop gtfsStop : gtfsStops) gtfsStopsMap.put(gtfsStop.getStopId(), gtfsStop);
+        for (GtfsStop gtfsStop : gtfsStops) {
+            gtfsStopsMap.put(gtfsStop.getStopId(), gtfsStop);
+        }
 
         // Read in supplemental stop data
         if (supplementDir != null) {
@@ -1659,7 +1657,7 @@ public class GtfsData {
     /** Reads agency.txt file and puts data into agencies list. */
     private void processAgencyData() {
         // Make sure necessary data read in
-        if (getRoutes() == null || getRoutes().isEmpty()) {
+        if (routesMap == null || routesMap.isEmpty()) {
             // Route data first needed so can determine extent of agency
             logger.error("GtfsData.processRoutesData() must be called before "
                     + "GtfsData.processAgencyData() is. Exiting.");
@@ -1713,8 +1711,7 @@ public class GtfsData {
             GtfsAgency combinedGtfsAgency = gtfsAgenciesMap.get(originalGtfsAgency.getAgencyId());
 
             // Create the Agency object and put it into the array
-            Agency agency = new Agency(revs.getConfigRev(), combinedGtfsAgency, getRoutes());
-            agencies.add(agency);
+            agencies.add(new Agency(revs.getConfigRev(), combinedGtfsAgency, routesMap.values()));
         }
 
         // Let user know what is going on
@@ -2105,7 +2102,8 @@ public class GtfsData {
      * @return route ID of parent route if there is one. Otherwise, null.
      */
     public String getProperIdOfRoute(String routeId) {
-        if (routeId == null) return null;
+        if (routeId == null)
+            return null;
         return properRouteIdMap.get(routeId);
     }
 

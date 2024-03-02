@@ -296,7 +296,7 @@ public class DataFetcher {
         IntervalTimer timer = new IntervalTimer();
 
         // For returning the results
-        Map<DbDataMapKey, List<Match>> resultsMap = new HashMap<DbDataMapKey, List<Match>>();
+        Map<DbDataMapKey, List<Match>> resultsMap = new HashMap<>();
 
         // For keeping track of which rows should be returned by the batch.
         int firstResult = 0;

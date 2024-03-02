@@ -1,6 +1,26 @@
 spring:
   application:
     name: TempoMat
+  datasource:
+    url: jdbc:postgresql://localhost:5432/STPT
+    username: postgres
+    password: transitclock
+    hikari:
+      auto-commit: false
+      idle-timeout: 30_000
+      minimum-idle: 5
+      maximum-pool-size: 20
+      keepalive-time: 30_000
+  jpa:
+    generate-ddl: false
+    show-sql: false
+    properties.hibernate.format_sql: false
+    hibernate.ddl-auto: none
+  flyway:
+    enabled: true
+    baselineOnMigrate: true
+    validateOnMigrate: true
+    locations: classpath:db/migration
 
 server:
   port: 8080
@@ -35,8 +55,8 @@ transitclock:
     minTimeBetweenAutoAssigningSecs: 30
   avl:
     alternativemaxspeed: 15.0
-    authenticationPassword: 'null'
-    authenticationUser: 'null'
+#    authenticationPassword: 'null'
+#    authenticationUser: 'null'
     feedPollingRateSecs: 5
     feedTimeoutInMSecs: 10000
     maxLatitude: 55.0
@@ -52,12 +72,12 @@ transitclock:
     queueSize: 2000
     shouldProcessAvl: true
     unpredictableAssignmentsRegEx: ''
-    url: 'null'
+#    url: 'null'
   blockLoading:
     agressive: false
   core:
     afterStopDistance: 50.0
-    agencyId: 'null'
+#    agencyId: 'null'
     allowableBadAssignments: 0
     allowableEarlyDepartureTimeForLoggingEvent: 60
     allowableEarlyForLayoverSeconds: 3600
@@ -119,7 +139,7 @@ transitclock:
     terminalDistanceForRouteMatching: 100.0
     timeForDeterminingDelayedSecs: 240
     timeForDeterminingNoProgress: 480000
-    timezone: 'null'
+#    timezone: 'null'
     useArrivalPredictionsForNormalStops: true
     useExactSchedTimeForWaitStops: true
     useHoldingTimeInPrediction: false
@@ -147,7 +167,7 @@ transitclock:
 #    tripIdFilterRegEx: 'null'
 #    tripShortNameRegEx: 'null'
   holding:
-    controlStops: 'null'
+#    controlStops: 'null'
     maxPredictionsForHoldingTimeCalculation: 3
     plannedHeadwayMsec: 540000
     regenerateondeparture: false
@@ -161,7 +181,7 @@ transitclock:
     avlFeedEmailRecipients: monitoring@transitclock.org
     cpuThreshold: 0.99
     cpuThresholdGap: 0.1
-    emailRecipients: 'null'
+#    emailRecipients: 'null'
     maxQueueFraction: 0.4
     maxQueueFractionGap: 0.1
     minPredictableBlocks: 0.5

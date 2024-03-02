@@ -1173,10 +1173,13 @@ public class ArrivalDepartureGeneratorDefaultImpl implements ArrivalDepartureGen
         // be something wrong so return
         AvlReport previousAvlReport = vehicleState.getPreviousAvlReportFromSuccessfulMatch();
         AvlReport avlReport = vehicleState.getAvlReport();
-        if (tooManyStopsTraversed(oldMatch, newMatch, previousAvlReport, avlReport)) return;
+
+        if (tooManyStopsTraversed(oldMatch, newMatch, previousAvlReport, avlReport))
+            return;
 
         // If no stops were traversed simply return
-        if (!shouldProcessArrivedOrDepartedStops(oldMatch, newMatch)) return;
+        if (!shouldProcessArrivedOrDepartedStops(oldMatch, newMatch))
+            return;
 
         // Process the arrival/departure times since traversed at least one stop
         logger.debug(

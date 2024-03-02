@@ -927,7 +927,7 @@ public class AvlProcessor {
         // This method called when there is an assignment from AVL feed. But
         // if that assignment is invalid then will make it here. Try the
         // auto assignment feature in case it is enabled.
-        boolean autoAssigned = automaticalyMatchVehicleToAssignment(vehicleState);
+        boolean autoAssigned = automaticallyMatchVehicleToAssignment(vehicleState);
         if (autoAssigned) return true;
 
         // There was no valid block or route assignment from AVL feed so can't
@@ -997,7 +997,7 @@ public class AvlProcessor {
      * @param vehicleState
      * @return true if auto assigned vehicle
      */
-    private boolean automaticalyMatchVehicleToAssignment(VehicleState vehicleState) {
+    private boolean automaticallyMatchVehicleToAssignment(VehicleState vehicleState) {
         // If actually creating a schedule based prediction
         if (vehicleState.isForSchedBasedPreds()) return false;
 
@@ -1056,7 +1056,7 @@ public class AvlProcessor {
             // and didn't get an assignment through the feed should try to
             // automatically assign the vehicle based on how it matches to
             // a currently unmatched block.
-            automaticalyMatchVehicleToAssignment(vehicleState);
+            automaticallyMatchVehicleToAssignment(vehicleState);
         }
     }
 

@@ -34,7 +34,7 @@ public class VehicleState {
     // First is most recent
     private final LinkedList<TemporalMatch> temporalMatchHistory = new LinkedList<>();
     // First is most recent
-    private final LinkedList<AvlReport> avlReportHistory = new LinkedList<AvlReport>();
+    private final LinkedList<AvlReport> avlReportHistory = new LinkedList<>();
     private List<IpcPrediction> predictions;
     private TemporalDifference realTimeSchedAdh;
 

@@ -493,7 +493,7 @@ public class ScheduleDataProcessor {
                 endTime);
 
         Map<String, Map<TripStopKey, List<Integer>>> arrivalDeparatureTimesFromDbByRouteByTripStopMap =
-                new HashMap<String, Map<TripStopKey, List<Integer>>>();
+            new HashMap<>();
 
         // Go through all the arrival/departure data and put it into a map
         // that just keeps track of arrival/departure times for trip/stops.

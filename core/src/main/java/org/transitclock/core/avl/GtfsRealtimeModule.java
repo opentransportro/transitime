@@ -42,7 +42,7 @@ public class GtfsRealtimeModule extends PollUrlAvlModule {
             try {
                 logger.info("Reading {}", urlStr);
                 List<AvlReport> avlReports = GtfsRtVehiclePositionsReader.getAvlReports(urlStr);
-                avlReports.forEach(this::processAvlReport);
+                processAvlReports(avlReports);
                 logger.info("Processed {} reports for feed {}", avlReports.size(), urlStr);
             } catch (Exception e) {
                 logger.error("Issues processing feed {}", urlStr, e);

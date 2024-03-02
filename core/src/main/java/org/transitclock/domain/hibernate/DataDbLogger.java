@@ -46,10 +46,6 @@ import org.transitclock.utils.threading.NamedThreadFactory;
  */
 @Slf4j
 public class DataDbLogger {
-
-    // This is a singleton class that only returns a single object per agencyId.
-    private static final Map<String, DataDbLogger> dataDbLoggerMap = new HashMap<>(1);
-
     private final DbQueue<ArrivalDeparture> arrivalDepartureQueue;
     private final DbQueue<AvlReport> avlReportQueue;
     private final DbQueue<VehicleConfig> vehicleConfigQueue;
@@ -62,23 +58,6 @@ public class DataDbLogger {
     private final DbQueue<Object> genericQueue;
 
     /**
-     * Factory method. Returns the singleton db logger for the specified agencyId.
-     *
-     * @param agencyId Id of database to be written to
-     * @param shouldStoreToDb Specifies whether data should actually be written to db. If in
-     *     playback mode and shouldn't write data to db then set to false.
-     * @param shouldPauseToReduceQueue Specifies if should pause the thread calling add() if the
-     *     queue is filling up. Useful for when in batch mode and dumping a whole bunch of data to
-     *     the db really quickly.
-     * @return The DataDbLogger for the specified agencyId
-     */
-    public static DataDbLogger getDataDbLogger(String agencyId, boolean shouldStoreToDb, boolean shouldPauseToReduceQueue) {
-        synchronized (dataDbLoggerMap) {
-            return dataDbLoggerMap.computeIfAbsent(agencyId, i -> new DataDbLogger(i, shouldStoreToDb, shouldPauseToReduceQueue));
-        }
-    }
-
-    /**
      * Constructor. Private so that factory method getDataDbLogger() has to be used. Starts up
      * separate thread that actually reads from queue and stores the data.
      *
@@ -89,7 +68,7 @@ public class DataDbLogger {
      *     queue is filling up. Useful for when in batch mode and dumping a whole bunch of data to
      *     the db really quickly.
      */
-    private DataDbLogger(String agencyId, boolean shouldStoreToDb, boolean shouldPauseToReduceQueue) {
+    public DataDbLogger(String agencyId, boolean shouldStoreToDb, boolean shouldPauseToReduceQueue) {
         NamedThreadFactory threadFactory = new NamedThreadFactory("DataWriter");
         ExtendedScheduledThreadPoolExecutor executor = new ExtendedScheduledThreadPoolExecutor(5, threadFactory, new RejectedExecutionHandler() {
             @Override

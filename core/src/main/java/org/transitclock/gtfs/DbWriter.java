@@ -98,7 +98,7 @@ public class DbWriter {
 
         logger.info("Saving routes to database...");
         Route.deleteFromRev(session, configRev);
-        for (Route route : gtfsData.getRoutes()) {
+        for (Route route : gtfsData.getRoutesMap().values()) {
             writeObject(session, route);
         }
 

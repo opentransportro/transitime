@@ -36,7 +36,7 @@ public class DbQueue<T> {
     private static final int QUEUE_CAPACITY = 500000;
 
     // The queue that objects to be stored are placed in
-    private final BlockingQueue<T> queue = new LinkedBlockingQueue<>(QUEUE_CAPACITY);
+    private final BlockingQueue<T> queue = new LinkedBlockingQueue<>(500000);
 
     // When running in playback mode where getting AVLReports from database
     // instead of from an AVL feed, then debugging and don't want to store

@@ -496,7 +496,7 @@ public class AutoBlockAssigner {
 
         if (previousAvlReportBestMatch != null && previousAvlReportBestMatch.lessThanOrEqualTo(bestMatch)) {
             // Previous AVL report also matches appropriately.
-            // Therefore return this temporal match as appropriate one.
+            // Therefore, return this temporal match as appropriate one.
             logger.debug(
                     "For vehicleId={} also found appropriate "
                             + "match for previous AVL report {}. Previous "

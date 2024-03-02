@@ -1,6 +1,7 @@
 /* (C)2023 */
 package org.transitclock.domain.hibernate;
 
+import com.querydsl.jpa.impl.JPAQuery;
 import lombok.Synchronized;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
@@ -202,6 +203,9 @@ public class HibernateUtils {
         return getSession(false);
     }
 
+    public static <T> JPAQuery<T> getJPAQuery() {
+        return new JPAQuery<>(getSession());
+    }
 
     @Synchronized
     public static Session getSession(boolean readOnly) {
