@@ -6,6 +6,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.util.List;
+import java.util.Objects;
 
 import lombok.*;
 import org.hibernate.HibernateException;
@@ -19,13 +20,13 @@ import org.hibernate.annotations.DynamicUpdate;
  */
 @Entity
 @DynamicUpdate
-@Data
+@Getter @Setter @ToString
 @Table(name = "vehicle_configs")
 public class VehicleConfig {
 
     // ID of vehicle
-    @Column(name = "id", length = 60)
     @Id
+    @Column(name = "id", length = 60)
     private final String id;
 
     @Column(name = "name")
@@ -57,17 +58,6 @@ public class VehicleConfig {
     // If true then a non-revenue vehicle.
     @Column(name = "non_passenger_vehicle")
     private final Boolean nonPassengerVehicle;
-
-    public VehicleConfig(String id) {
-        this.id = id;
-        type = null;
-        description = null;
-        trackerId = null;
-        capacity = null;
-        crushCapacity = null;
-        nonPassengerVehicle = null;
-        name = null;
-    }
 
     /**
      * Constructor for when new vehicle encountered and automatically adding it to the db.
@@ -122,5 +112,17 @@ public class VehicleConfig {
         // Transaction tx = session.beginTransaction();
         session.merge(vehicleConfig);
         // tx.commit();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof VehicleConfig that)) return false;
+        return Objects.equals(id, that.id) && Objects.equals(name, that.name) && Objects.equals(type, that.type) && Objects.equals(description, that.description) && Objects.equals(trackerId, that.trackerId) && Objects.equals(capacity, that.capacity) && Objects.equals(crushCapacity, that.crushCapacity) && Objects.equals(nonPassengerVehicle, that.nonPassengerVehicle);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, type, description, trackerId, capacity, crushCapacity, nonPassengerVehicle);
     }
 }

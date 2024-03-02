@@ -3,14 +3,13 @@ package org.transitclock.domain.structs;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Objects;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.*;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
@@ -24,7 +23,7 @@ import org.transitclock.gtfs.model.GtfsTransfer;
  */
 @Entity
 @DynamicUpdate
-@Data
+@Getter @Setter @ToString
 @Table(name = "transfers")
 public class Transfer implements Serializable {
 
@@ -93,5 +92,17 @@ public class Transfer implements Serializable {
                 .createQuery("FROM Transfer WHERE configRev = :configRev", Transfer.class)
                 .setParameter("configRev", configRev)
                 .list();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Transfer transfer)) return false;
+        return configRev == transfer.configRev && Objects.equals(fromStopId, transfer.fromStopId) && Objects.equals(toStopId, transfer.toStopId) && Objects.equals(transferType, transfer.transferType) && Objects.equals(minTransferTime, transfer.minTransferTime);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(configRev, fromStopId, toStopId, transferType, minTransferTime);
     }
 }

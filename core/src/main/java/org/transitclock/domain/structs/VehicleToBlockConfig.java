@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 import lombok.*;
 import org.hibernate.HibernateException;
@@ -18,7 +19,7 @@ import org.hibernate.annotations.DynamicUpdate;
  * @author Hubert GoEuropa
  */
 @Entity
-@Data
+@Getter @Setter @ToString
 @DynamicUpdate
 @Table(name = "vehicle_to_block_configs")
 public class VehicleToBlockConfig implements Serializable {
@@ -122,5 +123,17 @@ public class VehicleToBlockConfig implements Serializable {
         return session.createQuery("FROM VehicleToBlockConfig WHERE vehicleId = :vehicleId ORDER BY assignmentDate DESC", VehicleToBlockConfig.class)
                 .setParameter("vehicleId", vehicleId)
                 .list();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof VehicleToBlockConfig that)) return false;
+        return id == that.id && Objects.equals(vehicleId, that.vehicleId) && Objects.equals(assignmentDate, that.assignmentDate) && Objects.equals(blockId, that.blockId) && Objects.equals(tripId, that.tripId) && Objects.equals(validFrom, that.validFrom) && Objects.equals(validTo, that.validTo);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, vehicleId, assignmentDate, blockId, tripId, validFrom, validTo);
     }
 }

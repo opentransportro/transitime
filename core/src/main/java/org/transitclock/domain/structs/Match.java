@@ -5,8 +5,12 @@ import jakarta.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.CallbackException;
 import org.hibernate.HibernateException;
@@ -36,10 +40,11 @@ import org.transitclock.utils.IntervalTimer;
 @Immutable
 @Entity
 @DynamicUpdate
-@Data
+@Getter @Setter @ToString
 @Table(
-        name = "matches",
-        indexes = {@Index(name = "AvlTimeIndex", columnList = "avl_time")})
+    name = "matches",
+    indexes = {@Index(name = "AvlTimeIndex", columnList = "avl_time")}
+)
 public class Match implements Lifecycle, Serializable {
 
     // vehicleId is an @Id since might get multiple AVL reports
@@ -200,36 +205,23 @@ public class Match implements Lifecycle, Serializable {
     }
 
     public static Long getMatchesCountFromDb(String projectId, Date beginTime, Date endTime, String sqlClause) {
-        IntervalTimer timer = new IntervalTimer();
-
-        // Get the database session. This is supposed to be pretty light weight
-        Session session = HibernateUtils.getSession(projectId);
-
         // Create the query. Table name is case sensitive and needs to be the
         // class name instead of the name of the db table.
         String hql = "select count(*) FROM Match WHERE avlTime >= :beginDate AND avlTime < :endDate";
         if (sqlClause != null)
             hql += " " + sqlClause;
-        var query = session.createQuery(hql);
 
-        // Set the parameters for the query
-        query.setParameter("beginDate", beginTime);
-        query.setParameter("endDate", endTime);
+        // Get the database session. This is supposed to be pretty light weight
+        try (Session session = HibernateUtils.getSession(projectId)) {
+            var query = session.createQuery(hql, Long.class)
+                .setParameter("beginDate", beginTime)
+                .setParameter("endDate", endTime);
 
-        Long count = null;
-
-        try {
-            count = (Long) query.uniqueResult();
-            logger.debug("Getting matches from database took {} msec", timer.elapsedMsec());
-            return count;
+            return query.uniqueResult();
         } catch (HibernateException e) {
             // Log error to the Core logger
             logger.error(e.getMessage(), e);
             return null;
-        } finally {
-            // Clean things up. Not sure if this absolutely needed nor if
-            // it might actually be detrimental and slow things down.
-            session.close();
         }
     }
 
@@ -251,5 +243,17 @@ public class Match implements Lifecycle, Serializable {
         if (tripId != null) tripId = tripId.intern();
         if (blockId != null) blockId = blockId.intern();
         if (serviceId != null) serviceId = serviceId.intern();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Match match)) return false;
+        return configRev == match.configRev && stopPathIndex == match.stopPathIndex && segmentIndex == match.segmentIndex && Float.compare(distanceAlongSegment, match.distanceAlongSegment) == 0 && Float.compare(distanceAlongStopPath, match.distanceAlongStopPath) == 0 && atStop == match.atStop && Objects.equals(vehicleId, match.vehicleId) && Objects.equals(avlTime, match.avlTime) && Objects.equals(serviceId, match.serviceId) && Objects.equals(blockId, match.blockId) && Objects.equals(tripId, match.tripId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(vehicleId, avlTime, configRev, serviceId, blockId, tripId, stopPathIndex, segmentIndex, distanceAlongSegment, distanceAlongStopPath, atStop);
     }
 }

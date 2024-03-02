@@ -5,7 +5,7 @@ import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
 import lombok.Data;
 import org.transitclock.domain.structs.TravelTimesForStopPath;
-import org.transitclock.domain.structs.TravelTimesForStopPath.HowSet;
+import org.transitclock.domain.structs.HowSet;
 import org.transitclock.utils.MathUtils;
 
 import java.util.ArrayList;

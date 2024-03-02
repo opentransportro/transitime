@@ -2,11 +2,12 @@
 package org.transitclock.domain.structs;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * For storing a measured arrival time so that can see if measured arrival time via GPS is accurate.
@@ -15,10 +16,15 @@ import java.util.Date;
  */
 @Entity
 @DynamicUpdate
-@Data
+@Getter
+@Setter
+@ToString
 @Table(
-        name = "measured_arrival_times",
-        indexes = {@Index(name = "MeasuredArrivalTimesIndex", columnList = "time")})
+    name = "measured_arrival_times",
+    indexes = {
+        @Index(name = "MeasuredArrivalTimesIndex", columnList = "time")
+    }
+)
 public class MeasuredArrivalTime implements Serializable {
     @Id
     @Column(name = "time")
@@ -85,5 +91,17 @@ public class MeasuredArrivalTime implements Serializable {
                 + headsign
                 + "'"
                 + ");";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof MeasuredArrivalTime that)) return false;
+        return Objects.equals(time, that.time) && Objects.equals(stopId, that.stopId) && Objects.equals(routeId, that.routeId) && Objects.equals(routeShortName, that.routeShortName) && Objects.equals(directionId, that.directionId) && Objects.equals(headsign, that.headsign);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(time, stopId, routeId, routeShortName, directionId, headsign);
     }
 }

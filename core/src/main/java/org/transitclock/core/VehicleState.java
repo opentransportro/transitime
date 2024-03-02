@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.core.dataCache.VehicleStateManager;
 import org.transitclock.domain.structs.*;
-import org.transitclock.domain.structs.AvlReport.AssignmentType;
+import org.transitclock.domain.structs.AssignmentType;
 import org.transitclock.gtfs.DbConfig;
 import org.transitclock.service.dto.IpcPrediction;
 import org.transitclock.utils.StringUtils;

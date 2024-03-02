@@ -25,7 +25,6 @@ import org.transitclock.gtfs.model.GtfsCalendarDate;
 @Entity
 @DynamicUpdate
 @Table(name = "calendar_dates")
-@Slf4j
 public class CalendarDate implements Serializable {
 
     @Id
@@ -67,11 +66,11 @@ public class CalendarDate implements Serializable {
         try {
             tempDate = dateFormat.parse(gtfsCalendarDate.getDate());
         } catch (ParseException e) {
-            logger.error(
-                    "Could not parse calendar date \"{}\" from " + "line #{} from file {}",
-                    gtfsCalendarDate.getDate(),
-                    gtfsCalendarDate.getLineNumber(),
-                    gtfsCalendarDate.getFileName());
+//            logger.error(
+//                    "Could not parse calendar date \"{}\" from " + "line #{} from file {}",
+//                    gtfsCalendarDate.getDate(),
+//                    gtfsCalendarDate.getLineNumber(),
+//                    gtfsCalendarDate.getFileName());
             tempDate = new Date();
         }
         this.date = tempDate;
@@ -110,7 +109,6 @@ public class CalendarDate implements Serializable {
      * @return
      * @throws HibernateException
      */
-    @SuppressWarnings("unchecked")
     public static List<CalendarDate> getCalendarDates(Session session, int configRev) throws HibernateException {
         return session.createQuery("FROM CalendarDate WHERE configRev = :configRev", CalendarDate.class)
                 .setParameter("configRev", configRev)

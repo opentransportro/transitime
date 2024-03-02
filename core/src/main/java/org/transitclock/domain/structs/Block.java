@@ -5,6 +5,7 @@ import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
@@ -42,7 +43,8 @@ import java.util.stream.Collectors;
  * @author SkiBu Smith
  */
 @Entity
-@Data
+@Getter
+@Setter
 @DynamicUpdate
 @Table(name = "blocks")
 @Slf4j
@@ -956,13 +958,16 @@ public class Block implements Serializable {
      * @param segmentIndex
      * @return The Vector for the specified segment or null if the indices are out of range.
      */
-    public org.transitclock.domain.structs.Vector getSegmentVector(int tripIndex, int stopPathIndex, int segmentIndex) {
+    public Vector getSegmentVector(int tripIndex, int stopPathIndex, int segmentIndex) {
         Trip trip = getTrip(tripIndex);
-        if (trip == null) return null;
+        if (trip == null)
+            return null;
+
         StopPath stopPath = trip.getStopPath(stopPathIndex);
-        if (stopPath == null) return null;
-        Vector segmentVector = stopPath.getSegmentVector(segmentIndex);
-        return segmentVector;
+        if (stopPath == null)
+            return null;
+
+        return stopPath.getSegmentVector(segmentIndex);
     }
 
     /**
@@ -975,9 +980,13 @@ public class Block implements Serializable {
     public int numSegments(int tripIndex, int stopPathIndex) {
         // Determine number of segments
         Trip trip = getTrip(tripIndex);
-        if (trip == null) return -1;
+        if (trip == null)
+            return -1;
+
         StopPath path = trip.getStopPath(stopPathIndex);
-        if (path == null) return -1;
+        if (path == null)
+            return -1;
+
         return path.getSegmentVectors().size();
     }
 
@@ -989,7 +998,8 @@ public class Block implements Serializable {
      */
     public int numStopPaths(int tripIndex) {
         Trip trip = getTrip(tripIndex);
-        if (trip == null) return -1;
+        if (trip == null)
+            return -1;
 
         TravelTimesForTrip travelTimesForTrip = trip.getTravelTimes();
         List<TravelTimesForStopPath> travelTimesForStopPaths = travelTimesForTrip.getTravelTimesForStopPaths();

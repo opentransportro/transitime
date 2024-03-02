@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
@@ -28,10 +29,13 @@ import org.transitclock.utils.SystemTime;
 @Entity
 @Slf4j
 @DynamicUpdate
-@Data
+@Getter @Setter @ToString
 @Table(
-        name = "vehicle_events",
-        indexes = {@Index(name = "VehicleEventsTimeIndex", columnList = "time")})
+    name = "vehicle_events",
+    indexes = {
+        @Index(name = "VehicleEventsTimeIndex", columnList = "time")
+    }
+)
 public class VehicleEvent implements Serializable {
 
     // Some standard event types
@@ -274,5 +278,17 @@ public class VehicleEvent implements Serializable {
             // it might actually be detrimental and slow things down.
             session.close();
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof VehicleEvent that)) return false;
+        return predictable == that.predictable && becameUnpredictable == that.becameUnpredictable && Objects.equals(time, that.time) && Objects.equals(vehicleId, that.vehicleId) && Objects.equals(eventType, that.eventType) && Objects.equals(avlTime, that.avlTime) && Objects.equals(description, that.description) && Objects.equals(supervisor, that.supervisor) && Objects.equals(location, that.location) && Objects.equals(routeId, that.routeId) && Objects.equals(routeShortName, that.routeShortName) && Objects.equals(blockId, that.blockId) && Objects.equals(serviceId, that.serviceId) && Objects.equals(tripId, that.tripId) && Objects.equals(stopId, that.stopId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(time, vehicleId, eventType, avlTime, description, predictable, becameUnpredictable, supervisor, location, routeId, routeShortName, blockId, serviceId, tripId, stopId);
     }
 }

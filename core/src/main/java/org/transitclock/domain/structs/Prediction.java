@@ -3,8 +3,13 @@ package org.transitclock.domain.structs;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Objects;
+
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.annotations.DynamicUpdate;
 import org.transitclock.service.dto.IpcPrediction;
 
@@ -15,10 +20,11 @@ import org.transitclock.service.dto.IpcPrediction;
  */
 @Entity
 @DynamicUpdate
-@Data
+@Setter @Getter @ToString
 @Table(
-        name = "predictions",
-        indexes = {@Index(name = "PredictionTimeIndex", columnList = "creation_time")})
+    name = "predictions",
+    indexes = {@Index(name = "PredictionTimeIndex", columnList = "creation_time")}
+)
 public class Prediction implements Serializable {
 
     // Need an ID but using a regular column doesn't really make
@@ -100,5 +106,17 @@ public class Prediction implements Serializable {
         this.isArrival = false;
         this.schedBasedPred = false;
         this.gtfsStopSeq = -1;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Prediction that)) return false;
+        return id == that.id && configRev == that.configRev && affectedByWaitStop == that.affectedByWaitStop && isArrival == that.isArrival && schedBasedPred == that.schedBasedPred && gtfsStopSeq == that.gtfsStopSeq && Objects.equals(predictionTime, that.predictionTime) && Objects.equals(avlTime, that.avlTime) && Objects.equals(creationTime, that.creationTime) && Objects.equals(vehicleId, that.vehicleId) && Objects.equals(stopId, that.stopId) && Objects.equals(tripId, that.tripId) && Objects.equals(routeId, that.routeId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, configRev, predictionTime, avlTime, creationTime, vehicleId, stopId, tripId, routeId, affectedByWaitStop, isArrival, schedBasedPred, gtfsStopSeq);
     }
 }

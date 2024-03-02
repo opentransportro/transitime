@@ -18,7 +18,7 @@ import org.transitclock.core.dataCache.VehicleStateManager;
 import org.transitclock.domain.hibernate.DataDbLogger;
 import org.transitclock.domain.hibernate.HibernateUtils;
 import org.transitclock.domain.structs.*;
-import org.transitclock.domain.structs.AvlReport.AssignmentType;
+import org.transitclock.domain.structs.AssignmentType;
 import org.transitclock.gtfs.DbConfig;
 import org.transitclock.utils.*;
 

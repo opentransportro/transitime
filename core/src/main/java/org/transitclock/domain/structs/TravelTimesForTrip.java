@@ -3,10 +3,7 @@ package org.transitclock.domain.structs;
 
 import com.querydsl.jpa.impl.JPAQuery;
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -16,10 +13,7 @@ import org.hibernate.annotations.DynamicUpdate;
 import org.transitclock.domain.structs.QTravelTimesForTrip;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Keeps track of travel times for a trip. Can be shared amongst trips if the travel times are
@@ -30,7 +24,7 @@ import java.util.Map;
 @Entity
 @Slf4j
 @DynamicUpdate
-@Data
+@Getter @Setter @ToString
 @Table(
         name = "travel_times_for_trips",
         indexes = {
@@ -78,13 +72,15 @@ public class TravelTimesForTrip implements Serializable {
     private final String tripCreatedForId;
 
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "travel_times_for_trip_to_travel_times_for_path",
-            joinColumns = {
-                    @JoinColumn(name = "for_path_id", referencedColumnName = "id")
-            },
-            inverseJoinColumns = {
-                    @JoinColumn(name = "for_trip_id", referencedColumnName = "id")
-            })
+    @JoinTable(
+        name = "travel_times_for_trip_to_travel_times_for_path",
+        joinColumns = {
+            @JoinColumn(name = "for_path_id", referencedColumnName = "id")
+        },
+        inverseJoinColumns = {
+            @JoinColumn(name = "for_trip_id", referencedColumnName = "id")
+        }
+    )
     @Cascade({CascadeType.SAVE_UPDATE})
     @OrderColumn(name = "list_index")
     private final List<TravelTimesForStopPath> travelTimesForStopPaths = new ArrayList<>();
@@ -172,7 +168,6 @@ public class TravelTimesForTrip implements Serializable {
      * @return Map keyed by tripPatternId of Lists of TripPatterns
      * @throws HibernateException
      */
-    @SuppressWarnings("unchecked")
     public static Map<String, List<TravelTimesForTrip>> getTravelTimesForTrips(Session session, int travelTimesRev)
             throws HibernateException {
         logger.info("Reading TravelTimesForTrips for travelTimesRev={} ...", travelTimesRev);
@@ -277,5 +272,17 @@ public class TravelTimesForTrip implements Serializable {
      */
     public int numberOfStopPaths() {
         return travelTimesForStopPaths.size();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof TravelTimesForTrip that)) return false;
+        return configRev == that.configRev && travelTimesRev == that.travelTimesRev && Objects.equals(id, that.id) && Objects.equals(tripPatternId, that.tripPatternId) && Objects.equals(tripCreatedForId, that.tripCreatedForId) && Objects.equals(travelTimesForStopPaths, that.travelTimesForStopPaths);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, configRev, travelTimesRev, tripPatternId, tripCreatedForId, travelTimesForStopPaths);
     }
 }

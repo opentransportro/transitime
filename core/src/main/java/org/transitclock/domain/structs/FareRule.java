@@ -5,11 +5,6 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import java.io.Serializable;
-import java.util.List;
-
-import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import org.hibernate.HibernateException;
@@ -17,13 +12,17 @@ import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
 import org.transitclock.gtfs.model.GtfsFareRule;
 
+import java.io.Serializable;
+import java.util.List;
+import java.util.Objects;
+
 /**
  * Contains data from the fare_rules.txt GTFS file. This class is for reading/writing that data to
  * the db.
  *
  * @author SkiBu Smith
  */
-@Data
+@Getter @ToString
 @Entity
 @DynamicUpdate
 @Table(name = "fare_rules")
@@ -156,5 +155,22 @@ public class FareRule implements Serializable {
         // it is a primary key. But sometimes it won't be set. For this case
         // should return null instead of empty string for consistency.
         return containsId.isEmpty() ? null : containsId;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof FareRule fareRule)) return false;
+        return configRev == fareRule.configRev
+            && Objects.equals(fareId, fareRule.fareId)
+            && Objects.equals(routeId, fareRule.routeId)
+            && Objects.equals(originId, fareRule.originId)
+            && Objects.equals(destinationId, fareRule.destinationId)
+            && Objects.equals(containsId, fareRule.containsId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(configRev, fareId, routeId, originId, destinationId, containsId);
     }
 }

@@ -3,11 +3,15 @@ package org.transitclock.domain.structs;
 
 import jakarta.persistence.*;
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.TimeZone;
 
 import lombok.Data;
 import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
@@ -22,7 +26,7 @@ import org.transitclock.utils.Time;
  * @author SkiBu Smith
  */
 @Entity
-@Data
+@Getter @Setter @ToString
 @DynamicUpdate
 @Table(name = "agencies")
 public class Agency implements Serializable {
@@ -74,7 +78,7 @@ public class Agency implements Serializable {
      * @param gtfsAgency
      * @param routes
      */
-    public Agency(int configRev, GtfsAgency gtfsAgency, List<Route> routes) {
+    public Agency(int configRev, GtfsAgency gtfsAgency, Collection<Route> routes) {
         this.configRev = configRev;
         this.agencyId = gtfsAgency.getAgencyId();
         this.agencyName = gtfsAgency.getAgencyName();
@@ -241,4 +245,26 @@ public class Agency implements Serializable {
         return agencyFareUrl;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Agency agency)) return false;
+        return configRev == agency.configRev
+            && Objects.equals(agencyName, agency.agencyName)
+            && Objects.equals(agencyId, agency.agencyId)
+            && Objects.equals(agencyUrl, agency.agencyUrl)
+            && Objects.equals(agencyTimezone, agency.agencyTimezone)
+            && Objects.equals(agencyLang, agency.agencyLang)
+            && Objects.equals(agencyPhone, agency.agencyPhone)
+            && Objects.equals(agencyFareUrl, agency.agencyFareUrl)
+            && Objects.equals(extent, agency.extent)
+//            && Objects.equals(timezone, agency.timezone)
+//            && Objects.equals(time, agency.time)
+            ;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(configRev, agencyName, agencyId, agencyUrl, agencyTimezone, agencyLang, agencyPhone, agencyFareUrl, extent);
+    }
 }

@@ -2,7 +2,7 @@
 package org.transitclock.core.travelTimes;
 
 import java.util.List;
-import org.transitclock.domain.structs.TravelTimesForStopPath.HowSet;
+import org.transitclock.domain.structs.HowSet;
 import org.transitclock.domain.structs.Trip;
 
 /**

@@ -1,6 +1,7 @@
 /* (C)2023 */
 package org.transitclock.domain.structs;
 
+import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -9,8 +10,10 @@ import org.hibernate.annotations.DynamicUpdate;
 
 import jakarta.persistence.*;
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * For storing static configuration for vehicle in block.
@@ -19,7 +22,7 @@ import java.util.List;
  */
 @Entity
 @DynamicUpdate
-@Slf4j
+@ToString
 @Table(name = "export_table")
 public class ExportTable implements Serializable {
 
@@ -164,5 +167,17 @@ public class ExportTable implements Serializable {
 
     public void setExportStatus(int exportStatus) {
         this.exportStatus = exportStatus;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ExportTable that)) return false;
+        return id == that.id && exportType == that.exportType && exportStatus == that.exportStatus && Objects.equals(dataDate, that.dataDate) && Objects.equals(exportDate, that.exportDate) && Objects.equals(fileName, that.fileName) && Objects.deepEquals(file, that.file);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, dataDate, exportDate, exportType, exportStatus, fileName, Arrays.hashCode(file));
     }
 }

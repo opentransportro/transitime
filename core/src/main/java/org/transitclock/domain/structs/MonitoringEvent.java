@@ -25,8 +25,9 @@ import java.util.List;
 @Entity
 @DynamicUpdate
 @Table(
-        name = "monitoring_events",
-        indexes = {@Index(name = "MonitoringEventsTimeIndex", columnList = "time")})
+    name = "monitoring_events",
+    indexes = {@Index(name = "MonitoringEventsTimeIndex", columnList = "time")}
+)
 public class MonitoringEvent implements Serializable {
     // The long message associated with the monitoring
     private static final int MAX_MESSAGE_LENGTH = 512;
@@ -80,10 +81,6 @@ public class MonitoringEvent implements Serializable {
      */
     public static List<MonitoringEvent> getMonitoringEvents(
             String agencyId, Date beginTime, Date endTime, String sqlClause) {
-        IntervalTimer timer = new IntervalTimer();
-
-        // Get the database session. This is supposed to be pretty light weight
-        Session session = HibernateUtils.getSession(agencyId);
 
         // Create the query. Table name is case sensitive and needs to be the
         // class name instead of the name of the db table.
@@ -91,23 +88,17 @@ public class MonitoringEvent implements Serializable {
         if (sqlClause != null) {
             hql += " " + sqlClause;
         }
-        var query = session.createQuery(hql, MonitoringEvent.class);
 
-        // Set the parameters
-        query.setParameter("beginDate", beginTime);
-        query.setParameter("endDate", endTime);
+        try (Session session = HibernateUtils.getSession(agencyId)) {
+            var query = session.createQuery(hql, MonitoringEvent.class)
+                .setParameter("beginDate", beginTime)
+                .setParameter("endDate", endTime);
 
-        try {
             List<MonitoringEvent> monitorEvents = query.list();
-            logger.debug("Getting MonitoringEvent from database " + "took {} msec", timer.elapsedMsec());
             return monitorEvents;
         } catch (HibernateException e) {
             logger.error(e.getMessage(), e);
             return null;
-        } finally {
-            // Clean things up. Not sure if this absolutely needed nor if
-            // it might actually be detrimental and slow things down.
-            session.close();
         }
     }
 
@@ -127,6 +118,27 @@ public class MonitoringEvent implements Serializable {
         message = null;
         value = Double.NaN;
     }
+
+    public Date getTime() {
+        return time;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public boolean isTriggered() {
+        return triggered;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public double getValue() {
+        return value;
+    }
+
 
     /** Because using a composite Id Hibernate wants this method. */
     @Override
@@ -167,36 +179,16 @@ public class MonitoringEvent implements Serializable {
     @Override
     public String toString() {
         return "MonitoringEvent ["
-                + "time="
-                + time
-                + ", type="
-                + type
-                + ", triggered="
-                + triggered
-                + ", message="
-                + message
-                + ", value="
-                + value
-                + "]";
-    }
-
-    public Date getTime() {
-        return time;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public boolean isTriggered() {
-        return triggered;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public double getValue() {
-        return value;
+            + "time="
+            + time
+            + ", type="
+            + type
+            + ", triggered="
+            + triggered
+            + ", message="
+            + message
+            + ", value="
+            + value
+            + "]";
     }
 }

@@ -2,6 +2,8 @@
 package org.transitclock.domain.structs;
 
 import java.io.Serializable;
+
+import com.querydsl.core.annotations.QueryEmbeddable;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.*;
@@ -14,6 +16,7 @@ import org.hibernate.annotations.Immutable;
  */
 @Immutable
 @Embeddable
+@QueryEmbeddable
 @Data
 @NoArgsConstructor
 public class Extent implements Serializable {

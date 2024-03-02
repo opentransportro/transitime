@@ -3,8 +3,13 @@ package org.transitclock.domain.structs;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Objects;
+
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
@@ -18,7 +23,7 @@ import org.transitclock.gtfs.model.GtfsStop;
  */
 @Entity
 @DynamicUpdate
-@Data
+@Getter @Setter @ToString
 @Table(name = "stops")
 public class Stop implements Serializable {
 
@@ -128,5 +133,17 @@ public class Stop implements Serializable {
         return session.createQuery("FROM Stop WHERE configRev = :configRev", Stop.class)
                 .setParameter("configRev", configRev)
                 .list();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Stop stop)) return false;
+        return configRev == stop.configRev && timepointStop == stop.timepointStop && hidden == stop.hidden && Objects.equals(id, stop.id) && Objects.equals(code, stop.code) && Objects.equals(name, stop.name) && Objects.equals(loc, stop.loc) && Objects.equals(layoverStop, stop.layoverStop) && Objects.equals(waitStop, stop.waitStop);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(configRev, id, code, name, loc, timepointStop, layoverStop, waitStop, hidden);
     }
 }

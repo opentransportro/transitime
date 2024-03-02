@@ -22,7 +22,7 @@ public class TripPatternKey {
      * exists.
      *
      * @param shapeId from the trip.txt GTFS file
-     * @param stopPaths Specifies the stops for the trip pattern. Must not be null.
+     * @param paths Specifies the stops for the trip pattern. Must not be null.
      */
     public TripPatternKey(String shapeId, List<StopPath> paths) {
         if (paths == null) {

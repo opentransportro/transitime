@@ -3,8 +3,13 @@ package org.transitclock.domain.structs;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Objects;
+
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.CallbackException;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
@@ -24,12 +29,13 @@ import org.hibernate.classic.Lifecycle;
  */
 @Entity
 @DynamicUpdate
-@Data
+@Getter @Setter @ToString
 @Table(
-        name = "prediction_accuracy",
-        indexes = {
-                @Index(name = "PredictionAccuracyTimeIndex", columnList = "arrival_departure_time")
-        })
+    name = "prediction_accuracy",
+    indexes = {
+        @Index(name = "PredictionAccuracyTimeIndex", columnList = "arrival_departure_time")
+    }
+)
 public class PredictionAccuracy implements Lifecycle, Serializable {
 
     // Need an ID but using regular columns doesn't really make
@@ -172,5 +178,31 @@ public class PredictionAccuracy implements Lifecycle, Serializable {
         if (predictionSource != null) predictionSource = predictionSource.intern();
         if (predictionAlgorithm != null) predictionAlgorithm = predictionAlgorithm.intern();
         if (vehicleId != null) vehicleId = vehicleId.intern();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof PredictionAccuracy that)) return false;
+        return id == that.id && predictionAccuracyMsecs == that.predictionAccuracyMsecs
+            && Objects.equals(routeId, that.routeId)
+            && Objects.equals(routeShortName, that.routeShortName)
+            && Objects.equals(directionId, that.directionId)
+            && Objects.equals(stopId, that.stopId)
+            && Objects.equals(tripId, that.tripId)
+            && Objects.equals(arrivalDepartureTime, that.arrivalDepartureTime)
+            && Objects.equals(predictedTime, that.predictedTime)
+            && Objects.equals(predictionReadTime, that.predictionReadTime)
+            && Objects.equals(predictionSource, that.predictionSource)
+//            && Objects.equals(predictionAlgorithm, that.predictionAlgorithm)
+            && Objects.equals(vehicleId, that.vehicleId)
+            && Objects.equals(affectedByWaitStop, that.affectedByWaitStop);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, routeId, routeShortName, directionId, stopId, tripId, arrivalDepartureTime, predictedTime, predictionReadTime, predictionAccuracyMsecs, predictionSource,
+//            predictionAlgorithm,
+            vehicleId, affectedByWaitStop);
     }
 }

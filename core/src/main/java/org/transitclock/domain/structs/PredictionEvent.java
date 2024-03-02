@@ -4,8 +4,12 @@ package org.transitclock.domain.structs;
 import jakarta.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Objects;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Immutable;
 import org.transitclock.core.TemporalMatch;
@@ -21,7 +25,7 @@ import org.transitclock.utils.SystemTime;
 @Immutable
 @Entity
 @DynamicUpdate
-@Data
+@Getter @ToString
 @Table(
     name = "prediction_events",
     indexes = {
@@ -212,5 +216,17 @@ public class PredictionEvent implements Serializable {
         this.referenceVehicleId = null;
         this.departureTime = null;
         this.arrivalTime = null;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof PredictionEvent that)) return false;
+        return Objects.equals(time, that.time) && Objects.equals(vehicleId, that.vehicleId) && Objects.equals(eventType, that.eventType) && Objects.equals(avlTime, that.avlTime) && Objects.equals(description, that.description) && Objects.equals(location, that.location) && Objects.equals(routeId, that.routeId) && Objects.equals(routeShortName, that.routeShortName) && Objects.equals(blockId, that.blockId) && Objects.equals(serviceId, that.serviceId) && Objects.equals(tripId, that.tripId) && Objects.equals(stopId, that.stopId) && Objects.equals(arrivalstopid, that.arrivalstopid) && Objects.equals(departurestopid, that.departurestopid) && Objects.equals(referenceVehicleId, that.referenceVehicleId) && Objects.equals(arrivalTime, that.arrivalTime) && Objects.equals(departureTime, that.departureTime);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(time, vehicleId, eventType, avlTime, description, location, routeId, routeShortName, blockId, serviceId, tripId, stopId, arrivalstopid, departurestopid, referenceVehicleId, arrivalTime, departureTime);
     }
 }

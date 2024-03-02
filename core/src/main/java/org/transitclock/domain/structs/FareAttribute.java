@@ -7,8 +7,12 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Objects;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
@@ -22,7 +26,8 @@ import org.transitclock.gtfs.model.GtfsFareAttribute;
  */
 @Entity
 @DynamicUpdate
-@Data
+@ToString
+@Getter @Setter
 @Table(name = "fare_attributes")
 public class FareAttribute implements Serializable {
 
@@ -104,5 +109,23 @@ public class FareAttribute implements Serializable {
         return session.createQuery("FROM FareAttribute WHERE configRev = :configRev", FareAttribute.class)
                 .setParameter("configRev", configRev)
                 .list();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof FareAttribute that)) return false;
+        return configRev == that.configRev
+            && Float.compare(price, that.price) == 0
+            && Objects.equals(fareId, that.fareId)
+            && Objects.equals(currencyType, that.currencyType)
+            && Objects.equals(paymentMethod, that.paymentMethod)
+            && Objects.equals(transfers, that.transfers)
+            && Objects.equals(transferDuration, that.transferDuration);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(configRev, fareId, price, currencyType, paymentMethod, transfers, transferDuration);
     }
 }

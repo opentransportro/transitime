@@ -1,6 +1,8 @@
 /* (C)2023 */
 package org.transitclock.utils;
 
+import lombok.NonNull;
+
 import java.text.DecimalFormat;
 import java.util.Collections;
 import java.util.Comparator;
@@ -184,15 +186,12 @@ public class StringUtils {
      *
      * @param ids
      */
-    public static void sortIdsNumerically(List<String> ids) {
-        Collections.sort(ids, new Comparator<String>() {
-            @Override
-            public int compare(String o1, String o2) {
-                String paddedStr1 = StringUtils.paddedName(o1);
-                String paddedStr2 = StringUtils.paddedName(o2);
+    public static void sortIdsNumerically(@NonNull List<String> ids) {
+        ids.sort((o1, o2) -> {
+            String paddedStr1 = StringUtils.paddedName(o1);
+            String paddedStr2 = StringUtils.paddedName(o2);
 
-                return paddedStr1.compareTo(paddedStr2);
-            }
+            return paddedStr1.compareTo(paddedStr2);
         });
     }
 
@@ -205,5 +204,22 @@ public class StringUtils {
      */
     public static void sortIds(List<String> ids) {
         Collections.sort(ids);
+    }
+
+
+    /**
+     * For making sure that members don't get a value that is longer than allowed. Truncates string
+     * to maxLength if it is too long. This way won't get a db error if try to store a string that
+     * is too long.
+     *
+     * @param original the string to possibly be truncated
+     * @param maxLength max length string can have in db
+     * @return possibly truncated version of the original string
+     */
+    public static String truncate(String original, int maxLength) {
+        if (original == null || original.length() <= maxLength)
+            return original;
+
+        return original.substring(0, maxLength);
     }
 }

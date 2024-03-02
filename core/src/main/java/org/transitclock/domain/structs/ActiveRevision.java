@@ -10,6 +10,8 @@ import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
 import org.transitclock.domain.hibernate.HibernateUtils;
 
+import java.util.Objects;
+
 /**
  * For keeping track of current revisions. This table should only have a single row, one that
  * specified the configRev and the travelTimesRev currently being used.
@@ -17,7 +19,7 @@ import org.transitclock.domain.hibernate.HibernateUtils;
  * @author SkiBu Smith
  */
 @Entity
-@Data
+@Getter @Setter @ToString
 @DynamicUpdate
 @Slf4j
 @Table(name = "active_revisions")
@@ -113,5 +115,17 @@ public class ActiveRevision {
      */
     public boolean isValid() {
         return configRev >= 0 && travelTimesRev >= 0;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ActiveRevision that)) return false;
+        return configRev == that.configRev && travelTimesRev == that.travelTimesRev && Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, configRev, travelTimesRev);
     }
 }

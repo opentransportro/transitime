@@ -2,7 +2,6 @@
 package org.transitclock.core.schedBasedPreds;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.transitclock.Module;
 import org.transitclock.config.data.AgencyConfig;
@@ -11,7 +10,7 @@ import org.transitclock.core.AvlProcessor;
 import org.transitclock.core.BlockInfoProvider;
 import org.transitclock.core.dataCache.VehicleDataCache;
 import org.transitclock.domain.structs.AvlReport;
-import org.transitclock.domain.structs.AvlReport.AssignmentType;
+import org.transitclock.domain.structs.AssignmentType;
 import org.transitclock.domain.structs.Block;
 import org.transitclock.domain.structs.Location;
 import org.transitclock.gtfs.DbConfig;

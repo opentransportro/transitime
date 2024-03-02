@@ -5,12 +5,12 @@ import javax.annotation.Nullable;
 import jakarta.persistence.*;
 import java.io.Serializable;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.CallbackException;
 import org.hibernate.HibernateException;
@@ -39,7 +39,7 @@ import org.transitclock.utils.Time;
  */
 @Slf4j
 @Entity
-@Data
+@Getter @Setter @ToString
 @DynamicUpdate
 @Table(name = "trips")
 public class Trip implements Lifecycle, Serializable {
@@ -112,9 +112,9 @@ public class Trip implements Lifecycle, Serializable {
     @OrderColumn(name = "list_index")
     @ElementCollection
     @CollectionTable(name = "trip_scheduled_times_list", joinColumns = {
-            @JoinColumn(name = "trip_config_rev", referencedColumnName = "config_rev"),
-            @JoinColumn(name = "trip_trip_id", referencedColumnName = "trip_id"),
-            @JoinColumn(name = "trip_start_time", referencedColumnName = "start_time")
+        @JoinColumn(name = "trip_config_rev", referencedColumnName = "config_rev"),
+        @JoinColumn(name = "trip_trip_id", referencedColumnName = "trip_id"),
+        @JoinColumn(name = "trip_start_time", referencedColumnName = "start_time")
     })
     private final List<ScheduleTime> scheduledTimesList = new ArrayList<>();
 
@@ -830,5 +830,33 @@ public class Trip implements Lifecycle, Serializable {
             logger.error("exception querying for metrics", e);
         }
         return count;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Trip trip)) return false;
+        return configRev == trip.configRev
+            && noSchedule == trip.noSchedule
+            && exactTimesHeadway == trip.exactTimesHeadway
+            && Objects.equals(tripId, trip.tripId)
+            && Objects.equals(startTime, trip.startTime)
+            && Objects.equals(tripShortName, trip.tripShortName)
+            && Objects.equals(endTime, trip.endTime)
+            && Objects.equals(directionId, trip.directionId)
+            && Objects.equals(routeId, trip.routeId)
+            && Objects.equals(routeShortName, trip.routeShortName)
+            && Objects.equals(tripPattern, trip.tripPattern)
+            && Objects.equals(travelTimes, trip.travelTimes)
+            && Objects.equals(scheduledTimesList, trip.scheduledTimesList)
+            && Objects.equals(serviceId, trip.serviceId)
+            && Objects.equals(headsign, trip.headsign)
+            && Objects.equals(blockId, trip.blockId)
+            && Objects.equals(shapeId, trip.shapeId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(configRev, tripId, startTime, tripShortName, endTime, directionId, routeId, routeShortName, tripPattern, travelTimes, scheduledTimesList, noSchedule, exactTimesHeadway, serviceId, headsign, blockId, shapeId);
     }
 }

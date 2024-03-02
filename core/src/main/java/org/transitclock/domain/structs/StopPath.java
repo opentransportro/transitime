@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +24,7 @@ import org.transitclock.config.data.CoreConfig;
  */
 @Slf4j
 @Entity
-@Data
+@Getter @Setter @ToString
 @DynamicUpdate
 @Table(name = "stop_paths")
 public class StopPath implements Serializable, Lifecycle {
@@ -212,13 +213,7 @@ public class StopPath implements Serializable, Lifecycle {
      * unique.
      */
     public int basicHashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + configRev;
-        result = prime * result + ((stopPathId == null) ? 0 : stopPathId.hashCode());
-        result = prime * result + ((routeId == null) ? 0 : routeId.hashCode());
-        result = prime * result + ((stopId == null) ? 0 : stopId.hashCode());
-        return result;
+        return Objects.hash(configRev, stopPathId, stopId, routeId);
     }
 
     /**
@@ -386,5 +381,39 @@ public class StopPath implements Serializable, Lifecycle {
             location = new Location(0.0, 0.0);
         }
         return location;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof StopPath stopPath)) return false;
+        return configRev == stopPath.configRev
+            && gtfsStopSeq == stopPath.gtfsStopSeq
+            && lastStopInTrip == stopPath.lastStopInTrip
+            && layoverStop == stopPath.layoverStop
+            && waitStop == stopPath.waitStop
+            && scheduleAdherenceStop == stopPath.scheduleAdherenceStop
+            && Double.compare(pathLength, stopPath.pathLength) == 0
+            && Objects.equals(tripPatternId, stopPath.tripPatternId)
+            && Objects.equals(stopPathId, stopPath.stopPathId)
+            && Objects.equals(stopId, stopPath.stopId)
+            && Objects.equals(routeId, stopPath.routeId)
+            && Objects.equals(breakTime, stopPath.breakTime)
+            && Objects.equals(locations, stopPath.locations)
+            && Objects.equals(maxDistance, stopPath.maxDistance)
+            && Objects.equals(maxSpeed, stopPath.maxSpeed)
+//            && Objects.equals(vectors, stopPath.vectors)
+//            && Objects.equals(shapeDistanceTraveled, stopPath.shapeDistanceTraveled)
+            ;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(
+            tripPatternId, stopPathId, configRev, stopId, gtfsStopSeq, lastStopInTrip, routeId, layoverStop, waitStop, scheduleAdherenceStop, breakTime, locations, pathLength, maxDistance,
+            maxSpeed
+//            vectors,
+//            shapeDistanceTraveled
+        );
     }
 }

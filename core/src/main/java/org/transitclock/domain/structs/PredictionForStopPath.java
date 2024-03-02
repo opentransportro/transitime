@@ -11,18 +11,19 @@ import org.transitclock.domain.structs.QPredictionForStopPath;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Sean Og Crudden Store the travel time prediction for a stopPath.
  */
 @Entity
 @DynamicUpdate
-@Data
+@Getter @Setter @ToString
 @Table(
-        name = "stop_path_predictions",
-        indexes = {
-                @Index(name = "StopPathPredictionTimeIndex", columnList = "trip_id, stop_path_index")
-        })
+    name = "stop_path_predictions",
+    indexes = {
+        @Index(name = "StopPathPredictionTimeIndex", columnList = "trip_id, stop_path_index")
+    })
 public class PredictionForStopPath implements Serializable {
 
     @Id
@@ -77,8 +78,7 @@ public class PredictionForStopPath implements Serializable {
     @SuppressWarnings("unchecked")
     public static List<PredictionForStopPath> getPredictionForStopPathFromDB(
             Date beginTime, Date endTime, String algorithm, String tripId, Integer stopPathIndex) {
-        EntityManager em = HibernateUtils.getSession();
-        JPAQuery<PredictionForStopPath> query = new JPAQuery<>(em);
+        JPAQuery<PredictionForStopPath> query = HibernateUtils.getJPAQuery();
         var qentity = QPredictionForStopPath.predictionForStopPath;
 
         query.from(qentity);
@@ -109,5 +109,17 @@ public class PredictionForStopPath implements Serializable {
         this.algorithm = null;
         this.travelTime = true;
         this.startTime = null;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof PredictionForStopPath that)) return false;
+        return id == that.id && travelTime == that.travelTime && Objects.equals(creationTime, that.creationTime) && Objects.equals(predictionTime, that.predictionTime) && Objects.equals(tripId, that.tripId) && Objects.equals(startTime, that.startTime) && Objects.equals(algorithm, that.algorithm) && Objects.equals(stopPathIndex, that.stopPathIndex) && Objects.equals(vehicleId, that.vehicleId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, creationTime, predictionTime, tripId, startTime, algorithm, stopPathIndex, vehicleId, travelTime);
     }
 }

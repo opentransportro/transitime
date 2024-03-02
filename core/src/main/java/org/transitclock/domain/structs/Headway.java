@@ -3,13 +3,17 @@ package org.transitclock.domain.structs;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Objects;
+
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
 
 @Entity
+@Getter
+@Setter
+@ToString
 @DynamicUpdate
-@Data
 @NoArgsConstructor
 @Table(
     name = "headways",
@@ -95,5 +99,17 @@ public class Headway implements Serializable {
         this.otherVehicleId = otherVehicleId;
         this.firstDeparture = firstDeparture;
         this.secondDeparture = secondDeparture;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Headway headway1)) return false;
+        return id == headway1.id && configRev == headway1.configRev && Double.compare(headway, headway1.headway) == 0 && Double.compare(average, headway1.average) == 0 && Double.compare(variance, headway1.variance) == 0 && Double.compare(coefficientOfVariation, headway1.coefficientOfVariation) == 0 && numVehicles == headway1.numVehicles && Objects.equals(creationTime, headway1.creationTime) && Objects.equals(vehicleId, headway1.vehicleId) && Objects.equals(otherVehicleId, headway1.otherVehicleId) && Objects.equals(stopId, headway1.stopId) && Objects.equals(tripId, headway1.tripId) && Objects.equals(routeId, headway1.routeId) && Objects.equals(firstDeparture, headway1.firstDeparture) && Objects.equals(secondDeparture, headway1.secondDeparture);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, configRev, headway, average, variance, coefficientOfVariation, numVehicles, creationTime, vehicleId, otherVehicleId, stopId, tripId, routeId, firstDeparture, secondDeparture);
     }
 }

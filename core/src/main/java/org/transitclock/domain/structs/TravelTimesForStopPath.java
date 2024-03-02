@@ -4,6 +4,9 @@ package org.transitclock.domain.structs;
 import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -14,6 +17,7 @@ import org.transitclock.utils.Geo;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Contains the expected time it takes to travel along the specified path, which is for one stop to
@@ -25,7 +29,9 @@ import java.util.List;
  */
 @Entity
 @DynamicUpdate
-@Data
+@Getter
+@Setter
+@ToString
 @Slf4j
 @Table(name = "travel_times_for_stop_paths")
 public class TravelTimesForStopPath implements Serializable {
@@ -90,41 +96,6 @@ public class TravelTimesForStopPath implements Serializable {
     @Column(name = "how_set", length = 5)
     @Enumerated(EnumType.STRING)
     private final HowSet howSet;
-
-    /**
-     * This enumeration is for keeping track of how the travel times were determined. This way can
-     * tell of they should be overridden or not.
-     */
-    public enum HowSet {
-        // From when there are no schedule times so simply need to use a
-        // default speed
-        SPEED(0),
-
-        // From interpolating data in GTFS stop_times.txt file
-        SCHED(1),
-
-        // No AVL data was available for the actual day so using data from
-        // another day.
-        SERVC(2),
-
-        // No AVL data was available for the actual trip so using data from
-        // a trip that is before or after the trip in question
-        TRIP(3),
-
-        // Based on actual running times as determined by AVL data
-        AVL(4);
-
-        @SuppressWarnings("unused")
-        private final int value;
-
-        HowSet(int value) {
-            this.value = value;
-        }
-
-        public boolean isScheduleBased() {
-            return this == SPEED || this == SCHED;
-        }
-    }
 
     public TravelTimesForStopPath(
             int configRev,
@@ -304,5 +275,17 @@ public class TravelTimesForStopPath implements Serializable {
             }
         }
         return stopTimeMsec >= 0;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof TravelTimesForStopPath that)) return false;
+        return configRev == that.configRev && travelTimesRev == that.travelTimesRev && Float.compare(travelTimeSegmentLength, that.travelTimeSegmentLength) == 0 && stopTimeMsec == that.stopTimeMsec && daysOfWeekOverride == that.daysOfWeekOverride && Objects.equals(id, that.id) && Objects.equals(stopPathId, that.stopPathId) && Objects.equals(travelTimesMsec, that.travelTimesMsec) && howSet == that.howSet;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, configRev, travelTimesRev, stopPathId, travelTimeSegmentLength, travelTimesMsec, stopTimeMsec, daysOfWeekOverride, howSet);
     }
 }

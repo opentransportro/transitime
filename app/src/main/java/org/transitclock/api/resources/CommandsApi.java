@@ -17,7 +17,7 @@ import org.transitclock.api.utils.WebUtils;
 import org.transitclock.domain.GenericQuery;
 import org.transitclock.domain.hibernate.DataDbLogger;
 import org.transitclock.domain.structs.AvlReport;
-import org.transitclock.domain.structs.AvlReport.AssignmentType;
+import org.transitclock.domain.structs.AssignmentType;
 import org.transitclock.domain.structs.ExportTable;
 import org.transitclock.domain.structs.MeasuredArrivalTime;
 import org.transitclock.service.dto.IpcAvl;

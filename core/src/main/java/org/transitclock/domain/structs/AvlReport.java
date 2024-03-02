@@ -2,8 +2,6 @@
 package org.transitclock.domain.structs;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +19,7 @@ import org.transitclock.utils.Time;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 /**
@@ -33,7 +32,7 @@ import java.util.regex.Pattern;
 @Immutable
 @Entity
 @DynamicUpdate
-@Data
+@Getter @Setter
 @Table(
     name = "avl_reports",
     indexes = {
@@ -41,6 +40,9 @@ import java.util.regex.Pattern;
     })
 @Slf4j
 public class AvlReport implements Serializable {
+    // How long the AvlReport source field can be in db
+    private static final int SOURCE_LENGTH = 10;
+
     // vehicleId is an @Id since might get multiple AVL reports
     // for different vehicles with the same time but need a unique
     // primary key.
@@ -98,19 +100,6 @@ public class AvlReport implements Serializable {
     @Column(name = "assignment_id", length = 60)
     private String assignmentId; // optional
 
-    // The type of the assignment received in the AVL feed
-    public enum AssignmentType {
-        UNSET,
-        BLOCK_ID,
-        // For when creating schedule based predictions
-        BLOCK_FOR_SCHED_BASED_PREDS,
-        ROUTE_ID,
-        TRIP_ID,
-        TRIP_SHORT_NAME,
-        // For when get bad assignment info from AVL feed
-        PREVIOUS
-    }
-
     @Column(name = "assignment_type", length = 40)
     @Enumerated(EnumType.STRING)
     private AssignmentType assignmentType;
@@ -154,8 +143,6 @@ public class AvlReport implements Serializable {
     @Column(name = "vehicle_name")
     private String vehicleName;
 
-    // How long the AvlReport source field can be in db
-    private static final int SOURCE_LENGTH = 10;
 
     /**
      * Hibernate requires a no-args constructor for reading data. So this is an experiment to see
@@ -620,15 +607,14 @@ public class AvlReport implements Serializable {
      * @return true if has assignment and it is valid. Otherwise false.
      */
     public boolean hasValidAssignment() {
-        if (assignmentType != AssignmentType.UNSET && matchesUnpredictableAssignment(assignmentId))
+        if (assignmentType != AssignmentType.UNSET && matchesUnpredictableAssignment(assignmentId)) {
             logger.debug(
-                    "For vehicleId={} was assigned to \"{}\" but that "
-                            + "assignment is not considered valid due to "
-                            + "transitclock.avl.unpredictableAssignmentsRegEx being set "
-                            + "to \"{}\"",
+                    "For vehicleId={} was assigned to \"{}\" but that assignment is not considered valid due to "
+                        + "transitclock.avl.unpredictableAssignmentsRegEx being set to \"{}\"",
                     vehicleId,
                     assignmentId,
                     AvlConfig.getUnpredictableAssignmentsRegEx());
+        }
 
         return assignmentType != AssignmentType.UNSET && !matchesUnpredictableAssignment(assignmentId);
     }
@@ -772,34 +758,53 @@ public class AvlReport implements Serializable {
      * @return List of AvlReports or null if an exception is thrown
      */
     public static List<AvlReport> getAvlReportsFromDb(Date beginTime, Date endTime, String vehicleId, String clause) {
-        // Sessions are not threadsafe so need to create a new one each time.
-        // They are supposed to be lightweight so this should be OK.
-        Session session = HibernateUtils.getSession();
-
-        // Create the query. Table name is case sensitive!
         String hql = "FROM AvlReport WHERE time >= :beginDate AND time < :endDate";
         if (vehicleId != null && !vehicleId.isEmpty())
             hql += " AND vehicleId=:vehicleId";
         if (clause != null)
             hql += " " + clause;
-        var query = session.createQuery(hql, AvlReport.class);
 
-        // Set the parameters
-        if (vehicleId != null && !vehicleId.isEmpty())
-            query.setParameter("vehicleId", vehicleId);
-        query.setParameter("beginDate", beginTime);
-        query.setParameter("endDate", endTime);
+        try(Session session = HibernateUtils.getSession()) {
+            var query = session.createQuery(hql, AvlReport.class)
+                .setParameter("beginDate", beginTime)
+                .setParameter("endDate", endTime);
 
-        try {
+            // Set the parameters
+            if (vehicleId != null && !vehicleId.isEmpty()) {
+                query.setParameter("vehicleId", vehicleId);
+            }
+
             return query.list();
         } catch (HibernateException e) {
-            // Log error to the Core logger
             logger.error(e.getMessage(), e);
-            return null;
-        } finally {
-            // Clean things up. Not sure if this absolutely needed nor if
-            // it might actually be detrimental and slow things down.
-            session.close();
         }
+        return null;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof AvlReport avlReport)) return false;
+        return Objects.equals(vehicleId, avlReport.vehicleId)
+            && Objects.equals(time, avlReport.time)
+            && Objects.equals(timeProcessed, avlReport.timeProcessed)
+            && Objects.equals(location, avlReport.location)
+            && Objects.equals(speed, avlReport.speed)
+            && Objects.equals(heading, avlReport.heading)
+            && Objects.equals(source, avlReport.source)
+            && Objects.equals(assignmentId, avlReport.assignmentId)
+            && assignmentType == avlReport.assignmentType
+            && Objects.equals(driverId, avlReport.driverId)
+            && Objects.equals(licensePlate, avlReport.licensePlate)
+            && Objects.equals(passengerCount, avlReport.passengerCount)
+            && Objects.equals(passengerFullness, avlReport.passengerFullness)
+            && Objects.equals(field1Name, avlReport.field1Name)
+            && Objects.equals(field1Value, avlReport.field1Value)
+            && Objects.equals(vehicleName, avlReport.vehicleName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(vehicleId, time, timeProcessed, location, speed, heading, source, assignmentId, assignmentType, driverId, licensePlate, passengerCount, passengerFullness, field1Name, field1Value, vehicleName);
     }
 }

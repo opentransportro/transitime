@@ -1,8 +1,8 @@
 /* (C)2023 */
 package org.transitclock.domain.structs;
 
-import com.esotericsoftware.kryo.NotNull;
 import com.querydsl.jpa.impl.JPAQuery;
+import jakarta.annotation.Nonnull;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorColumn;
 import jakarta.persistence.DiscriminatorType;
@@ -18,6 +18,7 @@ import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import jakarta.persistence.Transient;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -52,8 +53,7 @@ import java.util.List;
  * @author SkiBu Smith
  */
 @Entity
-@Getter
-@Setter
+@Getter @Setter
 @RequiredArgsConstructor
 @DynamicUpdate
 @Table(name = "arrivals_departures",
@@ -68,7 +68,7 @@ import java.util.List;
 @DiscriminatorOptions(force = true)
 public abstract class ArrivalDeparture implements Lifecycle, Serializable {
 
-    @NotNull
+    @NonNull
     @Enumerated(EnumType.STRING)
     @Column(name = "type", insertable = false, updatable = false)
     private ArrivalsOrDepartures type;
@@ -561,8 +561,7 @@ public abstract class ArrivalDeparture implements Lifecycle, Serializable {
 
     public static Long getArrivalsDeparturesCountFromDb(
             String dbName, Date beginTime, Date endTime, ArrivalsOrDepartures arrivalOrDeparture) {
-        IntervalTimer timer = new IntervalTimer();
-        Long count = null;
+
         // Get the database session. This is supposed to be pretty lightweight
         Session session = dbName != null ? HibernateUtils.getSession(dbName, false) : HibernateUtils.getSession(true);
 
@@ -577,13 +576,12 @@ public abstract class ArrivalDeparture implements Lifecycle, Serializable {
             }
         }
 
-        var query = session.createQuery(hql, Long.class);
-        query.setParameter("beginDate", beginTime);
-        query.setParameter("endDate", endTime);
+        var query = session.createQuery(hql, Long.class)
+            .setParameter("beginDate", beginTime)
+            .setParameter("endDate", endTime);
 
         try {
-            count = query.uniqueResult();
-            logger.debug("Getting arrival/departures from database took {} msec", timer.elapsedMsec());
+            Long count = query.uniqueResult();
             return count;
         } catch (HibernateException e) {
             logger.error(e.getMessage(), e);

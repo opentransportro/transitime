@@ -15,10 +15,8 @@ import org.transitclock.gtfs.model.GtfsRoute;
 
 import jakarta.persistence.*;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * A trip pattern, as obtained from stop_times.txt GTFS file. A trip pattern defines what stops are
@@ -140,6 +138,7 @@ public class TripPattern implements Serializable, Lifecycle {
             Stop lastStopForTrip = gtfsData.getStop(lastStopIdForTrip);
             this.headsign = lastStopForTrip.getName();
         }
+
         // Make sure headsign not too long for db
         if (this.headsign.length() > HEADSIGN_LENGTH) {
             this.headsign = this.headsign.substring(0, HEADSIGN_LENGTH);
@@ -389,31 +388,18 @@ public class TripPattern implements Serializable, Lifecycle {
         // Don't want to list full trips array because that is
         // a lot of unneeded data. Only list the tripIds from
         // the trips array.
-        String tripsIds = "[";
-        for (Trip t : trips) {
-            tripsIds += t.getId() + ", ";
-        }
-        tripsIds += "]";
+        String tripsIds = trips.stream().map(Trip::getId).collect(Collectors.joining(","));
 
         return "TripPattern ["
-                + "configRev="
-                + configRev
-                + ", id="
-                + id
-                + ", headsign="
-                + headsign
-                + ", routeId="
-                + routeId
-                + ", directionId="
-                + directionId
-                + ", shapeId="
-                + shapeId
-                + ", extent="
-                + extent
-                + ", trips="
-                + tripsIds
-                + ", stopPaths="
-                + stopPaths
+                + "configRev=" + configRev
+                + ", id=" + id
+                + ", head-sign=" + headsign
+                + ", routeId=" + routeId
+                + ", directionId=" + directionId
+                + ", shapeId=" + shapeId
+                + ", extent=" + extent
+                + ", trips=" + tripsIds
+                + ", stopPaths=" + stopPaths
                 + "]";
     }
 
@@ -424,15 +410,7 @@ public class TripPattern implements Serializable, Lifecycle {
      * @return A short version of the TripPattern object
      */
     public String toShortString() {
-        return "Headsign \""
-                + headsign
-                + "\""
-                + " direction "
-                + directionId
-                + " from stop "
-                + stopPaths.get(0).getStopId()
-                + " to stop "
-                + stopPaths.get(stopPaths.size() - 1).getStopId();
+        return "Headsign \"%s\" direction %s from stop %s to stop %s".formatted(headsign, directionId, stopPaths.get(0).getStopId(), stopPaths.get(stopPaths.size() - 1).getStopId());
     }
 
     /**
@@ -464,47 +442,27 @@ public class TripPattern implements Serializable, Lifecycle {
     }
 
     @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = super.hashCode();
-        result = prime * result + configRev;
-        result = prime * result + ((directionId == null) ? 0 : directionId.hashCode());
-        result = prime * result + ((extent == null) ? 0 : extent.hashCode());
-        result = prime * result + ((id == null) ? 0 : id.hashCode());
-        result = prime * result + ((headsign == null) ? 0 : headsign.hashCode());
-        result = prime * result + ((routeId == null) ? 0 : routeId.hashCode());
-
-        //		result = prime * result + ((trips == null) ? 0 : trips.hashCode());  // stack overflow
-        // with large db
-
-        return result;
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof TripPattern that)) return false;
+        return configRev == that.configRev
+            && Objects.equals(id, that.id)
+            && Objects.equals(shapeId, that.shapeId)
+//            && Objects.equals(stopPaths, that.stopPaths)
+            && Objects.equals(headsign, that.headsign)
+            && Objects.equals(directionId, that.directionId)
+            && Objects.equals(routeId, that.routeId)
+//            && Objects.equals(routeShortName, that.routeShortName)
+            && Objects.equals(extent, that.extent);
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (!super.equals(obj)) return false;
-        if (getClass() != obj.getClass()) return false;
-        TripPattern other = (TripPattern) obj;
-        if (configRev != other.configRev) return false;
-        if (directionId == null) {
-            if (other.directionId != null) return false;
-        } else if (!directionId.equals(other.directionId)) return false;
-        if (extent == null) {
-            if (other.extent != null) return false;
-        } else if (!extent.equals(other.extent)) return false;
-        if (id == null) {
-            if (other.id != null) return false;
-        } else if (!id.equals(other.id)) return false;
-        if (headsign == null) {
-            if (other.headsign != null) return false;
-        } else if (!headsign.equals(other.headsign)) return false;
-        if (routeId == null) {
-            if (other.routeId != null) return false;
-        } else if (!routeId.equals(other.routeId)) return false;
-        if (trips == null) {
-            return other.trips == null;
-        } else return trips.equals(other.trips);
+    public int hashCode() {
+        return Objects.hash(configRev, id, shapeId,
+//            stopPaths,
+            headsign, directionId, routeId,
+//            routeShortName,
+            extent);
     }
 
     /**
@@ -626,16 +584,6 @@ public class TripPattern implements Serializable, Lifecycle {
         return stopPaths.get(i).getStopId();
     }
 
-    /**
-     * Gets the name of the specified stop as obtained by a Core predictor. Cannot be used with
-     * other applications.
-     *
-     * @param i
-     * @return
-     */
-//    public String getStopName(int i) {
-//        return stopPaths.get(i).getStopName();
-//    }
 
     /**
      * Gets the pathId of the specified stop

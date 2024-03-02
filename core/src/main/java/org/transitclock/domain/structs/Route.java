@@ -24,7 +24,7 @@ import org.transitclock.utils.StringUtils;
  */
 @Entity
 @DynamicUpdate
-@Data
+@Getter @Setter
 @Table(name = "routes")
 @Slf4j
 public class Route implements Serializable {
@@ -81,21 +81,25 @@ public class Route implements Serializable {
     // Later will probably want to store this in database,
     // but not yet sure. This means it is not available to application!
     @Transient
+    @ToString.Exclude
     private final List<TripPattern> tripPatternsForRoute;
 
     // For getStops()
     @Transient
     @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private Collection<Stop> stops = null;
 
     // For getPathSegments()
     @Transient
     @EqualsAndHashCode.Exclude
-    private Collection<org.transitclock.domain.structs.Vector> stopPaths = null;
+    @ToString.Exclude
+    private Collection<Vector> stopPaths = null;
 
     // For getOrderedStopsByDirection()
     @Transient
     @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private Map<String, List<String>> orderedStopsPerDirectionMap = null;
 
     // For getStopOrder().
@@ -232,20 +236,30 @@ public class Route implements Serializable {
             // Handle if routeOrder indicates r1 should be at beginning of list
             if (r1.atBeginning()) {
                 // If r2 also at beginning and it should be before r1...
-                if (r2.atBeginning() && r1.getRouteOrder() > r2.getRouteOrder()) return 1;
-                else return -1;
+                if (r2.atBeginning() && r1.getRouteOrder() > r2.getRouteOrder()) {
+                    return 1;
+                } else {
+                    return -1;
+                }
             }
 
             // Handle if routeOrder indicates r1 should be at end of list
             if (r1.atEnd()) {
                 // If r2 also at end and it should be after r1...
-                if (r2.atEnd() && r1.getRouteOrder() < r2.getRouteOrder()) return -1;
-                else return 1;
+                if (r2.atEnd() && r1.getRouteOrder() < r2.getRouteOrder()) {
+                    return -1;
+                } else {
+                    return 1;
+                }
             }
 
             // r1 is in the middle so check to see if r2 is at beginning or end
-            if (r2.atBeginning()) return 1;
-            if (r2.atEnd()) return -1;
+            if (r2.atBeginning()) {
+                return 1;
+            }
+            if (r2.atEnd()) {
+                return -1;
+            }
 
             // Both r1 and r2 don't have a route order to order them by
             // route name
@@ -288,17 +302,6 @@ public class Route implements Serializable {
      */
     @Override
     public String toString() {
-        // Don't want to output list of full TripPattern objects because
-        // each TripPattern.toString() result is pretty long (list of stops,
-        // extent, etc). Therefore for tripPatternsForRoute just output
-        // a short version of the object.
-        StringBuilder tripPatternIds = new StringBuilder("not set");
-        if (tripPatternsForRoute != null) {
-            tripPatternIds = new StringBuilder("[");
-            for (TripPattern tp : tripPatternsForRoute) tripPatternIds.append(tp.toShortString()).append(", ");
-            tripPatternIds.append("]");
-        }
-
         return "Route ["
                 + "configRev="
                 + configRev
@@ -324,8 +327,6 @@ public class Route implements Serializable {
                 + longName
                 + ", extent"
                 + extent
-                + ", tripPatternsForRoute="
-                + tripPatternIds
                 + "]";
     }
 
@@ -338,7 +339,8 @@ public class Route implements Serializable {
      */
     public synchronized Collection<Stop> getStops(DbConfig dbConfig) {
         // If stop collection already determined then simply return it
-        if (stops != null) return stops;
+        if (stops != null)
+            return stops;
 
         // Get the trip patterns for the route. Can't use the member
         // variable tripPatternsForRoute since it is only set when the
@@ -356,7 +358,8 @@ public class Route implements Serializable {
                 String stopId = stopPath.getStopId();
 
                 // If already added this stop then continue to next one
-                if (stopMap.containsKey(stopId)) continue;
+                if (stopMap.containsKey(stopId))
+                    continue;
 
                 Stop stop = dbConfig.getStop(stopId);
                 stopMap.put(stopId, stop);
@@ -649,4 +652,39 @@ public class Route implements Serializable {
         return Double.NaN;
     }
 
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Route route)) return false;
+        return configRev == route.configRev
+            && hidden == route.hidden
+            && Objects.equals(id, route.id)
+            && Objects.equals(color, route.color)
+            && Objects.equals(textColor, route.textColor)
+            && Objects.equals(routeOrder, route.routeOrder)
+            && Objects.equals(type, route.type)
+            && Objects.equals(description, route.description)
+            && Objects.equals(shortName, route.shortName)
+            && Objects.equals(longName, route.longName)
+            && Objects.equals(name, route.name)
+            && Objects.equals(extent, route.extent)
+            && Objects.equals(maxDistance, route.maxDistance)
+//            && Objects.equals(tripPatternsForRoute, route.tripPatternsForRoute)
+//            && Objects.equals(stops, route.stops)
+//            && Objects.equals(stopPaths, route.stopPaths)
+//            && Objects.equals(orderedStopsPerDirectionMap, route.orderedStopsPerDirectionMap)
+//            && Objects.equals(stopOrderByDirectionMap, route.stopOrderByDirectionMap)
+            ;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(configRev, id, color, textColor, routeOrder,
+            hidden, type, description, shortName, longName, name, extent,
+            maxDistance
+//            tripPatternsForRoute,
+//            stops, stopPaths, orderedStopsPerDirectionMap, stopOrderByDirectionMap
+        );
+    }
 }

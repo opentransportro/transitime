@@ -3,12 +3,16 @@ package org.transitclock.domain.structs;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Objects;
+
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
 
 @Entity
-@Data
+@ToString
+@Getter
+@Setter
 @DynamicUpdate
 @Table(
         name = "holding_times",
@@ -113,6 +117,21 @@ public class HoldingTime implements Serializable {
     }
 
     public boolean leaveStop(Date currentTime) {
-        return holdingTime.before(currentTime);
+        if (holdingTime != null) {
+            return holdingTime.before(currentTime);
+        }
+        return false;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof HoldingTime that)) return false;
+        return id == that.id && configRev == that.configRev && arrivalPredictionUsed == that.arrivalPredictionUsed && arrivalUsed == that.arrivalUsed && hasD1 == that.hasD1 && numberPredictionsUsed == that.numberPredictionsUsed && Objects.equals(holdingTime, that.holdingTime) && Objects.equals(creationTime, that.creationTime) && Objects.equals(vehicleId, that.vehicleId) && Objects.equals(stopId, that.stopId) && Objects.equals(tripId, that.tripId) && Objects.equals(routeId, that.routeId) && Objects.equals(arrivalTime, that.arrivalTime);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, configRev, holdingTime, creationTime, vehicleId, stopId, tripId, routeId, arrivalTime, arrivalPredictionUsed, arrivalUsed, hasD1, numberPredictionsUsed);
     }
 }

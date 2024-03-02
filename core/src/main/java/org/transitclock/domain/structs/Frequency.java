@@ -7,8 +7,12 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Objects;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
@@ -22,7 +26,7 @@ import org.transitclock.gtfs.model.GtfsFrequency;
  */
 @Entity
 @DynamicUpdate
-@Data
+@Getter @Setter @ToString
 @Table(name = "frequencies")
 public class Frequency implements Serializable {
 
@@ -34,8 +38,8 @@ public class Frequency implements Serializable {
     @Column(name = "trip_id", length = 60)
     private final String tripId;
 
-    @Column(name = "start_time")
     @Id
+    @Column(name = "start_time")
     private final int startTime;
 
     @Column(name = "end_time")
@@ -100,5 +104,17 @@ public class Frequency implements Serializable {
         return session.createQuery("FROM Frequency WHERE configRev = :configRev", Frequency.class)
                 .setParameter("configRev", configRev)
                 .list();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Frequency frequency)) return false;
+        return configRev == frequency.configRev && startTime == frequency.startTime && endTime == frequency.endTime && headwaySecs == frequency.headwaySecs && exactTimes == frequency.exactTimes && Objects.equals(tripId, frequency.tripId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(configRev, tripId, startTime, endTime, headwaySecs, exactTimes);
     }
 }

@@ -22,7 +22,6 @@ import org.transitclock.domain.hibernate.HibernateUtils;
 @DynamicUpdate
 @Table(name = "config_revisions")
 public class ConfigRevision {
-
     @Id
     @Column(name = "config_rev")
     private final int configRev;
@@ -99,8 +98,6 @@ public class ConfigRevision {
     /**
      * Last modified time of zip file if GTFS data comes directly from zip file instead of from a
      * directory.
-     *
-     * @return
      */
     public Date getZipFileLastModifiedTime() {
         return zipFileLastModifiedTime;

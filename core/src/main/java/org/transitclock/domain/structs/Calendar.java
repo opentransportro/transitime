@@ -10,11 +10,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -35,8 +33,7 @@ import org.transitclock.utils.Time;
 @Immutable
 @Entity
 @DynamicUpdate
-@Slf4j
-@Data
+@Getter @Setter @ToString
 @Table(name = "calendars")
 public class Calendar implements Serializable {
 
@@ -130,11 +127,11 @@ public class Calendar implements Serializable {
         try {
             tempDate = dateFormat.parse(gc.getStartDate());
         } catch (ParseException e) {
-            logger.error(
-                    "Could not parse calendar start_date \"{}\" from " + "line #{} from file {}",
-                    gc.getStartDate(),
-                    gc.getLineNumber(),
-                    gc.getFileName());
+//            logger.error(
+//                    "Could not parse calendar start_date \"{}\" from " + "line #{} from file {}",
+//                    gc.getStartDate(),
+//                    gc.getLineNumber(),
+//                    gc.getFileName());
             tempDate = new Date();
         }
         this.startDate = tempDate;
@@ -144,11 +141,11 @@ public class Calendar implements Serializable {
         try {
             tempDate = dateFormat.parse(gc.getEndDate());
         } catch (ParseException e) {
-            logger.error(
-                    "Could not parse calendar end_date \"{}\" from " + "line #{} from file {}",
-                    gc.getStartDate(),
-                    gc.getLineNumber(),
-                    gc.getFileName());
+//            logger.error(
+//                    "Could not parse calendar end_date \"{}\" from " + "line #{} from file {}",
+//                    gc.getStartDate(),
+//                    gc.getLineNumber(),
+//                    gc.getFileName());
             tempDate = new Date();
         }
         this.endDate = tempDate;
@@ -177,7 +174,6 @@ public class Calendar implements Serializable {
      * @return List of Calendar objects
      * @throws HibernateException
      */
-    @SuppressWarnings("unchecked")
     public static List<Calendar> getCalendars(Session session, int configRev) throws HibernateException {
         var query = session
                 .createQuery("FROM Calendar WHERE configRev = :configRev ORDER BY serviceId", Calendar.class)

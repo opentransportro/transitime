@@ -2,6 +2,7 @@ package org.transitclock;
 
 
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @Data
@@ -43,7 +44,9 @@ public class ApplicationProperties {
     private ArrivalsDepartures arrivalsDepartures = new ArrivalsDepartures();
 
     @Data
+    @Slf4j
     public static class Avl {
+        public static final int MAX_THREADS = 25;
         // config param: transitclock.avl.gtfsRealtimeFeedURI
         // The URI of the GTFS-realtime feed to use.
         private String gtfsRealtimeFeedURI = null;
@@ -124,6 +127,19 @@ public class ApplicationProperties {
         // How many threads to be used for processing the AVL data. For most applications just using a single thread is probably sufficient and it makes the logging simpler since the messages will not be interleaved. But for large systems with lots of vehicles then should use multiple threads, such as 3-15 so that more of the cores are used.
         private Integer numThreads = 1;
 
+        public Integer getNumThreads() {
+            if (numThreads < 1) {
+                logger.error("Number of threads must be at least 1 but {} was " + "specified. Therefore using 1 thread.", numThreads);
+                numThreads = 1;
+            }
+
+            if (numThreads > MAX_THREADS) {
+                logger.error("Number of threads must be no greater than {} but {} was specified. Therefore using {} threads.", MAX_THREADS, numThreads, MAX_THREADS);
+                numThreads = MAX_THREADS;
+            }
+
+            return numThreads;
+        }
     }
     private Avl avl = new Avl();
 
