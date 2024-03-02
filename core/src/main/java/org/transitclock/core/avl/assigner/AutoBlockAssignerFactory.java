@@ -1,8 +1,7 @@
-package org.transitclock.core.autoAssigner;
+package org.transitclock.core.avl.assigner;
 
 import org.springframework.stereotype.Component;
-import org.transitclock.core.BlockInfoProvider;
-import org.transitclock.core.TemporalMatcher;
+import org.transitclock.core.avl.time.TemporalMatcher;
 import org.transitclock.core.TravelTimes;
 import org.transitclock.core.VehicleState;
 import org.transitclock.core.dataCache.VehicleDataCache;

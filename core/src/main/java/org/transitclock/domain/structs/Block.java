@@ -3,7 +3,6 @@ package org.transitclock.domain.structs;
 
 import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +17,7 @@ import org.hibernate.annotations.Type;
 import org.hibernate.collection.spi.PersistentList;
 import org.hibernate.internal.SessionImpl;
 import org.transitclock.config.data.CoreConfig;
-import org.transitclock.core.SpatialMatch;
+import org.transitclock.core.avl.space.SpatialMatch;
 import org.transitclock.domain.hibernate.HibernateUtils;
 import org.transitclock.gtfs.DbConfig;
 import org.transitclock.utils.ExceptionUtils;
@@ -719,8 +718,8 @@ public class Block implements Serializable {
                     // If the session is different from the global
                     // session then need to attach the new session to the
                     // object.
-                    Session globalLazyLoadSession = HibernateUtils.getSession();
-                    if (session != globalLazyLoadSession) {
+                    Session threadSession = HibernateUtils.getSession();
+                    if (session != threadSession) {
                         // The persistent object is using an old session so
                         // switch to new one
                         logger.info(
@@ -731,13 +730,12 @@ public class Block implements Serializable {
                                         + "globalLazyLoadSession.",
                                 getId(),
                                 session == null ? null : session.hashCode(),
-                                globalLazyLoadSession.hashCode());
+                                threadSession.hashCode());
 
-                        globalLazyLoadSession.merge(this);
+                        threadSession.merge(this);
                     }
                 } else {
                     logger.error("Blocks.trips member is not a PersistentList!?!?. ");
-                    // not exiting here....
                 }
 
                 // Actually lazy-load the trips
@@ -788,7 +786,7 @@ public class Block implements Serializable {
                     // as the current session. Therefore if made it here then it
                     // means that definitely need to create new session.
                     Session globalLazyLoadSession = HibernateUtils.getSession();
-                    globalLazyLoadSession.update(this);
+                    globalLazyLoadSession.merge(this);
 
                     // Now that have attached a new session lazy load the trips
                     // data

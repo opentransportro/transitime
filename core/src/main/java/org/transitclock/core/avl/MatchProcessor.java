@@ -1,9 +1,12 @@
 /* (C)2023 */
-package org.transitclock.core;
+package org.transitclock.core.avl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.transitclock.config.data.CoreConfig;
+import org.transitclock.core.avl.ad.ArrivalDepartureGenerator;
+import org.transitclock.core.predictiongenerator.PredictionGenerator;
+import org.transitclock.core.VehicleState;
 import org.transitclock.core.dataCache.PredictionDataCache;
 import org.transitclock.core.headwaygenerator.HeadwayGenerator;
 import org.transitclock.domain.hibernate.DataDbLogger;

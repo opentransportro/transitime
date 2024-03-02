@@ -7,6 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.config.data.PredictionConfig;
 import org.transitclock.core.*;
+import org.transitclock.core.avl.RealTimeSchedAdhProcessor;
+import org.transitclock.core.avl.space.SpatialMatch;
 import org.transitclock.core.dataCache.*;
 import org.transitclock.core.dataCache.frequency.FrequencyBasedHistoricalAverageCache;
 import org.transitclock.core.holdingmethod.HoldingTimeGenerator;

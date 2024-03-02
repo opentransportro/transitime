@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.transitclock.config.data.AgencyConfig;
 import org.transitclock.config.data.AvlConfig;
-import org.transitclock.core.AvlProcessor;
 import org.transitclock.domain.structs.AvlReport;
 import org.transitclock.utils.Time;
 

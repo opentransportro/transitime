@@ -2,9 +2,9 @@
 package org.transitclock.core;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.transitclock.config.data.CoreConfig;
+import org.transitclock.core.avl.space.SpatialMatch;
 import org.transitclock.domain.structs.Location;
 import org.transitclock.domain.structs.ScheduleTime;
 import org.transitclock.domain.structs.TravelTimesForStopPath;
@@ -327,7 +327,7 @@ public class TravelTimes {
         // time of 0msec. This shouldn't happen so log an error. But only
         // log & investigate if a schedule based assignment since for non schedule
         // based ones the trip loops back and so you can have match2 < match1.
-        if (!match2.block.isNoSchedule()) {
+        if (!match2.getBlock().isNoSchedule()) {
             if (match2.lessThan(match1)) {
                 logger.error(
                         "For vehicleId={} match1AfterStop is after match2BeforeStop so returning travel time of 0. "

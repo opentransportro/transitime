@@ -1,12 +1,13 @@
 /* (C)2023 */
-package org.transitclock.core;
+package org.transitclock.core.avl.time;
 
 import java.util.Date;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.transitclock.config.data.CoreConfig;
+import org.transitclock.core.*;
+import org.transitclock.core.avl.space.SpatialMatch;
 import org.transitclock.domain.structs.AvlReport;
 import org.transitclock.domain.structs.Location;
 import org.transitclock.domain.structs.Trip;
@@ -50,7 +51,7 @@ public class TemporalMatcher {
      *     that match. Returns null if the temporal difference is beyond the allowable bounds.
      */
     private TemporalDifference determineHowFarOffScheduledTime(
-            String vehicleId, Date date, SpatialMatch spatialMatch, boolean isFirstSpatialMatch) {
+        String vehicleId, Date date, SpatialMatch spatialMatch, boolean isFirstSpatialMatch) {
 
         // check to see if we are frequency based
         if (spatialMatch.getTrip().isNoSchedule()) {
@@ -137,7 +138,7 @@ public class TemporalMatcher {
      * instead late since the layover time has already passed.
      */
     private TemporalDifference temporalDifferenceForSpecialLayover(
-            VehicleState vehicleState, SpatialMatch spatialMatch, int expectedTravelTimeMsec) {
+        VehicleState vehicleState, SpatialMatch spatialMatch, int expectedTravelTimeMsec) {
         AvlReport avlReport = vehicleState.getAvlReport();
         Date avlTime = avlReport.getDate();
 

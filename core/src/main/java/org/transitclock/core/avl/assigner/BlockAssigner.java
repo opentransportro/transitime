@@ -1,9 +1,8 @@
 /* (C)2023 */
-package org.transitclock.core;
+package org.transitclock.core.avl.assigner;
 
 import java.util.Collection;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.transitclock.domain.structs.AvlReport;
 import org.transitclock.domain.structs.Block;

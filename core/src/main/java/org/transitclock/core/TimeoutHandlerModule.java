@@ -2,13 +2,13 @@
 package org.transitclock.core;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.transitclock.Module;
 import org.transitclock.config.data.AgencyConfig;
 import org.transitclock.config.data.PredictionConfig;
 import org.transitclock.config.data.TimeoutConfig;
+import org.transitclock.core.avl.AvlProcessor;
 import org.transitclock.core.avl.AvlReportRegistry;
 import org.transitclock.core.dataCache.VehicleDataCache;
 import org.transitclock.core.dataCache.VehicleStateManager;
@@ -19,9 +19,7 @@ import org.transitclock.gtfs.DbConfig;
 import org.transitclock.utils.SystemTime;
 import org.transitclock.utils.Time;
 
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 
 /**
  * For handling when a vehicle doesn't report its position for too long. Makes the vehicle

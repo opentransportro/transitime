@@ -1,5 +1,5 @@
 /* (C)2023 */
-package org.transitclock.core;
+package org.transitclock.core.avl.assigner;
 
 /**
  * Specifies the state of the block assignment for a vehicle.

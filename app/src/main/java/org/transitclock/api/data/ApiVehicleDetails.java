@@ -7,7 +7,7 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlType;
 import lombok.Data;
 import org.transitclock.api.resources.TransitimeApi.UiMode;
-import org.transitclock.core.BlockAssignmentMethod;
+import org.transitclock.core.avl.assigner.BlockAssignmentMethod;
 import org.transitclock.service.dto.IpcVehicle;
 import org.transitclock.service.dto.IpcVehicleComplete;
 import org.transitclock.utils.Time;

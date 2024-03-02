@@ -1,13 +1,15 @@
 /* (C)2023 */
-package org.transitclock.core;
+package org.transitclock.core.avl.ad;
 
 import java.util.ArrayList;
 import java.util.Date;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.transitclock.config.data.ArrivalsDeparturesConfig;
 import org.transitclock.config.data.AgencyConfig;
 import org.transitclock.config.data.CoreConfig;
+import org.transitclock.core.*;
+import org.transitclock.core.VehicleState;
+import org.transitclock.core.avl.space.SpatialMatch;
 import org.transitclock.core.dataCache.*;
 import org.transitclock.core.dataCache.frequency.FrequencyBasedHistoricalAverageCache;
 import org.transitclock.core.dataCache.scheduled.ScheduleBasedHistoricalAverageCache;
@@ -98,7 +100,7 @@ public class ArrivalDepartureGeneratorDefaultImpl implements ArrivalDepartureGen
      * @return
      */
     private boolean tooManyStopsTraversed(
-            SpatialMatch oldMatch, SpatialMatch newMatch, AvlReport previousAvlReport, AvlReport avlReport) {
+        SpatialMatch oldMatch, SpatialMatch newMatch, AvlReport previousAvlReport, AvlReport avlReport) {
         // If there is no old match then we are fine
         if (oldMatch == null) return false;
 
@@ -202,7 +204,7 @@ public class ArrivalDepartureGeneratorDefaultImpl implements ArrivalDepartureGen
      * @param stopPathIndex
      */
     protected Departure createDepartureTime(
-            VehicleState vehicleState, long departureTime, Block block, int tripIndex, int stopPathIndex) {
+        org.transitclock.core.VehicleState vehicleState, long departureTime, Block block, int tripIndex, int stopPathIndex) {
         // Store the departure in the database via the db logger
 
         Date freqStartDate = null;
@@ -237,7 +239,7 @@ public class ArrivalDepartureGeneratorDefaultImpl implements ArrivalDepartureGen
      * @param stopPathIndex
      */
     protected Arrival createArrivalTime(
-            VehicleState vehicleState, long arrivalTime, Block block, int tripIndex, int stopPathIndex) {
+        org.transitclock.core.VehicleState vehicleState, long arrivalTime, Block block, int tripIndex, int stopPathIndex) {
         // Store the arrival in the database via the db logger
 
         Date freqStartDate = null;
@@ -266,7 +268,7 @@ public class ArrivalDepartureGeneratorDefaultImpl implements ArrivalDepartureGen
         return arrival;
     }
 
-    private void updateCache(VehicleState vehicleState, ArrivalDeparture arrivalDeparture) {
+    private void updateCache(org.transitclock.core.VehicleState vehicleState, ArrivalDeparture arrivalDeparture) {
 
         if (tripDataHistoryCacheInterface != null)
             tripDataHistoryCacheInterface.putArrivalDeparture(arrivalDeparture);
@@ -413,7 +415,7 @@ public class ArrivalDepartureGeneratorDefaultImpl implements ArrivalDepartureGen
         dataDbLogger.add(arrivalDeparture);
 
         /* add event to vehicle state. Will increment tripCounter if the last arrival in a trip */
-        VehicleState vehicleState = vehicleStateManager.getVehicleState(arrivalDeparture.getVehicleId());
+        org.transitclock.core.VehicleState vehicleState = vehicleStateManager.getVehicleState(arrivalDeparture.getVehicleId());
 
         vehicleState.incrementTripCounter(arrivalDeparture, vehicleStateManager);
 
@@ -428,7 +430,7 @@ public class ArrivalDepartureGeneratorDefaultImpl implements ArrivalDepartureGen
      * @param vehicleState
      * @param departure
      */
-    private void logEventIfVehicleDepartedEarlyOrLate(VehicleState vehicleState, Departure departure) {
+    private void logEventIfVehicleDepartedEarlyOrLate(org.transitclock.core.VehicleState vehicleState, Departure departure) {
         // If departure not for terminal then can ignore
         if (departure.getStopPathIndex() != 0) return;
 
@@ -512,7 +514,7 @@ public class ArrivalDepartureGeneratorDefaultImpl implements ArrivalDepartureGen
      * @param vehicleState
      * @return List of ArrivalDepartures created
      */
-    private void estimateArrivalsDeparturesWithoutPreviousMatch(VehicleState vehicleState) {
+    private void estimateArrivalsDeparturesWithoutPreviousMatch(org.transitclock.core.VehicleState vehicleState) {
         // If vehicle got assigned to the same block as before then
         // there is likely a problem. In this case don't want to
         // estimate arrivals/departures because that would likely
@@ -597,7 +599,7 @@ public class ArrivalDepartureGeneratorDefaultImpl implements ArrivalDepartureGen
      * @return
      */
     private long adjustDepartureSoAfterArrival(
-            long departureTime, long departureTimeBasedOnNewMatch, VehicleState vehicleState) {
+            long departureTime, long departureTimeBasedOnNewMatch, org.transitclock.core.VehicleState vehicleState) {
         String vehicleId = vehicleState.getVehicleId();
         AvlReport avlReport = vehicleState.getAvlReport();
         AvlReport previousAvlReport = vehicleState.getPreviousAvlReportFromSuccessfulMatch();
@@ -699,7 +701,7 @@ public class ArrivalDepartureGeneratorDefaultImpl implements ArrivalDepartureGen
      *     intermediate stops. Will be the time of the new AVL report if vehicle is not at a stop.
      *     If it is at a stop then it will be the expected departure time at that stop.
      */
-    private long handleVehicleDepartingStop(VehicleState vehicleState) {
+    private long handleVehicleDepartingStop(org.transitclock.core.VehicleState vehicleState) {
         String vehicleId = vehicleState.getVehicleId();
 
         // If vehicle wasn't departing a stop then simply return the
@@ -825,7 +827,7 @@ public class ArrivalDepartureGeneratorDefaultImpl implements ArrivalDepartureGen
      *     intermediate stops. Will be the time of the new AVL report if vehicle is not at a stop.
      *     If it is at a stop then it will be the expected arrival time at that stop.
      */
-    private long handleVehicleArrivingAtStop(VehicleState vehicleState, long beginTime) {
+    private long handleVehicleArrivingAtStop(org.transitclock.core.VehicleState vehicleState, long beginTime) {
         String vehicleId = vehicleState.getVehicleId();
 
         // If vehicle hasn't arrived at a stop then simply return the
@@ -986,7 +988,7 @@ public class ArrivalDepartureGeneratorDefaultImpl implements ArrivalDepartureGen
      * @param beginTime Time of previous AVL report or the departure time if vehicle was at a stop
      * @param endTime Time of the new AVL report or the arrival time if vehicle arrived at a stop
      */
-    private void handleIntermediateStops(VehicleState vehicleState, long beginTime, long endTime) {
+    private void handleIntermediateStops(org.transitclock.core.VehicleState vehicleState, long beginTime, long endTime) {
         // Need to make sure that the arrival/departure times created for
         // intermediate stops do not have the same exact time as the
         // departure of the previous stop or the arrival of the new

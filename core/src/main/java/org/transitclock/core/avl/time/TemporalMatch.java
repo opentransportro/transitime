@@ -1,6 +1,8 @@
 /* (C)2023 */
-package org.transitclock.core;
+package org.transitclock.core.avl.time;
 
+import org.transitclock.core.TemporalDifference;
+import org.transitclock.core.avl.space.SpatialMatch;
 import org.transitclock.utils.Geo;
 import org.transitclock.utils.Time;
 
@@ -27,7 +29,7 @@ public class TemporalMatch extends SpatialMatch {
         return "TemporalMatch ["
                 + "temporalDifference=" + temporalDifference
                 + ", avlTime=" + Time.dateTimeStrMsec(avlTime)
-                + ", blockId=" + block.getId()
+                + ", blockId=" + getBlock().getId()
                 + ", tripIndex=" + tripIndex
                 + ", gtfsStopSeq=" + getStopPath().getGtfsStopSeq()
                 + ", stopPathIndex=" + stopPathIndex

@@ -1290,7 +1290,7 @@ public class TransitimeApi extends BaseApiResource {
                 for (IpcVehicle ipcVehicle : ipcActiveBlocks.getVehicles()) {
                     for (IpcVehicleConfig iVC : vehiclesInterface.getVehicleConfigs()) {
 
-                        if (iVC.getId().equals(ipcVehicle.getId())) {
+                        if (iVC.getId().equals(ipcVehicle.getId()) && StringUtils.hasText(iVC.getName())) {
                             ipcVehicle.setVehicleName(iVC.getName());
 
                             break;

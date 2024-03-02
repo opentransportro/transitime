@@ -58,13 +58,13 @@ public class TravelTimesProcessor {
     // entry per data point, hence a List of Integers with one Integer
     // per data point.
     private static final Map<ProcessedDataMapKey, List<Integer>> stopTimesMap =
-            new HashMap<ProcessedDataMapKey, List<Integer>>();
+        new HashMap<>();
     // Values are List of List of times where outer List is by single trip and
     // inner List is by travel time segment. For every trip that has historical
     // data we get a single entry in the outer List. For every travel time
     // segment we have historical data for we get an entry in the inner List.
     private static final Map<ProcessedDataMapKey, List<List<Integer>>> travelTimesMap =
-            new HashMap<ProcessedDataMapKey, List<List<Integer>>>();
+        new HashMap<>();
 
     private boolean isEmpty = true;
 
@@ -116,11 +116,7 @@ public class TravelTimesProcessor {
      * @param stopTimeMsec
      */
     private static void addStopTimeToMap(ProcessedDataMapKey mapKey, int stopTimeMsec) {
-        List<Integer> stopTimesForStop = stopTimesMap.get(mapKey);
-        if (stopTimesForStop == null) {
-            stopTimesForStop = new ArrayList<Integer>();
-            stopTimesMap.put(mapKey, stopTimesForStop);
-        }
+        List<Integer> stopTimesForStop = stopTimesMap.computeIfAbsent(mapKey, k -> new ArrayList<Integer>());
         stopTimesForStop.add(stopTimeMsec);
     }
 
@@ -334,7 +330,7 @@ public class TravelTimesProcessor {
     private static List<MatchPoint> getMatchPoints(
             DataFetcher dataFetcher, ArrivalDeparture arrDep1, ArrivalDeparture arrDep2) {
         // The array to be returned
-        List<MatchPoint> matchPoints = new ArrayList<MatchPoint>();
+        List<MatchPoint> matchPoints = new ArrayList<>();
 
         // Add the departure time to the list of data points
         matchPoints.add(new MatchPoint(arrDep1.getDate(), 0.0f, MatchPoint.MatchPointReason.DEPARTURE));
@@ -400,7 +396,7 @@ public class TravelTimesProcessor {
         if (arrDep2.getStopPathLength() < TraveltimesConfig.getMaxTravelTimeSegmentLength()) {
             // Determine and return the travel time between the stops
             int travelTimeBetweenStopsMsec = (int) (arrDep2.getTime() - departureTime);
-            List<Integer> travelTimesForStopPath = new ArrayList<Integer>();
+            List<Integer> travelTimesForStopPath = new ArrayList<>();
             travelTimesForStopPath.add(travelTimeBetweenStopsMsec);
             return travelTimesForStopPath;
         }
@@ -700,7 +696,7 @@ public class TravelTimesProcessor {
 
         // Need to look at all trips that have data for. Therefore need
         // to combine keys from both stopTimesMap and travelTimesMap.
-        Set<ProcessedDataMapKey> combinedKeySet = new HashSet<ProcessedDataMapKey>();
+        Set<ProcessedDataMapKey> combinedKeySet = new HashSet<>();
         combinedKeySet.addAll(travelTimesMap.keySet());
         combinedKeySet.addAll(stopTimesMap.keySet());
         int setSize = 0;

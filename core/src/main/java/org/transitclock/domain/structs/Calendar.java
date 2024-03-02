@@ -6,10 +6,7 @@ import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import lombok.*;
@@ -265,5 +262,17 @@ public class Calendar implements Serializable {
      */
     public String getEndDateStr() {
         return formatter.format(endDate);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Calendar calendar)) return false;
+        return configRev == calendar.configRev && monday == calendar.monday && tuesday == calendar.tuesday && wednesday == calendar.wednesday && thursday == calendar.thursday && friday == calendar.friday && saturday == calendar.saturday && sunday == calendar.sunday && Objects.equals(serviceId, calendar.serviceId) && Objects.equals(startDate, calendar.startDate) && Objects.equals(endDate, calendar.endDate);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(configRev, serviceId, monday, tuesday, wednesday, thursday, friday, saturday, sunday, startDate, endDate);
     }
 }

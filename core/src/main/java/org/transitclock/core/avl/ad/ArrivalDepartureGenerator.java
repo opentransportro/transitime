@@ -1,5 +1,7 @@
 /* (C)2023 */
-package org.transitclock.core;
+package org.transitclock.core.avl.ad;
+
+import org.transitclock.core.VehicleState;
 
 /**
  * An interface used for generating arrival/departure times. An interface is used so that can easily

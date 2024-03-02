@@ -4,7 +4,7 @@ package org.transitclock.monitoring;
 import java.util.Date;
 import java.util.List;
 
-import org.transitclock.core.BlockInfoProvider;
+import org.transitclock.core.avl.assigner.BlockInfoProvider;
 import org.transitclock.domain.hibernate.DataDbLogger;
 import org.transitclock.domain.structs.Block;
 import org.transitclock.gtfs.DbConfig;

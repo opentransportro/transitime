@@ -16,10 +16,7 @@ import org.transitclock.api.utils.StandardParameters;
 import org.transitclock.api.utils.WebUtils;
 import org.transitclock.domain.GenericQuery;
 import org.transitclock.domain.hibernate.DataDbLogger;
-import org.transitclock.domain.structs.AvlReport;
-import org.transitclock.domain.structs.AssignmentType;
-import org.transitclock.domain.structs.ExportTable;
-import org.transitclock.domain.structs.MeasuredArrivalTime;
+import org.transitclock.domain.structs.*;
 import org.transitclock.service.dto.IpcAvl;
 import org.transitclock.service.dto.IpcTrip;
 
@@ -115,7 +112,14 @@ public class CommandsApi extends BaseApiResource {
         try {
             // Get RMI interface for sending the command
             // Create and send an IpcAvl report to the server
-            AvlReport avlReport = new AvlReport(vehicleId, time, lat, lon, speed, heading, AVL_SOURCE);
+            AvlReport avlReport = AvlReport.builder()
+                .withVehicleId(vehicleId)
+                .withLocation(new Location(lat, lon))
+                .withTime(new Date(time))
+                .withHeading(heading)
+                .withSpeed(speed)
+                .withSource(AVL_SOURCE)
+                .build();
 
             // Deal with assignment info if it is set
             if (assignmentId != null) {
@@ -214,7 +218,14 @@ public class CommandsApi extends BaseApiResource {
                 float heading = avlJsonObj.has("h") ? (float) avlJsonObj.getDouble("h") : Float.NaN;
 
                 // Convert the AVL info into a IpcAvl object to sent to server
-                AvlReport avlReport = new AvlReport(vehicleId, time, lat, lon, speed, heading, AVL_SOURCE);
+                AvlReport avlReport = AvlReport.builder()
+                    .withVehicleId(vehicleId)
+                    .withTime(new Date(time))
+                    .withLocation(new Location(lat, lon))
+                    .withSpeed(speed)
+                    .withHeading(heading)
+                    .withSource(AVL_SOURCE)
+                    .build();
 
                 // Handle assignment info if there is any
                 if (avlJsonObj.has("assignmentId")) {

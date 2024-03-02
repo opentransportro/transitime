@@ -1,8 +1,11 @@
 /* (C)2023 */
-package org.transitclock.core;
+package org.transitclock.core.predictiongenerator;
 
 import org.apache.commons.lang3.time.DateUtils;
 import org.transitclock.config.data.PredictionConfig;
+import org.transitclock.core.Indices;
+import org.transitclock.core.TravelTimeDetails;
+import org.transitclock.core.VehicleState;
 import org.transitclock.core.dataCache.*;
 import org.transitclock.core.predictiongenerator.datafilter.TravelTimeDataFilter;
 import org.transitclock.domain.hibernate.DataDbLogger;
@@ -23,14 +26,14 @@ import java.util.*;
  *
  * @author SkiBu Smith
  */
-public abstract class PredictionGenerator {
+public abstract class AbstractPredictionGenerator implements PredictionGenerator {
     protected final StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface;
     protected final TripDataHistoryCacheInterface tripDataHistoryCacheInterface;
     protected final DbConfig dbConfig;
     protected final DataDbLogger dataDbLogger;
     protected final TravelTimeDataFilter travelTimeDataFilter;
 
-    protected PredictionGenerator(StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface, TripDataHistoryCacheInterface tripDataHistoryCacheInterface, DbConfig dbConfig, DataDbLogger dataDbLogger, TravelTimeDataFilter travelTimeDataFilter) {
+    protected AbstractPredictionGenerator(StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface, TripDataHistoryCacheInterface tripDataHistoryCacheInterface, DbConfig dbConfig, DataDbLogger dataDbLogger, TravelTimeDataFilter travelTimeDataFilter) {
         this.stopArrivalDepartureCacheInterface = stopArrivalDepartureCacheInterface;
         this.tripDataHistoryCacheInterface = tripDataHistoryCacheInterface;
         this.dbConfig = dbConfig;

@@ -1,9 +1,11 @@
 /* (C)2023 */
-package org.transitclock.core;
+package org.transitclock.core.avl;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.transitclock.core.*;
+import org.transitclock.core.avl.space.SpatialMatch;
+import org.transitclock.core.avl.time.TemporalMatch;
 import org.transitclock.domain.structs.ScheduleTime;
 import org.transitclock.domain.structs.Trip;
 import org.transitclock.gtfs.DbConfig;

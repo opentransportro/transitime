@@ -4,10 +4,9 @@ package org.transitclock.core.predictiongenerator.frequency.dwell.rls;
 import java.util.Date;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.core.Indices;
-import org.transitclock.core.RealTimeSchedAdhProcessor;
+import org.transitclock.core.avl.RealTimeSchedAdhProcessor;
 import org.transitclock.core.TravelTimes;
 import org.transitclock.core.VehicleState;
 import org.transitclock.core.dataCache.*;

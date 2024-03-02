@@ -1,13 +1,14 @@
 /* (C)2023 */
-package org.transitclock.core.autoAssigner;
+package org.transitclock.core.avl.assigner;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.transitclock.config.data.BlockAssignerConfig;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.core.*;
+import org.transitclock.core.avl.space.SpatialMatch;
+import org.transitclock.core.avl.space.SpatialMatcher;
+import org.transitclock.core.avl.time.TemporalMatch;
+import org.transitclock.core.avl.time.TemporalMatcher;
 import org.transitclock.core.dataCache.VehicleDataCache;
 import org.transitclock.core.dataCache.VehicleStateManager;
 import org.transitclock.domain.structs.AvlReport;

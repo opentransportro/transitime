@@ -1,13 +1,13 @@
 /* (C)2023 */
-package org.transitclock.core.schedBasedPreds;
+package org.transitclock.core;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.transitclock.Module;
 import org.transitclock.config.data.AgencyConfig;
 import org.transitclock.config.data.PredictionConfig;
-import org.transitclock.core.AvlProcessor;
-import org.transitclock.core.BlockInfoProvider;
+import org.transitclock.core.avl.AvlProcessor;
+import org.transitclock.core.avl.assigner.BlockInfoProvider;
 import org.transitclock.core.dataCache.VehicleDataCache;
 import org.transitclock.domain.structs.AvlReport;
 import org.transitclock.domain.structs.AssignmentType;
@@ -19,10 +19,7 @@ import org.transitclock.service.dto.IpcVehicleComplete;
 import org.transitclock.utils.SystemTime;
 import org.transitclock.utils.Time;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * The schedule based predictions module runs in the background. Every few minutes it looks for
@@ -93,11 +90,17 @@ public class SchedBasedPredsModule extends Module {
                         dbConfig.getTime().getEpochTime(block.getStartTime(), referenceTime);
                 Location location = block.getStartLoc();
                 if (location != null) {
-                    AvlReport avlReport = new AvlReport(vehicleId, blockStartEpochTime, location, "Schedule");
+                    AvlReport avlReport = AvlReport.builder()
+                        .withVehicleId(vehicleId)
+                        .withTime(new Date(blockStartEpochTime))
+                        .withLocation(location)
+                        .withSource("Schedule")
+                        .withAssignmentId(block.getId())
+                        .withAssignmentType(AssignmentType.BLOCK_FOR_SCHED_BASED_PREDS)
+                        .build();
 
                     // Set the block assignment for the AVL report and indicate
                     // that it is for creating scheduled based predictions
-                    avlReport.setAssignment(block.getId(), AssignmentType.BLOCK_FOR_SCHED_BASED_PREDS);
 
                     logger.info(
                             "Creating a schedule based vehicle for blockId={}. "

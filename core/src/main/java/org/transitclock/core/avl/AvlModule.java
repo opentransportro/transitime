@@ -5,6 +5,7 @@ import java.util.Collection;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.transitclock.ApplicationProperties;
 import org.transitclock.Module;
 import org.transitclock.domain.structs.AvlReport;
 
@@ -16,8 +17,13 @@ import org.transitclock.domain.structs.AvlReport;
  */
 @Slf4j
 abstract class AvlModule extends Module {
-    @Autowired
-    protected AvlReportProcessor avlReportProcessor;
+    protected final AvlReportProcessor avlReportProcessor;
+    protected final ApplicationProperties.Avl avlProperties;
+
+    protected AvlModule(ApplicationProperties.Avl avlProperties, AvlReportProcessor avlReportProcessor) {
+        this.avlProperties = avlProperties;
+        this.avlReportProcessor = avlReportProcessor;
+    }
 
 
     /**

@@ -2,7 +2,7 @@
 package org.transitclock.core.predictiongenerator;
 
 import org.transitclock.core.Indices;
-import org.transitclock.core.SpatialMatch;
+import org.transitclock.core.avl.space.SpatialMatch;
 import org.transitclock.core.VehicleState;
 import org.transitclock.domain.structs.AvlReport;
 

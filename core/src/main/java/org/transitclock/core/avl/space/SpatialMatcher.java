@@ -1,12 +1,13 @@
 /* (C)2023 */
-package org.transitclock.core;
+package org.transitclock.core.avl.space;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.transitclock.config.data.AvlConfig;
 import org.transitclock.config.data.CoreConfig;
+import org.transitclock.core.Indices;
+import org.transitclock.core.avl.time.TemporalMatch;
+import org.transitclock.core.VehicleState;
 import org.transitclock.domain.structs.*;
 import org.transitclock.gtfs.DbConfig;
 import org.transitclock.utils.Geo;
@@ -143,7 +144,7 @@ public class SpatialMatcher {
      *     direction for the match.
      */
     public boolean problemMatchDueToLackOfHeadingInfo(
-            SpatialMatch spatialMatch, VehicleState vehicleState, MatchingType matchingType) {
+        SpatialMatch spatialMatch, org.transitclock.core.VehicleState vehicleState, MatchingType matchingType) {
         // If there was no spatial match then there can't be a problem
         // with the heading.
         if (spatialMatch == null) return false;

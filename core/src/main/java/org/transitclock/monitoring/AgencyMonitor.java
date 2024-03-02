@@ -2,17 +2,13 @@
 package org.transitclock.monitoring;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.transitclock.config.data.AgencyConfig;
-import org.transitclock.core.AvlProcessor;
-import org.transitclock.core.BlockInfoProvider;
+import org.transitclock.core.avl.AvlProcessor;
+import org.transitclock.core.avl.assigner.BlockInfoProvider;
 import org.transitclock.core.dataCache.VehicleDataCache;
 import org.transitclock.domain.hibernate.DataDbLogger;
 import org.transitclock.gtfs.DbConfig;

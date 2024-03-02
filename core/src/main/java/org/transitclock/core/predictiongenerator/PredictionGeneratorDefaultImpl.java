@@ -1,10 +1,16 @@
 /* (C)2023 */
-package org.transitclock.core;
+package org.transitclock.core.predictiongenerator;
 
 import lombok.extern.slf4j.Slf4j;
+import org.transitclock.core.Indices;
+import org.transitclock.core.TemporalDifference;
+import org.transitclock.core.TravelTimes;
+import org.transitclock.core.VehicleState;
+import org.transitclock.core.avl.RealTimeSchedAdhProcessor;
+import org.transitclock.core.avl.space.SpatialMatch;
+import org.transitclock.core.avl.time.TemporalMatch;
 import org.transitclock.core.dataCache.*;
 import org.transitclock.core.holdingmethod.HoldingTimeGenerator;
-import org.transitclock.core.predictiongenerator.PredictionComponentElementsGenerator;
 import org.transitclock.core.predictiongenerator.bias.BiasAdjuster;
 import org.transitclock.core.predictiongenerator.datafilter.TravelTimeDataFilter;
 import org.transitclock.domain.hibernate.DataDbLogger;
@@ -44,7 +50,7 @@ import static org.transitclock.config.data.CoreConfig.*;
  * @author SkiBu Smith
  */
 @Slf4j
-public class PredictionGeneratorDefaultImpl extends PredictionGenerator implements PredictionComponentElementsGenerator {
+public class PredictionGeneratorDefaultImpl extends AbstractPredictionGenerator implements PredictionComponentElementsGenerator {
     protected final HoldingTimeCache holdingTimeCache;
     protected final StopPathPredictionCache stopPathPredictionCache;
     protected final TravelTimes travelTimes;
@@ -116,7 +122,7 @@ public class PredictionGeneratorDefaultImpl extends PredictionGenerator implemen
         Trip trip = indices.getTrip();
 
         long freqStartTime = -1;
-        VehicleState vehicleState = vehicleStateManager.getVehicleState(avlReport.getVehicleId());
+        org.transitclock.core.VehicleState vehicleState = vehicleStateManager.getVehicleState(avlReport.getVehicleId());
         if (trip.isNoSchedule()) {
             if (vehicleState.getTripStartTime(tripCounter) != null) {
                 freqStartTime = vehicleState.getTripStartTime(tripCounter);
@@ -320,7 +326,7 @@ public class PredictionGeneratorDefaultImpl extends PredictionGenerator implemen
      * @return List of Predictions. Can be empty but will not be null.
      */
     @Override
-    public List<IpcPrediction> generate(VehicleState vehicleState) {
+    public List<IpcPrediction> generate(org.transitclock.core.VehicleState vehicleState) {
         // For layovers always use arrival time for end of trip and
         // departure time for anything else. But for non-layover stops
         // can use either arrival or departure times, depending on what
@@ -525,7 +531,7 @@ public class PredictionGeneratorDefaultImpl extends PredictionGenerator implemen
         return newPredictions;
     }
 
-    public long getTravelTimeForPath(Indices indices, AvlReport avlReport, VehicleState vehicleState) {
+    public long getTravelTimeForPath(Indices indices, AvlReport avlReport, org.transitclock.core.VehicleState vehicleState) {
         // logger.debug("Using transiTime default algorithm for travel time prediction : " + indices
         // + " Value: "+indices.getTravelTimeForPath());
         if (storeTravelTimeStopPathPredictions.getValue()) {

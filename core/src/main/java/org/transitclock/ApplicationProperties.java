@@ -5,6 +5,9 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Data
 @ConfigurationProperties(prefix = "transitclock")
 public class ApplicationProperties {
@@ -49,7 +52,7 @@ public class ApplicationProperties {
         public static final int MAX_THREADS = 25;
         // config param: transitclock.avl.gtfsRealtimeFeedURI
         // The URI of the GTFS-realtime feed to use.
-        private String gtfsRealtimeFeedURI = null;
+        private List<String> gtfsRealtimeFeedURI = new ArrayList<>();
 
         // config param: transitclock.avl.feedPollingRateSecs
         // How frequently an AVL feed should be polled for new data.
@@ -101,7 +104,7 @@ public class ApplicationProperties {
 
         // config param: transitclock.avl.url
         // The URL of the AVL feed to poll.
-        private String url = null;
+        private List<String> urls = null;
 
         // config param: transitclock.avl.authenticationUser
         // If authentication used for the feed then this specifies the user.

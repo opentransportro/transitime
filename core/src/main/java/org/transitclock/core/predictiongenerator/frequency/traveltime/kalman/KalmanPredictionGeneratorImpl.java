@@ -6,6 +6,8 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.config.data.PredictionConfig;
 import org.transitclock.core.*;
+import org.transitclock.core.avl.RealTimeSchedAdhProcessor;
+import org.transitclock.core.avl.space.SpatialMatch;
 import org.transitclock.core.dataCache.*;
 import org.transitclock.core.dataCache.frequency.FrequencyBasedHistoricalAverageCache;
 import org.transitclock.core.holdingmethod.HoldingTimeGenerator;
@@ -52,7 +54,7 @@ public class KalmanPredictionGeneratorImpl extends HistoricalAveragePredictionGe
      * (non-Javadoc)
      *
      * @see
-     * org.transitclock.core.PredictionGeneratorDefaultImpl#getTravelTimeForPath
+     * org.transitclock.core.predictiongenerator.PredictionGeneratorDefaultImpl#getTravelTimeForPath
      * (org.transitclock.core.Indices, org.transitclock.db.structs.AvlReport)
      */
     @Override

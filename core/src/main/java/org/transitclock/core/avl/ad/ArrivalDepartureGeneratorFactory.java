@@ -1,17 +1,16 @@
 /* (C)2023 */
-package org.transitclock.core;
+package org.transitclock.core.avl.ad;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.transitclock.config.ClassConfigValue;
+import org.transitclock.core.TravelTimes;
 import org.transitclock.core.dataCache.*;
 import org.transitclock.core.dataCache.frequency.FrequencyBasedHistoricalAverageCache;
 import org.transitclock.core.dataCache.scheduled.ScheduleBasedHistoricalAverageCache;
 import org.transitclock.core.holdingmethod.HoldingTimeGenerator;
 import org.transitclock.domain.hibernate.DataDbLogger;
 import org.transitclock.gtfs.DbConfig;
-import org.transitclock.utils.ClassInstantiator;
 
 /**
  * For instantiating a ArrivalDepartureGenerator object that generates arrival/departure data when a
@@ -22,7 +21,7 @@ import org.transitclock.utils.ClassInstantiator;
  */
 @Configuration
 public class ArrivalDepartureGeneratorFactory {
-    @Value("${transitclock.factory.arrival-departure-generator:org.transitclock.core.ArrivalDepartureGeneratorDefaultImpl}")
+    @Value("${transitclock.factory.arrival-departure-generator:org.transitclock.core.avl.ad.ArrivalDepartureGeneratorDefaultImpl}")
     private Class<?> neededClass;
 
     @Bean

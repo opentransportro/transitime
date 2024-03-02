@@ -4,7 +4,7 @@ package org.transitclock.core.avl;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONException;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.transitclock.config.data.AgencyConfig;
+import org.transitclock.ApplicationProperties;
 import org.transitclock.config.data.AvlConfig;
 import org.transitclock.domain.structs.AvlReport;
 import org.transitclock.utils.IntervalTimer;
@@ -20,6 +20,7 @@ import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Collection;
+import java.util.List;
 import java.util.zip.GZIPInputStream;
 
 /**
@@ -33,20 +34,17 @@ import java.util.zip.GZIPInputStream;
  */
 @Slf4j
 public abstract class PollUrlAvlModule extends AvlModule {
-
-
-    // Usually want to use compression when reading data but for some AVL
-    // feeds might be binary where don't want additional compression. A
-    // superclass can override this value.
-    protected boolean useCompression = true;
+    protected PollUrlAvlModule(ApplicationProperties properties, AvlReportProcessor avlReportProcessor) {
+        super(properties.getAvl(), avlReportProcessor);
+    }
 
     /**
      * Feed specific URL to use when accessing data. Will often be overridden by subclass.
      *
      * @return
      */
-    protected String getUrl() {
-        return AvlConfig.url.getValue();
+    public List<String> getSources() {
+        return avlProperties.getUrls();
     }
 
     /**
@@ -54,7 +52,9 @@ public abstract class PollUrlAvlModule extends AvlModule {
      *
      * @param con
      */
-    protected void setRequestHeaders(URLConnection con) {}
+    protected void setRequestHeaders(URLConnection con) {
+
+    }
 
     /**
      * Actually processes the data from the InputStream. Called by getAndProcessData(). Should be
@@ -99,28 +99,50 @@ public abstract class PollUrlAvlModule extends AvlModule {
      *     method processData() and it could throw any type of exception since we don't really know
      *     how the AVL feed will be processed.
      */
-    protected void getAndProcessData() throws Exception {
+    private void fetchData() throws Exception {
         // For logging
         IntervalTimer timer = new IntervalTimer();
+        List<String> sources = getSources();
 
-        // Get from the AVL feed subclass the URL to use for this feed
-        String fullUrl = getUrl();
+        for (var source: sources) {
+            // Log what is happening
+            logger.info("Getting data from feed using url={}", source);
 
-        // Log what is happening
-        logger.info("Getting data from feed using url=" + fullUrl);
+            // Create the connection
+            URL url = new URL(source);
+            URLConnection con = url.openConnection();
 
-        // Create the connection
-        URL url = new URL(fullUrl);
-        URLConnection con = url.openConnection();
+            configureConnectionLifetime(con);
 
-        // Set the timeout so don't wait forever
-        int timeoutMsec = AvlConfig.getAvlFeedTimeoutInMSecs();
-        con.setConnectTimeout(timeoutMsec);
-        con.setReadTimeout(timeoutMsec);
+            configureConnectionAuthentication(con);
 
-        // Request compressed data to reduce bandwidth used
-        if (useCompression) con.setRequestProperty("Accept-Encoding", "gzip,deflate");
+            setRequestHeaders(con);
 
+            // Create appropriate input stream depending on whether content is
+            // compressed or not
+            try (InputStream inputStream = con.getInputStream()) {
+                InputStream in = inputStream;
+                if ("gzip".equals(con.getContentEncoding())) {
+                    in = new GZIPInputStream(in);
+                }
+
+                // For debugging
+                logger.debug("Time to access inputstream {} msec", timer.elapsedMsec());
+
+                // Call the abstract method to actually process the data
+                timer.resetTimer();
+                Collection<AvlReport> avlReportsReadIn = processData(in);
+                logger.debug("Time to parse document {} msec", timer.elapsedMsec());
+
+                // Process all the reports read in
+                if (avlProperties.getShouldProcessAvl()) {
+                    processAvlReports(avlReportsReadIn);
+                }
+            }
+        }
+    }
+
+    private static void configureConnectionAuthentication(URLConnection con) {
         // If authentication being used then set user and password
         if (AvlConfig.authenticationUser.getValue() != null && AvlConfig.authenticationPassword.getValue() != null) {
             String authString = AvlConfig.authenticationUser.getValue() + ":" + AvlConfig.authenticationPassword.getValue();
@@ -128,30 +150,12 @@ public abstract class PollUrlAvlModule extends AvlModule {
             String authStringEnc = new String(authEncBytes);
             con.setRequestProperty("Authorization", "Basic " + authStringEnc);
         }
+    }
 
-        // Set any additional AVL feed specific request headers
-        setRequestHeaders(con);
-
-        // Create appropriate input stream depending on whether content is
-        // compressed or not
-        InputStream in = con.getInputStream();
-        if ("gzip".equals(con.getContentEncoding())) {
-            in = new GZIPInputStream(in);
-        }
-
-        // For debugging
-        logger.debug("Time to access inputstream {} msec", timer.elapsedMsec());
-
-        // Call the abstract method to actually process the data
-        timer.resetTimer();
-        Collection<AvlReport> avlReportsReadIn = processData(in);
-        in.close();
-        logger.debug("Time to parse document {} msec", timer.elapsedMsec());
-
-        // Process all the reports read in
-        if (AvlConfig.shouldProcessAvl.getValue()) {
-            processAvlReports(avlReportsReadIn);
-        }
+    protected void configureConnectionLifetime(URLConnection con) {
+        int timeoutMsec = avlProperties.getFeedTimeoutInMSecs();
+        con.setConnectTimeout(timeoutMsec);
+        con.setReadTimeout(timeoutMsec);
     }
 
     /**
@@ -159,20 +163,19 @@ public abstract class PollUrlAvlModule extends AvlModule {
      * processes it.
      */
     @Override
-    @Scheduled(fixedRate = 15_000)
+    @Scheduled(fixedRateString = "${transitclock.avl.feedTimeoutInMSecs:15000}")
     public void run() {
         try {
             // Process data
-            getAndProcessData();
+            fetchData();
         } catch (SocketTimeoutException e) {
             logger.error(
-                    "Error for agencyId={} accessing AVL feed using URL={} " + "with a timeout of {} msec.",
-                    AgencyConfig.getAgencyId(),
-                    getUrl(),
+                    "Error accessing AVL feed using URL={} with a timeout of {} msec.",
+                    getSources(),
                     AvlConfig.getAvlFeedTimeoutInMSecs(),
                     e);
         } catch (Exception e) {
-            logger.error("Error accessing AVL feed using URL={}.", getUrl(), e);
+            logger.error("Error accessing AVL feed using URL={}.", getSources(), e);
         }
     }
 

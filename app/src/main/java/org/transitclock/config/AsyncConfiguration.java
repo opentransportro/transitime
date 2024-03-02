@@ -29,8 +29,6 @@ import java.util.concurrent.*;
 @Profile("!testdev & !testprod")
 public class AsyncConfiguration implements AsyncConfigurer {
 
-    private final Logger log = LoggerFactory.getLogger(AsyncConfiguration.class);
-
     private final TaskExecutionProperties taskExecutionProperties;
 
     public AsyncConfiguration(TaskExecutionProperties taskExecutionProperties) {
@@ -40,7 +38,7 @@ public class AsyncConfiguration implements AsyncConfigurer {
     @Override
     @Bean(name = "taskExecutor")
     public Executor getAsyncExecutor() {
-        log.debug("Creating Async Task Executor");
+        logger.debug("Creating Async Task Executor");
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(taskExecutionProperties.getPool().getCoreSize());
         executor.setMaxPoolSize(taskExecutionProperties.getPool().getMaxSize());
@@ -55,25 +53,20 @@ public class AsyncConfiguration implements AsyncConfigurer {
         final int numberThreads = avlProperties.getNumThreads();
         final int maxAVLQueueSize = avlProperties.getQueueSize();
 
-        AvlReportProcessorQueue workQueue = new AvlReportProcessorQueue(maxAVLQueueSize);
-        NamedThreadFactory avlClientThreadFactory = new NamedThreadFactory("avlClient");
-
-        // Called when queue fills up
         RejectedExecutionHandler rejectedHandler = (arg0, arg1) -> {
-            logger.error("Rejected AVL report {} in AvlExecutor for agencyId={}. The work queue with capacity {}  must be full.",
+            logger.error("Rejected AVL report {}. The work queue with capacity {} must be full.",
                 ((AvlReportProcessingTask) arg0).getAvlReport(),
-                AgencyConfig.getAgencyId(),
                 maxAVLQueueSize);
         };
 
-        logger.info("Starting AvlExecutor for directly handling AVL reports via a queue instead of JMS. maxAVLQueueSize={} and numberThreads={}", maxAVLQueueSize, numberThreads);
+        logger.info("Creating Avl Task Executor for handling AVL reports [queue={} and threads={}].", maxAVLQueueSize, numberThreads);
 
-        return new ThreadPoolExecutor(1,
+        return new ThreadPoolExecutor(0,
             numberThreads,
             1,
             TimeUnit.HOURS,
-            (BlockingQueue) workQueue,
-            avlClientThreadFactory,
+            (BlockingQueue) new AvlReportProcessorQueue(maxAVLQueueSize),
+            new NamedThreadFactory("avl-executor"),
             rejectedHandler);
 
     }

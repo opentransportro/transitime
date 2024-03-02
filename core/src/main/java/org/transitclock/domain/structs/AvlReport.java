@@ -2,6 +2,8 @@
 package org.transitclock.domain.structs;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -39,6 +41,8 @@ import java.util.regex.Pattern;
         @Index(name = "AvlReportsTimeIndex", columnList = "time")
     })
 @Slf4j
+@Builder(setterPrefix = "with", toBuilder = true)
+@AllArgsConstructor
 public class AvlReport implements Serializable {
     // How long the AvlReport source field can be in db
     private static final int SOURCE_LENGTH = 10;
@@ -102,7 +106,8 @@ public class AvlReport implements Serializable {
 
     @Column(name = "assignment_type", length = 40)
     @Enumerated(EnumType.STRING)
-    private AssignmentType assignmentType;
+    @Builder.Default
+    private AssignmentType assignmentType = AssignmentType.UNSET;
 
     /**
      *  Returns the ID of the leading vehicle if this is an AVL report for a non-lead vehicle in a
@@ -174,166 +179,6 @@ public class AvlReport implements Serializable {
     }
 
     /**
-     * Constructor for an AvlReport object that is not yet being processed. Since not yet being
-     * processed timeProcessed is set to null.
-     *
-     * @param vehicleId ID of the vehicle
-     * @param time Epoch time in msec of GPS report (not when processed)
-     * @param lat Latitude in decimal degrees
-     * @param lon Longitude in decimal degrees
-     * @param speed Speed of vehicle in m/s. Should be set to Float.NaN if speed not available
-     * @param heading Heading of vehicle in degrees clockwise from north. Should be set to Float.NaN
-     *     if speed not available
-     * @param source Text describing the source of the report
-     */
-    public AvlReport(String vehicleId, long time, double lat, double lon, float speed, float heading, String source) {
-        // Store the values
-        this.vehicleId = vehicleId;
-        this.time = new Date(time);
-        this.location = new Location(lat, lon);
-        // DB requires null instead of NaN
-        this.speed = Float.isNaN(speed) ? null : speed;
-        this.heading = Float.isNaN(heading) ? null : heading;
-        this.source = sized(source);
-        this.assignmentId = null;
-        this.assignmentType = AssignmentType.UNSET;
-        this.leadVehicleId = null;
-        this.driverId = null;
-        this.licensePlate = null;
-        this.passengerCount = null;
-        this.passengerFullness = null;
-        this.field1Name = null;
-        this.field1Value = null;
-
-        // Don't yet know when processed so set timeProcessed to null
-        this.timeProcessed = null;
-    }
-
-    /**
-     * @param vehicleId ID of the vehicle
-     * @param time Epoch time in msec of GPS report (not when processed) For when speed and heading
-     *     are not valid. They are set to Float.NaN . Since not yet being processed timeProcessed is
-     *     set to null.
-     * @param vehicleId
-     * @param time GPS time, in number of milliseconds since the standard base time known as "the
-     *     epoch", namely January 1, 1970, 00:00:00 GMT.
-     * @param lat Latitude in decimal degrees
-     * @param lon Longitude in decimal degrees
-     * @param source Text describing the source of the report. Can only be SOURCE_LENGTH (10)
-     *     characters long
-     */
-    public AvlReport(String vehicleId, long time, double lat, double lon, String source) {
-        // Store the values
-        this.vehicleId = vehicleId;
-        this.time = new Date(time);
-        this.location = new Location(lat, lon);
-        this.speed = null;
-        this.heading = null;
-        this.source = sized(source);
-        this.assignmentId = null;
-        this.assignmentType = AssignmentType.UNSET;
-        this.leadVehicleId = null;
-        this.driverId = null;
-        this.licensePlate = null;
-        this.passengerCount = null;
-        this.passengerFullness = null;
-        this.field1Name = null;
-        this.field1Value = null;
-
-        // Don't yet know when processed so set timeProcessed to null
-        this.timeProcessed = null;
-    }
-
-    /**
-     * For when speed and heading are not valid. They are set to Float.NaN . Since not yet being
-     * processed timeProcessed is set to null.
-     *
-     * @param vehicleId
-     * @param time
-     * @param location
-     * @param source Text describing the source of the report. Can only be SOURCE_LENGTH (10)
-     *     characters long
-     */
-    public AvlReport(String vehicleId, long time, Location location, String source) {
-        // Store the values
-        this.vehicleId = vehicleId;
-        this.time = new Date(time);
-        this.location = location;
-        this.speed = null;
-        this.heading = null;
-        this.source = sized(source);
-        this.assignmentId = null;
-        this.assignmentType = AssignmentType.UNSET;
-        this.leadVehicleId = null;
-        this.driverId = null;
-        this.licensePlate = null;
-        this.passengerCount = null;
-        this.passengerFullness = null;
-        this.field1Name = null;
-        this.field1Value = null;
-
-        // Don't yet know when processed so set timeProcessed to null
-        timeProcessed = null;
-    }
-
-    /**
-     * Constructor for an AvlReport object that is not yet being processed. Since not yet being
-     * processed timeProcessed is set to null.
-     *
-     * @param vehicleId identifier of vehicle
-     * @param time epoch time in msecs since 1970
-     * @param lat latitude in decimal degrees
-     * @param lon longitude in decimal degrees
-     * @param speed Speed of vehicle in m/s. Should be set to Float.NaN if speed not available
-     * @param heading Heading of vehicle in degrees clockwise from north. Should be set to Float.NaN
-     *     if speed not available
-     * @param source Text describing the source of the report. Can only be SOURCE_LENGTH (10)
-     *     characters long
-     * @param leadVehicleId Optional value. Set to null if not available.
-     * @param driverId Optional value. Set to null if not available.
-     * @param licensePlate Optional value. Set to null if not available.
-     * @param passengerCount Optional value. Set to the number of passengers on vehicles. Set to
-     *     null if not available.
-     * @param passengerFullness Optional Value. Fractional fullness of vehicle. 0.0=empty, 1.0=full.
-     *     Set to Float.NaN if data not available.
-     */
-    public AvlReport(
-            String vehicleId,
-            long time,
-            double lat,
-            double lon,
-            float speed,
-            float heading,
-            String source,
-            String leadVehicleId,
-            String driverId,
-            String licensePlate,
-            Integer passengerCount,
-            float passengerFullness) {
-        // Store the values
-        this.vehicleId = vehicleId;
-        this.time = new Date(time);
-        this.location = new Location(lat, lon);
-        // DB requires null instead of NaN
-        this.speed = Float.isNaN(speed) ? null : speed;
-        this.heading = Float.isNaN(heading) ? null : heading;
-        this.source = sized(source);
-        this.assignmentId = null;
-        this.assignmentType = AssignmentType.UNSET;
-        this.leadVehicleId = leadVehicleId;
-        this.driverId = driverId;
-        this.licensePlate = licensePlate;
-        this.passengerCount = passengerCount;
-        if (!Float.isNaN(passengerFullness)) this.passengerFullness = passengerFullness;
-        else this.passengerFullness = null;
-        this.field1Name = null;
-        this.field1Value = null;
-
-        // Don't yet know when processed so set timeProcessed to null
-        this.timeProcessed = null;
-    }
-
-    /**
      * For converting a RMI IpcAvl object to a regular AvlReport.
      */
     public AvlReport(IpcAvl ipcAvl) {
@@ -355,34 +200,6 @@ public class AvlReport implements Serializable {
 
         // Don't yet know when processed so set timeProcessed to null
         this.timeProcessed = null;
-    }
-
-    /**
-     * Makes a copy of the AvlReport but uses the new assignment info passed in. Useful for creating
-     * a new AvlReport when a bad assignment is received since one can simply create a new AvlReport
-     * with the new assignment info.
-     *
-     * @param toCopy The AvlReport to copy (except for the AVL time)
-     * @param assignmentId The assignment to use
-     * @param assignmentType How the assignment was done
-     */
-    public AvlReport(AvlReport toCopy, String assignmentId, AssignmentType assignmentType) {
-        this.vehicleId = toCopy.vehicleId;
-        this.time = toCopy.time;
-        this.location = toCopy.location;
-        this.speed = toCopy.speed;
-        this.heading = toCopy.heading;
-        this.source = toCopy.source;
-        this.assignmentId = assignmentId;
-        this.assignmentType = assignmentType;
-        this.leadVehicleId = toCopy.leadVehicleId;
-        this.driverId = toCopy.driverId;
-        this.licensePlate = toCopy.licensePlate;
-        this.timeProcessed = toCopy.timeProcessed;
-        this.passengerCount = toCopy.passengerCount;
-        this.passengerFullness = toCopy.passengerFullness;
-        this.field1Name = toCopy.field1Name;
-        this.field1Value = toCopy.field1Value;
     }
 
     /**

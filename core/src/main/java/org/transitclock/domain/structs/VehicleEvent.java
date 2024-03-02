@@ -13,7 +13,7 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Immutable;
-import org.transitclock.core.TemporalMatch;
+import org.transitclock.core.avl.time.TemporalMatch;
 import org.transitclock.domain.hibernate.HibernateUtils;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.SystemTime;

@@ -6,7 +6,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.transitclock.config.data.MonitoringConfig;
-import org.transitclock.core.BlockInfoProvider;
+import org.transitclock.core.avl.assigner.BlockInfoProvider;
 import org.transitclock.core.dataCache.VehicleDataCache;
 import org.transitclock.domain.hibernate.DataDbLogger;
 import org.transitclock.domain.structs.Block;

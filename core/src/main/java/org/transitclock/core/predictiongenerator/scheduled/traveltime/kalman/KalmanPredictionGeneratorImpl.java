@@ -6,8 +6,11 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.config.data.PredictionConfig;
 import org.transitclock.core.*;
+import org.transitclock.core.avl.RealTimeSchedAdhProcessor;
+import org.transitclock.core.avl.space.SpatialMatch;
 import org.transitclock.core.dataCache.*;
 import org.transitclock.core.holdingmethod.HoldingTimeGenerator;
+import org.transitclock.core.predictiongenerator.PredictionGeneratorDefaultImpl;
 import org.transitclock.core.predictiongenerator.bias.BiasAdjuster;
 import org.transitclock.core.predictiongenerator.datafilter.TravelTimeDataFilter;
 import org.transitclock.core.predictiongenerator.kalman.*;
@@ -48,7 +51,7 @@ public class KalmanPredictionGeneratorImpl extends PredictionGeneratorDefaultImp
      * (non-Javadoc)
      *
      * @see
-     * org.transitclock.core.PredictionGeneratorDefaultImpl#getTravelTimeForPath
+     * org.transitclock.core.predictiongenerator.PredictionGeneratorDefaultImpl#getTravelTimeForPath
      * (org.transitclock.core.Indices, org.transitclock.db.structs.AvlReport)
      */
     @Override

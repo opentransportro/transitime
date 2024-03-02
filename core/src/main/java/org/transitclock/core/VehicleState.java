@@ -3,6 +3,10 @@ package org.transitclock.core;
 
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.config.data.CoreConfig;
+import org.transitclock.core.avl.assigner.BlockAssigner;
+import org.transitclock.core.avl.assigner.BlockAssignmentMethod;
+import org.transitclock.core.avl.space.SpatialMatch;
+import org.transitclock.core.avl.time.TemporalMatch;
 import org.transitclock.core.dataCache.VehicleStateManager;
 import org.transitclock.domain.structs.*;
 import org.transitclock.domain.structs.AssignmentType;
@@ -39,7 +43,7 @@ public class VehicleState {
     private TemporalDifference realTimeSchedAdh;
 
     // create a hashamp to store the trip start times.  TODO change to LinkedList doesn't grow
-    Map<Integer, Long> tripStartTimesMap = new HashMap<>();
+    private final Map<Integer, Long> tripStartTimesMap = new HashMap<>();
 
     // For keeping track of how many bad matches have been encountered.
     // This way can ignore bad matches if only get a couple

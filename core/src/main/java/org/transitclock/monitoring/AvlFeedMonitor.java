@@ -5,8 +5,8 @@ import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.config.data.MonitoringConfig;
-import org.transitclock.core.AvlProcessor;
-import org.transitclock.core.BlockInfoProvider;
+import org.transitclock.core.avl.AvlProcessor;
+import org.transitclock.core.avl.assigner.BlockInfoProvider;
 import org.transitclock.domain.hibernate.DataDbLogger;
 import org.transitclock.domain.structs.Block;
 import org.transitclock.utils.Time;

@@ -7,8 +7,8 @@ import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 
-import org.transitclock.core.BlockAssignmentMethod;
-import org.transitclock.core.SpatialMatch;
+import org.transitclock.core.avl.assigner.BlockAssignmentMethod;
+import org.transitclock.core.avl.space.SpatialMatch;
 import org.transitclock.core.TemporalDifference;
 import org.transitclock.core.VehicleState;
 import org.transitclock.domain.structs.Location;

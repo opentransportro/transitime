@@ -151,8 +151,9 @@ public class TravelTimeInfoMap {
 
         // Return the best match. Can be null.
         if (bestMatch != null) {
-            TravelTimeInfoWithHowSet result = new TravelTimeInfoWithHowSet(bestMatch, howSet);
-            return result;
-        } else return null;
+            return new TravelTimeInfoWithHowSet(bestMatch, howSet);
+        }
+
+        return null;
     }
 }

@@ -1,9 +1,11 @@
 /* (C)2023 */
-package org.transitclock.core;
+package org.transitclock.core.avl.space;
 
 import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
+import org.transitclock.core.Indices;
+import org.transitclock.core.VehicleAtStopInfo;
 import org.transitclock.domain.structs.Block;
 import org.transitclock.domain.structs.Location;
 import org.transitclock.domain.structs.Route;

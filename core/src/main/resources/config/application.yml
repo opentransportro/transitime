@@ -37,7 +37,7 @@ server:
 transitclock:
   factory:
     headway-generator: org.transitclock.core.headwaygenerator.LastArrivalsHeadwayGenerator
-    prediction-generator: org.transitclock.core.PredictionGeneratorDefaultImpl
+    prediction-generator: org.transitclock.core.predictiongenerator.PredictionGeneratorDefaultImpl
   api:
     gtfsRtCacheSeconds: 15
     includeTripUpdateDelay: false
