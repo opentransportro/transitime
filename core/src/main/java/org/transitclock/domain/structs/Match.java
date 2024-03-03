@@ -18,7 +18,7 @@ import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Immutable;
 import org.hibernate.classic.Lifecycle;
 import org.transitclock.core.avl.time.TemporalMatch;
-import org.transitclock.core.VehicleState;
+import org.transitclock.core.VehicleStatus;
 import org.transitclock.domain.hibernate.HibernateUtils;
 import org.transitclock.utils.IntervalTimer;
 
@@ -105,20 +105,20 @@ public class Match implements Lifecycle, Serializable {
     @Column(name = "at_stop")
     private final boolean atStop;
 
-    public Match(VehicleState vehicleState, int configRev) {
-        this.vehicleId = vehicleState.getVehicleId();
-        this.avlTime = vehicleState.getAvlReport().getDate();
+    public Match(VehicleStatus vehicleStatus, int configRev) {
+        this.vehicleId = vehicleStatus.getVehicleId();
+        this.avlTime = vehicleStatus.getAvlReport().getDate();
         this.configRev = configRev;
-        this.serviceId = vehicleState.getBlock().getServiceId();
-        this.blockId = vehicleState.getBlock().getId();
+        this.serviceId = vehicleStatus.getBlock().getServiceId();
+        this.blockId = vehicleStatus.getBlock().getId();
 
-        TemporalMatch lastMatch = vehicleState.getMatch();
+        TemporalMatch lastMatch = vehicleStatus.getMatch();
         this.tripId = lastMatch != null ? lastMatch.getTrip().getId() : null;
         this.stopPathIndex = lastMatch != null ? lastMatch.getStopPathIndex() : -1;
         this.segmentIndex = lastMatch != null ? lastMatch.getSegmentIndex() : -1;
         this.distanceAlongSegment = (float) (lastMatch != null ? lastMatch.getDistanceAlongSegment() : 0.0);
         this.distanceAlongStopPath = (float) (lastMatch != null ? lastMatch.getDistanceAlongStopPath() : 0.0);
-        this.atStop = vehicleState.getMatch().isAtStop();
+        this.atStop = vehicleStatus.getMatch().isAtStop();
     }
 
     /**

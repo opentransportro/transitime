@@ -7,7 +7,7 @@ import org.transitclock.config.data.PredictionConfig;
 import org.transitclock.core.Indices;
 import org.transitclock.core.avl.RealTimeSchedAdhProcessor;
 import org.transitclock.core.TravelTimes;
-import org.transitclock.core.VehicleState;
+import org.transitclock.core.VehicleStatus;
 import org.transitclock.core.dataCache.*;
 import org.transitclock.core.dataCache.scheduled.ScheduleBasedHistoricalAverageCache;
 import org.transitclock.core.holdingmethod.HoldingTimeGenerator;
@@ -37,8 +37,8 @@ public class HistoricalAveragePredictionGeneratorImpl extends LastVehiclePredict
                                                     DbConfig dbConfig,
                                                     DataDbLogger dataDbLogger,
                                                     TravelTimeDataFilter travelTimeDataFilter,
-                                                    VehicleDataCache vehicleCache, HoldingTimeCache holdingTimeCache, StopPathPredictionCache stopPathPredictionCache, TravelTimes travelTimes, HoldingTimeGenerator holdingTimeGenerator, VehicleStateManager vehicleStateManager, RealTimeSchedAdhProcessor realTimeSchedAdhProcessor, BiasAdjuster biasAdjuster, ScheduleBasedHistoricalAverageCache scheduleBasedHistoricalAverageCache) {
-        super(stopArrivalDepartureCacheInterface, tripDataHistoryCacheInterface, dbConfig, dataDbLogger, travelTimeDataFilter, vehicleCache, holdingTimeCache, stopPathPredictionCache, travelTimes, holdingTimeGenerator, vehicleStateManager, realTimeSchedAdhProcessor, biasAdjuster);
+                                                    VehicleDataCache vehicleCache, HoldingTimeCache holdingTimeCache, StopPathPredictionCache stopPathPredictionCache, TravelTimes travelTimes, HoldingTimeGenerator holdingTimeGenerator, VehicleStatusManager vehicleStatusManager, RealTimeSchedAdhProcessor realTimeSchedAdhProcessor, BiasAdjuster biasAdjuster, ScheduleBasedHistoricalAverageCache scheduleBasedHistoricalAverageCache) {
+        super(stopArrivalDepartureCacheInterface, tripDataHistoryCacheInterface, dbConfig, dataDbLogger, travelTimeDataFilter, vehicleCache, holdingTimeCache, stopPathPredictionCache, travelTimes, holdingTimeGenerator, vehicleStatusManager, realTimeSchedAdhProcessor, biasAdjuster);
         this.scheduleBasedHistoricalAverageCache = scheduleBasedHistoricalAverageCache;
     }
 
@@ -46,7 +46,7 @@ public class HistoricalAveragePredictionGeneratorImpl extends LastVehiclePredict
      * @see org.transitclock.core.predictiongenerator.KalmanPredictionGeneratorImpl#getTravelTimeForPath(org.transitclock.core.Indices, org.transitclock.db.structs.AvlReport)
      */
     @Override
-    public long getTravelTimeForPath(Indices indices, AvlReport avlReport, VehicleState vehicleState) {
+    public long getTravelTimeForPath(Indices indices, AvlReport avlReport, VehicleStatus vehicleStatus) {
 
         logger.debug("Calling historical average algorithm : {}", indices.toString());
         /*
@@ -62,7 +62,7 @@ public class HistoricalAveragePredictionGeneratorImpl extends LastVehiclePredict
         if (average != null && average.getCount() >= PredictionConfig.minDays.getValue()) {
             if (CoreConfig.storeTravelTimeStopPathPredictions.getValue()) {
                 PredictionForStopPath predictionForStopPath = new PredictionForStopPath(
-                        vehicleState.getVehicleId(),
+                        vehicleStatus.getVehicleId(),
                         SystemTime.getDate(),
                         average.getAverage(),
                         indices.getTrip().getId(),
@@ -74,7 +74,7 @@ public class HistoricalAveragePredictionGeneratorImpl extends LastVehiclePredict
                 stopPathPredictionCache.putPrediction(predictionForStopPath);
             }
 
-            logger.debug("Using historical average algorithm for prediction : {} instead of {} prediction: {} for : {}", average, alternative, super.getTravelTimeForPath(indices, avlReport, vehicleState), indices);
+            logger.debug("Using historical average algorithm for prediction : {} instead of {} prediction: {} for : {}", average, alternative, super.getTravelTimeForPath(indices, avlReport, vehicleStatus), indices);
 
             return (long) average.getAverage();
         }
@@ -82,11 +82,11 @@ public class HistoricalAveragePredictionGeneratorImpl extends LastVehiclePredict
         // logger.debug("No historical average found, generating prediction using lastvehicle
         // algorithm: " + historicalAverageCacheKey.toString());
         /* default to parent method if not enough data. This will be based on schedule if UpdateTravelTimes has not been called. */
-        return super.getTravelTimeForPath(indices, avlReport, vehicleState);
+        return super.getTravelTimeForPath(indices, avlReport, vehicleStatus);
     }
 
     @Override
-    public long getStopTimeForPath(Indices indices, AvlReport avlReport, VehicleState vehicleState) {
+    public long getStopTimeForPath(Indices indices, AvlReport avlReport, VehicleStatus vehicleStatus) {
 
         StopPathCacheKey historicalAverageCacheKey =
                 new StopPathCacheKey(indices.getTrip().getId(), indices.getStopPathIndex(), false);
@@ -94,10 +94,10 @@ public class HistoricalAveragePredictionGeneratorImpl extends LastVehiclePredict
         HistoricalAverage average = scheduleBasedHistoricalAverageCache.getAverage(historicalAverageCacheKey);
 
         if (average != null && average.getCount() >= PredictionConfig.minDays.getValue()) {
-            logger.debug("Using historical average alogrithm for dwell time prediction : {} instead of {} prediction: {} for : {}", average, alternative, super.getStopTimeForPath(indices, avlReport, vehicleState), indices);
+            logger.debug("Using historical average alogrithm for dwell time prediction : {} instead of {} prediction: {} for : {}", average, alternative, super.getStopTimeForPath(indices, avlReport, vehicleStatus), indices);
             return (long) average.getAverage();
         }
 
-        return super.getStopTimeForPath(indices, avlReport, vehicleState);
+        return super.getStopTimeForPath(indices, avlReport, vehicleStatus);
     }
 }

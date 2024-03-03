@@ -1,10 +1,9 @@
 /* (C)2023 */
 package org.transitclock.core.holdingmethod;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.config.data.HoldingConfig;
-import org.transitclock.core.VehicleState;
+import org.transitclock.core.VehicleStatus;
 import org.transitclock.core.dataCache.*;
 import org.transitclock.domain.hibernate.DataDbLogger;
 import org.transitclock.domain.structs.ArrivalDeparture;
@@ -37,19 +36,19 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
     private final DbConfig dbConfig;
     private final VehicleDataCache vehicleDataCache;
     private final HoldingTimeCache holdingTimeCache;
-    private final VehicleStateManager vehicleStateManager;
+    private final VehicleStatusManager vehicleStatusManager;
 
-    public HoldingTimeGeneratorDefaultImpl(PredictionDataCache predictionDataCache, StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface, DataDbLogger dataDbLogger, DbConfig dbConfig, VehicleDataCache vehicleDataCache, HoldingTimeCache holdingTimeCache, VehicleStateManager vehicleStateManager) {
+    public HoldingTimeGeneratorDefaultImpl(PredictionDataCache predictionDataCache, StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface, DataDbLogger dataDbLogger, DbConfig dbConfig, VehicleDataCache vehicleDataCache, HoldingTimeCache holdingTimeCache, VehicleStatusManager vehicleStatusManager) {
         this.predictionDataCache = predictionDataCache;
         this.stopArrivalDepartureCacheInterface = stopArrivalDepartureCacheInterface;
         this.dataDbLogger = dataDbLogger;
         this.dbConfig = dbConfig;
         this.vehicleDataCache = vehicleDataCache;
         this.holdingTimeCache = holdingTimeCache;
-        this.vehicleStateManager = vehicleStateManager;
+        this.vehicleStatusManager = vehicleStatusManager;
     }
 
-    public HoldingTime generateHoldingTime(VehicleState vehicleState, IpcArrivalDeparture event) {
+    public HoldingTime generateHoldingTime(VehicleStatus vehicleStatus, IpcArrivalDeparture event) {
 
         if (!HoldingConfig.useArrivalEvents.getValue()) {
             return null;
@@ -283,15 +282,15 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
     public List<String> getOrderedListOfVehicles(String routeId) {
         int count = 0;
         boolean canorder = true;
-        List<VehicleState> unordered = new ArrayList<VehicleState>();
+        List<VehicleStatus> unordered = new ArrayList<VehicleStatus>();
         List<String> ordered = null;
-        for (VehicleState currentVehicleState : vehicleStateManager.getVehiclesState()) {
-            if (currentVehicleState.getTrip() != null
-                    && currentVehicleState.getTrip().getRoute(dbConfig).getId().equals(routeId)
-                    && currentVehicleState.isPredictable()) {
+        for (VehicleStatus currentVehicleStatus : vehicleStatusManager.getStatuses()) {
+            if (currentVehicleStatus.getTrip() != null
+                    && currentVehicleStatus.getTrip().getRoute(dbConfig).getId().equals(routeId)
+                    && currentVehicleStatus.isPredictable()) {
                 count++;
-                unordered.add(currentVehicleState);
-                if (currentVehicleState.getHeadway() == null) {
+                unordered.add(currentVehicleStatus);
+                if (currentVehicleStatus.getHeadway() == null) {
                     canorder = false;
                 }
             }
@@ -309,8 +308,8 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
                     ordered.add(second);
                     count--;
                 } else {
-                    ordered.add(vehicleStateManager
-                            .getVehicleState(ordered.get(ordered.size() - 1))
+                    ordered.add(vehicleStatusManager
+                            .getStatus(ordered.get(ordered.size() - 1))
                             .getHeadway()
                             .getOtherVehicleId());
                     count--;
@@ -330,10 +329,10 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
         List<HoldingTime> currentHoldingTimes = new ArrayList<HoldingTime>();
 
         for (IpcVehicleComplete currentVehicle : vehicleDataCache.getVehicles()) {
-            VehicleState vehicleState = vehicleStateManager.getVehicleState(currentVehicle.getId());
-            if (vehicleState.getHoldingTime() != null) {
-                if (vehicleState.getHoldingTime().getStopId().equals(stopId)) {
-                    currentHoldingTimes.add(vehicleState.getHoldingTime());
+            VehicleStatus vehicleStatus = vehicleStatusManager.getStatus(currentVehicle.getId());
+            if (vehicleStatus.getHoldingTime() != null) {
+                if (vehicleStatus.getHoldingTime().getStopId().equals(stopId)) {
+                    currentHoldingTimes.add(vehicleStatus.getHoldingTime());
                 }
             }
         }
@@ -476,7 +475,7 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
     }
 
     @Override
-    public HoldingTime generateHoldingTime(VehicleState vehicleState, IpcPrediction arrivalPrediction) {
+    public HoldingTime generateHoldingTime(VehicleStatus vehicleStatus, IpcPrediction arrivalPrediction) {
 
         if (!HoldingConfig.useArrivalPredictions.getValue()) {
             return null;
@@ -822,18 +821,18 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
     }
 
     @Override
-    public void handleDeparture(VehicleState vehicleState, ArrivalDeparture arrivalDeparture) {
+    public void handleDeparture(VehicleStatus vehicleStatus, ArrivalDeparture arrivalDeparture) {
         /* if it is a departure from a control stop */
         if (arrivalDeparture.isDeparture() && isControlStop(arrivalDeparture.getStopId())) {
             /* remove holding time once vehicle has left control point. */
 
             logger.debug(
-                    "Removing holding time {} due to departure {}.", vehicleState.getHoldingTime(), arrivalDeparture);
-            vehicleState.setHoldingTime(null);
+                    "Removing holding time {} due to departure {}.", vehicleStatus.getHoldingTime(), arrivalDeparture);
+            vehicleStatus.setHoldingTime(null);
 
             if (HoldingConfig.regenerateOnDeparture.getValue()) {
                 for (HoldingTime holdingTime : getCurrentHoldingTimesForStop(arrivalDeparture.getStopId())) {
-                    VehicleState otherState = vehicleStateManager.getVehicleState(holdingTime.getVehicleId());
+                    VehicleStatus otherState = vehicleStatusManager.getStatus(holdingTime.getVehicleId());
 
                     IpcArrivalDeparture lastArrival = getLastVehicleArrivalEvent(
                             arrivalDeparture.getStopId(), otherState.getVehicleId(), arrivalDeparture.getAvlTime());

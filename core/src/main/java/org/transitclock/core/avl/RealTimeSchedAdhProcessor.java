@@ -36,20 +36,20 @@ public class RealTimeSchedAdhProcessor {
      * provide the expected schedule adherence for that stop. Doing it this way is useful because it
      * allows the schedule adherence to be updated while the vehicle is in between stops.
      *
-     * @param vehicleState
+     * @param vehicleStatus
      * @return The real-time schedule adherence for the vehicle, or null if vehicle is not
      *     predictable or there are no upcoming stops with a schedule time.
      */
-    public TemporalDifference generate(VehicleState vehicleState) {
+    public TemporalDifference generate(VehicleStatus vehicleStatus) {
         // If vehicle not matched/predictable then cannot provide schedule
         // adherence
-        if (!vehicleState.isPredictable()) return null;
+        if (!vehicleStatus.isPredictable()) return null;
 
         // Convenience variables
-        TemporalMatch match = vehicleState.getMatch();
+        TemporalMatch match = vehicleStatus.getMatch();
         Trip trip = match.getTrip();
-        Date avlTime = vehicleState.getAvlReport().getDate();
-        String vehicleId = vehicleState.getVehicleId();
+        Date avlTime = vehicleStatus.getAvlReport().getDate();
+        String vehicleId = vehicleStatus.getVehicleId();
 
         // If vehicle at a stop with a scheduled departure time then the
         // schedule adherence is either 0 because the departure time hasn't
@@ -160,11 +160,11 @@ public class RealTimeSchedAdhProcessor {
      * We define effective schedule time as where the bus currently falls in the schedule based on
      * its current position.
      */
-    public TemporalDifference generateEffectiveScheduleDifference(VehicleState vehicleState) {
-        TemporalMatch match = vehicleState.getMatch();
+    public TemporalDifference generateEffectiveScheduleDifference(VehicleStatus vehicleStatus) {
+        TemporalMatch match = vehicleStatus.getMatch();
         Trip trip = match.getTrip();
         long avlTime = match.getAvlTime();
-        String vehicleId = vehicleState.getVehicleId();
+        String vehicleId = vehicleStatus.getVehicleId();
 
         int nextStopPathIndex = match.getStopPathIndex();
         int previousStopPathIndex = nextStopPathIndex - 1;

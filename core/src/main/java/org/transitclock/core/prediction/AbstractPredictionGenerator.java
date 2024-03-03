@@ -5,7 +5,7 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.transitclock.config.data.PredictionConfig;
 import org.transitclock.core.Indices;
 import org.transitclock.core.TravelTimeDetails;
-import org.transitclock.core.VehicleState;
+import org.transitclock.core.VehicleStatus;
 import org.transitclock.core.dataCache.*;
 import org.transitclock.core.prediction.datafilter.TravelTimeDataFilter;
 import org.transitclock.domain.hibernate.DataDbLogger;
@@ -44,24 +44,24 @@ public abstract class AbstractPredictionGenerator implements PredictionGenerator
     /**
      * Generates and returns the predictions for the vehicle.
      *
-     * @param vehicleState Contains the new match for the vehicle that the predictions are to be
+     * @param vehicleStatus Contains the new match for the vehicle that the predictions are to be
      *                     based on.
      */
-    public abstract List<IpcPrediction> generate(VehicleState vehicleState);
+    public abstract List<IpcPrediction> generate(VehicleStatus vehicleStatus);
 
 
-    protected TravelTimeDetails getLastVehicleTravelTime(VehicleState currentVehicleState, Indices indices) {
+    protected TravelTimeDetails getLastVehicleTravelTime(VehicleStatus currentVehicleStatus, Indices indices) {
 
         StopArrivalDepartureCacheKey nextStopKey = new StopArrivalDepartureCacheKey(
             indices.getStopPath().getStopId(),
-            new Date(currentVehicleState.getMatch().getAvlTime()));
+            new Date(currentVehicleStatus.getMatch().getAvlTime()));
 
         /* TODO how do we handle the the first stop path. Where do we get the first stop id. */
         if (!indices.atBeginningOfTrip()) {
             String currentStopId = indices.getPreviousStopPath().getStopId();
 
             StopArrivalDepartureCacheKey currentStopKey = new StopArrivalDepartureCacheKey(
-                currentStopId, new Date(currentVehicleState.getMatch().getAvlTime()));
+                currentStopId, new Date(currentVehicleStatus.getMatch().getAvlTime()));
 
             List<IpcArrivalDeparture> currentStopList =
                 stopArrivalDepartureCacheInterface.getStopHistory(currentStopKey);
@@ -74,9 +74,9 @@ public abstract class AbstractPredictionGenerator implements PredictionGenerator
                 for (IpcArrivalDeparture currentArrivalDeparture : currentStopList) {
 
                     if (currentArrivalDeparture.isDeparture()
-                        && !currentArrivalDeparture.getVehicleId().equals(currentVehicleState.getVehicleId())
-                        && (currentVehicleState.getTrip().getDirectionId() == null
-                        || currentVehicleState
+                        && !currentArrivalDeparture.getVehicleId().equals(currentVehicleStatus.getVehicleId())
+                        && (currentVehicleStatus.getTrip().getDirectionId() == null
+                        || currentVehicleStatus
                         .getTrip()
                         .getDirectionId()
                         .equals(currentArrivalDeparture.getDirectionId()))) {
@@ -90,8 +90,8 @@ public abstract class AbstractPredictionGenerator implements PredictionGenerator
                             } else {
                                 String description = found + " : " + currentArrivalDeparture;
                                 PredictionEvent predictionEvent = new PredictionEvent(
-                                    currentVehicleState.getAvlReport(),
-                                    currentVehicleState.getMatch(),
+                                    currentVehicleStatus.getAvlReport(),
+                                    currentVehicleStatus.getMatch(),
                                     PredictionEvent.TRAVELTIME_EXCEPTION,
                                     description,
                                     travelTimeDetails.getArrival().getStopId(),
@@ -112,18 +112,18 @@ public abstract class AbstractPredictionGenerator implements PredictionGenerator
         return null;
     }
 
-    protected Indices getLastVehicleIndices(VehicleState currentVehicleState, Indices indices) {
+    protected Indices getLastVehicleIndices(VehicleStatus currentVehicleStatus, Indices indices) {
 
         StopArrivalDepartureCacheKey nextStopKey = new StopArrivalDepartureCacheKey(
             indices.getStopPath().getStopId(),
-            new Date(currentVehicleState.getMatch().getAvlTime()));
+            new Date(currentVehicleStatus.getMatch().getAvlTime()));
 
         /* TODO how do we handle the the first stop path. Where do we get the first stop id. */
         if (!indices.atBeginningOfTrip()) {
             String currentStopId = indices.getPreviousStopPath().getStopId();
 
             StopArrivalDepartureCacheKey currentStopKey = new StopArrivalDepartureCacheKey(
-                currentStopId, new Date(currentVehicleState.getMatch().getAvlTime()));
+                currentStopId, new Date(currentVehicleStatus.getMatch().getAvlTime()));
 
             List<IpcArrivalDeparture> currentStopList =
                 stopArrivalDepartureCacheInterface.getStopHistory(currentStopKey);
@@ -136,9 +136,9 @@ public abstract class AbstractPredictionGenerator implements PredictionGenerator
                 for (IpcArrivalDeparture currentArrivalDeparture : currentStopList) {
 
                     if (currentArrivalDeparture.isDeparture()
-                        && !currentArrivalDeparture.getVehicleId().equals(currentVehicleState.getVehicleId())
-                        && (currentVehicleState.getTrip().getDirectionId() == null
-                        || currentVehicleState
+                        && !currentArrivalDeparture.getVehicleId().equals(currentVehicleStatus.getVehicleId())
+                        && (currentVehicleStatus.getTrip().getDirectionId() == null
+                        || currentVehicleStatus
                         .getTrip()
                         .getDirectionId()
                         .equals(currentArrivalDeparture.getDirectionId()))) {
@@ -188,25 +188,25 @@ public abstract class AbstractPredictionGenerator implements PredictionGenerator
         return null;
     }
 
-    protected VehicleState getClosetVehicle(
-        List<VehicleState> vehiclesOnRoute, Indices indices, VehicleState currentVehicleState) {
+    protected VehicleStatus getClosetVehicle(
+        List<VehicleStatus> vehiclesOnRoute, Indices indices, VehicleStatus currentVehicleStatus) {
 
-        Route routeById = dbConfig.getRouteById(currentVehicleState.getTrip().getRouteId());
+        Route routeById = dbConfig.getRouteById(currentVehicleStatus.getTrip().getRouteId());
         Map<String, List<String>> stopsByDirection = routeById.getOrderedStopsByDirection(dbConfig);
 
         List<String> routeStops =
-            stopsByDirection.get(currentVehicleState.getTrip().getDirectionId());
+            stopsByDirection.get(currentVehicleStatus.getTrip().getDirectionId());
 
         int closest = 100;
 
-        VehicleState result = null;
+        VehicleStatus result = null;
 
-        for (VehicleState vehicle : vehiclesOnRoute) {
+        for (VehicleStatus vehicle : vehiclesOnRoute) {
 
             Integer numAfter = numAfter(
                 routeStops,
                 vehicle.getMatch().getStopPath().getStopId(),
-                currentVehicleState.getMatch().getStopPath().getStopId());
+                currentVehicleStatus.getMatch().getStopPath().getStopId());
             if (numAfter != null && numAfter > PredictionConfig.closestVehicleStopsAhead.getValue() && numAfter < closest) {
                 closest = numAfter;
                 result = vehicle;

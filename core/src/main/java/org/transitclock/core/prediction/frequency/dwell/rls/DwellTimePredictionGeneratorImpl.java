@@ -8,7 +8,7 @@ import org.transitclock.config.data.CoreConfig;
 import org.transitclock.core.Indices;
 import org.transitclock.core.avl.RealTimeSchedAdhProcessor;
 import org.transitclock.core.TravelTimes;
-import org.transitclock.core.VehicleState;
+import org.transitclock.core.VehicleStatus;
 import org.transitclock.core.dataCache.*;
 import org.transitclock.core.dataCache.frequency.FrequencyBasedHistoricalAverageCache;
 import org.transitclock.core.holdingmethod.HoldingTimeGenerator;
@@ -36,23 +36,23 @@ public class DwellTimePredictionGeneratorImpl extends KalmanPredictionGeneratorI
                                             DbConfig dbConfig,
                                             DataDbLogger dataDbLogger,
                                             TravelTimeDataFilter travelTimeDataFilter,
-                                            VehicleDataCache vehicleCache, HoldingTimeCache holdingTimeCache, StopPathPredictionCache stopPathPredictionCache, TravelTimes travelTimes, HoldingTimeGenerator holdingTimeGenerator, VehicleStateManager vehicleStateManager, RealTimeSchedAdhProcessor realTimeSchedAdhProcessor, BiasAdjuster biasAdjuster, FrequencyBasedHistoricalAverageCache frequencyBasedHistoricalAverageCache, ErrorCache kalmanErrorCache, DwellTimeModelCacheInterface dwellTimeModelCacheInterface) {
-        super(stopArrivalDepartureCacheInterface, tripDataHistoryCacheInterface, dbConfig, dataDbLogger, travelTimeDataFilter, vehicleCache, holdingTimeCache, stopPathPredictionCache, travelTimes, holdingTimeGenerator, vehicleStateManager, realTimeSchedAdhProcessor, biasAdjuster, frequencyBasedHistoricalAverageCache, kalmanErrorCache);
+                                            VehicleDataCache vehicleCache, HoldingTimeCache holdingTimeCache, StopPathPredictionCache stopPathPredictionCache, TravelTimes travelTimes, HoldingTimeGenerator holdingTimeGenerator, VehicleStatusManager vehicleStatusManager, RealTimeSchedAdhProcessor realTimeSchedAdhProcessor, BiasAdjuster biasAdjuster, FrequencyBasedHistoricalAverageCache frequencyBasedHistoricalAverageCache, ErrorCache kalmanErrorCache, DwellTimeModelCacheInterface dwellTimeModelCacheInterface) {
+        super(stopArrivalDepartureCacheInterface, tripDataHistoryCacheInterface, dbConfig, dataDbLogger, travelTimeDataFilter, vehicleCache, holdingTimeCache, stopPathPredictionCache, travelTimes, holdingTimeGenerator, vehicleStatusManager, realTimeSchedAdhProcessor, biasAdjuster, frequencyBasedHistoricalAverageCache, kalmanErrorCache);
         this.dwellTimeModelCacheInterface = dwellTimeModelCacheInterface;
     }
 
     @Override
-    public long getStopTimeForPath(Indices indices, AvlReport avlReport, VehicleState vehicleState) {
+    public long getStopTimeForPath(Indices indices, AvlReport avlReport, VehicleStatus vehicleStatus) {
         Long result = null;
         try {
-            Headway headway = vehicleState.getHeadway();
+            Headway headway = vehicleStatus.getHeadway();
 
             if (headway != null) {
                 logger.debug("Headway at {} based on avl {} is {}.", indices, avlReport, headway);
 
                 /* Change approach to use a RLS model.
                  */
-                if (super.getStopTimeForPath(indices, avlReport, vehicleState) > 0) {
+                if (super.getStopTimeForPath(indices, avlReport, vehicleStatus) > 0) {
                     // TODO Would be more correct to use the start time of the trip.
                     int time = FrequencyBasedHistoricalAverageCache.secondsFromMidnight(new Date(avlReport.getTime()), 2);
 
@@ -67,7 +67,7 @@ public class DwellTimePredictionGeneratorImpl extends KalmanPredictionGeneratorI
                     if (result == null) {
                         logger.debug(
                                 "Using scheduled value for dwell time as no RLS data available for" + " {}.", indices);
-                        result = super.getStopTimeForPath(indices, avlReport, vehicleState);
+                        result = super.getStopTimeForPath(indices, avlReport, vehicleStatus);
                     }
 
                     /* should never have a negative dwell time */
@@ -78,16 +78,16 @@ public class DwellTimePredictionGeneratorImpl extends KalmanPredictionGeneratorI
 
                 } else {
                     logger.debug("Scheduled dwell time is less than 0 for {}.", indices);
-                    result = super.getStopTimeForPath(indices, avlReport, vehicleState);
+                    result = super.getStopTimeForPath(indices, avlReport, vehicleStatus);
                 }
 
             } else {
-                result = super.getStopTimeForPath(indices, avlReport, vehicleState);
+                result = super.getStopTimeForPath(indices, avlReport, vehicleStatus);
                 logger.debug(
                         "Using dwell time {} for {} instead of {}. No headway.",
                         result,
                         indices,
-                        super.getStopTimeForPath(indices, avlReport, vehicleState));
+                        super.getStopTimeForPath(indices, avlReport, vehicleStatus));
             }
 
         } catch (Exception e) {

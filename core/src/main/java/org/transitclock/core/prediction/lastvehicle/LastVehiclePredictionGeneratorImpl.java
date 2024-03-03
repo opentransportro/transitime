@@ -49,10 +49,10 @@ public class LastVehiclePredictionGeneratorImpl extends PredictionGeneratorDefau
                                               StopPathPredictionCache stopPathPredictionCache,
                                               TravelTimes travelTimes,
                                               HoldingTimeGenerator holdingTimeGenerator,
-                                              VehicleStateManager vehicleStateManager,
+                                              VehicleStatusManager vehicleStatusManager,
                                               RealTimeSchedAdhProcessor realTimeSchedAdhProcessor,
                                               BiasAdjuster biasAdjuster) {
-        super(stopArrivalDepartureCacheInterface, tripDataHistoryCacheInterface, dbConfig, dataDbLogger, travelTimeDataFilter, holdingTimeCache, stopPathPredictionCache, travelTimes, holdingTimeGenerator, vehicleStateManager, realTimeSchedAdhProcessor, biasAdjuster);
+        super(stopArrivalDepartureCacheInterface, tripDataHistoryCacheInterface, dbConfig, dataDbLogger, travelTimeDataFilter, holdingTimeCache, stopPathPredictionCache, travelTimes, holdingTimeGenerator, vehicleStatusManager, realTimeSchedAdhProcessor, biasAdjuster);
         this.vehicleCache = vehicleCache;
     }
 
@@ -83,24 +83,24 @@ public class LastVehiclePredictionGeneratorImpl extends PredictionGeneratorDefau
     private final String alternative = "PredictionGeneratorDefaultImpl";
 
     @Override
-    public long getTravelTimeForPath(Indices indices, AvlReport avlReport, VehicleState vehicleState) {
-        List<VehicleState> vehiclesOnRoute = new ArrayList<>();
-        VehicleState currentVehicleState = vehicleStateManager.getVehicleState(avlReport.getVehicleId());
+    public long getTravelTimeForPath(Indices indices, AvlReport avlReport, VehicleStatus vehicleStatus) {
+        List<VehicleStatus> vehiclesOnRoute = new ArrayList<>();
+        VehicleStatus currentVehicleStatus = vehicleStatusManager.getStatus(avlReport.getVehicleId());
 
         for (IpcVehicleComplete vehicle :
-                emptyIfNull(vehicleCache.getVehiclesForRoute(currentVehicleState.getRouteId()))) {
-            VehicleState vehicleOnRouteState = vehicleStateManager.getVehicleState(vehicle.getId());
+                emptyIfNull(vehicleCache.getVehiclesForRoute(currentVehicleStatus.getRouteId()))) {
+            VehicleStatus vehicleOnRouteState = vehicleStatusManager.getStatus(vehicle.getId());
             vehiclesOnRoute.add(vehicleOnRouteState);
         }
 
         try {
             TravelTimeDetails travelTimeDetails = null;
-            if ((travelTimeDetails = this.getLastVehicleTravelTime(currentVehicleState, indices)) != null) {
+            if ((travelTimeDetails = this.getLastVehicleTravelTime(currentVehicleStatus, indices)) != null) {
                 logger.debug("Using last vehicle algorithm for prediction : {} for : {}", travelTimeDetails, indices);
 
                 if (CoreConfig.storeTravelTimeStopPathPredictions.getValue()) {
                     PredictionForStopPath predictionForStopPath = new PredictionForStopPath(
-                            vehicleState.getVehicleId(),
+                            vehicleStatus.getVehicleId(),
                             SystemTime.getDate(),
                             (double) Long.valueOf(travelTimeDetails.getTravelTime()).intValue(),
                             indices.getTrip().getId(),
@@ -121,13 +121,13 @@ public class LastVehiclePredictionGeneratorImpl extends PredictionGeneratorDefau
         }
 
         /* default to parent method if not enough data. This will be based on schedule if UpdateTravelTimes has not been called. */
-        return super.getTravelTimeForPath(indices, avlReport, currentVehicleState);
+        return super.getTravelTimeForPath(indices, avlReport, currentVehicleStatus);
     }
 
     @Override
-    public long getStopTimeForPath(Indices indices, AvlReport avlReport, VehicleState vehicleState) {
+    public long getStopTimeForPath(Indices indices, AvlReport avlReport, VehicleStatus vehicleStatus) {
         // Looking at last vehicle value would be a bad idea for dwell time, so no implementation
         // here.
-        return super.getStopTimeForPath(indices, avlReport, vehicleState);
+        return super.getStopTimeForPath(indices, avlReport, vehicleStatus);
     }
 }

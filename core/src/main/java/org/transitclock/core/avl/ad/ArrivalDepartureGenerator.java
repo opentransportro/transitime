@@ -1,7 +1,7 @@
 /* (C)2023 */
 package org.transitclock.core.avl.ad;
 
-import org.transitclock.core.VehicleState;
+import org.transitclock.core.VehicleStatus;
 
 /**
  * An interface used for generating arrival/departure times. An interface is used so that can easily
@@ -16,8 +16,8 @@ public interface ArrivalDepartureGenerator {
      * is done in ArrivalDepartureGenerator.generate() since that is where this info is easily
      * determined.
      *
-     * @param vehicleState
+     * @param vehicleStatus
      * @return List of ArrivalDeparture objects generated
      */
-    void generate(VehicleState vehicleState);
+    void generate(VehicleStatus vehicleStatus);
 }

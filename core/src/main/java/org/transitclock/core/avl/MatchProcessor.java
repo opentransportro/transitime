@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.core.avl.ad.ArrivalDepartureGenerator;
 import org.transitclock.core.prediction.PredictionGenerator;
-import org.transitclock.core.VehicleState;
+import org.transitclock.core.VehicleStatus;
 import org.transitclock.core.dataCache.PredictionDataCache;
 import org.transitclock.core.headwaygenerator.HeadwayGenerator;
 import org.transitclock.domain.hibernate.DataDbLogger;
@@ -48,11 +48,11 @@ public class MatchProcessor {
      * Generates the new predictions for the vehicle based on the new match stored in the vehicle
      * state. Updates vehicle state, the predictions cache, and stores predictions in database.
      */
-    private void processPredictions(VehicleState vehicleState) {
-        logger.debug("Processing predictions for vehicleId={}", vehicleState.getVehicleId());
+    private void processPredictions(VehicleStatus vehicleStatus) {
+        logger.debug("Processing predictions for vehicleId={}", vehicleStatus.getVehicleId());
 
         // Generate the new predictions for the vehicle
-        List<IpcPrediction> newPredictions = predictionGenerator.generate(vehicleState);
+        List<IpcPrediction> newPredictions = predictionGenerator.generate(vehicleStatus);
 
         // Store the predictions in database if so configured
         if (CoreConfig.getMaxPredictionsTimeForDbSecs() > 0) {
@@ -74,23 +74,23 @@ public class MatchProcessor {
 
         // Update the predictions cache to use the new predictions for the
         // vehicle
-        List<IpcPrediction> oldPredictions = vehicleState.getPredictions();
+        List<IpcPrediction> oldPredictions = vehicleStatus.getPredictions();
         predictionDataCache.updatePredictions(oldPredictions, newPredictions);
 
         // Update predictions for vehicle
-        vehicleState.setPredictions(newPredictions);
+        vehicleStatus.setPredictions(newPredictions);
     }
 
     /**
      * Generates the headway info based on the new match stored in the vehicle state.
      */
-    private void processHeadways(VehicleState vehicleState) {
-        logger.debug("Processing headways for vehicleId={}", vehicleState.getVehicleId());
+    private void processHeadways(VehicleStatus vehicleStatus) {
+        logger.debug("Processing headways for vehicleId={}", vehicleStatus.getVehicleId());
 
-        Headway headway = headwayGenerator.generate(vehicleState);
+        Headway headway = headwayGenerator.generate(vehicleStatus);
 
         if (headway != null) {
-            vehicleState.setHeadway(headway);
+            vehicleStatus.setHeadway(headway);
             dbLogger.add(headway);
         }
     }
@@ -99,20 +99,20 @@ public class MatchProcessor {
      * Generates the arrival/departure info based on the new match stored in the vehicle state.
      * Stores the arrival/departure info into database.
      */
-    private void processArrivalDepartures(VehicleState vehicleState) {
-        logger.debug("Processing arrivals/departures for vehicleId={}", vehicleState.getVehicleId());
+    private void processArrivalDepartures(VehicleStatus vehicleStatus) {
+        logger.debug("Processing arrivals/departures for vehicleId={}", vehicleStatus.getVehicleId());
 
-        arrivalDepartureGenerator.generate(vehicleState);
+        arrivalDepartureGenerator.generate(vehicleStatus);
     }
 
     /**
      * Stores the spatial match in log file and to database so can be processed later to determine
      * expected travel times.
      */
-    private void processSpatialMatch(VehicleState vehicleState) {
-        logger.debug("Processing spatial match for vehicleId={}", vehicleState.getVehicleId());
+    private void processSpatialMatch(VehicleStatus vehicleStatus) {
+        logger.debug("Processing spatial match for vehicleId={}", vehicleStatus.getVehicleId());
 
-        Match match = new Match(vehicleState, dbConfig.getConfigRev());
+        Match match = new Match(vehicleStatus, dbConfig.getConfigRev());
         logger.debug("{}", match);
 
         // Store match in database if it is not at a stop. The reason only
@@ -133,35 +133,35 @@ public class MatchProcessor {
      * headways and such. But if vehicle should be ignored because part of consist then don't do
      * anything.
      */
-    public void generateResultsOfMatch(VehicleState vehicleState) {
+    public void generateResultsOfMatch(VehicleStatus vehicleStatus) {
         // Make sure everything ok
-        if (!vehicleState.isPredictable()) {
+        if (!vehicleStatus.isPredictable()) {
             logger.error(
                     "Vehicle was unpredictable when " + "MatchProcessor.generateResultsOfMatch() was called. {}",
-                    vehicleState);
+                vehicleStatus);
             return;
         }
 
         // If non-lead vehicle in a consist then don't need to do anything here
         // because all the info will be generated by the lead vehicle.
-        if (vehicleState.getAvlReport().ignoreBecauseInConsist()) {
+        if (vehicleStatus.getAvlReport().ignoreBecauseInConsist()) {
             logger.debug(
                     "Not generating results such as predictions for "
                             + "vehicleId={} because it is a non-lead vehicle in "
                             + "a consist.",
-                    vehicleState.getVehicleId());
+                    vehicleStatus.getVehicleId());
             return;
         }
 
-        logger.debug("Processing results for match for {}", vehicleState);
+        logger.debug("Processing results for match for {}", vehicleStatus);
 
         // Process predictions, headways, arrivals/departures, and and spatial
         // matches. If don't need matches then don't store them
         if (!CoreConfig.onlyNeedArrivalDepartures()) {
-            processPredictions(vehicleState);
-            processHeadways(vehicleState);
-            processSpatialMatch(vehicleState);
+            processPredictions(vehicleStatus);
+            processHeadways(vehicleStatus);
+            processSpatialMatch(vehicleStatus);
         }
-        processArrivalDepartures(vehicleState);
+        processArrivalDepartures(vehicleStatus);
     }
 }

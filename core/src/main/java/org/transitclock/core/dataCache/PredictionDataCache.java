@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.config.data.PredictionConfig;
-import org.transitclock.core.VehicleState;
+import org.transitclock.core.VehicleStatus;
 import org.transitclock.domain.structs.Route;
 import org.transitclock.domain.structs.Stop;
 import org.transitclock.domain.structs.Trip;
@@ -40,7 +40,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 @Component
 public class PredictionDataCache {
-    private final VehicleStateManager vehicleStateManager;
+    private final VehicleStatusManager vehicleStatusManager;
     private final DbConfig dbConfig;
 
     // Contains lists of predictions per route/stop. Also want to group
@@ -62,8 +62,8 @@ public class PredictionDataCache {
     private final Map<MapKey, List<IpcPredictionsForRouteStopDest>> predictionsMap =
             new ConcurrentHashMap<>(1000);
 
-    public PredictionDataCache(VehicleStateManager vehicleStateManager, DbConfig dbConfig) {
-        this.vehicleStateManager = vehicleStateManager;
+    public PredictionDataCache(VehicleStatusManager vehicleStatusManager, DbConfig dbConfig) {
+        this.vehicleStatusManager = vehicleStatusManager;
         this.dbConfig = dbConfig;
     }
 
@@ -141,7 +141,7 @@ public class PredictionDataCache {
         // Remove old predictions so that they are not provided through the
         // API and such
         for (IpcPredictionsForRouteStopDest preds : predictionsForRouteStop) {
-            preds.removeExpiredPredictions(getSystemTime(), vehicleStateManager);
+            preds.removeExpiredPredictions(getSystemTime(), vehicleStatusManager);
         }
 
         // Want to limit predictions to max time in future since if using
@@ -434,11 +434,11 @@ public class PredictionDataCache {
     /**
      * To be called when vehicle is being made unpredictable. Removes the predictions.
      *
-     * @param vehicleState
+     * @param vehicleStatus
      */
-    public void removePredictions(VehicleState vehicleState) {
-        logger.info("Removing predictions for vehicleId={}", vehicleState.getVehicleId());
-        List<IpcPrediction> oldPredictions = vehicleState.getPredictions();
+    public void removePredictions(VehicleStatus vehicleStatus) {
+        logger.info("Removing predictions for vehicleId={}", vehicleStatus.getVehicleId());
+        List<IpcPrediction> oldPredictions = vehicleStatus.getPredictions();
 
         updatePredictions(oldPredictions, null);
     }

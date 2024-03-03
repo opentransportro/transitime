@@ -45,8 +45,8 @@ public class KalmanPredictionGeneratorImpl extends HistoricalAveragePredictionGe
                                          DbConfig dbConfig,
                                          DataDbLogger dataDbLogger,
                                          TravelTimeDataFilter travelTimeDataFilter,
-                                         VehicleDataCache vehicleCache, HoldingTimeCache holdingTimeCache, StopPathPredictionCache stopPathPredictionCache, TravelTimes travelTimes, HoldingTimeGenerator holdingTimeGenerator, VehicleStateManager vehicleStateManager, RealTimeSchedAdhProcessor realTimeSchedAdhProcessor, BiasAdjuster biasAdjuster, FrequencyBasedHistoricalAverageCache frequencyBasedHistoricalAverageCache, ErrorCache kalmanErrorCache) {
-        super(stopArrivalDepartureCacheInterface, tripDataHistoryCacheInterface, dbConfig, dataDbLogger, travelTimeDataFilter, vehicleCache, holdingTimeCache, stopPathPredictionCache, travelTimes, holdingTimeGenerator, vehicleStateManager, realTimeSchedAdhProcessor, biasAdjuster, frequencyBasedHistoricalAverageCache);
+                                         VehicleDataCache vehicleCache, HoldingTimeCache holdingTimeCache, StopPathPredictionCache stopPathPredictionCache, TravelTimes travelTimes, HoldingTimeGenerator holdingTimeGenerator, VehicleStatusManager vehicleStatusManager, RealTimeSchedAdhProcessor realTimeSchedAdhProcessor, BiasAdjuster biasAdjuster, FrequencyBasedHistoricalAverageCache frequencyBasedHistoricalAverageCache, ErrorCache kalmanErrorCache) {
+        super(stopArrivalDepartureCacheInterface, tripDataHistoryCacheInterface, dbConfig, dataDbLogger, travelTimeDataFilter, vehicleCache, holdingTimeCache, stopPathPredictionCache, travelTimes, holdingTimeGenerator, vehicleStatusManager, realTimeSchedAdhProcessor, biasAdjuster, frequencyBasedHistoricalAverageCache);
         this.kalmanErrorCache = kalmanErrorCache;
     }
 
@@ -58,21 +58,21 @@ public class KalmanPredictionGeneratorImpl extends HistoricalAveragePredictionGe
      * (org.transitclock.core.Indices, org.transitclock.db.structs.AvlReport)
      */
     @Override
-    public long getTravelTimeForPath(Indices indices, AvlReport avlReport, VehicleState vehicleState) {
+    public long getTravelTimeForPath(Indices indices, AvlReport avlReport, VehicleStatus vehicleStatus) {
 
         logger.debug("Calling frequency based Kalman prediction algorithm for : {}", indices.toString());
 
-        long alternatePrediction = super.getTravelTimeForPath(indices, avlReport, vehicleState);
+        long alternatePrediction = super.getTravelTimeForPath(indices, avlReport, vehicleStatus);
 
         Integer time = FrequencyBasedHistoricalAverageCache.secondsFromMidnight(avlReport.getDate(), 2);
 
         time = FrequencyBasedHistoricalAverageCache.round(
                 time, CoreConfig.getCacheIncrementsForFrequencyService());
 
-        VehicleState currentVehicleState = vehicleStateManager.getVehicleState(avlReport.getVehicleId());
+        VehicleStatus currentVehicleStatus = vehicleStatusManager.getStatus(avlReport.getVehicleId());
 
         try {
-            TravelTimeDetails travelTimeDetails = this.getLastVehicleTravelTime(currentVehicleState, indices);
+            TravelTimeDetails travelTimeDetails = this.getLastVehicleTravelTime(currentVehicleStatus, indices);
 
             /*
              * The first vehicle of the day should use schedule or historic data to
@@ -87,8 +87,8 @@ public class KalmanPredictionGeneratorImpl extends HistoricalAveragePredictionGe
 
                 List<TravelTimeDetails> lastDaysTimes = lastDaysTimes(
                         tripDataHistoryCacheInterface,
-                        currentVehicleState.getTrip().getId(),
-                        currentVehicleState.getTrip().getDirectionId(),
+                        currentVehicleStatus.getTrip().getId(),
+                        currentVehicleStatus.getTrip().getDirectionId(),
                         indices.getStopPathIndex(),
                         nearestDay,
                         time,
@@ -163,8 +163,8 @@ public class KalmanPredictionGeneratorImpl extends HistoricalAveragePredictionGe
                                     + " Super predicts : "
                                     + alternatePrediction;
                             VehicleEvent vehicleEvent = new VehicleEvent(
-                                    vehicleState.getAvlReport(),
-                                    vehicleState.getMatch(),
+                                    vehicleStatus.getAvlReport(),
+                                    vehicleStatus.getMatch(),
                                     VehicleEvent.PREDICTION_VARIATION,
                                     description,
                                     true, // predictable
@@ -175,7 +175,7 @@ public class KalmanPredictionGeneratorImpl extends HistoricalAveragePredictionGe
 
                         if (CoreConfig.storeTravelTimeStopPathPredictions.getValue()) {
                             PredictionForStopPath predictionForStopPath = new PredictionForStopPath(
-                                    vehicleState.getVehicleId(),
+                                    vehicleStatus.getVehicleId(),
                                     SystemTime.getDate(),
                                     (double) Long.valueOf(predictionTime).intValue(),
                                     indices.getTrip().getId(),
@@ -204,9 +204,9 @@ public class KalmanPredictionGeneratorImpl extends HistoricalAveragePredictionGe
     public long expectedTravelTimeFromMatchToEndOfStopPath(AvlReport avlReport, SpatialMatch match) {
 
         if (PredictionConfig.useKalmanForPartialStopPaths.getValue()) {
-            VehicleState currentVehicleState = vehicleStateManager.getVehicleState(avlReport.getVehicleId());
+            VehicleStatus currentVehicleStatus = vehicleStatusManager.getStatus(avlReport.getVehicleId());
 
-            long fulltime = this.getTravelTimeForPath(match.getIndices(), avlReport, currentVehicleState);
+            long fulltime = this.getTravelTimeForPath(match.getIndices(), avlReport, currentVehicleStatus);
             double distanceAlongStopPath = match.getDistanceAlongStopPath();
             double stopPathLength = match.getStopPath().getLength();
             long remainingtime = (long) (fulltime * ((stopPathLength - distanceAlongStopPath) / stopPathLength));

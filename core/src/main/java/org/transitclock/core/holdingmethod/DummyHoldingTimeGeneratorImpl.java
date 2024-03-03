@@ -1,6 +1,6 @@
 package org.transitclock.core.holdingmethod;
 
-import org.transitclock.core.VehicleState;
+import org.transitclock.core.VehicleStatus;
 import org.transitclock.domain.structs.ArrivalDeparture;
 import org.transitclock.domain.structs.HoldingTime;
 import org.transitclock.service.dto.IpcArrivalDeparture;
@@ -15,17 +15,17 @@ public class DummyHoldingTimeGeneratorImpl implements HoldingTimeGenerator {
     }
 
     @Override
-    public HoldingTime generateHoldingTime(VehicleState vehicleState, IpcArrivalDeparture event) {
+    public HoldingTime generateHoldingTime(VehicleStatus vehicleStatus, IpcArrivalDeparture event) {
         return new HoldingTime();
     }
 
     @Override
-    public HoldingTime generateHoldingTime(VehicleState vehicleState, IpcPrediction arrivalPrediction) {
+    public HoldingTime generateHoldingTime(VehicleStatus vehicleStatus, IpcPrediction arrivalPrediction) {
         return new HoldingTime();
     }
 
     @Override
-    public void handleDeparture(VehicleState vehicleState, ArrivalDeparture arrivalDeparture) {
+    public void handleDeparture(VehicleStatus vehicleStatus, ArrivalDeparture arrivalDeparture) {
         // nothing to do
     }
 }

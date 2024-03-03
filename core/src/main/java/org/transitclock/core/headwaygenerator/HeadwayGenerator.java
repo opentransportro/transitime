@@ -1,7 +1,7 @@
 /* (C)2023 */
 package org.transitclock.core.headwaygenerator;
 
-import org.transitclock.core.VehicleState;
+import org.transitclock.core.VehicleStatus;
 import org.transitclock.domain.structs.Headway;
 
 /**
@@ -16,7 +16,7 @@ public interface HeadwayGenerator {
      * Generates headway info. This interface likely will need to be changed in the future to return
      * the headways generated such that the MatchProcessor can manage them and store them away.
      *
-     * @param vehicleState
+     * @param vehicleStatus
      */
-    Headway generate(VehicleState vehicleState);
+    Headway generate(VehicleStatus vehicleStatus);
 }

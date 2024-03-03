@@ -1,11 +1,11 @@
 /* (C)2023 */
 package org.transitclock.core.headwaygenerator;
 
-import org.transitclock.core.VehicleState;
+import org.transitclock.core.VehicleStatus;
 import org.transitclock.core.dataCache.StopArrivalDepartureCacheInterface;
 import org.transitclock.core.dataCache.StopArrivalDepartureCacheKey;
 import org.transitclock.core.dataCache.VehicleDataCache;
-import org.transitclock.core.dataCache.VehicleStateManager;
+import org.transitclock.core.dataCache.VehicleStatusManager;
 import org.transitclock.domain.structs.Headway;
 import org.transitclock.gtfs.DbConfig;
 import org.transitclock.service.dto.IpcArrivalDeparture;
@@ -26,25 +26,25 @@ import java.util.List;
  */
 class LastDepartureHeadwayGenerator implements HeadwayGenerator {
     private final VehicleDataCache vehicleDataCache;
-    private final VehicleStateManager vehicleStateManager;
+    private final VehicleStatusManager vehicleStatusManager;
     private final StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface;
     private final DbConfig dbConfig;
 
-    public LastDepartureHeadwayGenerator(VehicleDataCache vehicleDataCache, VehicleStateManager vehicleStateManager, StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface, DbConfig dbConfig) {
+    public LastDepartureHeadwayGenerator(VehicleDataCache vehicleDataCache, VehicleStatusManager vehicleStatusManager, StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface, DbConfig dbConfig) {
         this.vehicleDataCache = vehicleDataCache;
-        this.vehicleStateManager = vehicleStateManager;
+        this.vehicleStatusManager = vehicleStatusManager;
         this.stopArrivalDepartureCacheInterface = stopArrivalDepartureCacheInterface;
         this.dbConfig = dbConfig;
     }
 
     @Override
-    public Headway generate(VehicleState vehicleState) {
+    public Headway generate(VehicleStatus vehicleStatus) {
 
         try {
             String stopId =
-                    vehicleState.getMatch().getMatchAtPreviousStop().getAtStop().getStopId();
-            long date = vehicleState.getMatch().getAvlTime();
-            String vehicleId = vehicleState.getVehicleId();
+                    vehicleStatus.getMatch().getMatchAtPreviousStop().getAtStop().getStopId();
+            long date = vehicleStatus.getMatch().getAvlTime();
+            String vehicleId = vehicleStatus.getVehicleId();
             StopArrivalDepartureCacheKey key = new StopArrivalDepartureCacheKey(stopId, new Date(date));
 
             List<IpcArrivalDeparture> stopList = stopArrivalDepartureCacheInterface.getStopHistory(key);
@@ -57,8 +57,8 @@ class LastDepartureHeadwayGenerator implements HeadwayGenerator {
                     if (arrivalDepature.isDeparture()
                             && arrivalDepature.getStopId().equals(stopId)
                             && arrivalDepature.getVehicleId().equals(vehicleId)
-                            && (vehicleState.getTrip().getDirectionId() == null
-                                    || vehicleState
+                            && (vehicleStatus.getTrip().getDirectionId() == null
+                                    || vehicleStatus
                                             .getTrip()
                                             .getDirectionId()
                                             .equals(arrivalDepature.getDirectionId()))) {
@@ -70,8 +70,8 @@ class LastDepartureHeadwayGenerator implements HeadwayGenerator {
                             && arrivalDepature.isDeparture()
                             && arrivalDepature.getStopId().equals(stopId)
                             && !arrivalDepature.getVehicleId().equals(vehicleId)
-                            && (vehicleState.getTrip().getDirectionId() == null
-                                    || vehicleState
+                            && (vehicleStatus.getTrip().getDirectionId() == null
+                                    || vehicleStatus
                                             .getTrip()
                                             .getDirectionId()
                                             .equals(arrivalDepature.getDirectionId()))) {
@@ -92,8 +92,8 @@ class LastDepartureHeadwayGenerator implements HeadwayGenerator {
                             vehicleId,
                             stopList.get(previousVehicleArrivalIndex).getVehicleId(),
                             stopId,
-                            vehicleState.getTrip().getId(),
-                            vehicleState.getTrip().getRouteId(),
+                            vehicleStatus.getTrip().getId(),
+                            vehicleStatus.getTrip().getRouteId(),
                             new Date(
                                     stopList.get(lastStopArrivalIndex).getTime().getTime()),
                             new Date(stopList.get(previousVehicleArrivalIndex)
@@ -107,13 +107,13 @@ class LastDepartureHeadwayGenerator implements HeadwayGenerator {
                                     > 1200000
                             || lastStopArrivalIndex > 5) {
                         headway = null;
-                        vehicleState.setHeadway(null);
+                        vehicleStatus.setHeadway(null);
                         return null;
                     }
                     if (headway != null) {
-                        if (vehicleState.getHeadway() == null
-                                || !vehicleState.getHeadway().equals(headway)) {
-                            vehicleState.setHeadway(headway);
+                        if (vehicleStatus.getHeadway() == null
+                                || !vehicleStatus.getHeadway().equals(headway)) {
+                            vehicleStatus.setHeadway(headway);
                             setSystemVariance(headway);
                             return headway;
                         } else {
@@ -137,9 +137,9 @@ class LastDepartureHeadwayGenerator implements HeadwayGenerator {
         boolean error = false;
 
         for (IpcVehicleComplete currentVehicle : vehicleDataCache.getVehicles()) {
-            VehicleState vehicleState = vehicleStateManager.getVehicleState(currentVehicle.getId());
-            if (vehicleState.getHeadway() != null) {
-                headways.add(vehicleState.getHeadway());
+            VehicleStatus vehicleStatus = vehicleStatusManager.getStatus(currentVehicle.getId());
+            if (vehicleStatus.getHeadway() != null) {
+                headways.add(vehicleStatus.getHeadway());
                 total_with_headway++;
             }
             total_vehicles++;

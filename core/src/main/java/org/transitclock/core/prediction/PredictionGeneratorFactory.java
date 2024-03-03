@@ -39,7 +39,7 @@ public class PredictionGeneratorFactory {
                                                    StopPathPredictionCache stopPathPredictionCache,
                                                    TravelTimes travelTimes,
                                                    HoldingTimeGenerator holdingTimeGenerator,
-                                                   VehicleStateManager vehicleStateManager,
+                                                   VehicleStatusManager vehicleStatusManager,
                                                    RealTimeSchedAdhProcessor realTimeSchedAdhProcessor,
                                                    BiasAdjuster biasAdjuster,
                                                    ErrorCache kalmanErrorCache,
@@ -58,7 +58,7 @@ public class PredictionGeneratorFactory {
                 stopPathPredictionCache,
                 travelTimes,
                 holdingTimeGenerator,
-                vehicleStateManager,
+                vehicleStatusManager,
                 realTimeSchedAdhProcessor,
                 biasAdjuster,
                 kalmanErrorCache,
@@ -77,7 +77,7 @@ public class PredictionGeneratorFactory {
                 stopPathPredictionCache,
                 travelTimes,
                 holdingTimeGenerator,
-                vehicleStateManager,
+                vehicleStatusManager,
                 realTimeSchedAdhProcessor,
                 biasAdjuster,
                 frequencyBasedHistoricalAverageCache,
@@ -98,7 +98,7 @@ public class PredictionGeneratorFactory {
                 stopPathPredictionCache,
                 travelTimes,
                 holdingTimeGenerator,
-                vehicleStateManager,
+                vehicleStatusManager,
                 realTimeSchedAdhProcessor,
                 biasAdjuster
             );
@@ -116,7 +116,7 @@ public class PredictionGeneratorFactory {
                 stopPathPredictionCache,
                 travelTimes,
                 holdingTimeGenerator,
-                vehicleStateManager,
+                vehicleStatusManager,
                 realTimeSchedAdhProcessor,
                 biasAdjuster,
                 frequencyBasedHistoricalAverageCache,
@@ -134,7 +134,7 @@ public class PredictionGeneratorFactory {
                 stopPathPredictionCache,
                 travelTimes,
                 holdingTimeGenerator,
-                vehicleStateManager,
+                vehicleStatusManager,
                 realTimeSchedAdhProcessor,
                 biasAdjuster,
                 kalmanErrorCache
@@ -153,7 +153,7 @@ public class PredictionGeneratorFactory {
                 stopPathPredictionCache,
                 travelTimes,
                 holdingTimeGenerator,
-                vehicleStateManager,
+                vehicleStatusManager,
                 realTimeSchedAdhProcessor,
                 biasAdjuster,
                 frequencyBasedHistoricalAverageCache
@@ -171,7 +171,7 @@ public class PredictionGeneratorFactory {
                 stopPathPredictionCache,
                 travelTimes,
                 holdingTimeGenerator,
-                vehicleStateManager,
+                vehicleStatusManager,
                 realTimeSchedAdhProcessor,
                 biasAdjuster,
                 scheduleBasedHistoricalAverageCache
@@ -179,6 +179,6 @@ public class PredictionGeneratorFactory {
         }
 
         // If the PredictionGenerator hasn't been created yet then do so now
-        return new PredictionGeneratorDefaultImpl(stopArrivalDepartureCacheInterface, tripDataHistoryCacheInterface, dbConfig, dataDbLogger, travelTimeDataFilter, holdingTimeCache, stopPathPredictionCache, travelTimes, holdingTimeGenerator, vehicleStateManager, realTimeSchedAdhProcessor, biasAdjuster);
+        return new PredictionGeneratorDefaultImpl(stopArrivalDepartureCacheInterface, tripDataHistoryCacheInterface, dbConfig, dataDbLogger, travelTimeDataFilter, holdingTimeCache, stopPathPredictionCache, travelTimes, holdingTimeGenerator, vehicleStatusManager, realTimeSchedAdhProcessor, biasAdjuster);
     }
 }

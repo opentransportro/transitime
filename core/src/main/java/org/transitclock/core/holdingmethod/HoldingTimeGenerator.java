@@ -2,7 +2,7 @@
 package org.transitclock.core.holdingmethod;
 
 import java.util.List;
-import org.transitclock.core.VehicleState;
+import org.transitclock.core.VehicleStatus;
 import org.transitclock.domain.structs.ArrivalDeparture;
 import org.transitclock.domain.structs.HoldingTime;
 import org.transitclock.service.dto.IpcArrivalDeparture;
@@ -14,9 +14,9 @@ import org.transitclock.service.dto.IpcPrediction;
 public interface HoldingTimeGenerator {
     List<ControlStop> getControlPointStops();
 
-    HoldingTime generateHoldingTime(VehicleState vehicleState, IpcArrivalDeparture event);
+    HoldingTime generateHoldingTime(VehicleStatus vehicleStatus, IpcArrivalDeparture event);
 
-    HoldingTime generateHoldingTime(VehicleState vehicleState, IpcPrediction arrivalPrediction);
+    HoldingTime generateHoldingTime(VehicleStatus vehicleStatus, IpcPrediction arrivalPrediction);
 
-    void handleDeparture(VehicleState vehicleState, ArrivalDeparture arrivalDeparture);
+    void handleDeparture(VehicleStatus vehicleStatus, ArrivalDeparture arrivalDeparture);
 }

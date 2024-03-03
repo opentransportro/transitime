@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.transitclock.core.dataCache.StopArrivalDepartureCacheInterface;
 import org.transitclock.core.dataCache.VehicleDataCache;
-import org.transitclock.core.dataCache.VehicleStateManager;
+import org.transitclock.core.dataCache.VehicleStatusManager;
 import org.transitclock.gtfs.DbConfig;
 
 /**
@@ -23,13 +23,13 @@ public class HeadwayGeneratorFactory {
 
     @Bean
     public HeadwayGenerator headwayGenerator(VehicleDataCache vehicleDataCache,
-                                                          VehicleStateManager vehicleStateManager,
+                                                          VehicleStatusManager vehicleStatusManager,
                                                           StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface,
                                                           DbConfig dbConfig) {
         if (neededClass == LastArrivalsHeadwayGenerator.class) {
-            return new LastArrivalsHeadwayGenerator(vehicleDataCache, vehicleStateManager, stopArrivalDepartureCacheInterface, dbConfig);
+            return new LastArrivalsHeadwayGenerator(vehicleDataCache, vehicleStatusManager, stopArrivalDepartureCacheInterface, dbConfig);
         } else if (neededClass == LastDepartureHeadwayGenerator.class) {
-            return new LastDepartureHeadwayGenerator(vehicleDataCache, vehicleStateManager, stopArrivalDepartureCacheInterface, dbConfig);
+            return new LastDepartureHeadwayGenerator(vehicleDataCache, vehicleStatusManager, stopArrivalDepartureCacheInterface, dbConfig);
         }
 
         return new HeadwayGeneratorDefaultImpl();

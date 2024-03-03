@@ -14,10 +14,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.transitclock.config.data.AgencyConfig;
-import org.transitclock.core.VehicleState;
+import org.transitclock.core.VehicleStatus;
 import org.transitclock.domain.hibernate.DataDbLogger;
 import org.transitclock.domain.hibernate.HibernateUtils;
 import org.transitclock.domain.structs.AvlReport;
@@ -460,21 +459,21 @@ public class VehicleDataCache {
      * Updates the maps containing the vehicle info. Should be called every time vehicle state
      * changes.
      *
-     * @param vehicleState The current VehicleState
+     * @param vehicleStatus The current VehicleState
      */
-    public void updateVehicle(VehicleState vehicleState) {
+    public void updateVehicle(VehicleStatus vehicleStatus) {
         // Not a layover so departure time not provided
         long layoverDepartureTime = 0;
-        var match = vehicleState.getMatch();
+        var match = vehicleStatus.getMatch();
         if (match != null && match.isLayover()) {
             IpcPrediction predsForVehicle = predictionDataCache
                     .getPredictionForVehicle(
-                            vehicleState.getAvlReport().getVehicleId(),
-                            vehicleState.getRouteShortName(dbConfig),
+                            vehicleStatus.getAvlReport().getVehicleId(),
+                            vehicleStatus.getRouteShortName(dbConfig),
                             match.getStopPath().getStopId());
             layoverDepartureTime = predsForVehicle != null ? predsForVehicle.getPredictionTime() : 0;
         }
-        IpcVehicleComplete vehicle = new IpcVehicleComplete(dbConfig, vehicleState, layoverDepartureTime);
+        IpcVehicleComplete vehicle = new IpcVehicleComplete(dbConfig, vehicleStatus, layoverDepartureTime);
         IpcVehicleComplete originalVehicle = vehiclesMap.get(vehicle.getId());
 
         logger.debug("Adding to VehicleDataCache vehicle={}", vehicle);

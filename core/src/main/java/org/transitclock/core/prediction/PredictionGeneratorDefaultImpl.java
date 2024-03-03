@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.transitclock.core.Indices;
 import org.transitclock.core.TemporalDifference;
 import org.transitclock.core.TravelTimes;
-import org.transitclock.core.VehicleState;
+import org.transitclock.core.VehicleStatus;
 import org.transitclock.core.avl.RealTimeSchedAdhProcessor;
 import org.transitclock.core.avl.space.SpatialMatch;
 import org.transitclock.core.avl.time.TemporalMatch;
@@ -55,7 +55,7 @@ public class PredictionGeneratorDefaultImpl extends AbstractPredictionGenerator 
     protected final StopPathPredictionCache stopPathPredictionCache;
     protected final TravelTimes travelTimes;
     protected final HoldingTimeGenerator holdingTimeGenerator;
-    protected final VehicleStateManager vehicleStateManager;
+    protected final VehicleStatusManager vehicleStatusManager;
     protected final RealTimeSchedAdhProcessor realTimeSchedAdhProcessor;
     protected final BiasAdjuster biasAdjuster;
 
@@ -68,7 +68,7 @@ public class PredictionGeneratorDefaultImpl extends AbstractPredictionGenerator 
                                           StopPathPredictionCache stopPathPredictionCache,
                                           TravelTimes travelTimes,
                                           HoldingTimeGenerator holdingTimeGenerator,
-                                          VehicleStateManager vehicleStateManager,
+                                          VehicleStatusManager vehicleStatusManager,
                                           RealTimeSchedAdhProcessor realTimeSchedAdhProcessor,
                                           BiasAdjuster biasAdjuster) {
 
@@ -77,7 +77,7 @@ public class PredictionGeneratorDefaultImpl extends AbstractPredictionGenerator 
         this.stopPathPredictionCache = stopPathPredictionCache;
         this.travelTimes = travelTimes;
         this.holdingTimeGenerator = holdingTimeGenerator;
-        this.vehicleStateManager = vehicleStateManager;
+        this.vehicleStatusManager = vehicleStatusManager;
         this.realTimeSchedAdhProcessor = realTimeSchedAdhProcessor;
         this.biasAdjuster = biasAdjuster;
     }
@@ -122,10 +122,10 @@ public class PredictionGeneratorDefaultImpl extends AbstractPredictionGenerator 
         Trip trip = indices.getTrip();
 
         long freqStartTime = -1;
-        org.transitclock.core.VehicleState vehicleState = vehicleStateManager.getVehicleState(avlReport.getVehicleId());
+        VehicleStatus vehicleStatus = vehicleStatusManager.getStatus(avlReport.getVehicleId());
         if (trip.isNoSchedule()) {
-            if (vehicleState.getTripStartTime(tripCounter) != null) {
-                freqStartTime = vehicleState.getTripStartTime(tripCounter);
+            if (vehicleStatus.getTripStartTime(tripCounter) != null) {
+                freqStartTime = vehicleStatus.getTripStartTime(tripCounter);
             }
         }
 
@@ -148,12 +148,12 @@ public class PredictionGeneratorDefaultImpl extends AbstractPredictionGenerator 
                     scheduleDeviation,
                     freqStartTime,
                     tripCounter,
-                    vehicleState.isCanceled());
+                    vehicleStatus.isCanceled());
 
         } else {
 
             // Generate a departure time
-            int expectedStopTimeMsec = (int) getStopTimeForPath(indices, avlReport, vehicleState);
+            int expectedStopTimeMsec = (int) getStopTimeForPath(indices, avlReport, vehicleStatus);
             // If at a wait stop then need to handle specially...
             if (indices.isWaitStop()) {
                 logger.debug(
@@ -271,7 +271,7 @@ public class PredictionGeneratorDefaultImpl extends AbstractPredictionGenerator 
                             scheduleDeviation,
                             freqStartTime,
                             tripCounter,
-                            vehicleState.isCanceled());
+                            vehicleStatus.isCanceled());
 
                 } else {
                     // Use the expected departure times, possibly adjusted for
@@ -292,7 +292,7 @@ public class PredictionGeneratorDefaultImpl extends AbstractPredictionGenerator 
                             scheduleDeviation,
                             freqStartTime,
                             tripCounter,
-                            vehicleState.isCanceled());
+                            vehicleStatus.isCanceled());
                 }
             } else {
                 // Create and return the departure prediction for this
@@ -313,7 +313,7 @@ public class PredictionGeneratorDefaultImpl extends AbstractPredictionGenerator 
                         scheduleDeviation,
                         freqStartTime,
                         tripCounter,
-                        vehicleState.isCanceled());
+                        vehicleStatus.isCanceled());
             }
         }
     }
@@ -321,12 +321,12 @@ public class PredictionGeneratorDefaultImpl extends AbstractPredictionGenerator 
     /**
      * Generates the predictions for the vehicle.
      *
-     * @param vehicleState Contains the new match for the vehicle that the predictions are to be
+     * @param vehicleStatus Contains the new match for the vehicle that the predictions are to be
      *     based on.
      * @return List of Predictions. Can be empty but will not be null.
      */
     @Override
-    public List<IpcPrediction> generate(org.transitclock.core.VehicleState vehicleState) {
+    public List<IpcPrediction> generate(VehicleStatus vehicleStatus) {
         // For layovers always use arrival time for end of trip and
         // departure time for anything else. But for non-layover stops
         // can use either arrival or departure times, depending on what
@@ -341,11 +341,11 @@ public class PredictionGeneratorDefaultImpl extends AbstractPredictionGenerator 
         List<IpcPrediction> newPredictions = new ArrayList<>();
 
         // Get the new match for the vehicle that predictions are to be based on
-        TemporalMatch match = vehicleState.getMatch();
+        TemporalMatch match = vehicleStatus.getMatch();
         Indices indices = match.getIndices();
 
         // Get info from the AVL report.
-        AvlReport avlReport = vehicleState.getAvlReport();
+        AvlReport avlReport = vehicleStatus.getAvlReport();
         long avlTime = avlReport.getTime();
         boolean schedBasedPreds = avlReport.isForSchedBasedPreds();
 
@@ -359,12 +359,12 @@ public class PredictionGeneratorDefaultImpl extends AbstractPredictionGenerator 
         // Determine if vehicle is so late that predictions for subsequent
         // trips should be marked as uncertain given that another vehicle
         // might substitute in for that block.
-        TemporalDifference lateness = vehicleState.getRealTimeSchedAdh();
+        TemporalDifference lateness = vehicleStatus.getRealTimeSchedAdh();
         boolean lateSoMarkSubsequentTripsAsUncertain =
                 lateness != null && lateness.isLaterThan(maxLateCutoffPredsForNextTripsSecs.getValue());
         if (lateSoMarkSubsequentTripsAsUncertain) {
             logger.info("Vehicle late so marking predictions for subsequent trips as being uncertain. {}",
-                    vehicleState);
+                vehicleStatus);
         }
         int currentTripIndex = indices.getTripIndex();
 
@@ -373,7 +373,7 @@ public class PredictionGeneratorDefaultImpl extends AbstractPredictionGenerator 
         final long now = SystemTime.getMillis();
 
         // indices.incrementStopPath(predictionTime);
-        Integer tripCounter = vehicleState.getTripCounter();
+        Integer tripCounter = vehicleStatus.getTripCounter();
 
         Map<Integer, IpcPrediction> filteredPredictions = new HashMap<>();
 
@@ -394,7 +394,7 @@ public class PredictionGeneratorDefaultImpl extends AbstractPredictionGenerator 
                     lateSoMarkSubsequentTripsAsUncertain && indices.getTripIndex() > currentTripIndex;
 
             int delay = realTimeSchedAdhProcessor
-                    .generateEffectiveScheduleDifference(vehicleState)
+                    .generateEffectiveScheduleDifference(vehicleStatus)
                     .getTemporalDifference() / 1000;
 
             // Determine the new prediction
@@ -404,7 +404,7 @@ public class PredictionGeneratorDefaultImpl extends AbstractPredictionGenerator 
                     predictionTime,
                     useArrivalPreds,
                     affectedByWaitStop,
-                    vehicleState.isDelayed(),
+                    vehicleStatus.isDelayed(),
                     lateSoMarkAsUncertain,
                     tripCounter,
                     delay);
@@ -413,15 +413,15 @@ public class PredictionGeneratorDefaultImpl extends AbstractPredictionGenerator 
                     && (predictionForStop.getPredictionTime() - SystemTime.getMillis()) > 0) {
                 if (holdingTimeGenerator != null) {
                     HoldingTime holdingTime = holdingTimeGenerator
-                            .generateHoldingTime(vehicleState, predictionForStop);
+                            .generateHoldingTime(vehicleStatus, predictionForStop);
                     if (holdingTime != null) {
                         holdingTimeCache.putHoldingTime(holdingTime);
-                        vehicleState.setHoldingTime(holdingTime);
+                        vehicleStatus.setHoldingTime(holdingTime);
                     }
                 }
             }
 
-            logger.debug("For vehicleId={} generated prediction {}", vehicleState.getVehicleId(), predictionForStop);
+            logger.debug("For vehicleId={} generated prediction {}", vehicleStatus.getVehicleId(), predictionForStop);
 
             // If prediction ended up being too far in the future (which can
             // happen if it is a departure prediction where the time at the
@@ -441,7 +441,7 @@ public class PredictionGeneratorDefaultImpl extends AbstractPredictionGenerator 
             // start time for a frequency based service
             if (lastStopOfNonSchedBasedTrip) {
                 tripCounter++;
-                vehicleState.putTripStartTime(tripCounter, predictionForStop.getPredictionTime());
+                vehicleStatus.putTripStartTime(tripCounter, predictionForStop.getPredictionTime());
                 // break;
             }
 
@@ -494,11 +494,11 @@ public class PredictionGeneratorDefaultImpl extends AbstractPredictionGenerator 
             predictionTime = predictionForStop.getActualPredictionTime();
 
             if (predictionForStop.isArrival()) {
-                predictionTime += getStopTimeForPath(indices, avlReport, vehicleState);
+                predictionTime += getStopTimeForPath(indices, avlReport, vehicleStatus);
                 /* TODO this is where we should take account of holding time */
                 if (useHoldingTimeInPrediction.getValue() && holdingTimeGenerator != null) {
                     HoldingTime holdingTime = holdingTimeGenerator
-                            .generateHoldingTime(vehicleState, predictionForStop);
+                            .generateHoldingTime(vehicleStatus, predictionForStop);
 
                     if (holdingTime != null) {
                         long holdingTimeMsec = holdingTime.getHoldingTime().getTime()
@@ -514,14 +514,14 @@ public class PredictionGeneratorDefaultImpl extends AbstractPredictionGenerator 
             // If reached end of block then done
             if (indices.pastEndOfBlock(predictionTime, dbConfig)) {
                 logger.debug("For vehicleId={} reached end of block when generating predictions.",
-                        vehicleState.getVehicleId());
+                        vehicleStatus.getVehicleId());
                 break;
             }
             boolean isCircuitRoute = true;
             // Add in travel time for the next path to get to predicted
             // arrival time of this stop
             if (!lastStopOfNonSchedBasedTrip && isCircuitRoute) {
-                predictionTime += getTravelTimeForPath(indices, avlReport, vehicleState);
+                predictionTime += getTravelTimeForPath(indices, avlReport, vehicleStatus);
             }
         }
 
@@ -531,12 +531,12 @@ public class PredictionGeneratorDefaultImpl extends AbstractPredictionGenerator 
         return newPredictions;
     }
 
-    public long getTravelTimeForPath(Indices indices, AvlReport avlReport, org.transitclock.core.VehicleState vehicleState) {
+    public long getTravelTimeForPath(Indices indices, AvlReport avlReport, VehicleStatus vehicleStatus) {
         // logger.debug("Using transiTime default algorithm for travel time prediction : " + indices
         // + " Value: "+indices.getTravelTimeForPath());
         if (storeTravelTimeStopPathPredictions.getValue()) {
             PredictionForStopPath predictionForStopPath = new PredictionForStopPath(
-                    vehicleState.getVehicleId(),
+                    vehicleStatus.getVehicleId(),
                     SystemTime.getDate(),
                     (double)(indices.getTravelTimeForPath()),
                     indices.getTrip().getId(),
@@ -550,7 +550,7 @@ public class PredictionGeneratorDefaultImpl extends AbstractPredictionGenerator 
         return indices.getTravelTimeForPath();
     }
 
-    public long getStopTimeForPath(Indices indices, AvlReport avlReport, VehicleState vehicleState) {
+    public long getStopTimeForPath(Indices indices, AvlReport avlReport, VehicleStatus vehicleStatus) {
         return travelTimes.expectedStopTimeForStopPath(indices);
     }
 

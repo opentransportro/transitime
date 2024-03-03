@@ -9,7 +9,7 @@ import java.util.List;
 import org.transitclock.core.avl.assigner.BlockAssignmentMethod;
 import org.transitclock.core.avl.space.SpatialMatch;
 import org.transitclock.core.TemporalDifference;
-import org.transitclock.core.VehicleState;
+import org.transitclock.core.VehicleStatus;
 import org.transitclock.domain.structs.Trip;
 import org.transitclock.gtfs.DbConfig;
 import org.transitclock.utils.Geo;
@@ -39,7 +39,7 @@ public class IpcVehicleComplete extends IpcVehicleGtfsRealtime {
      * @param dbConfig
      * @param vs       The current vehicle state. Must not be null.
      */
-    public IpcVehicleComplete(DbConfig dbConfig, VehicleState vs, long layoverDepartureTime) {
+    public IpcVehicleComplete(DbConfig dbConfig, VehicleStatus vs, long layoverDepartureTime) {
         super(dbConfig, vs, layoverDepartureTime);
 
         // If vehicle assigned then can set the parameters

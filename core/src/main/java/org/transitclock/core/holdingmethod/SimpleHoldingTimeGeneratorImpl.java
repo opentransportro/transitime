@@ -1,10 +1,9 @@
 /* (C)2023 */
 package org.transitclock.core.holdingmethod;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.config.data.HoldingConfig;
-import org.transitclock.core.VehicleState;
+import org.transitclock.core.VehicleStatus;
 import org.transitclock.core.dataCache.PredictionDataCache;
 import org.transitclock.core.dataCache.StopArrivalDepartureCacheInterface;
 import org.transitclock.core.dataCache.StopArrivalDepartureCacheKey;
@@ -38,7 +37,7 @@ public class SimpleHoldingTimeGeneratorImpl implements HoldingTimeGenerator {
         this.dbConfig = dbConfig;
     }
 
-    public HoldingTime generateHoldingTime(VehicleState vehicleState, IpcArrivalDeparture event) {
+    public HoldingTime generateHoldingTime(VehicleStatus vehicleStatus, IpcArrivalDeparture event) {
         if (event.isArrival() && isControlStop(event.getStopId(), event.getStopPathIndex())) {
             logger.debug("Calling Simple Holding Generator for event : {}", event);
 
@@ -164,7 +163,7 @@ public class SimpleHoldingTimeGeneratorImpl implements HoldingTimeGenerator {
     }
 
     @Override
-    public HoldingTime generateHoldingTime(VehicleState vehicleState, IpcPrediction arrivalPrediction) {
+    public HoldingTime generateHoldingTime(VehicleStatus vehicleStatus, IpcPrediction arrivalPrediction) {
 
         HoldingTime holdingTime = null;
 
@@ -243,7 +242,7 @@ public class SimpleHoldingTimeGeneratorImpl implements HoldingTimeGenerator {
     }
 
     @Override
-    public void handleDeparture(VehicleState vehicleState, ArrivalDeparture arrivalDeparture) {
+    public void handleDeparture(VehicleStatus vehicleStatus, ArrivalDeparture arrivalDeparture) {
         // TODO Auto-generated method stub
 
     }

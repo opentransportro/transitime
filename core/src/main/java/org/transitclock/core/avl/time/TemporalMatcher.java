@@ -138,8 +138,8 @@ public class TemporalMatcher {
      * instead late since the layover time has already passed.
      */
     private TemporalDifference temporalDifferenceForSpecialLayover(
-        VehicleState vehicleState, SpatialMatch spatialMatch, int expectedTravelTimeMsec) {
-        AvlReport avlReport = vehicleState.getAvlReport();
+        VehicleStatus vehicleStatus, SpatialMatch spatialMatch, int expectedTravelTimeMsec) {
+        AvlReport avlReport = vehicleStatus.getAvlReport();
         Date avlTime = avlReport.getDate();
 
         // If already was at this layover then the expected travel
@@ -161,7 +161,7 @@ public class TemporalMatcher {
                                 + "currently after the layover time so "
                                 + "indicating that the vehicle is behind where "
                                 + "it should be. avlTime={}, scheduledDepTime={}",
-                        vehicleState.getVehicleId(),
+                        vehicleStatus.getVehicleId(),
                         avlTime,
                         new Date(scheduledDepartureTime));
                 return new TemporalDifference(scheduledDepartureTime - avlTime.getTime());
@@ -171,7 +171,7 @@ public class TemporalMatcher {
                         "For vehicleId={} match is for layover stop "
                                 + "but this match is at layover but had enough "
                                 + "time to get there so temporalDifference=0. ",
-                        vehicleState.getVehicleId());
+                        vehicleStatus.getVehicleId());
                 return new TemporalDifference(0);
             }
         } else {
@@ -181,7 +181,7 @@ public class TemporalMatcher {
                     "For vehicleId={} wasn't at layover stop but "
                             + "this match is at layover yet had enough time to get "
                             + "there so temporalDifference=0. expectedTravelTimeMsec={}",
-                    vehicleState.getVehicleId(),
+                    vehicleStatus.getVehicleId(),
                     expectedTravelTimeMsec);
             return new TemporalDifference(0);
         }
@@ -250,14 +250,14 @@ public class TemporalMatcher {
      * spatial match is ignored so that will properly match vehicle to subsequent non-layover
      * spatial match.
      *
-     * @param vehicleState So can get previous spatial match
+     * @param vehicleStatus So can get previous spatial match
      * @param spatialMatches So can get current spatial match being investigated and determine if
      *     subsequent ones are non-layover matches
      * @param matchIdx So can get current spatial match being investigated
      * @return true if it is a problematic layover match that should not be used
      */
-    private boolean isProblematicLayover(VehicleState vehicleState, List<SpatialMatch> spatialMatches, int matchIdx) {
-        SpatialMatch previousMatch = vehicleState.getMatch();
+    private boolean isProblematicLayover(VehicleStatus vehicleStatus, List<SpatialMatch> spatialMatches, int matchIdx) {
+        SpatialMatch previousMatch = vehicleStatus.getMatch();
         SpatialMatch spatialMatch = spatialMatches.get(matchIdx);
 
         // If not even a layover then false
@@ -293,17 +293,17 @@ public class TemporalMatcher {
      * between the previous and the current spatial match. The spatial match which corresponds most
      * to the expected travel time is returned as the best temporal match.
      *
-     * @param vehicleState
+     * @param vehicleStatus
      * @param spatialMatches
      * @return The best temporal match for the spatial matches passed in. If no valid temporal match
      *     found then returns null.
      */
-    public TemporalMatch getBestTemporalMatch(VehicleState vehicleState, List<SpatialMatch> spatialMatches) {
+    public TemporalMatch getBestTemporalMatch(VehicleStatus vehicleStatus, List<SpatialMatch> spatialMatches) {
         // Convenience variables
-        SpatialMatch previousMatch = vehicleState.getMatch();
+        SpatialMatch previousMatch = vehicleStatus.getMatch();
         Date previousAvlTime =
-                vehicleState.getPreviousAvlReportFromSuccessfulMatch().getDate();
-        AvlReport avlReport = vehicleState.getAvlReport();
+                vehicleStatus.getPreviousAvlReportFromSuccessfulMatch().getDate();
+        AvlReport avlReport = vehicleStatus.getAvlReport();
         Date avlTime = avlReport.getDate();
         long avlTimeDifferenceMsec = avlTime.getTime() - previousAvlTime.getTime();
 
@@ -325,7 +325,7 @@ public class TemporalMatcher {
             // early where might not temporally match to a match past the
             // layover due to system thinking that vehicle first needs to go
             // back to the layover and then to the spatial match.
-            if (isProblematicLayover(vehicleState, spatialMatches, matchIdx)) {
+            if (isProblematicLayover(vehicleStatus, spatialMatches, matchIdx)) {
                 // Ignore this problematic layover match
                 logger.warn(
                         "Ignoring special case layover spatial match "
@@ -339,7 +339,7 @@ public class TemporalMatcher {
             // match to the new match.
             int expectedTravelTimeMsecForward = travelTimes
                     .expectedTravelTimeBetweenMatches(
-                            vehicleState.getVehicleId(), previousAvlTime, previousMatch, spatialMatch);
+                            vehicleStatus.getVehicleId(), previousAvlTime, previousMatch, spatialMatch);
             // TODO - Check why it has to look backwards. Useful for freq based trips. Currently
             // breaks schedule based trips
             /*
@@ -378,7 +378,7 @@ public class TemporalMatcher {
                                 + "normal temporal difference. "
                                 + "avlTimeDifferenceMsec={}, "
                                 + "expectedTravelTimeMsec={}",
-                        vehicleState.getVehicleId(),
+                        vehicleStatus.getVehicleId(),
                         avlTimeDifferenceMsec,
                         expectedTravelTimeMsec);
             } else {
@@ -388,7 +388,7 @@ public class TemporalMatcher {
                 // time difference is 0, or if the vehicle is instead
                 // late since the layover time has already passed.
                 differenceFromExpectedTime =
-                        temporalDifferenceForSpecialLayover(vehicleState, spatialMatch, expectedTravelTimeMsec);
+                        temporalDifferenceForSpecialLayover(vehicleStatus, spatialMatch, expectedTravelTimeMsec);
             }
             // If it is before the last one just return the last one.
             // Something is not right that it thinks it is going backwards.
@@ -401,7 +401,7 @@ public class TemporalMatcher {
 
             logger.debug(
                     "For vehicleId={} temporal match " + "differenceFromExpectedTime={}",
-                    vehicleState.getVehicleId(),
+                    vehicleStatus.getVehicleId(),
                     differenceFromExpectedTime);
 
             // If the expected travel isn't reasonable then don't use it!
@@ -431,7 +431,7 @@ public class TemporalMatcher {
                                     + "worse which means that don't need to look at "
                                     + "additional spatial matches since it would only "
                                     + "continue to get worse.",
-                            vehicleState.getVehicleId());
+                            vehicleStatus.getVehicleId());
                     break;
                 }
             }
@@ -439,7 +439,7 @@ public class TemporalMatcher {
 
         logger.debug(
                 "For vehicleId={} best temporal match was found to be {}",
-                vehicleState.getVehicleId(),
+                vehicleStatus.getVehicleId(),
                 bestTemporalMatchSoFar);
 
         // Return the best temporal match (if there is one)

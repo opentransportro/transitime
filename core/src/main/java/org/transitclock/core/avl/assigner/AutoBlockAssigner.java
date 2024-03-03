@@ -10,7 +10,7 @@ import org.transitclock.core.avl.space.SpatialMatcher;
 import org.transitclock.core.avl.time.TemporalMatch;
 import org.transitclock.core.avl.time.TemporalMatcher;
 import org.transitclock.core.dataCache.VehicleDataCache;
-import org.transitclock.core.dataCache.VehicleStateManager;
+import org.transitclock.core.dataCache.VehicleStatusManager;
 import org.transitclock.domain.structs.AvlReport;
 import org.transitclock.domain.structs.Block;
 import org.transitclock.domain.structs.Trip;
@@ -52,20 +52,20 @@ public class AutoBlockAssigner {
 
     // The vehicle state is repeatedly used, so it is a member, so it doesn't
     // have to be passed around to various methods.
-    private final VehicleState vehicleState;
+    private final VehicleStatus vehicleStatus;
 
     private final VehicleDataCache vehicleDataCache;
     private final TravelTimes travelTimes;
-    private final VehicleStateManager vehicleStateManager;
+    private final VehicleStatusManager vehicleStatusManager;
     private final TemporalMatcher temporalMatcher;
     private final DbConfig dbConfig;
     private final BlockInfoProvider blockInfoProvider;
 
-    public AutoBlockAssigner(VehicleState vehicleState, VehicleDataCache vehicleDataCache, TravelTimes travelTimes, VehicleStateManager vehicleStateManager, TemporalMatcher temporalMatcher, DbConfig dbConfig, BlockInfoProvider blockInfoProvider) {
-        this.vehicleState = vehicleState;
+    public AutoBlockAssigner(VehicleStatus vehicleStatus, VehicleDataCache vehicleDataCache, TravelTimes travelTimes, VehicleStatusManager vehicleStatusManager, TemporalMatcher temporalMatcher, DbConfig dbConfig, BlockInfoProvider blockInfoProvider) {
+        this.vehicleStatus = vehicleStatus;
         this.vehicleDataCache = vehicleDataCache;
         this.travelTimes = travelTimes;
-        this.vehicleStateManager = vehicleStateManager;
+        this.vehicleStatusManager = vehicleStatusManager;
         this.temporalMatcher = temporalMatcher;
         this.dbConfig = dbConfig;
         this.blockInfoProvider = blockInfoProvider;
@@ -76,7 +76,7 @@ public class AutoBlockAssigner {
      * @return the current AVL report from vehicleState member
      */
     private AvlReport getAvlReport() {
-        return vehicleState.getAvlReport();
+        return vehicleStatus.getAvlReport();
     }
 
     /**
@@ -88,7 +88,7 @@ public class AutoBlockAssigner {
      */
     private AvlReport getPreviousAvlReport() {
         double minDistance = BlockAssignerConfig.minDistanceFromCurrentReport.getValue();
-        return vehicleState.getPreviousAvlReport(minDistance);
+        return vehicleStatus.getPreviousAvlReport(minDistance);
     }
 
     /**
@@ -115,7 +115,7 @@ public class AutoBlockAssigner {
             // If a regular vehicle instead of one for schedule based
             // predictions then the block has a vehicle assigned to it,
             // meaning it is not unassigned
-            VehicleState vehiclestate = vehicleStateManager.getVehicleState(vehicleId);
+            VehicleStatus vehiclestate = vehicleStatusManager.getStatus(vehicleId);
             if (!vehiclestate.isForSchedBasedPreds()) {
                 return false;
             }
@@ -161,7 +161,7 @@ public class AutoBlockAssigner {
         // Determine all potential spatial matches for the block that are
         // not layovers. Won't be a layover match anyways since this method
         // is only for use with no schedule assignments.
-        AvlReport avlReport = vehicleState.getAvlReport();
+        AvlReport avlReport = vehicleStatus.getAvlReport();
         List<Trip> potentialTrips = block.getTripsCurrentlyActive(dbConfig, avlReport);
         var spatialMatches = new SpatialMatcher(dbConfig).getSpatialMatchesForAutoAssigning(getAvlReport(), block, potentialTrips);
         if (spatialMatches.isEmpty()) {
@@ -528,7 +528,7 @@ public class AutoBlockAssigner {
      */
     private List<TemporalMatch> determineTemporalMatches() {
         // Convenience variable for logging
-        String vehicleId = vehicleState.getVehicleId();
+        String vehicleId = vehicleStatus.getVehicleId();
 
         // The list of matches to return
         List<TemporalMatch> validMatches = new ArrayList<>();
@@ -600,13 +600,13 @@ public class AutoBlockAssigner {
      * reporting rate and many available blocks then the system can get bogged down just doing auto
      * assigning.
      *
-     * @param vehicleState
+     * @param vehicleStatus
      * @return true if was too recently called for the vehicle
      */
-    private boolean tooRecent(VehicleState vehicleState) {
+    private boolean tooRecent(VehicleStatus vehicleStatus) {
         // Convenience variables
-        String vehicleId = vehicleState.getVehicleId();
-        long gpsTime = vehicleState.getAvlReport().getTime();
+        String vehicleId = vehicleStatus.getVehicleId();
+        long gpsTime = vehicleStatus.getAvlReport().getTime();
 
         // Determine last time vehicle was auto assigned
         Long lastTime = timeVehicleLastAutoAssigned.get(vehicleId);
@@ -678,10 +678,10 @@ public class AutoBlockAssigner {
         if (!enabled()) return null;
 
         // If auto assigner called too recently for vehicle then return
-        if (tooRecent(vehicleState)) return null;
+        if (tooRecent(vehicleStatus)) return null;
 
-        String vehicleId = vehicleState.getVehicleId();
-        logger.info("Determining possible auto assignment match for {}", vehicleState.getAvlReport());
+        String vehicleId = vehicleStatus.getVehicleId();
+        logger.info("Determining possible auto assignment match for {}", vehicleStatus.getAvlReport());
 
         // Determine all the valid matches
         List<TemporalMatch> matches = determineTemporalMatches();

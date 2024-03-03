@@ -9,6 +9,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Immutable;
+import org.transitclock.core.VehicleStatus;
 import org.transitclock.gtfs.DbConfig;
 import org.transitclock.utils.StringUtils;
 
@@ -87,7 +88,7 @@ public class VehicleState implements Serializable {
     @Column(name = "is_for_sched_based_predictions")
     private final Boolean isForSchedBasedPreds;
 
-    public VehicleState(org.transitclock.core.VehicleState vs, DbConfig dbConfig) {
+    public VehicleState(VehicleStatus vs, DbConfig dbConfig) {
         this.vehicleId = StringUtils.truncate(vs.getVehicleId(), 60);
         this.avlTime = vs.getAvlReport() == null ? null : vs.getAvlReport().getDate();
         this.blockId = vs.getBlock() == null ? null : vs.getBlock().getId();

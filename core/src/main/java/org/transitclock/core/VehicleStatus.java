@@ -7,7 +7,7 @@ import org.transitclock.core.avl.assigner.BlockAssigner;
 import org.transitclock.core.avl.assigner.BlockAssignmentMethod;
 import org.transitclock.core.avl.space.SpatialMatch;
 import org.transitclock.core.avl.time.TemporalMatch;
-import org.transitclock.core.dataCache.VehicleStateManager;
+import org.transitclock.core.dataCache.VehicleStatusManager;
 import org.transitclock.domain.structs.*;
 import org.transitclock.domain.structs.AssignmentType;
 import org.transitclock.gtfs.DbConfig;
@@ -24,7 +24,7 @@ import java.util.*;
  * @author SkiBu Smith
  */
 @Slf4j
-public class VehicleState {
+public class VehicleStatus {
 
     private final String vehicleId;
     private String vehicleName;
@@ -74,11 +74,11 @@ public class VehicleState {
     // Used for schedPred AVL. Identify if trip is canceled.
     private boolean isCanceled;
 
-    public VehicleState(String vehicleId) {
+    public VehicleStatus(String vehicleId) {
         this.vehicleId = vehicleId;
     }
 
-    public VehicleState(String vehicleId, String vehicleName) {
+    public VehicleStatus(String vehicleId, String vehicleName) {
         this.vehicleId = vehicleId;
         this.vehicleName = vehicleName;
     }
@@ -354,20 +354,20 @@ public class VehicleState {
      *
      * @param event
      */
-    public void incrementTripCounter(ArrivalDeparture event, VehicleStateManager vehicleStateManager) {
-        VehicleState vehicleState = vehicleStateManager.getVehicleState(event.getVehicleId());
+    public void incrementTripCounter(ArrivalDeparture event, VehicleStatusManager vehicleStatusManager) {
+        VehicleStatus vehicleStatus = vehicleStatusManager.getStatus(event.getVehicleId());
 
         if (event.getStopPathIndex() == 0) {
             if (event.isArrival()) {
-                vehicleState.incrementTripCounter();
+                vehicleStatus.incrementTripCounter();
                 logger.debug(
-                        "Setting vehicle counter to : {} because of event : {}", vehicleState.getTripCounter(), event);
+                        "Setting vehicle counter to : {} because of event : {}", vehicleStatus.getTripCounter(), event);
             } else {
                 logger.debug("Not arrival so not incrementing trip counter : {}", event);
             }
         } else if (this.getPreviousMatch().getStopPathIndex() > event.getStopPathIndex()) {
-            vehicleState.incrementTripCounter();
-            logger.debug("Setting vehicle counter to : {} because of event : {}", vehicleState.getTripCounter(), event);
+            vehicleStatus.incrementTripCounter();
+            logger.debug("Setting vehicle counter to : {} because of event : {}", vehicleStatus.getTripCounter(), event);
         }
     }
 

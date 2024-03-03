@@ -1,14 +1,12 @@
 /* (C)2023 */
 package org.transitclock.core.holdingmethod;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.transitclock.config.ClassConfigValue;
 import org.transitclock.core.dataCache.*;
 import org.transitclock.domain.hibernate.DataDbLogger;
 import org.transitclock.gtfs.DbConfig;
-import org.transitclock.utils.ClassInstantiator;
 
 /**
  * @author Sean Óg Crudden
@@ -28,9 +26,9 @@ public class HoldingTimeGeneratorFactory {
                                                      DbConfig dbConfig,
                                                      VehicleDataCache vehicleDataCache,
                                                      HoldingTimeCache holdingTimeCache,
-                                                     VehicleStateManager vehicleStateManager) {
+                                                     VehicleStatusManager vehicleStatusManager) {
         if (className.getValue() == HoldingTimeGeneratorDefaultImpl.class) {
-            return new HoldingTimeGeneratorDefaultImpl(predictionDataCache, stopArrivalDepartureCacheInterface, dataDbLogger, dbConfig, vehicleDataCache, holdingTimeCache, vehicleStateManager);
+            return new HoldingTimeGeneratorDefaultImpl(predictionDataCache, stopArrivalDepartureCacheInterface, dataDbLogger, dbConfig, vehicleDataCache, holdingTimeCache, vehicleStatusManager);
         } else if(className.getValue() == SimpleHoldingTimeGeneratorImpl.class) {
             return new SimpleHoldingTimeGeneratorImpl(predictionDataCache, stopArrivalDepartureCacheInterface, dataDbLogger, dbConfig);
         }

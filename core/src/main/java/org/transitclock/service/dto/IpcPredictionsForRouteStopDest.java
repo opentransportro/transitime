@@ -9,8 +9,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.transitclock.core.VehicleState;
-import org.transitclock.core.dataCache.VehicleStateManager;
+import org.transitclock.core.VehicleStatus;
+import org.transitclock.core.dataCache.VehicleStatusManager;
 import org.transitclock.domain.structs.Route;
 import org.transitclock.domain.structs.Stop;
 import org.transitclock.domain.structs.Trip;
@@ -410,7 +410,7 @@ public class IpcPredictionsForRouteStopDest implements Serializable {
      * @param currentTime Should use PredictionDataCache.systemTime.get() so that works even when in
      *     playback mode.
      */
-    public synchronized void removeExpiredPredictions(long currentTime, VehicleStateManager vehicleStateManager) {
+    public synchronized void removeExpiredPredictions(long currentTime, VehicleStatusManager vehicleStatusManager) {
         Iterator<IpcPrediction> iterator = predictionsForRouteStopDest.iterator();
 
         while (iterator.hasNext()) {
@@ -421,10 +421,10 @@ public class IpcPredictionsForRouteStopDest implements Serializable {
             // predictions if more are being added.
             if (currentPrediction.getPredictionTime() < currentTime) {
                 // TODO This is a change for VIA. This needs to be in HoldingTimeGenerator.
-                VehicleState vehicleState = vehicleStateManager.getVehicleState(currentPrediction.getVehicleId());
-                if (vehicleState != null) {
+                VehicleStatus vehicleStatus = vehicleStatusManager.getStatus(currentPrediction.getVehicleId());
+                if (vehicleStatus != null) {
                     if ((currentPrediction.getStopId().equals("20097") || currentPrediction.getStopId().equals("93296"))
-                            && vehicleState.getHoldingTime() == null) {
+                            && vehicleStatus.getHoldingTime() == null) {
                         // do nothing
                     } else {
                         iterator.remove();

@@ -10,7 +10,7 @@ import java.io.Serializable;
 import org.transitclock.core.avl.assigner.BlockAssignmentMethod;
 import org.transitclock.core.avl.space.SpatialMatch;
 import org.transitclock.core.TemporalDifference;
-import org.transitclock.core.VehicleState;
+import org.transitclock.core.VehicleStatus;
 import org.transitclock.domain.structs.Location;
 import org.transitclock.domain.structs.Stop;
 import org.transitclock.domain.structs.Trip;
@@ -71,7 +71,7 @@ public class IpcVehicle implements Serializable {
      * @param dbConfig
      * @param vs
      */
-    public IpcVehicle(DbConfig dbConfig, VehicleState vs, long layoverDepartureTime) {
+    public IpcVehicle(DbConfig dbConfig, VehicleStatus vs, long layoverDepartureTime) {
         this.vehicleName = vs.getVehicleName();
         this.blockAssignmentMethod = vs.getAssignmentMethod();
         this.avl = new IpcAvl(vs.getAvlReport());

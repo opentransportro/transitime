@@ -8,7 +8,7 @@ import org.transitclock.core.avl.assigner.BlockAssignmentMethod;
 import org.transitclock.core.avl.space.SpatialMatch;
 import org.transitclock.core.TemporalDifference;
 import org.transitclock.core.avl.time.TemporalMatch;
-import org.transitclock.core.VehicleState;
+import org.transitclock.core.VehicleStatus;
 import org.transitclock.domain.structs.StopPath;
 import org.transitclock.domain.structs.Trip;
 import org.transitclock.gtfs.DbConfig;
@@ -58,7 +58,7 @@ public class IpcVehicleGtfsRealtime extends IpcVehicle {
      * @param dbConfig
      * @param vs
      */
-    public IpcVehicleGtfsRealtime(DbConfig dbConfig, VehicleState vs, long layoverDepartureTime) {
+    public IpcVehicleGtfsRealtime(DbConfig dbConfig, VehicleStatus vs, long layoverDepartureTime) {
         super(dbConfig, vs, layoverDepartureTime);
 
         // Get the match. If match is just after a stop then adjust
