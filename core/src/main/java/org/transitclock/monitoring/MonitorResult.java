@@ -13,7 +13,6 @@ public class MonitorResult implements Serializable {
     private final String type;
     private final String message;
 
-    private static final long serialVersionUID = 8865389000445125279L;
 
     public MonitorResult(String type, String message) {
         this.type = type;

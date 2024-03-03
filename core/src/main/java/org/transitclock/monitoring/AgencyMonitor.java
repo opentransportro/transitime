@@ -14,7 +14,7 @@ import org.transitclock.domain.hibernate.DataDbLogger;
 import org.transitclock.gtfs.DbConfig;
 
 /**
- * For monitoring whether the core system is working properly. For calling all of the specific
+ * For monitoring whether the core system is working properly. For calling all the specific
  * monitoring functions.
  *
  * @author SkiBu Smith

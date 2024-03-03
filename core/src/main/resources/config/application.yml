@@ -21,6 +21,8 @@ spring:
     baselineOnMigrate: true
     validateOnMigrate: true
     locations: classpath:db/migration
+  main:
+    lazy-initialization: on
 
 server:
   port: 8080
@@ -37,7 +39,7 @@ server:
 transitclock:
   factory:
     headway-generator: org.transitclock.core.headwaygenerator.LastArrivalsHeadwayGenerator
-    prediction-generator: org.transitclock.core.predictiongenerator.PredictionGeneratorDefaultImpl
+    prediction-generator: org.transitclock.core.prediction.PredictionGeneratorDefaultImpl
   api:
     gtfsRtCacheSeconds: 15
     includeTripUpdateDelay: false

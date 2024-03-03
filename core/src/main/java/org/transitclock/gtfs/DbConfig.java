@@ -36,8 +36,8 @@ import java.util.Map;
 /**
  * Reads all the configuration data from the database. The data is based on GTFS but is heavily
  * processed into things like TripPatterns and better Paths to make the data far easier to use.
- *
- * <p>DbConfig is intended for the core application such that the necessary top level data can be
+ * <br/>
+ * DbConfig is intended for the core application such that the necessary top level data can be
  * read in at system startup. This doesn't read in all the low-level data such as paths and travel
  * times. Those items are very voluminous and are therefore lazy loaded.
  *

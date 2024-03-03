@@ -14,7 +14,7 @@ import org.transitclock.core.dataCache.*;
 import org.transitclock.core.dataCache.frequency.FrequencyBasedHistoricalAverageCache;
 import org.transitclock.core.dataCache.scheduled.ScheduleBasedHistoricalAverageCache;
 import org.transitclock.core.holdingmethod.HoldingTimeGenerator;
-import org.transitclock.core.predAccuracy.PredictionAccuracyModule;
+import org.transitclock.core.prediction.accuracy.PredictionAccuracyModule;
 import org.transitclock.domain.hibernate.DataDbLogger;
 import org.transitclock.domain.structs.*;
 import org.transitclock.gtfs.DbConfig;

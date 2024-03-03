@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 import org.transitclock.core.DwellTimeDetails;
 import org.transitclock.core.TravelTimeDetails;
 import org.transitclock.core.dataCache.*;
-import org.transitclock.core.predictiongenerator.datafilter.TravelTimeDataFilter;
+import org.transitclock.core.prediction.datafilter.TravelTimeDataFilter;
 import org.transitclock.domain.structs.ArrivalDeparture;
 import org.transitclock.domain.structs.QArrivalDeparture;
 import org.transitclock.domain.structs.Trip;

@@ -12,13 +12,12 @@ import org.transitclock.core.dataCache.DwellTimeModelCacheInterface;
 import org.transitclock.core.dataCache.StopArrivalDepartureCacheInterface;
 import org.transitclock.core.dataCache.StopArrivalDepartureCacheKey;
 import org.transitclock.core.dataCache.StopPathCacheKey;
-import org.transitclock.core.predictiongenerator.scheduled.dwell.DwellModel;
+import org.transitclock.core.prediction.scheduled.dwell.DwellModel;
 import org.transitclock.domain.structs.ArrivalDeparture;
 import org.transitclock.domain.structs.Headway;
 import org.transitclock.domain.structs.QArrivalDeparture;
 import org.transitclock.service.dto.IpcArrivalDeparture;
 
-import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;

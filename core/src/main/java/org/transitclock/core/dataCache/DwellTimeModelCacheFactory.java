@@ -6,8 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.transitclock.config.ClassConfigValue;
 import org.transitclock.core.dataCache.ehcache.scheduled.DwellTimeModelCache;
-import org.transitclock.core.predictiongenerator.scheduled.dwell.DwellModel;
-import org.transitclock.utils.ClassInstantiator;
+import org.transitclock.core.prediction.scheduled.dwell.DwellModel;
 
 /**
  * @author Sean Óg Crudden Factory that will provide cache to hold dwell time model class instances

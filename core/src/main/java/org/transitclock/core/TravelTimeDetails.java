@@ -2,10 +2,8 @@
 package org.transitclock.core;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.transitclock.core.predictiongenerator.datafilter.TravelTimeDataFilter;
-import org.transitclock.core.predictiongenerator.datafilter.TravelTimeFilterFactory;
+import org.transitclock.core.prediction.datafilter.TravelTimeDataFilter;
 import org.transitclock.service.dto.IpcArrivalDeparture;
 
 @Slf4j

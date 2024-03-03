@@ -3,10 +3,14 @@ package org.transitclock.monitoring;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 import org.transitclock.Module;
 import org.transitclock.config.data.AgencyConfig;
 import org.transitclock.config.data.MonitoringConfig;
 import org.transitclock.utils.Time;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * A module that runs in a separate thread and repeatedly uses AgencyMonitor to monitor a core
@@ -19,18 +23,21 @@ import org.transitclock.utils.Time;
  * @author SkiBu Smith
  */
 @Slf4j
+@Component
 public class MonitoringModule extends Module {
-    @Autowired
-    private AgencyMonitor agencyMonitor;
+    private final AgencyMonitor agencyMonitor;
+
+    public MonitoringModule(AgencyMonitor agencyMonitor) {
+        this.agencyMonitor = agencyMonitor;
+    }
 
 
     /* (non-Javadoc)
      * @see java.lang.Runnable#run()
      */
     @Override
+    @Scheduled(fixedRateString = "${transitclock.monitoring.secondsBetweenMonitorinPolling:120}", timeUnit = TimeUnit.SECONDS)
     public void run() {
-        // Log that module successfully started
-        logger.info("Started module {}", getClass().getName());
         try {
             // Wait appropriate amount of time till poll again
             // Actually do the monitoring

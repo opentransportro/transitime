@@ -74,7 +74,7 @@ transitclock.core.cache.stopArrivalDepartureCache=org.transitclock.core.dataCach
 transitclock.core.cache.stopPathPredictionCache=org.transitclock.core.dataCache.StopPathPredictionCache
 transitclock.core.cache.dwellTimeModelCache=org.transitclock.core.dataCache.ehcache.scheduled.DwellTimeModelCache
 transitclock.core.distanceFromLayoverForEarlyDeparture=250
-transitclock.core.dwelltime.model=org.transitclock.core.predictiongenerator.scheduled.dwell.DwellAverage
+transitclock.core.dwelltime.model=org.transitclock.core.prediction.scheduled.dwell.DwellAverage
 transitclock.core.dwelltime.headwayGeneratorClass=org.transitclock.core.headwaygenerator.LastArrivalsHeadwayGenerator
 transitclock.core.exclusiveBlockAssignments=true
 transitclock.core.fillHistoricalCaches=0
@@ -87,7 +87,7 @@ transitclock.core.maxPredictionsTimeSecs=1800
 transitclock.core.minDistanceForDelayed=60
 transitclock.core.minDistanceForNoProgress=60
 transitclock.core.onlyNeedArrivalDepartures=false
-#transitclock.core.predictionGeneratorClass=org.transitclock.core.predictiongenerator.scheduled.traveltime.kalman.KalmanPredictionGeneratorImpl
+#transitclock.core.predictionGeneratorClass=org.transitclock.core.prediction.scheduled.traveltime.kalman.KalmanPredictionGeneratorImpl
 transitclock.core.shortDistanceDeadheadingSpeed=10
 transitclock.core.timeForDeterminingDelayedSecs=300
 transitclock.core.timeForDeterminingNoProgress=360000
@@ -115,7 +115,7 @@ transitclock.prediction.rls.lambda=0.9
 
 transitclock.timeout.pollingRateSecs=60
 
-transitclock.modules.optionalModulesList=org.transitclock.core.avl.GtfsRealtimeModule;org.transitclock.core.predAccuracy.PredictionAccuracyModule;org.transitclock.gtfs.GtfsUpdatedModule
+transitclock.modules.optionalModulesList=org.transitclock.core.avl.GtfsRealtimeModule;org.transitclock.core.prediction.accuracy.PredictionAccuracyModule;org.transitclock.gtfs.GtfsUpdatedModule
 ##!!! absolute location to the hibernate.cfg.xml file
 transitclock.hibernate.configFile=
 transitclock.logging.dir=/var/transitclock/logs
