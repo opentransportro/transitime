@@ -199,6 +199,31 @@ public class AvlReport implements Serializable {
      *     if speed not available
      * @param source Text describing the source of the report
      */
+
+    public AvlReport(String vehicleId, String vehicleName, long time, double lat, double lon, float speed, float heading, String source) {
+        // Store the values
+        this.vehicleId = vehicleId;
+        this.time = new Date(time);
+        this.location = new Location(lat, lon);
+        // DB requires null instead of NaN
+        this.speed = Float.isNaN(speed) ? null : speed;
+        this.heading = Float.isNaN(heading) ? null : heading;
+        this.source = sized(source);
+        this.assignmentId = null;
+        this.assignmentType = AssignmentType.UNSET;
+        this.leadVehicleId = null;
+        this.driverId = null;
+        this.licensePlate = null;
+        this.passengerCount = null;
+        this.passengerFullness = null;
+        this.field1Name = null;
+        this.field1Value = null;
+        this.vehicleName = vehicleName;
+
+        // Don't yet know when processed so set timeProcessed to null
+        this.timeProcessed = null;
+    }
+
     public AvlReport(String vehicleId, long time, double lat, double lon, float speed, float heading, String source) {
         // Store the values
         this.vehicleId = vehicleId;
