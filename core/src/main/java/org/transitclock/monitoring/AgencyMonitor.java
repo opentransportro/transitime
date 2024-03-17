@@ -1,17 +1,17 @@
 /* (C)2023 */
 package org.transitclock.monitoring;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import org.transitclock.config.data.AgencyConfig;
+import org.transitclock.ApplicationProperties;
 import org.transitclock.core.avl.AvlProcessor;
 import org.transitclock.core.avl.assigner.BlockInfoProvider;
 import org.transitclock.core.dataCache.VehicleDataCache;
 import org.transitclock.domain.hibernate.DataDbLogger;
 import org.transitclock.gtfs.DbConfig;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * For monitoring whether the core system is working properly. For calling all the specific
@@ -32,12 +32,13 @@ public class AgencyMonitor {
      * Constructor declared private so have to use getInstance() to get an AgencyMonitor. Like a
      * singleton, but one AgencyMonitor for every agencyId.
      */
-    public AgencyMonitor(BlockInfoProvider blockInfoProvider,
+    public AgencyMonitor(ApplicationProperties properties,
+                         BlockInfoProvider blockInfoProvider,
                          DbConfig dbConfig,
                          DataDbLogger dataDbLogger,
                          VehicleDataCache vehicleDataCache,
                          AvlProcessor avlProcessor) {
-        String agencyId = AgencyConfig.getAgencyId();
+        String agencyId = properties.getCore().getAgencyId();
         // Create all the monitors and add them to the monitors list
         monitors = new ArrayList<>();
         monitors.add(new AvlFeedMonitor(agencyId, dataDbLogger, avlProcessor, blockInfoProvider));

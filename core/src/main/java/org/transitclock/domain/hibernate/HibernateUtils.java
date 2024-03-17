@@ -1,8 +1,19 @@
 /* (C)2023 */
 package org.transitclock.domain.hibernate;
 
+import java.io.File;
+import java.net.URL;
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.transitclock.config.data.DbSetupConfig;
+import org.transitclock.domain.structs.*;
+import org.transitclock.domain.webstructs.ApiKey;
+import org.transitclock.domain.webstructs.WebAgency;
+
 import com.querydsl.jpa.impl.JPAQuery;
-import lombok.Synchronized;
+import lombok.experimental.Delegate;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -10,18 +21,55 @@ import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.procedure.ProcedureCall;
+import org.hibernate.query.NativeQuery;
 import org.hibernate.service.ServiceRegistry;
-import org.transitclock.config.data.DbSetupConfig;
-
-import java.io.File;
-import java.net.URL;
-import java.util.Map;
-import java.util.Properties;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 public class HibernateUtils {
 
+    // List here all the annotated classes that can be stored in the db
+    private static final Class<?>[] classList = new Class[] {
+        ActiveRevision.class,
+        Agency.class,
+        Arrival.class,
+        AvlReport.class,
+        Block.class,
+        Calendar.class,
+        CalendarDate.class,
+        ConfigRevision.class,
+        DbTest.class,
+        ExportTable.class,
+        Prediction.class,
+        Departure.class,
+        FareAttribute.class,
+        FareRule.class,
+        Frequency.class,
+        Match.class,
+        MeasuredArrivalTime.class,
+        MonitoringEvent.class,
+        PredictionAccuracy.class,
+        Route.class,
+        Stop.class,
+        StopPath.class,
+        Transfer.class,
+        TravelTimesForStopPath.class,
+        PredictionForStopPath.class,
+        TravelTimesForTrip.class,
+        Trip.class,
+        TripPattern.class,
+        VehicleEvent.class,
+        PredictionEvent.class,
+        VehicleConfig.class,
+        VehicleState.class,
+        VehicleToBlockConfig.class,
+        HoldingTime.class,
+        Headway.class,
+
+        // For website
+        ApiKey.class,
+        WebAgency.class,
+    };
     // Cache. Keyed on database name
     private static final Map<String, SessionFactory> sessionFactoryCache = new ConcurrentHashMap<>();
     private static final Map<Thread, ThreadLocal<Session>> threadSessions = new ConcurrentHashMap<>();
@@ -56,8 +104,9 @@ public class HibernateUtils {
             logger.error("Could not load in hibernate config file {}", fileName);
         }
 
-        // Add the annotated classes so that they can be used
-        AnnotatedClassesList.addAnnotatedClasses(config);
+        for (Class<?> aClass : classList) {
+            config.addAnnotatedClass(aClass);
+        }
 
         // Set the db info for the URL, user name, and password. Uses the
         // property hibernate.connection.url if it is set so that everything
@@ -207,22 +256,58 @@ public class HibernateUtils {
         return new JPAQuery<>(getSession());
     }
 
-    @Synchronized
     public static Session getSession(boolean readOnly) {
-        Thread currentThread = Thread.currentThread();
-        ThreadLocal<Session> threadSession = threadSessions.get(currentThread);
-        if (threadSession == null || threadSession.get() == null || !threadSession.get().isOpen()) {
-            if(threadSession != null && threadSession.get() != null) {
-                threadSession.get().close();
-                threadSession.remove();
-            }
-            SessionFactory sessionFactory = HibernateUtils.getSessionFactory(DbSetupConfig.getDbName(), readOnly);
-            if (threadSession == null)
-                threadSessions.put(currentThread, ThreadLocal.withInitial(sessionFactory::openSession));
-            else
-                threadSession.set(sessionFactory.openSession());
+        return threadSessions
+            .compute(Thread.currentThread(), (t, s) -> {
+                String dbName = DbSetupConfig.getDbName();
+                if (s == null) {
+                    ThreadLocal<Session> sessionThreadLocal = new ThreadLocal<>();
+                    sessionThreadLocal.set(ContextAwareSession.create(getSessionFactory(dbName, readOnly)));
+                    return sessionThreadLocal;
+                }
+
+                Session session = s.get();
+                if (!session.isOpen() || session.isDefaultReadOnly() != readOnly) {
+                    s.set(ContextAwareSession.create(getSessionFactory(dbName, readOnly)));
+                }
+
+                return s;
+            })
+            .get();
+    }
+
+    private static class ContextAwareSession implements Session {
+        @Delegate
+        private final Session session;
+        private final Thread thread;
+
+        public static ContextAwareSession create(SessionFactory sessionFactory) {
+            return new ContextAwareSession(sessionFactory.openSession(), Thread.currentThread());
         }
 
-        return threadSessions.get(currentThread).get();
+        public ContextAwareSession(Session session, Thread thread) {
+            this.session = session;
+            this.thread = thread;
+        }
+
+        public Thread getContext() {
+            return thread;
+        }
+
+        @Override
+        public void close() throws HibernateException {
+            session.close();
+            threadSessions.remove(thread);
+        }
+
+        @Override
+        public NativeQuery createNativeQuery(String sqlString, Class resultClass) {
+            return session.createNativeQuery(sqlString, resultClass);
+        }
+
+        @Override
+        public ProcedureCall createStoredProcedureQuery(String procedureName, Class... resultClasses) {
+            return session.createStoredProcedureQuery(procedureName, resultClasses);
+        }
     }
 }

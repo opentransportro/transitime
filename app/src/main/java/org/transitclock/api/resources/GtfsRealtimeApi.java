@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.transitclock.api.data.gtfs.FeedCacheManager;
 import org.transitclock.api.data.gtfs.GtfsRtTripFeed;
 import org.transitclock.api.data.gtfs.GtfsRtVehicleFeed;
 import org.transitclock.api.utils.AgencyTimezoneCache;
@@ -26,9 +27,11 @@ import org.transitclock.api.utils.StandardParameters;
 @RequestMapping("/api/v1/key/{key}/agency/{agency}")
 public class GtfsRealtimeApi extends BaseApiResource {
     private final AgencyTimezoneCache agencyTimezoneCache;
+    private final FeedCacheManager feedCacheManager;
 
-    public GtfsRealtimeApi(AgencyTimezoneCache agencyTimezoneCache) {
+    public GtfsRealtimeApi(AgencyTimezoneCache agencyTimezoneCache, FeedCacheManager feedCacheManager) {
         this.agencyTimezoneCache = agencyTimezoneCache;
+        this.feedCacheManager = feedCacheManager;
     }
 
     /**
@@ -58,7 +61,7 @@ public class GtfsRealtimeApi extends BaseApiResource {
         // standard binary GTFS-realtime format.
         final boolean humanFormatOutput = "human".equals(format);
 
-        FeedMessage message = GtfsRtVehicleFeed.getPossiblyCachedMessage(
+        FeedMessage message = feedCacheManager.getPossiblyCachedMessage(
             stdParameters.getAgency(), vehiclesInterface, agencyTimezoneCache);
 
         return generateResponse(message, humanFormatOutput);
@@ -93,8 +96,8 @@ public class GtfsRealtimeApi extends BaseApiResource {
         // standard binary GTFS-realtime format.
         final boolean humanFormatOutput = "human".equals(format);
 
-        FeedMessage message = GtfsRtTripFeed.getPossiblyCachedMessage(
-            stdParameters.getAgencyId(), predictionsInterface, vehiclesInterface, agencyTimezoneCache);
+        FeedMessage message = feedCacheManager.getPossiblyCachedMessage(
+            properties, predictionsInterface, vehiclesInterface, agencyTimezoneCache);
 
         return generateResponse(message, humanFormatOutput);
 

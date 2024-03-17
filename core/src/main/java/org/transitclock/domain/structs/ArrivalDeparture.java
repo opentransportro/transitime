@@ -37,6 +37,7 @@ import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.Time;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -516,81 +517,62 @@ public abstract class ArrivalDeparture implements Lifecycle, Serializable {
             final Integer firstResult,
             final Integer maxResults,
             ArrivalsOrDepartures arrivalOrDeparture) {
-        IntervalTimer timer = new IntervalTimer();
-
         // Get the database session. This is supposed to be pretty light weight
-        Session session = dbName != null ? HibernateUtils.getSession(dbName, false) : HibernateUtils.getSession(true);
+        try (Session session = dbName != null ? HibernateUtils.getSession(dbName, false) : HibernateUtils.getSession(true)) {
+            String hql = "FROM ArrivalDeparture WHERE time between :beginDate AND :endDate";
+            if (arrivalOrDeparture != null) {
+                if (arrivalOrDeparture == ArrivalsOrDepartures.ARRIVALS) {
+                    hql += " AND isArrival = true";
+                } else {
+                    hql += " AND isArrival = false";
+                }
+            }
+            if (sqlClause != null) {
+                hql += " " + sqlClause;
+            }
+            var query = session.createQuery(hql, ArrivalDeparture.class)
+                    .setParameter("beginDate", beginTime)
+                    .setParameter("endDate", endTime);
 
-        // Create the query. Table name is case sensitive and needs to be the
-        // class name instead of the name of the db table.
-        String hql = "FROM ArrivalDeparture WHERE time between :beginDate AND :endDate";
-        if (arrivalOrDeparture != null) {
-            if (arrivalOrDeparture == ArrivalsOrDepartures.ARRIVALS) hql += " AND isArrival = true";
-            else hql += " AND isArrival = false";
-        }
-        if (sqlClause != null) {
-            hql += " " + sqlClause;
-        }
-        var query = session.createQuery(hql, ArrivalDeparture.class);
+            // Only get a batch of data at a time if maxResults specified
+            if (firstResult != null) {
+                query.setFirstResult(firstResult);
+            }
+            if (maxResults != null && maxResults > 0) {
+                query.setMaxResults(maxResults);
+            }
 
-        // Set the parameters for the query
-        query.setParameter("beginDate", beginTime);
-        query.setParameter("endDate", endTime);
-
-        // Only get a batch of data at a time if maxResults specified
-        if (firstResult != null) {
-            query.setFirstResult(firstResult);
-        }
-        if (maxResults != null && maxResults > 0) {
-            query.setMaxResults(maxResults);
-        }
-
-        try {
-            List<ArrivalDeparture> arrivalsDeparatures = query.list();
-            logger.debug("Getting arrival/departures from database took {} msec", timer.elapsedMsec());
-            return arrivalsDeparatures;
+            return query.list();
         } catch (HibernateException e) {
             logger.error(e.getMessage(), e);
-            return null;
-        } finally {
-            // Clean things up. Not sure if this absolutely needed nor if
-            // it might actually be detrimental and slow things down.
-            session.close();
         }
+
+        return new ArrayList<>();
     }
 
-    public static Long getArrivalsDeparturesCountFromDb(
+    public static long getArrivalsDeparturesCountFromDb(
             String dbName, Date beginTime, Date endTime, ArrivalsOrDepartures arrivalOrDeparture) {
 
         // Get the database session. This is supposed to be pretty lightweight
-        Session session = dbName != null ? HibernateUtils.getSession(dbName, false) : HibernateUtils.getSession(true);
-
-        // Create the query. Table name is case sensitive and needs to be the
-        // class name instead of the name of the db table.
-        String hql = "select count(*) FROM ArrivalDeparture WHERE time >= :beginDate AND time < :endDate";
-        if (arrivalOrDeparture != null) {
-            if (arrivalOrDeparture == ArrivalsOrDepartures.ARRIVALS) {
-                hql += " AND isArrival = true";
-            } else {
-                hql += " AND isArrival = false";
+        try (Session session = dbName != null ? HibernateUtils.getSession(dbName, false) : HibernateUtils.getSession(true)) {
+            String hql = "select count(*) FROM ArrivalDeparture WHERE time >= :beginDate AND time < :endDate";
+            if (arrivalOrDeparture != null) {
+                if (arrivalOrDeparture == ArrivalsOrDepartures.ARRIVALS) {
+                    hql += " AND isArrival = true";
+                } else {
+                    hql += " AND isArrival = false";
+                }
             }
-        }
 
-        var query = session.createQuery(hql, Long.class)
-            .setParameter("beginDate", beginTime)
-            .setParameter("endDate", endTime);
+            var query = session.createQuery(hql, Long.class)
+                    .setParameter("beginDate", beginTime)
+                    .setParameter("endDate", endTime);
 
-        try {
-            Long count = query.uniqueResult();
-            return count;
+            return query.uniqueResult();
         } catch (HibernateException e) {
             logger.error(e.getMessage(), e);
-            return null;
-        } finally {
-            // Clean things up. Not sure if this absolutely needed nor if
-            // it might actually be detrimental and slow things down.
-            session.close();
         }
+        return 0L;
     }
 
     /**

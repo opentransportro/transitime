@@ -11,11 +11,13 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.transitclock.config.data.DbSetupConfig;
 import org.transitclock.domain.structs.ArrivalDeparture;
 import org.transitclock.domain.structs.ArrivalDeparture.ArrivalsOrDepartures;
+import org.transitclock.gtfs.GtfsFilter;
 import org.transitclock.gtfs.model.GtfsExtendedStopTime;
 import org.transitclock.gtfs.model.GtfsFrequency;
 import org.transitclock.gtfs.model.GtfsStopTime;
@@ -89,6 +91,7 @@ import org.transitclock.utils.Time;
  *
  * @author SkiBu Smith
  */
+@Slf4j
 public class ScheduleDataProcessor {
 
     // To specify where to read and write the GTFS data
@@ -125,8 +128,6 @@ public class ScheduleDataProcessor {
 
     private final Map<TerminalDeparturesKey, Integer> departureTimesFromTerminalMap =
             new HashMap<TerminalDeparturesKey, Integer>();
-
-    private static final Logger logger = LoggerFactory.getLogger(ScheduleDataProcessor.class);
 
     /**
      * Special MapKey class so that can make sure using the proper key for the several maps in this
@@ -191,7 +192,8 @@ public class ScheduleDataProcessor {
             int allowableDifferenceFromOriginalTimeSecs,
             boolean doNotUpdateFirstStopOfTrip,
             int allowableEarlySecs,
-            int allowableLateSecs) {
+            int allowableLateSecs,
+            GtfsFilter gtfsFilter) {
         this.gtfsDirectoryName = gtfsDirectoryName;
         this.beginTime = beginTime;
         this.endTime = endTime;
@@ -203,8 +205,8 @@ public class ScheduleDataProcessor {
         this.allowableEarlySecs = allowableEarlySecs;
         this.allowableLateSecs = allowableLateSecs;
 
-        this.gtfsStopTimes = getGtfsStopTimes(gtfsDirectoryName);
-        this.gtfsFrequencyBasedTrips = getFrequencyBasedTrips(gtfsDirectoryName);
+        this.gtfsStopTimes = getGtfsStopTimes(gtfsDirectoryName, gtfsFilter);
+        this.gtfsFrequencyBasedTrips = getFrequencyBasedTrips(gtfsDirectoryName, gtfsFilter);
     }
 
     /**
@@ -214,15 +216,17 @@ public class ScheduleDataProcessor {
      * the the stop_times.txt data in the same order as the original file.
      *
      * @param gtfsDirectoryName Where to find the GTFS stop_times.txt file
+     * @param gtfsFilter
+     *
      * @return Ordered map of the GtfsStopTimes. Keyed on tripId/stopId.
      */
-    private static Map<TripStopKey, GtfsStopTime> getGtfsStopTimes(String gtfsDirectoryName) {
+    private static Map<TripStopKey, GtfsStopTime> getGtfsStopTimes(String gtfsDirectoryName, GtfsFilter gtfsFilter) {
         // Read in stop_times.txt file
         logger.info("Reading in original stop_times.txt file...");
 
         // Get list of stop_times, but these can be a bit out of
         // order with respect to stop sequence within a trip.
-        GtfsStopTimesReader stopTimesReader = new GtfsStopTimesReader(gtfsDirectoryName);
+        GtfsStopTimesReader stopTimesReader = new GtfsStopTimesReader(gtfsDirectoryName, gtfsFilter);
         List<GtfsStopTime> gtfsStopTimesList = stopTimesReader.get(100000);
 
         // Determine if any of the stop times are out of order. If any are
@@ -291,13 +295,15 @@ public class ScheduleDataProcessor {
      * file.
      *
      * @param gtfsDirectoryName Where to find the GTFS frequencies.txt file
+     * @param gtfsFilter
+     *
      * @return Set of all trips that are frequency based.
      */
-    private static Set<String> getFrequencyBasedTrips(String gtfsDirectoryName) {
+    private static Set<String> getFrequencyBasedTrips(String gtfsDirectoryName, GtfsFilter gtfsFilter) {
         // Read in frequencies.txt file
         logger.info("Reading in frequencies.txt file...");
 
-        GtfsFrequenciesReader frequenciesReader = new GtfsFrequenciesReader(gtfsDirectoryName);
+        GtfsFrequenciesReader frequenciesReader = new GtfsFrequenciesReader(gtfsDirectoryName, gtfsFilter);
         List<GtfsFrequency> gtfsFrequencies = frequenciesReader.get();
 
         Set<String> gtfsFrequencyTrips = new HashSet<String>();

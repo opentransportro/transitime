@@ -7,11 +7,10 @@ import org.hibernate.Session;
 import org.transitclock.config.ConfigFileReader;
 import org.transitclock.config.data.AgencyConfig;
 import org.transitclock.domain.hibernate.HibernateUtils;
-import org.transitclock.gtfs.DbWriter;
-import org.transitclock.gtfs.GtfsData;
-import org.transitclock.gtfs.TitleFormatter;
+import org.transitclock.gtfs.*;
 import org.transitclock.gtfs.model.GtfsAgency;
 import org.transitclock.gtfs.readers.GtfsAgencyReader;
+import org.transitclock.gtfs.readers.ReaderHelper;
 import org.transitclock.utils.HttpGetGtfsFile;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.Zip;
@@ -190,7 +189,7 @@ public class GtfsFileProcessor {
      * Once the GtfsFileProcessor is constructed and the options have been set then this function is
      * used to actually process the GTFS data and store it into the database.
      */
-    public void process() throws IllegalArgumentException {
+    public void process(ApplicationProperties.Gtfs gtfsProperties) throws IllegalArgumentException {
         // Gets the GTFS files from URL or from a zip file if need be.
         // This also sets gtfsDirectoryName member
         obtainGtfsFiles();
@@ -205,28 +204,41 @@ public class GtfsFileProcessor {
         setTimezone(gtfsDirectoryName);
 
         // Create a title formatter
-        TitleFormatter titleFormatter = new TitleFormatter(regexReplaceListFileName, true);
+        TitleFormatter titleFormatter = new TitleFormatter(gtfsProperties, regexReplaceListFileName, true);
+        GtfsFilter gtfsFilter = new GtfsFilter(gtfsProperties.getRouteIdFilterRegEx(), gtfsProperties.getTripIdFilterRegEx());
+        ReaderHelper readerHelper = new ReaderHelper(gtfsProperties);
+
+        GtfsProcessingConfig config = GtfsProcessingConfig.builder()
+                .withGtfsDirectoryName(gtfsDirectoryName)
+                .withMaxSpeedKph(maxSpeedKph)
+                .withSupplementDir(supplementDir)
+                .withPathOffsetDistance(pathOffsetDistance)
+                .withMaxDistanceBetweenStops(maxDistanceBetweenStops)
+                .withTrimPathBeforeFirstStopOfTrip(trimPathBeforeFirstStopOfTrip)
+                .withMaxStopToPathDistance(maxStopToPathDistance)
+                .withMaxDistanceForEliminatingVertices(maxDistanceForEliminatingVertices)
+                .withDefaultWaitTimeAtStopMsec(defaultWaitTimeAtStopMsec)
+                .withMaxTravelTimeSegmentLength(maxTravelTimeSegmentLength)
+                .withDisableSpecialLoopBackToBeginningCase(disableSpecialLoopBackToBeginningCase)
+
+                .withStopCodeBaseValue(gtfsProperties.getStopCodeBaseValue())
+                .withOutputPathsAndStopsForGraphingRouteIds(gtfsProperties.getOutputPathsAndStopsForGraphingRouteIds())
+                .withMinDistanceBetweenStopsToDisambiguateHeadsigns(gtfsProperties.getMinDistanceBetweenStopsToDisambiguateHeadsigns())
+
+                .build();
 
         try (Session session = HibernateUtils.getSession()) {
-            // Process the GTFS data
+
             GtfsData gtfsData = new GtfsData(
+                    config,
                     session,
                     configRev,
                     zipFileLastModifiedTime,
                     shouldStoreNewRevs,
                     AgencyConfig.getAgencyId(),
-                    gtfsDirectoryName,
-                    supplementDir,
-                    pathOffsetDistance,
-                    maxStopToPathDistance,
-                    maxDistanceForEliminatingVertices,
-                    defaultWaitTimeAtStopMsec,
-                    maxSpeedKph,
-                    maxTravelTimeSegmentLength,
-                    trimPathBeforeFirstStopOfTrip,
                     titleFormatter,
-                    maxDistanceBetweenStops,
-                    disableSpecialLoopBackToBeginningCase);
+                    readerHelper,
+                    gtfsFilter);
 
             // For logging how long things take
             IntervalTimer timer = new IntervalTimer();

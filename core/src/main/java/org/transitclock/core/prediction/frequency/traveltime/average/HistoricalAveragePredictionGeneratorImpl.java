@@ -4,8 +4,9 @@ package org.transitclock.core.prediction.frequency.traveltime.average;
 import java.util.Date;
 
 import lombok.extern.slf4j.Slf4j;
+
+import org.transitclock.ApplicationProperties;
 import org.transitclock.config.data.CoreConfig;
-import org.transitclock.config.data.PredictionConfig;
 import org.transitclock.core.*;
 import org.transitclock.core.avl.RealTimeSchedAdhProcessor;
 import org.transitclock.core.avl.space.SpatialMatch;
@@ -38,8 +39,17 @@ public class HistoricalAveragePredictionGeneratorImpl extends LastVehiclePredict
                                                     DbConfig dbConfig,
                                                     DataDbLogger dataDbLogger,
                                                     TravelTimeDataFilter travelTimeDataFilter,
-                                                    VehicleDataCache vehicleCache, HoldingTimeCache holdingTimeCache, StopPathPredictionCache stopPathPredictionCache, TravelTimes travelTimes, HoldingTimeGenerator holdingTimeGenerator, VehicleStatusManager vehicleStatusManager, RealTimeSchedAdhProcessor realTimeSchedAdhProcessor, BiasAdjuster biasAdjuster, FrequencyBasedHistoricalAverageCache frequencyBasedHistoricalAverageCache) {
-        super(stopArrivalDepartureCacheInterface, tripDataHistoryCacheInterface, dbConfig, dataDbLogger, travelTimeDataFilter, vehicleCache, holdingTimeCache, stopPathPredictionCache, travelTimes, holdingTimeGenerator, vehicleStatusManager, realTimeSchedAdhProcessor, biasAdjuster);
+                                                    ApplicationProperties.Prediction properties,
+                                                    VehicleDataCache vehicleCache,
+                                                    HoldingTimeCache holdingTimeCache,
+                                                    StopPathPredictionCache stopPathPredictionCache,
+                                                    TravelTimes travelTimes,
+                                                    HoldingTimeGenerator holdingTimeGenerator,
+                                                    VehicleStatusManager vehicleStatusManager,
+                                                    RealTimeSchedAdhProcessor realTimeSchedAdhProcessor,
+                                                    BiasAdjuster biasAdjuster,
+                                                    FrequencyBasedHistoricalAverageCache frequencyBasedHistoricalAverageCache) {
+        super(stopArrivalDepartureCacheInterface, tripDataHistoryCacheInterface, dbConfig, dataDbLogger, travelTimeDataFilter, properties, vehicleCache, holdingTimeCache, stopPathPredictionCache, travelTimes, holdingTimeGenerator, vehicleStatusManager, realTimeSchedAdhProcessor, biasAdjuster);
         this.frequencyBasedHistoricalAverageCache = frequencyBasedHistoricalAverageCache;
     }
 
@@ -56,18 +66,18 @@ public class HistoricalAveragePredictionGeneratorImpl extends LastVehiclePredict
          */
         if (vehicleStatus.getTripStartTime(vehicleStatus.getTripCounter()) != null) {
 
-            Integer time = FrequencyBasedHistoricalAverageCache.secondsFromMidnight(avlReport.getDate(), 2);
+            int time = FrequencyBasedHistoricalAverageCache.secondsFromMidnight(avlReport.getDate(), 2);
 
             /* this is what gets the trip from the buckets */
             time = FrequencyBasedHistoricalAverageCache.round(
                     time, CoreConfig.getCacheIncrementsForFrequencyService());
 
             StopPathCacheKey historicalAverageCacheKey =
-                    new StopPathCacheKey(indices.getTrip().getId(), indices.getStopPathIndex(), true, time.longValue());
+                    new StopPathCacheKey(indices.getTrip().getId(), indices.getStopPathIndex(), true, (long) time);
 
             HistoricalAverage average = frequencyBasedHistoricalAverageCache.getAverage(historicalAverageCacheKey);
 
-            if (average != null && average.getCount() >= PredictionConfig.minDays.getValue()) {
+            if (average != null && average.getCount() >= predictionProperties.getData().getAverage().getMindays()) {
                 if (CoreConfig.storeTravelTimeStopPathPredictions.getValue()) {
                     PredictionForStopPath predictionForStopPath = new PredictionForStopPath(
                             vehicleStatus.getVehicleId(),
@@ -110,7 +120,7 @@ public class HistoricalAveragePredictionGeneratorImpl extends LastVehiclePredict
         HistoricalAverage average =
                 frequencyBasedHistoricalAverageCache.getAverage(historicalAverageCacheKey);
 
-        if (average != null && average.getCount() >= PredictionConfig.minDays.getValue()) {
+        if (average != null && average.getCount() >= predictionProperties.getData().getAverage().getMindays()) {
             double fractionofstoppathlefttotravel = (match.getStopPath().getLength() - match.getDistanceAlongStopPath())
                     / match.getStopPath().getLength();
             double value = average.getAverage() * fractionofstoppathlefttotravel;
@@ -149,7 +159,7 @@ public class HistoricalAveragePredictionGeneratorImpl extends LastVehiclePredict
             HistoricalAverage average =
                     frequencyBasedHistoricalAverageCache.getAverage(historicalAverageCacheKey);
 
-            if (average != null && average.getCount() >= PredictionConfig.minDays.getValue()) {
+            if (average != null && average.getCount() >= predictionProperties.getData().getAverage().getMindays()) {
                 if (CoreConfig.storeDwellTimeStopPathPredictions.getValue()) {
                     PredictionForStopPath predictionForStopPath = new PredictionForStopPath(
                             vehicleStatus.getVehicleId(),

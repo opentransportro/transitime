@@ -68,7 +68,7 @@ public class DatabaseConfiguration {
         // HibernateUtils.clearSessionFactory();
 
         // Read in all GTFS based config data from the database
-        return new DbConfig(agencyId, configRev);
+        return new DbConfig(properties, agencyId, configRev);
     }
 
     @Bean

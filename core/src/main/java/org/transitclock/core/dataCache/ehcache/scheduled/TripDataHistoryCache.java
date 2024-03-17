@@ -13,6 +13,7 @@ import org.transitclock.domain.structs.QArrivalDeparture;
 import org.transitclock.domain.structs.Trip;
 import org.transitclock.gtfs.DbConfig;
 import org.transitclock.gtfs.GtfsData;
+import org.transitclock.gtfs.GtfsFilter;
 import org.transitclock.service.dto.IpcArrivalDeparture;
 
 import java.util.Calendar;
@@ -30,10 +31,12 @@ public class TripDataHistoryCache implements TripDataHistoryCacheInterface {
     private static final boolean debug = false;
     private static final String cacheByTrip = "arrivalDeparturesByTrip";
     private final Cache<TripKey, TripEvents> cache;
+    private final GtfsFilter gtfsFilter;
     private final DbConfig dbConfig;
 
-    public TripDataHistoryCache(CacheManager cm, DbConfig dbConfig) {
+    public TripDataHistoryCache(CacheManager cm, GtfsFilter gtfsFilter, DbConfig dbConfig) {
         cache = cm.getCache(cacheByTrip, TripKey.class, TripEvents.class);
+        this.gtfsFilter = gtfsFilter;
         this.dbConfig = dbConfig;
     }
 
@@ -102,7 +105,7 @@ public class TripDataHistoryCache implements TripDataHistoryCacheInterface {
 
         for (ArrivalDeparture result : results) {
             // TODO this might be better done in the database.
-            if (GtfsData.routeNotFiltered(result.getRouteId())) {
+            if (gtfsFilter.routeNotFiltered(result.getRouteId())) {
                 putArrivalDeparture(result);
             }
         }

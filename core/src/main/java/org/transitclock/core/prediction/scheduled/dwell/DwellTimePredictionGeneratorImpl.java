@@ -2,6 +2,8 @@
 package org.transitclock.core.prediction.scheduled.dwell;
 
 import lombok.extern.slf4j.Slf4j;
+
+import org.transitclock.ApplicationProperties;
 import org.transitclock.core.Indices;
 import org.transitclock.core.avl.RealTimeSchedAdhProcessor;
 import org.transitclock.core.TravelTimes;
@@ -34,8 +36,9 @@ public class DwellTimePredictionGeneratorImpl extends KalmanPredictionGeneratorI
                                             DbConfig dbConfig,
                                             DataDbLogger dataDbLogger,
                                             TravelTimeDataFilter travelTimeDataFilter,
+                                            ApplicationProperties.Prediction properties,
                                             HoldingTimeCache holdingTimeCache, StopPathPredictionCache stopPathPredictionCache, TravelTimes travelTimes, HoldingTimeGenerator holdingTimeGenerator, VehicleStatusManager vehicleStatusManager, RealTimeSchedAdhProcessor realTimeSchedAdhProcessor, BiasAdjuster biasAdjuster, ErrorCache kalmanErrorCache, DwellTimeModelCacheInterface dwellTimeModelCacheInterface) {
-        super(stopArrivalDepartureCacheInterface, tripDataHistoryCacheInterface, dbConfig, dataDbLogger, travelTimeDataFilter, holdingTimeCache, stopPathPredictionCache, travelTimes, holdingTimeGenerator, vehicleStatusManager, realTimeSchedAdhProcessor, biasAdjuster, kalmanErrorCache);
+        super(stopArrivalDepartureCacheInterface, tripDataHistoryCacheInterface, dbConfig, dataDbLogger, travelTimeDataFilter, properties, holdingTimeCache, stopPathPredictionCache, travelTimes, holdingTimeGenerator, vehicleStatusManager, realTimeSchedAdhProcessor, biasAdjuster, kalmanErrorCache);
         this.dwellTimeModelCacheInterface = dwellTimeModelCacheInterface;
     }
 

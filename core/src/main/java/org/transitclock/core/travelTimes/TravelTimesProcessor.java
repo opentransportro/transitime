@@ -2,7 +2,8 @@
 package org.transitclock.core.travelTimes;
 
 import lombok.extern.slf4j.Slf4j;
-import org.transitclock.config.data.TraveltimesConfig;
+
+import org.transitclock.ApplicationProperties;
 import org.transitclock.core.TemporalDifference;
 import org.transitclock.core.travelTimes.DataFetcher.DbDataMapKey;
 import org.transitclock.domain.structs.ArrivalDeparture;
@@ -57,23 +58,27 @@ public class TravelTimesProcessor {
     // with the departure time for each stop for each trip. There is one
     // entry per data point, hence a List of Integers with one Integer
     // per data point.
-    private static final Map<ProcessedDataMapKey, List<Integer>> stopTimesMap =
-        new HashMap<>();
+    private static final Map<ProcessedDataMapKey, List<Integer>> stopTimesMap = new HashMap<>();
     // Values are List of List of times where outer List is by single trip and
     // inner List is by travel time segment. For every trip that has historical
     // data we get a single entry in the outer List. For every travel time
     // segment we have historical data for we get an entry in the inner List.
-    private static final Map<ProcessedDataMapKey, List<List<Integer>>> travelTimesMap =
-        new HashMap<>();
+    private static final Map<ProcessedDataMapKey, List<List<Integer>>> travelTimesMap = new HashMap<>();
 
-    private boolean isEmpty = true;
+    private boolean isEmpty;
+    private final ApplicationProperties.TravelTimes travelTimesProperties;
+    private final ApplicationProperties.Updates updatesProperties;
+
+    public TravelTimesProcessor(ApplicationProperties properties) {
+        this.travelTimesProperties = properties.getTravelTimes();
+        this.updatesProperties = properties.getUpdates();
+        isEmpty = true;
+    }
+
 
     public boolean isEmpty() {
         return isEmpty;
     }
-
-    public TravelTimesProcessor() {}
-
 
     /**
      * Special MapKey class so that can make sure using the proper one for the associated maps in
@@ -128,22 +133,12 @@ public class TravelTimesProcessor {
      */
     private static void addTravelTimesToMap(ProcessedDataMapKey mapKey, List<Integer> travelTimesForStopPath) {
         // If there is no data then simply return
-        if (travelTimesForStopPath == null || travelTimesForStopPath.isEmpty()) return;
+        if (travelTimesForStopPath == null || travelTimesForStopPath.isEmpty()) {
+            return;
+        }
 
         List<List<Integer>> travelTimesForStop = travelTimesMap.computeIfAbsent(mapKey, k -> new ArrayList<>());
         travelTimesForStop.add(travelTimesForStopPath);
-    }
-
-    /**
-     * Just for debugging. Logs raw data for trip.
-     *
-     * @param arrDepList
-     */
-    private static void debugLogTrip(List<ArrivalDeparture> arrDepList) {
-        logger.trace("====================");
-        for (ArrivalDeparture arrivalDeparture : arrDepList) {
-            logger.trace(arrivalDeparture.toString());
-        }
     }
 
     /**
@@ -152,13 +147,15 @@ public class TravelTimesProcessor {
      *
      * @param arrDep
      */
-    private static void processFirstStopOfTrip(ArrivalDeparture arrDep) {
+    private void processFirstStopOfTrip(ArrivalDeparture arrDep) {
         // Only need to handle departure for first stop in trip
-        if (arrDep.getStopPathIndex() != 0) return;
+        if (arrDep.getStopPathIndex() != 0)
+            return;
 
         // Should only process departures for the first stop, so make sure.
         // If not a departure then continue to the next stop
-        if (arrDep.isArrival()) return;
+        if (arrDep.isArrival())
+            return;
 
         // First stop in trip so just deal with departure time.
         // Don't need to deal with travel time.
@@ -166,17 +163,18 @@ public class TravelTimesProcessor {
 
         // If schedule adherence is really far off then ignore the data
         // point because it would skew the results.
-        if (Math.abs(lateTimeMsec) > MAX_SCHED_ADH_FOR_FIRST_STOP_TIME) return;
+        if (Math.abs(lateTimeMsec) > MAX_SCHED_ADH_FOR_FIRST_STOP_TIME)
+            return;
 
         // If configured to not use early departures then reset lateTimeMsec
         // to 0 if it is negative. This is useful for agencies like commuter
         // rail since trains really aren't going to leave early and early
         // departures indicates a problem with travel times.
-        if (TraveltimesConfig.shouldResetEarlyTerminalDepartures() && lateTimeMsec < 0) lateTimeMsec = 0;
+        if (travelTimesProperties.getResetEarlyTerminalDepartures() && lateTimeMsec < 0)
+            lateTimeMsec = 0;
 
         // Get the MapKey so can put stop time into map
-        ProcessedDataMapKey mapKeyForTravelTimes =
-                getKey(arrDep.getTripId(), arrDep.getStopPathIndex(), arrDep.getStopId());
+        ProcessedDataMapKey mapKeyForTravelTimes = getKey(arrDep.getTripId(), arrDep.getStopPathIndex(), arrDep.getStopId());
 
         // Add this stop time to map so it can be averaged
         addStopTimeToMap(mapKeyForTravelTimes, lateTimeMsec);
@@ -193,26 +191,30 @@ public class TravelTimesProcessor {
      * @param arrDep
      * @return List of Match objects. Never returns null.
      */
-    private static List<Match> getMatchesForStopPath(DataFetcher dataFetcher, ArrivalDeparture arrDep) {
+    private List<Match> getMatchesForStopPath(DataFetcher dataFetcher, ArrivalDeparture arrDep) {
         // For returning the results
-        List<Match> matchesForStopPath = new ArrayList<Match>();
+        List<Match> matchesForStopPath = new ArrayList<>();
 
         // Get the matches for the entire trip since that is
         // how the data is available
-        DbDataMapKey mapKey =
-                dataFetcher.getKey(arrDep.getServiceId(), arrDep.getDate(), arrDep.getTripId(), arrDep.getVehicleId());
+        DbDataMapKey mapKey = dataFetcher.getKey(arrDep.getServiceId(), arrDep.getDate(), arrDep.getTripId(), arrDep.getVehicleId());
         List<Match> matchesForTrip = dataFetcher.getMatchesMap().get(mapKey);
 
         // If no matches were found for this trip then return empty
         // array (don't continue since would get NPE).
-        if (matchesForTrip == null) return matchesForStopPath;
+        if (matchesForTrip == null) {
+            return matchesForStopPath;
+        }
 
         for (Match match : matchesForTrip) {
-            if (match.getStopPathIndex() == arrDep.getStopPathIndex()) matchesForStopPath.add(match);
-            else {
+            if (match.getStopPathIndex() == arrDep.getStopPathIndex()) {
+                matchesForStopPath.add(match);
+            } else {
                 // If looking at matches past the stop then done. Breaking
                 // out of the for loop makes the code more efficient.
-                if (match.getStopPathIndex() > arrDep.getStopPathIndex()) break;
+                if (match.getStopPathIndex() > arrDep.getStopPathIndex()) {
+                    break;
+                }
             }
         }
 
@@ -263,8 +265,8 @@ public class TravelTimesProcessor {
      * @param pathLength
      * @return number of travel time segments
      */
-    private static int getNumTravelTimeSegments(double pathLength) {
-        int numberTravelTimeSegments = (int) (pathLength / TraveltimesConfig.getMaxTravelTimeSegmentLength() + 1.0);
+    private int getNumTravelTimeSegments(double pathLength) {
+        int numberTravelTimeSegments = (int) (pathLength / travelTimesProperties.getMaxTravelTimeSegmentLength() + 1.0);
         return numberTravelTimeSegments;
     }
 
@@ -276,7 +278,7 @@ public class TravelTimesProcessor {
      * @return Number of travel time segments
      * @throws IllegalArgumentException
      */
-    private static int getNumTravelTimeSegments(Trip trip, int stopPathIndex) {
+    private int getNumTravelTimeSegments(Trip trip, int stopPathIndex) {
         StopPath stopPath = trip.getStopPath(stopPathIndex);
         if (stopPath == null) {
             String message =
@@ -296,7 +298,7 @@ public class TravelTimesProcessor {
      * @param stopPathIndex For determining the StopPath
      * @return travel time length for the specified StopPath
      */
-    private static double getTravelTimeSegmentLength(Trip trip, int stopPathIndex) {
+    private double getTravelTimeSegmentLength(Trip trip, int stopPathIndex) {
         double pathLength = trip.getStopPath(stopPathIndex).getLength();
         double segLength = pathLength / getNumTravelTimeSegments(trip, stopPathIndex);
         return segLength;
@@ -309,7 +311,7 @@ public class TravelTimesProcessor {
      * @param arrDep The arrival stop for which to determine the travel time length
      * @return travel time length for the specified arrival
      */
-    private static double getTravelTimeSegmentLength(ArrivalDeparture arrDep) {
+    private double getTravelTimeSegmentLength(ArrivalDeparture arrDep) {
         double pathLength = arrDep.getStopPathLength();
         double segLength = pathLength / getNumTravelTimeSegments(pathLength);
         return segLength;
@@ -327,7 +329,7 @@ public class TravelTimesProcessor {
      * @return List of MatchPoints, which contain the basic Match info needed for determining travel
      *     times.
      */
-    private static List<MatchPoint> getMatchPoints(
+    private List<MatchPoint> getMatchPoints(
             DataFetcher dataFetcher, ArrivalDeparture arrDep1, ArrivalDeparture arrDep2) {
         // The array to be returned
         List<MatchPoint> matchPoints = new ArrayList<>();
@@ -377,7 +379,7 @@ public class TravelTimesProcessor {
         // then use the scheduled departure time. This prevents creating
         // bad predictions due to incorrectly determined travel times.
         long departureTime = arrDep1.getTime();
-        if (TraveltimesConfig.shouldResetEarlyTerminalDepartures()
+        if (travelTimesProperties.getResetEarlyTerminalDepartures()
                 && arrDep1.getStopPathIndex() == 0
                 && arrDep1.getTime() < arrDep1.getScheduledTime()) {
             logger.debug(
@@ -393,7 +395,7 @@ public class TravelTimesProcessor {
         // If this stop path is short enough such that it is just a single
         // travel times segment then handle specially since don't need
         // to look at matches.
-        if (arrDep2.getStopPathLength() < TraveltimesConfig.getMaxTravelTimeSegmentLength()) {
+        if (arrDep2.getStopPathLength() < travelTimesProperties.getMaxTravelTimeSegmentLength()) {
             // Determine and return the travel time between the stops
             int travelTimeBetweenStopsMsec = (int) (arrDep2.getTime() - departureTime);
             List<Integer> travelTimesForStopPath = new ArrayList<>();
@@ -461,7 +463,7 @@ public class TravelTimesProcessor {
 
                 // Add any subsequent vertices crossed between the match points
                 for (int segIndex = segIndex1 + 1; segIndex < segIndex2; ++segIndex) {
-                    crossingTimeForVertex += travelTimeSegmentLength / speed;
+                    crossingTimeForVertex += (long) (travelTimeSegmentLength / speed);
                     vertexTimes.add(crossingTimeForVertex);
                 }
             }
@@ -482,7 +484,7 @@ public class TravelTimesProcessor {
             // rail for example vehicles don't travel below a certain speed.
             // A low speed indicates a problem with the data.
             double segmentSpeedMps = travelTimeSegmentLength * Time.MS_PER_SEC / segmentTime;
-            if (segmentSpeedMps < TraveltimesConfig.getMinSegmentSpeedMps()) {
+            if (segmentSpeedMps < travelTimesProperties.getMinSegmentSpeedMps()) {
                 logger.error(
                         "For segmentIdx={} segment speed of {}m/s is "
                                 + "below the limit of minSegmentSpeedMps={}m/s. "
@@ -490,14 +492,14 @@ public class TravelTimesProcessor {
                                 + "arrDep1={} arrDep2={}",
                         i,
                         StringUtils.twoDigitFormat(segmentSpeedMps),
-                        TraveltimesConfig.getMinSegmentSpeedMps(),
+                        travelTimesProperties.getMinSegmentSpeedMps(),
                         arrDep1,
                         arrDep2);
-                segmentTime = (int) (travelTimeSegmentLength * Time.MS_PER_SEC / TraveltimesConfig.getMinSegmentSpeedMps());
+                segmentTime = (int) (travelTimeSegmentLength * Time.MS_PER_SEC / travelTimesProperties.getMinSegmentSpeedMps());
             }
 
             // Make sure segment speed isn't ridiculously high.
-            if (segmentSpeedMps > TraveltimesConfig.maxSegmentSpeedMps.getValue()) {
+            if (segmentSpeedMps > travelTimesProperties.getMaxSegmentSpeedMps()) {
                 logger.error(
                         "For segmentIdx={} segment speed of {}m/s is "
                                 + "above the limit of maxSegmentSpeedMps={}m/s. "
@@ -505,10 +507,10 @@ public class TravelTimesProcessor {
                                 + "arrDep1={} arrDep2={}",
                         i,
                         StringUtils.twoDigitFormat(segmentSpeedMps),
-                        TraveltimesConfig.maxSegmentSpeedMps.getValue(),
+                        travelTimesProperties.getMaxSegmentSpeedMps(),
                         arrDep1,
                         arrDep2);
-                segmentTime = (int) (travelTimeSegmentLength * Time.MS_PER_SEC / TraveltimesConfig.maxSegmentSpeedMps.getValue());
+                segmentTime = (int) (travelTimeSegmentLength * Time.MS_PER_SEC / travelTimesProperties.getMaxSegmentSpeedMps());
             }
 
             // Keep track of this segment time for this segment
@@ -599,7 +601,6 @@ public class TravelTimesProcessor {
      * @param arrDepList List of ArrivalDepartures for vehicle for a trip
      */
     private void aggregateTripDataIntoMaps(DataFetcher dataFetcher, List<ArrivalDeparture> arrDepList) {
-
         for (int i = 0; i < arrDepList.size() - 1; ++i) {
             ArrivalDeparture arrDep1 = arrDepList.get(i);
 
@@ -642,7 +643,7 @@ public class TravelTimesProcessor {
      *     inner List with a value per single trip, or null if there is no valid historic data for
      *     the trip.
      */
-    private static List<List<Integer>> bySegment(
+    private List<List<Integer>> bySegment(
             List<List<Integer>> historicTravelTimes, Trip trip, int stopPathIndex) {
         // Determine how many travel time segments there should be for the stop
         // path according to the current configuration of the trip's path
@@ -659,9 +660,8 @@ public class TravelTimesProcessor {
 
         // Put the historic per trip travel time data into the per segment array
         boolean validDataFound = false;
-        for (int tripIdx = 0; tripIdx < historicTravelTimes.size(); ++tripIdx) {
+        for (List<Integer> historicTravelTimeForTrip : historicTravelTimes) {
             // Determine historic travel times for the current trip.
-            List<Integer> historicTravelTimeForTrip = historicTravelTimes.get(tripIdx);
             int numberHistoricTravelTimeSegs = historicTravelTimeForTrip.size();
 
             // Only use the historic travel times if have the number of travel
@@ -677,8 +677,10 @@ public class TravelTimesProcessor {
         }
 
         // If valid data found then return the times grouped by segment
-        if (validDataFound) return timesBySegment;
-        else return null;
+        if (validDataFound)
+            return timesBySegment;
+
+        return null;
     }
 
     /**
@@ -761,7 +763,7 @@ public class TravelTimesProcessor {
                     // For each segment, process travel times...
                     for (List<Integer> travelTimesByTripForSegment : travelTimesBySegment) {
                         int averageTravelTimeForSegment = Statistics.filteredMean(
-                                travelTimesByTripForSegment, TraveltimesConfig.fractionLimitForTravelTimes.getValue());
+                                travelTimesByTripForSegment, travelTimesProperties.getFractionLimitForTravelTimes());
                         averageTravelTimes.add(averageTravelTimeForSegment);
                     }
                 }
@@ -782,7 +784,7 @@ public class TravelTimesProcessor {
                     // Determine best stop time to use
                     averagedStopTime = Statistics.biasedFilteredMean(
                             stopTimesForStopPathForTrip,
-                            TraveltimesConfig.fractionLimitForStopTimes.getValue(),
+                            travelTimesProperties.getFractionLimitForStopTimes(),
                             STD_DEV_BIAS_FOR_FIRST_STOP);
 
                     // So far have determine when vehicle has departed. But should add
@@ -792,7 +794,7 @@ public class TravelTimesProcessor {
                 } else {
                     // Not first stop of trip
                     averagedStopTime =
-                            Statistics.filteredMean(stopTimesForStopPathForTrip, TraveltimesConfig.fractionLimitForStopTimes.getValue());
+                            Statistics.filteredMean(stopTimesForStopPathForTrip, travelTimesProperties.getFractionLimitForStopTimes());
                 }
             } else {
                 // No arrival and corresponding departure time for the stop.
@@ -843,10 +845,9 @@ public class TravelTimesProcessor {
      * @param beginTime
      * @param endTime
      */
-    public void readAndProcessHistoricData(
-            String projectId, List<Integer> specialDaysOfWeek, Date beginTime, Date endTime) {
+    public void readAndProcessHistoricData(String projectId, List<Integer> specialDaysOfWeek, Date beginTime, Date endTime) {
         // Read the arrivals/departures and matches into a DataFetcher
-        DataFetcher dataFetcher = new DataFetcher(projectId, specialDaysOfWeek);
+        DataFetcher dataFetcher = new DataFetcher(projectId, updatesProperties, specialDaysOfWeek);
         dataFetcher.readData(projectId, beginTime, endTime);
 
         // exit here if no matches are present
@@ -865,7 +866,6 @@ public class TravelTimesProcessor {
         Collection<List<ArrivalDeparture>> arrivalDepartures =
                 dataFetcher.getArrivalDepartureMap().values();
         for (List<ArrivalDeparture> arrDepList : arrivalDepartures) {
-            debugLogTrip(arrDepList);
             aggregateTripDataIntoMaps(dataFetcher, arrDepList);
         }
 

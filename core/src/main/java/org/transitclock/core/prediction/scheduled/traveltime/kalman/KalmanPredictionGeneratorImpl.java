@@ -3,8 +3,9 @@ package org.transitclock.core.prediction.scheduled.traveltime.kalman;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.DateUtils;
+
+import org.transitclock.ApplicationProperties;
 import org.transitclock.config.data.CoreConfig;
-import org.transitclock.config.data.PredictionConfig;
 import org.transitclock.core.*;
 import org.transitclock.core.avl.RealTimeSchedAdhProcessor;
 import org.transitclock.core.avl.space.SpatialMatch;
@@ -42,8 +43,9 @@ public class KalmanPredictionGeneratorImpl extends PredictionGeneratorDefaultImp
                                          DbConfig dbConfig,
                                          DataDbLogger dataDbLogger,
                                          TravelTimeDataFilter travelTimeDataFilter,
+                                         ApplicationProperties.Prediction properties,
                                          HoldingTimeCache holdingTimeCache, StopPathPredictionCache stopPathPredictionCache, TravelTimes travelTimes, HoldingTimeGenerator holdingTimeGenerator, VehicleStatusManager vehicleStatusManager, RealTimeSchedAdhProcessor realTimeSchedAdhProcessor, BiasAdjuster biasAdjuster, ErrorCache kalmanErrorCache) {
-        super(stopArrivalDepartureCacheInterface, tripDataHistoryCacheInterface, dbConfig, dataDbLogger, travelTimeDataFilter, holdingTimeCache, stopPathPredictionCache, travelTimes, holdingTimeGenerator, vehicleStatusManager, realTimeSchedAdhProcessor, biasAdjuster);
+        super(stopArrivalDepartureCacheInterface, tripDataHistoryCacheInterface, dbConfig, dataDbLogger, travelTimeDataFilter, properties, holdingTimeCache, stopPathPredictionCache, travelTimes, holdingTimeGenerator, vehicleStatusManager, realTimeSchedAdhProcessor, biasAdjuster);
         this.kalmanErrorCache = kalmanErrorCache;
     }
 
@@ -81,8 +83,8 @@ public class KalmanPredictionGeneratorImpl extends PredictionGeneratorDefaultImp
                         indices.getStopPathIndex(),
                         nearestDay,
                         currentVehicleState.getTrip().getStartTime(),
-                        PredictionConfig.maxKalmanDaysToSearch.getValue(),
-                        PredictionConfig.maxKalmanDays.getValue());
+                        predictionProperties.getData().getKalman().getMaxdaystoseach(),
+                        predictionProperties.getData().getKalman().getMaxdays());
 
                 if (lastDaysTimes != null) {
                     logger.debug("Kalman has {} historical values for : {}", lastDaysTimes.size(), indices);
@@ -92,17 +94,17 @@ public class KalmanPredictionGeneratorImpl extends PredictionGeneratorDefaultImp
                  * if we have enough data start using Kalman filter otherwise revert
                  * to extended class for prediction.
                  */
-                if (lastDaysTimes != null && lastDaysTimes.size() >= PredictionConfig.minKalmanDays.getValue()) {
+                if (lastDaysTimes != null && lastDaysTimes.size() >= predictionProperties.getData().getKalman().getMindays()) {
 
                     logger.debug("Generating Kalman prediction for : {}", indices);
                     try {
-                        KalmanPrediction kalmanPrediction = new KalmanPrediction();
+                        KalmanPrediction kalmanPrediction = new KalmanPrediction(predictionProperties.getData().getKalman());
                         KalmanPredictionResult kalmanPredictionResult;
                         Vehicle vehicle = new Vehicle(avlReport.getVehicleId());
                         VehicleStopDetail originDetail = new VehicleStopDetail(null, 0, vehicle);
                         TripSegment[] historical_segments_k = new TripSegment[lastDaysTimes.size()];
 
-                        for (int i = 0; i < lastDaysTimes.size() && i < PredictionConfig.maxKalmanDays.getValue(); i++) {
+                        for (int i = 0; i < lastDaysTimes.size() && i < predictionProperties.getData().getKalman().getMaxdays(); i++) {
                             logger.debug("Kalman is using historical value : {} for : {}", lastDaysTimes.get(i), indices);
 
                             VehicleStopDetail destinationDetail = new VehicleStopDetail(null, lastDaysTimes.get(i).getTravelTime(), vehicle);
@@ -139,8 +141,8 @@ public class KalmanPredictionGeneratorImpl extends PredictionGeneratorDefaultImp
                         double percentageDifferecence =
                                 Math.abs(100 * ((predictionTime - alternatePrediction) / (double) alternatePrediction));
 
-                        if (((percentageDifferecence * alternatePrediction) / 100) > PredictionConfig.tresholdForDifferenceEventLog.getValue()) {
-                            if (percentageDifferecence > PredictionConfig.percentagePredictionMethodDifferenceneEventLog.getValue()) {
+                        if (((percentageDifferecence * alternatePrediction) / 100) > predictionProperties.getData().getKalman().getTresholdForDifferenceEventLog()) {
+                            if (percentageDifferecence > predictionProperties.getData().getKalman().getPercentagePredictionMethodDifferencene()) {
                                 String description = "Kalman predicts : " + predictionTime + " Super predicts : " + alternatePrediction;
 
                                 logger.warn(description);
@@ -191,7 +193,7 @@ public class KalmanPredictionGeneratorImpl extends PredictionGeneratorDefaultImp
     @Override
     public long expectedTravelTimeFromMatchToEndOfStopPath(AvlReport avlReport, SpatialMatch match) {
 
-        if (PredictionConfig.useKalmanForPartialStopPaths.getValue()) {
+        if (predictionProperties.getData().getKalman().getUsekalmanforpartialstoppaths()) {
             VehicleStatus currentVehicleStatus = vehicleStatusManager.getStatus(avlReport.getVehicleId());
 
             long fulltime = this.getTravelTimeForPath(match.getIndices(), avlReport, currentVehicleStatus);
@@ -220,8 +222,8 @@ public class KalmanPredictionGeneratorImpl extends PredictionGeneratorDefaultImp
         try {
             result = cache.getErrorValue(indices);
             if (result == null) {
-                logger.debug("Kalman Error value set to default: {} for key: {}", PredictionConfig.initialErrorValue.getValue(), new KalmanErrorCacheKey(indices));
-                result = new KalmanError(PredictionConfig.initialErrorValue.getValue());
+                logger.debug("Kalman Error value set to default: {} for key: {}", predictionProperties.getData().getKalman().getInitialerrorvalue(), new KalmanErrorCacheKey(indices));
+                result = new KalmanError(predictionProperties.getData().getKalman().getInitialerrorvalue());
             }
             return result;
         } catch (Exception e) {

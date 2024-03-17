@@ -2,7 +2,8 @@
 package org.transitclock.core.prediction;
 
 import org.apache.commons.lang3.time.DateUtils;
-import org.transitclock.config.data.PredictionConfig;
+
+import org.transitclock.ApplicationProperties;
 import org.transitclock.core.Indices;
 import org.transitclock.core.TravelTimeDetails;
 import org.transitclock.core.VehicleStatus;
@@ -32,13 +33,20 @@ public abstract class AbstractPredictionGenerator implements PredictionGenerator
     protected final DbConfig dbConfig;
     protected final DataDbLogger dataDbLogger;
     protected final TravelTimeDataFilter travelTimeDataFilter;
+    protected final ApplicationProperties.Prediction predictionProperties;
 
-    protected AbstractPredictionGenerator(StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface, TripDataHistoryCacheInterface tripDataHistoryCacheInterface, DbConfig dbConfig, DataDbLogger dataDbLogger, TravelTimeDataFilter travelTimeDataFilter) {
+    protected AbstractPredictionGenerator(StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface,
+                                          TripDataHistoryCacheInterface tripDataHistoryCacheInterface,
+                                          DbConfig dbConfig,
+                                          DataDbLogger dataDbLogger,
+                                          TravelTimeDataFilter travelTimeDataFilter,
+                                          ApplicationProperties.Prediction predictionProperties) {
         this.stopArrivalDepartureCacheInterface = stopArrivalDepartureCacheInterface;
         this.tripDataHistoryCacheInterface = tripDataHistoryCacheInterface;
         this.dbConfig = dbConfig;
         this.dataDbLogger = dataDbLogger;
         this.travelTimeDataFilter = travelTimeDataFilter;
+        this.predictionProperties = predictionProperties;
     }
 
     /**
@@ -207,7 +215,8 @@ public abstract class AbstractPredictionGenerator implements PredictionGenerator
                 routeStops,
                 vehicle.getMatch().getStopPath().getStopId(),
                 currentVehicleStatus.getMatch().getStopPath().getStopId());
-            if (numAfter != null && numAfter > PredictionConfig.closestVehicleStopsAhead.getValue() && numAfter < closest) {
+
+            if (numAfter != null && numAfter > predictionProperties.getClosestvehiclestopsahead() && numAfter < closest) {
                 closest = numAfter;
                 result = vehicle;
             }

@@ -38,15 +38,11 @@ public class MonitoringModule extends Module {
     @Override
     @Scheduled(fixedRateString = "${transitclock.monitoring.secondsBetweenMonitorinPolling:120}", timeUnit = TimeUnit.SECONDS)
     public void run() {
-        try {
-            // Wait appropriate amount of time till poll again
-            // Actually do the monitoring
-            String resultStr = agencyMonitor.checkAll();
-            if (resultStr != null) {
-                logger.error("MonitoringModule detected problem. {}", resultStr);
-            }
-        } catch (Exception e) {
-            logger.error("Errror in MonitoringModule for agencyId={}", AgencyConfig.getAgencyId(), e);
+        // Wait appropriate amount of time till poll again
+        // Actually do the monitoring
+        String resultStr = agencyMonitor.checkAll();
+        if (resultStr != null) {
+            logger.error("MonitoringModule detected problem. {}", resultStr);
         }
     }
 

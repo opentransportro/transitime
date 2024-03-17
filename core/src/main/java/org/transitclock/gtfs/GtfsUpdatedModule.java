@@ -8,8 +8,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.transitclock.ApplicationProperties;
 import org.transitclock.Module;
-import org.transitclock.config.data.AgencyConfig;
-import org.transitclock.config.data.GtfsConfig;
 import org.transitclock.utils.HttpGetFile;
 import org.transitclock.utils.Time;
 
@@ -83,10 +81,11 @@ public class GtfsUpdatedModule extends Module {
     @Override
     @Scheduled(fixedRateString = "${transitclock.gtfs.auto-update.intervalMsec}")
     public void run() {
-        logger.info("Checking to see if GTFS should be downloaded " + "because it was modified. {}", gtfsConfig.getAutoUpdate().getUrl());
+        ApplicationProperties.Gtfs.AutoUpdate autoUpdateConfig = gtfsConfig.getAutoUpdate();
+        logger.info("Checking to see if GTFS should be downloaded " + "because it was modified. {}", autoUpdateConfig.getUrl());
 
         // Construct the getter
-        HttpGetFile httpGetFile = new HttpGetFile(GtfsConfig.url.getValue(), GtfsConfig.dirName.getValue());
+        HttpGetFile httpGetFile = new HttpGetFile(autoUpdateConfig.getUrl(), autoUpdateConfig.getDirName());
 
         // If file hasn't been modified then don't want to download it
         // since it can be large. Therefore determine age of previously
@@ -127,12 +126,12 @@ public class GtfsUpdatedModule extends Module {
                     logger.info(
                         "Got remote file because version on web server " + "is newer. Url={} dir={}",
                         httpGetFile.getFullFileName(),
-                        gtfsConfig.getAutoUpdate().getDirName());
+                        autoUpdateConfig.getDirName());
                 else
                     logger.info(
                         "Got remote file because didn't have a local " + "copy of it. Url={} dir={}",
                         httpGetFile.getFullFileName(),
-                        gtfsConfig.getAutoUpdate().getDirName());
+                        autoUpdateConfig.getDirName());
 
                 // Make copy of GTFS zip file in separate directory for archival
                 archive(httpGetFile.getFullFileName());
@@ -142,28 +141,18 @@ public class GtfsUpdatedModule extends Module {
                     "Remote GTFS file {} not updated (got "
                         + "HTTP NOT_MODIFIED status 304) since the local "
                         + "one  at {} has last modified date of {}",
-                    gtfsConfig.getAutoUpdate().getUrl(),
+                    autoUpdateConfig.getUrl(),
                     httpGetFile.getFullFileName(),
                     new Date(file.lastModified()));
             } else {
                 // Got unexpected response so log issue
                 logger.error(
                     "Error retrieving remote GTFS file {} . Http " + "response code={}",
-                    gtfsConfig.getAutoUpdate().getUrl(),
+                    autoUpdateConfig.getUrl(),
                     httpResponseCode);
             }
         } catch (IOException e) {
-            logger.error("Error retrieving {} . {}", GtfsConfig.url.getValue(), e.getMessage());
+            logger.error("Error retrieving {} . {}", autoUpdateConfig.getUrl(), e.getMessage());
         }
-    }
-
-    @Override
-    public ExecutionType getExecutionType() {
-        return ExecutionType.FIXED_RATE;
-    }
-
-    @Override
-    public int executionPeriod() {
-        return Math.toIntExact(GtfsConfig.intervalMsec.getValue());
     }
 }

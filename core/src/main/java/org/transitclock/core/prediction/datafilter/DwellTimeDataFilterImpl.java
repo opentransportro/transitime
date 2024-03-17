@@ -2,8 +2,9 @@
 package org.transitclock.core.prediction.datafilter;
 
 import lombok.extern.slf4j.Slf4j;
+
+import org.transitclock.ApplicationProperties.Prediction;
 import org.transitclock.config.LongConfigValue;
-import org.transitclock.config.data.PredictionConfig;
 import org.transitclock.service.dto.IpcArrivalDeparture;
 
 /**
@@ -16,6 +17,12 @@ public class DwellTimeDataFilterImpl implements DwellTimeDataFilter {
             (long) 0,
             "Min dwell time to be considered in algorithm.");
 
+    private final Prediction predictionProperties;
+
+    public DwellTimeDataFilterImpl(Prediction predictionProperties) {
+        this.predictionProperties = predictionProperties;
+    }
+
     @Override
     public boolean filter(IpcArrivalDeparture arrival, IpcArrivalDeparture departure) {
         if (arrival != null && departure != null) {
@@ -24,13 +31,13 @@ public class DwellTimeDataFilterImpl implements DwellTimeDataFilter {
             if (departure.getScheduledAdherence() != null
                     && departure
                             .getScheduledAdherence()
-                            .isWithinBounds(PredictionConfig.minSceheduleAdherence.getValue(), PredictionConfig.maxSceheduleAdherence.getValue())) {
+                            .isWithinBounds(predictionProperties.getRls().getMinSceheduleAdherence(), predictionProperties.getRls().getMaxSceheduleAdherence())) {
                 // TODO Arrival schedule adherence appears not to be set much. So
                 // only stop if set and outside range.
                 if (arrival.getScheduledAdherence() == null
                         || arrival.getScheduledAdherence()
-                                .isWithinBounds(PredictionConfig.minSceheduleAdherence.getValue(), PredictionConfig.maxSceheduleAdherence.getValue())) {
-                    if (dwelltime < PredictionConfig.maxDwellTimeAllowedInModel.getValue()
+                                .isWithinBounds(predictionProperties.getRls().getMinSceheduleAdherence(), predictionProperties.getRls().getMaxSceheduleAdherence())) {
+                    if (dwelltime < predictionProperties.getRls().getMaxDwellTimeAllowedInModel()
                             && dwelltime > minDwellTimeAllowedInModel.getValue()) {
                         return false;
                     } else {

@@ -1,12 +1,16 @@
 package org.transitclock.api.resources;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.transitclock.ApplicationProperties;
 import org.transitclock.api.exception.InvalidAccessException;
 import org.transitclock.api.utils.StandardParameters;
 import org.transitclock.domain.ApiKeyManager;
 import org.transitclock.service.contract.*;
 
 abstract class BaseApiResource {
+    @Autowired
+    protected ApplicationProperties properties;
+
     @Autowired
     protected ApiKeyManager manager;
 

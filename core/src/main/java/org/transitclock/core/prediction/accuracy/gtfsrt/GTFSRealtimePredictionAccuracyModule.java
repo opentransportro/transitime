@@ -6,7 +6,9 @@ import com.google.transit.realtime.GtfsRealtime.FeedMessage;
 import com.google.transit.realtime.GtfsRealtime.TripUpdate;
 import com.google.transit.realtime.GtfsRealtime.TripUpdate.StopTimeUpdate;
 import lombok.extern.slf4j.Slf4j;
-import org.transitclock.config.data.GtfsConfig;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import org.transitclock.ApplicationProperties;
 import org.transitclock.core.prediction.accuracy.PredAccuracyPrediction;
 import org.transitclock.core.prediction.accuracy.PredictionAccuracyModule;
 import org.transitclock.domain.structs.ScheduleTime;
@@ -26,6 +28,9 @@ import java.util.List;
  */
 @Slf4j
 public class GTFSRealtimePredictionAccuracyModule extends PredictionAccuracyModule {
+
+    @Autowired
+    ApplicationProperties properties;
     /**
      * Gets GTFS realtime feed all routes from URL and return FeedMessage
      *
@@ -34,13 +39,13 @@ public class GTFSRealtimePredictionAccuracyModule extends PredictionAccuracyModu
     private FeedMessage getExternalPredictions() {
         // Will just read all data from gtfs-rt url
         URL url = null;
-        logger.info("Getting predictions from API using URL={}", GtfsConfig.getGtfstripupdateurl().getValue());
+        logger.info("Getting predictions from API using URL={}", properties.getGtfs().getGtfsTripUpdateUrl());
 
         try {
-            url = new URL(GtfsConfig.getGtfstripupdateurl().getValue());
+            url = new URL(properties.getGtfs().getGtfsTripUpdateUrl());
 
             FeedMessage feed = FeedMessage.parseFrom(url.openStream());
-            logger.info("Prediction read successfully from URL={}", GtfsConfig.getGtfstripupdateurl().getValue());
+            logger.info("Prediction read successfully from URL={}", properties.getGtfs().getGtfsTripUpdateUrl());
 
             return feed;
         } catch (Exception e) {

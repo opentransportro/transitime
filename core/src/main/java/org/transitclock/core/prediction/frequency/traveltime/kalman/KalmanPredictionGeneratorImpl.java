@@ -3,8 +3,9 @@ package org.transitclock.core.prediction.frequency.traveltime.kalman;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.DateUtils;
+
+import org.transitclock.ApplicationProperties;
 import org.transitclock.config.data.CoreConfig;
-import org.transitclock.config.data.PredictionConfig;
 import org.transitclock.core.*;
 import org.transitclock.core.avl.RealTimeSchedAdhProcessor;
 import org.transitclock.core.avl.space.SpatialMatch;
@@ -45,8 +46,18 @@ public class KalmanPredictionGeneratorImpl extends HistoricalAveragePredictionGe
                                          DbConfig dbConfig,
                                          DataDbLogger dataDbLogger,
                                          TravelTimeDataFilter travelTimeDataFilter,
-                                         VehicleDataCache vehicleCache, HoldingTimeCache holdingTimeCache, StopPathPredictionCache stopPathPredictionCache, TravelTimes travelTimes, HoldingTimeGenerator holdingTimeGenerator, VehicleStatusManager vehicleStatusManager, RealTimeSchedAdhProcessor realTimeSchedAdhProcessor, BiasAdjuster biasAdjuster, FrequencyBasedHistoricalAverageCache frequencyBasedHistoricalAverageCache, ErrorCache kalmanErrorCache) {
-        super(stopArrivalDepartureCacheInterface, tripDataHistoryCacheInterface, dbConfig, dataDbLogger, travelTimeDataFilter, vehicleCache, holdingTimeCache, stopPathPredictionCache, travelTimes, holdingTimeGenerator, vehicleStatusManager, realTimeSchedAdhProcessor, biasAdjuster, frequencyBasedHistoricalAverageCache);
+                                         ApplicationProperties.Prediction properties,
+                                         VehicleDataCache vehicleCache,
+                                         HoldingTimeCache holdingTimeCache,
+                                         StopPathPredictionCache stopPathPredictionCache,
+                                         TravelTimes travelTimes,
+                                         HoldingTimeGenerator holdingTimeGenerator,
+                                         VehicleStatusManager vehicleStatusManager,
+                                         RealTimeSchedAdhProcessor realTimeSchedAdhProcessor,
+                                         BiasAdjuster biasAdjuster,
+                                         FrequencyBasedHistoricalAverageCache frequencyBasedHistoricalAverageCache,
+                                         ErrorCache kalmanErrorCache) {
+        super(stopArrivalDepartureCacheInterface, tripDataHistoryCacheInterface, dbConfig, dataDbLogger, travelTimeDataFilter, properties, vehicleCache, holdingTimeCache, stopPathPredictionCache, travelTimes, holdingTimeGenerator, vehicleStatusManager, realTimeSchedAdhProcessor, biasAdjuster, frequencyBasedHistoricalAverageCache);
         this.kalmanErrorCache = kalmanErrorCache;
     }
 
@@ -92,8 +103,8 @@ public class KalmanPredictionGeneratorImpl extends HistoricalAveragePredictionGe
                         indices.getStopPathIndex(),
                         nearestDay,
                         time,
-                        PredictionConfig.maxKalmanDaysToSearch.getValue(),
-                        PredictionConfig.maxKalmanDays.getValue());
+                        predictionProperties.getData().getKalman().getMaxdaystoseach(),
+                        predictionProperties.getData().getKalman().getMaxdays());
 
                 if (lastDaysTimes != null && !lastDaysTimes.isEmpty()) {
                     logger.debug("Kalman has {} historical values for : {}", lastDaysTimes.size(), indices);
@@ -102,13 +113,13 @@ public class KalmanPredictionGeneratorImpl extends HistoricalAveragePredictionGe
                  * if we have enough data start using Kalman filter otherwise revert
                  * to extended class for prediction.
                  */
-                if (lastDaysTimes != null && lastDaysTimes.size() >= PredictionConfig.minKalmanDays.getValue()) {
+                if (lastDaysTimes != null && lastDaysTimes.size() >= predictionProperties.getData().getKalman().getMindays()) {
 
                     logger.debug("Generating Kalman prediction for : {}", indices);
 
                     try {
 
-                        KalmanPrediction kalmanPrediction = new KalmanPrediction();
+                        KalmanPrediction kalmanPrediction = new KalmanPrediction(predictionProperties.getData().getKalman());
 
                         KalmanPredictionResult kalmanPredictionResult;
 
@@ -116,7 +127,7 @@ public class KalmanPredictionGeneratorImpl extends HistoricalAveragePredictionGe
 
                         VehicleStopDetail originDetail = new VehicleStopDetail(null, 0, vehicle);
                         TripSegment[] historical_segments_k = new TripSegment[lastDaysTimes.size()];
-                        for (int i = 0; i < lastDaysTimes.size() && i < PredictionConfig.maxKalmanDays.getValue(); i++) {
+                        for (int i = 0; i < lastDaysTimes.size() && i < predictionProperties.getData().getKalman().getMaxdays(); i++) {
 
                             logger.debug("Kalman is using historical value : {} for : {}", lastDaysTimes.get(i), indices);
 
@@ -153,11 +164,11 @@ public class KalmanPredictionGeneratorImpl extends HistoricalAveragePredictionGe
                         double percentageDifferecence =
                                 100 * ((predictionTime - alternatePrediction) / (double) alternatePrediction);
 
-                        if (Math.abs(percentageDifferecence) > PredictionConfig.percentagePredictionMethodDifferenceneEventLog.getValue()) {
+                        if (Math.abs(percentageDifferecence) > predictionProperties.getData().getKalman().getPercentagePredictionMethodDifferencene()) {
                             String description = "Predictions for "
                                     + indices
                                     + " have more that a "
-                                    + PredictionConfig.percentagePredictionMethodDifferenceneEventLog.getValue()
+                                    + predictionProperties.getData().getKalman().getPercentagePredictionMethodDifferencene()
                                     + " difference. Kalman predicts : "
                                     + predictionTime
                                     + " Super predicts : "
@@ -203,7 +214,7 @@ public class KalmanPredictionGeneratorImpl extends HistoricalAveragePredictionGe
     @Override
     public long expectedTravelTimeFromMatchToEndOfStopPath(AvlReport avlReport, SpatialMatch match) {
 
-        if (PredictionConfig.useKalmanForPartialStopPaths.getValue()) {
+        if (predictionProperties.getData().getKalman().getUsekalmanforpartialstoppaths()) {
             VehicleStatus currentVehicleStatus = vehicleStatusManager.getStatus(avlReport.getVehicleId());
 
             long fulltime = this.getTravelTimeForPath(match.getIndices(), avlReport, currentVehicleStatus);
@@ -227,8 +238,8 @@ public class KalmanPredictionGeneratorImpl extends HistoricalAveragePredictionGe
 
         KalmanError result = cache.getErrorValue(indices);
         if (result == null) {
-            logger.debug("Kalman Error value set to default: {} for key: {}", PredictionConfig.initialErrorValue.getValue(), new KalmanErrorCacheKey(indices));
-            result = new KalmanError(PredictionConfig.initialErrorValue.getValue());
+            logger.debug("Kalman Error value set to default: {} for key: {}", predictionProperties.getData().getKalman().getInitialerrorvalue(), new KalmanErrorCacheKey(indices));
+            result = new KalmanError(predictionProperties.getData().getKalman().getInitialerrorvalue());
         }
         return result;
     }

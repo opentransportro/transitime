@@ -23,6 +23,7 @@ public abstract class Module implements Runnable {
 
     /**
      * Initial execution delay expressed in MILLISECONDS
+     *
      * @return initialDelay
      */
     public int initialExecutionDelay() {
@@ -31,11 +32,14 @@ public abstract class Module implements Runnable {
 
     /**
      * Execution period expressed in MILLISECONDS
+     *
      * @return execution period
      */
     public int executionPeriod() {
         return 15 * Time.SEC_IN_MSECS;
     }
 
-    public abstract ExecutionType getExecutionType();
+    public ExecutionType getExecutionType() {
+        return ExecutionType.FIXED_RATE;
+    }
 }

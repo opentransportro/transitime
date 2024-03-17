@@ -7,8 +7,6 @@ import org.transitclock.config.ClassConfigValue;
 
 @Configuration
 public class BiasAdjusterFactory {
-    private static BiasAdjuster singleton = null;
-
     // The name of the class to instantiate
     private static final ClassConfigValue className = new ClassConfigValue(
             "transitclock.core.predictiongenerator.biasabjuster",

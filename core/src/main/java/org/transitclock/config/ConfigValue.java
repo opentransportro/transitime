@@ -141,7 +141,7 @@ public abstract class ConfigValue<T> {
         // Log the information about the parameter so that users can see what
         // values are being used. But don't do so if configured to not log the
         // value, which could be important for passwords and such.
-        logger.info("{}={}", id, value != null ? value : defaultValue);
+        // logger.info("{}={}", id, value != null ? value : defaultValue);
         //        if (okToLogValue) {
         //            if ((value == null && defaultValue == null) || value.equals(defaultValue)) {
         //                logger.info(
@@ -216,11 +216,10 @@ public abstract class ConfigValue<T> {
         // out e-mail since this is a serious problem.
         if (defaultValue == null && !defaultValueConfigured) {
             logger.error(
-                    "When reading parameter \"{}\" for agencyId={} no valid "
+                    "When reading parameter \"{}\" no valid "
                             + "value was configured and no default was "
                             + "specified so resulting value is null.",
-                    id,
-                    AgencyConfig.getAgencyId());
+                    id);
         }
 
         // Use the default value.

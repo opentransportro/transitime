@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
+
+import org.transitclock.ApplicationProperties;
 import org.transitclock.core.ServiceUtils;
 import org.transitclock.domain.hibernate.HibernateUtils;
 import org.transitclock.domain.structs.Agency;
@@ -104,7 +106,7 @@ public class DbConfig {
     private final ServiceUtils serviceUtils;
     private final Time time;
 
-    public DbConfig(String agencyId, int configRev) {
+    public DbConfig(ApplicationProperties properties, String agencyId, int configRev) {
         this.agencyId = agencyId;
         // For logging how long things take
         IntervalTimer timer = new IntervalTimer();
@@ -131,7 +133,7 @@ public class DbConfig {
 
         // Let user know what is going on
         logger.info("Finished reading configuration data from database . " + "Took {} msec.", timer.elapsedMsec());
-        this.serviceUtils = new ServiceUtils(this);
+        this.serviceUtils = new ServiceUtils(properties, this);
         this.time = new Time(this);
     }
 

@@ -60,7 +60,7 @@ public class CsvBase {
      * @param name The name of the column in the CSV file
      * @return The value, or null if it was not defined
      */
-    protected String getRequiredValue(CSVRecord record, String name) {
+    public String getRequiredValue(CSVRecord record, String name) {
         boolean required = true;
         return getValue(record, name, required);
     }
@@ -74,7 +74,7 @@ public class CsvBase {
      * @param name The name of the column in the CSV file
      * @return The value, or null if it was not defined
      */
-    protected String getRequiredUnlessSupplementalValue(CSVRecord record, String name) {
+    public String getRequiredUnlessSupplementalValue(CSVRecord record, String name) {
         boolean required = !supplementalFileSoSomeRequiredItemsCanBeMissing;
         return getValue(record, name, required);
     }
@@ -86,7 +86,7 @@ public class CsvBase {
      * @param name The name of the column in the CSV file
      * @return The value, or null if it was not defined
      */
-    protected String getOptionalValue(CSVRecord record, String name) {
+    public String getOptionalValue(CSVRecord record, String name) {
         boolean required = false;
         return getValue(record, name, required);
     }
@@ -98,7 +98,7 @@ public class CsvBase {
      * @param name The name of the column in the CSV file
      * @return true or false if column set in CSV file. Otherwise null.
      */
-    protected Boolean getOptionalBooleanValue(CSVRecord record, String name) {
+    public Boolean getOptionalBooleanValue(CSVRecord record, String name) {
         String booleanStr = getOptionalValue(record, name);
         if (booleanStr != null) {
             return booleanStr.equals("1") || booleanStr.equals("t") || booleanStr.equals("true");
@@ -114,7 +114,7 @@ public class CsvBase {
      * @param name The name of the column in the CSV file
      * @return The optional Integer value or null if it is not set or could not be parsed.
      */
-    protected Integer getOptionalIntegerValue(CSVRecord record, String name) {
+    public Integer getOptionalIntegerValue(CSVRecord record, String name) {
         String integerStr = getOptionalValue(record, name);
 
         if (integerStr == null) return null;
@@ -134,7 +134,7 @@ public class CsvBase {
      * @param name The name of the column in the CSV file
      * @return The optional Double value or null if it is not set or could not be parsed.
      */
-    protected Double getOptionalDoubleValue(CSVRecord record, String name) {
+    public Double getOptionalDoubleValue(CSVRecord record, String name) {
         String doubleStr = getOptionalValue(record, name);
 
         if (doubleStr == null) return null;
@@ -162,7 +162,7 @@ public class CsvBase {
      *     error is logged and null is returned.
      * @return The value, or null if it was not defined
      */
-    private String getValue(CSVRecord record, String name, boolean required) {
+    public String getValue(CSVRecord record, String name, boolean required) {
         // If the column is not defined in the file then return null.
         // After all, the item is optional so it is fine for it to
         // not be in the file.

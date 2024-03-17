@@ -12,13 +12,15 @@ import org.transitclock.utils.csv.CsvBaseReader;
  * @author SkiBu Smith
  */
 public class GtfsTripsSupplementReader extends CsvBaseReader<GtfsTrip> {
+    private final ReaderHelper readerHelper;
 
-    public GtfsTripsSupplementReader(String dirName) {
+    public GtfsTripsSupplementReader(String dirName, ReaderHelper readerHelper) {
         super(dirName, "trips.txt", false, true);
+        this.readerHelper = readerHelper;
     }
 
     @Override
     public GtfsTrip handleRecord(CSVRecord record, boolean supplemental) throws ParseException {
-        return new GtfsTrip(record, supplemental, getFileName());
+        return new GtfsTrip(record, readerHelper, supplemental, getFileName());
     }
 }

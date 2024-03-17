@@ -186,24 +186,24 @@ public class AvlConfig {
                     + "value if transitclock.avl.unpredictableAssignmentsRegEx "
                     + "is not set.");
 
-    /**
-     * Minimum allowable time in seconds between AVL reports for a vehicle. If get a report closer
-     * than this number of seconds to the previous one then the new report is filtered out and not
-     * processed. Important for when reporting rate is really high, such as every few seconds.
-     */
-    public static int getMinTimeBetweenAvlReportsSecs() {
-        return minTimeBetweenAvlReportsSecs.getValue();
-    }
-
-    private static final IntegerConfigValue minTimeBetweenAvlReportsSecs = new IntegerConfigValue(
-            "transitclock.avl.minTimeBetweenAvlReportsSecs",
-            5,
-            "Minimum allowable time in seconds between AVL reports for "
-                    + "a vehicle. If get a report closer than this number of "
-                    + "seconds to the previous one then the new report is "
-                    + "filtered out and not processed. Important for when "
-                    + "reporting rate is really high, such as every few "
-                    + "seconds.");
+//    /**
+//     * Minimum allowable time in seconds between AVL reports for a vehicle. If get a report closer
+//     * than this number of seconds to the previous one then the new report is filtered out and not
+//     * processed. Important for when reporting rate is really high, such as every few seconds.
+//     */
+//    public static int getMinTimeBetweenAvlReportsSecs() {
+//        return minTimeBetweenAvlReportsSecs.getValue();
+//    }
+//
+//    private static final IntegerConfigValue minTimeBetweenAvlReportsSecs = new IntegerConfigValue(
+//            "transitclock.avl.minTimeBetweenAvlReportsSecs",
+//            5,
+//            "Minimum allowable time in seconds between AVL reports for "
+//                    + "a vehicle. If get a report closer than this number of "
+//                    + "seconds to the previous one then the new report is "
+//                    + "filtered out and not processed. Important for when "
+//                    + "reporting rate is really high, such as every few "
+//                    + "seconds.");
 
 
     public static StringConfigValue url =
@@ -217,35 +217,35 @@ public class AvlConfig {
             "transitclock.avl.authenticationPassword",
             "If authentication used for the feed then this specifies " + "the password.");
 
-    public static BooleanConfigValue shouldProcessAvl = new BooleanConfigValue(
-            "transitclock.avl.shouldProcessAvl",
-            true,
-            "Usually want to process the AVL data when it is read in "
-                    + "so that predictions and such are generated. But if "
-                    + "debugging then can set this param to false.");
+//    public static BooleanConfigValue shouldProcessAvl = new BooleanConfigValue(
+//            "transitclock.avl.shouldProcessAvl",
+//            true,
+//            "Usually want to process the AVL data when it is read in "
+//                    + "so that predictions and such are generated. But if "
+//                    + "debugging then can set this param to false.");
 
 
 
 
-    public static BooleanConfigValue processInRealTime = new BooleanConfigValue(
-            "transitclock.avl.processInRealTime",
-            false,
-            "For when getting batch of AVL data from a CSV file. "
-                    + "When true then when reading in do at the same speed as "
-                    + "when the AVL was created. Set to false it you just want "
-                    + "to read in as fast as possible.");
+//    public static BooleanConfigValue processInRealTime = new BooleanConfigValue(
+//            "transitclock.avl.processInRealTime",
+//            false,
+//            "For when getting batch of AVL data from a CSV file. "
+//                    + "When true then when reading in do at the same speed as "
+//                    + "when the AVL was created. Set to false it you just want "
+//                    + "to read in as fast as possible.");
 
 
     // avl executor
-    public static final IntegerConfigValue avlQueueSize = new IntegerConfigValue(
-            "transitclock.avl.queueSize",
-            2000,
-            "How many items to go into the blocking AVL queue "
-                    + "before need to wait for queue to have space. Should "
-                    + "be approximately 50% more than the number of reports "
-                    + "that will be read during a single AVL polling cycle. "
-                    + "If too big then wasteful. If too small then not all the "
-                    + "data will be rejected by the ThreadPoolExecutor. ");
+//    public static final IntegerConfigValue avlQueueSize = new IntegerConfigValue(
+//            "transitclock.avl.queueSize",
+//            2000,
+//            "How many items to go into the blocking AVL queue "
+//                    + "before need to wait for queue to have space. Should "
+//                    + "be approximately 50% more than the number of reports "
+//                    + "that will be read during a single AVL polling cycle. "
+//                    + "If too big then wasteful. If too small then not all the "
+//                    + "data will be rejected by the ThreadPoolExecutor. ");
 
     public static IntegerConfigValue numAvlThreads = new IntegerConfigValue(
             "transitclock.avl.numThreads",

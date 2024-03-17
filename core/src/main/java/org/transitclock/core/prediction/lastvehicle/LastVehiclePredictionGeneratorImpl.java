@@ -2,6 +2,8 @@
 package org.transitclock.core.prediction.lastvehicle;
 
 import lombok.extern.slf4j.Slf4j;
+
+import org.transitclock.ApplicationProperties;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.core.*;
 import org.transitclock.core.avl.RealTimeSchedAdhProcessor;
@@ -44,6 +46,7 @@ public class LastVehiclePredictionGeneratorImpl extends PredictionGeneratorDefau
                                               DbConfig dbConfig,
                                               DataDbLogger dataDbLogger,
                                               TravelTimeDataFilter travelTimeDataFilter,
+                                              ApplicationProperties.Prediction properties,
                                               VehicleDataCache vehicleCache,
                                               HoldingTimeCache holdingTimeCache,
                                               StopPathPredictionCache stopPathPredictionCache,
@@ -52,7 +55,7 @@ public class LastVehiclePredictionGeneratorImpl extends PredictionGeneratorDefau
                                               VehicleStatusManager vehicleStatusManager,
                                               RealTimeSchedAdhProcessor realTimeSchedAdhProcessor,
                                               BiasAdjuster biasAdjuster) {
-        super(stopArrivalDepartureCacheInterface, tripDataHistoryCacheInterface, dbConfig, dataDbLogger, travelTimeDataFilter, holdingTimeCache, stopPathPredictionCache, travelTimes, holdingTimeGenerator, vehicleStatusManager, realTimeSchedAdhProcessor, biasAdjuster);
+        super(stopArrivalDepartureCacheInterface, tripDataHistoryCacheInterface, dbConfig, dataDbLogger, travelTimeDataFilter, properties, holdingTimeCache, stopPathPredictionCache, travelTimes, holdingTimeGenerator, vehicleStatusManager, realTimeSchedAdhProcessor, biasAdjuster);
         this.vehicleCache = vehicleCache;
     }
 

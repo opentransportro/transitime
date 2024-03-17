@@ -1,12 +1,11 @@
 /* (C)2023 */
 package org.transitclock.gtfs.model;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import lombok.Getter;
 import lombok.ToString;
 import org.apache.commons.csv.CSVRecord;
-import org.transitclock.config.data.GtfsConfig;
+
+import org.transitclock.gtfs.readers.ReaderHelper;
 import org.transitclock.utils.csv.CsvBase;
 
 /**
@@ -57,7 +56,7 @@ public class GtfsTrip extends CsvBase {
         this.bikesAllowed = null;
     }
 
-    public GtfsTrip(CSVRecord record, boolean supplemental, String fileName) {
+    public GtfsTrip(CSVRecord record, ReaderHelper readerHelper, boolean supplemental, String fileName) {
         super(record, supplemental, fileName);
 
         routeId = getRequiredUnlessSupplementalValue(record, "route_id");
@@ -77,10 +76,10 @@ public class GtfsTrip extends CsvBase {
         // supplemental trips.txt file.
         tripShortName = supplemental
                 ? getOptionalValue(record, "trip_short_name")
-                : getTripShortName(getOptionalValue(record, "trip_short_name"), tripId);
+                : readerHelper.computeTripShortName(getOptionalValue(record, "trip_short_name"), tripId);
 
         directionId = getOptionalValue(record, "direction_id");
-        blockId = getBlockId(getOptionalValue(record, "block_id"));
+        blockId = readerHelper.computeBlockId(getOptionalValue(record, "block_id"));
         shapeId = getOptionalValue(record, "shape_id");
         String wheelchairAccessibleStr = getOptionalValue(record, "wheelchair_accessible");
         wheelchairAccessible = wheelchairAccessibleStr == null ? null : Integer.parseInt(wheelchairAccessibleStr);
@@ -161,67 +160,5 @@ public class GtfsTrip extends CsvBase {
         this.shapeId = null;
         this.wheelchairAccessible = null;
         this.bikesAllowed = null;
-    }
-
-    /**
-     * Many agencies don't specify a trip_short_name. For these use the trip_id or if the
-     * transitclock.gtfs.tripShortNameRegEx is set to determine a group then use that group in the
-     * tripId. For example, if tripId is "345-long unneeded description" and the regex is set to
-     * "(.*?)-" then returned trip short name will be 345.
-     *
-     * @param tripShortName
-     * @param tripId
-     * @return The tripShortName if it is not null. Other returns a the first group specified by the
-     *     regex on tripId, or the tripId if no regex defined or if no match.
-     */
-    private static String getTripShortName(String tripShortName, String tripId) {
-        // If tripShortName provided then use it
-        if (tripShortName != null) return tripShortName;
-
-        // The tripShortName wasn't provided. If a regular expression specified
-        // then use it. If regex not specified then return tripId.
-        if (GtfsConfig.tripShortNameRegEx.getValue() == null) return tripId;
-
-        // Initialize the pattern if need to, but do so just once
-        if (GtfsConfig.tripShortNameRegExPattern == null)
-            GtfsConfig.tripShortNameRegExPattern = Pattern.compile(GtfsConfig.tripShortNameRegEx.getValue());
-
-        // Create the matcher
-        Matcher m = GtfsConfig.tripShortNameRegExPattern.matcher(tripId);
-
-        // If insufficient match then return tripId
-        if (!m.find()) return tripId;
-        if (m.groupCount() < 1) return tripId;
-
-        // Return the first group. Note: group #0 is the entire string. Need to
-        // use group #1 for the group match.
-        return m.group(1);
-    }
-
-    /**
-     * In case block IDs from GTFS needs to be modified to match block IDs from AVL feed. Uses the
-     * property transitclock.gtfs.blockIdRegEx if it is not null.
-     *
-     * @param originalBlockId
-     * @return the processed block ID
-     */
-    public static String getBlockId(String originalBlockId) {
-        // If nothing to do then return original value
-        if (originalBlockId == null) return originalBlockId;
-        if (GtfsConfig.blockIdRegEx.getValue() == null) return originalBlockId;
-
-        // Initialize the pattern if need to, but do so just once
-        if (GtfsConfig.blockIdRegExPattern == null)
-            GtfsConfig.blockIdRegExPattern = Pattern.compile(GtfsConfig.blockIdRegEx.getValue());
-
-        // Create the matcher
-        Matcher m = GtfsConfig.blockIdRegExPattern.matcher(originalBlockId);
-
-        // If insufficient match return original value
-        if (!m.find() || m.groupCount() < 1) return originalBlockId;
-
-        // Return the first group. Note: group #0 is the entire string. Need to
-        // use group #1 for the group match.
-        return m.group(1);
     }
 }

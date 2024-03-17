@@ -2,7 +2,9 @@
 package org.transitclock.gtfs;
 
 import lombok.extern.slf4j.Slf4j;
-import org.transitclock.config.data.FormattingConfig;
+
+import org.transitclock.ApplicationProperties;
+import org.transitclock.ApplicationProperties.Gtfs;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -60,16 +62,19 @@ public class TitleFormatter {
         }
     }
 
+    private final Gtfs gtfsProperties;
     // It can be nice to know which regexs actually make a difference
     // so that if one isn't doing anything anymore it could be removed
     // and processing could then be sped up a bit since doing a
     // regex for each title is expensive.
     private final boolean logUnusedRegexs;
-    private final Set<String> regexesThatMadeDifference = new HashSet<String>();
+    private final Set<String> regexesThatMadeDifference = new HashSet<>();
+    private final List<RegexInfo> regexReplaceList = new ArrayList<>();
 
-    private final List<RegexInfo> regexReplaceList = new ArrayList<RegexInfo>();
-
-    public TitleFormatter(String regexReplaceListFileName, boolean logUnusedRegexs) {
+    public TitleFormatter(ApplicationProperties.Gtfs gtfsProperties,
+                          String regexReplaceListFileName,
+                          boolean logUnusedRegexs) {
+        this.gtfsProperties = gtfsProperties;
         this.logUnusedRegexs = logUnusedRegexs;
 
         try {
@@ -198,7 +203,7 @@ public class TitleFormatter {
      */
     private static String capitalize(String str, char[] delimiters) {
         int delimLen = (delimiters == null ? -1 : delimiters.length);
-        if (str == null || str.length() == 0 || delimLen == 0) {
+        if (str == null || str.isEmpty() || delimLen == 0) {
             return str;
         }
 
@@ -257,7 +262,7 @@ public class TitleFormatter {
         }
 
         // First, properly capitalize the title
-        String capitalizedStr = FormattingConfig.capitalize.getValue() ? capitalize(original) : original;
+        String capitalizedStr = gtfsProperties.getCapitalize() ? capitalize(original) : original;
 
         // Now that capitalization should mostly be correct, use
         // regexs configured in file to make other adjustments.

@@ -15,7 +15,6 @@ public class StopArrivalDepartureCacheKey implements Serializable {
     private Date date;
 
     public StopArrivalDepartureCacheKey(String stopid, Date date) {
-        super();
         setDate(date);
         this.stopid = stopid;
     }

@@ -1,12 +1,18 @@
 /* (C)2023 */
 package org.transitclock.core.prediction.kalman;
 
-import org.transitclock.config.data.PredictionConfig;
+import org.transitclock.ApplicationProperties.Prediction;
 
 /**
  * @author Sean Óg Crudden
  */
 public class KalmanPrediction {
+
+    private final Prediction.Data.Kalman kalmanProperties;
+
+    public KalmanPrediction(Prediction.Data.Kalman kalmanProperties) {
+        this.kalmanProperties = kalmanProperties;
+    }
 
     /**
      * @param last_vehicle_segment The last vehicles info for the time taken to cover the same
@@ -19,9 +25,9 @@ public class KalmanPrediction {
      *     last_prediction_error to be used in the next prediction calculation.
      * @throws Exception
      */
-    public KalmanPredictionResult predict(
-            TripSegment last_vehicle_segment, TripSegment[] historical_segments, double last_prediction_error)
-            throws Exception {
+    public KalmanPredictionResult predict(TripSegment last_vehicle_segment,
+                                          TripSegment[] historical_segments,
+                                          double last_prediction_error) throws Exception {
         KalmanPredictionResult result = null;
 
         double average = historicalAverage(historical_segments);
@@ -86,7 +92,7 @@ public class KalmanPrediction {
         double historical_duration = average_duration;
 
         /* This may be better use the historical average rather than just the vehicle on previous day. This would damping issues with last days value being dramatically different. */
-        if (!PredictionConfig.useaverage.getValue()) {
+        if (!kalmanProperties.getUseaverage()) {
             historical_duration = historical_segments[historical_segments.length - 1]
                             .getDestination()
                             .getTime()

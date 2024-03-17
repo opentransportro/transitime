@@ -4,7 +4,8 @@ package org.transitclock.core.prediction.scheduled.dwell;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.transitclock.config.data.PredictionConfig;
+
+import org.transitclock.ApplicationProperties;
 import org.transitclock.statistics.Statistics;
 
 /**
@@ -12,12 +13,16 @@ import org.transitclock.statistics.Statistics;
  */
 public class DwellAverage implements DwellModel {
     private final List<Integer> values = new ArrayList<>();
+    private final ApplicationProperties.Prediction.Dwell.Average prediction;
 
+    public DwellAverage(ApplicationProperties.Prediction.Dwell.Average prediction) {
+        this.prediction = prediction;
+    }
     // For this model headway or demand is not taken into account.
     @Override
     public void putSample(Integer value, Integer headway, Integer demand) {
 
-        if (values.size() < PredictionConfig.samplesize.getValue()) {
+        if (values.size() < prediction.getSamplesize()) {
             values.add(value);
             Collections.rotate(values, 1);
         } else {
@@ -28,7 +33,6 @@ public class DwellAverage implements DwellModel {
 
     @Override
     public Integer predict(Integer headway, Integer demand) {
-
-        return Statistics.filteredMean(values, PredictionConfig.fractionLimitForStopTimes.getValue());
+        return Statistics.filteredMean(values, prediction.getFractionlimit());
     }
 }

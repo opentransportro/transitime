@@ -93,17 +93,15 @@ public class NamedThread extends Thread {
                     // memory problem but notifying via email is not as
                     // important as quickly getting the system restarted.
                     logger.error(
-                            "OutOfMemoryError occurred in thread {} so " + "terminating application for agencyId={}",
+                            "OutOfMemoryError occurred in thread {} so " + "terminating application",
                             getName(),
-                            AgencyConfig.getAgencyId(),
                             t);
                 } else {
                     // Log and send out e-mail since this is an unexpected problem
                     logger.error(
                             "Unexpected Throwable occurred which will cause "
-                                    + "thread {} to terminate for agencyId={}",
+                                    + "thread {} to terminate",
                             getName(),
-                            AgencyConfig.getAgencyId(),
                             t);
                 }
             } catch (Throwable ignored) {

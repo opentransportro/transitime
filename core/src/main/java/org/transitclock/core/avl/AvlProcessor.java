@@ -126,8 +126,9 @@ public class AvlProcessor {
      * @param eventDescription A longer description of why vehicle being made unpredictable
      * @param vehicleEvent A short description from VehicleEvent class for labeling the event.
      */
-    public void makeVehicleUnpredictableAndTerminateAssignment(
-        VehicleStatus vehicleStatus, String eventDescription, String vehicleEvent) {
+    public void makeVehicleUnpredictableAndTerminateAssignment(VehicleStatus vehicleStatus,
+                                                               String eventDescription,
+                                                               String vehicleEvent) {
         makeVehicleUnpredictable(vehicleStatus.getVehicleId(), eventDescription, vehicleEvent);
 
         vehicleStatus.unsetBlock(BlockAssignmentMethod.ASSIGNMENT_TERMINATED);
@@ -1012,7 +1013,7 @@ public class AvlProcessor {
         // If actually creating a schedule based prediction
         if (vehicleStatus.isForSchedBasedPreds()) return false;
 
-        if (!AutoBlockAssigner.enabled()) {
+        if (!properties.getAutoBlockAssigner().isAutoAssignerEnabled()) {
             logger.info(
                     "Could not automatically assign vehicleId={} because " + "AutoBlockAssigner not enabled.",
                     vehicleStatus.getVehicleId());
@@ -1303,8 +1304,7 @@ public class AvlProcessor {
                             // again. Therefore log problem and don't try to
                             // assign vehicle again.
                             logger.error(
-                                    "AvlProcessor.lowLevelProcessAvlReport() "
-                                            + "called recursively, which is wrong. {}",
+                                "lowLevelProcessAvlReport() called recursively, which is wrong. {}",
                                 vehicleStatus);
                         } else {
                             // Actually process AVL report again to see if you can
@@ -1414,25 +1414,18 @@ public class AvlProcessor {
         // Handle special case where want to not use assignment from AVL
         // report, most likely because want to test automatic assignment
         // capability
-        if (properties.getAutoBlockAssigner().getIgnoreAvlAssignments() && !avlReport.isForSchedBasedPreds()) {
+        if (properties.getAutoBlockAssigner().isIgnoreAvlAssignments() && !avlReport.isForSchedBasedPreds()) {
             logger.info("Removing assignment from AVL report [{}] because transitclock.autoBlockAssigner.ignoreAvlAssignments=true!", avlReport);
             avlReport.setAssignment(null, AssignmentType.UNSET);
         }
 
         try (Session session = HibernateUtils.getSession()) {
-            List<VehicleToBlockConfig> blockConfigs = VehicleToBlockConfig.getVehicleToBlockConfigsByVehicleId(session, avlReport.getVehicleId());
-            for (var cfg : blockConfigs) {
-                Date d = new Date();
-
-                if (d.after(cfg.getValidFrom()) && d.before(cfg.getValidTo())) {
-                    var blockId = cfg.getBlockId();
-                    if (blockId != null) {
-                        avlReport.setAssignment(blockId, AssignmentType.BLOCK_ID);
-                    }
-                    break;
-                }
-            }
-        } catch (Exception ignored) {
+            var config = VehicleToBlockConfig.getVehicleToBlockConfigs(session, avlReport.getVehicleId(), new Date());
+            Optional.ofNullable(config).ifPresent(c -> {
+                avlReport.setAssignment(c.getBlockId(), AssignmentType.BLOCK_ID);
+            });
+        } catch (Exception e) {
+            logger.error("Something happened while processing {}", avlReport, e);
         }
 
         // The beginning of processing AVL data is an important milestone

@@ -3,8 +3,10 @@ package org.transitclock.core.dataCache;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+
+import org.transitclock.ApplicationProperties;
+import org.transitclock.ApplicationProperties.Prediction;
 import org.transitclock.config.data.CoreConfig;
-import org.transitclock.config.data.PredictionConfig;
 import org.transitclock.core.VehicleStatus;
 import org.transitclock.domain.structs.Route;
 import org.transitclock.domain.structs.Stop;
@@ -42,6 +44,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class PredictionDataCache {
     private final VehicleStatusManager vehicleStatusManager;
     private final DbConfig dbConfig;
+    private final Prediction predictionProperties;
 
     // Contains lists of predictions per route/stop. Also want to group
     // predictions by destination/trip head sign together so that can
@@ -62,9 +65,10 @@ public class PredictionDataCache {
     private final Map<MapKey, List<IpcPredictionsForRouteStopDest>> predictionsMap =
             new ConcurrentHashMap<>(1000);
 
-    public PredictionDataCache(VehicleStatusManager vehicleStatusManager, DbConfig dbConfig) {
+    public PredictionDataCache(VehicleStatusManager vehicleStatusManager, DbConfig dbConfig, ApplicationProperties properties) {
         this.vehicleStatusManager = vehicleStatusManager;
         this.dbConfig = dbConfig;
+        this.predictionProperties = properties.getPrediction();
     }
 
     /**
@@ -165,7 +169,7 @@ public class PredictionDataCache {
         }
         /* Is this the best place to filter out predictions. Would it be better to allow the consumer filter? */
         boolean shouldFilterOutEndOfTripPreds =
-                (endOfTripPredFound && nonEndOfTripPredFound && !PredictionConfig.returnArrivalPredictionForEndOfTrip.getValue());
+                (endOfTripPredFound && nonEndOfTripPredFound && !predictionProperties.getReturnArrivalPredictionForEndOfTrip());
 
         // Make a copy of the prediction objects so that they cannot be
         // modified by another thread while they are being accessed. This

@@ -20,9 +20,6 @@ public class BlockAssignerConfig {
                     + "true then system ignores assignments from AVL feed so "
                     + "vehicles need to be automatically assigned instead");
 
-    public static boolean ignoreAvlAssignments() {
-        return ignoreAvlAssignments.getValue();
-    }
 
     public static final DoubleConfigValue minDistanceFromCurrentReport = new DoubleConfigValue(
             "transitclock.autoBlockAssigner.minDistanceFromCurrentReport",

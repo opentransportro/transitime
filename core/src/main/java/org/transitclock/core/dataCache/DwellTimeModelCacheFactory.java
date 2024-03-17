@@ -4,6 +4,8 @@ package org.transitclock.core.dataCache;
 import org.ehcache.CacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import org.transitclock.ApplicationProperties;
 import org.transitclock.config.ClassConfigValue;
 import org.transitclock.core.dataCache.ehcache.scheduled.DwellTimeModelCache;
 import org.transitclock.core.prediction.scheduled.dwell.DwellModel;
@@ -21,10 +23,13 @@ public class DwellTimeModelCacheFactory {
 
 
     @Bean
-    public DwellTimeModelCacheInterface dwellTimeModelCacheInterface(CacheManager cm, DwellModel dwellModel, StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface) {
+    public DwellTimeModelCacheInterface dwellTimeModelCacheInterface(CacheManager cm,
+                                                                     DwellModel dwellModel,
+                                                                     StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface,
+                                                                     ApplicationProperties properties) {
         var value = className.getValue();
         if (value == DwellTimeModelCache.class) {
-            return new DwellTimeModelCache(cm, dwellModel, stopArrivalDepartureCacheInterface);
+            return new DwellTimeModelCache(cm, dwellModel, stopArrivalDepartureCacheInterface, properties.getPrediction().getRls());
         }
 
         return new DummyDwellTimeModelCacheImpl();

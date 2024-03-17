@@ -20,6 +20,7 @@ public class SpringConfigGenerator {
             GtfsConfig.class,
             HoldingConfig.class,
             MonitoringConfig.class,
+            PredictionConfig.class,
             PredictionAccuracyConfig.class,
             ServiceConfig.class,
             TimeoutConfig.class,

@@ -22,7 +22,7 @@ spring:
     validateOnMigrate: true
     locations: classpath:db/migration
   main:
-    lazy-initialization: on
+    lazy-initialization: false
 
 server:
   port: 8080
@@ -80,13 +80,13 @@ transitclock:
   core:
     afterStopDistance: 50.0
 #    agencyId: 'null'
-    allowableBadAssignments: 0
+    allowableBadAssignments: 4
     allowableEarlyDepartureTimeForLoggingEvent: 60
     allowableEarlyForLayoverSeconds: 3600
     allowableEarlySeconds: 900
     allowableEarlySecondsForInitialMatching: 600
-    allowableEarlyTimeForEarlyDepartureSecs: 300
-    allowableLateAtTerminalForLoggingEvent: 60
+    allowableEarlyTimeForEarlyDepartureSecs: 600
+    allowableLateAtTerminalForLoggingEvent: 600
     allowableLateDepartureTimeForLoggingEvent: 240
     allowableLateSeconds: 5400
     allowableLateSecondsForInitialMatching: 1200
@@ -193,15 +193,15 @@ transitclock:
     secondsBetweenMonitorinPolling: 120
     usableDiskSpaceThreshold: 1073741824
     usableDiskSpaceThresholdGap: 104857600
-  predAccuracy:
-    gtfsTripUpdateUrl: http://127.0.0.1:8091/trip-updates
-    maxEarlynessComparedToPredictionMsec: 900000
-    maxLatenessComparedToPredictionMsec: 1500000
-    maxPredStalenessMinutes: 15
-    maxPredTimeMinutes: 15
-    maxRandomStopSelectionsPerTrip: 100
-    pollingRateMsec: 240000
-    stopsPerTrip: 5
+#  predAccuracy:
+#    gtfsTripUpdateUrl: http://127.0.0.1:8091/trip-updates
+#    maxEarlynessComparedToPredictionMsec: 900000
+#    maxLatenessComparedToPredictionMsec: 1500000
+#    maxPredStalenessMinutes: 15
+#    maxPredTimeMinutes: 15
+#    maxRandomStopSelectionsPerTrip: 100
+#    pollingRateMsec: 240000
+#    stopsPerTrip: 5
   service:
     minutesIntoMorningToIncludePreviousServiceIds: 240
   timeout:

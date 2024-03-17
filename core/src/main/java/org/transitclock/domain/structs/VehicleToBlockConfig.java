@@ -82,7 +82,7 @@ public class VehicleToBlockConfig implements Serializable {
      */
     public static List<VehicleToBlockConfig> getVehicleToBlockConfigs(Session session) throws HibernateException {
         return session
-                .createQuery("FROM VehicleToBlockConfig", VehicleToBlockConfig.class)
+                .createQuery("FROM VehicleToBlockConfig ORDER BY assignmentDate DESC", VehicleToBlockConfig.class)
                 .list();
     }
 
@@ -123,6 +123,14 @@ public class VehicleToBlockConfig implements Serializable {
         return session.createQuery("FROM VehicleToBlockConfig WHERE vehicleId = :vehicleId ORDER BY assignmentDate DESC", VehicleToBlockConfig.class)
                 .setParameter("vehicleId", vehicleId)
                 .list();
+    }
+
+
+    public static VehicleToBlockConfig getVehicleToBlockConfigs(Session session, String vehicleId, Date date) throws HibernateException {
+        return session.createQuery("FROM VehicleToBlockConfig WHERE vehicleId = :vehicleId AND validFrom >= :date AND validTo <= :date AND blockId IS NOT NULL ORDER BY assignmentDate DESC LIMIT 1", VehicleToBlockConfig.class)
+            .setParameter("vehicleId", vehicleId)
+            .setParameter("date", date)
+            .getSingleResultOrNull();
     }
 
     @Override

@@ -4,6 +4,8 @@ package org.transitclock.core.prediction.datafilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
+
+import org.transitclock.ApplicationProperties;
 import org.transitclock.config.ClassConfigValue;
 
 @Configuration
@@ -16,7 +18,7 @@ public class DwellTimeFilterFactory {
 
     @Bean
     @Lazy
-    public DwellTimeDataFilter dwellTimeDataFilter() {
-        return new DwellTimeDataFilterImpl();
+    public DwellTimeDataFilter dwellTimeDataFilter(ApplicationProperties properties) {
+        return new DwellTimeDataFilterImpl(properties.getPrediction());
     }
 }

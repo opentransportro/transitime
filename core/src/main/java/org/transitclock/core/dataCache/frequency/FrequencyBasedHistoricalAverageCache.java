@@ -6,6 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.DateUtils;
 import org.hibernate.Session;
 import org.springframework.stereotype.Component;
+
+import org.transitclock.ApplicationProperties;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.core.dataCache.*;
 import org.transitclock.domain.structs.ArrivalDeparture;
@@ -13,6 +15,7 @@ import org.transitclock.domain.structs.QArrivalDeparture;
 import org.transitclock.domain.structs.Trip;
 import org.transitclock.gtfs.DbConfig;
 import org.transitclock.gtfs.GtfsData;
+import org.transitclock.gtfs.GtfsFilter;
 import org.transitclock.service.dto.IpcArrivalDeparture;
 
 import java.util.*;
@@ -29,10 +32,15 @@ public class FrequencyBasedHistoricalAverageCache {
 
     private final Map<StopPathKey, TreeMap<Long, HistoricalAverage>> m = new ConcurrentHashMap<>();
     private final TripDataHistoryCacheInterface tripDataHistoryCacheInterface;
+    private final GtfsFilter gtfsFilter;
     private final DbConfig dbConfig;
 
-    public FrequencyBasedHistoricalAverageCache(TripDataHistoryCacheInterface tripDataHistoryCacheInterface, DbConfig dbConfig) {
+    public FrequencyBasedHistoricalAverageCache(TripDataHistoryCacheInterface tripDataHistoryCacheInterface,
+                                                ApplicationProperties properties,
+                                                DbConfig dbConfig) {
         this.tripDataHistoryCacheInterface = tripDataHistoryCacheInterface;
+        var gtfsProperties = properties.getGtfs();
+        this.gtfsFilter = new GtfsFilter(gtfsProperties.getRouteIdFilterRegEx(), gtfsProperties.getTripIdFilterRegEx());
         this.dbConfig = dbConfig;
     }
 
@@ -265,7 +273,7 @@ public class FrequencyBasedHistoricalAverageCache {
         results.sort(new ArrivalDepartureComparator());
         for (ArrivalDeparture result : results) {
             // TODO this might be better done in the database.
-            if (GtfsData.routeNotFiltered(result.getRouteId())) {
+            if (gtfsFilter.routeNotFiltered(result.getRouteId())) {
                 putArrivalDeparture(result);
             }
         }

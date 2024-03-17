@@ -29,15 +29,12 @@ import java.util.Date;
 @Slf4j
 public class GtfsRtVehicleFeed {
 
-    private final String agencyId;
-
     // For outputting date in GTFS-realtime format
     private SimpleDateFormat gtfsRealtimeDateFormatter = new SimpleDateFormat("yyyyMMdd");
     private SimpleDateFormat gtfsRealtimeTimeFormatter = new SimpleDateFormat("HH:mm:ss");
     private final VehiclesInterface vehiclesInterface ;
 
     public GtfsRtVehicleFeed(String agencyId, VehiclesInterface vehiclesInterface, AgencyTimezoneCache agencyTimezoneCache) {
-        this.agencyId = agencyId;
         this.vehiclesInterface = vehiclesInterface;
         this.gtfsRealtimeDateFormatter.setTimeZone(agencyTimezoneCache.get(agencyId));
     }
@@ -234,32 +231,5 @@ public class GtfsRtVehicleFeed {
     public FeedMessage createMessage() {
         Collection<IpcVehicleGtfsRealtime> vehicles = getVehicles();
         return createMessage(vehicles);
-    }
-
-    // For getPossiblyCachedMessage()
-    private static final DataCache vehicleFeedDataCache = new DataCache();
-
-    /**
-     * For caching Vehicle Positions feed messages.
-     *
-     * @param agencyId
-     * @return
-     */
-    public static FeedMessage getPossiblyCachedMessage(String agencyId, VehiclesInterface vehiclesInterface, AgencyTimezoneCache agencyTimezoneCache) {
-        FeedMessage feedMessage = vehicleFeedDataCache.get(agencyId);
-        if (feedMessage != null) return feedMessage;
-
-        synchronized (vehicleFeedDataCache) {
-
-            // Cache may have been filled while waiting.
-            feedMessage = vehicleFeedDataCache.get(agencyId);
-            if (feedMessage != null) return feedMessage;
-
-            GtfsRtVehicleFeed feed = new GtfsRtVehicleFeed(agencyId, vehiclesInterface, agencyTimezoneCache);
-            feedMessage = feed.createMessage();
-            vehicleFeedDataCache.put(agencyId, feedMessage);
-        }
-
-        return feedMessage;
     }
 }

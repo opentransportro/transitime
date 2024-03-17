@@ -3,6 +3,7 @@ package org.transitclock.core;
 
 import java.io.Serializable;
 
+import lombok.Builder;
 import org.transitclock.core.avl.space.SpatialMatch;
 import org.transitclock.domain.structs.ArrivalDeparture;
 import org.transitclock.domain.structs.Block;
@@ -28,6 +29,7 @@ public class Indices implements Serializable {
     private int stopPathIndex;
     private int segmentIndex;
 
+    @Builder(toBuilder = true)
     public Indices(Block block, int tripIndex, int stopPathIndex, int segmentIndex) throws IndexOutOfBoundsException {
         this.block = block;
         this.tripIndex = tripIndex;
@@ -123,14 +125,19 @@ public class Indices implements Serializable {
      * @return
      */
     public boolean isEarlierStopPathThan(Indices indices) {
-        if (block.isNoSchedule()) return stopPathIndex < indices.stopPathIndex;
-        else {
-            if (tripIndex > indices.tripIndex) return false;
-            if (tripIndex < indices.tripIndex) return true;
-
-            // tripIndex == indices.tripIndex
+        if (block.isNoSchedule()) {
             return stopPathIndex < indices.stopPathIndex;
         }
+
+        if (tripIndex > indices.tripIndex) {
+            return false;
+        }
+        if (tripIndex < indices.tripIndex) {
+            return true;
+        }
+
+        // tripIndex == indices.tripIndex
+        return stopPathIndex < indices.stopPathIndex;
     }
 
     /**

@@ -2,12 +2,13 @@
 package org.transitclock.core.travelTimes;
 
 import lombok.extern.slf4j.Slf4j;
-import org.transitclock.config.data.UpdatesConfig;
+
+import org.transitclock.ApplicationProperties;
+import org.transitclock.ApplicationProperties.Updates;
 import org.transitclock.domain.structs.ActiveRevision;
 import org.transitclock.domain.structs.Agency;
 import org.transitclock.domain.structs.ArrivalDeparture;
 import org.transitclock.domain.structs.Match;
-import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.MapKey;
 import org.transitclock.utils.Time;
 
@@ -21,6 +22,7 @@ import java.util.*;
 @Slf4j
 public class DataFetcher {
 
+    private final Updates updatesProperties;
     // The data ends up in arrivalDepartureMap and matchesMap.
     // It is keyed by DbDataMapKey which means that data is grouped
     // per vehicle trip. This way can later subsequent arrivals/departures
@@ -29,7 +31,6 @@ public class DataFetcher {
     private Map<DbDataMapKey, List<Match>> matchesMap;
 
     //	private Map<String, Calendar> gtfsCalendars = null;
-
     private java.util.Calendar calendar = null;
 
     //	private List<Integer> specialDaysOfWeek = null;
@@ -42,7 +43,8 @@ public class DataFetcher {
      * @param newSpecialDaysOfWeek List of Integers indicating day of week. Uses java.util.Calendar
      *     values such as java.util.Calendar.MONDAY . Set to null if not going to use.
      */
-    public DataFetcher(String dbName, List<Integer> newSpecialDaysOfWeek) {
+    public DataFetcher(String dbName, ApplicationProperties.Updates updatesProperties, List<Integer> newSpecialDaysOfWeek) {
+        this.updatesProperties = updatesProperties;
         // Create the member calendar using timezone specified in db for the
         // agency. Use the currently active config rev.
         int configRev = ActiveRevision.get(dbName).getConfigRev();
@@ -171,12 +173,8 @@ public class DataFetcher {
      */
     private void addArrivalDepartureToMap(Map<DbDataMapKey, List<ArrivalDeparture>> map, ArrivalDeparture arrDep) {
         DbDataMapKey key = getKey(arrDep.getServiceId(), arrDep.getDate(), arrDep.getTripId(), arrDep.getVehicleId());
-        List<ArrivalDeparture> list = map.get(key);
-        if (list == null) {
-            list = new ArrayList<ArrivalDeparture>();
-            map.put(key, list);
-        }
-        list.add(arrDep);
+        map.computeIfAbsent(key, k -> new ArrayList<>())
+                .add(arrDep);
     }
 
     /**
@@ -187,31 +185,29 @@ public class DataFetcher {
      * @param endTime
      * @return
      */
-    public Map<DbDataMapKey, List<ArrivalDeparture>> readArrivalsDepartures(
-            String dbName, Date beginTime, Date endTime) {
-        IntervalTimer timer = new IntervalTimer();
-
-        // For returning the results
-        Map<DbDataMapKey, List<ArrivalDeparture>> resultsMap = new HashMap<DbDataMapKey, List<ArrivalDeparture>>();
+    public Map<DbDataMapKey, List<ArrivalDeparture>> readArrivalsDepartures(String dbName, Date beginTime, Date endTime) {
+        Map<DbDataMapKey, List<ArrivalDeparture>> resultsMap = new HashMap<>();
 
         // For keeping track of which rows should be returned by the batch.
         int firstResult = 0;
         // Batch size of 50k found to be significantly faster than 10k,
         // by about a factor of 2. Since sometimes using really large
         // batches of data using 500k
-        int batchSize = UpdatesConfig.pageSize.getValue(); // Also known as maxResults
-        // The temporary list for the loop that contains a batch of results
+        final int batchSize = updatesProperties.getPageSize();
+        final boolean pageDbReads = updatesProperties.getPageDbReads();
 
-        logger.info("counting arrival/departures");
-        Long count = ArrivalDeparture.getArrivalsDeparturesCountFromDb(dbName, beginTime, endTime, null);
-        logger.info("retrieving {} arrival/departures", count);
-        List<ArrivalDeparture> arrDepBatchList;
+        long count = ArrivalDeparture.getArrivalsDeparturesCountFromDb(dbName, beginTime, endTime, null);
+        if (count == 0) {
+            logger.warn("No arrival/departures found");
+            return resultsMap;
+        }
 
-        if (!UpdatesConfig.pageDbReads()) {
-            // page by day for MySql -- its batch impl falls down on large data
+        if (!pageDbReads) {
             Date pageBeginTime = beginTime;
             Date pageEndTime = new Date(beginTime.getTime() + Time.MS_PER_DAY);
             int runningCount = 0;
+
+            List<ArrivalDeparture> arrDepBatchList;
             do {
                 logger.info("querying a/d for between {} and {}", pageBeginTime, pageEndTime);
                 arrDepBatchList = ArrivalDeparture.getArrivalsDeparturesFromDb(
@@ -230,15 +226,14 @@ public class DataFetcher {
                     addArrivalDepartureToMap(resultsMap, arrDep);
                 }
                 runningCount += arrDepBatchList.size();
-                logger.info(
-                        "Read in total of {} a/ds of {} {}%", runningCount, count, (0.0 + runningCount) / count * 100);
+                logger.info("Read in total of {} a/ds of {} {}%", runningCount, count, (0.0 + runningCount) / count * 100);
 
                 pageBeginTime = pageEndTime;
                 pageEndTime = new Date(Math.min(pageBeginTime.getTime() + Time.MS_PER_DAY, endTime.getTime()));
 
             } while (pageEndTime.before(endTime));
         } else {
-            // Read in batch of 50k rows of data and process it
+            List<ArrivalDeparture> arrDepBatchList;
             do {
                 arrDepBatchList = ArrivalDeparture.getArrivalsDeparturesFromDb(
                         dbName,
@@ -256,8 +251,7 @@ public class DataFetcher {
                     addArrivalDepartureToMap(resultsMap, arrDep);
                 }
 
-                logger.info(
-                        "Read in total of {} arrival/departures of {} {}%",
+                logger.info("Read in total of {} arrival/departures of {} {}%",
                         firstResult + arrDepBatchList.size(),
                         count,
                         (0.0 + firstResult + arrDepBatchList.size()) / count * 100);
@@ -266,9 +260,7 @@ public class DataFetcher {
                 firstResult += batchSize;
             } while (arrDepBatchList.size() == batchSize);
         }
-        logger.info("Reading arrival/departures took {} msec", timer.elapsedMsec());
 
-        // Return the resulting map of arrivals/departures
         return resultsMap;
     }
 
@@ -276,12 +268,12 @@ public class DataFetcher {
      * Adds the arrival/departure to the map.
      *
      * @param map
-     * @param arrDep
+     * @param match
      */
     private void addMatchToMap(Map<DbDataMapKey, List<Match>> map, Match match) {
         DbDataMapKey key = getKey(match.getServiceId(), match.getDate(), match.getTripId(), match.getVehicleId());
-        List<Match> list = map.computeIfAbsent(key, k -> new ArrayList<>());
-        list.add(match);
+        map.computeIfAbsent(key, k -> new ArrayList<>())
+                .add(match);
     }
 
     /**
@@ -293,8 +285,6 @@ public class DataFetcher {
      * @return
      */
     private Map<DbDataMapKey, List<Match>> readMatches(String projectId, Date beginTime, Date endTime) {
-        IntervalTimer timer = new IntervalTimer();
-
         // For returning the results
         Map<DbDataMapKey, List<Match>> resultsMap = new HashMap<>();
 
@@ -303,20 +293,25 @@ public class DataFetcher {
         // Batch size of 50k found to be significantly faster than 10k,
         // by about a factor of 2.  Since sometimes using really large
         // batches of data using 500k
-        int batchSize = UpdatesConfig.pageSize(); // Also known as maxResults
-        String sqlClause = "AND atStop = false ORDER BY avlTime";
+        final int batchSize = updatesProperties.getPageSize(); // Also known as maxResults
+        final boolean batchReads = updatesProperties.getPageDbReads();
+
         logger.info("counting matches...");
         Long count = Match.getMatchesCountFromDb(projectId, beginTime, endTime, "AND atStop = false");
-        logger.info("found {} matches", count);
+        if (count == 0) {
+            logger.info("Found 0 matches. Stopping here!");
+            return resultsMap;
+        }
 
-        // The temporary list for the loop that contains a batch of results
-        List<Match> matchBatchList;
 
-        if (!UpdatesConfig.pageDbReads()) {
+        String sqlClause = "AND atStop = false ORDER BY avlTime";
+        if (!batchReads) {
+            List<Match> matchBatchList;
             // page by day for MySql -- its batch impl falls down on large data
             Date pageBeginTime = beginTime;
             Date pageEndTime = new Date(beginTime.getTime() + Time.MS_PER_DAY);
             int runningCount = 0;
+
             do {
                 logger.info("querying matches for between {} and {}", pageBeginTime, pageEndTime);
                 matchBatchList = Match.getMatchesFromDb(projectId, pageBeginTime, pageEndTime, sqlClause, null, null);
@@ -324,16 +319,15 @@ public class DataFetcher {
                 for (Match match : matchBatchList) {
                     addMatchToMap(resultsMap, match);
                 }
+
                 runningCount += matchBatchList.size();
-                logger.info(
-                        "Read in total of {} matches of {} {}%",
-                        runningCount, count, (0.0 + runningCount) / count * 100);
+                logger.info("Read in total of {} matches of {} {}%", runningCount, count, (0.0 + runningCount) / count * 100);
 
                 pageBeginTime = pageEndTime;
                 pageEndTime = new Date(Math.min(pageBeginTime.getTime() + Time.MS_PER_DAY, endTime.getTime()));
-
             } while (pageEndTime.before(endTime));
         } else {
+            List<Match> matchBatchList;
             // Read in batch of 50k rows of data and process it
             do {
                 matchBatchList = Match.getMatchesFromDb(
@@ -353,19 +347,13 @@ public class DataFetcher {
                     addMatchToMap(resultsMap, match);
                 }
 
-                logger.info(
-                        "Read in total of {} matches of {} {}%",
-                        firstResult + matchBatchList.size(),
-                        count,
-                        (0.0 + firstResult + matchBatchList.size()) / count * 100);
+                logger.info("Read in total of {} matches of {} {}%", firstResult + matchBatchList.size(), count, (0.0 + firstResult + matchBatchList.size()) / count * 100);
 
                 // Update firstResult for reading next batch of data
                 firstResult += batchSize;
             } while (matchBatchList.size() == batchSize);
         }
-        logger.info("Reading matches took {} msec", timer.elapsedMsec());
 
-        // Return the resulting map of arrivals/departures
         return resultsMap;
     }
 
@@ -381,7 +369,7 @@ public class DataFetcher {
         // Read in arrival/departure times and matches from db
         logger.info("Reading historic data from db...");
         matchesMap = readMatches(agencyId, beginTime, endTime);
-        if (matchesMap == null || matchesMap.isEmpty()) {
+        if (matchesMap.isEmpty()) {
             logger.info("No Matches present in db");
             return;
         }
@@ -397,8 +385,7 @@ public class DataFetcher {
     public Map<DbDataMapKey, List<ArrivalDeparture>> getArrivalDepartureMap() {
         // Make sure data was read in
         if (arrivalDepartureMap == null)
-            throw new RuntimeException(
-                    "Called getArrivalDepartureMap() before " + "data was read in using readData().");
+            throw new RuntimeException("Called getArrivalDepartureMap() before data was read in using readData().");
 
         return arrivalDepartureMap;
     }
@@ -412,7 +399,7 @@ public class DataFetcher {
     public Map<DbDataMapKey, List<Match>> getMatchesMap() {
         // Make sure data was read in
         if (matchesMap == null)
-            throw new RuntimeException("Called getMatchesMap() before " + "data was read in using readData().");
+            throw new RuntimeException("Called getMatchesMap() before data was read in using readData().");
 
         return matchesMap;
     }

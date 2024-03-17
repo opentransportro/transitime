@@ -6,6 +6,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.transit.realtime.GtfsRealtime.FeedMessage;
 import org.transitclock.config.data.ApiConfig;
 
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -16,10 +17,13 @@ import java.util.concurrent.TimeUnit;
  * @author SkiBu Smith
  */
 public class DataCache {
-    private final Cache<String, FeedMessage> cacheMap =  CacheBuilder.newBuilder()
-            .expireAfterWrite(ApiConfig.gtfsRtCacheSeconds.getValue(), TimeUnit.SECONDS)
-            .build();
+    private final Cache<String, FeedMessage> cacheMap;
 
+    public DataCache(long cacheSeconds) {
+        cacheMap =  CacheBuilder.newBuilder()
+            .expireAfterWrite(cacheSeconds, TimeUnit.SECONDS)
+            .build();
+    }
 
     public FeedMessage get(String agencyId) {
         return cacheMap.getIfPresent(agencyId);

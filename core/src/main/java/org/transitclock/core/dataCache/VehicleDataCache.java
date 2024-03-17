@@ -62,7 +62,7 @@ public class VehicleDataCache {
     // in AVL feed then this map is updated and the new VehicleConfig is also
     // written to the database. Using HashMap instead of ConcurrentHashMap
     // since synchronizing puts anyways.
-    private final ConcurrentHashMap<String, VehicleConfig> vehicleConfigsMap = new ConcurrentHashMap<>();
+    private final Map<String, VehicleConfig> vehicleConfigsMap = new ConcurrentHashMap<>();
 
     // So can quickly look up vehicle config using tracker ID
     private final Map<String, VehicleConfig> vehicleConfigByTrackerIdMap = new HashMap<>();
@@ -71,8 +71,7 @@ public class VehicleDataCache {
     private long dbReadTime;
 
     // For filtering out info more than MAX_AGE since it means that the AVL info
-    // is
-    // obsolete and shouldn't be displayed.
+    // is obsolete and shouldn't be displayed.
     private static final int MAX_AGE_MSEC = 15 * Time.MS_PER_MIN;
 
     private final PredictionDataCache predictionDataCache;
@@ -93,7 +92,7 @@ public class VehicleDataCache {
      * to sync.
      */
     private void readVehicleConfigFromDb() {
-        try (Session session = HibernateUtils.getSession(AgencyConfig.getAgencyId())) {
+        try (Session session = HibernateUtils.getSession()) {
             // Read VehicleConfig data from database
             List<VehicleConfig> vehicleConfigs = VehicleConfig.getVehicleConfigs(session);
 
@@ -158,7 +157,7 @@ public class VehicleDataCache {
         } else {
             if (vehicleName != null) {
                 if (!vehicleName.equals(absent.getName())) {
-                    Session session = HibernateUtils.getSession(AgencyConfig.getAgencyId());
+                    Session session = HibernateUtils.getSession();
                     Transaction tx = session.beginTransaction();
                     try {
                         absent.setName(vehicleName);

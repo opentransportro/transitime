@@ -4,6 +4,7 @@ package org.transitclock.gtfs.readers;
 import java.text.ParseException;
 import org.apache.commons.csv.CSVRecord;
 import org.transitclock.gtfs.GtfsData;
+import org.transitclock.gtfs.GtfsFilter;
 import org.transitclock.gtfs.model.GtfsStopTime;
 import org.transitclock.utils.csv.CsvBaseReader;
 
@@ -13,15 +14,17 @@ import org.transitclock.utils.csv.CsvBaseReader;
  * @author SkiBu Smith
  */
 public class GtfsStopTimesReader extends CsvBaseReader<GtfsStopTime> {
-
-    public GtfsStopTimesReader(String dirName) {
+    private final GtfsFilter filter;
+    public GtfsStopTimesReader(String dirName, GtfsFilter filter) {
         super(dirName, "stop_times.txt", true, false);
+        this.filter = filter;
     }
 
     @Override
     public GtfsStopTime handleRecord(CSVRecord record, boolean supplemental) throws ParseException {
-        if (GtfsData.tripNotFiltered(record.get("trip_id")))
+        if (filter.tripNotFiltered(record.get("trip_id")))
             return new GtfsStopTime(record, supplemental, getFileName());
-        else return null;
+
+        return null;
     }
 }

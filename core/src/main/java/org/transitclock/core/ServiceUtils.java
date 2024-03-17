@@ -12,13 +12,13 @@ import java.util.Map;
 import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
+
+import org.transitclock.ApplicationProperties;
 import org.transitclock.domain.structs.Agency;
 import org.transitclock.domain.structs.Calendar;
 import org.transitclock.domain.structs.CalendarDate;
 import org.transitclock.gtfs.DbConfig;
 import org.transitclock.utils.Time;
-
-import static org.transitclock.config.data.ServiceConfig.minutesIntoMorningToIncludePreviousServiceIds;
 
 /**
  * For working with service types, such as determining serviceId or appropriate block to use for a
@@ -28,13 +28,15 @@ import static org.transitclock.config.data.ServiceConfig.minutesIntoMorningToInc
  */
 @Slf4j
 public class ServiceUtils {
+    private final ApplicationProperties properties;
     private final GregorianCalendar calendar;
     private final DbConfig dbConfig;
     /**
      * ServiceUtils constructor. Creates reusable GregorianCalendar and sets the timezone so that
      * the calendar can be reused.
      */
-    public ServiceUtils(DbConfig dbConfig) {
+    public ServiceUtils(ApplicationProperties properties, DbConfig dbConfig) {
+        this.properties = properties;
         Agency agency = dbConfig.getFirstAgency();
         this.calendar = agency != null ? new GregorianCalendar(agency.getTimeZone()) : new GregorianCalendar();
         this.dbConfig = dbConfig;
@@ -89,7 +91,7 @@ public class ServiceUtils {
         // latest GTFS data was never processed. To handle this kind
         // of situation use the most recent Calendars if none are
         // configured to be active.
-        if (activeCalendarList.size() == 0) {
+        if (activeCalendarList.isEmpty()) {
             // Use most recent calendar to keep system running
             long earliestStartTime = Long.MAX_VALUE;
             for (Calendar calendar : originalCalendarList) {
@@ -248,7 +250,7 @@ public class ServiceUtils {
         List<String> serviceIdsForDay = getServiceIdsForDay(epochTime);
         Time time = dbConfig.getTime();
         if (time.getSecondsIntoDay(epochTime)
-                > minutesIntoMorningToIncludePreviousServiceIds.getValue() * Time.MIN_IN_SECS) return serviceIdsForDay;
+                > properties.getService().getMinutesIntoMorningToIncludePreviousServiceIds() * Time.MIN_IN_SECS) return serviceIdsForDay;
 
         List<String> serviceIdsForPreviousDay = getServiceIdsForDay(epochTime.getTime() - Time.DAY_IN_MSECS);
 
@@ -283,7 +285,7 @@ public class ServiceUtils {
      */
     public List<Calendar> getCurrentCalendars(long epochTime) {
         // Result to be returned
-        List<Calendar> currentCalendars = new ArrayList<Calendar>();
+        List<Calendar> currentCalendars = new ArrayList<>();
 
         // Get list of all calendars that are configured
         List<Calendar> allCalendars = dbConfig.getCalendars();

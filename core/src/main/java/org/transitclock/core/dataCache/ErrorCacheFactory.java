@@ -1,12 +1,12 @@
 /* (C)2023 */
 package org.transitclock.core.dataCache;
 
+import org.transitclock.config.ClassConfigValue;
+import org.transitclock.core.dataCache.ehcache.KalmanErrorCache;
+
 import org.ehcache.CacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.transitclock.config.ClassConfigValue;
-import org.transitclock.core.dataCache.ehcache.KalmanErrorCache;
-import org.transitclock.utils.ClassInstantiator;
 
 /**
  * @author Sean Óg Crudden Factory that will provide cache to hold Kalman error values.

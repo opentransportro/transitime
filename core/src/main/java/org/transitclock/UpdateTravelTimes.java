@@ -278,7 +278,8 @@ public class UpdateTravelTimes {
             Session session, String agencyId, List<Integer> specialDaysOfWeek, Date beginTime, Date endTime) {
         // Read in historic data from db and put it into maps so that it can
         // be processed.
-        TravelTimesProcessor processor = new TravelTimesProcessor();
+        ApplicationProperties properties = new ApplicationProperties();
+        TravelTimesProcessor processor = new TravelTimesProcessor(properties);
         processor.readAndProcessHistoricData(agencyId, specialDaysOfWeek, beginTime, endTime);
 
         if (processor.isEmpty()) {

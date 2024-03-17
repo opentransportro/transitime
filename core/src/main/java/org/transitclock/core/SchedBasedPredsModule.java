@@ -1,16 +1,15 @@
 /* (C)2023 */
 package org.transitclock.core;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
+import java.util.*;
+
+import org.transitclock.ApplicationProperties;
 import org.transitclock.Module;
-import org.transitclock.config.data.AgencyConfig;
-import org.transitclock.config.data.PredictionConfig;
 import org.transitclock.core.avl.AvlProcessor;
 import org.transitclock.core.avl.assigner.BlockInfoProvider;
 import org.transitclock.core.dataCache.VehicleDataCache;
-import org.transitclock.domain.structs.AvlReport;
 import org.transitclock.domain.structs.AssignmentType;
+import org.transitclock.domain.structs.AvlReport;
 import org.transitclock.domain.structs.Block;
 import org.transitclock.domain.structs.Location;
 import org.transitclock.gtfs.DbConfig;
@@ -19,7 +18,10 @@ import org.transitclock.service.dto.IpcVehicleComplete;
 import org.transitclock.utils.SystemTime;
 import org.transitclock.utils.Time;
 
-import java.util.*;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
 /**
  * The schedule based predictions module runs in the background. Every few minutes it looks for
@@ -41,17 +43,20 @@ import java.util.*;
  */
 @Slf4j
 @Component
+@ConditionalOnProperty("transitclock.schedBasedPreds.pollingRateMsec")
 public class SchedBasedPredsModule extends Module {
     private final VehicleDataCache vehicleDataCache;
     private final AvlProcessor avlProcessor;
     private final BlockInfoProvider blockInfoProvider;
     private final DbConfig dbConfig;
+    private final ApplicationProperties properties;
 
-    public SchedBasedPredsModule(VehicleDataCache vehicleDataCache, AvlProcessor avlProcessor, BlockInfoProvider blockInfoProvider, DbConfig dbConfig) {
+    public SchedBasedPredsModule(VehicleDataCache vehicleDataCache, AvlProcessor avlProcessor, BlockInfoProvider blockInfoProvider, DbConfig dbConfig, ApplicationProperties properties) {
         this.vehicleDataCache = vehicleDataCache;
         this.avlProcessor = avlProcessor;
         this.blockInfoProvider = blockInfoProvider;
         this.dbConfig = dbConfig;
+        this.properties = properties;
     }
 
     /**
@@ -73,8 +78,8 @@ public class SchedBasedPredsModule extends Module {
         List<Block> activeBlocks = blockInfoProvider.getCurrentlyActiveBlocks(
                 null, // Get for all routes
                 blockIdsAlreadyAssigned,
-                PredictionConfig.beforeStartTimeMinutes.getValue() * Time.SEC_PER_MIN,
-                PredictionConfig.afterStartTimeMinutes.getValue() * Time.SEC_PER_MIN);
+                properties.getPrediction().getBeforeStartTimeMinutes() * Time.SEC_PER_MIN,
+                properties.getPrediction().getAfterStartTimeMinutes() * Time.SEC_PER_MIN);
 
         // For each block about to start see if no associated vehicle
         for (Block block : activeBlocks) {
@@ -119,30 +124,8 @@ public class SchedBasedPredsModule extends Module {
      * @see java.lang.Runnable#run()
      */
     @Override
+    @Scheduled(fixedRateString = "${transitclock.schedBasedPreds.pollingRateMsec}")
     public void run() {
-        try {
-            // Do the actual work
-            createSchedBasedPredsAsNecessary();
-        } catch (Exception e) {
-            logger.error("Error with SchedBasedPredsModule for agencyId={}", AgencyConfig.getAgencyId(), e);
-        }
-    }
-
-    @Override
-    public int initialExecutionDelay() {
-        // No need to run at startup since haven't yet had change to assign
-        // vehicles to blocks yet. So sleep a bit first, unless specified to
-        // run immediately by the processImmediatelyAtStartup configuration
-        // parameter.
-        if (!PredictionConfig.processImmediatelyAtStartup.getValue()) {
-            return PredictionConfig.timeBetweenPollingMsec.getValue();
-        }
-
-        return 0;
-    }
-
-    @Override
-    public ExecutionType getExecutionType() {
-        return ExecutionType.FIXED_RATE;
+        createSchedBasedPredsAsNecessary();
     }
 }

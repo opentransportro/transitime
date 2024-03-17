@@ -2,7 +2,8 @@
 package org.transitclock.core.prediction.datafilter;
 
 import lombok.extern.slf4j.Slf4j;
-import org.transitclock.config.data.PredictionConfig;
+
+import org.transitclock.ApplicationProperties.Prediction;
 import org.transitclock.service.dto.IpcArrivalDeparture;
 
 /**
@@ -10,6 +11,12 @@ import org.transitclock.service.dto.IpcArrivalDeparture;
  */
 @Slf4j
 public class TravelTimeDataFilterImpl implements TravelTimeDataFilter {
+    private final Prediction predictionProperties;
+
+    public TravelTimeDataFilterImpl(Prediction predictionProperties) {
+        this.predictionProperties = predictionProperties;
+    }
+
     @Override
     public boolean filter(IpcArrivalDeparture departure, IpcArrivalDeparture arrival) {
         if (arrival != null && departure != null) {
@@ -20,14 +27,14 @@ public class TravelTimeDataFilterImpl implements TravelTimeDataFilter {
                             && departure
                                     .getScheduledAdherence()
                                     .isWithinBounds(
-                                            PredictionConfig.minSceheduleAdherence.getValue(), PredictionConfig.maxSceheduleAdherence.getValue()))) {
+                                            predictionProperties.getRls().getMinSceheduleAdherence(), predictionProperties.getRls().getMaxSceheduleAdherence()))) {
                 // TODO Arrival schedule adherence appears not to be set much. So
                 // only stop if set and outside range.
                 if (arrival.getScheduledAdherence() == null
                         || arrival.getScheduledAdherence()
-                                .isWithinBounds(PredictionConfig.minSceheduleAdherence.getValue(), PredictionConfig.maxSceheduleAdherence.getValue())) {
-                    if (traveltime < PredictionConfig.maxTravelTimeAllowedInModel.getValue()
-                            && traveltime > PredictionConfig.minTravelTimeAllowedInModel.getValue()) {
+                                .isWithinBounds(predictionProperties.getRls().getMinSceheduleAdherence(), predictionProperties.getRls().getMaxSceheduleAdherence())) {
+                    if (traveltime < predictionProperties.getTravel().getMaxTravelTimeAllowedInModel()
+                            && traveltime > predictionProperties.getTravel().getMinTravelTimeAllowedInModel()) {
                         return false;
 
                     } else {

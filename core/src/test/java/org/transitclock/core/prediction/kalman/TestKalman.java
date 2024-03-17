@@ -1,6 +1,9 @@
 /* (C)2023 */
 package org.transitclock.core.prediction.kalman;
 
+import org.transitclock.ApplicationProperties;
+import org.transitclock.ApplicationProperties.Prediction.Data.Kalman;
+
 import org.junit.jupiter.api.Test;
 
 public class TestKalman {
@@ -8,7 +11,7 @@ public class TestKalman {
 
     @Test
     public void test1() {
-        KalmanPrediction kalmanPrediction = new KalmanPrediction();
+        KalmanPrediction kalmanPrediction = new KalmanPrediction(new Kalman());
 
         Vehicle vehicle = new Vehicle("RIY 30");
 
@@ -42,7 +45,7 @@ public class TestKalman {
 
     @Test
     public void test2() {
-        KalmanPrediction kalmanPrediction = new KalmanPrediction();
+        KalmanPrediction kalmanPrediction = new KalmanPrediction(new Kalman());
 
         Vehicle vehicle = new Vehicle("RIY 30");
 
@@ -80,7 +83,7 @@ public class TestKalman {
 
     @Test
     public void test3() {
-        KalmanPrediction kalmanPrediction = new KalmanPrediction();
+        KalmanPrediction kalmanPrediction = new KalmanPrediction(new Kalman());
 
         Vehicle vehicle = new Vehicle("RIY 30");
 
@@ -118,7 +121,7 @@ public class TestKalman {
 
     @Test
     public void test4() {
-        KalmanPrediction kalmanPrediction = new KalmanPrediction();
+        KalmanPrediction kalmanPrediction = new KalmanPrediction(new Kalman());
 
         Vehicle vehicle = new Vehicle("RIY 30");
 
@@ -156,7 +159,7 @@ public class TestKalman {
 
     @Test
     public void test5() {
-        KalmanPrediction kalmanPrediction = new KalmanPrediction();
+        KalmanPrediction kalmanPrediction = new KalmanPrediction(new Kalman());
 
         Vehicle vehicle = new Vehicle("RIY 30");
 
@@ -194,7 +197,7 @@ public class TestKalman {
 
     @Test
     public void test6() {
-        KalmanPrediction kalmanPrediction = new KalmanPrediction();
+        KalmanPrediction kalmanPrediction = new KalmanPrediction(new Kalman());
 
         Vehicle vehicle = new Vehicle("RIY 30");
 

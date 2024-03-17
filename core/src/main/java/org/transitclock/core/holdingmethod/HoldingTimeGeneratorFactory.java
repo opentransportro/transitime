@@ -3,6 +3,8 @@ package org.transitclock.core.holdingmethod;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import org.transitclock.ApplicationProperties;
 import org.transitclock.config.ClassConfigValue;
 import org.transitclock.core.dataCache.*;
 import org.transitclock.domain.hibernate.DataDbLogger;
@@ -20,7 +22,8 @@ public class HoldingTimeGeneratorFactory {
             "Specifies the name of the class used for generating " + "holding times.");
 
     @Bean
-    public HoldingTimeGenerator holdingTimeGenerator(PredictionDataCache predictionDataCache,
+    public HoldingTimeGenerator holdingTimeGenerator(ApplicationProperties properties,
+                                                     PredictionDataCache predictionDataCache,
                                                      StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface,
                                                      DataDbLogger dataDbLogger,
                                                      DbConfig dbConfig,
@@ -28,9 +31,9 @@ public class HoldingTimeGeneratorFactory {
                                                      HoldingTimeCache holdingTimeCache,
                                                      VehicleStatusManager vehicleStatusManager) {
         if (className.getValue() == HoldingTimeGeneratorDefaultImpl.class) {
-            return new HoldingTimeGeneratorDefaultImpl(predictionDataCache, stopArrivalDepartureCacheInterface, dataDbLogger, dbConfig, vehicleDataCache, holdingTimeCache, vehicleStatusManager);
+            return new HoldingTimeGeneratorDefaultImpl(properties.getHolding(),predictionDataCache, stopArrivalDepartureCacheInterface, dataDbLogger, dbConfig, vehicleDataCache, holdingTimeCache, vehicleStatusManager);
         } else if(className.getValue() == SimpleHoldingTimeGeneratorImpl.class) {
-            return new SimpleHoldingTimeGeneratorImpl(predictionDataCache, stopArrivalDepartureCacheInterface, dataDbLogger, dbConfig);
+            return new SimpleHoldingTimeGeneratorImpl(properties.getHolding(), predictionDataCache, stopArrivalDepartureCacheInterface, dataDbLogger, dbConfig);
         }
 
         return new DummyHoldingTimeGeneratorImpl();

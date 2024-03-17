@@ -410,7 +410,9 @@ public class AvlReport implements Serializable {
             unpredictableAssignmentsPatternInitialized = true;
         }
 
-        if (regExPattern == null) return false;
+        if (regExPattern == null) {
+            return false;
+        }
 
         return regExPattern.matcher(assignment).matches();
     }

@@ -2,7 +2,9 @@
 package org.transitclock.core.holdingmethod;
 
 import lombok.extern.slf4j.Slf4j;
-import org.transitclock.config.data.HoldingConfig;
+
+import org.transitclock.ApplicationProperties;
+import org.transitclock.ApplicationProperties.Holding;
 import org.transitclock.core.VehicleStatus;
 import org.transitclock.core.dataCache.PredictionDataCache;
 import org.transitclock.core.dataCache.StopArrivalDepartureCacheInterface;
@@ -25,12 +27,14 @@ import java.util.List;
  */
 @Slf4j
 public class SimpleHoldingTimeGeneratorImpl implements HoldingTimeGenerator {
+    private final ApplicationProperties.Holding holdingConfig;
     private final PredictionDataCache predictionDataCache;
     private final StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface;
     private final DataDbLogger dataDbLogger;
     private final DbConfig dbConfig;
 
-    public SimpleHoldingTimeGeneratorImpl(PredictionDataCache predictionDataCache, StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface, DataDbLogger dataDbLogger, DbConfig dbConfig) {
+    public SimpleHoldingTimeGeneratorImpl(Holding holding, PredictionDataCache predictionDataCache, StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface, DataDbLogger dataDbLogger, DbConfig dbConfig) {
+        this.holdingConfig = holding;
         this.predictionDataCache = predictionDataCache;
         this.stopArrivalDepartureCacheInterface = stopArrivalDepartureCacheInterface;
         this.dataDbLogger = dataDbLogger;
@@ -71,7 +75,7 @@ public class SimpleHoldingTimeGeneratorImpl implements HoldingTimeGenerator {
                         true,
                         0);
 
-                if (HoldingConfig.storeHoldingTimes.getValue())
+                if (holdingConfig.getStoreHoldingTimes())
                     dataDbLogger.add(holdingTime);
 
                 return holdingTime;
@@ -155,7 +159,7 @@ public class SimpleHoldingTimeGeneratorImpl implements HoldingTimeGenerator {
         long holdingTime;
 
         holdingTime = Math.max(
-                HoldingConfig.plannedHeadwayMsec.getValue().longValue()
+                holdingConfig.getPlannedHeadwayMsec().longValue()
                         - Math.abs(current_vehicle_arrival_time - last_vehicle_departure_time),
                 0);
 
@@ -229,7 +233,7 @@ public class SimpleHoldingTimeGeneratorImpl implements HoldingTimeGenerator {
     public List<ControlStop> getControlPointStops() {
         List<ControlStop> controlStops = new ArrayList<>();
 
-        for (String stopEntry : HoldingConfig.controlStopList.getValue()) {
+        for (String stopEntry : holdingConfig.getControlStops()) {
             controlStops.add(new ControlStop(stopEntry));
         }
         return controlStops;

@@ -80,17 +80,9 @@ public class BoundedExecutor {
                         // OutOfMemoryError when logging.
                         try {
                             if (t instanceof OutOfMemoryError) {
-                                logger.error(
-                                        "For {} OutOfMemoryError occurred in "
-                                                + "BoundedExecutor so "
-                                                + "terminating application",
-                                        AgencyConfig.getAgencyId(),
-                                        t);
+                                logger.error("OutOfMemoryError occurred in BoundedExecutor so terminating application", t);
                             } else {
-                                logger.error(
-                                        "For {} unexpected Throwable occurred " + "in BoundedExecutor",
-                                        AgencyConfig.getAgencyId(),
-                                        t);
+                                logger.error("Unexpected Throwable occurred in BoundedExecutor", t);
                             }
                         } catch (Throwable t2) {
                         }

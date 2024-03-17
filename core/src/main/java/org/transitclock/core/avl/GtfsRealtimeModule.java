@@ -180,8 +180,8 @@ public class GtfsRealtimeModule extends PollUrlAvlModule {
                 }
 
                 if (tripDescriptor.hasTripId()) {
-                    builder.withAssignmentId(tripDescriptor.getTripId());
-                    builder.withAssignmentType(AssignmentType.TRIP_ID);
+//                    builder.withAssignmentId(tripDescriptor.getTripId());
+//                    builder.withAssignmentType(AssignmentType.TRIP_ID);
                 }
             }
 

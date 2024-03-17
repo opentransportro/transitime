@@ -4,6 +4,8 @@ package org.transitclock.core.prediction.datafilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
+
+import org.transitclock.ApplicationProperties;
 import org.transitclock.config.ClassConfigValue;
 
 @Configuration
@@ -15,7 +17,7 @@ public class TravelTimeFilterFactory {
 
     @Bean
     @Lazy
-    public TravelTimeDataFilter travelTimeDataFilter() {
-        return new TravelTimeDataFilterImpl();
+    public TravelTimeDataFilter travelTimeDataFilter(ApplicationProperties properties) {
+        return new TravelTimeDataFilterImpl(properties.getPrediction());
     }
 }

@@ -7,6 +7,7 @@ import com.google.transit.realtime.GtfsRealtime.TripUpdate.StopTimeEvent;
 import com.google.transit.realtime.GtfsRealtime.TripUpdate.StopTimeUpdate;
 import com.google.transit.realtime.GtfsRealtime.TripUpdate.StopTimeUpdate.ScheduleRelationship;
 import lombok.extern.slf4j.Slf4j;
+import org.transitclock.ApplicationProperties;
 import org.transitclock.api.utils.AgencyTimezoneCache;
 import org.transitclock.config.data.ApiConfig;
 import org.transitclock.core.holdingmethod.PredictionTimeComparator;
@@ -34,9 +35,8 @@ import java.util.*;
  */
 @Slf4j
 public class GtfsRtTripFeed {
-    private static final int PREDICTION_MAX_FUTURE_SECS = ApiConfig.predictionMaxFutureSecs.getValue();
-
-    private static final boolean INCLUDE_TRIP_UPDATE_DELAY = ApiConfig.includeTripUpdateDelay.getValue();
+//    private static final int PREDICTION_MAX_FUTURE_SECS = ApiConfig.predictionMaxFutureSecs.getValue();
+//    private static final boolean INCLUDE_TRIP_UPDATE_DELAY = ApiConfig.includeTripUpdateDelay.getValue();
 
     // For when creating StopTimeEvent for schedule based prediction
     // 5 minutes (300 seconds)
@@ -47,26 +47,24 @@ public class GtfsRtTripFeed {
 
     // If vehicle is late and prediction is for a subsequent trip then
     // the predictions are not as certain because it is reasonably likely
-    // that another vehicle will take over the subsequent trip. Takes
+    // that another vehicle will tafeedke over the subsequent trip. Takes
     // precedence over SCHED_BASED_PRED_UNCERTAINTY_VALUE.
     private static final int LATE_AND_SUBSEQUENT_TRIP_UNCERTAINTY_VALUE = DELAYED_UNCERTAINTY_VALUE + 1;
 
-
-    private final String agencyId;
 
     // For outputting date in GTFS-realtime format
     private final SimpleDateFormat gtfsRealtimeDateFormatter = new SimpleDateFormat("yyyyMMdd");
 
     private final SimpleDateFormat gtfsRealtimeTimeFormatter = new SimpleDateFormat("HH:mm:ss");
-
+    private final ApplicationProperties properties;
     private final PredictionsInterface predictionsInterface;
     private final VehiclesInterface vehiclesInterface;
 
-    public GtfsRtTripFeed(String agencyId, PredictionsInterface predictionsInterface, VehiclesInterface vehiclesInterface, AgencyTimezoneCache agencyTimezoneCache) {
-        this.agencyId = agencyId;
+    public GtfsRtTripFeed(ApplicationProperties properties, PredictionsInterface predictionsInterface, VehiclesInterface vehiclesInterface, AgencyTimezoneCache agencyTimezoneCache) {
+        this.properties = properties;
         this.predictionsInterface = predictionsInterface;
         this.vehiclesInterface = vehiclesInterface;
-        this.gtfsRealtimeDateFormatter.setTimeZone(agencyTimezoneCache.get(agencyId));
+        this.gtfsRealtimeDateFormatter.setTimeZone(agencyTimezoneCache.get(properties.getCore().getAgencyId()));
     }
 
     /**
@@ -121,7 +119,7 @@ public class GtfsRtTripFeed {
             tripDescriptor.setScheduleRelationship(TripDescriptor.ScheduleRelationship.CANCELED);
 
         tripUpdate.setTrip(tripDescriptor);
-        if (firstPred.getDelay() != null && INCLUDE_TRIP_UPDATE_DELAY)
+        if (firstPred.getDelay() != null && properties.getApi().getIncludeTripUpdateDelay())
             tripUpdate.setDelay(firstPred.getDelay()); // set schedule deviation
 
         // Add the VehicleDescriptor information
@@ -276,7 +274,7 @@ public class GtfsRtTripFeed {
      */
     private Map<String, List<IpcPrediction>> getPredictionsPerTrip() {
         // Get all the predictions, grouped by vehicle, from the server
-        List<IpcPredictionsForRouteStopDest> allPredictionsByStop = predictionsInterface.getAllPredictions(PREDICTION_MAX_FUTURE_SECS);
+        List<IpcPredictionsForRouteStopDest> allPredictionsByStop = predictionsInterface.getAllPredictions(properties.getApi().getPredictionMaxFutureSecs());
 
         // Group the predictions by trip instead of by vehicle
         Map<String, List<IpcPrediction>> predictionsByTrip = new HashMap<>();
@@ -312,32 +310,5 @@ public class GtfsRtTripFeed {
 
         // Use prediction data to create GTFS-RT message and return it.
         return createMessage(predsByTrip);
-    }
-
-    // For getPossiblyCachedMessage()
-    private static final DataCache tripFeedDataCache = new DataCache();
-
-    /**
-     * For caching Vehicle Positions feed messages.
-     *
-     * @param agencyId
-     * @return
-     */
-    public static FeedMessage getPossiblyCachedMessage(String agencyId, PredictionsInterface predictionsInterface, VehiclesInterface vehiclesInterface, AgencyTimezoneCache agencyTimezoneCache) {
-        FeedMessage feedMessage = tripFeedDataCache.get(agencyId);
-        if (feedMessage != null) return feedMessage;
-
-        synchronized (tripFeedDataCache) {
-
-            // Cache may have been filled while waiting.
-            feedMessage = tripFeedDataCache.get(agencyId);
-            if (feedMessage != null) return feedMessage;
-
-            GtfsRtTripFeed feed = new GtfsRtTripFeed(agencyId, predictionsInterface, vehiclesInterface, agencyTimezoneCache);
-            feedMessage = feed.createMessage();
-            tripFeedDataCache.put(agencyId, feedMessage);
-        }
-
-        return feedMessage;
     }
 }

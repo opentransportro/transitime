@@ -2,6 +2,8 @@
 package org.transitclock.core.prediction;
 
 import lombok.extern.slf4j.Slf4j;
+
+import org.transitclock.ApplicationProperties;
 import org.transitclock.core.Indices;
 import org.transitclock.core.TemporalDifference;
 import org.transitclock.core.TravelTimes;
@@ -64,6 +66,7 @@ public class PredictionGeneratorDefaultImpl extends AbstractPredictionGenerator 
                                           DbConfig dbConfig,
                                           DataDbLogger dataDbLogger,
                                           TravelTimeDataFilter travelTimeDataFilter,
+                                          ApplicationProperties.Prediction properties,
                                           HoldingTimeCache holdingTimeCache,
                                           StopPathPredictionCache stopPathPredictionCache,
                                           TravelTimes travelTimes,
@@ -72,7 +75,7 @@ public class PredictionGeneratorDefaultImpl extends AbstractPredictionGenerator 
                                           RealTimeSchedAdhProcessor realTimeSchedAdhProcessor,
                                           BiasAdjuster biasAdjuster) {
 
-        super(stopArrivalDepartureCacheInterface, tripDataHistoryCacheInterface, dbConfig, dataDbLogger, travelTimeDataFilter);
+        super(stopArrivalDepartureCacheInterface, tripDataHistoryCacheInterface, dbConfig, dataDbLogger, travelTimeDataFilter, properties);
         this.holdingTimeCache = holdingTimeCache;
         this.stopPathPredictionCache = stopPathPredictionCache;
         this.travelTimes = travelTimes;

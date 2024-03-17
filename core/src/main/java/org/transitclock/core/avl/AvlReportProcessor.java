@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
+
+import org.transitclock.ApplicationProperties;
 import org.transitclock.config.data.AgencyConfig;
 import org.transitclock.config.data.AvlConfig;
 import org.transitclock.domain.structs.AvlReport;
@@ -27,9 +29,10 @@ public class AvlReportProcessor {
     // List of current AVL reports by vehicle. Useful for determining last
     // report so can filter out new report if the same as the old one.
     // Keyed on vehicle ID.
-    private final Map<String, AvlReport> avlReports = new ConcurrentHashMap<>();
     private final AvlProcessor avlProcessor;
     private final Executor avlExecutingThreadPool;
+    private final Map<String, AvlReport> avlReports;
+    private final ApplicationProperties.Avl avlProperties;
 
     public class AvlReportProcessingTask implements Runnable {
         private final AvlReport avlReport;
@@ -69,7 +72,7 @@ public class AvlReportProcessor {
                 // more frequently than is worthwhile, like every couple of seconds.
                 if (previousReportForVehicle != null) {
                     long timeBetweenReportsSecs = (avlReport.getTime() - previousReportForVehicle.getTime()) / Time.MS_PER_SEC;
-                    if (timeBetweenReportsSecs < AvlConfig.getMinTimeBetweenAvlReportsSecs()) {
+                    if (timeBetweenReportsSecs < avlProperties.getMinTimeBetweenAvlReportsSecs()) {
                         // Log this but. Since this can happen very frequently
                         // (VTA has hundreds of vehicles reporting every second!)
                         // separated the logging into two statements in case want
@@ -87,7 +90,7 @@ public class AvlReportProcessor {
                                 + "transitclock.avl.minTimeBetweenAvlReportsSecs={} "
                                 + "secs. New AVL report is {}. Previous valid AVL "
                                 + "report is {}",
-                            AvlConfig.getMinTimeBetweenAvlReportsSecs(),
+                            avlProperties.getMinTimeBetweenAvlReportsSecs(),
                             avlReport,
                             previousReportForVehicle);
 
@@ -111,15 +114,18 @@ public class AvlReportProcessor {
                 // Catch unexpected exceptions so that can continue to use the same
                 // AVL thread even if there is an unexpected problem. Only let
                 // Errors, such as OutOfMemory errors, through.
-                logger.error("Something happened while processing {} for agencyId={}.", avlReport, AgencyConfig.getAgencyId(), e);
+                logger.error("Something happened while processing {}.", avlReport, e);
             }
         }
     }
 
     public AvlReportProcessor(AvlProcessor avlProcessor,
+                              ApplicationProperties properties,
                               @Qualifier("avlExecutingThreadPool") Executor avlExecutingThreadPool) {
         this.avlProcessor = avlProcessor;
         this.avlExecutingThreadPool = avlExecutingThreadPool;
+        this.avlProperties = properties.getAvl();
+        avlReports = new ConcurrentHashMap<>();
     }
 
 

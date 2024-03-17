@@ -4,6 +4,8 @@ package org.transitclock.core.prediction.frequency.dwell.rls;
 import java.util.Date;
 
 import lombok.extern.slf4j.Slf4j;
+
+import org.transitclock.ApplicationProperties;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.core.Indices;
 import org.transitclock.core.avl.RealTimeSchedAdhProcessor;
@@ -36,8 +38,19 @@ public class DwellTimePredictionGeneratorImpl extends KalmanPredictionGeneratorI
                                             DbConfig dbConfig,
                                             DataDbLogger dataDbLogger,
                                             TravelTimeDataFilter travelTimeDataFilter,
-                                            VehicleDataCache vehicleCache, HoldingTimeCache holdingTimeCache, StopPathPredictionCache stopPathPredictionCache, TravelTimes travelTimes, HoldingTimeGenerator holdingTimeGenerator, VehicleStatusManager vehicleStatusManager, RealTimeSchedAdhProcessor realTimeSchedAdhProcessor, BiasAdjuster biasAdjuster, FrequencyBasedHistoricalAverageCache frequencyBasedHistoricalAverageCache, ErrorCache kalmanErrorCache, DwellTimeModelCacheInterface dwellTimeModelCacheInterface) {
-        super(stopArrivalDepartureCacheInterface, tripDataHistoryCacheInterface, dbConfig, dataDbLogger, travelTimeDataFilter, vehicleCache, holdingTimeCache, stopPathPredictionCache, travelTimes, holdingTimeGenerator, vehicleStatusManager, realTimeSchedAdhProcessor, biasAdjuster, frequencyBasedHistoricalAverageCache, kalmanErrorCache);
+                                            ApplicationProperties.Prediction properties,
+                                            VehicleDataCache vehicleCache,
+                                            HoldingTimeCache holdingTimeCache,
+                                            StopPathPredictionCache stopPathPredictionCache,
+                                            TravelTimes travelTimes,
+                                            HoldingTimeGenerator holdingTimeGenerator,
+                                            VehicleStatusManager vehicleStatusManager,
+                                            RealTimeSchedAdhProcessor realTimeSchedAdhProcessor,
+                                            BiasAdjuster biasAdjuster,
+                                            FrequencyBasedHistoricalAverageCache frequencyBasedHistoricalAverageCache,
+                                            ErrorCache kalmanErrorCache,
+                                            DwellTimeModelCacheInterface dwellTimeModelCacheInterface) {
+        super(stopArrivalDepartureCacheInterface, tripDataHistoryCacheInterface, dbConfig, dataDbLogger, travelTimeDataFilter, properties, vehicleCache, holdingTimeCache, stopPathPredictionCache, travelTimes, holdingTimeGenerator, vehicleStatusManager, realTimeSchedAdhProcessor, biasAdjuster, frequencyBasedHistoricalAverageCache, kalmanErrorCache);
         this.dwellTimeModelCacheInterface = dwellTimeModelCacheInterface;
     }
 

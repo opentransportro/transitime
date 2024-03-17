@@ -6,7 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.ehcache.Cache;
 import org.ehcache.CacheManager;
 import org.hibernate.Session;
-import org.transitclock.config.data.PredictionConfig;
+
+import org.transitclock.ApplicationProperties.Prediction;
 import org.transitclock.core.TemporalDifference;
 import org.transitclock.core.dataCache.DwellTimeModelCacheInterface;
 import org.transitclock.core.dataCache.StopArrivalDepartureCacheInterface;
@@ -28,17 +29,24 @@ import java.util.List;
  */
 @Slf4j
 public class DwellTimeModelCache implements DwellTimeModelCacheInterface {
-    private static final Integer minScheduleAdherence = PredictionConfig.minSceheduleAdherence.getValue();
-    private static final Integer maxScheduleAdherence = PredictionConfig.maxSceheduleAdherence.getValue();
     private static final String cacheName = "dwellTimeModelCache";
+    private final Integer minScheduleAdherence;
+    private final Integer maxScheduleAdherence;
     private final Cache<StopPathCacheKey, DwellModel> cache;
     private final DwellModel dwellModel;
     private final StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface;
+    private final Prediction.Rls rlsPredictionConfig;
 
-    public DwellTimeModelCache(CacheManager cm, DwellModel dwellModel, StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface) {
+    public DwellTimeModelCache(CacheManager cm,
+                               DwellModel dwellModel,
+                               StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface,
+                               Prediction.Rls rlsPredictionConfig) {
         cache = cm.getCache(cacheName, StopPathCacheKey.class, DwellModel.class);
         this.dwellModel = dwellModel;
         this.stopArrivalDepartureCacheInterface = stopArrivalDepartureCacheInterface;
+        this.rlsPredictionConfig = rlsPredictionConfig;
+        this.minScheduleAdherence = rlsPredictionConfig.getMinSceheduleAdherence();
+        this.maxScheduleAdherence = rlsPredictionConfig.getMaxSceheduleAdherence();
     }
 
     @Override
@@ -86,10 +94,10 @@ public class DwellTimeModelCache implements DwellTimeModelCacheInterface {
                                 // stop if set and outside range.
                                 TemporalDifference scheduledAdherence = previousArrival.getScheduledAdherence();
                                 if (scheduledAdherence == null || scheduledAdherence.isWithinBounds(minScheduleAdherence, maxScheduleAdherence)) {
-                                    if (dwelltime < PredictionConfig.maxDwellTimeAllowedInModel.getValue() &&
-                                            dwelltime > PredictionConfig.minDwellTimeAllowedInModel.getValue()) {
-                                        if (headway.getHeadway() < PredictionConfig.maxHeadwayAllowedInModel.getValue() &&
-                                                headway.getHeadway() > PredictionConfig.minHeadwayAllowedInModel.getValue()) {
+                                    if (dwelltime < rlsPredictionConfig.getMaxDwellTimeAllowedInModel() &&
+                                            dwelltime > rlsPredictionConfig.getMinDwellTimeAllowedInModel()) {
+                                        if (headway.getHeadway() < rlsPredictionConfig.getMaxHeadwayAllowedInModel() &&
+                                                headway.getHeadway() > rlsPredictionConfig.getMinHeadwayAllowedInModel()) {
                                             addSample(departure, headway, dwelltime);
                                         } else {
                                             logger.warn("Headway outside allowable range . {}", headway);
@@ -125,7 +133,7 @@ public class DwellTimeModelCache implements DwellTimeModelCacheInterface {
                                                     arrival.getTime().getTime())
                                             || Math.abs(event.getTime().getTime()
                                                             - arrival.getTime().getTime())
-                                                    < PredictionConfig.maxHeadwayAllowedInModel.getValue())) return event;
+                                                    < rlsPredictionConfig.getMaxHeadwayAllowedInModel())) return event;
                         }
                     }
                 }
