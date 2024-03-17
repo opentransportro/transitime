@@ -22,6 +22,7 @@ import org.glassfish.jersey.servlet.ServletContainer;
 import org.hibernate.Session;
 import org.transitclock.api.EmbeddedJspStarter;
 import org.transitclock.api.utils.ApiLoggingFilter;
+import org.transitclock.api.utils.ApiOriginFilter;
 import org.transitclock.api.utils.WebLoggingFilter;
 import org.transitclock.api.utils.XSSFilter;
 import org.transitclock.config.ConfigFileReader;
@@ -340,6 +341,7 @@ public class Application {
         servletContextHandler.setContextPath("/");
         servletContextHandler.addFilter(new XSSFilter(), "/*", EnumSet.allOf(DispatcherType.class));
         servletContextHandler.addFilter(new ApiLoggingFilter(), "/api/*", EnumSet.allOf(DispatcherType.class));
+        servletContextHandler.addFilter(new ApiOriginFilter(), "/api/*", EnumSet.allOf(DispatcherType.class));
         servletContextHandler.addFilter(new WebLoggingFilter(), "/*", EnumSet.allOf(DispatcherType.class));
         servletContextHandler.setBaseResourceAsString(baseUri.toASCIIString());
 
