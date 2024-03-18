@@ -19,6 +19,7 @@ import org.hibernate.exception.GenericJDBCException;
 import org.hibernate.exception.JDBCConnectionException;
 import org.hibernate.exception.SQLGrammarException;
 import org.transitclock.config.data.DbSetupConfig;
+import org.transitclock.domain.structs.VehicleToBlockConfig;
 import org.transitclock.utils.ExceptionUtils;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.Time;
@@ -136,18 +137,13 @@ public class DbQueue<T> {
 
     private List<T> drain() {
         // Get the next object from the head of the queue
-        List<T> buff = new ArrayList<>(DbSetupConfig.getBatchSize());
-        int count = 0;
-        do {
-            count = queue.drainTo(buff, DbSetupConfig.getBatchSize());
-            throughputCount += count;
-            if (count == 0) {
-                try {
-                    Thread.sleep(TIME_BETWEEN_RETRIES);
-                } catch (InterruptedException ignored) {
-                }
-            }
-        } while (buff.isEmpty());
+        final List<T> buff = new ArrayList<>(DbSetupConfig.getBatchSize());
+        final int count  = queue.drainTo(buff, DbSetupConfig.getBatchSize());
+        if (count == 0) {
+            return new ArrayList<>();
+        }
+
+        throughputCount += count;
         logger.debug("drained {} elements", count);
         // Log if went below a capacity level
         // See if queue dropped to 10% less than the previously logged level.
