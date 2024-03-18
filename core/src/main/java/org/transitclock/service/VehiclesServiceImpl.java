@@ -372,14 +372,12 @@ public class VehiclesServiceImpl implements VehiclesInterface {
     @Override
     public Collection<IpcVehicleToBlockConfig> getVehicleToBlockConfig(String blockId) {
         List<IpcVehicleToBlockConfig> result = new ArrayList<>();
-        Session session = HibernateUtils.getSession();
-        try {
+        try (Session session = HibernateUtils.getSession()){
             for (VehicleToBlockConfig vTBC : VehicleToBlockConfig.getVehicleToBlockConfigsByBlockId(session, blockId)) {
                 result.add(new IpcVehicleToBlockConfig(vTBC));
             }
-            session.close();
         } catch (Exception ex) {
-            session.close();
+            logger.error("Something happened while fetching the VehicleToBlockConfig.", ex);
         }
         return result;
     }
