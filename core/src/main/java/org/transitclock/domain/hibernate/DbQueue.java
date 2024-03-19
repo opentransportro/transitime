@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class DbQueue<T> {
     // For when cannot connect to data the length of time in msec between retries
-    private static final long TIME_BETWEEN_RETRIES = 1000; // msec
+    private static final long TIME_BETWEEN_RETRIES = 50; // msec
 
     private static final int QUEUE_CAPACITY = 500000;
 
