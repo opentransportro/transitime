@@ -24,13 +24,11 @@ public class HeadwayDetails {
     }
 
     public HeadwayDetails(Long arrivalPrediction, IpcPrediction vehicleAheadPrediction) {
-        super();
         this.vehicleAheadPrediction = vehicleAheadPrediction;
         this.arrivalPrediction = arrivalPrediction;
     }
 
     public HeadwayDetails(Long arrivalPrediction, ArrivalDeparture vehicleAheadArrival) {
-        super();
         this.vehicleAheadArrival = vehicleAheadArrival;
         this.arrivalPrediction = arrivalPrediction;
     }

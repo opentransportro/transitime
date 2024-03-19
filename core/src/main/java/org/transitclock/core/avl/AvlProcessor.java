@@ -327,7 +327,7 @@ public class AvlProcessor {
             vehicleStatus);
 
         // Find possible spatial matches
-        SpatialMatcher spatialMatcher = new SpatialMatcher(dbConfig);
+        SpatialMatcher spatialMatcher = new SpatialMatcher(dbConfig, properties);
         List<SpatialMatch> spatialMatches = spatialMatcher.getSpatialMatches(vehicleStatus);
         logger.debug(
                 "For vehicleId={} found the following {} spatial " + "matches: {}",
@@ -598,12 +598,12 @@ public class AvlProcessor {
                     potentialTrips);
 
             // Get the potential spatial matches
-            List<SpatialMatch> spatialMatchesForBlock = new SpatialMatcher(dbConfig).getSpatialMatches(
+            List<SpatialMatch> spatialMatchesForBlock = new SpatialMatcher(dbConfig, properties).getSpatialMatches(
                     vehicleStatus.getAvlReport(), block, potentialTrips, MatchingType.AUTO_ASSIGNING_MATCHING);
 
             // Add appropriate spatial matches to list
             for (SpatialMatch spatialMatch : spatialMatchesForBlock) {
-                SpatialMatcher spatialMatcher = new SpatialMatcher(dbConfig);
+                SpatialMatcher spatialMatcher = new SpatialMatcher(dbConfig, properties);
                 if (!spatialMatcher.problemMatchDueToLackOfHeadingInfo(
                                 spatialMatch, vehicleStatus, MatchingType.AUTO_ASSIGNING_MATCHING)
                         && matchOkForRouteMatching(spatialMatch)) allPotentialSpatialMatchesForRoute.add(spatialMatch);
@@ -652,7 +652,7 @@ public class AvlProcessor {
         // specifying the block assignment so it should find a match even
         // if it pretty far off.
         List<Trip> potentialTrips = block.getTripsCurrentlyActive(dbConfig, avlReport);
-        List<SpatialMatch> spatialMatches = new SpatialMatcher(dbConfig).getSpatialMatches(
+        List<SpatialMatch> spatialMatches = new SpatialMatcher(dbConfig, properties).getSpatialMatches(
                 vehicleStatus.getAvlReport(), block, potentialTrips, MatchingType.STANDARD_MATCHING);
         logger.debug(
                 "For vehicleId={} and blockId={} spatial matches={}",
@@ -669,7 +669,7 @@ public class AvlProcessor {
         // is acceptable then don't consider this a match. Instead, wait till
         // get another AVL report at a different location so can see if making
         // progress along route in proper direction.
-        SpatialMatcher spatialMatcher = new SpatialMatcher(dbConfig);
+        SpatialMatcher spatialMatcher = new SpatialMatcher(dbConfig, properties);
         if (spatialMatcher.problemMatchDueToLackOfHeadingInfo(
                 bestMatch, vehicleStatus, MatchingType.STANDARD_MATCHING)) {
             logger.debug(

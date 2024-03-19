@@ -1,10 +1,10 @@
 /* (C)2023 */
 package org.transitclock.core.dataCache;
 
-import org.transitclock.config.ClassConfigValue;
 import org.transitclock.core.dataCache.ehcache.KalmanErrorCache;
 
 import org.ehcache.CacheManager;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -13,13 +13,15 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 public class ErrorCacheFactory {
-    private static final ClassConfigValue className = new ClassConfigValue(
-            "transitclock.core.cache.errorCacheClass",
-            org.transitclock.core.dataCache.ehcache.KalmanErrorCache.class,
-            "Specifies the class used to cache the Kalamn error values.");
+    @Value("${transitclock.core.cache.errorCacheClass:org.transitclock.core.dataCache.ehcache.KalmanErrorCache}")
+    private Class<?> className;
 
     @Bean
     public ErrorCache errorCache(CacheManager cacheManager) {
-        return new KalmanErrorCache(cacheManager);
+        if(className == KalmanErrorCache.class) {
+            return new KalmanErrorCache(cacheManager);
+        }
+
+        throw new IllegalArgumentException("Unknown class " + className);
     }
 }

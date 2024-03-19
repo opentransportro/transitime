@@ -83,8 +83,6 @@ public class LastVehiclePredictionGeneratorImpl extends PredictionGeneratorDefau
                 scheduleDeviation);
     }
 
-    private final String alternative = "PredictionGeneratorDefaultImpl";
-
     @Override
     public long getTravelTimeForPath(Indices indices, AvlReport avlReport, VehicleStatus vehicleStatus) {
         List<VehicleStatus> vehiclesOnRoute = new ArrayList<>();

@@ -25,10 +25,6 @@ public class PredictionAnalysisServiceImpl implements PredictionAnalysisInterfac
     @Autowired
     private StopPathPredictionCache stopPathPredictionCache;
 
-    public PredictionAnalysisServiceImpl() {
-    }
-
-
     @Override
     public List<IpcPredictionForStopPath> getRecordedTravelTimePredictions(
             String tripId, Integer stopPathIndex, Date startdate, Date enddate, String algorithm) {

@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * @author Sean Óg Crudden
  *     <p>This is a first pass at generating a Headway value. It will find the last arrival time at
@@ -24,6 +26,7 @@ import java.util.List;
  *     <p>Maybe should be a list and have a predicted headway at each stop along the route. So key
  *     for headway could be (stop, vehicle, trip, start_time).
  */
+@Slf4j
 class LastArrivalsHeadwayGenerator implements HeadwayGenerator {
     private final VehicleDataCache vehicleDataCache;
     private final VehicleStatusManager vehicleStatusManager;
@@ -111,8 +114,7 @@ class LastArrivalsHeadwayGenerator implements HeadwayGenerator {
                 }
             }
         } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            logger.warn("Something happened while processing.", e);
         }
         return null;
     }

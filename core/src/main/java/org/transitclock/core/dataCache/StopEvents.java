@@ -13,16 +13,16 @@ import org.transitclock.service.dto.IpcArrivalDeparture;
 public class StopEvents implements Serializable {
     public List<IpcArrivalDeparture> events;
 
-    public List<IpcArrivalDeparture> getEvents() {
-        return events;
-    }
-
     public StopEvents() {
     }
 
     public StopEvents(List<IpcArrivalDeparture> events) {
         this.events = events;
         this.events.sort(new IpcArrivalDepartureComparator());
+    }
+
+    public List<IpcArrivalDeparture> getEvents() {
+        return events;
     }
 
     public void setEvents(List<IpcArrivalDeparture> events) {

@@ -3,7 +3,8 @@ package org.transitclock.core.avl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import org.transitclock.config.data.CoreConfig;
+
+import org.transitclock.ApplicationProperties;
 import org.transitclock.core.avl.ad.ArrivalDepartureGenerator;
 import org.transitclock.core.prediction.PredictionGenerator;
 import org.transitclock.core.VehicleStatus;
@@ -34,14 +35,22 @@ public class MatchProcessor {
     private final HeadwayGenerator headwayGenerator;
     private final ArrivalDepartureGenerator arrivalDepartureGenerator;
     private final PredictionGenerator predictionGenerator;
+    private final ApplicationProperties properties;
 
-    public MatchProcessor(DataDbLogger dbLogger, DbConfig dbConfig, PredictionDataCache predictionDataCache, HeadwayGenerator headwayGenerator, ArrivalDepartureGenerator arrivalDepartureGenerator, PredictionGenerator predictionGenerator) {
+    public MatchProcessor(DataDbLogger dbLogger,
+                          DbConfig dbConfig,
+                          PredictionDataCache predictionDataCache,
+                          HeadwayGenerator headwayGenerator,
+                          ArrivalDepartureGenerator arrivalDepartureGenerator,
+                          PredictionGenerator predictionGenerator,
+                          ApplicationProperties properties) {
         this.dbLogger = dbLogger;
         this.dbConfig = dbConfig;
         this.predictionDataCache = predictionDataCache;
         this.headwayGenerator = headwayGenerator;
         this.arrivalDepartureGenerator = arrivalDepartureGenerator;
         this.predictionGenerator = predictionGenerator;
+        this.properties = properties;
     }
 
     /**
@@ -55,11 +64,11 @@ public class MatchProcessor {
         List<IpcPrediction> newPredictions = predictionGenerator.generate(vehicleStatus);
 
         // Store the predictions in database if so configured
-        if (CoreConfig.getMaxPredictionsTimeForDbSecs() > 0) {
+        if (properties.getCore().getMaxPredictionTimeForDbSecs() > 0) {
             for (IpcPrediction prediction : newPredictions) {
                 // If prediction not too far into the future then ...
                 if (prediction.getPredictionTime() - prediction.getAvlTime()
-                        < ((long) CoreConfig.getMaxPredictionsTimeForDbSecs() * Time.MS_PER_SEC)) {
+                        < ((long) properties.getCore().getMaxPredictionTimeForDbSecs() * Time.MS_PER_SEC)) {
                     dbLogger.add(new Prediction(dbConfig.getConfigRev(), prediction));
 
                 } else {
@@ -67,7 +76,7 @@ public class MatchProcessor {
                             "Difference in predictionTiem and AVLTime is {} and is greater than"
                                     + " getMaxPredictionsTimeForDbSecs {}.",
                             prediction.getPredictionTime() - prediction.getAvlTime(),
-                            CoreConfig.getMaxPredictionsTimeForDbSecs() * Time.MS_PER_SEC);
+                            properties.getCore().getMaxPredictionTimeForDbSecs() * Time.MS_PER_SEC);
                 }
             }
         }
@@ -157,7 +166,7 @@ public class MatchProcessor {
 
         // Process predictions, headways, arrivals/departures, and and spatial
         // matches. If don't need matches then don't store them
-        if (!CoreConfig.onlyNeedArrivalDepartures()) {
+        if (!properties.getCore().getOnlyNeedArrivalDepartures()) {
             processPredictions(vehicleStatus);
             processHeadways(vehicleStatus);
             processSpatialMatch(vehicleStatus);

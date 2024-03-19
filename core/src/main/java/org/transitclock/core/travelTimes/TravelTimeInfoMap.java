@@ -42,22 +42,10 @@ public class TravelTimeInfoMap {
 
         // Get the map of travel times by stop map. If haven't
         // created the map for the trip pattern ID yet then do so now.
-        TravelTimesByStopMap travelTimesByStopMap = travelTimesByTripPatternMap.get(tripPatternId);
-        if (travelTimesByStopMap == null) {
-            travelTimesByStopMap = new TravelTimesByStopMap();
-            travelTimesByTripPatternMap.put(tripPatternId, travelTimesByStopMap);
-        }
-
-        // Now get the list of travel times for the trip pattern/stop.
-        // If haven't created the list yet then do so now.
-        List<TravelTimeInfo> travelTimeInfosForTripPatternAndStop = travelTimesByStopMap.get(stopPathIndex);
-        if (travelTimeInfosForTripPatternAndStop == null) {
-            travelTimeInfosForTripPatternAndStop = new ArrayList<TravelTimeInfo>();
-            travelTimesByStopMap.put(stopPathIndex, travelTimeInfosForTripPatternAndStop);
-        }
-
-        // Actually add the travelTimeInfo to the proper list in the map
-        travelTimeInfosForTripPatternAndStop.add(travelTimeInfo);
+        travelTimesByTripPatternMap
+                .computeIfAbsent(tripPatternId, k -> new TravelTimesByStopMap())
+                .computeIfAbsent(stopPathIndex, k -> new ArrayList<>())
+                .add(travelTimeInfo);
     }
 
     /**

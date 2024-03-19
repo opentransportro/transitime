@@ -5,6 +5,7 @@ import org.transitclock.config.ClassConfigValue;
 import org.transitclock.core.dataCache.ehcache.StopArrivalDepartureCache;
 
 import org.ehcache.CacheManager;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -13,13 +14,15 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 public class StopArrivalDepartureCacheFactory {
-    private static final ClassConfigValue className = new ClassConfigValue(
-            "transitclock.core.cache.stopArrivalDepartureCache",
-            org.transitclock.core.dataCache.ehcache.StopArrivalDepartureCache.class,
-            "Specifies the class used to cache the arrival and departures for a stop.");
+    @Value("${transitclock.core.cache.stopArrivalDepartureCache:org.transitclock.core.dataCache.ehcache.StopArrivalDepartureCache}")
+    private Class<?> className;
 
     @Bean
     public StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface(CacheManager cacheManager) {
-        return new StopArrivalDepartureCache(cacheManager);
+        if (className == StopArrivalDepartureCache.class) {
+            return new StopArrivalDepartureCache(cacheManager);
+        }
+
+        throw new IllegalArgumentException("Unknown StopArrivalDepartureCacheInterface: " + className);
     }
 }

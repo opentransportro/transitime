@@ -1,21 +1,38 @@
 /* (C)2023 */
 package org.transitclock.core;
 
-import lombok.extern.slf4j.Slf4j;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Objects;
+
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.core.avl.assigner.BlockAssigner;
 import org.transitclock.core.avl.assigner.BlockAssignmentMethod;
 import org.transitclock.core.avl.space.SpatialMatch;
 import org.transitclock.core.avl.time.TemporalMatch;
 import org.transitclock.core.dataCache.VehicleStatusManager;
-import org.transitclock.domain.structs.*;
+import org.transitclock.domain.structs.Arrival;
+import org.transitclock.domain.structs.ArrivalDeparture;
 import org.transitclock.domain.structs.AssignmentType;
+import org.transitclock.domain.structs.AvlReport;
+import org.transitclock.domain.structs.Block;
+import org.transitclock.domain.structs.Headway;
+import org.transitclock.domain.structs.HoldingTime;
+import org.transitclock.domain.structs.Location;
+import org.transitclock.domain.structs.StopPath;
+import org.transitclock.domain.structs.Trip;
+import org.transitclock.domain.structs.VectorWithHeading;
 import org.transitclock.gtfs.DbConfig;
 import org.transitclock.service.dto.IpcPrediction;
 import org.transitclock.utils.StringUtils;
 import org.transitclock.utils.Time;
 
-import java.util.*;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Keeps track of vehicle state including its block assignment, where it last matched to its
@@ -27,6 +44,11 @@ import java.util.*;
 public class VehicleStatus {
 
     private final String vehicleId;
+    private final LinkedList<TemporalMatch> temporalMatchHistory = new LinkedList<>(); // first is most recent
+    private final LinkedList<AvlReport> avlReportHistory = new LinkedList<>(); // first is most recent
+    // create a hashmap to store the trip start times.  TODO change to LinkedList doesn't grow
+    private final Map<Integer, Long> tripStartTimesMap = new HashMap<>();
+
     private String vehicleName;
     private Block block;
     private BlockAssignmentMethod assignmentMethod;
@@ -35,15 +57,8 @@ public class VehicleStatus {
     private Date assignmentTime;
 
     private boolean predictable;
-    // First is most recent
-    private final LinkedList<TemporalMatch> temporalMatchHistory = new LinkedList<>();
-    // First is most recent
-    private final LinkedList<AvlReport> avlReportHistory = new LinkedList<>();
     private List<IpcPrediction> predictions;
     private TemporalDifference realTimeSchedAdh;
-
-    // create a hashamp to store the trip start times.  TODO change to LinkedList doesn't grow
-    private final Map<Integer, Long> tripStartTimesMap = new HashMap<>();
 
     // For keeping track of how many bad matches have been encountered.
     // This way can ignore bad matches if only get a couple
@@ -65,9 +80,7 @@ public class VehicleStatus {
 
     // For keeping track if vehicle delayed
     private boolean isDelayed = false;
-
     private Integer tripCounter = 0;
-
     private Headway headway = null;
 
     private HoldingTime holdingTime = null;
@@ -120,8 +133,7 @@ public class VehicleStatus {
      *     received from AVL feed. Can be null.
      * @param predictable Whether vehicle is predictable
      */
-    public void setBlock(
-            Block newBlock, BlockAssignmentMethod assignmentMethod, String assignmentId, boolean predictable) {
+    public void setBlock(Block newBlock, BlockAssignmentMethod assignmentMethod, String assignmentId, boolean predictable) {
         // When vehicle is made unpredictable remember the previous assignment
         // so can tell if getting assigned to same block again (which could
         // indicate a problem and arrival/departure times shouldn't be generated.
@@ -192,8 +204,9 @@ public class VehicleStatus {
                         || lastMatch.getTrip() == null
                         || match == null
                         || match.getTrip() == null
-                        || lastMatch.getTrip().getId().compareTo(match.getTrip().getId()) != 0))
+                        || lastMatch.getTrip().getId().compareTo(match.getTrip().getId()) != 0)) {
             this.isCanceled = false;
+        }
         // Add match to history
         temporalMatchHistory.addFirst(match);
 
@@ -224,9 +237,9 @@ public class VehicleStatus {
     public TemporalMatch getMatch() {
         try {
             return temporalMatchHistory.getFirst();
-        } catch (NoSuchElementException e) {
-            return null;
+        } catch (NoSuchElementException ignored) {
         }
+        return null;
     }
 
     /**
@@ -240,17 +253,23 @@ public class VehicleStatus {
     public TemporalMatch getPreviousMatch(int minimumAgeMsec) {
         // If no current AVL report then don't need to find old one
         AvlReport currentAvlReport = getAvlReport();
-        if (currentAvlReport == null) return null;
+        if (currentAvlReport == null) {
+            return null;
+        }
 
         // Go through math history to find one that is old enough
         for (TemporalMatch match : temporalMatchHistory) {
             // If the previous match was null then don't keep on
             // looking because vehicle was not predictable at some
             // point. Simply return null.
-            if (match == null) return null;
+            if (match == null) {
+                return null;
+            }
 
             // If found match in history that is old enough then use it
-            if (match.getAvlTime() < currentAvlReport.getTime() - minimumAgeMsec) return match;
+            if (match.getAvlTime() < currentAvlReport.getTime() - minimumAgeMsec) {
+                return match;
+            }
         }
 
         // Went through all matches in history and didn't find one old enough.
@@ -360,8 +379,7 @@ public class VehicleStatus {
         if (event.getStopPathIndex() == 0) {
             if (event.isArrival()) {
                 vehicleStatus.incrementTripCounter();
-                logger.debug(
-                        "Setting vehicle counter to : {} because of event : {}", vehicleStatus.getTripCounter(), event);
+                logger.debug("Setting vehicle counter to : {} because of event : {}", vehicleStatus.getTripCounter(), event);
             } else {
                 logger.debug("Not arrival so not incrementing trip counter : {}", event);
             }
@@ -424,8 +442,11 @@ public class VehicleStatus {
      */
     public boolean isLayover() {
         TemporalMatch temporalMatch = getMatch();
-        if (temporalMatch == null) return false;
-        else return temporalMatch.isLayover();
+        if (temporalMatch == null) {
+            return false;
+        }
+
+        return temporalMatch.isLayover();
     }
 
     /**
@@ -438,8 +459,11 @@ public class VehicleStatus {
      */
     public boolean isWaitStop() {
         TemporalMatch temporalMatch = getMatch();
-        if (temporalMatch == null) return false;
-        else return temporalMatch.isWaitStop();
+        if (temporalMatch == null) {
+            return false;
+        }
+
+        return temporalMatch.isWaitStop();
     }
 
     /**
@@ -450,8 +474,11 @@ public class VehicleStatus {
      * @return
      */
     public TemporalMatch getPreviousMatch() {
-        if (temporalMatchHistory.size() >= 2) return temporalMatchHistory.get(1);
-        else return null;
+        if (temporalMatchHistory.size() >= 2) {
+            return temporalMatchHistory.get(1);
+        }
+
+        return null;
     }
 
     /**
@@ -462,9 +489,9 @@ public class VehicleStatus {
     public AvlReport getAvlReport() {
         try {
             return avlReportHistory.getFirst();
-        } catch (NoSuchElementException e) {
-            return null;
+        } catch (NoSuchElementException ignored) {
         }
+        return null;
     }
 
     /**
@@ -479,8 +506,10 @@ public class VehicleStatus {
     public AvlReport getPreviousAvlReport(double minDistanceFromCurrentReport) {
         // Go through history of AvlReports to find first one that is specified
         // distance away from the current AVL location.
-        long currentTime = getAvlReport().getTime();
-        Location currentLoc = getAvlReport().getLocation();
+        final AvlReport avlReport = getAvlReport();
+        final long currentTime = avlReport.getTime();
+        final Location currentLoc = avlReport.getLocation();
+
         for (AvlReport previousAvlReport : avlReportHistory) {
             // If the previous report is too old then return null
             if (currentTime - previousAvlReport.getTime() > 20 * Time.MS_PER_MIN) return null;
@@ -508,7 +537,9 @@ public class VehicleStatus {
      */
     public AvlReport getPreviousAvlReport(int minimumAgeMsec) {
         for (AvlReport avlReport : avlReportHistory) {
-            if (avlReport.getTime() < getAvlReport().getTime() - minimumAgeMsec) return avlReport;
+            if (avlReport.getTime() < getAvlReport().getTime() - minimumAgeMsec) {
+                return avlReport;
+            }
         }
 
         // Went through all AVL reports in history and didn't find one old enough.
@@ -541,8 +572,11 @@ public class VehicleStatus {
      * @return The last successfully matched AvlReport, or null if no such report is available
      */
     public AvlReport getPreviousAvlReportFromSuccessfulMatch() {
-        if (avlReportHistory.size() >= 2 + numberOfBadMatches) return avlReportHistory.get(1 + numberOfBadMatches);
-        else return null;
+        if (avlReportHistory.size() >= 2 + numberOfBadMatches) {
+            return avlReportHistory.get(1 + numberOfBadMatches);
+        }
+
+        return null;
     }
 
     /**
@@ -560,7 +594,9 @@ public class VehicleStatus {
     public boolean hasNewAssignment(AvlReport avlReport, BlockAssigner blockAssigner) {
         // If no assignment specified in AVL report then should continue to use
         // previous assignment.
-        if (avlReport.getAssignmentType() == AssignmentType.UNSET) return false;
+        if (avlReport.getAssignmentType() == AssignmentType.UNSET) {
+            return false;
+        }
 
         // If block assignment then simply check assignment ID. This is much
         // more straight forward than determining the new AVL block and
@@ -576,6 +612,7 @@ public class VehicleStatus {
         // Not block assignment so try trip ID or trip short name assignment
         if (avlReport.isTripIdAssignmentType() || avlReport.isTripShortNameAssignmentType()) {
             Block avlBlock = blockAssigner.getBlockAssignment(avlReport);
+
             return block != avlBlock;
         }
 
@@ -618,18 +655,20 @@ public class VehicleStatus {
         // If the previous assignment is not problematic because it wasn't
         // grabbed or terminated then it is definitely not problematic.
         if (assignmentMethod != BlockAssignmentMethod.ASSIGNMENT_GRABBED
-                && assignmentMethod != BlockAssignmentMethod.ASSIGNMENT_TERMINATED) return false;
+                && assignmentMethod != BlockAssignmentMethod.ASSIGNMENT_TERMINATED) {
+            return false;
+        }
 
         // If the AVL report indicates a new assignment then don't have to
         // worry about the old one being problematic
-        if (hasNewAssignment(avlReport, blockAssigner)) return false;
+        if (hasNewAssignment(avlReport, blockAssigner)) {
+            return false;
+        }
 
         // Got same assignment from AVL feed that was previously problematic.
         // If the old problem assignment was somewhat recent then return true.
         return avlReport.getTime() - unassignedTime.getTime() < 2 * Time.MS_PER_HOUR;
     }
-
-    /********************** Getter methods ************************/
 
     /**
      * Returns an unmodifiable list of the match history. The most recent one is first. The size of
@@ -748,8 +787,11 @@ public class VehicleStatus {
      *     currently predictable or the assignment doesn't have a schedule
      */
     public TemporalDifference getRealTimeSchedAdh() {
-        if (isPredictable()) return realTimeSchedAdh;
-        else return null;
+        if (isPredictable()) {
+            return realTimeSchedAdh;
+        }
+
+        return null;
     }
 
     /**
@@ -830,7 +872,9 @@ public class VehicleStatus {
 
         for (AvlReport avlReport : avlReportHistory) {
             // If report is too old then don't use it
-            if (avlReport.getTime() < maxAge) return Float.NaN;
+            if (avlReport.getTime() < maxAge) {
+                return Float.NaN;
+            }
 
             // If AVL has valid heading then use it
             if (!Float.isNaN(avlReport.getHeading())) {

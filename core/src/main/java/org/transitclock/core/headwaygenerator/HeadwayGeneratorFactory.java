@@ -4,6 +4,8 @@ package org.transitclock.core.headwaygenerator;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
+
 import org.transitclock.core.dataCache.StopArrivalDepartureCacheInterface;
 import org.transitclock.core.dataCache.VehicleDataCache;
 import org.transitclock.core.dataCache.VehicleStatusManager;
@@ -22,6 +24,7 @@ public class HeadwayGeneratorFactory {
     private Class<?> neededClass;
 
     @Bean
+    @Lazy
     public HeadwayGenerator headwayGenerator(VehicleDataCache vehicleDataCache,
                                                           VehicleStatusManager vehicleStatusManager,
                                                           StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface,

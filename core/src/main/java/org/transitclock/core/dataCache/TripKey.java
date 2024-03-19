@@ -1,19 +1,25 @@
 /* (C)2023 */
 package org.transitclock.core.dataCache;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
  * @author Sean Og Crudden
  */
-public class TripKey implements java.io.Serializable {
+public class TripKey implements Serializable {
     /** Needs to be serializable to add to cache */
     private static final long serialVersionUID = 5029823633051153715L;
-
     private final String tripId;
-
     private final Date tripStartDate;
     private Integer startTime;
+
+    public TripKey(String tripId, Date tripStartDate, Integer startTime) {
+        this.tripId = tripId;
+
+        this.tripStartDate = tripStartDate;
+        this.startTime = startTime;
+    }
 
     /**
      * @return the tripId
@@ -36,13 +42,12 @@ public class TripKey implements java.io.Serializable {
         return startTime;
     }
 
-    public TripKey(String tripId, Date tripStartDate, Integer startTime) {
-        super();
-        this.tripId = tripId;
 
-        this.tripStartDate = tripStartDate;
-        this.startTime = startTime;
+    public void setStartTime(Integer time) {
+        // TODO Auto-generated method stub
+        this.startTime = time;
     }
+
 
     @Override
     public int hashCode() {
@@ -76,8 +81,4 @@ public class TripKey implements java.io.Serializable {
         return "TripKey [tripId=" + tripId + ", tripStartDate=" + tripStartDate + ", startTime=" + startTime + "]";
     }
 
-    public void setStartTime(Integer time) {
-        // TODO Auto-generated method stub
-        this.startTime = time;
-    }
 }

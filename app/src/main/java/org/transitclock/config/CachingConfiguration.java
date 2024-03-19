@@ -1,28 +1,12 @@
 /* (C)2023 */
 package org.transitclock.config;
 
+import jakarta.annotation.PostConstruct;
 import java.net.URL;
 import java.util.Calendar;
 import java.util.Date;
 
-import jakarta.annotation.PostConstruct;
-import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.time.DateUtils;
-import org.ehcache.CacheManager;
-import org.ehcache.config.builders.CacheManagerBuilder;
-import org.ehcache.xml.XmlConfiguration;
-import org.hibernate.Session;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.boot.context.event.ApplicationStartedEvent;
-import org.springframework.context.ApplicationContextInitializer;
-import org.springframework.context.ApplicationListener;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.event.EventListener;
-import org.springframework.core.io.ResourceLoader;
-import org.transitclock.config.data.CoreConfig;
+import org.transitclock.ApplicationProperties;
 import org.transitclock.core.dataCache.DwellTimeModelCacheInterface;
 import org.transitclock.core.dataCache.StopArrivalDepartureCacheInterface;
 import org.transitclock.core.dataCache.TripDataHistoryCacheInterface;
@@ -31,11 +15,25 @@ import org.transitclock.core.dataCache.scheduled.ScheduleBasedHistoricalAverageC
 import org.transitclock.domain.hibernate.HibernateUtils;
 import org.transitclock.utils.Time;
 
+import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.time.DateUtils;
+import org.ehcache.CacheManager;
+import org.ehcache.config.builders.CacheManagerBuilder;
+import org.ehcache.xml.XmlConfiguration;
+import org.hibernate.Session;
+import org.springframework.boot.context.event.ApplicationStartedEvent;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
 import static org.transitclock.utils.ApplicationShutdownSupport.addShutdownHook;
 
 @Configuration
 @Slf4j
 public class CachingConfiguration {
+
     @PostConstruct
     void registerShutdownHook() {
         addShutdownHook("close-cache", () -> {
@@ -70,10 +68,12 @@ public class CachingConfiguration {
                                              ScheduleBasedHistoricalAverageCache scheduleBasedHistoricalAverageCache,
                                              TripDataHistoryCacheInterface tripDataHistoryCacheInterface,
                                              StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface,
-                                             DwellTimeModelCacheInterface dwellTimeModelCacheInterface) {
+                                             DwellTimeModelCacheInterface dwellTimeModelCacheInterface,
+                                             ApplicationProperties properties) {
         return new CacheInitializer(frequencyBasedHistoricalAverageCache,
             scheduleBasedHistoricalAverageCache, tripDataHistoryCacheInterface,
-            stopArrivalDepartureCacheInterface, dwellTimeModelCacheInterface);
+            stopArrivalDepartureCacheInterface, dwellTimeModelCacheInterface,
+                                    properties.getCore());
     }
 
     @RequiredArgsConstructor
@@ -83,6 +83,7 @@ public class CachingConfiguration {
         private final TripDataHistoryCacheInterface tripDataHistoryCacheInterface;
         private final StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface;
         private final DwellTimeModelCacheInterface dwellTimeModelCacheInterface;
+        private final ApplicationProperties.Core coreProperties;
 
         @SneakyThrows
         @Override
@@ -90,55 +91,55 @@ public class CachingConfiguration {
             Session session = HibernateUtils.getSession();
             Date endDate = Calendar.getInstance().getTime();
 
-            if (!CoreConfig.cacheReloadStartTimeStr.getValue().isEmpty() && !CoreConfig.cacheReloadEndTimeStr.getValue().isEmpty()) {
+            String cacheReloadStartTimeStr = coreProperties.getCacheReloadStartTimeStr();
+            String cacheReloadEndTimeStr = coreProperties.getCacheReloadEndTimeStr();
+            if (!cacheReloadStartTimeStr.isEmpty() && !cacheReloadEndTimeStr.isEmpty()) {
                 if (tripDataHistoryCacheInterface != null) {
-                    logger.debug(
-                        "Populating TripDataHistoryCache cache for period {} to {}",
-                        CoreConfig.cacheReloadStartTimeStr.getValue(),
-                        CoreConfig.cacheReloadEndTimeStr.getValue());
+                    logger.debug("Populating TripDataHistoryCache cache for period {} to {}",
+                                 cacheReloadStartTimeStr, cacheReloadEndTimeStr);
                     tripDataHistoryCacheInterface
                         .populateCacheFromDb(
                             session,
-                            new Date(Time.parse(CoreConfig.cacheReloadStartTimeStr.getValue()).getTime()),
-                            new Date(Time.parse(CoreConfig.cacheReloadEndTimeStr.getValue()).getTime())
+                            new Date(Time.parse(cacheReloadStartTimeStr).getTime()),
+                            new Date(Time.parse(cacheReloadEndTimeStr).getTime())
                         );
                 }
 
                 if (frequencyBasedHistoricalAverageCache != null) {
                     logger.debug(
                         "Populating FrequencyBasedHistoricalAverageCache cache for period {} to {}",
-                        CoreConfig.cacheReloadStartTimeStr.getValue(),
-                        CoreConfig.cacheReloadEndTimeStr.getValue());
+                        cacheReloadStartTimeStr,
+                        cacheReloadEndTimeStr);
                     frequencyBasedHistoricalAverageCache
                         .populateCacheFromDb(
                             session,
-                            new Date(Time.parse(CoreConfig.cacheReloadStartTimeStr.getValue()).getTime()),
-                            new Date(Time.parse(CoreConfig.cacheReloadEndTimeStr.getValue()).getTime())
+                            new Date(Time.parse(cacheReloadStartTimeStr).getTime()),
+                            new Date(Time.parse(cacheReloadEndTimeStr).getTime())
                         );
                 }
 
                 if (stopArrivalDepartureCacheInterface != null) {
                     logger.debug(
                         "Populating StopArrivalDepartureCache cache for period {} to {}",
-                        CoreConfig.cacheReloadStartTimeStr.getValue(),
-                        CoreConfig.cacheReloadEndTimeStr.getValue());
+                        cacheReloadStartTimeStr,
+                        cacheReloadEndTimeStr);
                     stopArrivalDepartureCacheInterface
                         .populateCacheFromDb(
                             session,
-                            new Date(Time.parse(CoreConfig.cacheReloadStartTimeStr.getValue()).getTime()),
-                            new Date(Time.parse(CoreConfig.cacheReloadEndTimeStr.getValue()).getTime())
+                            new Date(Time.parse(cacheReloadStartTimeStr).getTime()),
+                            new Date(Time.parse(cacheReloadEndTimeStr).getTime())
                         );
                 }
                 if (dwellTimeModelCacheInterface != null) {
                     logger.debug(
                         "Populating DwellTimeModelCacheInterface cache for period {} to {}",
-                        CoreConfig.cacheReloadStartTimeStr.getValue(),
-                        CoreConfig.cacheReloadEndTimeStr.getValue());
+                        cacheReloadStartTimeStr,
+                        cacheReloadEndTimeStr);
                     dwellTimeModelCacheInterface
                         .populateCacheFromDb(
                             session,
-                            new Date(Time.parse(CoreConfig.cacheReloadStartTimeStr.getValue()).getTime()),
-                            new Date(Time.parse(CoreConfig.cacheReloadEndTimeStr.getValue()).getTime())
+                            new Date(Time.parse(cacheReloadStartTimeStr).getTime()),
+                            new Date(Time.parse(cacheReloadEndTimeStr).getTime())
                         );
                 }
             /*
@@ -149,7 +150,7 @@ public class CachingConfiguration {
             }
             */
             } else {
-                for (int i = 0; i < CoreConfig.getDaysPopulateHistoricalCache(); i++) {
+                for (int i = 0; i < coreProperties.getCache().getDaysPopulateHistoricalCache(); i++) {
                     Date startDate = DateUtils.addDays(endDate, -1);
 
                     if (tripDataHistoryCacheInterface != null) {
@@ -171,7 +172,7 @@ public class CachingConfiguration {
                 endDate = Calendar.getInstance().getTime();
 
                 /* populate one day at a time to avoid memory issue */
-                for (int i = 0; i < CoreConfig.getDaysPopulateHistoricalCache(); i++) {
+                for (int i = 0; i < coreProperties.getCache().getDaysPopulateHistoricalCache(); i++) {
                     Date startDate = DateUtils.addDays(endDate, -1);
                     if (stopArrivalDepartureCacheInterface != null) {
                         logger.debug("Populating StopArrivalDepartureCache cache for period {} to {}", startDate, endDate);
@@ -182,7 +183,7 @@ public class CachingConfiguration {
                 }
                 endDate = Calendar.getInstance().getTime();
 
-                for (int i = 0; i < CoreConfig.getDaysPopulateHistoricalCache(); i++) {
+                for (int i = 0; i < coreProperties.getCache().getDaysPopulateHistoricalCache(); i++) {
                     Date startDate = DateUtils.addDays(endDate, -1);
 
                     if (scheduleBasedHistoricalAverageCache != null) {

@@ -13,11 +13,10 @@ import java.util.List;
 @Slf4j
 @Component
 public class StopPathPredictionCache {
-    private static final String cacheName = "StopPathPredictionCache";
     private final Cache<StopPathCacheKey, StopPredictions> cache;
 
     public StopPathPredictionCache(CacheManager cm) {
-        cache = cm.getCache(cacheName, StopPathCacheKey.class, StopPredictions.class);
+        cache = cm.getCache("StopPathPredictionCache", StopPathCacheKey.class, StopPredictions.class);
     }
 
     @SuppressWarnings("unchecked")

@@ -8,12 +8,13 @@ import java.io.Serializable;
 @ToString
 public class HistoricalAverage implements Serializable {
     private int count;
-    double average;
+    private double average;
 
     public HistoricalAverage() {
         count = 0;
         average = 0;
     }
+
     public int getCount() {
         return count;
     }

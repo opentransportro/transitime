@@ -22,8 +22,6 @@ public class ServerStatusServiceImpl implements ServerStatusInterface {
     @Autowired
     private AgencyMonitor agencyMonitor;
 
-    public ServerStatusServiceImpl() {
-    }
 
     @Override
     public IpcServerStatus get() {

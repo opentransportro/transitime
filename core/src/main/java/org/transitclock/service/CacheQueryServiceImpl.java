@@ -26,8 +26,6 @@ public class CacheQueryServiceImpl implements CacheQueryInterface {
     @Autowired
     private HoldingTimeCache holdingTimeCache;
     @Autowired
-    private FrequencyBasedHistoricalAverageCache frequencyBasedHistoricalAverageCache;
-    @Autowired
     private ErrorCache errorCache;
     @Autowired
     private ScheduleBasedHistoricalAverageCache scheduleBasedHistoricalAverageCache;

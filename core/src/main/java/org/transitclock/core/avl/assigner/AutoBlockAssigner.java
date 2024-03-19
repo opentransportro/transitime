@@ -170,7 +170,7 @@ public class AutoBlockAssigner {
         // is only for use with no schedule assignments.
         AvlReport avlReport = vehicleStatus.getAvlReport();
         List<Trip> potentialTrips = block.getTripsCurrentlyActive(dbConfig, avlReport);
-        var spatialMatches = new SpatialMatcher(dbConfig).getSpatialMatchesForAutoAssigning(getAvlReport(), block, potentialTrips);
+        var spatialMatches = new SpatialMatcher(dbConfig, properties).getSpatialMatchesForAutoAssigning(getAvlReport(), block, potentialTrips);
         if (spatialMatches.isEmpty()) {
             return null;
         }
@@ -178,7 +178,7 @@ public class AutoBlockAssigner {
         // Determine all possible spatial matches for the previous AVL report so
         // that can make sure that it too matches the assignment.
         AvlReport previousAvlReport = getPreviousAvlReport();
-        var prevSpatialMatches = new SpatialMatcher(dbConfig).getSpatialMatchesForAutoAssigning(previousAvlReport, block, potentialTrips);
+        var prevSpatialMatches = new SpatialMatcher(dbConfig, properties).getSpatialMatchesForAutoAssigning(previousAvlReport, block, potentialTrips);
         if (prevSpatialMatches.isEmpty()) {
             return null;
         }
@@ -315,7 +315,7 @@ public class AutoBlockAssigner {
         // spatial matches that are not layovers. If match is to a layover can
         // ignore it since layover matches are far too flexible to really be
         // considered a spatial match
-        var newSpatialMatches = new SpatialMatcher(dbConfig).getSpatialMatchesForAutoAssigning(avlReport, block, tripsNeedToInvestigate);
+        var newSpatialMatches = new SpatialMatcher(dbConfig, properties).getSpatialMatchesForAutoAssigning(avlReport, block, tripsNeedToInvestigate);
 
         // Add newly discovered matches to the cache and to the list of spatial
         // matches to be returned
@@ -386,7 +386,7 @@ public class AutoBlockAssigner {
          var activeTrips = block.getTripsCurrentlyActive(dbConfig, avlReport);
 
         // Get and return the spatial matches
-        return new SpatialMatcher(dbConfig).getSpatialMatchesForAutoAssigning(avlReport, block, activeTrips);
+        return new SpatialMatcher(dbConfig, properties).getSpatialMatchesForAutoAssigning(avlReport, block, activeTrips);
     }
 
     /**

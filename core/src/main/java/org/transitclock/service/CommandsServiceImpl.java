@@ -42,9 +42,6 @@ public class CommandsServiceImpl implements CommandsInterface {
     @Autowired
     private AvlReportProcessor avlReportProcessor;
 
-    public CommandsServiceImpl() {
-    }
-
     /**
      * Called on server side via RMI when AVL data is to be processed
      *

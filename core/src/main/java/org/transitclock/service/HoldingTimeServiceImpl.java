@@ -23,9 +23,6 @@ public class HoldingTimeServiceImpl implements HoldingTimeInterface {
     @Autowired
     private HoldingTimeCache holdingTimeCache;
 
-    public HoldingTimeServiceImpl() {
-
-    }
 
     @Override
     public IpcHoldingTime getHoldTime(String stopId, String vehicleId, String tripId) {

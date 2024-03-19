@@ -52,9 +52,8 @@ public class BlockAssigner {
                     Block blockForServiceId = dbConfig.getBlock(serviceId, avlReport.getAssignmentId());
                     // If there is a block for the current service ID
                     if (blockForServiceId != null) {
-                        // If found a best match so far then remember it
-                        if (activeBlock == null
-                                || blockForServiceId.isActive(dbConfig, avlReport.getTime(), 90 * Time.MIN_IN_SECS)) {
+                        // If found the best match so far then remember it
+                        if (activeBlock == null || blockForServiceId.isActive(dbConfig, avlReport.getTime(), 90 * Time.MIN_IN_SECS)) {
                             activeBlock = blockForServiceId;
                             logger.debug(
                                     "For vehicleId={} and serviceId={} "
@@ -67,10 +66,7 @@ public class BlockAssigner {
                     }
                 }
                 if (activeBlock == null) {
-                    logger.error(
-                            "For vehicleId={} AVL report specifies "
-                                    + "blockId={} but block is not valid for "
-                                    + "serviceIds={}",
+                    logger.error("For vehicleId={} AVL report specifies blockId={} but block is not valid for serviceIds={}",
                             avlReport.getVehicleId(),
                             avlReport.getAssignmentId(),
                             serviceIds);
@@ -81,18 +77,13 @@ public class BlockAssigner {
                 Trip trip = dbConfig.getTrip(avlReport.getAssignmentId());
                 if (trip != null && trip.getBlock(dbConfig) != null) {
                     Block block = trip.getBlock(dbConfig);
-                    logger.debug(
-                            "For vehicleId={} the trip assignment from "
-                                    + "the AVL feed is tripId={} which corresponds to "
-                                    + "blockId={}",
+                    logger.debug("For vehicleId={} the trip assignment from the AVL feed is tripId={} which corresponds to blockId={}",
                             avlReport.getVehicleId(),
                             avlReport.getAssignmentId(),
                             block.getId());
                     return block;
                 } else {
-                    logger.error(
-                            "For vehicleId={} AVL report specifies "
-                                    + "assignment tripId={} but that trip is not valid.",
+                    logger.error("For vehicleId={} AVL report specifies assignment tripId={} but that trip is not valid.",
                             avlReport.getVehicleId(),
                             avlReport.getAssignmentId());
                 }
@@ -102,19 +93,13 @@ public class BlockAssigner {
                 Trip trip = dbConfig.getTripUsingTripShortName(tripShortName);
                 if (trip != null) {
                     Block block = trip.getBlock(dbConfig);
-                    logger.debug(
-                            "For vehicleId={} the trip assignment from "
-                                    + "the AVL feed is tripShortName={} which "
-                                    + "corresponds to blockId={}",
+                    logger.debug("For vehicleId={} the trip assignment from the AVL feed is tripShortName={} which corresponds to blockId={}",
                             avlReport.getVehicleId(),
                             tripShortName,
                             block.getId());
                     return block;
                 } else {
-                    logger.error(
-                            "For vehicleId={} AVL report specifies "
-                                    + "assignment tripShortName={} but that trip is not "
-                                    + "valid.",
+                    logger.error("For vehicleId={} AVL report specifies assignment tripShortName={} but that trip is not valid.",
                             avlReport.getVehicleId(),
                             tripShortName);
                 }

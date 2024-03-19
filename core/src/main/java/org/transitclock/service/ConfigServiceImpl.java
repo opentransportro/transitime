@@ -48,8 +48,6 @@ public class ConfigServiceImpl implements ConfigInterface {
     @Autowired
     private DbConfig dbConfig;
 
-    public ConfigServiceImpl() {
-    }
 
     /**
      * For getting route from routeIdOrShortName. Tries using routeIdOrShortName as first a route

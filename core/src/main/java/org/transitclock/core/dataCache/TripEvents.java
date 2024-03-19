@@ -8,13 +8,29 @@ import java.util.List;
 import org.transitclock.service.dto.IpcArrivalDeparture;
 
 public class TripEvents implements Serializable {
-    /** */
     private static final long serialVersionUID = -510989387398784934L;
 
     public List<IpcArrivalDeparture> events = null;
 
     public List<IpcArrivalDeparture> getEvents() {
         return events;
+    }
+
+    public TripEvents() {
+        super();
+    }
+
+    public TripEvents(List<IpcArrivalDeparture> events) {
+        this.events = events;
+        this.events.sort(new IpcArrivalDepartureComparator());
+    }
+
+    public void addEvent(IpcArrivalDeparture event) {
+        if (this.events == null) {
+            events = new ArrayList<>();
+        }
+        events.add(event);
+        this.events.sort(new IpcArrivalDepartureComparator());
     }
 
     public void setEvents(List<IpcArrivalDeparture> events) {
@@ -41,21 +57,4 @@ public class TripEvents implements Serializable {
         } else return events.equals(other.events);
     }
 
-    public TripEvents() {
-        super();
-    }
-
-    public TripEvents(List<IpcArrivalDeparture> events) {
-        super();
-        this.events = events;
-        Collections.sort(this.events, new IpcArrivalDepartureComparator());
-    }
-
-    public void addEvent(IpcArrivalDeparture event) {
-        if (this.events == null) {
-            events = new ArrayList<IpcArrivalDeparture>();
-        }
-        events.add(event);
-        Collections.sort(this.events, new IpcArrivalDepartureComparator());
-    }
 }

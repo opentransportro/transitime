@@ -14,11 +14,10 @@ import java.util.List;
  */
 @Component
 public class HoldingTimeCache {
-    private static final String cacheName = "HoldingTimeCache";
     private final Cache<HoldingTimeCacheKey, HoldingTime> cache;
 
     public HoldingTimeCache(CacheManager cm) {
-        cache = cm.getCache(cacheName, HoldingTimeCacheKey.class, HoldingTime.class);
+        cache = cm.getCache("HoldingTimeCache", HoldingTimeCacheKey.class, HoldingTime.class);
     }
 
     public void putHoldingTime(HoldingTime holdingTime) {

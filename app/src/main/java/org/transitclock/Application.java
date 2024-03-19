@@ -1,8 +1,15 @@
 package org.transitclock;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.Optional;
+
+import org.transitclock.config.CRLFLogConverter;
+import org.transitclock.config.ConfigFileReader;
+import org.transitclock.utils.threading.UncaughtExceptionHandler;
+
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -14,24 +21,13 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
-import org.transitclock.config.CRLFLogConverter;
-import org.transitclock.config.ConfigFileReader;
-import org.transitclock.domain.ApiKeyManager;
-import org.transitclock.utils.threading.UncaughtExceptionHandler;
-
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.Optional;
 
 @Slf4j
-@Getter
 @SpringBootApplication
 @EnableConfigurationProperties({ApplicationProperties.class})
 @RequiredArgsConstructor
 public class Application implements ApplicationRunner {
 
-    private final Environment env;
-    private final ApiKeyManager apiKeyManager;
     private final ApplicationProperties properties;
 
 

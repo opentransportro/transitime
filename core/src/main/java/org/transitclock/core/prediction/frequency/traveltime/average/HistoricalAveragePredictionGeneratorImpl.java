@@ -174,7 +174,7 @@ public class HistoricalAveragePredictionGeneratorImpl extends LastVehiclePredict
                     stopPathPredictionCache.putPrediction(predictionForStopPath);
                 }
 
-                logger.debug("Using historical average alogrithm for dwell time : {} for : {}", average, indices);
+                logger.debug("Using historical average algorithm for dwell time : {} for : {}", average, indices);
                 return (long) average.getAverage();
             }
         }

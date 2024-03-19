@@ -1,8 +1,10 @@
 /* (C)2023 */
 package org.transitclock.core.holdingmethod;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 
 import org.transitclock.ApplicationProperties;
 import org.transitclock.config.ClassConfigValue;
@@ -16,12 +18,11 @@ import org.transitclock.gtfs.DbConfig;
 @Configuration
 public class HoldingTimeGeneratorFactory {
     // The name of the class to instantiate
-    private static final ClassConfigValue className = new ClassConfigValue(
-            "transitclock.core.holdingTimeGeneratorClass",
-            DummyHoldingTimeGeneratorImpl.class,
-            "Specifies the name of the class used for generating " + "holding times.");
+    @Value("${transitclock.core.holdingTimeGeneratorClass:org.transitclock.core.holdingmethod.DummyHoldingTimeGeneratorImpl}")
+    private Class<?> className;
 
     @Bean
+    @Lazy
     public HoldingTimeGenerator holdingTimeGenerator(ApplicationProperties properties,
                                                      PredictionDataCache predictionDataCache,
                                                      StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface,
@@ -30,9 +31,9 @@ public class HoldingTimeGeneratorFactory {
                                                      VehicleDataCache vehicleDataCache,
                                                      HoldingTimeCache holdingTimeCache,
                                                      VehicleStatusManager vehicleStatusManager) {
-        if (className.getValue() == HoldingTimeGeneratorDefaultImpl.class) {
+        if (className == HoldingTimeGeneratorDefaultImpl.class) {
             return new HoldingTimeGeneratorDefaultImpl(properties.getHolding(),predictionDataCache, stopArrivalDepartureCacheInterface, dataDbLogger, dbConfig, vehicleDataCache, holdingTimeCache, vehicleStatusManager);
-        } else if(className.getValue() == SimpleHoldingTimeGeneratorImpl.class) {
+        } else if(className == SimpleHoldingTimeGeneratorImpl.class) {
             return new SimpleHoldingTimeGeneratorImpl(properties.getHolding(), predictionDataCache, stopArrivalDepartureCacheInterface, dataDbLogger, dbConfig);
         }
 

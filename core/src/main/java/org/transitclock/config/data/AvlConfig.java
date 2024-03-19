@@ -247,14 +247,14 @@ public class AvlConfig {
 //                    + "If too big then wasteful. If too small then not all the "
 //                    + "data will be rejected by the ThreadPoolExecutor. ");
 
-    public static IntegerConfigValue numAvlThreads = new IntegerConfigValue(
-            "transitclock.avl.numThreads",
-            1,
-            "How many threads to be used for processing the AVL "
-                    + "data. For most applications just using a single thread "
-                    + "is probably sufficient and it makes the logging simpler "
-                    + "since the messages will not be interleaved. But for "
-                    + "large systems with lots of vehicles then should use "
-                    + "multiple threads, such as 3-15 so that more of the cores "
-                    + "are used.");
+//    public static IntegerConfigValue numAvlThreads = new IntegerConfigValue(
+//            "transitclock.avl.numThreads",
+//            1,
+//            "How many threads to be used for processing the AVL "
+//                    + "data. For most applications just using a single thread "
+//                    + "is probably sufficient and it makes the logging simpler "
+//                    + "since the messages will not be interleaved. But for "
+//                    + "large systems with lots of vehicles then should use "
+//                    + "multiple threads, such as 3-15 so that more of the cores "
+//                    + "are used.");
 }

@@ -1,13 +1,45 @@
 /* (C)2023 */
 package org.transitclock.core.dataCache;
 
+import java.io.Serializable;
+
 import org.transitclock.core.Indices;
 
 /**
  * @author Sean Og Crudden TODO This is the same as StopPathCacheKey but left seperate in case we
  *     might use block_id as well.
  */
-public class KalmanErrorCacheKey implements java.io.Serializable {
+public class KalmanErrorCacheKey implements Serializable {
+    /** Needs to be serializable to add to cache */
+    private static final long serialVersionUID = 5029823633051153716L;
+    private String tripId;
+    private Integer stopPathIndex;
+    // The vehicleId is only used for debug purposed we know in log which vehicle set the error
+    // value
+    private String vehiceId;
+
+    public KalmanErrorCacheKey(Indices indices, String vehicleId) {
+        this.tripId = indices.getBlock().getTrip(indices.getTripIndex()).getId();
+        this.stopPathIndex = indices.getStopPathIndex();
+        this.vehiceId = vehicleId;
+    }
+
+    public KalmanErrorCacheKey(Indices indices) {
+        this.tripId = indices.getBlock().getTrip(indices.getTripIndex()).getId();
+        this.stopPathIndex = indices.getStopPathIndex();
+    }
+    public KalmanErrorCacheKey(String tripId, Integer stopPathIndex) {
+        this.tripId = tripId;
+        this.stopPathIndex = stopPathIndex;
+    }
+
+    /**
+     * @return the stopPathIndex
+     */
+    public int getStopPathIndex() {
+        return stopPathIndex;
+    }
+
 
     public String getTripId() {
         return tripId;
@@ -21,37 +53,12 @@ public class KalmanErrorCacheKey implements java.io.Serializable {
         this.stopPathIndex = stopPathIndex;
     }
 
-    private String tripId;
-    private Integer stopPathIndex;
-
-    // The vehicleId is only used for debug purposed we know in log which vehicle set the error
-    // value
-    private String vehiceId;
-
-    public String getVehiceId() {
+    public String getVehicleId() {
         return vehiceId;
     }
 
-    public void setVehiceId(String vehiceId) {
+    public void setVehicleId(String vehiceId) {
         this.vehiceId = vehiceId;
-    }
-
-    /** Needs to be serializable to add to cache */
-    private static final long serialVersionUID = 5029823633051153716L;
-
-    public KalmanErrorCacheKey(Indices indices, String vehicleId) {
-        super();
-
-        this.tripId = indices.getBlock().getTrip(indices.getTripIndex()).getId();
-        this.stopPathIndex = indices.getStopPathIndex();
-        this.vehiceId = vehicleId;
-    }
-
-    public KalmanErrorCacheKey(Indices indices) {
-        super();
-
-        this.tripId = indices.getBlock().getTrip(indices.getTripIndex()).getId();
-        this.stopPathIndex = indices.getStopPathIndex();
     }
 
     @Override
@@ -82,24 +89,4 @@ public class KalmanErrorCacheKey implements java.io.Serializable {
         } else return tripId.equals(other.tripId);
     }
 
-    public KalmanErrorCacheKey(String tripId, Integer stopPathIndex) {
-        super();
-
-        this.tripId = tripId;
-        this.stopPathIndex = stopPathIndex;
-    }
-
-    /**
-     * @return the stopPathIndex
-     */
-    public int getStopPathIndex() {
-        return stopPathIndex;
-    }
-
-    /**
-     * @param stopPathIndex the stopPathIndex to set
-     */
-    public void setStopPathIndex(int stopPathIndex) {
-        this.stopPathIndex = stopPathIndex;
-    }
 }

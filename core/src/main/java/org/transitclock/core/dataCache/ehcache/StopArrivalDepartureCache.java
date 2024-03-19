@@ -90,10 +90,6 @@ public class StopArrivalDepartureCache implements StopArrivalDepartureCacheInter
         }
     }
 
-    private static <T> Iterable<T> emptyIfNull(Iterable<T> iterable) {
-        return iterable == null ? Collections.emptyList() : iterable;
-    }
-
     public void populateCacheFromDb(Session session, Date startDate, Date endDate) {
         JPAQuery<ArrivalDeparture> query = new JPAQuery<>(session);
         var qentity = QArrivalDeparture.arrivalDeparture;

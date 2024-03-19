@@ -39,6 +39,9 @@ public class ArrivalDepartureGeneratorFactory {
                                                                DataDbLogger dataDbLogger,
                                                                DbConfig dbConfig) {
         // If the PredictionGenerator hasn't been created yet then do so now
-        return new ArrivalDepartureGeneratorDefaultImpl(scheduleBasedHistoricalAverageCache, frequencyBasedHistoricalAverageCache, holdingTimeCache, vehicleStatusManager, holdingTimeGenerator, travelTimes, tripDataHistoryCacheInterface, stopArrivalDepartureCacheInterface, dwellTimeModelCacheInterface, dataDbLogger, dbConfig, properties);
+        if (neededClass == ArrivalDepartureGeneratorDefaultImpl.class)
+            return new ArrivalDepartureGeneratorDefaultImpl(scheduleBasedHistoricalAverageCache, frequencyBasedHistoricalAverageCache, holdingTimeCache, vehicleStatusManager, holdingTimeGenerator, travelTimes, tripDataHistoryCacheInterface, stopArrivalDepartureCacheInterface, dwellTimeModelCacheInterface, dataDbLogger, dbConfig, properties);
+
+        throw new IllegalArgumentException("Requested ArrivalDepartureGenerator is not implemented");
     }
 }

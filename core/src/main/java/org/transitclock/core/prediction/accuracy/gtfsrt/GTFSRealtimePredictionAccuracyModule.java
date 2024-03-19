@@ -482,15 +482,14 @@ public class GTFSRealtimePredictionAccuracyModule extends PredictionAccuracyModu
     }
 
     class PredictionReadTimeKey {
-        @Override
-        public int hashCode() {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + getOuterType().hashCode();
-            result = prime * result + (int) (predictedTime ^ (predictedTime >>> 32));
-            result = prime * result + ((stopId == null) ? 0 : stopId.hashCode());
-            result = prime * result + ((vehicleId == null) ? 0 : vehicleId.hashCode());
-            return result;
+        String stopId;
+        String vehicleId;
+        long predictedTime;
+
+        public PredictionReadTimeKey(String stopId, String vehicleId, long predictedTime) {
+            this.stopId = stopId;
+            this.vehicleId = vehicleId;
+            this.predictedTime = predictedTime;
         }
 
         @Override
@@ -509,16 +508,17 @@ public class GTFSRealtimePredictionAccuracyModule extends PredictionAccuracyModu
             } else return vehicleId.equals(other.vehicleId);
         }
 
-        public PredictionReadTimeKey(String stopId, String vehicleId, long predictedTime) {
-            super();
-            this.stopId = stopId;
-            this.vehicleId = vehicleId;
-            this.predictedTime = predictedTime;
-        }
 
-        String stopId;
-        String vehicleId;
-        long predictedTime;
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + getOuterType().hashCode();
+            result = prime * result + (int) (predictedTime ^ (predictedTime >>> 32));
+            result = prime * result + ((stopId == null) ? 0 : stopId.hashCode());
+            result = prime * result + ((vehicleId == null) ? 0 : vehicleId.hashCode());
+            return result;
+        }
 
         private GTFSRealtimePredictionAccuracyModule getOuterType() {
             return GTFSRealtimePredictionAccuracyModule.this;

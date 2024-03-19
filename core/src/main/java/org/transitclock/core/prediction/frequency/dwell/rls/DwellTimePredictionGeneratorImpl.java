@@ -105,7 +105,6 @@ public class DwellTimePredictionGeneratorImpl extends KalmanPredictionGeneratorI
 
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
-            e.printStackTrace();
         }
 
         return result;

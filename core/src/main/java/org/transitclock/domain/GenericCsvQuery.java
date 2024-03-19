@@ -1,10 +1,10 @@
 /* (C)2023 */
 package org.transitclock.domain;
 
-import org.apache.commons.lang3.StringEscapeUtils;
-
 import java.sql.SQLException;
 import java.util.List;
+
+import org.apache.commons.lang3.StringEscapeUtils;
 
 /**
  * For doing an SQL query and returning the results in CVS format.
@@ -12,12 +12,8 @@ import java.util.List;
  * @author SkiBu Smith
  */
 public class GenericCsvQuery extends GenericQuery {
-
-    // For putting in the CSV data
-    private final StringBuilder sb = new StringBuilder();
-
-    // So can determine if first column
-    private int numColumns = 0;
+    private final StringBuilder sb;
+    private int numColumns;
 
     /**
      * Constructor
@@ -27,6 +23,8 @@ public class GenericCsvQuery extends GenericQuery {
      */
     private GenericCsvQuery(String agencyId) throws SQLException {
         super(agencyId);
+        sb = new StringBuilder();
+        numColumns = 0;
     }
 
     /* (non-Javadoc)

@@ -3,21 +3,39 @@ package org.transitclock.core.avl.ad;
 
 import java.util.ArrayList;
 import java.util.Date;
-import lombok.extern.slf4j.Slf4j;
+
 import org.transitclock.ApplicationProperties;
-import org.transitclock.core.*;
+import org.transitclock.core.Indices;
+import org.transitclock.core.TemporalDifference;
+import org.transitclock.core.TravelTimes;
+import org.transitclock.core.VehicleAtStopInfo;
 import org.transitclock.core.VehicleStatus;
 import org.transitclock.core.avl.space.SpatialMatch;
-import org.transitclock.core.dataCache.*;
+import org.transitclock.core.dataCache.DwellTimeModelCacheInterface;
+import org.transitclock.core.dataCache.HoldingTimeCache;
+import org.transitclock.core.dataCache.StopArrivalDepartureCacheInterface;
+import org.transitclock.core.dataCache.TripDataHistoryCacheInterface;
+import org.transitclock.core.dataCache.VehicleStatusManager;
 import org.transitclock.core.dataCache.frequency.FrequencyBasedHistoricalAverageCache;
 import org.transitclock.core.dataCache.scheduled.ScheduleBasedHistoricalAverageCache;
 import org.transitclock.core.holdingmethod.HoldingTimeGenerator;
 import org.transitclock.core.prediction.accuracy.PredictionAccuracyModule;
 import org.transitclock.domain.hibernate.DataDbLogger;
-import org.transitclock.domain.structs.*;
+import org.transitclock.domain.structs.Arrival;
+import org.transitclock.domain.structs.ArrivalDeparture;
+import org.transitclock.domain.structs.AvlReport;
+import org.transitclock.domain.structs.Block;
+import org.transitclock.domain.structs.Departure;
+import org.transitclock.domain.structs.HoldingTime;
+import org.transitclock.domain.structs.Route;
+import org.transitclock.domain.structs.Stop;
+import org.transitclock.domain.structs.Trip;
+import org.transitclock.domain.structs.VehicleEvent;
 import org.transitclock.gtfs.DbConfig;
 import org.transitclock.service.dto.IpcArrivalDeparture;
 import org.transitclock.utils.Time;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * For determining Arrival/Departure times based on a new GPS report and corresponding

@@ -17,17 +17,17 @@ import org.transitclock.utils.Time;
  */
 public class CoreConfig {
 
-    private static final StringConfigValue timezone = new StringConfigValue(
-            "transitclock.core.timezone",
-            "For setting timezone for application. Ideally would get "
-                    + "timezone from the agency db but once a Hibernate "
-                    + "session factory is created, such as for reading "
-                    + "timezone from db, then it is too late to set the "
-                    + "timezone. Therefore this provides ability to set it "
-                    + "manually.");
-    public static String getTimezone() {
-        return timezone.getValue();
-    }
+//    private static final StringConfigValue timezone = new StringConfigValue(
+//            "transitclock.core.timezone",
+//            "For setting timezone for application. Ideally would get "
+//                    + "timezone from the agency db but once a Hibernate "
+//                    + "session factory is created, such as for reading "
+//                    + "timezone from db, then it is too late to set the "
+//                    + "timezone. Therefore this provides ability to set it "
+//                    + "manually.");
+//    public static String getTimezone() {
+//        return timezone.getValue();
+//    }
 
     // Database params
     /**
@@ -35,136 +35,136 @@ public class CoreConfig {
      *
      * @return
      */
-    public static int getDaysPopulateHistoricalCache() {
-        return daysPopulateHistoricalCache.getValue();
-    }
+//    public static int getDaysPopulateHistoricalCache() {
+//        return daysPopulateHistoricalCache.getValue();
+//    }
 
-    public static IntegerConfigValue daysPopulateHistoricalCache = new IntegerConfigValue(
-            "transitclock.core.cache.daysPopulateHistoricalCache",
-            0,
-            "How many days data to read in to populate historical cache on start up.");
+//    public static IntegerConfigValue daysPopulateHistoricalCache = new IntegerConfigValue(
+//            "transitclock.core.cache.daysPopulateHistoricalCache",
+//            0,
+//            "How many days data to read in to populate historical cache on start up.");
 
-    /**
-     * When in playback mode or some other situations don't want to store generated data such as
-     * arrivals/departures, events, and such to the database because only debugging.
-     *
-     * @return
-     */
-    public static boolean storeDataInDatabase() {
-        return storeDataInDatabase.getValue();
-    }
+//    /**
+//     * When in playback mode or some other situations don't want to store generated data such as
+//     * arrivals/departures, events, and such to the database because only debugging.
+//     *
+//     * @return
+//     */
+//    public static boolean storeDataInDatabase() {
+//        return storeDataInDatabase.getValue();
+//    }
+//
+//    public static BooleanConfigValue storeDataInDatabase = new BooleanConfigValue(
+//            "transitclock.core.storeDataInDatabase",
+//            true,
+//            "When in playback mode or some other situations don't "
+//                    + "want to store generated data such as arrivals/"
+//                    + "departures, events, and such to the database because "
+//                    + "only debugging.");
 
-    public static BooleanConfigValue storeDataInDatabase = new BooleanConfigValue(
-            "transitclock.core.storeDataInDatabase",
-            true,
-            "When in playback mode or some other situations don't "
-                    + "want to store generated data such as arrivals/"
-                    + "departures, events, and such to the database because "
-                    + "only debugging.");
+//    /**
+//     * When batching large amount of AVL data through system to generate improved schedule time (as
+//     * has been done for Zhengzhou) it takes huge amount of time to process everything. To speed
+//     * things up you can set -Dtransitclock.core.onlyNeedArrivalDepartures=true such that the system
+//     * will be sped up by not generating nor logging predictions, not logging AVL data nor storing
+//     * it in db, and not logging nor storing match data in db.
+//     *
+//     * @return
+//     */
+//    public static boolean onlyNeedArrivalDepartures() {
+//        return onlyNeedArrivalDepartures.getValue();
+//    }
+//
+//    private static final BooleanConfigValue onlyNeedArrivalDepartures = new BooleanConfigValue(
+//            "transitclock.core.onlyNeedArrivalDepartures",
+//            false,
+//            "When batching large amount of AVL data through system "
+//                    + "to generate improved schedule time (as has been done "
+//                    + "for Zhengzhou) it takes huge amount of time to process "
+//                    + "everything. To speed things up you can set "
+//                    + "-Dtransitclock.core.onlyNeedArrivalDepartures=true such "
+//                    + "that the system will be sped up by not generating nor "
+//                    + "logging predictions, not logging AVL data nor storing "
+//                    + "it in db, and not logging nor storing match data in db.");
 
-    /**
-     * When batching large amount of AVL data through system to generate improved schedule time (as
-     * has been done for Zhengzhou) it takes huge amount of time to process everything. To speed
-     * things up you can set -Dtransitclock.core.onlyNeedArrivalDepartures=true such that the system
-     * will be sped up by not generating nor logging predictions, not logging AVL data nor storing
-     * it in db, and not logging nor storing match data in db.
-     *
-     * @return
-     */
-    public static boolean onlyNeedArrivalDepartures() {
-        return onlyNeedArrivalDepartures.getValue();
-    }
+//    /**
+//     * When in batch mode can flood db with lots of objects. If
+//     * transitclock.core.pauseIfDbQueueFilling is set to true then when objects are put into the
+//     * DataDbLogger queue the calling thread will be temporarily suspended so that the separate
+//     * thread can run to write to the db and thereby empty out the queue.
+//     *
+//     * @return
+//     */
+//    public static boolean pauseIfDbQueueFilling() {
+//        return pauseIfDbQueueFilling.getValue();
+//    }
+//
+//    private static final BooleanConfigValue pauseIfDbQueueFilling = new BooleanConfigValue(
+//            "transitclock.core.pauseIfDbQueueFilling",
+//            false,
+//            "When in batch mode can flood db with lots of objects. If"
+//                    + "transitclock.core.pauseIfDbQueueFilling is set to true "
+//                    + "then when objects are put into the DataDbLogger queue "
+//                    + "the calling thread will be temporarily suspended so "
+//                    + "that the separate thread can run to write to the db and "
+//                    + "thereby empty out the queue.");
 
-    private static final BooleanConfigValue onlyNeedArrivalDepartures = new BooleanConfigValue(
-            "transitclock.core.onlyNeedArrivalDepartures",
-            false,
-            "When batching large amount of AVL data through system "
-                    + "to generate improved schedule time (as has been done "
-                    + "for Zhengzhou) it takes huge amount of time to process "
-                    + "everything. To speed things up you can set "
-                    + "-Dtransitclock.core.onlyNeedArrivalDepartures=true such "
-                    + "that the system will be sped up by not generating nor "
-                    + "logging predictions, not logging AVL data nor storing "
-                    + "it in db, and not logging nor storing match data in db.");
+//    /**
+//     * The semicolon separated list of names of all the modules that should be automatically
+//     * started.
+//     */
+//    public static List<Class> getOptionalModules() {
+//        return optionalModules.getValue();
+//    }
+//
+//
+//    private static final ClassListConfigValue optionalModules = new ClassListConfigValue(
+//            "transitclock.modules.optionalModulesList",
+//            new ArrayList<>(),
+//            "The semicolon separated list of names of all of the modules that should be automatically started.");
 
-    /**
-     * When in batch mode can flood db with lots of objects. If
-     * transitclock.core.pauseIfDbQueueFilling is set to true then when objects are put into the
-     * DataDbLogger queue the calling thread will be temporarily suspended so that the separate
-     * thread can run to write to the db and thereby empty out the queue.
-     *
-     * @return
-     */
-    public static boolean pauseIfDbQueueFilling() {
-        return pauseIfDbQueueFilling.getValue();
-    }
+//    /**
+//     * How far a location can be from a path segment and still be considered a match.
+//     */
+//    public static double getMaxDistanceFromSegment() {
+//        return maxDistanceFromSegment.getValue();
+//    }
+//
+//    private static final DoubleConfigValue maxDistanceFromSegment = new DoubleConfigValue(
+//            "transitclock.core.maxDistanceFromSegment",
+//            60.0,
+//            "How far a location can be from a path segment and still "
+//                    + "be considered a match. Can be overridden on a per route "
+//                    + "basis via max_distance supplemental column of route GTFS "
+//                    + "data. When auto assigning, the parameter "
+//                    + "transitclock.core.maxDistanceFromSegmentForAutoAssigning "
+//                    + "is used instead.");
 
-    private static final BooleanConfigValue pauseIfDbQueueFilling = new BooleanConfigValue(
-            "transitclock.core.pauseIfDbQueueFilling",
-            false,
-            "When in batch mode can flood db with lots of objects. If"
-                    + "transitclock.core.pauseIfDbQueueFilling is set to true "
-                    + "then when objects are put into the DataDbLogger queue "
-                    + "the calling thread will be temporarily suspended so "
-                    + "that the separate thread can run to write to the db and "
-                    + "thereby empty out the queue.");
-
-    /**
-     * The semicolon separated list of names of all the modules that should be automatically
-     * started.
-     */
-    public static List<Class> getOptionalModules() {
-        return optionalModules.getValue();
-    }
-
-
-    private static final ClassListConfigValue optionalModules = new ClassListConfigValue(
-            "transitclock.modules.optionalModulesList",
-            new ArrayList<>(),
-            "The semicolon separated list of names of all of the modules that should be automatically started.");
-
-    /**
-     * How far a location can be from a path segment and still be considered a match.
-     */
-    public static double getMaxDistanceFromSegment() {
-        return maxDistanceFromSegment.getValue();
-    }
-
-    private static final DoubleConfigValue maxDistanceFromSegment = new DoubleConfigValue(
-            "transitclock.core.maxDistanceFromSegment",
-            60.0,
-            "How far a location can be from a path segment and still "
-                    + "be considered a match. Can be overridden on a per route "
-                    + "basis via max_distance supplemental column of route GTFS "
-                    + "data. When auto assigning, the parameter "
-                    + "transitclock.core.maxDistanceFromSegmentForAutoAssigning "
-                    + "is used instead.");
-
-    /**
-     * How far a location can be from a path segment and still be considered a match when auto
-     * assigning.
-     *
-     * @return
-     */
-    public static double getMaxDistanceFromSegmentForAutoAssigning() {
-        return maxDistanceFromSegmentForAutoAssigning.getValue();
-    }
-
-    private static final DoubleConfigValue maxDistanceFromSegmentForAutoAssigning = new DoubleConfigValue(
-            "transitclock.core.maxDistanceFromSegmentForAutoAssigning",
-            60.0,
-            "How far a location can be from a path segment and still "
-                    + "be considered a match when auto assigning a vehicle. Auto "
-                    + "assigning is treated separately because sometimes need "
-                    + "to make maxDistanceFromSegment really lenient because "
-                    + "vehicles do not always follow same route. This is "
-                    + "especially true with deviated fixed route service. But "
-                    + "don't want the distance to be too lenient when auto "
-                    + "assigning because if too lenient then would match to "
-                    + "multiple routes and therefore no assignment would be "
-                    + "made because the matches would be ambiguous. Therefore "
-                    + "maxDistanceFromSegmentForAutoAssigning should be less"
-                    + "than or equal to maxDistanceFromSegment.");
+//    /**
+//     * How far a location can be from a path segment and still be considered a match when auto
+//     * assigning.
+//     *
+//     * @return
+//     */
+//    public static double getMaxDistanceFromSegmentForAutoAssigning() {
+//        return maxDistanceFromSegmentForAutoAssigning.getValue();
+//    }
+//
+//    private static final DoubleConfigValue maxDistanceFromSegmentForAutoAssigning = new DoubleConfigValue(
+//            "transitclock.core.maxDistanceFromSegmentForAutoAssigning",
+//            60.0,
+//            "How far a location can be from a path segment and still "
+//                    + "be considered a match when auto assigning a vehicle. Auto "
+//                    + "assigning is treated separately because sometimes need "
+//                    + "to make maxDistanceFromSegment really lenient because "
+//                    + "vehicles do not always follow same route. This is "
+//                    + "especially true with deviated fixed route service. But "
+//                    + "don't want the distance to be too lenient when auto "
+//                    + "assigning because if too lenient then would match to "
+//                    + "multiple routes and therefore no assignment would be "
+//                    + "made because the matches would be ambiguous. Therefore "
+//                    + "maxDistanceFromSegmentForAutoAssigning should be less"
+//                    + "than or equal to maxDistanceFromSegment.");
 
     /**
      * How many bad spatial/temporal matches a predictable vehicle can have in a row before the

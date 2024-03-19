@@ -75,7 +75,7 @@ public class KalmanPredictionGeneratorImpl extends HistoricalAveragePredictionGe
 
         long alternatePrediction = super.getTravelTimeForPath(indices, avlReport, vehicleStatus);
 
-        Integer time = FrequencyBasedHistoricalAverageCache.secondsFromMidnight(avlReport.getDate(), 2);
+        int time = FrequencyBasedHistoricalAverageCache.secondsFromMidnight(avlReport.getDate(), 2);
 
         time = FrequencyBasedHistoricalAverageCache.round(
                 time, CoreConfig.getCacheIncrementsForFrequencyService());

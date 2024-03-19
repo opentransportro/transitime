@@ -248,6 +248,5 @@ public class SimpleHoldingTimeGeneratorImpl implements HoldingTimeGenerator {
     @Override
     public void handleDeparture(VehicleStatus vehicleStatus, ArrivalDeparture arrivalDeparture) {
         // TODO Auto-generated method stub
-
     }
 }

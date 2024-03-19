@@ -11,12 +11,12 @@ import java.util.Date;
 public class StopArrivalDepartureCacheKey implements Serializable {
 
     private static final long serialVersionUID = 2466653739981305005L;
-    private String stopid;
+    private final String stopid;
     private Date date;
 
     public StopArrivalDepartureCacheKey(String stopid, Date date) {
-        setDate(date);
         this.stopid = stopid;
+        setDate(date);
     }
 
     public String getStopid() {

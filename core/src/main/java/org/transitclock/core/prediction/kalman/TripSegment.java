@@ -2,18 +2,19 @@
 package org.transitclock.core.prediction.kalman;
 
 public class TripSegment {
-    VehicleStopDetail origin;
-    VehicleStopDetail destination;
+    private final VehicleStopDetail origin;
+    private final VehicleStopDetail destination;
 
     public TripSegment(VehicleStopDetail origin, VehicleStopDetail destination) {
-        super();
         this.origin = origin;
         this.destination = destination;
     }
 
     public long getDuration() {
-        if (this.origin != null && this.getDestination() != null) return destination.getTime() - origin.getTime();
-        else return -1;
+        if (this.origin != null && this.getDestination() != null)
+            return destination.getTime() - origin.getTime();
+
+        return -1;
     }
 
     /**
