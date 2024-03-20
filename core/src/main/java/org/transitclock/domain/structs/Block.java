@@ -270,7 +270,14 @@ public class Block implements Serializable {
      */
     public String toShortString() {
         // Create shortened version of Trip info that only includes the trip_id
-        String tripsStr = "Trip [" + getTrips().stream().map(Trip::getId).collect(Collectors.joining(", ")) + "]";
+        String tripIds = getTrips()
+                .stream()
+                .filter(Objects::nonNull)
+                .map(Trip::getId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.joining(", "));
+
+        String tripsStr = "Trip [" + tripIds + "]";
 
         return "Block ["
                 + "blockId="
