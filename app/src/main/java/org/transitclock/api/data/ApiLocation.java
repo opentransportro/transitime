@@ -1,8 +1,17 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import lombok.Data;
 import org.transitclock.domain.structs.Location;
+import org.transitclock.utils.ChinaGpsOffset;
+import org.transitclock.utils.MathUtils;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonFormat.Shape;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 /**
  * A simple latitude/longitude.
@@ -13,21 +22,27 @@ import org.transitclock.domain.structs.Location;
  *
  * @author SkiBu Smith
  */
-@Data
-public class ApiLocation extends ApiTransientLocation {
+@Getter @Setter
+@ToString
+@EqualsAndHashCode
+public class ApiLocation {
 
+    @JsonProperty
+    @JsonFormat(shape = Shape.NUMBER)
+    private double lat;
 
-    /**
-     * Need a no-arg constructor for Jersey. Otherwise get really obtuse "MessageBodyWriter not
-     * found for media type=application/json" exception.
-     */
-    protected ApiLocation() {}
+    @JsonProperty
+    @JsonFormat(shape = Shape.NUMBER)
+    private double lon;
 
     public ApiLocation(double lat, double lon) {
-        super(lat, lon);
-    }
+        // If location is in China (approximately) then adjust lat & lon so
+        // that will be displayed properly on map.
+        ChinaGpsOffset.LatLon latLon = ChinaGpsOffset.transform(lat, lon);
 
-    public ApiLocation(Location loc) {
-        super(loc.getLat(), loc.getLon());
+        // Output only 5 digits past decimal point
+        this.lat = MathUtils.round(latLon.getLat(), 5);
+        // Output only 5 digits past decimal point
+        this.lon = MathUtils.round(latLon.getLon(), 5);
     }
 }

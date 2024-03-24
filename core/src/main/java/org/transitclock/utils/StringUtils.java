@@ -171,7 +171,7 @@ public class StringUtils {
         StringBuilder builder = new StringBuilder();
         builder.append(name, 0, startOfNumber);
         // Add necessary 0 padding to make numbers the same length
-        for (int i = 0; i < NUMBER_DIGITS_WHEN_PADDED - numberOfDigits; ++i) builder.append('0');
+        builder.append("0".repeat(Math.max(0, NUMBER_DIGITS_WHEN_PADDED - numberOfDigits)));
         // Add the number and any remaining part of the string
         builder.append(name.substring(startOfNumber));
 

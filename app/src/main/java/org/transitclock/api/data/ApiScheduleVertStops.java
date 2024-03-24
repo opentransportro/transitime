@@ -1,15 +1,15 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import jakarta.xml.bind.annotation.XmlAttribute;
-import jakarta.xml.bind.annotation.XmlElement;
-import lombok.Data;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.transitclock.service.dto.IpcSchedTime;
 import org.transitclock.service.dto.IpcSchedTrip;
 import org.transitclock.service.dto.IpcSchedule;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 
 /**
  * Represents a schedule for a route for a specific direction and service class. Stops are listed
@@ -21,33 +21,27 @@ import java.util.List;
 @Data
 public class ApiScheduleVertStops {
 
-    @XmlAttribute
+    @JsonProperty
     private String serviceId;
 
-    @XmlAttribute
+    @JsonProperty
     private String serviceName;
 
-    @XmlAttribute
+    @JsonProperty
     private String directionId;
 
-    @XmlAttribute
+    @JsonProperty
     private String routeId;
 
-    @XmlAttribute
+    @JsonProperty
     private String routeName;
 
-    @XmlElement(name = "trip")
+    @JsonProperty
     private List<ApiScheduleTrip> trips;
 
-    @XmlElement
+    @JsonProperty
     private List<ApiScheduleTimesForStop> timesForStop;
 
-
-    /**
-     * Need a no-arg constructor for Jersey. Otherwise get really obtuse "MessageBodyWriter not
-     * found for media type=application/json" exception.
-     */
-    protected ApiScheduleVertStops() {}
 
     public ApiScheduleVertStops(IpcSchedule ipcSched) {
         serviceId = ipcSched.getServiceId();
@@ -58,7 +52,7 @@ public class ApiScheduleVertStops {
 
         // Create the trips element which contains list of all the trips
         // for the schedule for the route/direction/service
-        trips = new ArrayList<ApiScheduleTrip>();
+        trips = new ArrayList<>();
         for (IpcSchedTrip ipcSchedTrip : ipcSched.getIpcSchedTrips()) {
             trips.add(new ApiScheduleTrip(ipcSchedTrip));
         }

@@ -1,11 +1,12 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import jakarta.xml.bind.annotation.XmlAttribute;
-import lombok.Data;
 import org.transitclock.utils.Geo;
 import org.transitclock.utils.MathUtils;
 import org.transitclock.utils.Time;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 
 /**
  * For representing travel time for a single segment.
@@ -15,27 +16,21 @@ import org.transitclock.utils.Time;
 @Data
 public class ApiTravelTimeForSegment {
 
-    @XmlAttribute
+    @JsonProperty
     private int segmentIndex;
 
-    @XmlAttribute
+    @JsonProperty
     private int segmentTimeMsec;
 
-    @XmlAttribute
+    @JsonProperty
     private Double speedInMph;
 
-    @XmlAttribute
+    @JsonProperty
     private Double speedInKph;
 
-    @XmlAttribute
+    @JsonProperty
     private Double speedInMetersPerSec;
 
-
-    /**
-     * Need a no-arg constructor for Jersey. Otherwise get really obtuse "MessageBodyWriter not
-     * found for media type=application/json" exception.
-     */
-    protected ApiTravelTimeForSegment() {}
 
     /**
      * Constructor

@@ -1,26 +1,26 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
-import lombok.Data;
 import org.transitclock.service.dto.IpcTrip;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 /**
  * Specifies how trip data along with travel times is formatted for the API.
  *
  * @author SkiBu Smith
  */
-@Data
-@XmlRootElement(name = "trip")
+@Getter @Setter
+@ToString
+@EqualsAndHashCode(callSuper = true)
 public class ApiTripWithTravelTimes extends ApiTrip {
 
-    @XmlElement
+    @JsonProperty
     private ApiTravelTimes travelTimes;
-
-
-    /** No args constructor needed for Jersey since this class is a @XmlRootElement */
-    protected ApiTripWithTravelTimes() {}
 
     /**
      * Constructor
@@ -30,7 +30,6 @@ public class ApiTripWithTravelTimes extends ApiTrip {
      */
     public ApiTripWithTravelTimes(IpcTrip ipcTrip, boolean includeStopPaths) {
         super(ipcTrip, includeStopPaths);
-
         travelTimes = new ApiTravelTimes(ipcTrip.getTravelTimes());
     }
 }

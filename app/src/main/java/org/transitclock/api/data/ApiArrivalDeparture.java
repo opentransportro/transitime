@@ -1,49 +1,40 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import jakarta.xml.bind.annotation.XmlAttribute;
-import jakarta.xml.bind.annotation.XmlRootElement;
-import lombok.Data;
-import org.transitclock.service.dto.IpcArrivalDeparture;
-
-import java.lang.reflect.InvocationTargetException;
 import java.util.Date;
 
+import org.transitclock.service.dto.IpcArrivalDeparture;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
+
 @Data
-@XmlRootElement(name = "arrivaldeparture")
 public class ApiArrivalDeparture {
-    @XmlAttribute
+    @JsonProperty
     private String stopId;
 
-    @XmlAttribute
+    @JsonProperty
     private String vehicleId;
 
-    @XmlAttribute
+    @JsonProperty
     private Date time;
 
-    @XmlAttribute
+    @JsonProperty
     private Date scheduledTime;
 
-    @XmlAttribute
+    @JsonProperty
     private boolean isArrival;
 
-    @XmlAttribute
+    @JsonProperty
     private String tripId;
 
-    @XmlAttribute
+    @JsonProperty
     private String routeId;
 
-    @XmlAttribute
+    @JsonProperty
     private Integer stopPathIndex;
 
-    /**
-     * Need a no-arg constructor for Jersey. Otherwise get really obtuse "MessageBodyWriter not
-     * found for media type=application/json" exception.
-     */
-    protected ApiArrivalDeparture() {}
-
-    public ApiArrivalDeparture(IpcArrivalDeparture ipcArrivalDeparture)
-            throws IllegalAccessException, InvocationTargetException {
+    public ApiArrivalDeparture(IpcArrivalDeparture ipcArrivalDeparture) {
         this.vehicleId = ipcArrivalDeparture.getVehicleId();
         this.time = ipcArrivalDeparture.getTime();
         this.routeId = ipcArrivalDeparture.getRouteId();

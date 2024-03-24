@@ -1,60 +1,57 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import jakarta.xml.bind.annotation.XmlAttribute;
-import jakarta.xml.bind.annotation.XmlRootElement;
-import lombok.Data;
+import java.util.Date;
+
 import org.transitclock.service.dto.IpcHoldingTime;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.Date;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
+
 @Data
-@XmlRootElement(name = "holdingtime")
 public class ApiHoldingTime {
 
-    @XmlAttribute
+    @JsonProperty
     private Date holdingTime;
 
-    @XmlAttribute
+    @JsonProperty
     private Date creationTime;
 
-    @XmlAttribute
+    @JsonProperty
     private Date currentTime;
 
-    @XmlAttribute
+    @JsonProperty
     private String vehicleId;
 
-    @XmlAttribute
+    @JsonProperty
     private String stopId;
 
-    @XmlAttribute
+    @JsonProperty
     private String tripId;
 
-    @XmlAttribute
+    @JsonProperty
     private String routeId;
 
-    @XmlAttribute
+    @JsonProperty
     private boolean arrivalPredictionUsed;
 
-    @XmlAttribute
+    @JsonProperty
     private boolean arrivalUsed;
 
-    @XmlAttribute
+    @JsonProperty
     private Date arrivalTime;
 
-    @XmlAttribute
+    @JsonProperty
     private boolean hasN1;
 
-    @XmlAttribute
+    @JsonProperty
     private boolean hasN2;
 
-    @XmlAttribute
+    @JsonProperty
     private boolean hasD1;
 
-    @XmlAttribute
+    @JsonProperty
     private int numberPredictionsUsed;
-
-    protected ApiHoldingTime() {}
 
     public ApiHoldingTime(IpcHoldingTime ipcHoldingTime) {
         this.holdingTime = ipcHoldingTime.getHoldingTime();

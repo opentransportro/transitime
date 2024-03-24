@@ -1,40 +1,36 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import jakarta.xml.bind.annotation.XmlAttribute;
-import jakarta.xml.bind.annotation.XmlElement;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.transitclock.service.dto.IpcSchedTime;
 import org.transitclock.service.dto.IpcSchedTrip;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 
 /**
  * Contains the schedule times for a trip. For when outputting stops horizontally.
  *
  * @author Michael
  */
+@Data
 public class ApiScheduleTimesForTrip {
-    @XmlAttribute
+    @JsonProperty
     private String tripShortName;
 
-    @XmlAttribute
+    @JsonProperty
     private String tripId;
 
-    @XmlAttribute
+    @JsonProperty
     private String tripHeadsign;
 
-    @XmlAttribute
+    @JsonProperty
     private String blockId;
 
-    @XmlElement(name = "time")
+    @JsonProperty
     private List<ApiScheduleTime> times;
-
-    /**
-     * Need a no-arg constructor for Jersey. Otherwise get really obtuse "MessageBodyWriter not
-     * found for media type=application/json" exception.
-     */
-    protected ApiScheduleTimesForTrip() {}
 
     public ApiScheduleTimesForTrip(IpcSchedTrip ipcSchedTrip) {
         this.tripShortName = ipcSchedTrip.getTripShortName();
@@ -42,7 +38,7 @@ public class ApiScheduleTimesForTrip {
         this.tripHeadsign = ipcSchedTrip.getTripHeadsign();
         this.blockId = ipcSchedTrip.getBlockId();
 
-        times = new ArrayList<ApiScheduleTime>();
+        times = new ArrayList<>();
         for (IpcSchedTime ipcSchedTime : ipcSchedTrip.getSchedTimes()) {
             times.add(new ApiScheduleTime(ipcSchedTime.getTimeOfDay()));
         }

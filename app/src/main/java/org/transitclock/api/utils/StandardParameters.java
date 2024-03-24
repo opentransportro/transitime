@@ -6,6 +6,7 @@ import lombok.Data;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.BindParam;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
 
 /**
  * For getting the standard parameters from the URI used to access the feed. Includes the key,
@@ -31,8 +32,9 @@ public class StandardParameters {
     // this isn't enough. Still getting Bad Request. But leaving
     // this in as documentation that it was tried.
 //    @HeaderParam("accept")
+    @BindParam("accept")
 //    @DefaultValue("application/json")
-    String acceptHeader;
+    String acceptHeader = "application/json";
 
 //    @Context
     HttpServletRequest request;

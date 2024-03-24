@@ -1,10 +1,15 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import jakarta.xml.bind.annotation.XmlAttribute;
-import jakarta.xml.bind.annotation.XmlType;
-import lombok.Data;
 import org.transitclock.service.dto.IpcStop;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonFormat.Shape;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 /**
  * Full description of a stop.
@@ -14,33 +19,28 @@ import org.transitclock.service.dto.IpcStop;
  *
  * @author SkiBu Smith
  */
-@Data
-@XmlType(propOrder = {"id", "lat", "lon", "name", "code", "minor", "pathLength"})
-public class ApiStop extends ApiTransientLocation {
+@Getter @Setter
+@ToString
+@EqualsAndHashCode(callSuper = true)
+public class ApiStop extends ApiLocation {
 
-    @XmlAttribute
+    @JsonProperty
     private String id;
 
-    @XmlAttribute
+    @JsonProperty
     private String name;
 
-    @XmlAttribute
+    @JsonProperty
     private Integer code;
 
-    // For indicating that in UI should deemphasize this stop because it
-    // is not on a main trip pattern.
-    @XmlAttribute(name = "minor")
+    // For indicating that in UI should de-emphasize this stop because it is not on a main trip pattern.
+    @JsonProperty
     private Boolean minor;
 
-    @XmlAttribute
+    @JsonProperty
+    @JsonFormat(shape = Shape.NUMBER)
     private Double pathLength;
 
-
-    /**
-     * Need a no-arg constructor for Jersey. Otherwise get really obtuse "MessageBodyWriter not
-     * found for media type=application/json" exception.
-     */
-    protected ApiStop() {}
 
     public ApiStop(IpcStop stop) {
         super(stop.getLoc().getLat(), stop.getLoc().getLon());

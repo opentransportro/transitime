@@ -14,18 +14,111 @@ import org.transitclock.api.reports.PredAccuracyIntervalQuery;
 import org.transitclock.api.reports.PredAccuracyRangeQuery;
 import org.transitclock.api.reports.PredictionAccuracyQuery.IntervalsType;
 import org.transitclock.api.reports.ScheduleAdherenceController;
+import org.transitclock.api.utils.StandardParameters;
+import org.transitclock.api.utils.WebUtils;
+import org.transitclock.core.reports.Reports;
 import org.transitclock.core.reports.SqlUtils;
 import org.transitclock.utils.Time;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-@RequestMapping("/api/v1/key/{key}/agency/{agency}")
-public class ReportsResource extends BaseApiResource {
-    @GetMapping(value = "/reports/predAccuracyIntervalsData.jsp")
+@RestController
+public class ReportsResource extends BaseApiResource implements ReportsApi {
+
+    @Override
+    public ResponseEntity<String> getTripsWithTravelTimes(
+            StandardParameters stdParameters,
+            String date) {
+
+        // Make sure request is valid
+        validate(stdParameters);
+
+        try {
+
+            String response = Reports.getTripsWithTravelTimes(stdParameters.getAgencyId(), date);
+            return stdParameters.createResponse(response);
+        } catch (Exception e) {
+            throw WebUtils.badRequestException(e);
+        }
+    }
+
+    @Override
+    public ResponseEntity<String> getAvlReport(
+            StandardParameters stdParameters,
+            String vehicleId,
+            String beginDate,
+            int numDays,
+            String beginTime,
+            String endTime) {
+        validate(stdParameters);
+        String response = Reports.getAvlJson(
+                stdParameters.getAgencyId(),
+                vehicleId, beginDate, String.valueOf(numDays), beginTime, endTime);
+        return ResponseEntity.ok(response);
+    }
+
+
+    @Override
+    public ResponseEntity<String> getTripWithTravelTimes(
+            StandardParameters stdParameters,
+            String tripId,
+            String date) {
+
+        // Make sure request is valid
+        validate(stdParameters);
+
+        String response = Reports.getTripWithTravelTimes(stdParameters.getAgencyId(), tripId, date);
+        return ResponseEntity.ok(response);
+    }
+
+    @Override
+    public ResponseEntity<String> getTrips(
+            StandardParameters stdParameters,
+            String date) {
+
+        // Make sure request is valid
+        validate(stdParameters);
+
+        String response = Reports.getTripsFromArrivalAndDeparturesByDate(stdParameters.getAgencyId(), date);
+        return ResponseEntity.ok(response);
+    }
+
+    @Override
+    public ResponseEntity<String> scheduleAdhReport(
+            StandardParameters stdParameters,
+            String routeId,
+            String beginDate,
+            int numDays,
+            String beginTime,
+            String endTime,
+            String allowableEarly,
+            String allowableLate) {
+        validate(stdParameters);
+        String response = Reports.getScheduleAdhByStops(
+                stdParameters.getAgencyId(),
+                routeId,
+                beginDate,
+                allowableEarly,
+                allowableLate,
+                beginTime,
+                endTime,
+                numDays);
+        return ResponseEntity.ok(response);
+    }
+
+    @Override
+    public ResponseEntity<String> getLastAvlJsonData(StandardParameters stdParameters) {
+        // Make sure request is valid
+        validate(stdParameters);
+
+        String response = Reports.getLastAvlJson(stdParameters.getAgencyId());
+        return ResponseEntity.ok(response);
+    }
+
+    @Override
     public ResponseEntity<String> predAccuracyIntervalsData(HttpServletRequest request) throws SQLException, ParseException {
         // Get params from the query string
         String agencyId = request.getParameter("a");
@@ -98,7 +191,7 @@ public class ReportsResource extends BaseApiResource {
         return response;
     }
 
-    @GetMapping(value = "/reports/predAccuracyRangeData.jsp")
+    @Override
     public ResponseEntity<String> predAccuracyRangeData(HttpServletRequest request) throws SQLException, ParseException {
         // Get params from the query string
         String agencyId = request.getParameter("a");
@@ -172,7 +265,7 @@ public class ReportsResource extends BaseApiResource {
         return ResponseEntity.ok(jsonString);
     }
 
-    @GetMapping(value = "/reports/data/summaryScheduleAdherence.jsp")
+    @Override
     public ResponseEntity<List<Integer>> summaryScheduleAdherence(HttpServletRequest request) throws ParseException {
         String startDateStr = request.getParameter("beginDate");
         String numDaysStr = request.getParameter("numDays");
@@ -220,7 +313,7 @@ public class ReportsResource extends BaseApiResource {
     }
 
 
-    @GetMapping(value = "/reports/predAccuracyScatterData.jsp")
+    @Override
     public ResponseEntity<String> predAccuracyScatterData(HttpServletRequest request) throws ParseException, SQLException {
         String agencyId = request.getParameter("a");
         String beginDate = request.getParameter("beginDate");

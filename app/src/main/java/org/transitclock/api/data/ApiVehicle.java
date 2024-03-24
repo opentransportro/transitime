@@ -1,11 +1,10 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
-import jakarta.xml.bind.annotation.XmlType;
-import lombok.Data;
 import org.transitclock.api.resources.TransitimeApi.UiMode;
 import org.transitclock.service.dto.IpcVehicle;
+
+import lombok.Data;
 
 /**
  * Contains the data for a single vehicle.
@@ -16,26 +15,7 @@ import org.transitclock.service.dto.IpcVehicle;
  * @author SkiBu Smith
  */
 @Data
-@XmlRootElement
-@XmlType(
-        propOrder = {
-            "id",
-            "routeId",
-            "routeShortName",
-            "headsign",
-            "directionId",
-            "vehicleType",
-            "uiType",
-            "schedBasedPreds",
-            "loc"
-        })
 public class ApiVehicle extends ApiVehicleAbstract {
-
-    /**
-     * Need a no-arg constructor for Jersey. Otherwise get really obtuse "MessageBodyWriter not
-     * found for media type=application/json" exception.
-     */
-    protected ApiVehicle() {}
 
     /**
      * Takes a Vehicle object for client/server communication and constructs a ApiVehicle object for

@@ -1,17 +1,16 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import jakarta.xml.bind.annotation.XmlAttribute;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
-import lombok.Data;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.transitclock.service.dto.IpcBlock;
 import org.transitclock.service.dto.IpcRouteSummary;
 import org.transitclock.service.dto.IpcTrip;
 import org.transitclock.utils.Time;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 
 /**
  * Describes a block
@@ -19,36 +18,28 @@ import java.util.List;
  * @author SkiBu Smith
  */
 @Data
-@XmlRootElement(name = "block")
 public class ApiBlock {
 
-    @XmlAttribute
+    @JsonProperty
     private int configRev;
 
-    @XmlAttribute
+    @JsonProperty
     private String id;
 
-    @XmlAttribute
+    @JsonProperty
     private String serviceId;
 
-    @XmlAttribute
+    @JsonProperty
     private String startTime;
 
-    @XmlAttribute
+    @JsonProperty
     private String endTime;
 
-    @XmlElement
+    @JsonProperty
     private List<ApiTrip> trips;
 
-    @XmlElement(name = "routes")
-    private List<ApiRoute> routeSummaries;
-
-
-    /**
-     * Need a no-arg constructor for Jersey. Otherwise get really obtuse "MessageBodyWriter not
-     * found for media type=application/json" exception.
-     */
-    protected ApiBlock() {}
+    @JsonProperty
+    private List<ApiRoute> routes;
 
     public ApiBlock(IpcBlock ipcBlock) {
         configRev = ipcBlock.getConfigRev();
@@ -57,16 +48,14 @@ public class ApiBlock {
         startTime = Time.timeOfDayStr(ipcBlock.getStartTime());
         endTime = Time.timeOfDayStr(ipcBlock.getEndTime());
 
-        trips = new ArrayList<ApiTrip>();
-        for (IpcTrip ipcTrip : ipcBlock.getTrips()) {
-            // Note: not including stop paths in trip pattern output
-            // because that can be really voluminous.
-            trips.add(new ApiTrip(ipcTrip, false));
-        }
+        trips = ipcBlock.getTrips()
+                .stream()
+                .map(t -> new ApiTrip(t, false))
+                .toList();
 
-        routeSummaries = new ArrayList<ApiRoute>();
-        for (IpcRouteSummary ipcRouteSummary : ipcBlock.getRouteSummaries()) {
-            routeSummaries.add(new ApiRoute(ipcRouteSummary));
-        }
+        routes = ipcBlock.getRouteSummaries()
+                .stream()
+                .map(ApiRoute::new)
+                .toList();
     }
 }

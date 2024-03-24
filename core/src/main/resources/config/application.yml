@@ -26,15 +26,6 @@ spring:
 
 server:
   port: 8080
-  servlet:
-    jsp:
-      registered: true
-      init-parameters:
-        dirAllowed: true
-    context-parameters:
-      org.apache.jasper.XML_BLOCK_EXTERNAL: false
-      tomcat.util.scan.StandardJarScanFilter.jarsToScan: "taglibs-standard-impl-*"
-      tomcat.util.scan.StandardJarScanFilter.jarsToSkip: "apache-*,ecj-*,jetty-*,asm-*,javax.servlet-*,hk2-*,javax.annotation-*,taglibs-standard-spec-*"
 
 transitclock:
   factory:

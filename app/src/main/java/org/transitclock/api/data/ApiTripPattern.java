@@ -1,14 +1,13 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import jakarta.xml.bind.annotation.XmlAttribute;
-import jakarta.xml.bind.annotation.XmlElement;
-import lombok.Data;
-import org.transitclock.service.dto.IpcStopPath;
-import org.transitclock.service.dto.IpcTripPattern;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import org.transitclock.service.dto.IpcTripPattern;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 
 /**
  * A single trip pattern
@@ -18,39 +17,33 @@ import java.util.List;
 @Data
 public class ApiTripPattern {
 
-    @XmlAttribute
+    @JsonProperty
     private int configRev;
 
-    @XmlAttribute
+    @JsonProperty
     private String id;
 
-    @XmlAttribute
+    @JsonProperty
     private String headsign;
 
-    @XmlAttribute
+    @JsonProperty
     private String directionId;
 
-    @XmlAttribute
+    @JsonProperty
     private String routeId;
 
-    @XmlAttribute
+    @JsonProperty
     private String routeShortName;
 
-    @XmlElement
+    @JsonProperty
     private ApiExtent extent;
 
-    @XmlAttribute
+    @JsonProperty
     private String shapeId;
 
-    @XmlElement
+    @JsonProperty
     private List<ApiStopPath> stopPaths;
 
-
-    /**
-     * Need a no-arg constructor for Jersey. Otherwise get really obtuse "MessageBodyWriter not
-     * found for media type=application/json" exception.
-     */
-    protected ApiTripPattern() {}
 
     /**
      * @param ipcTripPattern
@@ -69,12 +62,12 @@ public class ApiTripPattern {
         // Only include stop paths if actually want them. This
         // can greatly reduce volume of the output.
         if (includeStopPaths) {
-            stopPaths = new ArrayList<ApiStopPath>();
-            for (IpcStopPath ipcStopPath : ipcTripPattern.getStopPaths()) {
-                stopPaths.add(new ApiStopPath(ipcStopPath));
-            }
+            stopPaths = ipcTripPattern.getStopPaths()
+                    .stream()
+                    .map(ApiStopPath::new)
+                    .toList();
         } else {
-            stopPaths = null;
+            stopPaths = new ArrayList<>();
         }
     }
 }

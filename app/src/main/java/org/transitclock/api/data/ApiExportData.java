@@ -1,12 +1,12 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import jakarta.xml.bind.annotation.XmlAttribute;
-import jakarta.xml.bind.annotation.XmlRootElement;
-import lombok.Data;
+import java.util.Date;
+
 import org.transitclock.domain.structs.ExportTable;
 
-import java.util.Date;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 
 /**
  * For storing static configuration for vehicle in block.
@@ -14,28 +14,25 @@ import java.util.Date;
  * @author Hubert GoEuropa
  */
 @Data
-@XmlRootElement
 public class ApiExportData {
 
-    @XmlAttribute
+    @JsonProperty
     private long id;
 
-    @XmlAttribute
+    @JsonProperty
     private Date dataDate;
 
-    @XmlAttribute
+    @JsonProperty
     private Date exportDate;
 
-    @XmlAttribute
+    @JsonProperty
     private int exportType;
 
-    @XmlAttribute
+    @JsonProperty
     private int exportStatus;
 
-    @XmlAttribute
+    @JsonProperty
     private String fileName;
-
-    public ApiExportData() {}
 
     public ApiExportData(ExportTable exportTable) {
         this.id = exportTable.getId();
@@ -46,8 +43,7 @@ public class ApiExportData {
         this.exportDate = exportTable.getExportDate();
     }
 
-    public ApiExportData(
-            Long id, Date dataDate, Date exportDate, Integer exportType, Integer exportStatus, String fileName) {
+    public ApiExportData(Long id, Date dataDate, Date exportDate, Integer exportType, Integer exportStatus, String fileName) {
         this.id = id;
         this.exportType = exportType;
         this.fileName = fileName;

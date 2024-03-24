@@ -1,29 +1,26 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import jakarta.xml.bind.annotation.XmlAttribute;
-import jakarta.xml.bind.annotation.XmlRootElement;
-import lombok.Data;
 import org.transitclock.service.dto.IpcHistoricalAverageCacheKey;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 
 /**
  * Describes an historical average key which is used to refer to data elements in the cache
  *
  * @author Sean Og Crudden
- */@Data
-@XmlRootElement(name = "HistoricalAverageCacheKey")
+ */
+@Data
 public class ApiHistoricalAverageCacheKey {
 
-    @XmlAttribute
+    @JsonProperty
     private String tripId;
 
-    @XmlAttribute
+    @JsonProperty
     private Integer stopPathIndex;
 
-    public ApiHistoricalAverageCacheKey() {}
-
     public ApiHistoricalAverageCacheKey(IpcHistoricalAverageCacheKey key) {
-
         this.tripId = key.getTripId();
         this.stopPathIndex = key.getStopPathIndex();
     }

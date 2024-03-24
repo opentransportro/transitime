@@ -1,30 +1,28 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import jakarta.xml.bind.annotation.XmlAttribute;
-import jakarta.xml.bind.annotation.XmlRootElement;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@XmlRootElement(name = "adherenceSummary")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class ApiAdherenceSummary {
 
-    @XmlAttribute
+    @JsonProperty
     private Integer late;
 
-    @XmlAttribute
+    @JsonProperty
     private Integer ontime;
 
-    @XmlAttribute
+    @JsonProperty
     private Integer early;
 
-    @XmlAttribute
+    @JsonProperty
     private Integer nodata;
 
-    @XmlAttribute
+    @JsonProperty
     private Integer blocks;
 }

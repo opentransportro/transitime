@@ -1,16 +1,13 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import jakarta.xml.bind.annotation.XmlAttribute;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
-import lombok.Data;
-import org.transitclock.service.dto.IpcSchedTimes;
+import java.util.List;
+
 import org.transitclock.service.dto.IpcTrip;
 import org.transitclock.utils.Time;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 
 /**
  * Specifies how trip data is formatted for the API.
@@ -18,61 +15,53 @@ import java.util.List;
  * @author SkiBu Smith
  */
 @Data
-@XmlRootElement(name = "trip")
 public class ApiTrip {
 
-    @XmlAttribute
+    @JsonProperty
     private int configRev;
 
-    @XmlAttribute
+    @JsonProperty
     private String id;
 
-    @XmlAttribute
+    @JsonProperty
     private String shortName;
 
-    @XmlAttribute
+    @JsonProperty
     private String startTime;
 
-    @XmlAttribute
+    @JsonProperty
     private String endTime;
 
-    @XmlAttribute
+    @JsonProperty
     private String directionId;
 
-    @XmlAttribute
+    @JsonProperty
     private String routeId;
 
-    @XmlAttribute
+    @JsonProperty
     private String routeShortName;
 
-    @XmlElement
+    @JsonProperty
     private ApiTripPattern tripPattern;
 
-    @XmlAttribute
+    @JsonProperty
     private String serviceId;
 
-    @XmlAttribute
+    @JsonProperty
     private String headsign;
 
-    @XmlAttribute
+    @JsonProperty
     private String blockId;
 
-    @XmlAttribute
+    @JsonProperty
     private String shapeId;
 
     // Using a Boolean so that will be output only if true
-    @XmlAttribute
+    @JsonProperty
     private Boolean noSchedule;
 
-    @XmlElement(name = "schedule")
-    private List<ApiScheduleArrDepTime> scheduleTimes;
-
-
-    /**
-     * Need a no-arg constructor for Jersey. Otherwise get really obtuse "MessageBodyWriter not
-     * found for media type=application/json" exception.
-     */
-    protected ApiTrip() {}
+    @JsonProperty("times")
+    private List<ApiScheduleArrDepTime> times;
 
     /**
      * @param ipcTrip
@@ -95,9 +84,9 @@ public class ApiTrip {
 
         noSchedule = ipcTrip.isNoSchedule() ? true : null;
 
-        scheduleTimes = new ArrayList<ApiScheduleArrDepTime>();
-        for (IpcSchedTimes ipcScheduleTimes : ipcTrip.getScheduleTimes()) {
-            scheduleTimes.add(new ApiScheduleArrDepTime(ipcScheduleTimes));
-        }
+        times = ipcTrip.getScheduleTimes()
+                .stream()
+                .map(ApiScheduleArrDepTime::new)
+                .toList();
     }
 }

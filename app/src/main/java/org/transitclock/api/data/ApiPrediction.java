@@ -1,83 +1,77 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import jakarta.xml.bind.annotation.XmlAttribute;
-import jakarta.xml.bind.annotation.XmlRootElement;
-import lombok.Data;
+
 import org.transitclock.service.dto.IpcPrediction;
 import org.transitclock.utils.Time;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 
 /**
  * Contains data for a single prediction.
  *
  * @author SkiBu Smith
- */@Data
-@XmlRootElement
+ */
+@Data
 public class ApiPrediction {
 
     // Epoch time in seconds (not msec, so shorter)
-    @XmlAttribute(name = "time")
+    @JsonProperty(value = "time")
     private long time;
 
-    @XmlAttribute(name = "sec")
+    @JsonProperty(value = "sec")
     private int seconds;
 
-    @XmlAttribute(name = "min")
+    @JsonProperty(value = "min")
     private int minutes;
 
-    @XmlAttribute(name = "scheduleBased")
+    @JsonProperty(value = "scheduleBased")
     protected Boolean schedBasedPreds;
 
     // Most of the time will be predicting arrival predictions. Therefore
     // isDeparture will only be displayed for the more rare times that
     // departure prediction is being provided.
-    @XmlAttribute(name = "departure")
+    @JsonProperty(value = "departure")
     private Boolean isDeparture;
 
-    @XmlAttribute(name = "trip")
+    @JsonProperty(value = "trip")
     private String tripId;
 
-    @XmlAttribute(name = "blockId")
+    @JsonProperty(value = "blockId")
     private String blockId;
 
-    @XmlAttribute(name = "tripPattern")
+    @JsonProperty(value = "tripPattern")
     private String tripPatternId;
 
-    @XmlAttribute(name = "vehicle")
+    @JsonProperty(value = "vehicle")
     private String vehicleId;
 
     // Only output if true
-    @XmlAttribute(name = "atEndOfTrip")
+    @JsonProperty(value = "atEndOfTrip")
     private Boolean isAtEndOfTrip;
 
     // Only output if true
-    @XmlAttribute(name = "delayed")
+    @JsonProperty(value = "delayed")
     private Boolean isDelayed;
 
     // Only output if true
-    @XmlAttribute(name = "lateAndSubsequentTripSoMarkAsUncertain")
+    @JsonProperty(value = "lateAndSubsequentTripSoMarkAsUncertain")
     private Boolean isLateAndSubsequentTripSoMarkAsUncertain;
 
     // Only output if true
-    @XmlAttribute(name = "notYetDeparted")
+    @JsonProperty(value = "notYetDeparted")
     private Boolean basedOnScheduledDeparture;
 
     // Only output if passenger count is valid
-    @XmlAttribute(name = "passengerCount")
+    @JsonProperty(value = "passengerCount")
     private String passengerCount;
 
-    @XmlAttribute(name = "isDeparture")
+    @JsonProperty(value = "isDeparture")
     private String isDepartureDuplicate; // same field different name
 
-    @XmlAttribute(name = "affectedByLayover")
+    @JsonProperty(value = "affectedByLayover")
     private String affectedByLayover;
-
-
-    /**
-     * Need a no-arg constructor for Jersey. Otherwise get really obtuse "MessageBodyWriter not
-     * found for media type=application/json" exception.
-     */
-    public ApiPrediction() {}
 
     public ApiPrediction(IpcPrediction prediction) {
         time = prediction.getPredictionTime() / Time.MS_PER_SEC;

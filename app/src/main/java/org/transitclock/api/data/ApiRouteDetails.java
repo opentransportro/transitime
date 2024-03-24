@@ -1,18 +1,17 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import jakarta.xml.bind.annotation.XmlAttribute;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
-import lombok.Data;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.transitclock.domain.structs.Location;
 import org.transitclock.service.dto.IpcDirection;
 import org.transitclock.service.dto.IpcDirectionsForRoute;
 import org.transitclock.service.dto.IpcRoute;
 import org.transitclock.service.dto.IpcShape;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 
 /**
  * Provides detailed information for a route include stops and shape info.
@@ -20,48 +19,40 @@ import java.util.List;
  * @author SkiBu Smith
  */
 @Data
-@XmlRootElement(name = "route")
 public class ApiRouteDetails {
 
-    @XmlAttribute
+    @JsonProperty
     private String id;
 
-    @XmlAttribute
+    @JsonProperty
     private String name;
 
-    @XmlAttribute
+    @JsonProperty
     private String shortName;
 
-    @XmlAttribute
+    @JsonProperty
     private String longName;
 
-    @XmlAttribute
+    @JsonProperty
     private String color;
 
-    @XmlAttribute
+    @JsonProperty
     private String textColor;
 
-    @XmlAttribute
+    @JsonProperty
     private String type;
 
-    @XmlElement(name = "direction")
+    @JsonProperty
     private List<ApiDirection> directions;
 
-    @XmlElement(name = "shape")
+    @JsonProperty
     private List<ApiShape> shapes;
 
-    @XmlElement
+    @JsonProperty
     private ApiExtent extent;
 
-    @XmlElement
+    @JsonProperty
     private ApiLocation locationOfNextPredictedVehicle;
-
-
-    /**
-     * Need a no-arg constructor for Jersey. Otherwise get really obtuse "MessageBodyWriter not
-     * found for media type=application/json" exception.
-     */
-    protected ApiRouteDetails() {}
 
     public ApiRouteDetails(IpcRoute ipcRoute) {
         this.id = ipcRoute.getId();
@@ -73,12 +64,12 @@ public class ApiRouteDetails {
         this.type = ipcRoute.getType();
 
         IpcDirectionsForRoute stops = ipcRoute.getStops();
-        this.directions = new ArrayList<ApiDirection>();
+        this.directions = new ArrayList<>();
         for (IpcDirection ipcDirection : stops.getDirections()) {
             this.directions.add(new ApiDirection(ipcDirection));
         }
 
-        this.shapes = new ArrayList<ApiShape>();
+        this.shapes = new ArrayList<>();
         for (IpcShape shape : ipcRoute.getShapes()) {
             this.shapes.add(new ApiShape(shape));
         }
@@ -87,6 +78,6 @@ public class ApiRouteDetails {
 
         Location vehicleLoc = ipcRoute.getLocationOfNextPredictedVehicle();
         if (vehicleLoc == null) this.locationOfNextPredictedVehicle = null;
-        else this.locationOfNextPredictedVehicle = new ApiLocation(vehicleLoc);
+        else this.locationOfNextPredictedVehicle = new ApiLocation(vehicleLoc.getLat(), vehicleLoc.getLon());
     }
 }

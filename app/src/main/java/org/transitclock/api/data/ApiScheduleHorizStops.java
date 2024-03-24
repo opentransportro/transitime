@@ -1,14 +1,15 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import jakarta.xml.bind.annotation.XmlAttribute;
-import jakarta.xml.bind.annotation.XmlElement;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.transitclock.service.dto.IpcSchedTime;
 import org.transitclock.service.dto.IpcSchedTrip;
 import org.transitclock.service.dto.IpcSchedule;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 
 /**
  * Represents a schedule for a route for a specific direction and service class. Stops are listed
@@ -16,35 +17,29 @@ import java.util.List;
  *
  * @author SkiBu Smith
  */
+@Data
 public class ApiScheduleHorizStops {
 
-    @XmlAttribute
+    @JsonProperty
     private String serviceId;
 
-    @XmlAttribute
+    @JsonProperty
     private String serviceName;
 
-    @XmlAttribute
+    @JsonProperty
     private String directionId;
 
-    @XmlAttribute
+    @JsonProperty
     private String routeId;
 
-    @XmlAttribute
+    @JsonProperty
     private String routeName;
 
-    @XmlElement(name = "stop")
+    @JsonProperty
     private List<ApiScheduleStop> stops;
 
-    @XmlElement
+    @JsonProperty
     private List<ApiScheduleTimesForTrip> timesForTrip;
-
-
-    /**
-     * Need a no-arg constructor for Jersey. Otherwise get really obtuse "MessageBodyWriter not
-     * found for media type=application/json" exception.
-     */
-    protected ApiScheduleHorizStops() {}
 
     public ApiScheduleHorizStops(IpcSchedule ipcSched) {
         serviceId = ipcSched.getServiceId();
@@ -54,14 +49,14 @@ public class ApiScheduleHorizStops {
         routeName = ipcSched.getRouteName();
 
         // Create the list of stops to be first row of output
-        stops = new ArrayList<ApiScheduleStop>();
+        stops = new ArrayList<>();
         IpcSchedTrip firstIpcSchedTrip = ipcSched.getIpcSchedTrips().get(0);
         for (IpcSchedTime ipcSchedTime : firstIpcSchedTrip.getSchedTimes()) {
             stops.add(new ApiScheduleStop(ipcSchedTime.getStopId(), ipcSchedTime.getStopName()));
         }
 
         // Create the schedule row for each trip
-        timesForTrip = new ArrayList<ApiScheduleTimesForTrip>();
+        timesForTrip = new ArrayList<>();
         for (IpcSchedTrip ipcSchedTrip : ipcSched.getIpcSchedTrips()) {
             timesForTrip.add(new ApiScheduleTimesForTrip(ipcSchedTrip));
         }

@@ -1,8 +1,7 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 /**
@@ -12,25 +11,16 @@ import lombok.Data;
  * @author SkiBu Smith
  */
 @Data
-@XmlRootElement
 public class ApiCacheDetails {
 
+    @JsonProperty
+    private String name;
+
+    @JsonProperty
+    private Integer size;
+
     public ApiCacheDetails(String name, Integer size) {
-        super();
         this.size = size;
         this.name = name;
     }
-
-    @XmlElement(name = "name")
-    private String name;
-
-    @XmlElement(name = "size")
-    private Integer size;
-
-
-    /**
-     * Need a no-arg constructor for Jersey. Otherwise get really obtuse "MessageBodyWriter not
-     * found for media type=application/json" exception.
-     */
-    protected ApiCacheDetails() {}
 }

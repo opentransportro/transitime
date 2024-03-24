@@ -1,15 +1,14 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import jakarta.xml.bind.annotation.XmlAttribute;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
-import lombok.Data;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.transitclock.monitoring.MonitorResult;
 import org.transitclock.service.dto.IpcServerStatus;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 
 /**
  * Server status for an agency server
@@ -17,21 +16,14 @@ import java.util.List;
  * @author SkiBu Smith
  */
 @Data
-@XmlRootElement(name = "serverStatus")
 public class ApiServerStatus {
 
-    @XmlAttribute
+    @JsonProperty
     private String agencyId;
 
-    @XmlElement(name = "serverMonitor")
+    @JsonProperty
     private List<ApiServerMonitor> serverMonitors;
 
-
-    /**
-     * Need a no-arg constructor for Jersey. Otherwise get really obtuse "MessageBodyWriter not
-     * found for media type=application/json" exception.
-     */
-    protected ApiServerStatus() {}
 
     /**
      * Constructors a ApiServerStatus object from agencyId and IpcServerStatus objects.

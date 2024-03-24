@@ -1,7 +1,7 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import jakarta.xml.bind.annotation.XmlAttribute;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 /**
@@ -11,17 +11,12 @@ import lombok.Data;
  */
 @Data
 public class ApiScheduleStop {
-    @XmlAttribute
+    @JsonProperty
     private String stopId;
 
-    @XmlAttribute
+    @JsonProperty
     private String stopName;
 
-    /**
-     * Need a no-arg constructor for Jersey. Otherwise get really obtuse "MessageBodyWriter not
-     * found for media type=application/json" exception.
-     */
-    protected ApiScheduleStop() {}
 
     public ApiScheduleStop(String stopId, String stopName) {
         this.stopId = stopId;

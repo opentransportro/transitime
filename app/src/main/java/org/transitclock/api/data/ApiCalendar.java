@@ -1,9 +1,10 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import jakarta.xml.bind.annotation.XmlAttribute;
-import lombok.Data;
 import org.transitclock.service.dto.IpcCalendar;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 
 /**
  * A GTFS calendar
@@ -13,34 +14,34 @@ import org.transitclock.service.dto.IpcCalendar;
 @Data
 public class ApiCalendar {
 
-    @XmlAttribute
+    @JsonProperty
     private String serviceId;
 
-    @XmlAttribute
+    @JsonProperty
     private boolean monday;
 
-    @XmlAttribute
+    @JsonProperty
     private boolean tuesday;
 
-    @XmlAttribute
+    @JsonProperty
     private boolean wednesday;
 
-    @XmlAttribute
+    @JsonProperty
     private boolean thursday;
 
-    @XmlAttribute
+    @JsonProperty
     private boolean friday;
 
-    @XmlAttribute
+    @JsonProperty
     private boolean saturday;
 
-    @XmlAttribute
+    @JsonProperty
     private boolean sunday;
 
-    @XmlAttribute
+    @JsonProperty
     private String startDate;
 
-    @XmlAttribute
+    @JsonProperty
     private String endDate;
 
     /**

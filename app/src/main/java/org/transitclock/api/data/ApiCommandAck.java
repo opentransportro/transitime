@@ -1,25 +1,16 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import jakarta.xml.bind.annotation.XmlAttribute;
-import jakarta.xml.bind.annotation.XmlRootElement;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
-@XmlRootElement(name = "acknowledgment")
 public class ApiCommandAck {
-    @XmlAttribute
+    @JsonProperty
     private boolean success;
 
-    @XmlAttribute
+    @JsonProperty
     private String message;
-
-
-    /**
-     * Need a no-arg constructor for Jersey. Otherwise get really obtuse "MessageBodyWriter not
-     * found for media type=application/json" exception.
-     */
-    public ApiCommandAck() {}
 
     public ApiCommandAck(boolean success, String message) {
         this.success = success;

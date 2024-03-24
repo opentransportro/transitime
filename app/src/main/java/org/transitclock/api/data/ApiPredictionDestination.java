@@ -1,45 +1,38 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import jakarta.xml.bind.annotation.XmlAttribute;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
-import lombok.Data;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.transitclock.service.dto.IpcPrediction;
 import org.transitclock.service.dto.IpcPredictionsForRouteStopDest;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 
 /**
  * Contains list of predictions for a particular headsign.
  *
  * @author SkiBu Smith
- */@Data
-@XmlRootElement
+ */
+@Data
 public class ApiPredictionDestination {
 
-    @XmlAttribute(name = "dir")
+    @JsonProperty
     private String directionId;
 
-    @XmlAttribute
+    @JsonProperty
     private String headsign;
 
-    @XmlElement(name = "pred")
+    @JsonProperty
     private List<ApiPrediction> predictions;
 
-
-    /**
-     * Need a no-arg constructor for Jersey. Otherwise get really obtuse "MessageBodyWriter not
-     * found for media type=application/json" exception.
-     */
-    protected ApiPredictionDestination() {}
 
     public ApiPredictionDestination(IpcPredictionsForRouteStopDest predictionsForRouteStop) {
         directionId = predictionsForRouteStop.getDirectionId();
         headsign = predictionsForRouteStop.getHeadsign();
 
-        predictions = new ArrayList<ApiPrediction>();
+        predictions = new ArrayList<>();
         for (IpcPrediction prediction : predictionsForRouteStop.getPredictionsForRouteStop()) {
             predictions.add(new ApiPrediction(prediction));
         }

@@ -1,10 +1,13 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import jakarta.xml.bind.annotation.XmlAttribute;
-import lombok.Data;
 import org.transitclock.domain.structs.Extent;
 import org.transitclock.utils.MathUtils;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonFormat.Shape;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 
 /**
  * Describes the extent of a route or agency via a min & max lat & lon.
@@ -14,24 +17,21 @@ import org.transitclock.utils.MathUtils;
 @Data
 public class ApiExtent {
 
-    @XmlAttribute
+    @JsonProperty
+    @JsonFormat(shape = Shape.NUMBER)
     private double minLat;
 
-    @XmlAttribute
+    @JsonProperty
+    @JsonFormat(shape = Shape.NUMBER)
     private double minLon;
 
-    @XmlAttribute
+    @JsonProperty
+    @JsonFormat(shape = Shape.NUMBER)
     private double maxLat;
 
-    @XmlAttribute
+    @JsonProperty
+    @JsonFormat(shape = Shape.NUMBER)
     private double maxLon;
-
-
-    /**
-     * Need a no-arg constructor for Jersey. Otherwise get really obtuse "MessageBodyWriter not
-     * found for media type=application/json" exception.
-     */
-    protected ApiExtent() {}
 
     public ApiExtent(Extent extent) {
         this.minLat = MathUtils.round(extent.getMinLat(), 5);

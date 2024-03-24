@@ -1,14 +1,14 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import jakarta.xml.bind.annotation.XmlAttribute;
-import jakarta.xml.bind.annotation.XmlElement;
-import lombok.Data;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.transitclock.domain.structs.TravelTimesForStopPath;
 import org.transitclock.domain.structs.TravelTimesForTrip;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 
 /**
  * @author SkiBu Smith
@@ -16,27 +16,20 @@ import java.util.List;
 @Data
 public class ApiTravelTimes {
 
-    @XmlAttribute
+    @JsonProperty
     private int configRev;
 
-    @XmlAttribute
+    @JsonProperty
     private int travelTimeRev;
 
-    @XmlAttribute
+    @JsonProperty
     private String tripPatternId;
 
-    @XmlAttribute
+    @JsonProperty
     private String tripCreatedForId;
 
-    @XmlElement(name = "travelTimesForStopPath")
+    @JsonProperty
     private List<ApiTravelTimesForStopPath> travelTimesForStopPaths;
-
-
-    /**
-     * Need a no-arg constructor for Jersey. Otherwise get really obtuse "MessageBodyWriter not
-     * found for media type=application/json" exception.
-     */
-    protected ApiTravelTimes() {}
 
     /**
      * Constructor
@@ -49,7 +42,7 @@ public class ApiTravelTimes {
         this.tripPatternId = travelTimes.getTripPatternId();
         this.tripCreatedForId = travelTimes.getTripCreatedForId();
 
-        this.travelTimesForStopPaths = new ArrayList<ApiTravelTimesForStopPath>();
+        this.travelTimesForStopPaths = new ArrayList<>();
 
         for (int stopPathIndex = 0;
                 stopPathIndex < travelTimes.getTravelTimesForStopPaths().size();

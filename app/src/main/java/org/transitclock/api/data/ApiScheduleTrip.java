@@ -1,9 +1,10 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import jakarta.xml.bind.annotation.XmlAttribute;
-import lombok.Data;
 import org.transitclock.service.dto.IpcSchedTrip;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 
 /**
  * Represents a single trip for an ApiSchedule
@@ -13,24 +14,17 @@ import org.transitclock.service.dto.IpcSchedTrip;
 @Data
 public class ApiScheduleTrip {
 
-    @XmlAttribute
+    @JsonProperty
     private String tripShortName;
 
-    @XmlAttribute
+    @JsonProperty
     private String tripId;
 
-    @XmlAttribute
+    @JsonProperty
     private String tripHeadsign;
 
-    @XmlAttribute
+    @JsonProperty
     private String blockId;
-
-
-    /**
-     * Need a no-arg constructor for Jersey. Otherwise get really obtuse "MessageBodyWriter not
-     * found for media type=application/json" exception.
-     */
-    protected ApiScheduleTrip() {}
 
     public ApiScheduleTrip(IpcSchedTrip ipcScheduleTrip) {
         this.tripShortName = ipcScheduleTrip.getTripShortName();

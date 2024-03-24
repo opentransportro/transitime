@@ -1,31 +1,24 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import jakarta.xml.bind.annotation.XmlAttribute;
-import jakarta.xml.bind.annotation.XmlRootElement;
-import lombok.Data;
 import org.transitclock.service.dto.IpcHistoricalAverage;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 
 /**
  * Describes an historical average
  *
  * @author Sean Og Crudden
- */@Data
-@XmlRootElement(name = "HistoricalAverage")
+ */
+@Data
 public class ApiHistoricalAverage {
 
-    @XmlAttribute
+    @JsonProperty
     private Integer count;
 
-    @XmlAttribute
+    @JsonProperty
     private Double average;
-
-
-    /**
-     * Need a no-arg constructor for Jersey. Otherwise get really obtuse "MessageBodyWriter not
-     * found for media type=application/json" exception.
-     */
-    protected ApiHistoricalAverage() {}
 
     public ApiHistoricalAverage(IpcHistoricalAverage ipcHistoricalAverage) {
         this.count = ipcHistoricalAverage.getCount();

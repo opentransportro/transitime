@@ -1,11 +1,11 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import jakarta.xml.bind.annotation.XmlAttribute;
-import jakarta.xml.bind.annotation.XmlRootElement;
-import lombok.Data;
 import org.transitclock.service.dto.IpcTrip;
 import org.transitclock.utils.Time;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 
 /**
  * A shorter version of ApiTrip for when all the detailed info is not needed.
@@ -13,39 +13,32 @@ import org.transitclock.utils.Time;
  * @author SkiBu Smith
  */
 @Data
-@XmlRootElement(name = "trip")
 public class ApiTripTerse {
 
-    @XmlAttribute
+    @JsonProperty
     private String id;
 
-    @XmlAttribute
+    @JsonProperty
     private String shortName;
 
-    @XmlAttribute
+    @JsonProperty
     private String startTime;
 
-    @XmlAttribute
+    @JsonProperty
     private String endTime;
 
-    @XmlAttribute
+    @JsonProperty
     private String directionId;
 
-    @XmlAttribute
+    @JsonProperty
     private String headsign;
 
-    @XmlAttribute
+    @JsonProperty
     private String routeId;
 
-    @XmlAttribute
+    @JsonProperty
     private String routeShortName;
 
-
-    /**
-     * Need a no-arg constructor for Jersey. Otherwise get really obtuse "MessageBodyWriter not
-     * found for media type=application/json" exception.
-     */
-    protected ApiTripTerse() {}
 
     public ApiTripTerse(IpcTrip ipcTrip) {
         id = ipcTrip.getId();

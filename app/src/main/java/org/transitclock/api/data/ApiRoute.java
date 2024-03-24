@@ -1,9 +1,10 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import jakarta.xml.bind.annotation.XmlAttribute;
-import lombok.Data;
 import org.transitclock.service.dto.IpcRouteSummary;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 
 /**
  * A short description of a route. For when outputting list of routes for agency.
@@ -13,27 +14,21 @@ import org.transitclock.service.dto.IpcRouteSummary;
 @Data
 public class ApiRoute {
 
-    @XmlAttribute
+    @JsonProperty
     private String id;
 
-    @XmlAttribute
+    @JsonProperty
     private String name;
 
-    @XmlAttribute
+    @JsonProperty
     private String shortName;
 
-    @XmlAttribute
+    @JsonProperty
     private String longName;
 
-    @XmlAttribute
+    @JsonProperty
     private String type;
 
-
-    /**
-     * Need a no-arg constructor for Jersey. Otherwise get really obtuse "MessageBodyWriter not
-     * found for media type=application/json" exception.
-     */
-    protected ApiRoute() {}
 
     public ApiRoute(IpcRouteSummary route) {
         this.id = route.getId();

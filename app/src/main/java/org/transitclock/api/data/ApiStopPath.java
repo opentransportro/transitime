@@ -1,15 +1,15 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import jakarta.xml.bind.annotation.XmlAttribute;
-import jakarta.xml.bind.annotation.XmlElement;
-import lombok.Data;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.transitclock.domain.structs.Location;
 import org.transitclock.service.dto.IpcStopPath;
 import org.transitclock.utils.MathUtils;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 
 /**
  * Represents a path from one stop to another.
@@ -19,37 +19,37 @@ import java.util.List;
 @Data
 public class ApiStopPath {
 
-    @XmlAttribute
+    @JsonProperty
     private int configRev;
 
-    @XmlAttribute
+    @JsonProperty
     private String stopPathId;
 
-    @XmlAttribute
+    @JsonProperty
     private String stopId;
 
-    @XmlAttribute
+    @JsonProperty
     private String stopName;
 
-    @XmlAttribute
+    @JsonProperty
     private int gtfsStopSeq;
 
-    @XmlAttribute
+    @JsonProperty
     private Boolean layoverStop;
 
-    @XmlAttribute
+    @JsonProperty
     private Boolean waitStop;
 
-    @XmlAttribute
+    @JsonProperty
     private Boolean scheduleAdherenceStop;
 
-    @XmlAttribute
+    @JsonProperty
     private Integer breakTime;
 
-    @XmlElement
+    @JsonProperty
     private List<ApiLocation> locations;
 
-    @XmlAttribute
+    @JsonProperty
     private Double pathLength;
 
 
@@ -70,7 +70,7 @@ public class ApiStopPath {
         scheduleAdherenceStop = ipcStopPath.isScheduleAdherenceStop() ? true : null;
         breakTime = ipcStopPath.getBreakTime() != 0 ? ipcStopPath.getBreakTime() : null;
 
-        locations = new ArrayList<ApiLocation>();
+        locations = new ArrayList<>();
         for (Location loc : ipcStopPath.getLocations()) {
             locations.add(new ApiLocation(loc.getLat(), loc.getLon()));
         }

@@ -1,20 +1,18 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import jakarta.xml.bind.annotation.XmlAttribute;
-import jakarta.xml.bind.annotation.XmlElement;
-import lombok.Data;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.transitclock.domain.webstructs.WebAgency;
 import org.transitclock.service.dto.IpcActiveBlock;
+import org.transitclock.service.dto.IpcBlock;
 import org.transitclock.service.dto.IpcTrip;
-import org.transitclock.service.dto.IpcVehicle;
 import org.transitclock.utils.Time;
 
-import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 
 /**
  * @author SkiBu Smith
@@ -22,57 +20,44 @@ import java.util.List;
 @Data
 public class ApiActiveBlock implements Serializable {
 
-    @XmlAttribute
+    @JsonProperty
     private String id;
 
-    @XmlAttribute
+    @JsonProperty
     private String serviceId;
 
-    @XmlAttribute
+    @JsonProperty
     private String startTime;
 
-    @XmlAttribute
+    @JsonProperty
     private String endTime;
 
-    @XmlElement(name = "trip")
-    private ApiTripTerse apiTripSummary;
+    @JsonProperty("trip")
+    private ApiTripTerse trip;
 
-    @XmlElement(name = "vehicle")
-    private Collection<ApiVehicleDetails> vehicles;
+    @JsonProperty("vehicles")
+    private List<ApiVehicleDetails> vehicles;
 
 
-    /**
-     * Need a no-arg constructor for Jersey. Otherwise get really obtuse "MessageBodyWriter not
-     * found for media type=application/json" exception.
-     */
-    protected ApiActiveBlock() {}
+    public ApiActiveBlock(IpcActiveBlock ipcActiveBlock, String agencyId) {
+        IpcBlock block = ipcActiveBlock.getBlock();
+        id = block.getId();
+        serviceId = block.getServiceId();
+        startTime = Time.timeOfDayStr(block.getStartTime());
+        endTime = Time.timeOfDayStr(block.getEndTime());
 
-    public ApiActiveBlock(IpcActiveBlock ipcActiveBlock, String agencyId)
-            throws IllegalAccessException, InvocationTargetException {
-        id = ipcActiveBlock.getBlock().getId();
-        serviceId = ipcActiveBlock.getBlock().getServiceId();
-        startTime = Time.timeOfDayStr(ipcActiveBlock.getBlock().getStartTime());
-        endTime = Time.timeOfDayStr(ipcActiveBlock.getBlock().getEndTime());
-
-        List<IpcTrip> trips = ipcActiveBlock.getBlock().getTrips();
+        List<IpcTrip> trips = block.getTrips();
         IpcTrip ipcTrip = trips.get(ipcActiveBlock.getActiveTripIndex());
-        apiTripSummary = new ApiTripTerse(ipcTrip);
+        trip = new ApiTripTerse(ipcTrip);
 
         // Get Time object based on timezone for agency
         WebAgency webAgency = WebAgency.getCachedWebAgency(agencyId);
         Time timeForAgency = webAgency.getAgency().getTime();
 
         vehicles = new ArrayList<>();
-        for (IpcVehicle ipcVehicles : ipcActiveBlock.getVehicles()) {
-            vehicles.add(new ApiVehicleDetails(ipcVehicles, timeForAgency));
-        }
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public ApiTripTerse getApiTripSummary() {
-        return apiTripSummary;
+        vehicles = ipcActiveBlock.getVehicles()
+                .stream()
+                .map(v -> new ApiVehicleDetails(v, timeForAgency))
+                .toList();
     }
 }

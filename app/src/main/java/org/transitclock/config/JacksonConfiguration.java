@@ -3,7 +3,6 @@ package org.transitclock.config;
 import com.fasterxml.jackson.datatype.hibernate6.Hibernate6Module;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.fasterxml.jackson.module.jakarta.xmlbind.JakartaXmlBindAnnotationModule;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.protobuf.ProtobufHttpMessageConverter;
@@ -23,11 +22,6 @@ public class JacksonConfiguration {
     @Bean
     public Jdk8Module jdk8TimeModule() {
         return new Jdk8Module();
-    }
-
-    @Bean
-    public JakartaXmlBindAnnotationModule jakartaXmlBindAnnotationModule() {
-        return new JakartaXmlBindAnnotationModule();
     }
 
     @Bean

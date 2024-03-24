@@ -1,10 +1,12 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
-import jakarta.xml.bind.annotation.XmlType;
-import lombok.Data;
+import java.util.Date;
+
 import org.transitclock.service.dto.IpcVehicleToBlockConfig;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 
 /**
  * Contains the data for a single vehicle.
@@ -15,9 +17,28 @@ import org.transitclock.service.dto.IpcVehicleToBlockConfig;
  * @author SkiBu Smith
  */
 @Data
-@XmlRootElement
-@XmlType(propOrder = {"id", "vehicleId", "blockId", "tripId", "validFrom", "validTo", "assignmentDate"})
-public class ApiVehicleToBlockConfig extends ApiVehicleToBlockConfigAbstract {
+public class ApiVehicleToBlockConfig {
+
+    @JsonProperty
+    protected long id;
+
+    @JsonProperty
+    protected String vehicleId;
+
+    @JsonProperty
+    protected Date validFrom;
+
+    @JsonProperty
+    protected Date validTo;
+
+    @JsonProperty
+    protected Date assignmentDate;
+
+    @JsonProperty
+    protected String tripId;
+
+    @JsonProperty
+    protected String blockId;
 
     /**
      * Need a no-arg constructor for Jersey. Otherwise get really obtuse "MessageBodyWriter not
@@ -27,11 +48,18 @@ public class ApiVehicleToBlockConfig extends ApiVehicleToBlockConfigAbstract {
 
     /**
      * Takes a Vehicle object for client/server communication and constructs a ApiVehicle object for
-     * the API. Sets UiMode to UiMode.NORMAL.
+     * the API.
      *
-     * @param vTBC
+     * @param vehicle
+     * @param uiType If should be labeled as "minor" in output for UI.
      */
     public ApiVehicleToBlockConfig(IpcVehicleToBlockConfig vTBC) {
-        super(vTBC);
+        id = vTBC.getId();
+        vehicleId = vTBC.getVehicleId();
+        tripId = vTBC.getTripId();
+        blockId = vTBC.getBlockId();
+        validFrom = vTBC.getValidFrom();
+        validTo = vTBC.getValidTo();
+        assignmentDate = vTBC.getAssignmentDate();
     }
 }

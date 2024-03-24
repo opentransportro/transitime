@@ -1,12 +1,12 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import jakarta.xml.bind.annotation.XmlAttribute;
-import jakarta.xml.bind.annotation.XmlRootElement;
-import lombok.Data;
+import java.io.Serializable;
+
 import org.transitclock.service.dto.IpcKalmanErrorCacheKey;
 
-import java.io.Serializable;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 
 /**
  * Describes an kalman error key which is used to refer to data elements in the kalman error cache
@@ -14,19 +14,14 @@ import java.io.Serializable;
  * @author Sean Og Crudden
  */
 @Data
-@XmlRootElement(name = "KalmanErrorCacheKey")
 public class ApiKalmanErrorCacheKey implements Serializable {
-
-    @XmlAttribute
+    @JsonProperty
     private String tripId;
 
-    @XmlAttribute
+    @JsonProperty
     private Integer stopPathIndex;
 
-    public ApiKalmanErrorCacheKey() {}
-
     public ApiKalmanErrorCacheKey(IpcKalmanErrorCacheKey key) {
-
         this.tripId = key.getTripId();
         this.stopPathIndex = key.getStopPathIndex();
     }

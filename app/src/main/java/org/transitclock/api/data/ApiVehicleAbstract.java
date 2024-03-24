@@ -1,12 +1,11 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import jakarta.xml.bind.annotation.XmlAttribute;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlTransient;
-import lombok.Data;
 import org.transitclock.api.resources.TransitimeApi.UiMode;
 import org.transitclock.service.dto.IpcVehicle;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 
 /**
  * This class exists so that can have multiple subclasses that inherent from each other while still
@@ -22,44 +21,37 @@ import org.transitclock.service.dto.IpcVehicle;
  * @author SkiBu Smith
  */
 @Data
-@XmlTransient
 public abstract class ApiVehicleAbstract {
 
-    @XmlAttribute
+    @JsonProperty
     protected String id;
 
-    @XmlElement
+    @JsonProperty
     protected ApiGpsLocation loc;
 
-    @XmlAttribute
+    @JsonProperty
     protected String routeId;
 
-    @XmlAttribute
+    @JsonProperty
     protected String routeShortName;
 
-    @XmlAttribute
+    @JsonProperty
     protected String headsign;
 
-    @XmlAttribute(name = "direction")
+    @JsonProperty("direction")
     protected String directionId;
 
-    @XmlAttribute
+    @JsonProperty
     protected String vehicleType;
 
     // Whether NORMAL, SECONDARY, or MINOR. Specifies how vehicle should
     // be drawn in the UI
-    @XmlAttribute
+    @JsonProperty
     protected String uiType;
 
-    @XmlAttribute(name = "scheduleBased")
+    @JsonProperty("scheduleBased")
     protected Boolean schedBasedPreds;
 
-
-    /**
-     * Need a no-arg constructor for Jersey. Otherwise get really obtuse "MessageBodyWriter not
-     * found for media type=application/json" exception.
-     */
-    protected ApiVehicleAbstract() {}
 
     /**
      * Takes a Vehicle object for client/server communication and constructs a ApiVehicle object for
@@ -84,8 +76,11 @@ public abstract class ApiVehicleAbstract {
         // Determine UI type. Usually will be displaying vehicles
         // as NORMAL. To simplify API use null for this case.
         this.uiType = null;
-        if (uiType == UiMode.SECONDARY) this.uiType = "secondary";
-        else if (uiType == UiMode.MINOR) this.uiType = "minor";
+        if (uiType == UiMode.SECONDARY) {
+            this.uiType = "secondary";
+        } else if (uiType == UiMode.MINOR) {
+            this.uiType = "minor";
+        }
 
         this.schedBasedPreds = vehicle.isForSchedBasedPred() ? true : null;
     }

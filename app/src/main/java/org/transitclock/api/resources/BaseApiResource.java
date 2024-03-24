@@ -7,7 +7,7 @@ import org.transitclock.api.utils.StandardParameters;
 import org.transitclock.domain.ApiKeyManager;
 import org.transitclock.service.contract.*;
 
-abstract class BaseApiResource {
+public abstract class BaseApiResource {
     @Autowired
     protected ApplicationProperties properties;
 

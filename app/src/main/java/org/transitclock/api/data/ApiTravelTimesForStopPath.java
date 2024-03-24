@@ -1,15 +1,15 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import jakarta.xml.bind.annotation.XmlAttribute;
-import jakarta.xml.bind.annotation.XmlElement;
-import lombok.Data;
-import org.transitclock.domain.structs.TravelTimesForStopPath;
-import org.transitclock.domain.structs.HowSet;
-import org.transitclock.utils.MathUtils;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import org.transitclock.domain.structs.HowSet;
+import org.transitclock.domain.structs.TravelTimesForStopPath;
+import org.transitclock.utils.MathUtils;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 
 /**
  * Represents travel times for a stop path
@@ -19,33 +19,27 @@ import java.util.List;
 @Data
 public class ApiTravelTimesForStopPath {
 
-    @XmlAttribute
+    @JsonProperty
     private int stopPathIndex;
 
-    @XmlAttribute
+    @JsonProperty
     private String stopPathId;
 
-    @XmlAttribute
+    @JsonProperty
     private Double travelTimeSegmentLength;
 
-    @XmlAttribute
+    @JsonProperty
     private int stopTimeMsec;
 
-    @XmlAttribute
+    @JsonProperty
     private int totalTravelTimeMsec;
 
-    @XmlAttribute
+    @JsonProperty
     private HowSet howSet;
 
-    @XmlElement(name = "travelTimesForSegment")
+    @JsonProperty
     private List<ApiTravelTimeForSegment> travelTimesForSegments;
 
-
-    /**
-     * Need a no-arg constructor for Jersey. Otherwise get really obtuse "MessageBodyWriter not
-     * found for media type=application/json" exception.
-     */
-    protected ApiTravelTimesForStopPath() {}
 
     /**
      * Constructor
@@ -61,7 +55,7 @@ public class ApiTravelTimesForStopPath {
         this.totalTravelTimeMsec = travelTimesForStopPath.getStopPathTravelTimeMsec();
         this.howSet = travelTimesForStopPath.getHowSet();
 
-        this.travelTimesForSegments = new ArrayList<ApiTravelTimeForSegment>();
+        this.travelTimesForSegments = new ArrayList<>();
         for (int segmentIndex = 0;
                 segmentIndex < travelTimesForStopPath.getNumberTravelTimeSegments();
                 ++segmentIndex) {

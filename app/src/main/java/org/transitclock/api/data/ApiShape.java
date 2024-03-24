@@ -1,15 +1,15 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import jakarta.xml.bind.annotation.XmlAttribute;
-import jakarta.xml.bind.annotation.XmlElement;
-import lombok.Data;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.transitclock.domain.structs.Location;
 import org.transitclock.service.dto.IpcShape;
 import org.transitclock.utils.Geo;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 
 /**
  * A portion of a shape that defines a trip pattern. A List of ApiLocation objects.
@@ -19,41 +19,35 @@ import java.util.List;
 @Data
 public class ApiShape {
 
-    @XmlAttribute(name = "tripPattern")
+    @JsonProperty("tripPattern")
     private String tripPatternId;
 
-    @XmlAttribute
+    @JsonProperty
     private String headsign;
 
     // For indicating that in UI should deemphasize this shape because it
     // is not on a main trip pattern.
-    @XmlAttribute(name = "minor")
+    @JsonProperty
     private Boolean minor;
 
-    @XmlElement(name = "loc")
+    @JsonProperty("locations")
     private List<ApiLocation> locations;
 
-    @XmlAttribute
+    @JsonProperty
     private double length;
 
-    @XmlAttribute
+    @JsonProperty
     private String directionId;
 
     // To define what kind of pattern is: circular (loop, one ending), linear (normal line with two
     // different endings)
-    @XmlAttribute
+    @JsonProperty
     private String patternType = "linear";
 
     private static final int LOOP_ENDING_MAX_DISTANCE = 200;
     private static final String LOOP_PATTERN = "circular";
     private static final String LINAR_PATTER = "linear";
 
-
-    /**
-     * Need a no-arg constructor for Jersey. Otherwise get really obtuse "MessageBodyWriter not
-     * found for media type=application/json" exception.
-     */
-    protected ApiShape() {}
 
     public ApiShape(IpcShape shape) {
         this.tripPatternId = shape.getTripPatternId();

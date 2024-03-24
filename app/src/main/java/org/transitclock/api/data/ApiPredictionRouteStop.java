@@ -1,58 +1,50 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import jakarta.xml.bind.annotation.XmlAttribute;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
-import lombok.Data;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.transitclock.service.dto.IpcPredictionsForRouteStopDest;
 import org.transitclock.utils.MathUtils;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 
 /**
  * List of ApiPredictionDestination objects along with supporting information. Used to output
  * predictions for a particular stop where the predictions are grouped by headsign.
  *
  * @author SkiBu Smith
- */@Data
-@XmlRootElement
+ */
+@Data
 public class ApiPredictionRouteStop {
 
-    @XmlAttribute
+    @JsonProperty
     private String routeShortName;
 
-    @XmlAttribute
+    @JsonProperty
     private String routeName;
 
-    @XmlAttribute
+    @JsonProperty
     private String routeId;
 
-    @XmlAttribute
+    @JsonProperty
     private String stopId;
 
-    @XmlAttribute
+    @JsonProperty
     private String stopName;
 
-    @XmlAttribute
+    @JsonProperty
     private Integer stopCode;
 
     // Using String so that it will not be output if not showing predictions
     // by location because then this value will be null. Also, can this way
     // format it to desired number of digits of precision.
-    @XmlAttribute
+    @JsonProperty
     private Double distanceToStop;
 
-    @XmlElement(name = "dest")
+    @JsonProperty
     private List<ApiPredictionDestination> destinations;
-
-
-    /**
-     * Need a no-arg constructor for Jersey. Otherwise get really obtuse "MessageBodyWriter not
-     * found for media type=application/json" exception.
-     */
-    protected ApiPredictionRouteStop() {}
 
     public ApiPredictionRouteStop(List<IpcPredictionsForRouteStopDest> predictionsForRouteStop) {
         if (predictionsForRouteStop == null || predictionsForRouteStop.isEmpty()) return;
@@ -68,7 +60,7 @@ public class ApiPredictionRouteStop {
                 ? null
                 : MathUtils.round(routeStopInfo.getDistanceToStop(), 1);
 
-        destinations = new ArrayList<ApiPredictionDestination>();
+        destinations = new ArrayList<>();
         for (IpcPredictionsForRouteStopDest destinationInfo : predictionsForRouteStop) {
             destinations.add(new ApiPredictionDestination(destinationInfo));
         }

@@ -1,12 +1,12 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import jakarta.xml.bind.annotation.XmlAttribute;
-import jakarta.xml.bind.annotation.XmlElement;
-import lombok.Data;
+import java.util.TimeZone;
+
 import org.transitclock.domain.structs.Agency;
 
-import java.util.TimeZone;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 
 /**
  * Contains API info for an agency.
@@ -16,47 +16,40 @@ import java.util.TimeZone;
 @Data
 public class ApiAgency {
 
-    @XmlAttribute
+    @JsonProperty
     private String agencyId;
 
     // Note that this is the GTFS agency_id, which is often different
     // from the Transitime agencyId.
-    @XmlAttribute
+    @JsonProperty
     private String id;
 
-    @XmlAttribute
+    @JsonProperty
     private String name;
 
-    @XmlAttribute
+    @JsonProperty
     private String url;
 
-    @XmlAttribute
+    @JsonProperty
     private String timezone;
 
-    @XmlAttribute
+    @JsonProperty
     private int timezoneOffsetMinutes;
 
-    @XmlAttribute
+    @JsonProperty
     private String lang;
 
-    @XmlAttribute
+    @JsonProperty
     private String phone;
 
-    @XmlAttribute
+    @JsonProperty
     private String fareUrl;
 
-    @XmlElement
+    @JsonProperty
     private ApiExtent extent;
 
-    @XmlAttribute
+    @JsonProperty
     private int configRev;
-
-
-    /**
-     * Need a no-arg constructor for Jersey. Otherwise get really obtuse "MessageBodyWriter not
-     * found for media type=application/json" exception.
-     */
-    protected ApiAgency() {}
 
     public ApiAgency(String agencyId, Agency agency) {
         this.agencyId = agencyId;

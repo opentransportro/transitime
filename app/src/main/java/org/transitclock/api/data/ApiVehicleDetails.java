@@ -1,18 +1,23 @@
 /* (C)2023 */
 package org.transitclock.api.data;
 
-import jakarta.xml.bind.annotation.XmlAttribute;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
-import jakarta.xml.bind.annotation.XmlType;
-import lombok.Data;
+import java.lang.reflect.InvocationTargetException;
+import java.util.Objects;
+import java.util.Optional;
+
 import org.transitclock.api.resources.TransitimeApi.UiMode;
+import org.transitclock.core.TemporalDifference;
 import org.transitclock.core.avl.assigner.BlockAssignmentMethod;
 import org.transitclock.service.dto.IpcVehicle;
 import org.transitclock.service.dto.IpcVehicleComplete;
 import org.transitclock.utils.Time;
 
-import java.lang.reflect.InvocationTargetException;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 /**
  * Contains data for a single vehicle with additional info that is meant more for management than
@@ -20,114 +25,80 @@ import java.lang.reflect.InvocationTargetException;
  *
  * @author SkiBu Smith
  */
-@Data
-@XmlRootElement
-@XmlType(
-        propOrder = {
-            "id",
-            "vehicleName",
-            "routeId",
-            "routeShortName",
-            "routeName",
-            "headsign",
-            "directionId",
-            "vehicleType",
-            "uiType",
-            "schedBasedPreds",
-            "loc",
-            "scheduleAdherence",
-            "scheduleAdherenceStr",
-            "blockId",
-            "blockAssignmentMethod",
-            "tripId",
-            "tripPatternId",
-            "isDelayed",
-            "isLayover",
-            "layoverDepTime",
-            "layoverDepTimeStr",
-            "nextStopId",
-            "nextStopName",
-            "driverId",
-            "holdingTime"
-        })
+@Getter @Setter @ToString
+@EqualsAndHashCode(callSuper = true)
 public class ApiVehicleDetails extends ApiVehicleAbstract {
 
-    @XmlAttribute
+    @JsonProperty
     private String routeName;
 
-    @XmlAttribute
+    @JsonProperty
     private String vehicleName;
 
     // Note: needs to be Integer instead of an int because it can be null
     // (for vehicles that are not predictable)
-    @XmlAttribute(name = "schAdh")
+    @JsonProperty("schAdh")
     private Integer scheduleAdherence;
 
-    @XmlAttribute(name = "schAdhStr")
+    @JsonProperty("schAdhStr")
     private String scheduleAdherenceStr;
 
-    @XmlAttribute(name = "block")
+    @JsonProperty("block")
     private String blockId;
 
-    @XmlAttribute(name = "blockMthd")
+    @JsonProperty("blockMthd")
     private BlockAssignmentMethod blockAssignmentMethod;
 
-    @XmlAttribute(name = "trip")
+    @JsonProperty("trip")
     private String tripId;
 
-    @XmlAttribute(name = "tripPattern")
+    @JsonProperty("tripPattern")
     private String tripPatternId;
 
-    @XmlAttribute(name = "delayed")
+    @JsonProperty("delayed")
     private Boolean isDelayed;
 
-    @XmlAttribute(name = "layover")
+    @JsonProperty("layover")
     private Boolean isLayover;
 
-    @XmlAttribute
+    @JsonProperty
     private Long layoverDepTime;
 
-    @XmlAttribute
+    @JsonProperty
     private String layoverDepTimeStr;
 
-    @XmlAttribute
+    @JsonProperty
     private String nextStopId;
 
-    @XmlAttribute
+    @JsonProperty
     private String nextStopName;
 
-    @XmlElement(name = "driver")
+    @JsonProperty("driver")
     private String driverId;
 
-    @XmlAttribute
+    @JsonProperty
     private Boolean isScheduledService;
 
-    @XmlAttribute
+    @JsonProperty
     private Long freqStartTime;
 
-    @XmlAttribute
+    @JsonProperty
     private Boolean isAtStop;
 
-    @XmlElement
+    @JsonProperty
     private ApiHoldingTime holdingTime;
 
-    @XmlAttribute
+    @JsonProperty
     private double distanceAlongTrip;
 
-    @XmlAttribute
+    @JsonProperty
     private String licensePlate;
 
-    @XmlAttribute
+    @JsonProperty
     private boolean isCanceled;
 
-    @XmlAttribute
+    @JsonProperty
     private double headway;
-
-    /**
-     * Need a no-arg constructor for Jersey. Otherwise get really obtuse "MessageBodyWriter not
-     * found for media type=application/json" exception.
-     */
-    protected ApiVehicleDetails() {}
 
     /**
      * Takes a Vehicle object for client/server communication and constructs a ApiVehicle object for
@@ -140,18 +111,17 @@ public class ApiVehicleDetails extends ApiVehicleAbstract {
      * @throws InvocationTargetException
      * @throws IllegalAccessException
      */
-    public ApiVehicleDetails(IpcVehicle vehicle, Time timeForAgency, UiMode... uiType)
-             {
+    public ApiVehicleDetails(IpcVehicle vehicle, Time timeForAgency, UiMode... uiType) {
         super(vehicle, uiType.length > 0 ? uiType[0] : UiMode.NORMAL);
 
         routeName = vehicle.getRouteName();
         vehicleName = vehicle.getVehicleName();
-        scheduleAdherence = vehicle.getRealTimeSchedAdh() != null
-                ? vehicle.getRealTimeSchedAdh().getTemporalDifference()
-                : null;
-        scheduleAdherenceStr = vehicle.getRealTimeSchedAdh() != null
-                ? vehicle.getRealTimeSchedAdh().toString()
-                : null;
+        scheduleAdherence = Optional.ofNullable(vehicle.getRealTimeSchedAdh())
+                .map(TemporalDifference::getTemporalDifference)
+                .orElse(null);
+        scheduleAdherenceStr = Optional.ofNullable(vehicle.getRealTimeSchedAdh())
+                .map(Objects::toString)
+                .orElse(null);
         blockId = vehicle.getBlockId();
         blockAssignmentMethod = vehicle.getBlockAssignmentMethod();
         tripId = vehicle.getTripId();
@@ -174,16 +144,17 @@ public class ApiVehicleDetails extends ApiVehicleAbstract {
             isCanceled = ((IpcVehicleComplete) vehicle).isCanceled();
             headway = ((IpcVehicleComplete) vehicle).getHeadway();
         }
-        isScheduledService = vehicle.getFreqStartTime() > 0 ? false : true;
-        if (!isScheduledService) freqStartTime = vehicle.getFreqStartTime();
-        else freqStartTime = null;
+        isScheduledService = vehicle.getFreqStartTime() <= 0;
+        if (!isScheduledService) {
+            freqStartTime = vehicle.getFreqStartTime();
+        } else {
+            freqStartTime = null;
+        }
 
         this.isAtStop = vehicle.isAtStop();
 
-        if (vehicle.getHoldingTime() != null) {
-            this.holdingTime = new ApiHoldingTime(vehicle.getHoldingTime());
-        } else {
-            this.holdingTime = null;
-        }
+        this.holdingTime = Optional.ofNullable(vehicle.getHoldingTime())
+                .map(ApiHoldingTime::new)
+                .orElse(null);
     }
 }
