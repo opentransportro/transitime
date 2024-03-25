@@ -21,7 +21,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <java.version>17</java.version>
+        <java.version>22</java.version>
         <querydsl.version>5.0.0</querydsl.version>
     </properties>
 
