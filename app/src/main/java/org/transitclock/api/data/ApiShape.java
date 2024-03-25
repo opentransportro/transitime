@@ -19,6 +19,10 @@ import lombok.Data;
 @Data
 public class ApiShape {
 
+    private static final int LOOP_ENDING_MAX_DISTANCE = 200;
+    private static final String LOOP_PATTERN = "circular";
+    private static final String LINAR_PATTER = "linear";
+
     @JsonProperty("tripPattern")
     private String tripPatternId;
 
@@ -30,8 +34,8 @@ public class ApiShape {
     @JsonProperty
     private Boolean minor;
 
-    @JsonProperty("locations")
-    private List<ApiLocation> locations;
+    @JsonProperty("points")
+    private List<ApiLocation> points;
 
     @JsonProperty
     private double length;
@@ -44,10 +48,6 @@ public class ApiShape {
     @JsonProperty
     private String patternType = "linear";
 
-    private static final int LOOP_ENDING_MAX_DISTANCE = 200;
-    private static final String LOOP_PATTERN = "circular";
-    private static final String LINAR_PATTER = "linear";
-
 
     public ApiShape(IpcShape shape) {
         this.tripPatternId = shape.getTripPatternId();
@@ -57,9 +57,9 @@ public class ApiShape {
         // If true then set to null so that this attribute won't then be
         // output as XML/JSON, therefore making output a bit more compact.
         this.minor = shape.isUiShape() ? null : true;
-        this.locations = new ArrayList<ApiLocation>();
+        this.points = new ArrayList<ApiLocation>();
         for (Location loc : shape.getLocations()) {
-            this.locations.add(new ApiLocation(loc.getLat(), loc.getLon()));
+            this.points.add(new ApiLocation(loc.getLat(), loc.getLon()));
         }
         int size = shape.getLocations().size();
         if (size > 0
