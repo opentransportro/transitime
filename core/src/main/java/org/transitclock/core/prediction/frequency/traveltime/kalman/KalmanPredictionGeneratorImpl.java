@@ -103,7 +103,7 @@ public class KalmanPredictionGeneratorImpl extends HistoricalAveragePredictionGe
                         indices.getStopPathIndex(),
                         nearestDay,
                         time,
-                        predictionProperties.getData().getKalman().getMaxdaystoseach(),
+                        predictionProperties.getData().getKalman().getMaxdaystosearch(),
                         predictionProperties.getData().getKalman().getMaxdays());
 
                 if (lastDaysTimes != null && !lastDaysTimes.isEmpty()) {

@@ -83,7 +83,7 @@ public class KalmanPredictionGeneratorImpl extends PredictionGeneratorDefaultImp
                         indices.getStopPathIndex(),
                         nearestDay,
                         currentVehicleState.getTrip().getStartTime(),
-                        predictionProperties.getData().getKalman().getMaxdaystoseach(),
+                        predictionProperties.getData().getKalman().getMaxdaystosearch(),
                         predictionProperties.getData().getKalman().getMaxdays());
 
                 if (lastDaysTimes != null) {
@@ -141,7 +141,7 @@ public class KalmanPredictionGeneratorImpl extends PredictionGeneratorDefaultImp
                         double percentageDifferecence =
                                 Math.abs(100 * ((predictionTime - alternatePrediction) / (double) alternatePrediction));
 
-                        if (((percentageDifferecence * alternatePrediction) / 100) > predictionProperties.getData().getKalman().getTresholdForDifferenceEventLog()) {
+                        if (((percentageDifferecence * alternatePrediction) / 100) > predictionProperties.getData().getKalman().getThresholdForDifferenceEventLog()) {
                             if (percentageDifferecence > predictionProperties.getData().getKalman().getPercentagePredictionMethodDifferencene()) {
                                 String description = "Kalman predicts : " + predictionTime + " Super predicts : " + alternatePrediction;
 

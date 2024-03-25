@@ -727,7 +727,7 @@ public class ApplicationProperties {
 
                 // config param: transitclock.prediction.data.kalman.maxdaystoseach
                 // Max number of days to look back for data. This will also be effected by how old the data in the cache is.
-                private Integer maxdaystoseach = 30;
+                private Integer maxdaystosearch = 30;
 
                 // config param: transitclock.prediction.data.kalman.initialerrorvalue
                 // Initial Kalman error value to use to start filter.
@@ -744,7 +744,7 @@ public class ApplicationProperties {
 
                 // config param: transitclock.prediction.data.kalman.tresholdForDifferenceEventLog
                 // This is the threshold in milliseconds that the difference has to be over before it will consider the percentage difference.
-                private Integer tresholdForDifferenceEventLog = 60000;
+                private Integer thresholdForDifferenceEventLog = 60000;
 
                 // config param: transitclock.prediction.kalman.useaverage
                 // Will use average travel time as opposed to last historical vehicle in Kalman prediction calculation.
