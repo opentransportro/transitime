@@ -27,7 +27,7 @@ import java.util.List;
  */
 @Slf4j
 @Component
-@ConditionalOnProperty(name = "transitclock.avl.gtfsRealtimeFeedURI")
+@ConditionalOnProperty(name = "transitclock.avl.gtfs-realtime-feed-uri")
 public class GtfsRealtimeModule extends PollUrlAvlModule {
     public GtfsRealtimeModule(ApplicationProperties properties, AvlReportProcessor avlReportProcessor) {
         super(properties, avlReportProcessor);

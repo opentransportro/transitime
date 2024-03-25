@@ -162,7 +162,6 @@ public abstract class PollUrlAvlModule extends AvlModule {
      * Does all of the work for the class. Runs forever and reads in AVL data from feed and
      * processes it.
      */
-    @Override
     @Scheduled(fixedRateString = "${transitclock.avl.feedTimeoutInMSecs:15000}")
     public void run() {
         try {
@@ -177,15 +176,5 @@ public abstract class PollUrlAvlModule extends AvlModule {
         } catch (Exception e) {
             logger.error("Error accessing AVL feed using URL={}.", getSources(), e);
         }
-    }
-
-    @Override
-    public int executionPeriod() {
-        return AvlConfig.getSecondsBetweenAvlFeedPolling() * Time.MS_PER_SEC;
-    }
-
-    @Override
-    public ExecutionType getExecutionType() {
-        return ExecutionType.FIXED_RATE;
     }
 }

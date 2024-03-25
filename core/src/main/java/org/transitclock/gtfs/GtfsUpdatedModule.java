@@ -33,7 +33,7 @@ import java.util.Date;
 @Slf4j
 @Component
 @ConditionalOnProperty(name = "transitclock.gtfs.auto-update.enabled", havingValue = "true")
-public class GtfsUpdatedModule extends Module {
+public class GtfsUpdatedModule implements Module {
     private final ApplicationProperties.Gtfs gtfsConfig;
 
     public GtfsUpdatedModule(ApplicationProperties properties) {
@@ -75,10 +75,6 @@ public class GtfsUpdatedModule extends Module {
         }
     }
 
-    /* (non-Javadoc)
-     * @see java.lang.Runnable#run()
-     */
-    @Override
     @Scheduled(fixedRateString = "${transitclock.gtfs.auto-update.intervalMsec}")
     public void run() {
         ApplicationProperties.Gtfs.AutoUpdate autoUpdateConfig = gtfsConfig.getAutoUpdate();

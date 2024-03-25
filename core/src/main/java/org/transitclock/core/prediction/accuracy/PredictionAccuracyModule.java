@@ -1,12 +1,17 @@
 /* (C)2023 */
 package org.transitclock.core.prediction.accuracy;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.transitclock.Module;
 import org.transitclock.config.data.PredictionAccuracyConfig;
 import org.transitclock.core.dataCache.PredictionDataCache;
@@ -18,10 +23,13 @@ import org.transitclock.domain.structs.TripPattern;
 import org.transitclock.gtfs.DbConfig;
 import org.transitclock.service.dto.IpcPrediction;
 import org.transitclock.service.dto.IpcPredictionsForRouteStopDest;
-import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.MapKey;
 import org.transitclock.utils.SystemTime;
 import org.transitclock.utils.Time;
+
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Reads internal predictions every transitclock.predAccuracy.pollingRateMsec and stores the
@@ -31,7 +39,7 @@ import org.transitclock.utils.Time;
  * @author SkiBu Smith
  */
 @Slf4j
-public class PredictionAccuracyModule extends Module {
+public class PredictionAccuracyModule implements Module {
     // The map that contains all of the predictions to be used for prediction
     // accuracy analysis. Each value is a list of predictions because can have
     // more than a single prediction stored in memory for a vehicle/stop.
@@ -67,9 +75,7 @@ public class PredictionAccuracyModule extends Module {
     /* (non-Javadoc)
      * @see java.lang.Runnable#run()
      */
-    @Override
     public void run() {
-        IntervalTimer timer = new IntervalTimer();
         try {
             getAndProcessData(getRoutesAndStops(), SystemTime.getDate());
 
@@ -356,18 +362,18 @@ public class PredictionAccuracyModule extends Module {
         dataDbLogger.add(predAccuracy);
     }
 
-    @Override
-    public ExecutionType getExecutionType() {
-        return ExecutionType.FIXED_RATE;
-    }
-
-    @Override
-    public int executionPeriod() {
-        return PredictionAccuracyConfig.timeBetweenPollingPredictionsMsec.getValue();
-    }
-
-    @Override
-    public int initialExecutionDelay() {
-        return PredictionAccuracyConfig.timeBetweenPollingPredictionsMsec.getValue();
-    }
+//    @Override
+//    public ExecutionType getExecutionType() {
+//        return ExecutionType.FIXED_RATE;
+//    }
+//
+//    @Override
+//    public int executionPeriod() {
+//        return PredictionAccuracyConfig.timeBetweenPollingPredictionsMsec.getValue();
+//    }
+//
+//    @Override
+//    public int initialExecutionDelay() {
+//        return PredictionAccuracyConfig.timeBetweenPollingPredictionsMsec.getValue();
+//    }
 }

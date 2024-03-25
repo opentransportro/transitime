@@ -44,7 +44,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @ConditionalOnProperty("transitclock.schedBasedPreds.pollingRateMsec")
-public class SchedBasedPredsModule extends Module {
+public class SchedBasedPredsModule implements Module {
     private final VehicleDataCache vehicleDataCache;
     private final AvlProcessor avlProcessor;
     private final BlockInfoProvider blockInfoProvider;
@@ -120,10 +120,7 @@ public class SchedBasedPredsModule extends Module {
             }
         }
     }
-    /* (non-Javadoc)
-     * @see java.lang.Runnable#run()
-     */
-    @Override
+
     @Scheduled(fixedRateString = "${transitclock.schedBasedPreds.pollingRateMsec}")
     public void run() {
         createSchedBasedPredsAsNecessary();

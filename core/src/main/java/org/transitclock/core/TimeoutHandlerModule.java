@@ -34,7 +34,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Slf4j
 @Component
-public class TimeoutHandlerModule extends Module {
+public class TimeoutHandlerModule implements Module {
     private final VehicleDataCache vehicleDataCache;
     private final VehicleStatusManager vehicleStatusManager;
     private final AvlProcessor avlProcessor;
@@ -349,7 +349,6 @@ public class TimeoutHandlerModule extends Module {
         }
     }
 
-    @Override
     @Scheduled(fixedRateString = "${transitclock.timeout.pollingRateSecs:30}",
             timeUnit = TimeUnit.SECONDS,
             initialDelayString = "${transitclock.timeout.pollingRateSecs:30}")

@@ -16,7 +16,7 @@ import org.transitclock.domain.structs.AvlReport;
  * @author SkiBu Smith
  */
 @Slf4j
-abstract class AvlModule extends Module {
+abstract class AvlModule implements Module {
     protected final AvlReportProcessor avlReportProcessor;
     protected final ApplicationProperties.Avl avlProperties;
 

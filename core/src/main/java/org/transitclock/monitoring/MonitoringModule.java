@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Slf4j
 @Component
-public class MonitoringModule extends Module {
+public class MonitoringModule implements Module {
     private final AgencyMonitor agencyMonitor;
 
     public MonitoringModule(AgencyMonitor agencyMonitor) {
@@ -35,7 +35,6 @@ public class MonitoringModule extends Module {
     /* (non-Javadoc)
      * @see java.lang.Runnable#run()
      */
-    @Override
     @Scheduled(fixedRateString = "${transitclock.monitoring.secondsBetweenMonitorinPolling:120}", timeUnit = TimeUnit.SECONDS)
     public void run() {
         // Wait appropriate amount of time till poll again
@@ -44,15 +43,5 @@ public class MonitoringModule extends Module {
         if (resultStr != null) {
             logger.error("MonitoringModule detected problem. {}", resultStr);
         }
-    }
-
-    @Override
-    public int executionPeriod() {
-        return MonitoringConfig.secondsBetweenMonitorinPolling.getValue() * Time.MS_PER_SEC;
-    }
-
-    @Override
-    public ExecutionType getExecutionType() {
-        return ExecutionType.FIXED_RATE;
     }
 }
