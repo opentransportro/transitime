@@ -51,3 +51,4 @@ build/
 .vscode/
 /.jpb/jpb-settings.xml
 config/**/*
+**/application-local.yml
