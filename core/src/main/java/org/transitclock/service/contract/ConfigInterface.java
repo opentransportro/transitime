@@ -52,7 +52,7 @@ public interface ConfigInterface {
     /**
      * Obtains ordered list of route details
      *
-     * @param routeIdOrShortName
+     * @param routeIdsOrShortNames
      * @return
      */
     List<IpcRoute> getRoutes(List<String> routeIdsOrShortNames);
@@ -181,5 +181,5 @@ public interface ConfigInterface {
      *
      * @return Map of service IDs with belong block IDs
      */
-    Map<String, List<String>> getServiceIdsWithBlockIds ();
+    Map<String, List<String>> getServiceIdsWithBlockIds();
 }
