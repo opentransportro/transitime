@@ -13,10 +13,10 @@ import java.util.Map;
  *
  * @author SkiBu Smith
  */
-@XmlRootElement(name= "allServiceIds")
+@XmlRootElement
 public class ApiServiceIds {
 
-    @XmlElement
+    @XmlElement(name= "serviceIds")
     private List<ApiServiceId> apiServiceIds;
 
     /********************** Member Functions **************************/

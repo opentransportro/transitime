@@ -1232,10 +1232,9 @@ public class TransitimeApi {
             tags = {"base data", "trip", "block"})
     public Response getBlockIds(
             @BeanParam StandardParameters stdParameters,
-            @Parameter(description = "If Id is set, returns only data for that serviceId or " +
-                    "when set \"all\", returns whole data for all serviceIds", required = false)
-                    @QueryParam(value = "serviceId")
-                    String serviceId)
+            @Parameter(description = "If set, returns only the data for that serviceId.", required = false)
+            @QueryParam(value = "serviceId")
+            String serviceId)
             throws WebApplicationException {
         // Make sure request is valid
         stdParameters.validate();
@@ -1243,13 +1242,8 @@ public class TransitimeApi {
         try {
             // Get Vehicle data from server
             ConfigInterface inter = stdParameters.getConfigInterface();
-            // Get service IDs with block Ids
-            if (serviceId != null && serviceId.equals("all")){
-                ApiServiceIds serviceIdsWithBlockIds = new ApiServiceIds(inter.getServiceIdsWithBlockIds());
-                return stdParameters.createResponse(serviceIdsWithBlockIds);
-            }
-
             List<String> ids = inter.getBlockIds(serviceId);
+
             ApiIds apiIds = new ApiIds(ids);
             return stdParameters.createResponse(apiIds);
         } catch (Exception e) {
@@ -1982,16 +1976,24 @@ public class TransitimeApi {
     @GET
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Operation(
-            summary = "Retrives all service id.",
-            description = "Retrives all service id.",
+            summary = "Retrives all service id. Optionally, retrives all service id with blockIds",
+            description = "Retrives all service id. Optionally, retrives all service id with blockIds",
             tags = {"base data", "serviceId"})
-    public Response getServiceIds(@BeanParam StandardParameters stdParameters) throws WebApplicationException {
+    public Response getServiceIds(@BeanParam StandardParameters stdParameters,
+                                  @Parameter (description = "If set \"blocks\", returns assigned blockIds to all serviceIds", required = false)
+                                  @QueryParam(value = "withBlockIds")
+                                  String withBlockIds) throws WebApplicationException {
         // Make sure request is valid
         stdParameters.validate();
 
         try {
             // Get Vehicle data from server
             ConfigInterface inter = stdParameters.getConfigInterface();
+            // Get service IDs with block Ids
+            if (withBlockIds != null && withBlockIds.equals("blocks")){
+                ApiServiceIds serviceIdsWithBlockIds = new ApiServiceIds(inter.getServiceIdsWithBlockIds());
+                return stdParameters.createResponse(serviceIdsWithBlockIds);
+            }
             List<String> ids = inter.getServiceIds();
 
             ApiIds apiIds = new ApiIds(ids);
