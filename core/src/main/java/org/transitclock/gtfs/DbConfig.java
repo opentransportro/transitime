@@ -14,8 +14,6 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.transitclock.Core;
 import org.transitclock.core.ServiceUtils;
 import org.transitclock.domain.hibernate.HibernateUtils;
@@ -31,10 +29,7 @@ import org.transitclock.domain.structs.Stop;
 import org.transitclock.domain.structs.Transfer;
 import org.transitclock.domain.structs.Trip;
 import org.transitclock.domain.structs.TripPattern;
-import org.transitclock.utils.IntervalTimer;
-import org.transitclock.utils.MapKey;
-import org.transitclock.utils.SystemTime;
-import org.transitclock.utils.Time;
+import org.transitclock.utils.*;
 
 /**
  * Reads all the configuration data from the database. The data is based on GTFS but is heavily
@@ -684,6 +679,23 @@ public class DbConfig {
                     : 0);
         }
         return blockCount;
+    }
+
+    /**
+     * Returns sorted lists of block IDs what belong to all service IDs
+     *
+     * @return Map of all service IDs with belong to block IDs
+     */
+    public Map<String, List<String>> getBlockIdsForAllServiceIds() {
+        Map<String, List<String>> serviceIdsWithBlocks = new HashMap<>();
+
+        blocksByServiceMap.forEach((key, element) -> {
+            List<String> ids = new ArrayList<>();
+            element.forEach((innerKey, block) -> ids.add(block.getId()));
+            StringUtils.sortIdsNumerically(ids);
+            serviceIdsWithBlocks.put(key, ids);
+        });
+        return serviceIdsWithBlocks;
     }
 
     /**

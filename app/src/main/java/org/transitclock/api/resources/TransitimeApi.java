@@ -26,33 +26,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
-import org.transitclock.api.data.ApiActiveBlocks;
-import org.transitclock.api.data.ApiActiveBlocksRoutes;
-import org.transitclock.api.data.ApiAdherenceSummary;
-import org.transitclock.api.data.ApiAgencies;
-import org.transitclock.api.data.ApiAgency;
-import org.transitclock.api.data.ApiBlock;
-import org.transitclock.api.data.ApiBlocks;
-import org.transitclock.api.data.ApiBlocksTerse;
-import org.transitclock.api.data.ApiCalendars;
-import org.transitclock.api.data.ApiCurrentServerDate;
-import org.transitclock.api.data.ApiDirections;
-import org.transitclock.api.data.ApiExportsData;
-import org.transitclock.api.data.ApiIds;
-import org.transitclock.api.data.ApiPredictions;
-import org.transitclock.api.data.ApiRmiServerStatus;
-import org.transitclock.api.data.ApiRoutes;
-import org.transitclock.api.data.ApiRoutesDetails;
-import org.transitclock.api.data.ApiSchedulesHorizStops;
-import org.transitclock.api.data.ApiSchedulesVertStops;
-import org.transitclock.api.data.ApiServerStatus;
-import org.transitclock.api.data.ApiTrip;
-import org.transitclock.api.data.ApiTripPatterns;
-import org.transitclock.api.data.ApiTripWithTravelTimes;
-import org.transitclock.api.data.ApiVehicleConfigs;
-import org.transitclock.api.data.ApiVehicleToBlockConfigs;
-import org.transitclock.api.data.ApiVehicles;
-import org.transitclock.api.data.ApiVehiclesDetails;
+import org.transitclock.api.data.*;
 import org.transitclock.api.utils.PredsByLoc;
 import org.transitclock.api.utils.StandardParameters;
 import org.transitclock.api.utils.WebUtils;
@@ -1254,13 +1228,13 @@ public class TransitimeApi {
     @Operation(
             summary = "Retrives a list of all blockId for the specified service ID",
             description = "Retrives a list of all blockId for the specified service ID."
-                    + "Every trip is associated with a block.",
+                    + " Every trip is associated with a block.",
             tags = {"base data", "trip", "block"})
     public Response getBlockIds(
             @BeanParam StandardParameters stdParameters,
-            @Parameter(description = "if set, returns only the data for that serviceId.", required = false)
-                    @QueryParam(value = "serviceId")
-                    String serviceId)
+            @Parameter(description = "If set, returns only the data for that serviceId.", required = false)
+            @QueryParam(value = "serviceId")
+            String serviceId)
             throws WebApplicationException {
         // Make sure request is valid
         stdParameters.validate();
@@ -2002,16 +1976,24 @@ public class TransitimeApi {
     @GET
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Operation(
-            summary = "Retrives all service id.",
-            description = "Retrives all service id.",
+            summary = "Retrives all service id. Optionally, retrives all service id with blockIds",
+            description = "Retrives all service id. Optionally, retrives all service id with blockIds",
             tags = {"base data", "serviceId"})
-    public Response getServiceIds(@BeanParam StandardParameters stdParameters) throws WebApplicationException {
+    public Response getServiceIds(@BeanParam StandardParameters stdParameters,
+                                  @Parameter (description = "If set \"blocks\", returns assigned blockIds to all serviceIds", required = false)
+                                  @QueryParam(value = "withBlockIds")
+                                  String withBlockIds) throws WebApplicationException {
         // Make sure request is valid
         stdParameters.validate();
 
         try {
             // Get Vehicle data from server
             ConfigInterface inter = stdParameters.getConfigInterface();
+            // Get service IDs with block Ids
+            if (withBlockIds != null && withBlockIds.equals("blocks")){
+                ApiServiceIds serviceIdsWithBlockIds = new ApiServiceIds(inter.getServiceIdsWithBlockIds());
+                return stdParameters.createResponse(serviceIdsWithBlockIds);
+            }
             List<String> ids = inter.getServiceIds();
 
             ApiIds apiIds = new ApiIds(ids);
