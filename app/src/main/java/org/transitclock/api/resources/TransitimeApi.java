@@ -1980,9 +1980,9 @@ public class TransitimeApi {
             description = "Retrives all service id. Optionally, retrives all service id with blockIds",
             tags = {"base data", "serviceId"})
     public Response getServiceIds(@BeanParam StandardParameters stdParameters,
-                                  @Parameter (description = "If set \"blocks\", returns assigned blockIds to all serviceIds", required = false)
+                                  @Parameter (description = "If set 'true', returns serviceIds with assigned blockIds", required = false)
                                   @QueryParam(value = "withBlockIds")
-                                  String withBlockIds) throws WebApplicationException {
+                                  boolean withBlockIds) throws WebApplicationException {
         // Make sure request is valid
         stdParameters.validate();
 
@@ -1990,7 +1990,7 @@ public class TransitimeApi {
             // Get Vehicle data from server
             ConfigInterface inter = stdParameters.getConfigInterface();
             // Get service IDs with block Ids
-            if (withBlockIds != null && withBlockIds.equals("blocks")){
+            if (withBlockIds) {
                 ApiServiceIds serviceIdsWithBlockIds = new ApiServiceIds(inter.getServiceIdsWithBlockIds());
                 return stdParameters.createResponse(serviceIdsWithBlockIds);
             }
