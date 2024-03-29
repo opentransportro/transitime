@@ -169,7 +169,8 @@ public class TransitimeApi {
 
     @Operation(
             summary = "Returns data for vehicles assignment for specific block in current day",
-            description = "Returns data for vehicles assignment for specific block in current day")
+            description = "Returns data for vehicles assignment for specific block in current day",
+            tags = {"vehicle", "block"})
     @Path("/command/vehiclesToBlock")
     @GET
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
