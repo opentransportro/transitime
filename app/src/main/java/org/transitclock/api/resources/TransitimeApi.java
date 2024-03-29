@@ -188,16 +188,16 @@ public class TransitimeApi {
             VehiclesInterface inter = stdParameters.getVehiclesInterface();
 
             if(isActual){
-                var actualVTBC = inter.getActualVehicleToBlockConfigs();
-                ApiVehicleToBlockConfigs apiVTBC = new ApiVehicleToBlockConfigs(actualVTBC);
+                var actualConfigs = inter.getActualVehicleToBlockConfigs();
+                ApiVehicleToBlockConfigs vehiclesToBlocks = new ApiVehicleToBlockConfigs(actualConfigs);
                 // return actual ApiVehicleToBlockConfigs response
-                return stdParameters.createResponse(apiVTBC);
+                return stdParameters.createResponse(vehiclesToBlocks);
             }
-            var result = inter.getVehicleToBlockConfigByBlockId(blockId);
+            var configs = inter.getVehicleToBlockConfigByBlockId(blockId);
 
-            ApiVehicleToBlockConfigs apiVTBC = new ApiVehicleToBlockConfigs(result);
+            ApiVehicleToBlockConfigs vehiclesToBlocks = new ApiVehicleToBlockConfigs(configs);
             // return ApiVehicleToBlockConfigs response
-            return stdParameters.createResponse(apiVTBC);
+            return stdParameters.createResponse(vehiclesToBlocks);
         } catch (Exception e) {
             // If problem getting data then return a Bad Request
             throw WebUtils.badRequestException(e);

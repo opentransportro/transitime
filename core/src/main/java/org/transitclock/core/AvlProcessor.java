@@ -1386,12 +1386,12 @@ public class AvlProcessor {
         }
         try (Session session = HibernateUtils.getSession()) {
             String blockId = null;
-            for (VehicleToBlockConfig vTBC :
+            for (VehicleToBlockConfig vehicleToBlock :
                     VehicleToBlockConfig.getVehicleToBlockConfigsByVehicleId(session, avlReport.getVehicleId())) {
                 Date d = new Date();
 
-                if (d.after(vTBC.getValidFrom()) && d.before(vTBC.getValidTo())) {
-                    blockId = vTBC.getBlockId();
+                if (d.after(vehicleToBlock.getValidFrom()) && d.before(vehicleToBlock.getValidTo())) {
+                    blockId = vehicleToBlock.getBlockId();
                     break;
                 }
             }

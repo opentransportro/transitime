@@ -389,9 +389,9 @@ public class VehiclesServiceImpl implements VehiclesInterface {
     public List<IpcVehicleToBlockConfig> getActualVehicleToBlockConfigs() {
         List<IpcVehicleToBlockConfig> result = new ArrayList<>();
         try (Session session = HibernateUtils.getSession()) {
-            for (VehicleToBlockConfig vTBC : VehicleToBlockConfig
+            for (VehicleToBlockConfig vehicleToBlockConfig : VehicleToBlockConfig
                     .getActualVehicleToBlockConfigs(session)) {
-                result.add(new IpcVehicleToBlockConfig(vTBC));
+                result.add(new IpcVehicleToBlockConfig(vehicleToBlockConfig));
             }
         } catch (Exception ex) {
             logger.error("Something happened while fetching the data: ", ex);
@@ -404,12 +404,12 @@ public class VehiclesServiceImpl implements VehiclesInterface {
         List<IpcVehicleToBlockConfig> result = new ArrayList<>();
         try (Session session = HibernateUtils.getSession()) {
             if (blockId != null) {
-                for (VehicleToBlockConfig vTBC : VehicleToBlockConfig.getVehicleToBlockConfigsByBlockId(session, blockId)) {
-                    result.add(new IpcVehicleToBlockConfig(vTBC));
+                for (VehicleToBlockConfig vehicleToBlockConfig : VehicleToBlockConfig.getVehicleToBlockConfigsByBlockId(session, blockId)) {
+                    result.add(new IpcVehicleToBlockConfig(vehicleToBlockConfig));
                 }
             } else {
-                for (VehicleToBlockConfig vTBC : VehicleToBlockConfig.getVehicleToBlockConfigs(session)) {
-                    result.add(new IpcVehicleToBlockConfig(vTBC));
+                for (VehicleToBlockConfig vehicleToBlockConfig : VehicleToBlockConfig.getVehicleToBlockConfigs(session)) {
+                    result.add(new IpcVehicleToBlockConfig(vehicleToBlockConfig));
                 }
             }
         } catch (Exception ex) {
@@ -422,8 +422,8 @@ public class VehiclesServiceImpl implements VehiclesInterface {
     public List<IpcVehicleToBlockConfig> getVehicleToBlockConfigByVehicleId(String vehicleId) {
         List<IpcVehicleToBlockConfig> result = new ArrayList<>();
         try (Session session = HibernateUtils.getSession()) {
-            for (var vTBC : VehicleToBlockConfig.getVehicleToBlockConfigsByVehicleId(session, vehicleId)) {
-                result.add(new IpcVehicleToBlockConfig(vTBC));
+            for (var vehicleToBlockConfig : VehicleToBlockConfig.getVehicleToBlockConfigsByVehicleId(session, vehicleId)) {
+                result.add(new IpcVehicleToBlockConfig(vehicleToBlockConfig));
             }
         } catch (Exception ex) {
             logger.error("Something happened while fetching the data.", ex);
