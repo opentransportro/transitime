@@ -17,7 +17,7 @@ import java.util.List;
 @XmlRootElement
 public class ApiVehicleToBlockConfigs {
 
-    @XmlElement(name = "vehiclesToBlock")
+    @XmlElement(name = "vehicleToBlock")
     private List<ApiVehicleToBlockConfig> vehiclesData;
 
     /********************** Member Functions **************************/
