@@ -50,7 +50,7 @@ public abstract class ApiVehicleToBlockConfigAbstract {
     protected ApiVehicleToBlockConfigAbstract() {}
 
     /**
-     * Takes a Vehicle object for client/server communication and constructs a ApiVehicle object for
+     * Takes a VehicleToBlockConfig object for client/server communication and constructs a ApiVehicleToBlockConfig object for
      * the API.
      *
      * @param vehicle

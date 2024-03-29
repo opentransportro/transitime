@@ -50,7 +50,6 @@ import org.transitclock.service.dto.IpcTrip;
 import org.transitclock.service.dto.IpcTripPattern;
 import org.transitclock.service.dto.IpcVehicle;
 import org.transitclock.service.dto.IpcVehicleConfig;
-import org.transitclock.service.dto.IpcVehicleToBlockConfig;
 import org.transitclock.service.contract.ConfigInterface;
 import org.transitclock.service.contract.PredictionsInterface;
 import org.transitclock.service.contract.PredictionsInterface.RouteStop;
@@ -176,21 +175,28 @@ public class TransitimeApi {
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public Response getVehiclesToBlock(
             @BeanParam StandardParameters stdParameters,
-            @Parameter(description = "Block id") @QueryParam(value = "blockId") String blockId)
+            @Parameter(description = "If set 'true', returns only the data with actual time windows.", required = false)
+            @QueryParam(value = "actual") boolean isActual,
+            @Parameter(description = "If set, returns only the data for that block Id.", required = false)
+            @QueryParam(value = "blockId") String blockId )
             throws WebApplicationException {
 
         stdParameters.validate();
-        Collection<IpcVehicleToBlockConfig> result = null;
 
         try {
             // Get Vehicle data from server
             VehiclesInterface inter = stdParameters.getVehiclesInterface();
 
-            result = inter.getVehicleToBlockConfig(blockId);
+            if(isActual){
+                var actualVTBC = inter.getActualVehicleToBlockConfigs();
+                ApiVehicleToBlockConfigs apiVTBC = new ApiVehicleToBlockConfigs(actualVTBC);
+                // return actual ApiVehicleToBlockConfigs response
+                return stdParameters.createResponse(apiVTBC);
+            }
+            var result = inter.getVehicleToBlockConfigByBlockId(blockId);
 
             ApiVehicleToBlockConfigs apiVTBC = new ApiVehicleToBlockConfigs(result);
-
-            // return ApiVehicles response
+            // return ApiVehicleToBlockConfigs response
             return stdParameters.createResponse(apiVTBC);
         } catch (Exception e) {
             // If problem getting data then return a Bad Request
