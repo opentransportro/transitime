@@ -7,19 +7,9 @@ import org.hibernate.Session;
 import org.transitclock.core.BlocksInfo;
 import org.transitclock.core.dataCache.VehicleDataCache;
 import org.transitclock.domain.hibernate.HibernateUtils;
-import org.transitclock.domain.structs.Block;
-import org.transitclock.domain.structs.QRoute;
-import org.transitclock.domain.structs.Trip;
-import org.transitclock.domain.structs.VehicleConfig;
-import org.transitclock.domain.structs.VehicleToBlockConfig;
+import org.transitclock.domain.structs.*;
 import org.transitclock.service.contract.VehiclesInterface;
-import org.transitclock.service.dto.IpcActiveBlock;
-import org.transitclock.service.dto.IpcBlock;
-import org.transitclock.service.dto.IpcVehicle;
-import org.transitclock.service.dto.IpcVehicleComplete;
-import org.transitclock.service.dto.IpcVehicleConfig;
-import org.transitclock.service.dto.IpcVehicleGtfsRealtime;
-import org.transitclock.service.dto.IpcVehicleToBlockConfig;
+import org.transitclock.service.dto.*;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -396,29 +386,47 @@ public class VehiclesServiceImpl implements VehiclesInterface {
     }
 
     @Override
-    public Collection<IpcVehicleToBlockConfig> getVehicleToBlockConfig(String blockId) {
+    public List<IpcVehicleToBlockConfig> getActualVehicleToBlockConfigs() {
         List<IpcVehicleToBlockConfig> result = new ArrayList<>();
-        try (Session session = HibernateUtils.getSession()){
-            for (VehicleToBlockConfig vTBC : VehicleToBlockConfig.getVehicleToBlockConfigsByBlockId(session, blockId)) {
-                result.add(new IpcVehicleToBlockConfig(vTBC));
+        try (Session session = HibernateUtils.getSession()) {
+            for (VehicleToBlockConfig vehicleToBlockConfig : VehicleToBlockConfig
+                    .getActualVehicleToBlockConfigs(session)) {
+                result.add(new IpcVehicleToBlockConfig(vehicleToBlockConfig));
             }
         } catch (Exception ex) {
-            logger.error("Something happened while fetching the VehicleToBlockConfig.", ex);
+            logger.error("Something happened while fetching the data: ", ex);
         }
         return result;
     }
 
     @Override
-    public Collection<IpcVehicleToBlockConfig> getVehicleToBlockConfigByVehicleId(String vehicleId) {
+    public List<IpcVehicleToBlockConfig> getVehicleToBlockConfigByBlockId(String blockId) {
         List<IpcVehicleToBlockConfig> result = new ArrayList<>();
-        Session session = HibernateUtils.getSession();
-        try {
-            for (var vTBC : VehicleToBlockConfig.getVehicleToBlockConfigsByVehicleId(session, vehicleId)) {
-                result.add(new IpcVehicleToBlockConfig(vTBC));
+        try (Session session = HibernateUtils.getSession()) {
+            if (blockId != null) {
+                for (VehicleToBlockConfig vehicleToBlockConfig : VehicleToBlockConfig.getVehicleToBlockConfigsByBlockId(session, blockId)) {
+                    result.add(new IpcVehicleToBlockConfig(vehicleToBlockConfig));
+                }
+            } else {
+                for (VehicleToBlockConfig vehicleToBlockConfig : VehicleToBlockConfig.getVehicleToBlockConfigs(session)) {
+                    result.add(new IpcVehicleToBlockConfig(vehicleToBlockConfig));
+                }
             }
-            session.close();
         } catch (Exception ex) {
-            session.close();
+            logger.error("Something happened while fetching the data.", ex);
+        }
+        return result;
+    }
+
+    @Override
+    public List<IpcVehicleToBlockConfig> getVehicleToBlockConfigByVehicleId(String vehicleId) {
+        List<IpcVehicleToBlockConfig> result = new ArrayList<>();
+        try (Session session = HibernateUtils.getSession()) {
+            for (var vehicleToBlockConfig : VehicleToBlockConfig.getVehicleToBlockConfigsByVehicleId(session, vehicleId)) {
+                result.add(new IpcVehicleToBlockConfig(vehicleToBlockConfig));
+            }
+        } catch (Exception ex) {
+            logger.error("Something happened while fetching the data.", ex);
         }
         return result;
     }
