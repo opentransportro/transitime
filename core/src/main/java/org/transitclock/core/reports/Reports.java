@@ -1,11 +1,12 @@
 /* (C)2023 */
 package org.transitclock.core.reports;
 
-import java.text.ParseException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.transitclock.domain.webstructs.WebAgency;
 import org.transitclock.utils.Time;
+
+import java.text.ParseException;
 
 public class Reports {
 
@@ -251,7 +252,8 @@ public class Reports {
                 // + "	 abs(((ad.time / 1000) - (ad.scheduled_time / 1000))) AS
                 // difference_in_seconds,  \n"
                 + "	 s.id AS stop_id, \n"
-                + "	 ad.stop_order AS stop_order \n"
+                + "	 ad.stop_order AS stop_order, \n"
+                + "	 ad.vehicle_id AS v_id \n"  //
                 + " 	FROM arrivals_departures ad, stops s  \n"
                 + "WHERE "
                 // To get stop name
@@ -276,7 +278,8 @@ public class Reports {
                 // + "	 ((ad.time / 1000) - (ad.scheduled_time / 1000)) AS
                 // difference_in_seconds,  \n"
                 + "	 s.id AS stop_id, \n"
-                + "	 ad.stop_order AS stop_order \n"
+                + "	 ad.stop_order AS stop_order, \n"
+                + "	 ad.vehicle_id AS v_id \n"  //
                 + "	FROM arrivals_departures ad, Stops s  \n"
                 + "WHERE "
                 // To get stop name
@@ -294,18 +297,18 @@ public class Reports {
                 + " \n"
                 + "	 ORDER BY direction_id, ad.stop_order, s.name \n"
                 + "), \n"
-                + "trips_late_query_v2 AS ( 		SELECT"
-                + " array_to_string(array_agg(trips_late::text || ' (' ||"
-                + " difference_in_seconds::text || ')' order by trips_late::text), '; ') AS"
-                + " trips_late,   \n"
+                + "trips_late_query_v2 AS ( SELECT \n"
+                + " array_to_string(array_agg('trip: ' || trips_late::text || ' (' ||"
+                + " difference_in_seconds::text || '), vehicle: ' || v_id::text order by trips_late::text), '; ')"
+                + " AS trips_late,   \n"
                 + "		 stop_id,  \n"
                 + "		 stop_order  \n"
                 + "	 	FROM trips_late_query_with_time \n"
                 + "		 GROUP BY stop_id, stop_order \n"
                 + "	), \n"
-                + "	trips_early_query_v2 AS (  \n"
-                + "		SELECT array_to_string(array_agg(trips_early::text || ' (' ||"
-                + " difference_in_seconds::text || ')' order by trips_early::text), '; ')"
+                + "	trips_early_query_v2 AS ( SELECT \n"
+                + "	array_to_string(array_agg('trip: ' || trips_early::text || ' (' ||"
+                + " difference_in_seconds::text || '), vehicle: ' || v_id::text order by trips_early::text), '; ')"
                 + " AS trips_early,  \n"
                 + "		 stop_id,  \n"
                 + "		 stop_order  \n"
