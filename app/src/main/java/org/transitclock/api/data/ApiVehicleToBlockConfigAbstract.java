@@ -50,19 +50,18 @@ public abstract class ApiVehicleToBlockConfigAbstract {
     protected ApiVehicleToBlockConfigAbstract() {}
 
     /**
-     * Takes a Vehicle object for client/server communication and constructs a ApiVehicle object for
+     * Takes a VehicleToBlockConfig object for client/server communication and constructs a ApiVehicleToBlockConfig object for
      * the API.
      *
-     * @param vehicle
-     * @param uiType If should be labeled as "minor" in output for UI.
+     * @param vehicleToBlockConfig
      */
-    public ApiVehicleToBlockConfigAbstract(IpcVehicleToBlockConfig vTBC) {
-        id = vTBC.getId();
-        vehicleId = vTBC.getVehicleId();
-        tripId = vTBC.getTripId();
-        blockId = vTBC.getBlockId();
-        validFrom = vTBC.getValidFrom();
-        validTo = vTBC.getValidTo();
-        assignmentDate = vTBC.getAssignmentDate();
+    public ApiVehicleToBlockConfigAbstract(IpcVehicleToBlockConfig vehicleToBlockConfig) {
+        id = vehicleToBlockConfig.getId();
+        vehicleId = vehicleToBlockConfig.getVehicleId();
+        tripId = vehicleToBlockConfig.getTripId();
+        blockId = vehicleToBlockConfig.getBlockId();
+        validFrom = vehicleToBlockConfig.getValidFrom();
+        validTo = vehicleToBlockConfig.getValidTo();
+        assignmentDate = vehicleToBlockConfig.getAssignmentDate();
     }
 }

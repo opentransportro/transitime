@@ -27,9 +27,9 @@ public class ApiVehicleToBlockConfig extends ApiVehicleToBlockConfigAbstract {
      * Takes a Vehicle object for client/server communication and constructs a ApiVehicle object for
      * the API. Sets UiMode to UiMode.NORMAL.
      *
-     * @param vTBC
+     * @param vehicleToBlockConfig
      */
-    public ApiVehicleToBlockConfig(IpcVehicleToBlockConfig vTBC) {
-        super(vTBC);
+    public ApiVehicleToBlockConfig(IpcVehicleToBlockConfig vehicleToBlockConfig) {
+        super(vehicleToBlockConfig);
     }
 }

@@ -9,6 +9,7 @@ import org.transitclock.service.dto.IpcVehicleGtfsRealtime;
 import org.transitclock.service.dto.IpcVehicleToBlockConfig;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Defines the RMI interface used for obtaining vehicle information.
@@ -174,7 +175,14 @@ public interface VehiclesInterface {
      */
     int getNumActiveBlocks(Collection<String> routeIds, int allowableBeforeTimeSecs);
 
-    Collection<IpcVehicleToBlockConfig> getVehicleToBlockConfig(String blockId);
+    /**
+     * Gets from the server the List of VehicleToBlocksConfig that are currently active.
+     *
+     * @return Collection of VehicleToBlocksConfig that are active.
+     */
+    List<IpcVehicleToBlockConfig> getActualVehicleToBlockConfigs();
 
-    Collection<IpcVehicleToBlockConfig> getVehicleToBlockConfigByVehicleId(String vehicleId);
+    List<IpcVehicleToBlockConfig> getVehicleToBlockConfigByBlockId(String blockId);
+
+    List<IpcVehicleToBlockConfig> getVehicleToBlockConfigByVehicleId(String vehicleId);
 }

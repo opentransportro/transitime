@@ -2,16 +2,16 @@
 package org.transitclock.domain.structs;
 
 import jakarta.persistence.*;
-import java.io.Serializable;
-import java.util.Date;
-import java.util.List;
-
-import lombok.*;
+import lombok.Data;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.annotations.DynamicUpdate;
 import org.transitclock.Core;
+
+import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
 
 /**
  * For storing static configuration for vehicle in block.
@@ -64,7 +64,7 @@ public class VehicleToBlockConfig implements Serializable {
 
     /**
      * @param vehicleId vehicle ID * @param blockId block ID * @param tripId trip ID * @param
-     *     assignmentDate time * * @param validFrom time * * @param validTo time
+     *                  assignmentDate time * * @param validFrom time * * @param validTo time
      */
     public static VehicleToBlockConfig create(
             String vehicleId, String blockId, String tripId, Date assignmentDate, Date validFrom, Date validTo) {
@@ -78,7 +78,9 @@ public class VehicleToBlockConfig implements Serializable {
         return vehicleToBlockConfig;
     }
 
-    /** Needed because Hibernate requires no-arg constructor */
+    /**
+     * Needed because Hibernate requires no-arg constructor
+     */
     @SuppressWarnings("unused")
     protected VehicleToBlockConfig() {
         vehicleId = null;
@@ -126,6 +128,12 @@ public class VehicleToBlockConfig implements Serializable {
             transaction.rollback();
             throw t;
         }
+    }
+
+    public static List<VehicleToBlockConfig> getActualVehicleToBlockConfigs(Session session) throws HibernateException {
+        return session
+                .createQuery("FROM VehicleToBlockConfig WHERE validTo > now() ORDER BY assignmentDate DESC", VehicleToBlockConfig.class)
+                .list();
     }
 
     public static List<VehicleToBlockConfig> getVehicleToBlockConfigsByBlockId(Session session, String blockId) throws HibernateException {

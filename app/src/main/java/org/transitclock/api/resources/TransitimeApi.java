@@ -26,33 +26,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
-import org.transitclock.api.data.ApiActiveBlocks;
-import org.transitclock.api.data.ApiActiveBlocksRoutes;
-import org.transitclock.api.data.ApiAdherenceSummary;
-import org.transitclock.api.data.ApiAgencies;
-import org.transitclock.api.data.ApiAgency;
-import org.transitclock.api.data.ApiBlock;
-import org.transitclock.api.data.ApiBlocks;
-import org.transitclock.api.data.ApiBlocksTerse;
-import org.transitclock.api.data.ApiCalendars;
-import org.transitclock.api.data.ApiCurrentServerDate;
-import org.transitclock.api.data.ApiDirections;
-import org.transitclock.api.data.ApiExportsData;
-import org.transitclock.api.data.ApiIds;
-import org.transitclock.api.data.ApiPredictions;
-import org.transitclock.api.data.ApiRmiServerStatus;
-import org.transitclock.api.data.ApiRoutes;
-import org.transitclock.api.data.ApiRoutesDetails;
-import org.transitclock.api.data.ApiSchedulesHorizStops;
-import org.transitclock.api.data.ApiSchedulesVertStops;
-import org.transitclock.api.data.ApiServerStatus;
-import org.transitclock.api.data.ApiTrip;
-import org.transitclock.api.data.ApiTripPatterns;
-import org.transitclock.api.data.ApiTripWithTravelTimes;
-import org.transitclock.api.data.ApiVehicleConfigs;
-import org.transitclock.api.data.ApiVehicleToBlockConfigs;
-import org.transitclock.api.data.ApiVehicles;
-import org.transitclock.api.data.ApiVehiclesDetails;
+import org.transitclock.api.data.*;
 import org.transitclock.api.utils.PredsByLoc;
 import org.transitclock.api.utils.StandardParameters;
 import org.transitclock.api.utils.WebUtils;
@@ -76,7 +50,6 @@ import org.transitclock.service.dto.IpcTrip;
 import org.transitclock.service.dto.IpcTripPattern;
 import org.transitclock.service.dto.IpcVehicle;
 import org.transitclock.service.dto.IpcVehicleConfig;
-import org.transitclock.service.dto.IpcVehicleToBlockConfig;
 import org.transitclock.service.contract.ConfigInterface;
 import org.transitclock.service.contract.PredictionsInterface;
 import org.transitclock.service.contract.PredictionsInterface.RouteStop;
@@ -196,28 +169,38 @@ public class TransitimeApi {
 
     @Operation(
             summary = "Returns data for vehicles assignment for specific block in current day",
-            description = "Returns data for vehicles assignment for specific block in current day")
+            description = "Returns data for vehicles assignment for specific block in current day",
+            tags = {"vehicle", "block"})
     @Path("/command/vehiclesToBlock")
     @GET
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public Response getVehiclesToBlock(
             @BeanParam StandardParameters stdParameters,
-            @Parameter(description = "Block id") @QueryParam(value = "blockId") String blockId)
+            @Parameter(description = "If set 'true', returns only the data with actual time windows.", required = false)
+            @QueryParam(value = "actual")
+            boolean isActual,
+            @Parameter(description = "If set, returns only the data for that block Id.", required = false)
+            @QueryParam(value = "blockId")
+            String blockId)
             throws WebApplicationException {
 
         stdParameters.validate();
-        Collection<IpcVehicleToBlockConfig> result = null;
 
         try {
             // Get Vehicle data from server
             VehiclesInterface inter = stdParameters.getVehiclesInterface();
 
-            result = inter.getVehicleToBlockConfig(blockId);
+            if(isActual){
+                var actualConfigs = inter.getActualVehicleToBlockConfigs();
+                ApiVehicleToBlockConfigs vehiclesToBlocks = new ApiVehicleToBlockConfigs(actualConfigs);
+                // return actual ApiVehicleToBlockConfigs response
+                return stdParameters.createResponse(vehiclesToBlocks);
+            }
+            var configs = inter.getVehicleToBlockConfigByBlockId(blockId);
 
-            ApiVehicleToBlockConfigs apiVTBC = new ApiVehicleToBlockConfigs(result);
-
-            // return ApiVehicles response
-            return stdParameters.createResponse(apiVTBC);
+            ApiVehicleToBlockConfigs vehiclesToBlocks = new ApiVehicleToBlockConfigs(configs);
+            // return ApiVehicleToBlockConfigs response
+            return stdParameters.createResponse(vehiclesToBlocks);
         } catch (Exception e) {
             // If problem getting data then return a Bad Request
             throw WebUtils.badRequestException(e);
@@ -1254,13 +1237,13 @@ public class TransitimeApi {
     @Operation(
             summary = "Retrives a list of all blockId for the specified service ID",
             description = "Retrives a list of all blockId for the specified service ID."
-                    + "Every trip is associated with a block.",
+                    + " Every trip is associated with a block.",
             tags = {"base data", "trip", "block"})
     public Response getBlockIds(
             @BeanParam StandardParameters stdParameters,
-            @Parameter(description = "if set, returns only the data for that serviceId.", required = false)
-                    @QueryParam(value = "serviceId")
-                    String serviceId)
+            @Parameter(description = "If set, returns only the data for that serviceId.", required = false)
+            @QueryParam(value = "serviceId")
+            String serviceId)
             throws WebApplicationException {
         // Make sure request is valid
         stdParameters.validate();
@@ -2002,16 +1985,24 @@ public class TransitimeApi {
     @GET
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Operation(
-            summary = "Retrives all service id.",
-            description = "Retrives all service id.",
+            summary = "Retrives all service id. Optionally, retrives all service id with blockIds",
+            description = "Retrives all service id. Optionally, retrives all service id with blockIds",
             tags = {"base data", "serviceId"})
-    public Response getServiceIds(@BeanParam StandardParameters stdParameters) throws WebApplicationException {
+    public Response getServiceIds(@BeanParam StandardParameters stdParameters,
+                                  @Parameter (description = "If set 'true', returns serviceIds with assigned blockIds", required = false)
+                                  @QueryParam(value = "withBlockIds")
+                                  boolean withBlockIds) throws WebApplicationException {
         // Make sure request is valid
         stdParameters.validate();
 
         try {
             // Get Vehicle data from server
             ConfigInterface inter = stdParameters.getConfigInterface();
+            // Get service IDs with block Ids
+            if (withBlockIds) {
+                ApiServiceIds serviceIdsWithBlockIds = new ApiServiceIds(inter.getServiceIdsWithBlockIds());
+                return stdParameters.createResponse(serviceIdsWithBlockIds);
+            }
             List<String> ids = inter.getServiceIds();
 
             ApiIds apiIds = new ApiIds(ids);

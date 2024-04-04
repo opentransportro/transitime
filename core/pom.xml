@@ -207,6 +207,11 @@
             <groupId>com.fasterxml.jackson.module</groupId>
             <artifactId>jackson-module-jakarta-xmlbind-annotations</artifactId>
         </dependency>
+        <dependency>
+            <groupId>pl.goeuropa</groupId>
+            <artifactId>traccar-client</artifactId>
+            <version>${revision}</version>
+        </dependency>
     </dependencies>
 
     <build>
