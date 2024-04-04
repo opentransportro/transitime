@@ -8,14 +8,13 @@ import com.google.transit.realtime.GtfsRealtime.VehiclePosition.VehicleStopStatu
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.transitclock.api.utils.AgencyTimezoneCache;
+import org.transitclock.service.VehiclesServiceImpl;
+import org.transitclock.service.contract.VehiclesInterface;
 import org.transitclock.service.dto.IpcAvl;
 import org.transitclock.service.dto.IpcVehicleConfig;
 import org.transitclock.service.dto.IpcVehicleGtfsRealtime;
-import org.transitclock.service.contract.VehiclesInterface;
-import org.transitclock.service.VehiclesServiceImpl;
 import org.transitclock.utils.Time;
 
-import java.rmi.RemoteException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
@@ -146,7 +145,7 @@ public class GtfsRtVehicleFeed {
         for (IpcVehicleGtfsRealtime vehicle : vehicles) {
 
             IpcAvl newAvl = new IpcAvl(
-                    vehicle.getVehicleName(),
+                    vehicle.getId(),
                     vehicle.getAvl().getTime(),
                     vehicle.getAvl().getLatitude(),
                     vehicle.getAvl().getLongitude(),
