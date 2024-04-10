@@ -92,6 +92,16 @@ public class SqlUtils {
         return " AND " + tableAlias + "route_short_name IN " + routeIdentifiers;
     }
 
+    public static String stopClause(String id, String tableAliasName) {
+        if (id == null || id.isEmpty())
+            return "";
+
+        String tableAlias = "";
+        if (tableAliasName != null && !tableAliasName.isEmpty()) tableAlias = tableAliasName + ".";
+
+        return " AND " + tableAlias + "stop_id = '" + id + "'";
+    }
+
     /**
      * Creates a SQL clause for specifying a time range. Looks at the request parameters
      * "beginDate", "numDays", "beginTime", and "endTime"
