@@ -6,22 +6,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.servers.Server;
-import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import jakarta.ws.rs.BeanParam;
-import jakarta.ws.rs.DefaultValue;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.QueryParam;
-import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
@@ -36,25 +21,16 @@ import org.transitclock.domain.hibernate.HibernateUtils;
 import org.transitclock.domain.structs.Agency;
 import org.transitclock.domain.structs.ExportTable;
 import org.transitclock.domain.structs.Location;
-import org.transitclock.service.dto.IpcActiveBlock;
-import org.transitclock.service.dto.IpcBlock;
-import org.transitclock.service.dto.IpcCalendar;
-import org.transitclock.service.dto.IpcDirectionsForRoute;
-import org.transitclock.service.dto.IpcPrediction;
-import org.transitclock.service.dto.IpcPredictionsForRouteStopDest;
-import org.transitclock.service.dto.IpcRoute;
-import org.transitclock.service.dto.IpcRouteSummary;
-import org.transitclock.service.dto.IpcSchedule;
-import org.transitclock.service.dto.IpcServerStatus;
-import org.transitclock.service.dto.IpcTrip;
-import org.transitclock.service.dto.IpcTripPattern;
-import org.transitclock.service.dto.IpcVehicle;
-import org.transitclock.service.dto.IpcVehicleConfig;
 import org.transitclock.service.contract.ConfigInterface;
 import org.transitclock.service.contract.PredictionsInterface;
 import org.transitclock.service.contract.PredictionsInterface.RouteStop;
 import org.transitclock.service.contract.ServerStatusInterface;
 import org.transitclock.service.contract.VehiclesInterface;
+import org.transitclock.service.dto.*;
+
+import java.rmi.RemoteException;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Contains the API commands for the Transitime API for getting real-time vehicle and prediction
@@ -215,7 +191,7 @@ public class TransitimeApi {
     public Response getAvlReport(
             @BeanParam StandardParameters stdParameters,
             @Parameter(description = "Vehicle id") @QueryParam(value = "v") String vehicleId,
-            @Parameter(description = "Begin date(MM-DD-YYYY.") @QueryParam(value = "beginDate") String beginDate,
+            @Parameter(description = "Begin date(MM-DD-YYYY or YYYY-MM-DD)") @QueryParam(value = "beginDate") String beginDate,
             @Parameter(description = "Num days.", required = false) @QueryParam(value = "numDays") int numDays,
             @Parameter(description = "Begin time(HH:MM)") @QueryParam(value = "beginTime") String beginTime,
             @Parameter(description = "End time(HH:MM)") @QueryParam(value = "endTime") String endTime)
@@ -310,7 +286,7 @@ public class TransitimeApi {
     public Response scheduleAdhReport(
             @BeanParam StandardParameters stdParameters,
             @Parameter(description = "Route id") @QueryParam(value = "r") String routeId,
-            @Parameter(description = "Begin date(MM-DD-YYYY.") @QueryParam(value = "beginDate") String beginDate,
+            @Parameter(description = "Begin date(MM-DD-YYYY or YYYY-MM-DD)") @QueryParam(value = "beginDate") String beginDate,
             @Parameter(description = "Num days.", required = false) @QueryParam(value = "numDays") int numDays,
             @Parameter(description = "Begin time(HH:MM)") @QueryParam(value = "beginTime") String beginTime,
             @Parameter(description = "End time(HH:MM)") @QueryParam(value = "endTime") String endTime,
@@ -350,6 +326,43 @@ public class TransitimeApi {
 
         try {
             String response = Reports.getLastAvlJson(stdParameters.getAgencyId());
+            return stdParameters.createResponse(response);
+        } catch (Exception e) {
+            // If problem getting data then return a Bad Request
+            throw WebUtils.badRequestException(e);
+        }
+    }
+
+    @Operation(
+            summary = "Returns schedule adherence report for single stop.",
+            description = "Returns schedule adherence report for single stop.",
+            tags = {"report", "stop"})
+    @Path("/reports/schedStopAdh")
+    @GET
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    public Response reportForStopById(
+            @BeanParam StandardParameters stdParameters,
+            @Parameter(description = "Stop Id", required = true) @QueryParam(value = "id") String stopId,
+            @Parameter(description = "Begin date(MM-DD-YYYY or YYYY-MM-DD)", required = true) @QueryParam(value = "beginDate") String beginDate,
+            @Parameter(description = "Num days.", required = true) @QueryParam(value = "numDays") int numDays,
+            @Parameter(description = "Begin time(HH:MM)") @QueryParam(value = "beginTime") String beginTime,
+            @Parameter(description = "End time(HH:MM)") @QueryParam(value = "endTime") String endTime,
+            @Parameter(description = "Allowable early in mins(default 1.0)") @QueryParam(value = "allowableEarly")
+            String allowableEarly,
+            @Parameter(description = "Allowable late in mins(default 4.0") @QueryParam(value = "allowableLate")
+            String allowableLate)
+            throws WebApplicationException {
+        stdParameters.validate();
+        try {
+            String response = Reports.getReportForStopById(
+                    stdParameters.getAgencyId(),
+                    stopId,
+                    beginDate,
+                    allowableEarly,
+                    allowableLate,
+                    beginTime,
+                    endTime,
+                    numDays);
             return stdParameters.createResponse(response);
         } catch (Exception e) {
             // If problem getting data then return a Bad Request

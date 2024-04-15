@@ -264,7 +264,7 @@ public class Reports {
                 // Specifies which routes to provide data for
                 + SqlUtils.routeClause(route, "ad")
                 + "\n"
-                + SqlUtils.timeRangeClause(agencyId, "ad.time", MAX_NUM_DAYS, numDays, beginTime, endTime, beginDate)
+                + SqlUtils.timeRangeClause("ad.time", MAX_NUM_DAYS, numDays, beginTime, endTime, beginDate)
                 + "\n"
                 + " AND scheduled_time-time > "
                 + allowableEarlyMinutesStr
@@ -290,7 +290,7 @@ public class Reports {
                 // Specifies which routes to provide data for
                 + SqlUtils.routeClause(route, "ad")
                 + "\n"
-                + SqlUtils.timeRangeClause(agencyId, "ad.time", MAX_NUM_DAYS, numDays, beginTime, endTime, beginDate)
+                + SqlUtils.timeRangeClause("ad.time", MAX_NUM_DAYS, numDays, beginTime, endTime, beginDate)
                 + "\n"
                 + " AND time-scheduled_time > "
                 + allowableLateMinutesStr
@@ -345,7 +345,7 @@ public class Reports {
                 // Specifies which routes to provide data for
                 + SqlUtils.routeClause(route, "ad")
                 + "\n"
-                + SqlUtils.timeRangeClause(agencyId, "ad.time", MAX_NUM_DAYS, numDays, beginTime, endTime, beginDate)
+                + SqlUtils.timeRangeClause("ad.time", MAX_NUM_DAYS, numDays, beginTime, endTime, beginDate)
                 + "\n"
                 // Grouping and ordering is a bit complicated since might also be looking
                 // at old arrival/departure data that doen't have stoporder defined. Also,
@@ -486,7 +486,7 @@ public class Reports {
                 // Specifies which routes to provide data for
                 + SqlUtils.routeClause(route, "ad")
                 + "\n"
-                + SqlUtils.timeRangeClause(agencyId, "ad.time", MAX_NUM_DAYS, numDays, beginTime, endTime, beginDate)
+                + SqlUtils.timeRangeClause("ad.time", MAX_NUM_DAYS, numDays, beginTime, endTime, beginDate)
                 + "\n"
                 + " AND scheduled_time-time > "
                 + allowableEarlyMinutesStr
@@ -511,7 +511,7 @@ public class Reports {
                 // Specifies which routes to provide data for
                 + SqlUtils.routeClause(route, "ad")
                 + "\n"
-                + SqlUtils.timeRangeClause(agencyId, "ad.time", MAX_NUM_DAYS, numDays, beginTime, endTime, beginDate)
+                + SqlUtils.timeRangeClause("ad.time", MAX_NUM_DAYS, numDays, beginTime, endTime, beginDate)
                 + "\n"
                 + " AND time-scheduled_time > "
                 + allowableLateMinutesStr
@@ -567,7 +567,7 @@ public class Reports {
                 // Specifies which routes to provide data for
                 + SqlUtils.routeClause(route, "ad")
                 + "\n"
-                + SqlUtils.timeRangeClause(agencyId, "ad.time", MAX_NUM_DAYS, numDays, beginTime, endTime, beginDate)
+                + SqlUtils.timeRangeClause("ad.time", MAX_NUM_DAYS, numDays, beginTime, endTime, beginDate)
                 + "\n"
                 // Grouping and ordering is a bit complicated since might also be looking
                 // at old arrival/departure data that doen't have stoporder defined. Also,
@@ -597,7 +597,7 @@ public class Reports {
                 // Specifies which routes to provide data for
                 + SqlUtils.routeClause(route, "ad")
                 + "\n"
-                + SqlUtils.timeRangeClause(agencyId, "ad.time", MAX_NUM_DAYS, numDays, beginTime, endTime, beginDate)
+                + SqlUtils.timeRangeClause("ad.time", MAX_NUM_DAYS, numDays, beginTime, endTime, beginDate)
                 + "\n"
                 + " AND scheduled_time-time > "
                 + allowableEarlyMinutesStr
@@ -621,7 +621,7 @@ public class Reports {
                 // Specifies which routes to provide data for
                 + SqlUtils.routeClause(route, "ad")
                 + "\n"
-                + SqlUtils.timeRangeClause(agencyId, "ad.time", MAX_NUM_DAYS, numDays, beginTime, endTime, beginDate)
+                + SqlUtils.timeRangeClause("ad.time", MAX_NUM_DAYS, numDays, beginTime, endTime, beginDate)
                 + "\n"
                 + " AND time-scheduled_time > "
                 + allowableLateMinutesStr
@@ -641,6 +641,116 @@ public class Reports {
         String jsonString = "";
         jsonString = GenericJsonQuery.getJsonString(agencyId, sql);
         return jsonString;
+    }
+
+
+    /**
+     * Queries agency for Stop ID and returns result as a JSON string. Limited to returning
+     * MAX_ROWS (50,000) data points.
+     *
+     * @return Stop reports in JSON format. Can be empty JSON array if no data meets criteria.
+     */
+    public static String getReportForStopById (String agencyId,
+                                        String stop,
+                                        String beginDate,
+                                        String allowableEarly,
+                                        String allowableLate,
+                                        String beginTime,
+                                        String endTime,
+                                        int numDays) {
+        if (allowableEarly == null || allowableEarly.isEmpty()) allowableEarly = "1.0";
+        String allowableEarlyMinutesStr = "'" + SqlUtils.convertMinutesToSecs(allowableEarly) + " seconds'";
+
+        if (allowableLate == null || allowableLate.isEmpty()) allowableLate = "4.0";
+        String allowableLateMinutesStr = "'" + SqlUtils.convertMinutesToSecs(allowableLate) + " seconds'";
+
+        String sql = " WITH early AS (SELECT time                   AS early,\n" +
+                "                      s.name                       AS name,\n" +
+                "                      ad.route_id                  AS route,\n" +
+                "                      ad.trip_id                   AS trip,\n" +
+                "                      ad.block_id                  AS block,\n" +
+                "                      ad.vehicle_id                AS vehicle,\n" +
+                "                      ad.scheduled_time            AS schedule,\n" +
+                "                      regexp_replace(CAST(DATE_TRUNC('second', ad.scheduled_time::timestamp) - " +
+                "                                          DATE_TRUNC('second', ad.time::timestamp) AS VARCHAR),\n" +
+                "                              '^00:', ''\n" +
+                "                      )                            AS difference\n" +
+                "               FROM arrivals_departures ad,\n" +
+                "                    stops s\n" +
+                "               WHERE ad.config_rev = s.config_rev\n" +
+                "                 AND ad.stop_id = s.id\n" +
+                "                 AND ad.scheduled_time IS NOT NULL \n" +
+//              Specifies which stops to provide data for
+                SqlUtils.stopClause(stop, "ad") +
+                " \n" +
+//              Defines time range
+                SqlUtils.timeRangeClause("ad.time", MAX_NUM_DAYS, numDays, beginTime, endTime, beginDate) +
+                " \n" +
+                "                 AND scheduled_time - time > " + allowableEarlyMinutesStr +
+                " \n" +
+                "               ORDER BY early),\n" +
+                "     on_time AS (SELECT time                        AS on_time,\n" +
+                "                       s.name                       AS name,\n" +
+                "                       ad.route_id                  AS route,\n" +
+                "                       ad.trip_id                   AS trip,\n" +
+                "                       ad.block_id                  AS block,\n" +
+                "                       ad.vehicle_id                AS vehicle,\n" +
+                "                       ad.scheduled_time            AS schedule,\n" +
+                "                       regexp_replace(\n" +
+                "                               CAST(DATE_TRUNC('second', ad.scheduled_time::timestamp) - " +
+                "                                    DATE_TRUNC('second', ad.time::timestamp) AS VARCHAR),\n" +
+                "                               '^(-)?00:', '\\1'\n" +
+                "                       )                            AS difference\n" +
+                "                FROM arrivals_departures ad,\n" +
+                "                     stops s\n" +
+                "                WHERE ad.config_rev = s.config_rev\n" +
+                "                  AND ad.stop_id = s.id\n" +
+                "                  AND ad.scheduled_time IS NOT NULL \n" +
+//              Specifies which stops to provide data for
+                SqlUtils.stopClause(stop, "ad") +
+                " \n" +
+//              Defines time range
+                SqlUtils.timeRangeClause("ad.time", MAX_NUM_DAYS, numDays, beginTime, endTime, beginDate) +
+                " \n" +
+                "                  AND scheduled_time - time <= " + allowableEarlyMinutesStr +
+                " \n" +
+                "                  AND time - scheduled_time <= " + allowableLateMinutesStr +
+                " \n" +
+                "                ORDER BY on_time),\n" +
+                "     late AS (SELECT time                         AS late,\n" +
+                "                     s.name                       AS name,\n" +
+                "                     ad.route_id                  AS route,\n" +
+                "                     ad.trip_id                   AS trip,\n" +
+                "                     ad.block_id                  AS block,\n" +
+                "                     ad.vehicle_id                AS vehicle,\n" +
+                "                     ad.scheduled_time            AS schedule,\n" +
+                "                     regexp_replace(\n" +
+                "                             CAST(DATE_TRUNC('second', ad.scheduled_time::timestamp) - " +
+                "                                  DATE_TRUNC('second', ad.time::timestamp) AS VARCHAR),\n" +
+                "                             '^(-)00:', '\\1'\n" +
+                "                     )                            AS difference\n" +
+                "              FROM arrivals_departures ad,\n" +
+                "                   stops s\n" +
+                "              WHERE ad.config_rev = s.config_rev\n" +
+                "                AND ad.stop_id = s.id\n" +
+                "                AND ad.scheduled_time IS NOT NULL \n" +
+//              Specifies which stops to provide data for
+                SqlUtils.stopClause(stop, "ad") +
+                " \n" +
+//              Defines time range
+                SqlUtils.timeRangeClause("ad.time", MAX_NUM_DAYS, numDays, beginTime, endTime, beginDate) +
+                " \n" +
+                "               AND time - scheduled_time > " + allowableLateMinutesStr +
+                " \n" +
+                "              ORDER BY late) \n" +
+                "SELECT * FROM \n" +
+                "     early\n" +
+                "         FULL OUTER JOIN\n" +
+                "     on_time ON early.early = on_time.on_time\n" +
+                "         FULL OUTER JOIN\n" +
+                "     late ON on_time.on_time = late.late\n";
+
+        return GenericJsonQuery.getJsonString(agencyId, sql).replaceFirst("\\bdata\\b", stop);
     }
 
     /**
@@ -693,3 +803,4 @@ public class Reports {
         return json.length() > 50;
     }
 }
+

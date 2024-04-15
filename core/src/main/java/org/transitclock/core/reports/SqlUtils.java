@@ -92,6 +92,16 @@ public class SqlUtils {
         return " AND " + tableAlias + "route_short_name IN " + routeIdentifiers;
     }
 
+    public static String stopClause(String id, String tableAliasName) {
+        if (id == null || id.isEmpty())
+            return "";
+
+        String tableAlias = "";
+        if (tableAliasName != null && !tableAliasName.isEmpty()) tableAlias = tableAliasName + ".";
+
+        return " AND " + tableAlias + "stop_id = '" + id + "'";
+    }
+
     /**
      * Creates a SQL clause for specifying a time range. Looks at the request parameters
      * "beginDate", "numDays", "beginTime", and "endTime"
@@ -189,7 +199,6 @@ public class SqlUtils {
      *     INTERVAL '1 day' AND time::time BETWEEN '12:00' AND '24:00'"
      */
     public static String timeRangeClause(
-            String agencyId,
             String timeColumnName,
             int maxNumDays,
             int numDays,
@@ -217,10 +226,12 @@ public class SqlUtils {
 
         SimpleDateFormat currentFormat = new SimpleDateFormat("MM-dd-yyyy");
         SimpleDateFormat requiredFormat = new SimpleDateFormat("yyyy-MM-dd");
+        if (beginDate.charAt(4) != '-') {
         try {
             beginDate = requiredFormat.format(currentFormat.parse(beginDate));
         } catch (ParseException e) {
             logger.error("Exception happened while processing time-range clause", e);
+            }
         }
         return " AND %s BETWEEN '%s' AND TIMESTAMP '%s' + INTERVAL '%d day' %s "
                 .formatted(timeColumnName, beginDate, beginDate, numDays, timeSql);
