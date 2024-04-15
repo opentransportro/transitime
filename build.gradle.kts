@@ -4,12 +4,18 @@ val queryDslVersion: String by project
 
 plugins {
     id("java")
+    id("jacoco")
     id("io.spring.dependency-management")
+
+    id("com.diffplug.spotless")
+    id("com.github.andygoossens.gradle-modernizer-plugin")
 }
 
 subprojects {
+    apply(plugin = "jacoco")
     apply(plugin = "java-library")
     apply(plugin = "io.spring.dependency-management")
+    apply(plugin = "com.github.andygoossens.gradle-modernizer-plugin")
 
     dependencies {
         annotationProcessor("org.projectlombok:lombok:${lombokVersion}")
@@ -69,6 +75,12 @@ allprojects {
         mavenCentral()
         mavenLocal()
     }
+
+    modernizer {
+        failOnViolations = true
+        includeTestClasses = true
+    }
+
 }
 
 

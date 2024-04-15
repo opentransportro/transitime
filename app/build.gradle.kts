@@ -61,7 +61,8 @@ dependencies {
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-hibernate6")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-protobuf")
 
-    implementation(project(":core"))
+    implementation(project(":libs:core"))
+    implementation(project(":libs:util"))
 
     implementation("jakarta.persistence:jakarta.persistence-api")
     implementation("com.google.guava:guava")

@@ -16,6 +16,10 @@ pluginManagement {
         id("com.google.cloud.tools.jib") version jibPluginVersion
         id("com.palantir.git-version") version "0.15.0"
         id("com.gorylenko.gradle-git-properties") version gitPropertiesPluginVersion
+
+        id("com.google.protobuf") version "0.9.4"
+        id("com.diffplug.spotless") version "6.25.0"
+        id("com.github.andygoossens.gradle-modernizer-plugin") version "1.9.2"
     }
     repositories {
         mavenCentral()
@@ -26,5 +30,6 @@ pluginManagement {
 
 rootProject.name = "transitclock"
 
-include(":core")
+include(":libs:util", ":libs:core")
+include(":libs:extensions:api", ":libs:extensions:traccar")
 include(":app")
