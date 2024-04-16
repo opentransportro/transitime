@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import org.transitclock.core.dataCache.StopPathCacheKey;
 import org.transitclock.core.dataCache.StopPathPredictionCache;
 import org.transitclock.domain.structs.PredictionForStopPath;
-import org.transitclock.service.contract.PredictionAnalysisInterface;
+import org.transitclock.service.contract.PredictionAnalysisService;
 import org.transitclock.service.dto.IpcPredictionForStopPath;
 
 import java.util.ArrayList;
@@ -21,7 +21,7 @@ import java.util.List;
  */
 @Slf4j
 @Component
-public class PredictionAnalysisServiceImpl implements PredictionAnalysisInterface {
+public class PredictionAnalysisServiceImpl implements PredictionAnalysisService {
     @Autowired
     private StopPathPredictionCache stopPathPredictionCache;
 

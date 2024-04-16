@@ -1,8 +1,6 @@
 package org.transitclock.config;
 
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.aop.interceptor.SimpleAsyncUncaughtExceptionHandler;
 import org.springframework.boot.autoconfigure.task.TaskExecutionProperties;
@@ -14,9 +12,9 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.transitclock.ApplicationProperties;
-import org.transitclock.config.data.AgencyConfig;
 import org.transitclock.core.avl.AvlReportProcessor.AvlReportProcessingTask;
 import org.transitclock.core.avl.AvlReportProcessorQueue;
+import org.transitclock.properties.AvlProperties;
 import org.transitclock.utils.ExceptionHandlingAsyncTaskExecutor;
 import org.transitclock.utils.threading.NamedThreadFactory;
 
@@ -49,7 +47,7 @@ public class AsyncConfiguration implements AsyncConfigurer {
 
     @Bean(name = "avlExecutingThreadPool")
     public Executor avlExecutingThreadPool(ApplicationProperties properties) {
-        ApplicationProperties.Avl avlProperties = properties.getAvl();
+        AvlProperties avlProperties = properties.getAvl();
         final int numberThreads = avlProperties.getNumThreads();
         final int maxAVLQueueSize = avlProperties.getQueueSize();
 

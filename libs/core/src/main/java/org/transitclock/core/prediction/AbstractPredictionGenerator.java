@@ -3,7 +3,6 @@ package org.transitclock.core.prediction;
 
 import org.apache.commons.lang3.time.DateUtils;
 
-import org.transitclock.ApplicationProperties;
 import org.transitclock.core.Indices;
 import org.transitclock.core.TravelTimeDetails;
 import org.transitclock.core.VehicleStatus;
@@ -15,6 +14,7 @@ import org.transitclock.domain.structs.Block;
 import org.transitclock.domain.structs.PredictionEvent;
 import org.transitclock.domain.structs.Route;
 import org.transitclock.gtfs.DbConfig;
+import org.transitclock.properties.PredictionProperties;
 import org.transitclock.service.dto.IpcArrivalDeparture;
 import org.transitclock.service.dto.IpcPrediction;
 
@@ -33,14 +33,14 @@ public abstract class AbstractPredictionGenerator implements PredictionGenerator
     protected final DbConfig dbConfig;
     protected final DataDbLogger dataDbLogger;
     protected final TravelTimeDataFilter travelTimeDataFilter;
-    protected final ApplicationProperties.Prediction predictionProperties;
+    protected final PredictionProperties predictionProperties;
 
     protected AbstractPredictionGenerator(StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface,
                                           TripDataHistoryCacheInterface tripDataHistoryCacheInterface,
                                           DbConfig dbConfig,
                                           DataDbLogger dataDbLogger,
                                           TravelTimeDataFilter travelTimeDataFilter,
-                                          ApplicationProperties.Prediction predictionProperties) {
+                                          PredictionProperties predictionProperties) {
         this.stopArrivalDepartureCacheInterface = stopArrivalDepartureCacheInterface;
         this.tripDataHistoryCacheInterface = tripDataHistoryCacheInterface;
         this.dbConfig = dbConfig;

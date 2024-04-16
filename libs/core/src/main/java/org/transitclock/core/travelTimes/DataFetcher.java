@@ -1,18 +1,23 @@
 /* (C)2023 */
 package org.transitclock.core.travelTimes;
 
-import lombok.extern.slf4j.Slf4j;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
 
-import org.transitclock.ApplicationProperties;
-import org.transitclock.ApplicationProperties.Updates;
 import org.transitclock.domain.structs.ActiveRevision;
 import org.transitclock.domain.structs.Agency;
 import org.transitclock.domain.structs.ArrivalDeparture;
 import org.transitclock.domain.structs.Match;
+import org.transitclock.properties.UpdatesProperties;
 import org.transitclock.utils.MapKey;
 import org.transitclock.utils.Time;
 
-import java.util.*;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * For retrieving historic AVL based data from database so that travel times can be determined.
@@ -22,7 +27,7 @@ import java.util.*;
 @Slf4j
 public class DataFetcher {
 
-    private final Updates updatesProperties;
+    private final UpdatesProperties updatesProperties;
     // The data ends up in arrivalDepartureMap and matchesMap.
     // It is keyed by DbDataMapKey which means that data is grouped
     // per vehicle trip. This way can later subsequent arrivals/departures
@@ -43,7 +48,7 @@ public class DataFetcher {
      * @param newSpecialDaysOfWeek List of Integers indicating day of week. Uses java.util.Calendar
      *     values such as java.util.Calendar.MONDAY . Set to null if not going to use.
      */
-    public DataFetcher(String dbName, ApplicationProperties.Updates updatesProperties, List<Integer> newSpecialDaysOfWeek) {
+    public DataFetcher(String dbName, UpdatesProperties updatesProperties, List<Integer> newSpecialDaysOfWeek) {
         this.updatesProperties = updatesProperties;
         // Create the member calendar using timezone specified in db for the
         // agency. Use the currently active config rev.

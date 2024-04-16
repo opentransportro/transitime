@@ -1,8 +1,7 @@
 /* (C)2023 */
 package org.transitclock.core.prediction.kalman;
 
-import org.transitclock.ApplicationProperties;
-import org.transitclock.ApplicationProperties.Prediction.Data.Kalman;
+import org.transitclock.properties.PredictionProperties.Data.Kalman;
 
 import org.junit.jupiter.api.Test;
 

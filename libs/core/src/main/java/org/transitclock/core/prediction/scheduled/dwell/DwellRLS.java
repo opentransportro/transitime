@@ -1,8 +1,8 @@
 /* (C)2023 */
 package org.transitclock.core.prediction.scheduled.dwell;
 
-import org.transitclock.ApplicationProperties.Prediction;
 import org.transitclock.core.prediction.scheduled.dwell.rls.TransitClockRLS;
+import org.transitclock.properties.PredictionProperties;
 
 /**
  * @author scrudden
@@ -10,7 +10,7 @@ import org.transitclock.core.prediction.scheduled.dwell.rls.TransitClockRLS;
 public class DwellRLS implements DwellModel {
     private TransitClockRLS rls;
 
-    public DwellRLS(Prediction.Rls rlsProperties) {
+    public DwellRLS(PredictionProperties.Rls rlsProperties) {
         rls = new TransitClockRLS(rlsProperties.getLambda());
     }
 

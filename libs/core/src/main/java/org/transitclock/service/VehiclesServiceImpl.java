@@ -14,7 +14,7 @@ import org.transitclock.domain.structs.Trip;
 import org.transitclock.domain.structs.VehicleConfig;
 import org.transitclock.domain.structs.VehicleToBlockConfig;
 import org.transitclock.gtfs.DbConfig;
-import org.transitclock.service.contract.VehiclesInterface;
+import org.transitclock.service.contract.VehiclesService;
 import org.transitclock.service.dto.IpcActiveBlock;
 import org.transitclock.service.dto.IpcBlock;
 import org.transitclock.service.dto.IpcVehicle;
@@ -28,7 +28,7 @@ import java.util.*;
 
 @Slf4j
 @Component
-public class VehiclesServiceImpl implements VehiclesInterface {
+public class VehiclesServiceImpl implements VehiclesService {
     private final VehicleDataCache vehicleDataCache;
     private final BlockInfoProvider blockInfoProvider;
     private final DbConfig dbConfig;

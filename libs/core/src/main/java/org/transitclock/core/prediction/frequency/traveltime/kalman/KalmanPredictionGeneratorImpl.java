@@ -1,15 +1,26 @@
 /* (C)2023 */
 package org.transitclock.core.prediction.frequency.traveltime.kalman;
 
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.time.DateUtils;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
-import org.transitclock.ApplicationProperties;
 import org.transitclock.config.data.CoreConfig;
-import org.transitclock.core.*;
+import org.transitclock.core.Indices;
+import org.transitclock.core.TravelTimeDetails;
+import org.transitclock.core.TravelTimes;
+import org.transitclock.core.VehicleStatus;
 import org.transitclock.core.avl.RealTimeSchedAdhProcessor;
 import org.transitclock.core.avl.space.SpatialMatch;
-import org.transitclock.core.dataCache.*;
+import org.transitclock.core.dataCache.ErrorCache;
+import org.transitclock.core.dataCache.HoldingTimeCache;
+import org.transitclock.core.dataCache.KalmanError;
+import org.transitclock.core.dataCache.KalmanErrorCacheKey;
+import org.transitclock.core.dataCache.StopArrivalDepartureCacheInterface;
+import org.transitclock.core.dataCache.StopPathPredictionCache;
+import org.transitclock.core.dataCache.TripDataHistoryCacheInterface;
+import org.transitclock.core.dataCache.VehicleDataCache;
+import org.transitclock.core.dataCache.VehicleStatusManager;
 import org.transitclock.core.dataCache.frequency.FrequencyBasedHistoricalAverageCache;
 import org.transitclock.core.holdingmethod.HoldingTimeGenerator;
 import org.transitclock.core.prediction.PredictionComponentElementsGenerator;
@@ -26,11 +37,11 @@ import org.transitclock.domain.structs.AvlReport;
 import org.transitclock.domain.structs.PredictionForStopPath;
 import org.transitclock.domain.structs.VehicleEvent;
 import org.transitclock.gtfs.DbConfig;
+import org.transitclock.properties.PredictionProperties;
 import org.transitclock.utils.SystemTime;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.time.DateUtils;
 
 /**
  * @author Sean Óg Crudden This is a prediction generator that uses a Kalman filter to provide
@@ -46,7 +57,7 @@ public class KalmanPredictionGeneratorImpl extends HistoricalAveragePredictionGe
                                          DbConfig dbConfig,
                                          DataDbLogger dataDbLogger,
                                          TravelTimeDataFilter travelTimeDataFilter,
-                                         ApplicationProperties.Prediction properties,
+                                         PredictionProperties properties,
                                          VehicleDataCache vehicleCache,
                                          HoldingTimeCache holdingTimeCache,
                                          StopPathPredictionCache stopPathPredictionCache,

@@ -61,7 +61,7 @@ public class GtfsRealtimeApi extends BaseApiResource {
         final boolean humanFormatOutput = "human".equals(format);
 
         FeedMessage message = feedCacheManager.getPossiblyCachedMessage(
-            stdParameters.getAgency(), vehiclesInterface, agencyTimezoneCache);
+                stdParameters.getAgency(), vehiclesService, agencyTimezoneCache);
 
         return generateResponse(message, humanFormatOutput);
     }
@@ -96,7 +96,7 @@ public class GtfsRealtimeApi extends BaseApiResource {
         final boolean humanFormatOutput = "human".equals(format);
 
         FeedMessage message = feedCacheManager.getPossiblyCachedMessage(
-            properties, predictionsInterface, vehiclesInterface, agencyTimezoneCache);
+                properties, predictionsService, vehiclesService, agencyTimezoneCache);
 
         return generateResponse(message, humanFormatOutput);
 

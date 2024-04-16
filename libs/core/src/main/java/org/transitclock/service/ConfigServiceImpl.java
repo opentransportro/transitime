@@ -15,7 +15,7 @@ import org.transitclock.domain.structs.Trip;
 import org.transitclock.domain.structs.TripPattern;
 import org.transitclock.domain.structs.VehicleConfig;
 import org.transitclock.gtfs.DbConfig;
-import org.transitclock.service.contract.ConfigInterface;
+import org.transitclock.service.contract.ConfigService;
 import org.transitclock.service.dto.IpcBlock;
 import org.transitclock.service.dto.IpcCalendar;
 import org.transitclock.service.dto.IpcDirectionsForRoute;
@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @Component
-public class ConfigServiceImpl implements ConfigInterface {
+public class ConfigServiceImpl implements ConfigService {
     @Autowired
     private VehicleDataCache vehicleDataCache;
     @Autowired

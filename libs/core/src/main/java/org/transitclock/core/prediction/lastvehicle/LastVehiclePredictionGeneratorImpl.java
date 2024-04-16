@@ -3,7 +3,6 @@ package org.transitclock.core.prediction.lastvehicle;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.transitclock.ApplicationProperties;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.core.*;
 import org.transitclock.core.avl.RealTimeSchedAdhProcessor;
@@ -16,6 +15,7 @@ import org.transitclock.domain.hibernate.DataDbLogger;
 import org.transitclock.domain.structs.AvlReport;
 import org.transitclock.domain.structs.PredictionForStopPath;
 import org.transitclock.gtfs.DbConfig;
+import org.transitclock.properties.PredictionProperties;
 import org.transitclock.service.dto.IpcPrediction;
 import org.transitclock.service.dto.IpcVehicleComplete;
 import org.transitclock.utils.SystemTime;
@@ -46,7 +46,7 @@ public class LastVehiclePredictionGeneratorImpl extends PredictionGeneratorDefau
                                               DbConfig dbConfig,
                                               DataDbLogger dataDbLogger,
                                               TravelTimeDataFilter travelTimeDataFilter,
-                                              ApplicationProperties.Prediction properties,
+                                              PredictionProperties properties,
                                               VehicleDataCache vehicleCache,
                                               HoldingTimeCache holdingTimeCache,
                                               StopPathPredictionCache stopPathPredictionCache,

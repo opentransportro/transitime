@@ -3,7 +3,6 @@ package org.transitclock.core.prediction;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.transitclock.ApplicationProperties;
 import org.transitclock.core.Indices;
 import org.transitclock.core.TemporalDifference;
 import org.transitclock.core.TravelTimes;
@@ -18,6 +17,7 @@ import org.transitclock.core.prediction.datafilter.TravelTimeDataFilter;
 import org.transitclock.domain.hibernate.DataDbLogger;
 import org.transitclock.domain.structs.*;
 import org.transitclock.gtfs.DbConfig;
+import org.transitclock.properties.PredictionProperties;
 import org.transitclock.service.dto.IpcPrediction;
 import org.transitclock.service.dto.IpcPrediction.ArrivalOrDeparture;
 import org.transitclock.utils.Geo;
@@ -66,7 +66,7 @@ public class PredictionGeneratorDefaultImpl extends AbstractPredictionGenerator 
                                           DbConfig dbConfig,
                                           DataDbLogger dataDbLogger,
                                           TravelTimeDataFilter travelTimeDataFilter,
-                                          ApplicationProperties.Prediction properties,
+                                          PredictionProperties properties,
                                           HoldingTimeCache holdingTimeCache,
                                           StopPathPredictionCache stopPathPredictionCache,
                                           TravelTimes travelTimes,

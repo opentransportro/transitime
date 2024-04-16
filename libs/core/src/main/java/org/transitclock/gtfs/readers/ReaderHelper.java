@@ -3,13 +3,13 @@ package org.transitclock.gtfs.readers;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.transitclock.ApplicationProperties;
+import org.transitclock.properties.GtfsProperties;
 
 public class ReaderHelper {
     private final Pattern tripShortNameRegExPattern;
     private final Pattern blockIdRegExPattern;
 
-    public ReaderHelper(ApplicationProperties.Gtfs gtfsProperties) {
+    public ReaderHelper(GtfsProperties gtfsProperties) {
         if(gtfsProperties.getTripShortNameRegEx() != null) {
             tripShortNameRegExPattern = Pattern.compile(gtfsProperties.getTripShortNameRegEx());
         } else {

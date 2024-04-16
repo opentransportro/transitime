@@ -9,7 +9,7 @@ import org.transitclock.domain.structs.Location;
 import org.transitclock.gtfs.DbConfig;
 import org.transitclock.gtfs.StopsByLocation;
 import org.transitclock.gtfs.StopsByLocation.StopInfo;
-import org.transitclock.service.contract.PredictionsInterface;
+import org.transitclock.service.contract.PredictionsService;
 import org.transitclock.service.dto.IpcPredictionsForRouteStopDest;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.SystemTime;
@@ -28,7 +28,7 @@ import java.util.List;
  */
 @Slf4j
 @Component
-public class PredictionsServiceImpl implements PredictionsInterface {
+public class PredictionsServiceImpl implements PredictionsService {
     @Autowired
     private PredictionDataCache predictionDataCache;
     @Autowired

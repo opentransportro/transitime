@@ -13,6 +13,7 @@ import org.transitclock.core.dataCache.TripDataHistoryCacheInterface;
 import org.transitclock.core.dataCache.frequency.FrequencyBasedHistoricalAverageCache;
 import org.transitclock.core.dataCache.scheduled.ScheduleBasedHistoricalAverageCache;
 import org.transitclock.domain.hibernate.HibernateUtils;
+import org.transitclock.properties.CoreProperties;
 import org.transitclock.utils.Time;
 
 import lombok.RequiredArgsConstructor;
@@ -83,7 +84,7 @@ public class CachingConfiguration {
         private final TripDataHistoryCacheInterface tripDataHistoryCacheInterface;
         private final StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface;
         private final DwellTimeModelCacheInterface dwellTimeModelCacheInterface;
-        private final ApplicationProperties.Core coreProperties;
+        private final CoreProperties coreProperties;
 
         @SneakyThrows
         @Override

@@ -83,7 +83,7 @@ public class CommandsResource extends BaseApiResource implements CommandsApi {
             }
 
             IpcAvl ipcAvl = new IpcAvl(avlReport);
-            commandsInterface.pushAvl(ipcAvl);
+            commandsService.pushAvl(ipcAvl);
 
             // Create the acknowledgment and return it as JSON or XML
             ApiCommandAck ack = new ApiCommandAck(true, "AVL processed");
@@ -168,7 +168,7 @@ public class CommandsResource extends BaseApiResource implements CommandsApi {
             }
 
             // Get RMI interface and send the AVL data to server
-            commandsInterface.pushAvl(avlData);
+            commandsService.pushAvl(avlData);
         } catch (JSONException | IOException e) {
             // If problem getting data then return a Bad Request
             throw WebUtils.badRequestException(e);
@@ -185,7 +185,7 @@ public class CommandsResource extends BaseApiResource implements CommandsApi {
         validate(stdParameters);
 
         for (String vehicleId : vehicleIds) {
-            commandsInterface.setVehicleUnpredictable(vehicleId);
+            commandsService.setVehicleUnpredictable(vehicleId);
         }
 
         ApiCommandAck ack = new ApiCommandAck(true, "Vehicle reset");
@@ -230,11 +230,11 @@ public class CommandsResource extends BaseApiResource implements CommandsApi {
             DateTimeParam at) {
         validate(stdParameters);
         String result;
-        IpcTrip ipcTrip = configInterface.getTrip(tripId);
+        IpcTrip ipcTrip = configService.getTrip(tripId);
         if (ipcTrip == null) {
             throw WebUtils.badRequestException("TripId=" + tripId + " does not exist.");
         }
-        result = commandsInterface.cancelTrip(tripId, at == null ? null : at.getDate());
+        result = commandsService.cancelTrip(tripId, at == null ? null : at.getDate());
 
         if (result == null) {
             return stdParameters.createResponse(new ApiCommandAck(true, "Processed"));
@@ -250,11 +250,11 @@ public class CommandsResource extends BaseApiResource implements CommandsApi {
             DateTimeParam at) {
         validate(stdParameters);
         String result = null;
-        IpcTrip ipcTrip = configInterface.getTrip(tripId);
+        IpcTrip ipcTrip = configService.getTrip(tripId);
         if (ipcTrip == null) {
             throw WebUtils.badRequestException("TripId=" + tripId + " does not exist.");
         }
-        result = commandsInterface.reenableTrip(tripId, at == null ? null : at.getDate());
+        result = commandsService.reenableTrip(tripId, at == null ? null : at.getDate());
         if (result == null) {
             return stdParameters.createResponse(new ApiCommandAck(true, "Processed"));
         }
@@ -277,7 +277,7 @@ public class CommandsResource extends BaseApiResource implements CommandsApi {
             long validTo = jsonObj.getLong("validTo");
             String blockId = jsonObj.getString("blockId");
 
-            result = commandsInterface.addVehicleToBlock(
+            result = commandsService.addVehicleToBlock(
                     vehicleId, blockId, "", new Date(), new Date(validFrom * 1000), new Date(validTo * 1000));
         } catch (JSONException | IOException e) {
             // If problem getting data then return a Bad Request
@@ -294,7 +294,7 @@ public class CommandsResource extends BaseApiResource implements CommandsApi {
         // Make sure request is valid
         validate(stdParameters);
         try {
-            commandsInterface.removeVehicleToBlock(id);
+            commandsService.removeVehicleToBlock(id);
         } catch (Exception e) {
             // If problem getting data then return a Bad Request
             throw WebUtils.badRequestException(e);

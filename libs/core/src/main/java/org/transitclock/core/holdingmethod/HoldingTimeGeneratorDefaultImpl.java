@@ -1,24 +1,31 @@
 /* (C)2023 */
 package org.transitclock.core.holdingmethod;
 
-import lombok.extern.slf4j.Slf4j;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
-import org.transitclock.ApplicationProperties;
-import org.transitclock.ApplicationProperties.Holding;
 import org.transitclock.core.VehicleStatus;
-import org.transitclock.core.dataCache.*;
+import org.transitclock.core.dataCache.HoldingTimeCache;
+import org.transitclock.core.dataCache.IpcArrivalDepartureComparator;
+import org.transitclock.core.dataCache.PredictionDataCache;
+import org.transitclock.core.dataCache.StopArrivalDepartureCacheInterface;
+import org.transitclock.core.dataCache.StopArrivalDepartureCacheKey;
+import org.transitclock.core.dataCache.VehicleDataCache;
+import org.transitclock.core.dataCache.VehicleStatusManager;
 import org.transitclock.domain.hibernate.DataDbLogger;
 import org.transitclock.domain.structs.ArrivalDeparture;
 import org.transitclock.domain.structs.HoldingTime;
 import org.transitclock.gtfs.DbConfig;
+import org.transitclock.properties.HoldingProperties;
 import org.transitclock.service.dto.IpcArrivalDeparture;
 import org.transitclock.service.dto.IpcPrediction;
 import org.transitclock.service.dto.IpcPredictionsForRouteStopDest;
 import org.transitclock.service.dto.IpcVehicleComplete;
 import org.transitclock.utils.SystemTime;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author Sean Óg Crudden This is a default implementation of the holding time generator and is an
@@ -30,7 +37,7 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
-    private final Holding holdingConfig;
+    private final HoldingProperties holdingConfig;
     private final PredictionDataCache predictionDataCache;
     private final StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface;
     private final DataDbLogger dataDbLogger;
@@ -39,7 +46,7 @@ public class HoldingTimeGeneratorDefaultImpl implements HoldingTimeGenerator {
     private final HoldingTimeCache holdingTimeCache;
     private final VehicleStatusManager vehicleStatusManager;
 
-    public HoldingTimeGeneratorDefaultImpl(ApplicationProperties.Holding holdingProperties,
+    public HoldingTimeGeneratorDefaultImpl(HoldingProperties holdingProperties,
                                            PredictionDataCache predictionDataCache,
                                            StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface,
                                            DataDbLogger dataDbLogger,

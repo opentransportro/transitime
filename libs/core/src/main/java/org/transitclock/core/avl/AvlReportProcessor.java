@@ -1,20 +1,19 @@
 /* (C)2023 */
 package org.transitclock.core.avl;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executor;
+
+import org.transitclock.ApplicationProperties;
+import org.transitclock.domain.structs.AvlReport;
+import org.transitclock.properties.AvlProperties;
+import org.transitclock.utils.Time;
+
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-
-import org.transitclock.ApplicationProperties;
-import org.transitclock.config.data.AgencyConfig;
-import org.transitclock.config.data.AvlConfig;
-import org.transitclock.domain.structs.AvlReport;
-import org.transitclock.utils.Time;
-
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executor;
 
 /**
  * Receives AVL data from the AvlExecutor or JMS, determines if AVL should be filtered, and
@@ -32,7 +31,7 @@ public class AvlReportProcessor {
     private final AvlProcessor avlProcessor;
     private final Executor avlExecutingThreadPool;
     private final Map<String, AvlReport> avlReports;
-    private final ApplicationProperties.Avl avlProperties;
+    private final AvlProperties avlProperties;
 
     public class AvlReportProcessingTask implements Runnable {
         private final AvlReport avlReport;

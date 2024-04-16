@@ -2,10 +2,9 @@
 package org.transitclock.api.utils;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.transitclock.domain.structs.Agency;
-import org.transitclock.service.contract.ConfigInterface;
+import org.transitclock.service.contract.ConfigService;
 
 import java.util.HashMap;
 import java.util.List;
@@ -21,11 +20,11 @@ import java.util.TimeZone;
 @Slf4j
 @Component
 public class AgencyTimezoneCache {
-    private final ConfigInterface configInterface;
+    private final ConfigService configService;
     private final Map<String, TimeZone> timezonesMap;
 
-    public AgencyTimezoneCache(ConfigInterface configInterface) {
-        this.configInterface = configInterface;
+    public AgencyTimezoneCache(ConfigService configService) {
+        this.configService = configService;
         timezonesMap = new HashMap<>();
     }
 
@@ -42,7 +41,7 @@ public class AgencyTimezoneCache {
 
         // If timezone not already in cache then get it and cache it
         if (timezone == null) {
-            List<Agency> agencies = configInterface.getAgencies();
+            List<Agency> agencies = configService.getAgencies();
 
             // Use timezone of first agency
             String timezoneStr = agencies.get(0).getTimeZoneStr();

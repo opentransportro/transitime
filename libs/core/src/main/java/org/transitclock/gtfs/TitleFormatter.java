@@ -1,11 +1,6 @@
 /* (C)2023 */
 package org.transitclock.gtfs;
 
-import lombok.extern.slf4j.Slf4j;
-
-import org.transitclock.ApplicationProperties;
-import org.transitclock.ApplicationProperties.Gtfs;
-
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -15,6 +10,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
+
+import org.transitclock.properties.GtfsProperties;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Tool for formatting titles in the GTFS data. Need to be able to "unshout" titles (change "MAIN
@@ -62,7 +61,7 @@ public class TitleFormatter {
         }
     }
 
-    private final Gtfs gtfsProperties;
+    private final GtfsProperties gtfsProperties;
     // It can be nice to know which regexs actually make a difference
     // so that if one isn't doing anything anymore it could be removed
     // and processing could then be sped up a bit since doing a
@@ -71,7 +70,7 @@ public class TitleFormatter {
     private final Set<String> regexesThatMadeDifference = new HashSet<>();
     private final List<RegexInfo> regexReplaceList = new ArrayList<>();
 
-    public TitleFormatter(ApplicationProperties.Gtfs gtfsProperties,
+    public TitleFormatter(GtfsProperties gtfsProperties,
                           String regexReplaceListFileName,
                           boolean logUnusedRegexs) {
         this.gtfsProperties = gtfsProperties;

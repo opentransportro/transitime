@@ -1,16 +1,6 @@
 /* (C)2023 */
 package org.transitclock.gtfs;
 
-import lombok.extern.slf4j.Slf4j;
-import org.apache.http.HttpStatus;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
-import org.transitclock.ApplicationProperties;
-import org.transitclock.Module;
-import org.transitclock.utils.HttpGetFile;
-import org.transitclock.utils.Time;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -20,6 +10,18 @@ import java.nio.file.StandardCopyOption;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import org.transitclock.ApplicationProperties;
+import org.transitclock.Module;
+import org.transitclock.properties.GtfsProperties;
+import org.transitclock.utils.HttpGetFile;
+import org.transitclock.utils.Time;
+
+import lombok.extern.slf4j.Slf4j;
+import org.apache.http.HttpStatus;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
 /**
  * Downloads GTFS file from web server if it has been updated and notifies users. Useful for
@@ -34,7 +36,7 @@ import java.util.Date;
 @Component
 @ConditionalOnProperty(name = "transitclock.gtfs.auto-update.enabled", havingValue = "true")
 public class GtfsUpdatedModule implements Module {
-    private final ApplicationProperties.Gtfs gtfsConfig;
+    private final GtfsProperties gtfsConfig;
 
     public GtfsUpdatedModule(ApplicationProperties properties) {
         this.gtfsConfig = properties.getGtfs();
@@ -77,7 +79,7 @@ public class GtfsUpdatedModule implements Module {
 
     @Scheduled(fixedRateString = "${transitclock.gtfs.auto-update.intervalMsec}")
     public void run() {
-        ApplicationProperties.Gtfs.AutoUpdate autoUpdateConfig = gtfsConfig.getAutoUpdate();
+        GtfsProperties.AutoUpdate autoUpdateConfig = gtfsConfig.getAutoUpdate();
         logger.info("Checking to see if GTFS should be downloaded " + "because it was modified. {}", autoUpdateConfig.getUrl());
 
         // Construct the getter

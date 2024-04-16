@@ -1,9 +1,8 @@
 /* (C)2023 */
 package org.transitclock.core;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
+import java.util.Iterator;
+import java.util.concurrent.TimeUnit;
 
 import org.transitclock.ApplicationProperties;
 import org.transitclock.Module;
@@ -15,11 +14,13 @@ import org.transitclock.domain.structs.AvlReport;
 import org.transitclock.domain.structs.Block;
 import org.transitclock.domain.structs.VehicleEvent;
 import org.transitclock.gtfs.DbConfig;
+import org.transitclock.properties.TimeoutProperties;
 import org.transitclock.utils.SystemTime;
 import org.transitclock.utils.Time;
 
-import java.util.Iterator;
-import java.util.concurrent.TimeUnit;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
 /**
  * For handling when a vehicle doesn't report its position for too long. Makes the vehicle
@@ -40,8 +41,7 @@ public class TimeoutHandlerModule implements Module {
     private final AvlProcessor avlProcessor;
     private final DbConfig dbConfig;
     private final AvlReportRegistry avlReportRegistry;
-    private final ApplicationProperties.Timeout timeoutConfig;
-    private final Time time;
+    private final TimeoutProperties timeoutConfig;
     private final ApplicationProperties applicationProperties;
 
     public TimeoutHandlerModule(VehicleDataCache vehicleDataCache,
@@ -49,16 +49,14 @@ public class TimeoutHandlerModule implements Module {
                                 AvlProcessor avlProcessor,
                                 DbConfig dbConfig,
                                 AvlReportRegistry avlReportRegistry,
-                                ApplicationProperties properties,
-                                Time time, ApplicationProperties applicationProperties) {
+                                ApplicationProperties properties) {
         this.vehicleDataCache = vehicleDataCache;
         this.vehicleStatusManager = vehicleStatusManager;
         this.avlProcessor = avlProcessor;
         this.dbConfig = dbConfig;
         this.avlReportRegistry = avlReportRegistry;
         this.timeoutConfig = properties.getTimeout();
-        this.time = time;
-        this.applicationProperties = applicationProperties;
+        this.applicationProperties = properties;
     }
 
 

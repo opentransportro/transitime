@@ -1,10 +1,10 @@
 /* (C)2023 */
 package org.transitclock.core.holdingmethod;
 
-import lombok.extern.slf4j.Slf4j;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
-import org.transitclock.ApplicationProperties;
-import org.transitclock.ApplicationProperties.Holding;
 import org.transitclock.core.VehicleStatus;
 import org.transitclock.core.dataCache.PredictionDataCache;
 import org.transitclock.core.dataCache.StopArrivalDepartureCacheInterface;
@@ -13,27 +13,26 @@ import org.transitclock.domain.hibernate.DataDbLogger;
 import org.transitclock.domain.structs.ArrivalDeparture;
 import org.transitclock.domain.structs.HoldingTime;
 import org.transitclock.gtfs.DbConfig;
+import org.transitclock.properties.HoldingProperties;
 import org.transitclock.service.dto.IpcArrivalDeparture;
 import org.transitclock.service.dto.IpcPrediction;
 import org.transitclock.service.dto.IpcPredictionsForRouteStopDest;
 import org.transitclock.utils.SystemTime;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author Sean Óg Crudden Simple holding time generator.
  */
 @Slf4j
 public class SimpleHoldingTimeGeneratorImpl implements HoldingTimeGenerator {
-    private final ApplicationProperties.Holding holdingConfig;
+    private final HoldingProperties holdingConfig;
     private final PredictionDataCache predictionDataCache;
     private final StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface;
     private final DataDbLogger dataDbLogger;
     private final DbConfig dbConfig;
 
-    public SimpleHoldingTimeGeneratorImpl(Holding holding, PredictionDataCache predictionDataCache, StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface, DataDbLogger dataDbLogger, DbConfig dbConfig) {
+    public SimpleHoldingTimeGeneratorImpl(HoldingProperties holding, PredictionDataCache predictionDataCache, StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface, DataDbLogger dataDbLogger, DbConfig dbConfig) {
         this.holdingConfig = holding;
         this.predictionDataCache = predictionDataCache;
         this.stopArrivalDepartureCacheInterface = stopArrivalDepartureCacheInterface;

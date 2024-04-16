@@ -4,7 +4,6 @@ package org.transitclock.core.prediction.scheduled.traveltime.kalman;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.DateUtils;
 
-import org.transitclock.ApplicationProperties;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.core.*;
 import org.transitclock.core.avl.RealTimeSchedAdhProcessor;
@@ -20,6 +19,7 @@ import org.transitclock.domain.structs.AvlReport;
 import org.transitclock.domain.structs.PredictionEvent;
 import org.transitclock.domain.structs.PredictionForStopPath;
 import org.transitclock.gtfs.DbConfig;
+import org.transitclock.properties.PredictionProperties;
 import org.transitclock.utils.SystemTime;
 
 import java.util.Calendar;
@@ -43,7 +43,7 @@ public class KalmanPredictionGeneratorImpl extends PredictionGeneratorDefaultImp
                                          DbConfig dbConfig,
                                          DataDbLogger dataDbLogger,
                                          TravelTimeDataFilter travelTimeDataFilter,
-                                         ApplicationProperties.Prediction properties,
+                                         PredictionProperties properties,
                                          HoldingTimeCache holdingTimeCache, StopPathPredictionCache stopPathPredictionCache, TravelTimes travelTimes, HoldingTimeGenerator holdingTimeGenerator, VehicleStatusManager vehicleStatusManager, RealTimeSchedAdhProcessor realTimeSchedAdhProcessor, BiasAdjuster biasAdjuster, ErrorCache kalmanErrorCache) {
         super(stopArrivalDepartureCacheInterface, tripDataHistoryCacheInterface, dbConfig, dataDbLogger, travelTimeDataFilter, properties, holdingTimeCache, stopPathPredictionCache, travelTimes, holdingTimeGenerator, vehicleStatusManager, realTimeSchedAdhProcessor, biasAdjuster);
         this.kalmanErrorCache = kalmanErrorCache;

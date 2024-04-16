@@ -11,6 +11,7 @@ import org.transitclock.gtfs.*;
 import org.transitclock.gtfs.model.GtfsAgency;
 import org.transitclock.gtfs.readers.GtfsAgencyReader;
 import org.transitclock.gtfs.readers.ReaderHelper;
+import org.transitclock.properties.GtfsProperties;
 import org.transitclock.utils.HttpGetGtfsFile;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.Zip;
@@ -189,7 +190,7 @@ public class GtfsFileProcessor {
      * Once the GtfsFileProcessor is constructed and the options have been set then this function is
      * used to actually process the GTFS data and store it into the database.
      */
-    public void process(ApplicationProperties.Gtfs gtfsProperties) throws IllegalArgumentException {
+    public void process(GtfsProperties gtfsProperties) throws IllegalArgumentException {
         // Gets the GTFS files from URL or from a zip file if need be.
         // This also sets gtfsDirectoryName member
         obtainGtfsFiles();

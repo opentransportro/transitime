@@ -47,7 +47,7 @@ public class CacheResource extends BaseApiResource implements CacheApi {
     public ResponseEntity<ApiKalmanErrorCacheKeysResponse> getKalmanErrorCacheKeys(StandardParameters stdParameters)
              {
         try {
-            List<IpcKalmanErrorCacheKey> result = cacheQueryInterface.getKalmanErrorCacheKeys();
+            List<IpcKalmanErrorCacheKey> result = cacheQueryService.getKalmanErrorCacheKeys();
             ApiKalmanErrorCacheKeysResponse keys = new ApiKalmanErrorCacheKeysResponse(result);
             return stdParameters.createResponse(keys);
         } catch (Exception e) {
@@ -61,7 +61,7 @@ public class CacheResource extends BaseApiResource implements CacheApi {
              {
         try {
             List<IpcHistoricalAverageCacheKey> result =
-                    cacheQueryInterface.getScheduledBasedHistoricalAverageCacheKeys();
+                    cacheQueryService.getScheduledBasedHistoricalAverageCacheKeys();
 
             ApiHistoricalAverageCacheKeysResponse keys = new ApiHistoricalAverageCacheKeysResponse(result);
 
@@ -78,7 +78,7 @@ public class CacheResource extends BaseApiResource implements CacheApi {
              {
         try {
             List<IpcHistoricalAverageCacheKey> result =
-                    cacheQueryInterface.getFrequencyBasedHistoricalAverageCacheKeys();
+                    cacheQueryService.getFrequencyBasedHistoricalAverageCacheKeys();
 
             ApiHistoricalAverageCacheKeysResponse keys = new ApiHistoricalAverageCacheKeysResponse(result);
 
@@ -93,7 +93,7 @@ public class CacheResource extends BaseApiResource implements CacheApi {
     public ResponseEntity<ApiHoldingTimeCacheKeysResponse> getHoldingTimeCacheKeys(StandardParameters stdParameters)
              {
         try {
-            List<IpcHoldingTimeCacheKey> result = cacheQueryInterface.getHoldingTimeCacheKeys();
+            List<IpcHoldingTimeCacheKey> result = cacheQueryService.getHoldingTimeCacheKeys();
 
             ApiHoldingTimeCacheKeysResponse keys = new ApiHoldingTimeCacheKeysResponse(result);
 
@@ -111,7 +111,7 @@ public class CacheResource extends BaseApiResource implements CacheApi {
     public ResponseEntity<ApiCacheDetails> getCacheInfo(StandardParameters stdParameters, String cachename) {
         try {
 
-            Integer size = cacheQueryInterface.entriesInCache(cachename);
+            Integer size = cacheQueryService.entriesInCache(cachename);
 
             if (size != null)
                 return stdParameters.createResponse(new ApiCacheDetails(cachename, size));
@@ -133,7 +133,7 @@ public class CacheResource extends BaseApiResource implements CacheApi {
              {
         try {
 
-            List<IpcArrivalDeparture> result = cacheQueryInterface.getStopArrivalDepartures(stopid);
+            List<IpcArrivalDeparture> result = cacheQueryService.getStopArrivalDepartures(stopid);
 
             ApiArrivalDeparturesResponse apiResult = new ApiArrivalDeparturesResponse(result);
             var response = stdParameters.createResponse(apiResult);
@@ -157,7 +157,7 @@ public class CacheResource extends BaseApiResource implements CacheApi {
             LocalDate queryDate = null;
             if (date != null) queryDate = date.getDate();
             List<IpcArrivalDeparture> result =
-                    cacheQueryInterface.getTripArrivalDepartures(tripid, queryDate, starttime);
+                    cacheQueryService.getTripArrivalDepartures(tripid, queryDate, starttime);
 
             ApiArrivalDeparturesResponse apiResult = new ApiArrivalDeparturesResponse(result);
             var response = stdParameters.createResponse(apiResult);
@@ -178,7 +178,7 @@ public class CacheResource extends BaseApiResource implements CacheApi {
             StandardParameters stdParameters, String tripId,
             Integer stopPathIndex) {
         try {
-            IpcHistoricalAverage result = cacheQueryInterface.getHistoricalAverage(tripId, stopPathIndex);
+            IpcHistoricalAverage result = cacheQueryService.getHistoricalAverage(tripId, stopPathIndex);
             var response = stdParameters.createResponse(new ApiHistoricalAverage(result));
             return response;
 
@@ -196,7 +196,7 @@ public class CacheResource extends BaseApiResource implements CacheApi {
             Integer stopPathIndex) {
         try {
 
-            Double result = cacheQueryInterface.getKalmanErrorValue(tripId, stopPathIndex);
+            Double result = cacheQueryService.getKalmanErrorValue(tripId, stopPathIndex);
 
             var response = stdParameters.createResponse(result);
 
@@ -229,7 +229,7 @@ public class CacheResource extends BaseApiResource implements CacheApi {
                 start_date = Date.from(yesterdatMidnight.atZone(ZoneId.systemDefault()).toInstant());
             }
 
-            List<IpcPredictionForStopPath> result = predictionAnalysisInterface.getCachedTravelTimePredictions(
+            List<IpcPredictionForStopPath> result = predictionAnalysisService.getCachedTravelTimePredictions(
                     tripId, stopPathIndex, start_date, end_date, algorithm);
 
             var response = stdParameters.createResponse(new ApiPredictionsForStopPathResponse(result));
@@ -245,7 +245,7 @@ public class CacheResource extends BaseApiResource implements CacheApi {
     @Override
     public ResponseEntity<ApiHoldingTime> getHoldingTime(StandardParameters stdParameters, String stopId, String vehicleId) {
         try {
-            IpcHoldingTime result = holdingTimeInterface.getHoldTime(stopId, vehicleId);
+            IpcHoldingTime result = holdingTimeService.getHoldTime(stopId, vehicleId);
 
             var response = stdParameters.createResponse(new ApiHoldingTime(result));
 

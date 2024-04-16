@@ -10,7 +10,7 @@ import org.transitclock.domain.structs.Agency;
 import org.transitclock.domain.structs.Extent;
 import org.transitclock.domain.structs.Location;
 import org.transitclock.domain.webstructs.WebAgency;
-import org.transitclock.service.contract.ConfigInterface;
+import org.transitclock.service.contract.ConfigService;
 import org.transitclock.utils.Time;
 
 /**
@@ -37,7 +37,7 @@ public class PredsByLoc {
      *
      * @return cache of extents
      */
-    private static Map<String, Extent> getAgencyExtents(ConfigInterface configInterface) {
+    private static Map<String, Extent> getAgencyExtents(ConfigService configService) {
         // If updated cache recently then simply return it
         if (System.currentTimeMillis() < cacheUpdatedTime + CACHE_VALID_MSEC) {
             return agencyExtentsCache;
@@ -66,13 +66,13 @@ public class PredsByLoc {
      * @param distance
      * @return List of agencies that are nearby
      */
-    public static List<String> getNearbyAgencies(ConfigInterface configInterface, double latitude, double longitude, double distance) {
+    public static List<String> getNearbyAgencies(ConfigService configService, double latitude, double longitude, double distance) {
         // For results of method
         List<String> nearbyAgencies = new ArrayList<>();
 
         // Determine which agencies are nearby and add them to list
         Location loc = new Location(latitude, longitude);
-        Map<String, Extent> agencyExtents = getAgencyExtents(configInterface);
+        Map<String, Extent> agencyExtents = getAgencyExtents(configService);
         for (String agencyId : agencyExtents.keySet()) {
             Extent agencyExtent = agencyExtents.get(agencyId);
             if (agencyExtent.isWithinDistance(loc, distance)) {

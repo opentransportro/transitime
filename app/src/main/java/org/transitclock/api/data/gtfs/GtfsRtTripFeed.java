@@ -9,10 +9,9 @@ import com.google.transit.realtime.GtfsRealtime.TripUpdate.StopTimeUpdate.Schedu
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.ApplicationProperties;
 import org.transitclock.api.utils.AgencyTimezoneCache;
-import org.transitclock.config.data.ApiConfig;
 import org.transitclock.core.holdingmethod.PredictionTimeComparator;
-import org.transitclock.service.contract.PredictionsInterface;
-import org.transitclock.service.contract.VehiclesInterface;
+import org.transitclock.service.contract.PredictionsService;
+import org.transitclock.service.contract.VehiclesService;
 import org.transitclock.service.dto.IpcPrediction;
 import org.transitclock.service.dto.IpcPredictionsForRouteStopDest;
 import org.transitclock.service.dto.IpcVehicleConfig;
@@ -57,13 +56,13 @@ public class GtfsRtTripFeed {
 
     private final SimpleDateFormat gtfsRealtimeTimeFormatter = new SimpleDateFormat("HH:mm:ss");
     private final ApplicationProperties properties;
-    private final PredictionsInterface predictionsInterface;
-    private final VehiclesInterface vehiclesInterface;
+    private final PredictionsService predictionsService;
+    private final VehiclesService vehiclesService;
 
-    public GtfsRtTripFeed(ApplicationProperties properties, PredictionsInterface predictionsInterface, VehiclesInterface vehiclesInterface, AgencyTimezoneCache agencyTimezoneCache) {
+    public GtfsRtTripFeed(ApplicationProperties properties, PredictionsService predictionsService, VehiclesService vehiclesService, AgencyTimezoneCache agencyTimezoneCache) {
         this.properties = properties;
-        this.predictionsInterface = predictionsInterface;
-        this.vehiclesInterface = vehiclesInterface;
+        this.predictionsService = predictionsService;
+        this.vehiclesService = vehiclesService;
         this.gtfsRealtimeDateFormatter.setTimeZone(agencyTimezoneCache.get(properties.getCore().getAgencyId()));
     }
 
@@ -125,7 +124,7 @@ public class GtfsRtTripFeed {
         // Add the VehicleDescriptor information
         VehicleDescriptor.Builder vehicleDescriptor = null;
 
-        Collection<IpcVehicleConfig> vehConfigs = vehiclesInterface.getVehicleConfigs();
+        Collection<IpcVehicleConfig> vehConfigs = vehiclesService.getVehicleConfigs();
         for (IpcVehicleConfig ipcVehicleConfig : vehConfigs) {
             if (ipcVehicleConfig.getId().equals(firstPred.getVehicleId())) {
                 vehicleDescriptor = VehicleDescriptor
@@ -274,7 +273,7 @@ public class GtfsRtTripFeed {
      */
     private Map<String, List<IpcPrediction>> getPredictionsPerTrip() {
         // Get all the predictions, grouped by vehicle, from the server
-        List<IpcPredictionsForRouteStopDest> allPredictionsByStop = predictionsInterface.getAllPredictions(properties.getApi().getPredictionMaxFutureSecs());
+        List<IpcPredictionsForRouteStopDest> allPredictionsByStop = predictionsService.getAllPredictions(properties.getApi().getPredictionMaxFutureSecs());
 
         // Group the predictions by trip instead of by vehicle
         Map<String, List<IpcPrediction>> predictionsByTrip = new HashMap<>();

@@ -8,7 +8,7 @@ import org.transitclock.core.dataCache.HoldingTimeCache;
 import org.transitclock.core.dataCache.HoldingTimeCacheKey;
 import org.transitclock.core.dataCache.VehicleDataCache;
 import org.transitclock.domain.structs.HoldingTime;
-import org.transitclock.service.contract.HoldingTimeInterface;
+import org.transitclock.service.contract.HoldingTimeService;
 import org.transitclock.service.dto.IpcHoldingTime;
 
 /**
@@ -17,7 +17,7 @@ import org.transitclock.service.dto.IpcHoldingTime;
  */
 @Slf4j
 @Component
-public class HoldingTimeServiceImpl implements HoldingTimeInterface {
+public class HoldingTimeServiceImpl implements HoldingTimeService {
     @Autowired
     private VehicleDataCache vehicleDataCache;
     @Autowired

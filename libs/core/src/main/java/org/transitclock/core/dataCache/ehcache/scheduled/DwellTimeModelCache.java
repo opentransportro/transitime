@@ -7,7 +7,6 @@ import org.ehcache.Cache;
 import org.ehcache.CacheManager;
 import org.hibernate.Session;
 
-import org.transitclock.ApplicationProperties.Prediction;
 import org.transitclock.core.TemporalDifference;
 import org.transitclock.core.dataCache.DwellTimeModelCacheInterface;
 import org.transitclock.core.dataCache.StopArrivalDepartureCacheInterface;
@@ -17,6 +16,7 @@ import org.transitclock.core.prediction.scheduled.dwell.DwellModel;
 import org.transitclock.domain.structs.ArrivalDeparture;
 import org.transitclock.domain.structs.Headway;
 import org.transitclock.domain.structs.QArrivalDeparture;
+import org.transitclock.properties.PredictionProperties;
 import org.transitclock.service.dto.IpcArrivalDeparture;
 
 import java.util.Calendar;
@@ -35,12 +35,12 @@ public class DwellTimeModelCache implements DwellTimeModelCacheInterface {
     private final Cache<StopPathCacheKey, DwellModel> cache;
     private final DwellModel dwellModel;
     private final StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface;
-    private final Prediction.Rls rlsPredictionConfig;
+    private final PredictionProperties.Rls rlsPredictionConfig;
 
     public DwellTimeModelCache(CacheManager cm,
                                DwellModel dwellModel,
                                StopArrivalDepartureCacheInterface stopArrivalDepartureCacheInterface,
-                               Prediction.Rls rlsPredictionConfig) {
+                               PredictionProperties.Rls rlsPredictionConfig) {
         cache = cm.getCache(cacheName, StopPathCacheKey.class, DwellModel.class);
         this.dwellModel = dwellModel;
         this.stopArrivalDepartureCacheInterface = stopArrivalDepartureCacheInterface;

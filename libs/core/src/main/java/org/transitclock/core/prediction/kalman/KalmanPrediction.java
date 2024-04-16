@@ -1,16 +1,16 @@
 /* (C)2023 */
 package org.transitclock.core.prediction.kalman;
 
-import org.transitclock.ApplicationProperties.Prediction;
+import org.transitclock.properties.PredictionProperties;
 
 /**
  * @author Sean Óg Crudden
  */
 public class KalmanPrediction {
 
-    private final Prediction.Data.Kalman kalmanProperties;
+    private final PredictionProperties.Data.Kalman kalmanProperties;
 
-    public KalmanPrediction(Prediction.Data.Kalman kalmanProperties) {
+    public KalmanPrediction(PredictionProperties.Data.Kalman kalmanProperties) {
         this.kalmanProperties = kalmanProperties;
     }
 

@@ -3,7 +3,6 @@ package org.transitclock.api.resources;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,7 +12,6 @@ import org.transitclock.api.data.ApiActiveBlocksResponse;
 import org.transitclock.api.data.ApiActiveBlocksRoutesResponse;
 import org.transitclock.api.data.ApiAdherenceSummary;
 import org.transitclock.api.data.ApiAgenciesResponse;
-import org.transitclock.api.data.ApiAgency;
 import org.transitclock.api.data.ApiBlock;
 import org.transitclock.api.data.ApiBlocksResponse;
 import org.transitclock.api.data.ApiBlocksTerseResponse;
@@ -43,7 +41,7 @@ import org.transitclock.domain.structs.Agency;
 import org.transitclock.domain.structs.ExportTable;
 import org.transitclock.domain.structs.Location;
 import org.transitclock.gtfs.DbConfig;
-import org.transitclock.service.contract.PredictionsInterface.RouteStop;
+import org.transitclock.service.contract.PredictionsService.RouteStop;
 import org.transitclock.service.dto.IpcActiveBlock;
 import org.transitclock.service.dto.IpcBlock;
 import org.transitclock.service.dto.IpcCalendar;
@@ -94,11 +92,11 @@ public class TransitimeResource extends BaseApiResource implements TransitimeApi
         // Get Vehicle data from server
         Collection<IpcVehicle> vehicles;
         if (!routesIdOrShortNames.isEmpty() && !routesIdOrShortNames.get(0).trim().isEmpty()) {
-            vehicles = vehiclesInterface.getForRoute(routesIdOrShortNames);
+            vehicles = vehiclesService.getForRoute(routesIdOrShortNames);
         } else if (!vehicleIds.isEmpty() && !vehicleIds.get(0).trim().isEmpty()) {
-            vehicles = vehiclesInterface.get(vehicleIds);
+            vehicles = vehiclesService.get(vehicleIds);
         } else {
-            vehicles = vehiclesInterface.get();
+            vehicles = vehiclesService.get();
         }
 
         // If the vehicles doesn't exist then throw exception such that
@@ -128,7 +126,7 @@ public class TransitimeResource extends BaseApiResource implements TransitimeApi
         validate(stdParameters);
 
         // Get Vehicle data from server
-        var result = vehiclesInterface.getVehicleToBlockConfig(blockId);
+        var result = vehiclesService.getVehicleToBlockConfig(blockId);
         ApiVehicleToBlockResponse res = new ApiVehicleToBlockResponse(result);
 
         // return ApiVehicles response
@@ -141,7 +139,7 @@ public class TransitimeResource extends BaseApiResource implements TransitimeApi
         validate(stdParameters);
 
         // Get Vehicle data from server
-        List<String> ids = configInterface.getVehicleIds();
+        List<String> ids = configService.getVehicleIds();
 
         ApiIdsResponse apiIds = new ApiIdsResponse(ids);
         return ResponseEntity.ok(apiIds);
@@ -154,7 +152,7 @@ public class TransitimeResource extends BaseApiResource implements TransitimeApi
         validate(stdParameters);
 
         // Get Vehicle data from server
-        IpcVehicle vehicle = vehiclesInterface.get(vehicleId);
+        IpcVehicle vehicle = vehiclesService.get(vehicleId);
         if (vehicle == null) {
             throw WebUtils.badRequestException("Invalid specifier for " + "vehicle");
         }
@@ -178,12 +176,12 @@ public class TransitimeResource extends BaseApiResource implements TransitimeApi
         Collection<IpcVehicle> vehicles;
         // Collection<IpcVehicle> vehicles_temp;
         if (!routesIdOrShortNames.isEmpty() && !routesIdOrShortNames.get(0).trim().isEmpty()) {
-            vehicles = vehiclesInterface.getForRoute(routesIdOrShortNames);
+            vehicles = vehiclesService.getForRoute(routesIdOrShortNames);
         } else if (!vehicleIds.isEmpty() && !vehicleIds.get(0).trim().isEmpty()) {
-            vehicles = vehiclesInterface.get(vehicleIds);
+            vehicles = vehiclesService.get(vehicleIds);
         } else {
             // vehicles_temp = inter.get();
-            vehicles = vehiclesInterface.get();
+            vehicles = vehiclesService.get();
             // vehicles.clear();
             // for(IpcVehicle ipcVehicle : vehicles_temp) {
             //	if(Reports.hasLastAvlJsonInHours(stdParameters.getAgencyId(), ipcVehicle.getId(),
@@ -199,7 +197,7 @@ public class TransitimeResource extends BaseApiResource implements TransitimeApi
             throw WebUtils.badRequestException("Invalid specifier for " + "vehicles");
         }
 
-        Collection<IpcVehicleConfig> vehicleConfigs = vehiclesInterface.getVehicleConfigs();
+        Collection<IpcVehicleConfig> vehicleConfigs = vehiclesService.getVehicleConfigs();
 
         Map<String, List<IpcVehicle>> vehiclesGrouped = vehicles.stream().collect(Collectors.groupingBy(IpcVehicle::getId));
         Map<String, List<IpcVehicleConfig>> vehiclesConfigsGrouped = vehicleConfigs.stream().collect(Collectors.groupingBy(IpcVehicleConfig::getId));
@@ -239,7 +237,7 @@ public class TransitimeResource extends BaseApiResource implements TransitimeApi
         validate(stdParameters);
 
         // Get Vehicle data from server
-        Collection<IpcVehicleConfig> ipcVehicleConfigs = vehiclesInterface.getVehicleConfigs();
+        Collection<IpcVehicleConfig> ipcVehicleConfigs = vehiclesService.getVehicleConfigs();
         ApiVehicleConfigsResponse apiVehicleConfigsResponse = new ApiVehicleConfigsResponse(ipcVehicleConfigs);
 
         // return ApiVehiclesDetails response
@@ -284,7 +282,7 @@ public class TransitimeResource extends BaseApiResource implements TransitimeApi
         }
 
         // Actually get the predictions via IPC
-        List<IpcPredictionsForRouteStopDest> predictions = predictionsInterface.get(routeStopsList, numberPredictions);
+        List<IpcPredictionsForRouteStopDest> predictions = predictionsService.get(routeStopsList, numberPredictions);
 
         // return ApiPredictions response
         ApiPredictionsResponse predictionsData = new ApiPredictionsResponse(predictions);
@@ -312,7 +310,7 @@ public class TransitimeResource extends BaseApiResource implements TransitimeApi
 
         // Get predictions by location
         List<IpcPredictionsForRouteStopDest> predictions =
-                predictionsInterface.get(new Location(lat, lon), maxDistance, numberPredictions);
+                predictionsService.get(new Location(lat, lon), maxDistance, numberPredictions);
 
         // return ApiPredictions response
         ApiPredictionsResponse predictionsData = new ApiPredictionsResponse(predictions);
@@ -329,13 +327,13 @@ public class TransitimeResource extends BaseApiResource implements TransitimeApi
         validate(stdParameters);
 
         // Get agency info so can also return agency name
-        List<Agency> agencies = configInterface.getAgencies();
+        List<Agency> agencies = configService.getAgencies();
 
         // Get route data from server
         ApiRoutesResponse routesData;
         if (routeIdsOrShortNames == null || routeIdsOrShortNames.isEmpty()) {
             // Get all routes
-            List<IpcRouteSummary> routes = new ArrayList<IpcRouteSummary>(configInterface.getRoutes());
+            List<IpcRouteSummary> routes = new ArrayList<IpcRouteSummary>(configService.getRoutes());
 
             // Handle duplicates. If should keep duplicates (where couple
             // of routes have the same route_short_name) then modify
@@ -374,7 +372,7 @@ public class TransitimeResource extends BaseApiResource implements TransitimeApi
             routesData = new ApiRoutesResponse(processedRoutes, agencies.get(0));
         } else {
             // Get specified routes
-            List<IpcRoute> ipcRoutes = configInterface.getRoutes(routeIdsOrShortNames);
+            List<IpcRoute> ipcRoutes = configService.getRoutes(routeIdsOrShortNames);
             routesData = new ApiRoutesResponse(ipcRoutes, agencies.get(0));
         }
 
@@ -393,14 +391,14 @@ public class TransitimeResource extends BaseApiResource implements TransitimeApi
         validate(stdParameters);
 
         // Get agency info so can also return agency name
-        List<Agency> agencies = configInterface.getAgencies();
+        List<Agency> agencies = configService.getAgencies();
 
         List<IpcRoute> ipcRoutes;
 
         // If single route specified
         if (routeIdsOrShortNames != null && routeIdsOrShortNames.size() == 1) {
             String routeIdOrShortName = routeIdsOrShortNames.get(0);
-            IpcRoute route = configInterface.getRoute(routeIdOrShortName, directionId, stopId, tripPatternId);
+            IpcRoute route = configService.getRoute(routeIdOrShortName, directionId, stopId, tripPatternId);
 
             // If the route doesn't exist then throw exception such that
             // Bad Request with an appropriate message is returned.
@@ -412,7 +410,7 @@ public class TransitimeResource extends BaseApiResource implements TransitimeApi
             ipcRoutes.add(route);
         } else {
             // Multiple routes specified
-            ipcRoutes = configInterface.getRoutes(routeIdsOrShortNames);
+            ipcRoutes = configService.getRoutes(routeIdsOrShortNames);
         }
 
         // Take the IpcRoute data array and create and return
@@ -432,7 +430,7 @@ public class TransitimeResource extends BaseApiResource implements TransitimeApi
 
         try {
             // Get stops data from server
-            IpcDirectionsForRoute stopsForRoute = configInterface.getStops(dbConfig, routesIdOrShortNames);
+            IpcDirectionsForRoute stopsForRoute = configService.getStops(dbConfig, routesIdOrShortNames);
 
             // If the route doesn't exist then throw exception such that
             // Bad Request with an appropriate message is returned.
@@ -463,7 +461,7 @@ public class TransitimeResource extends BaseApiResource implements TransitimeApi
 
         try {
             // Get block data from server
-            IpcBlock ipcBlock = configInterface.getBlock(blockId, serviceId);
+            IpcBlock ipcBlock = configService.getBlock(blockId, serviceId);
 
             // If the block doesn't exist then throw exception such that
             // Bad Request with an appropriate message is returned.
@@ -491,7 +489,7 @@ public class TransitimeResource extends BaseApiResource implements TransitimeApi
 
         try {
             // Get block data from server
-            Collection<IpcBlock> ipcBlocks = configInterface.getBlocks(blockId);
+            Collection<IpcBlock> ipcBlocks = configService.getBlocks(blockId);
 
             // If the block doesn't exist then throw exception such that
             // Bad Request with an appropriate message is returned.
@@ -518,7 +516,7 @@ public class TransitimeResource extends BaseApiResource implements TransitimeApi
 
         try {
             // Get block data from server
-            Collection<IpcBlock> ipcBlocks = configInterface.getBlocks(blockId);
+            Collection<IpcBlock> ipcBlocks = configService.getBlocks(blockId);
 
             // If the block doesn't exist then throw exception such that
             // Bad Request with an appropriate message is returned.
@@ -544,7 +542,7 @@ public class TransitimeResource extends BaseApiResource implements TransitimeApi
 
         try {
             // Get Vehicle data from server
-            List<String> ids = configInterface.getBlockIds(serviceId);
+            List<String> ids = configService.getBlockIds(serviceId);
 
             ApiIdsResponse apiIds = new ApiIdsResponse(ids);
             return stdParameters.createResponse(apiIds);
@@ -567,7 +565,7 @@ public class TransitimeResource extends BaseApiResource implements TransitimeApi
             // Get active block data from server
 
             Collection<IpcActiveBlock> activeBlocks =
-                    vehiclesInterface.getActiveBlocks(routesIdOrShortNames, allowableBeforeTimeSecs);
+                    vehiclesService.getActiveBlocks(routesIdOrShortNames, allowableBeforeTimeSecs);
 
             // Create and return ApiBlock response
             ApiActiveBlocksResponse apiActiveBlocksResponse = new ApiActiveBlocksResponse(activeBlocks, stdParameters.getAgencyId());
@@ -590,7 +588,7 @@ public class TransitimeResource extends BaseApiResource implements TransitimeApi
         try {
             // Get active block data from server
             Collection<IpcActiveBlock> activeBlocks =
-                    vehiclesInterface.getActiveBlocks(routesIdOrShortNames, allowableBeforeTimeSecs);
+                    vehiclesService.getActiveBlocks(routesIdOrShortNames, allowableBeforeTimeSecs);
 
             // Create and return ApiBlock response
             ApiActiveBlocksRoutesResponse apiActiveBlocksRoutesResponse =
@@ -614,7 +612,7 @@ public class TransitimeResource extends BaseApiResource implements TransitimeApi
         try {
             // Get active block data from server
             Collection<IpcActiveBlock> activeBlocks =
-                    vehiclesInterface.getActiveBlocksWithoutVehicles(routesIdOrShortNames, allowableBeforeTimeSecs);
+                    vehiclesService.getActiveBlocksWithoutVehicles(routesIdOrShortNames, allowableBeforeTimeSecs);
 
             // Create and return ApiBlock response
             ApiActiveBlocksRoutesResponse apiActiveBlocksRoutesResponse =
@@ -638,7 +636,7 @@ public class TransitimeResource extends BaseApiResource implements TransitimeApi
         try {
             // Get active block data from server
             Collection<IpcActiveBlock> activeBlocks =
-                    vehiclesInterface.getActiveBlocksAndVehiclesByRouteId(routesIdOrShortName, allowableBeforeTimeSecs);
+                    vehiclesService.getActiveBlocksAndVehiclesByRouteId(routesIdOrShortName, allowableBeforeTimeSecs);
 
             // Create and return ApiBlock response
             ApiActiveBlocksRoutesResponse apiActiveBlocksRoutesResponse =
@@ -661,11 +659,11 @@ public class TransitimeResource extends BaseApiResource implements TransitimeApi
         try {
             // Get active block data from server
             Collection<IpcActiveBlock> activeBlocks =
-                    vehiclesInterface.getActiveBlocksAndVehiclesByRouteName(routeName, allowableBeforeTimeSecs);
+                    vehiclesService.getActiveBlocksAndVehiclesByRouteName(routeName, allowableBeforeTimeSecs);
 
             for (IpcActiveBlock ipcActiveBlocks : activeBlocks) {
                 for (IpcVehicle ipcVehicle : ipcActiveBlocks.getVehicles()) {
-                    for (IpcVehicleConfig iVC : vehiclesInterface.getVehicleConfigs()) {
+                    for (IpcVehicleConfig iVC : vehiclesService.getVehicleConfigs()) {
 
                         if (iVC.getId().equals(ipcVehicle.getId()) && StringUtils.hasText(iVC.getName())) {
                             ipcVehicle.setVehicleName(iVC.getName());
@@ -701,7 +699,7 @@ public class TransitimeResource extends BaseApiResource implements TransitimeApi
 
             int late = 0, ontime = 0, early = 0, nodata = 0, blocks = 0;
 
-            Collection<IpcVehicle> ipcVehicles = vehiclesInterface.getVehiclesForBlocks();
+            Collection<IpcVehicle> ipcVehicles = vehiclesService.getVehiclesForBlocks();
 
             for (IpcVehicle v : ipcVehicles) {
                 TemporalDifference adh = v.getRealTimeSchedAdh();
@@ -717,7 +715,7 @@ public class TransitimeResource extends BaseApiResource implements TransitimeApi
                 }
             }
 
-            blocks = vehiclesInterface.getNumActiveBlocks(null, allowableBeforeTimeSecs);
+            blocks = vehiclesService.getNumActiveBlocks(null, allowableBeforeTimeSecs);
 
             ApiAdherenceSummary resp = new ApiAdherenceSummary(late, ontime, early, nodata, blocks);
 
@@ -735,7 +733,7 @@ public class TransitimeResource extends BaseApiResource implements TransitimeApi
 
         try {
             // Get block data from server
-            IpcTrip ipcTrip = configInterface.getTrip(tripId);
+            IpcTrip ipcTrip = configService.getTrip(tripId);
 
             // If the trip doesn't exist then throw exception such that
             // Bad Request with an appropriate message is returned.
@@ -761,7 +759,7 @@ public class TransitimeResource extends BaseApiResource implements TransitimeApi
 
         try {
             // Get block data from server
-            IpcTrip ipcTrip = configInterface.getTrip(tripId);
+            IpcTrip ipcTrip = configService.getTrip(tripId);
 
             // If the trip doesn't exist then throw exception such that
             // Bad Request with an appropriate message is returned.
@@ -786,7 +784,7 @@ public class TransitimeResource extends BaseApiResource implements TransitimeApi
 
         try {
             // Get Vehicle data from server
-            List<String> ids = configInterface.getTripIds();
+            List<String> ids = configService.getTripIds();
 
             ApiIdsResponse apiIds = new ApiIdsResponse(ids);
             return stdParameters.createResponse(apiIds);
@@ -804,7 +802,7 @@ public class TransitimeResource extends BaseApiResource implements TransitimeApi
 
         try {
             // Get block data from server
-            List<IpcTripPattern> ipcTripPatterns = configInterface.getTripPatterns(routesIdOrShortNames);
+            List<IpcTripPattern> ipcTripPatterns = configService.getTripPatterns(routesIdOrShortNames);
 
             // If the trip doesn't exist then throw exception such that
             // Bad Request with an appropriate message is returned.
@@ -831,7 +829,7 @@ public class TransitimeResource extends BaseApiResource implements TransitimeApi
 
         try {
             // Get block data from server
-            List<IpcSchedule> ipcSchedules = configInterface.getSchedules(routesIdOrShortNames);
+            List<IpcSchedule> ipcSchedules = configService.getSchedules(routesIdOrShortNames);
 
             // If the trip doesn't exist then throw exception such that
             // Bad Request with an appropriate message is returned.
@@ -858,7 +856,7 @@ public class TransitimeResource extends BaseApiResource implements TransitimeApi
 
         try {
             // Get block data from server
-            List<IpcSchedule> ipcSchedules = configInterface.getSchedules(routesIdOrShortNames);
+            List<IpcSchedule> ipcSchedules = configService.getSchedules(routesIdOrShortNames);
 
             // If the trip doesn't exist then throw exception such that
             // Bad Request with an appropriate message is returned.
@@ -881,7 +879,7 @@ public class TransitimeResource extends BaseApiResource implements TransitimeApi
         // Make sure request is valid
         validate(stdParameters);
         // Get block data from server
-        List<Agency> agencies = configInterface.getAgencies();
+        List<Agency> agencies = configService.getAgencies();
 
         ApiAgenciesResponse apiAgencies = new ApiAgenciesResponse(stdParameters.getAgencyId(), agencies);
         return ResponseEntity.ok(apiAgencies);
@@ -895,7 +893,7 @@ public class TransitimeResource extends BaseApiResource implements TransitimeApi
 
         try {
             // Get block data from server
-            List<IpcCalendar> ipcCalendars = configInterface.getCurrentCalendars();
+            List<IpcCalendar> ipcCalendars = configService.getCurrentCalendars();
 
             // Create and return ApiAgencies response
             ApiCalendarsResponse apiCalendarsResponse = new ApiCalendarsResponse(ipcCalendars);
@@ -914,7 +912,7 @@ public class TransitimeResource extends BaseApiResource implements TransitimeApi
 
         try {
             // Get block data from server
-            List<IpcCalendar> ipcCalendars = configInterface.getAllCalendars();
+            List<IpcCalendar> ipcCalendars = configService.getAllCalendars();
 
             // Create and return ApiAgencies response
             ApiCalendarsResponse apiCalendarsResponse = new ApiCalendarsResponse(ipcCalendars);
@@ -932,7 +930,7 @@ public class TransitimeResource extends BaseApiResource implements TransitimeApi
 
         try {
             // Get Vehicle data from server
-            List<String> ids = configInterface.getServiceIds();
+            List<String> ids = configService.getServiceIds();
 
             ApiIdsResponse apiIds = new ApiIdsResponse(ids);
             return stdParameters.createResponse(apiIds);
@@ -949,7 +947,7 @@ public class TransitimeResource extends BaseApiResource implements TransitimeApi
 
         try {
             // Get Vehicle data from server
-            List<String> ids = configInterface.getCurrentServiceIds();
+            List<String> ids = configService.getCurrentServiceIds();
 
             ApiIdsResponse apiIds = new ApiIdsResponse(ids);
             return stdParameters.createResponse(apiIds);
@@ -967,7 +965,7 @@ public class TransitimeResource extends BaseApiResource implements TransitimeApi
 
         try {
             // Get status information from server
-            IpcServerStatus ipcServerStatus = serverStatusInterface.get();
+            IpcServerStatus ipcServerStatus = serverStatusService.get();
 
             // Create and return ApiServerStatus response
             ApiServerStatus apiServerStatus = new ApiServerStatus(stdParameters.getAgencyId(), ipcServerStatus);
@@ -1091,7 +1089,7 @@ public class TransitimeResource extends BaseApiResource implements TransitimeApi
         // then it is labeled as a minor vehicle for the UI.
         if (!routesIdOrShortNames.isEmpty() && stopId != null) {
             List<IpcPredictionsForRouteStopDest> predictions =
-                    predictionsInterface.get(routesIdOrShortNames.get(0), stopId, numberPredictions);
+                    predictionsService.get(routesIdOrShortNames.get(0), stopId, numberPredictions);
 
             // Determine set of which vehicles predictions generated for
             for (IpcPredictionsForRouteStopDest predsForRouteStop : predictions) {

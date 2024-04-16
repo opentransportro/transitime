@@ -17,7 +17,7 @@ import org.transitclock.domain.hibernate.HibernateUtils;
 import org.transitclock.domain.structs.AvlReport;
 import org.transitclock.domain.structs.VehicleEvent;
 import org.transitclock.domain.structs.VehicleToBlockConfig;
-import org.transitclock.service.contract.CommandsInterface;
+import org.transitclock.service.contract.CommandsService;
 import org.transitclock.service.dto.IpcAvl;
 import org.transitclock.service.dto.IpcVehicleComplete;
 
@@ -28,7 +28,7 @@ import java.util.Date;
 
 @Slf4j
 @Component
-public class CommandsServiceImpl implements CommandsInterface {
+public class CommandsServiceImpl implements CommandsService {
     @Autowired
     private PredictionDataCache predictionDataCache;
     @Autowired

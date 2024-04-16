@@ -10,6 +10,8 @@ import org.transitclock.domain.structs.ArrivalDeparture;
 import org.transitclock.domain.structs.Match;
 import org.transitclock.domain.structs.StopPath;
 import org.transitclock.domain.structs.Trip;
+import org.transitclock.properties.TravelTimesProperties;
+import org.transitclock.properties.UpdatesProperties;
 import org.transitclock.statistics.Statistics;
 import org.transitclock.utils.*;
 
@@ -66,8 +68,8 @@ public class TravelTimesProcessor {
     private static final Map<ProcessedDataMapKey, List<List<Integer>>> travelTimesMap = new HashMap<>();
 
     private boolean isEmpty;
-    private final ApplicationProperties.TravelTimes travelTimesProperties;
-    private final ApplicationProperties.Updates updatesProperties;
+    private final TravelTimesProperties travelTimesProperties;
+    private final UpdatesProperties updatesProperties;
 
     public TravelTimesProcessor(ApplicationProperties properties) {
         this.travelTimesProperties = properties.getTravelTimes();

@@ -83,7 +83,7 @@ public class DatabaseConfiguration {
 
     @Bean
     DataDbLogger dataDbLogger() {
-        ApplicationProperties.Core coreConfig = properties.getCore();
+        var coreConfig = properties.getCore();
         String agencyId = coreConfig.getAgencyId();
         boolean storeDataInDatabase = coreConfig.getStoreDataInDatabase();
         boolean pauseIfDbQueueFilling = coreConfig.getPauseIfDbQueueFilling();

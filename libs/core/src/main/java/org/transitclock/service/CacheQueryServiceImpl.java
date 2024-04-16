@@ -5,9 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.transitclock.core.dataCache.*;
-import org.transitclock.core.dataCache.frequency.FrequencyBasedHistoricalAverageCache;
 import org.transitclock.core.dataCache.scheduled.ScheduleBasedHistoricalAverageCache;
-import org.transitclock.service.contract.CacheQueryInterface;
+import org.transitclock.service.contract.CacheQueryService;
 import org.transitclock.service.dto.*;
 
 import java.time.LocalDate;
@@ -22,7 +21,7 @@ import java.util.List;
  */
 @Slf4j
 @Component
-public class CacheQueryServiceImpl implements CacheQueryInterface {
+public class CacheQueryServiceImpl implements CacheQueryService {
     @Autowired
     private HoldingTimeCache holdingTimeCache;
     @Autowired

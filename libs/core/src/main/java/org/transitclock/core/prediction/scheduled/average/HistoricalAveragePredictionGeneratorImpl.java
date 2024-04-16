@@ -3,7 +3,6 @@ package org.transitclock.core.prediction.scheduled.average;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.transitclock.ApplicationProperties;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.core.Indices;
 import org.transitclock.core.avl.RealTimeSchedAdhProcessor;
@@ -20,6 +19,7 @@ import org.transitclock.domain.hibernate.DataDbLogger;
 import org.transitclock.domain.structs.AvlReport;
 import org.transitclock.domain.structs.PredictionForStopPath;
 import org.transitclock.gtfs.DbConfig;
+import org.transitclock.properties.PredictionProperties;
 import org.transitclock.utils.SystemTime;
 
 /**
@@ -38,7 +38,7 @@ public class HistoricalAveragePredictionGeneratorImpl extends LastVehiclePredict
                                                     DbConfig dbConfig,
                                                     DataDbLogger dataDbLogger,
                                                     TravelTimeDataFilter travelTimeDataFilter,
-                                                    ApplicationProperties.Prediction properties,
+                                                    PredictionProperties properties,
                                                     VehicleDataCache vehicleCache, HoldingTimeCache holdingTimeCache, StopPathPredictionCache stopPathPredictionCache, TravelTimes travelTimes, HoldingTimeGenerator holdingTimeGenerator, VehicleStatusManager vehicleStatusManager, RealTimeSchedAdhProcessor realTimeSchedAdhProcessor, BiasAdjuster biasAdjuster, ScheduleBasedHistoricalAverageCache scheduleBasedHistoricalAverageCache) {
         super(stopArrivalDepartureCacheInterface, tripDataHistoryCacheInterface, dbConfig, dataDbLogger, travelTimeDataFilter, properties, vehicleCache, holdingTimeCache, stopPathPredictionCache, travelTimes, holdingTimeGenerator, vehicleStatusManager, realTimeSchedAdhProcessor, biasAdjuster);
         this.scheduleBasedHistoricalAverageCache = scheduleBasedHistoricalAverageCache;

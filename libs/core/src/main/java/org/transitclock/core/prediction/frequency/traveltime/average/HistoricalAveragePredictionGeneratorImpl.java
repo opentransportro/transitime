@@ -5,7 +5,6 @@ import java.util.Date;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.transitclock.ApplicationProperties;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.core.*;
 import org.transitclock.core.avl.RealTimeSchedAdhProcessor;
@@ -21,6 +20,7 @@ import org.transitclock.domain.hibernate.DataDbLogger;
 import org.transitclock.domain.structs.AvlReport;
 import org.transitclock.domain.structs.PredictionForStopPath;
 import org.transitclock.gtfs.DbConfig;
+import org.transitclock.properties.PredictionProperties;
 import org.transitclock.utils.SystemTime;
 
 /**
@@ -39,7 +39,7 @@ public class HistoricalAveragePredictionGeneratorImpl extends LastVehiclePredict
                                                     DbConfig dbConfig,
                                                     DataDbLogger dataDbLogger,
                                                     TravelTimeDataFilter travelTimeDataFilter,
-                                                    ApplicationProperties.Prediction properties,
+                                                    PredictionProperties properties,
                                                     VehicleDataCache vehicleCache,
                                                     HoldingTimeCache holdingTimeCache,
                                                     StopPathPredictionCache stopPathPredictionCache,

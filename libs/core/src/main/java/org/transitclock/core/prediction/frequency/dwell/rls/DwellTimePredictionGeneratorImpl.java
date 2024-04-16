@@ -3,15 +3,20 @@ package org.transitclock.core.prediction.frequency.dwell.rls;
 
 import java.util.Date;
 
-import lombok.extern.slf4j.Slf4j;
-
-import org.transitclock.ApplicationProperties;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.core.Indices;
-import org.transitclock.core.avl.RealTimeSchedAdhProcessor;
 import org.transitclock.core.TravelTimes;
 import org.transitclock.core.VehicleStatus;
-import org.transitclock.core.dataCache.*;
+import org.transitclock.core.avl.RealTimeSchedAdhProcessor;
+import org.transitclock.core.dataCache.DwellTimeModelCacheInterface;
+import org.transitclock.core.dataCache.ErrorCache;
+import org.transitclock.core.dataCache.HoldingTimeCache;
+import org.transitclock.core.dataCache.StopArrivalDepartureCacheInterface;
+import org.transitclock.core.dataCache.StopPathCacheKey;
+import org.transitclock.core.dataCache.StopPathPredictionCache;
+import org.transitclock.core.dataCache.TripDataHistoryCacheInterface;
+import org.transitclock.core.dataCache.VehicleDataCache;
+import org.transitclock.core.dataCache.VehicleStatusManager;
 import org.transitclock.core.dataCache.frequency.FrequencyBasedHistoricalAverageCache;
 import org.transitclock.core.holdingmethod.HoldingTimeGenerator;
 import org.transitclock.core.prediction.bias.BiasAdjuster;
@@ -21,6 +26,9 @@ import org.transitclock.domain.hibernate.DataDbLogger;
 import org.transitclock.domain.structs.AvlReport;
 import org.transitclock.domain.structs.Headway;
 import org.transitclock.gtfs.DbConfig;
+import org.transitclock.properties.PredictionProperties;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author Sean Og Crudden
@@ -38,7 +46,7 @@ public class DwellTimePredictionGeneratorImpl extends KalmanPredictionGeneratorI
                                             DbConfig dbConfig,
                                             DataDbLogger dataDbLogger,
                                             TravelTimeDataFilter travelTimeDataFilter,
-                                            ApplicationProperties.Prediction properties,
+                                            PredictionProperties properties,
                                             VehicleDataCache vehicleCache,
                                             HoldingTimeCache holdingTimeCache,
                                             StopPathPredictionCache stopPathPredictionCache,

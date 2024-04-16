@@ -1,26 +1,31 @@
 /* (C)2023 */
 package org.transitclock.core.dataCache;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.transitclock.ApplicationProperties;
-import org.transitclock.ApplicationProperties.Prediction;
 import org.transitclock.config.data.CoreConfig;
 import org.transitclock.core.VehicleStatus;
 import org.transitclock.domain.structs.Route;
 import org.transitclock.domain.structs.Stop;
 import org.transitclock.domain.structs.Trip;
 import org.transitclock.gtfs.DbConfig;
+import org.transitclock.properties.PredictionProperties;
+import org.transitclock.service.contract.PredictionsService.RouteStop;
 import org.transitclock.service.dto.IpcPrediction;
 import org.transitclock.service.dto.IpcPredictionsForRouteStopDest;
-import org.transitclock.service.contract.PredictionsInterface.RouteStop;
 import org.transitclock.utils.MapKey;
 import org.transitclock.utils.SystemTime;
 import org.transitclock.utils.Time;
 
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 /**
  * For storing and retrieving predictions by stop.
@@ -44,7 +49,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class PredictionDataCache {
     private final VehicleStatusManager vehicleStatusManager;
     private final DbConfig dbConfig;
-    private final Prediction predictionProperties;
+    private final PredictionProperties predictionProperties;
 
     // Contains lists of predictions per route/stop. Also want to group
     // predictions by destination/trip head sign together so that can

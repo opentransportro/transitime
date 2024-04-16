@@ -15,7 +15,6 @@ import org.transitclock.domain.webstructs.WebAgency;
 import org.transitclock.service.dto.IpcPredictionsForRouteStopDest;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -40,7 +39,7 @@ public class TransitimeNonAgencyResource extends BaseApiResource implements Tran
 
         for (WebAgency webAgency : webAgencies) {
             String agencyId = webAgency.getAgencyId();
-            List<Agency> agencies = configInterface.getAgencies();
+            List<Agency> agencies = configService.getAgencies();
 
             for (Agency agency : agencies) {
                 apiAgencyList.add(new ApiAgency(agencyId, agency));
@@ -71,11 +70,11 @@ public class TransitimeNonAgencyResource extends BaseApiResource implements Tran
         ApiNearbyPredictionsForAgenciesResponse predsForAgencies = new ApiNearbyPredictionsForAgenciesResponse();
 
         // For each nearby agency...
-        List<String> nearbyAgencies = PredsByLoc.getNearbyAgencies(configInterface, lat, lon, maxDistance);
+        List<String> nearbyAgencies = PredsByLoc.getNearbyAgencies(configService, lat, lon, maxDistance);
         for (String agencyId : nearbyAgencies) {
             // Get predictions by location for the agency
             List<IpcPredictionsForRouteStopDest> predictions =
-                predictionsInterface.get(new Location(lat, lon), maxDistance, numberPredictions);
+                predictionsService.get(new Location(lat, lon), maxDistance, numberPredictions);
 
             // Convert predictions to API object
             ApiPredictionsResponse predictionsData = new ApiPredictionsResponse(predictions);

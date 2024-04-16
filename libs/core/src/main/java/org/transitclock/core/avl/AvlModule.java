@@ -4,10 +4,9 @@ package org.transitclock.core.avl;
 import java.util.Collection;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.transitclock.ApplicationProperties;
 import org.transitclock.Module;
 import org.transitclock.domain.structs.AvlReport;
+import org.transitclock.properties.AvlProperties;
 
 /**
  * Low-level abstract AVL module class that handles the processing of the data. Uses JMS to queue
@@ -18,9 +17,9 @@ import org.transitclock.domain.structs.AvlReport;
 @Slf4j
 abstract class AvlModule implements Module {
     protected final AvlReportProcessor avlReportProcessor;
-    protected final ApplicationProperties.Avl avlProperties;
+    protected final AvlProperties avlProperties;
 
-    protected AvlModule(ApplicationProperties.Avl avlProperties, AvlReportProcessor avlReportProcessor) {
+    protected AvlModule(AvlProperties avlProperties, AvlReportProcessor avlReportProcessor) {
         this.avlProperties = avlProperties;
         this.avlReportProcessor = avlReportProcessor;
     }

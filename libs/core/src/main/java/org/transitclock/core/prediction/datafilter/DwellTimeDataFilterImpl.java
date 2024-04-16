@@ -1,11 +1,11 @@
 /* (C)2023 */
 package org.transitclock.core.prediction.datafilter;
 
-import lombok.extern.slf4j.Slf4j;
-
-import org.transitclock.ApplicationProperties.Prediction;
 import org.transitclock.config.LongConfigValue;
+import org.transitclock.properties.PredictionProperties;
 import org.transitclock.service.dto.IpcArrivalDeparture;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author scrudden Filter by schedule adherence min and max dwell tiime min and max
@@ -17,9 +17,9 @@ public class DwellTimeDataFilterImpl implements DwellTimeDataFilter {
             (long) 0,
             "Min dwell time to be considered in algorithm.");
 
-    private final Prediction predictionProperties;
+    private final PredictionProperties predictionProperties;
 
-    public DwellTimeDataFilterImpl(Prediction predictionProperties) {
+    public DwellTimeDataFilterImpl(PredictionProperties predictionProperties) {
         this.predictionProperties = predictionProperties;
     }
 

@@ -15,28 +15,28 @@ public abstract class BaseApiResource {
     protected ApiKeyManager manager;
 
     @Autowired
-    protected PredictionsInterface predictionsInterface;
+    protected PredictionsService predictionsService;
 
     @Autowired
-    protected CacheQueryInterface cacheQueryInterface;
+    protected CacheQueryService cacheQueryService;
 
     @Autowired
-    protected PredictionAnalysisInterface predictionAnalysisInterface;
+    protected PredictionAnalysisService predictionAnalysisService;
 
     @Autowired
-    protected ServerStatusInterface serverStatusInterface;
+    protected ServerStatusService serverStatusService;
 
     @Autowired
-    protected VehiclesInterface vehiclesInterface;
+    protected VehiclesService vehiclesService;
 
     @Autowired
-    protected CommandsInterface commandsInterface;
+    protected CommandsService commandsService;
 
     @Autowired
-    protected ConfigInterface configInterface;
+    protected ConfigService configService;
 
     @Autowired
-    protected HoldingTimeInterface holdingTimeInterface;
+    protected HoldingTimeService holdingTimeService;
 
     /**
      * Makes sure not access feed too much and that the key is valid. If there is a problem then

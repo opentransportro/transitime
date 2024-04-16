@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.transitclock.ApplicationProperties;
+import org.transitclock.properties.PredictionProperties;
 import org.transitclock.statistics.Statistics;
 
 /**
@@ -13,9 +13,9 @@ import org.transitclock.statistics.Statistics;
  */
 public class DwellAverage implements DwellModel {
     private final List<Integer> values = new ArrayList<>();
-    private final ApplicationProperties.Prediction.Dwell.Average prediction;
+    private final PredictionProperties.Dwell.Average prediction;
 
-    public DwellAverage(ApplicationProperties.Prediction.Dwell.Average prediction) {
+    public DwellAverage(PredictionProperties.Dwell.Average prediction) {
         this.prediction = prediction;
     }
     // For this model headway or demand is not taken into account.

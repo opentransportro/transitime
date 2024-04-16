@@ -62,11 +62,11 @@ public class SiriApi extends BaseApiResource {
         // Get Vehicle data from server
         Collection<IpcVehicleComplete> vehicles;
         if (!routesIdOrShortNames.isEmpty()) {
-            vehicles = vehiclesInterface.getCompleteForRoute(routesIdOrShortNames);
+            vehicles = vehiclesService.getCompleteForRoute(routesIdOrShortNames);
         } else if (!vehicleIds.isEmpty()) {
-            vehicles = vehiclesInterface.getComplete(vehicleIds);
+            vehicles = vehiclesService.getComplete(vehicleIds);
         } else {
-            vehicles = vehiclesInterface.getComplete();
+            vehicles = vehiclesService.getComplete();
         }
 
         // Determine and return SiriStopMonitoring response
@@ -109,7 +109,7 @@ public class SiriApi extends BaseApiResource {
         validate(stdParameters);
 
             // Get prediction data from server
-            List<IpcPredictionsForRouteStopDest> preds = predictionsInterface.get(routeIdOrShortName, stopId, numberPredictions);
+            List<IpcPredictionsForRouteStopDest> preds = predictionsService.get(routeIdOrShortName, stopId, numberPredictions);
 
             // For each prediction also need corresponding vehicle so can create
             // the absurdly large MonitoredVehicleJourney element.
@@ -119,7 +119,7 @@ public class SiriApi extends BaseApiResource {
                     vehicleIds.add(individualPred.getVehicleId());
                 }
             }
-            Collection<IpcVehicleComplete> vehicles = vehiclesInterface.getComplete(vehicleIds);
+            Collection<IpcVehicleComplete> vehicles = vehiclesService.getComplete(vehicleIds);
 
             // Determine SiriStopMonitoring response
             SiriStopMonitoring siriStopMonitoring =

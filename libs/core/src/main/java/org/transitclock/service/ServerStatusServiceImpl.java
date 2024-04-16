@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.transitclock.monitoring.AgencyMonitor;
-import org.transitclock.service.contract.ServerStatusInterface;
+import org.transitclock.service.contract.ServerStatusService;
 import org.transitclock.service.dto.IpcServerStatus;
 import org.transitclock.utils.SystemTime;
 
@@ -18,7 +18,7 @@ import java.util.Date;
  */
 @Slf4j
 @Component
-public class ServerStatusServiceImpl implements ServerStatusInterface {
+public class ServerStatusServiceImpl implements ServerStatusService {
     @Autowired
     private AgencyMonitor agencyMonitor;
 

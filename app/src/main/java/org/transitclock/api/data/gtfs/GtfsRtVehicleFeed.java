@@ -6,11 +6,9 @@ import com.google.transit.realtime.GtfsRealtime.FeedHeader.Incrementality;
 import com.google.transit.realtime.GtfsRealtime.TripDescriptor.ScheduleRelationship;
 import com.google.transit.realtime.GtfsRealtime.VehiclePosition.VehicleStopStatus;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
+
 import org.transitclock.api.utils.AgencyTimezoneCache;
-import org.transitclock.service.contract.VehiclesInterface;
+import org.transitclock.service.contract.VehiclesService;
 import org.transitclock.service.dto.IpcAvl;
 import org.transitclock.service.dto.IpcVehicleConfig;
 import org.transitclock.service.dto.IpcVehicleGtfsRealtime;
@@ -32,10 +30,10 @@ public class GtfsRtVehicleFeed {
     // For outputting date in GTFS-realtime format
     private SimpleDateFormat gtfsRealtimeDateFormatter = new SimpleDateFormat("yyyyMMdd");
     private SimpleDateFormat gtfsRealtimeTimeFormatter = new SimpleDateFormat("HH:mm:ss");
-    private final VehiclesInterface vehiclesInterface ;
+    private final VehiclesService vehiclesService;
 
-    public GtfsRtVehicleFeed(String agencyId, VehiclesInterface vehiclesInterface, AgencyTimezoneCache agencyTimezoneCache) {
-        this.vehiclesInterface = vehiclesInterface;
+    public GtfsRtVehicleFeed(String agencyId, VehiclesService vehiclesService, AgencyTimezoneCache agencyTimezoneCache) {
+        this.vehiclesService = vehiclesService;
         this.gtfsRealtimeDateFormatter.setTimeZone(agencyTimezoneCache.get(agencyId));
     }
 
@@ -209,10 +207,10 @@ public class GtfsRtVehicleFeed {
      * @return Collection of Vehicle objects, or null if not available.
      */
     private Collection<IpcVehicleGtfsRealtime> getVehicles() {
-        Collection<IpcVehicleGtfsRealtime> vehicles = vehiclesInterface.getGtfsRealtime();
+        Collection<IpcVehicleGtfsRealtime> vehicles = vehiclesService.getGtfsRealtime();
 
         for (IpcVehicleGtfsRealtime ipc : vehicles) {
-            Collection<IpcVehicleConfig> vehConfigs = vehiclesInterface.getVehicleConfigs();
+            Collection<IpcVehicleConfig> vehConfigs = vehiclesService.getVehicleConfigs();
             for (IpcVehicleConfig ipcVehicleConfig : vehConfigs) {
                 if (ipcVehicleConfig.getId().equals(ipc.getId())) {
                     ipc.setVehicleName(ipcVehicleConfig.getName());

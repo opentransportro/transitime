@@ -1,17 +1,16 @@
 /* (C)2023 */
 package org.transitclock.core.dataCache;
 
+import org.transitclock.ApplicationProperties;
+import org.transitclock.gtfs.DbConfig;
+import org.transitclock.gtfs.GtfsFilter;
+import org.transitclock.properties.GtfsProperties;
+
 import lombok.RequiredArgsConstructor;
 import org.ehcache.CacheManager;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import org.transitclock.ApplicationProperties;
-import org.transitclock.ApplicationProperties.Gtfs;
-import org.transitclock.config.ClassConfigValue;
-import org.transitclock.gtfs.DbConfig;
-import org.transitclock.gtfs.GtfsFilter;
 
 /**
  * @author Sean Óg Crudden Factory that will provide cache to hold arrival and departures for a
@@ -27,7 +26,7 @@ public class TripDataHistoryCacheFactory {
     public TripDataHistoryCacheInterface tripDataHistoryCacheInterface(CacheManager cacheManager,
                                                                        ApplicationProperties properties,
                                                                        DbConfig dbConfig) {
-        Gtfs gtfsProperties = properties.getGtfs();
+        GtfsProperties gtfsProperties = properties.getGtfs();
         var gtfsFilter = new GtfsFilter(gtfsProperties.getRouteIdFilterRegEx(), gtfsProperties.getTripIdFilterRegEx());
         if (className == org.transitclock.core.dataCache.ehcache.frequency.TripDataHistoryCache.class) {
             return new org.transitclock.core.dataCache.ehcache.frequency.TripDataHistoryCache(cacheManager, gtfsFilter, dbConfig);
