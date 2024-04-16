@@ -18,7 +18,6 @@ import org.transitclock.api.data.ApiRoutesResponse;
 import org.transitclock.api.data.ApiRoutesDetailsResponse;
 import org.transitclock.api.data.ApiSchedulesHorizStops;
 import org.transitclock.api.data.ApiSchedulesVertStopsResponse;
-import org.transitclock.api.data.ApiServerStatus;
 import org.transitclock.api.data.ApiTrip;
 import org.transitclock.api.data.ApiTripPatternsResponse;
 import org.transitclock.api.data.ApiTripWithTravelTimes;
@@ -863,24 +862,6 @@ public interface TransitimeApi {
             description = "Retrives current service id.",
             tags = {"base data", "serviceId"})
     ResponseEntity<ApiIdsResponse> getCurrentServiceIds(StandardParameters stdParameters);
-
-    /**
-     * Returns status about the specified agency server. Currently provides info on the DbLogger
-     * queue.
-     *
-     * @param stdParameters
-     *
-     * @return
-     *
-     * @
-     */
-    @GetMapping(value = "/command/serverStatus",
-            produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
-    @Operation(
-            summary = "Retrives server status information.",
-            description = "Retrives server status information.",
-            tags = {"server status"})
-    ResponseEntity<ApiServerStatus> getServerStatus(StandardParameters stdParameters);
 
     @Operation(summary = "Returns exports list", description = "Returns exports list")
     @GetMapping(value = "/command/exports",

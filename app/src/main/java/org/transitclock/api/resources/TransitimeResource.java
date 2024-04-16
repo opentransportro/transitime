@@ -20,11 +20,10 @@ import org.transitclock.api.data.ApiDirectionsResponse;
 import org.transitclock.api.data.ApiExportsDataResponse;
 import org.transitclock.api.data.ApiIdsResponse;
 import org.transitclock.api.data.ApiPredictionsResponse;
-import org.transitclock.api.data.ApiRoutesResponse;
 import org.transitclock.api.data.ApiRoutesDetailsResponse;
+import org.transitclock.api.data.ApiRoutesResponse;
 import org.transitclock.api.data.ApiSchedulesHorizStops;
 import org.transitclock.api.data.ApiSchedulesVertStopsResponse;
-import org.transitclock.api.data.ApiServerStatus;
 import org.transitclock.api.data.ApiTrip;
 import org.transitclock.api.data.ApiTripPatternsResponse;
 import org.transitclock.api.data.ApiTripWithTravelTimes;
@@ -51,7 +50,6 @@ import org.transitclock.service.dto.IpcPredictionsForRouteStopDest;
 import org.transitclock.service.dto.IpcRoute;
 import org.transitclock.service.dto.IpcRouteSummary;
 import org.transitclock.service.dto.IpcSchedule;
-import org.transitclock.service.dto.IpcServerStatus;
 import org.transitclock.service.dto.IpcTrip;
 import org.transitclock.service.dto.IpcTripPattern;
 import org.transitclock.service.dto.IpcVehicle;
@@ -951,25 +949,6 @@ public class TransitimeResource extends BaseApiResource implements TransitimeApi
 
             ApiIdsResponse apiIds = new ApiIdsResponse(ids);
             return stdParameters.createResponse(apiIds);
-        } catch (Exception e) {
-            // If problem getting data then return a Bad Request
-            throw WebUtils.badRequestException(e);
-        }
-    }
-
-    @Override
-    public ResponseEntity<ApiServerStatus> getServerStatus(StandardParameters stdParameters) {
-
-        // Make sure request is valid
-        validate(stdParameters);
-
-        try {
-            // Get status information from server
-            IpcServerStatus ipcServerStatus = serverStatusService.get();
-
-            // Create and return ApiServerStatus response
-            ApiServerStatus apiServerStatus = new ApiServerStatus(stdParameters.getAgencyId(), ipcServerStatus);
-            return stdParameters.createResponse(apiServerStatus);
         } catch (Exception e) {
             // If problem getting data then return a Bad Request
             throw WebUtils.badRequestException(e);

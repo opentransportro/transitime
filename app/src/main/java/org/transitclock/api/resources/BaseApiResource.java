@@ -24,9 +24,6 @@ public abstract class BaseApiResource {
     protected PredictionAnalysisService predictionAnalysisService;
 
     @Autowired
-    protected ServerStatusService serverStatusService;
-
-    @Autowired
     protected VehiclesService vehiclesService;
 
     @Autowired

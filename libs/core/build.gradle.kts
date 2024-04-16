@@ -10,6 +10,7 @@ dependencies {
     api("com.beust:jcommander:1.82")
     implementation("org.springframework.boot:spring-boot-starter")
     implementation("org.springframework.boot:spring-boot-starter-cache")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
 
     api("org.hibernate.orm:hibernate-core")
     implementation("com.zaxxer:HikariCP")
