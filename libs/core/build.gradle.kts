@@ -8,7 +8,6 @@ dependencies {
     implementation(project(":libs:util"))
     runtimeOnly("org.postgresql:postgresql")
     api("com.beust:jcommander:1.82")
-    implementation("org.springframework.boot:spring-boot-starter")
     implementation("org.springframework.boot:spring-boot-starter-cache")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
 
@@ -17,14 +16,14 @@ dependencies {
     implementation("org.hibernate.orm:hibernate-hikaricp")
     implementation("org.hibernate.orm:hibernate-jcache")
     implementation("org.hibernate.validator:hibernate-validator")
-    annotationProcessor("org.hibernate.orm:hibernate-jpamodelgen")
+//    annotationProcessor("org.hibernate.orm:hibernate-jpamodelgen")
 
     implementation("org.flywaydb:flyway-core")
     implementation("io.hypersistence:hypersistence-utils-hibernate-62")
     api(group="com.querydsl", name="querydsl-jpa", classifier = "jakarta")
     annotationProcessor(group="com.querydsl", name="querydsl-apt", classifier = "jakarta") {
         dependencies {
-            compileOnly("jakarta.persistence:jakarta.persistence-api")
+            annotationProcessor("jakarta.persistence:jakarta.persistence-api")
         }
     }
 
