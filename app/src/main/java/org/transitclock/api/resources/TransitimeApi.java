@@ -1032,7 +1032,7 @@ public class TransitimeApi {
 
                 ipcRoutes = new ArrayList<IpcRoute>();
                 ipcRoutes.add(route);
-            }  if (stopId != null) {
+            } else if (stopId != null) {
 
                 ipcRoutes = inter.getRoutesByStopId(stopId);
 
