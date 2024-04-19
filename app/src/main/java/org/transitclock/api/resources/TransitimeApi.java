@@ -1032,6 +1032,15 @@ public class TransitimeApi {
 
                 ipcRoutes = new ArrayList<IpcRoute>();
                 ipcRoutes.add(route);
+            }  if (stopId != null) {
+
+                ipcRoutes = inter.getRoutesByStopId(stopId);
+
+                // If the stop doesn't exist then throw exception such that
+                // Bad Request with an appropriate message is returned.
+                if (ipcRoutes == null || ipcRoutes.isEmpty())
+                    throw WebUtils.badRequestException("Routes for stop ID= " + stopId + " does not exist.");
+
             } else {
                 // Multiple routes specified
                 ipcRoutes = inter.getRoutes(routeIdsOrShortNames);
