@@ -2,14 +2,7 @@
 package org.transitclock.service.contract;
 
 import org.transitclock.domain.structs.Agency;
-import org.transitclock.service.dto.IpcBlock;
-import org.transitclock.service.dto.IpcCalendar;
-import org.transitclock.service.dto.IpcDirectionsForRoute;
-import org.transitclock.service.dto.IpcRoute;
-import org.transitclock.service.dto.IpcRouteSummary;
-import org.transitclock.service.dto.IpcSchedule;
-import org.transitclock.service.dto.IpcTrip;
-import org.transitclock.service.dto.IpcTripPattern;
+import org.transitclock.service.dto.*;
 
 import java.util.Collection;
 import java.util.List;
@@ -182,4 +175,13 @@ public interface ConfigInterface {
      * @return Map of service IDs with belong block IDs
      */
     Map<String, List<String>> getServiceIdsWithBlockIds();
+
+
+    /**
+     * Obtains list of routes which contained stops with following stop ID
+     *
+     * @param stopId
+     * @return list of IpcRoute
+     */
+    List<IpcRoute> getRoutesByStopId(String stopId);
 }

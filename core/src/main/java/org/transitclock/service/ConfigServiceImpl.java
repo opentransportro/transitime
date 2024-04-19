@@ -4,23 +4,10 @@ package org.transitclock.service;
 import lombok.extern.slf4j.Slf4j;
 import org.transitclock.Core;
 import org.transitclock.core.dataCache.VehicleDataCache;
-import org.transitclock.domain.structs.Agency;
-import org.transitclock.domain.structs.Block;
-import org.transitclock.domain.structs.Calendar;
-import org.transitclock.domain.structs.Route;
-import org.transitclock.domain.structs.Trip;
-import org.transitclock.domain.structs.TripPattern;
-import org.transitclock.domain.structs.VehicleConfig;
+import org.transitclock.domain.structs.*;
 import org.transitclock.gtfs.DbConfig;
 import org.transitclock.service.contract.ConfigInterface;
-import org.transitclock.service.dto.IpcBlock;
-import org.transitclock.service.dto.IpcCalendar;
-import org.transitclock.service.dto.IpcDirectionsForRoute;
-import org.transitclock.service.dto.IpcRoute;
-import org.transitclock.service.dto.IpcRouteSummary;
-import org.transitclock.service.dto.IpcSchedule;
-import org.transitclock.service.dto.IpcTrip;
-import org.transitclock.service.dto.IpcTripPattern;
+import org.transitclock.service.dto.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -49,7 +36,7 @@ public class ConfigServiceImpl implements ConfigInterface {
      * automatically cause the object to continue to run and serve requests.
      *
      * @return the singleton ConfigServer object. Usually does not need to used since the server
-     *     will be fully running.
+     * will be fully running.
      */
     public static ConfigServiceImpl start() {
         if (singleton == null) {
@@ -99,8 +86,7 @@ public class ConfigServiceImpl implements ConfigInterface {
      * @see org.transitclock.ipc.interfaces.ConfigInterface#getRoute(java.lang.String)
      */
     @Override
-    public IpcRoute getRoute(String routeIdOrShortName, String directionId, String stopId, String tripPatternId)
-            {
+    public IpcRoute getRoute(String routeIdOrShortName, String directionId, String stopId, String tripPatternId) {
         // Determine the route
         Route dbRoute = getRoute(routeIdOrShortName);
         if (dbRoute == null) {
@@ -363,12 +349,31 @@ public class ConfigServiceImpl implements ConfigInterface {
     }
 
     /* (non-Javadoc)
-     * @see org.transitclock.ipc.interfaces.ConfigInterface#getBlockIds()
+     * @see org.transitclock.ipc.interfaces.ConfigInterface#getServiceIdsWithBlockIds()
      */
     @Override
     public Map<String, List<String>> getServiceIdsWithBlockIds() {
         return Core.getInstance()
                 .getDbConfig()
                 .getBlockIdsForAllServiceIds();
+    }
+
+    /* (non-Javadoc)
+     * @see org.transitclock.ipc.interfaces.ConfigInterface#getRoutesByStopId()
+     */
+    @Override
+    public List<IpcRoute> getRoutesByStopId(String stopId) {
+        List<IpcRoute> routes = new ArrayList<>();
+        if (stopId != null) {
+            DbConfig dbConfig = Core.getInstance().getDbConfig();
+            if (dbConfig == null) return routes;
+
+            routes = dbConfig.getRoutes().stream()
+                    .filter(dbRoute -> dbRoute.getStops().stream()
+                            .anyMatch(stop -> stop.getId().equals(stopId)))
+                    .map(dbRoute -> new IpcRoute(dbRoute, null, null, null))
+                    .collect(Collectors.toList());
+        }
+        return routes;
     }
 }
