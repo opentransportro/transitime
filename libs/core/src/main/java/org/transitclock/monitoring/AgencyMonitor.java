@@ -45,12 +45,6 @@ public class AgencyMonitor {
         monitors.add(new PredictabilityMonitor(agencyId, dataDbLogger, vehicleDataCache, blockInfoProvider));
         monitors.add(new DatabaseQueueMonitor(agencyId, dataDbLogger));
         monitors.add(new ActiveBlocksMonitor(agencyId, dataDbLogger, blockInfoProvider, dbConfig));
-        if (enableSystemMonitoring != null && enableSystemMonitoring.equalsIgnoreCase("true")) {
-            monitors.add(new SystemMemoryMonitor(agencyId, dataDbLogger));
-            monitors.add(new SystemCpuMonitor(agencyId, dataDbLogger));
-            monitors.add(new SystemDiskSpaceMonitor(agencyId, dataDbLogger));
-            monitors.add(new DatabaseMonitor(agencyId, dataDbLogger));
-        }
     }
 
     /**
