@@ -1,19 +1,20 @@
 /* (C)2023 */
 package org.transitclock.domain;
 
-import lombok.extern.slf4j.Slf4j;
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
-import org.springframework.stereotype.Component;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.transitclock.config.IntegerConfigValue;
-import org.transitclock.config.data.DbSetupConfig;
 import org.transitclock.domain.hibernate.HibernateUtils;
 import org.transitclock.domain.webstructs.ApiKey;
 import org.transitclock.utils.Time;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
+import org.springframework.stereotype.Component;
 
 /**
  * Manages the ApiKeys. Caches them so API can quickly determine if key is valid.
@@ -28,9 +29,6 @@ public class ApiKeyManager {
     // Map is keyed on the API key.
     private final Map<String, ApiKey> apiKeyCache;
 
-    // Name of the database containing the keys
-    private final String dbName;
-
     // For preventing too frequent db reads
     private long lastTimeKeysReadIntoCache = 0;
 
@@ -42,10 +40,6 @@ public class ApiKeyManager {
 
     /** Constructor private because singleton class */
     public ApiKeyManager() {
-        // Set the name of the db to get the data from.
-        // Use the db name, such as "web".
-        dbName = DbSetupConfig.getDbName();
-
         // Create the cache. Cache will actually be populated when first
         // checking if key is valid. This way don't do a db read at startup.
         apiKeyCache = new HashMap<String, ApiKey>();
@@ -99,7 +93,7 @@ public class ApiKeyManager {
      * @return
      */
     public List<ApiKey> getApiKeys() {
-        Session session = HibernateUtils.getSession(DbSetupConfig.getDbName());
+        Session session = HibernateUtils.getSession();
         return ApiKey.getApiKeys(session);
     }
 
@@ -150,7 +144,7 @@ public class ApiKeyManager {
         ApiKey newApiKey = new ApiKey(applicationName, key, applicationUrl, email, phone, description);
 
         // Store new ApiKey in database
-        newApiKey.storeApiKey(dbName);
+        newApiKey.storeApiKey();
 
         // Return the new key
         return newApiKey;
@@ -166,7 +160,7 @@ public class ApiKeyManager {
         for (ApiKey apiKey : apiKeys) {
             if (apiKey.getApplicationKey().equals(key)) {
                 // Found the right key. Delete from database
-                apiKey.deleteApiKey(dbName);
+                apiKey.deleteApiKey();
 
                 // Also delete key from the cache
                 apiKeyCache.remove(key);

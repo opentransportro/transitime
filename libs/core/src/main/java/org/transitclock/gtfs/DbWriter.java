@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import org.transitclock.config.data.DbSetupConfig;
 import org.transitclock.domain.structs.*;
 import org.transitclock.utils.IntervalTimer;
 
@@ -16,7 +15,7 @@ import org.transitclock.utils.IntervalTimer;
  */
 @Slf4j
 public class DbWriter {
-
+    private static final int BATCH_SIZE = 2_000;
     private final GtfsData gtfsData;
     private int counter = 0;
 
@@ -38,11 +37,11 @@ public class DbWriter {
         // Since can writing large amount of data should use Hibernate
         // batching to make sure don't run out memory.
         counter++;
-        if (counter % DbSetupConfig.getBatchSize() == 0) {
-            logger.info("flushing with {} % {}", counter, DbSetupConfig.getBatchSize());
+        if (counter % BATCH_SIZE == 0) {
+            logger.info("flushing with {} % {}", counter, BATCH_SIZE);
             session.flush();
             session.clear();
-            logger.info("flushed with {} % {}", counter, DbSetupConfig.getBatchSize());
+            logger.info("flushed with {} % {}", counter, BATCH_SIZE);
         }
     }
 

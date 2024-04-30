@@ -1,10 +1,10 @@
 package org.transitclock;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
-import org.transitclock.config.data.DbSetupConfig;
 import org.transitclock.domain.ApiKeyManager;
 import org.transitclock.domain.webstructs.WebAgency;
 
@@ -15,10 +15,12 @@ import java.util.TimeZone;
 public class ApplicationStartupListener implements ApplicationListener<ApplicationReadyEvent> {
     private final ApiKeyManager apiKeyManager;
     private final ApplicationProperties properties;
+    private final DataSourceProperties dataSourceProperties;
 
-    public ApplicationStartupListener(ApiKeyManager apiKeyManager, ApplicationProperties properties) {
+    public ApplicationStartupListener(ApiKeyManager apiKeyManager, ApplicationProperties properties, DataSourceProperties dataSourceProperties) {
         this.apiKeyManager = apiKeyManager;
         this.properties = properties;
+        this.dataSourceProperties = dataSourceProperties;
     }
 
     @Override
@@ -42,11 +44,11 @@ public class ApplicationStartupListener implements ApplicationListener<Applicati
         WebAgency webAgency = new WebAgency(agencyId,
             "127.0.0.1",
             true,
-            DbSetupConfig.getDbName(),
-            DbSetupConfig.getDbType(),
-            DbSetupConfig.getDbHost(),
-            DbSetupConfig.getDbUserName(),
-            DbSetupConfig.getDbPassword());
+            dataSourceProperties.getName(),
+            "postgresql",
+            dataSourceProperties.getUrl(),
+            dataSourceProperties.getUsername(),
+            dataSourceProperties.getPassword());
 
         try {
             // Store the WebAgency

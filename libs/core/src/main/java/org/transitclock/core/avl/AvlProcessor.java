@@ -27,6 +27,7 @@ import org.transitclock.gtfs.DbConfig;
 import org.transitclock.utils.*;
 
 import java.util.*;
+import java.util.regex.Pattern;
 
 import static org.transitclock.config.data.CoreConfig.*;
 
@@ -1211,6 +1212,32 @@ public class AvlProcessor {
         vehicleStatus.setRealTimeSchedAdh(scheduleAdherence);
     }
 
+    private static boolean unpredictableAssignmentsPatternInitialized = false;
+    private static Pattern regExPattern = null;
+
+    /**
+     * Returns true if the assignment specified matches the regular expression for unpredictable
+     * assignments.
+     *
+     * @param assignment
+     * @return true if assignment matches regular expression
+     */
+    private boolean matchesUnpredictableAssignment(String assignment) {
+        if (!unpredictableAssignmentsPatternInitialized) {
+            String regEx = properties.getAvl().getUnpredictableAssignmentsRegEx();
+            if (regEx != null && !regEx.isEmpty()) {
+                regExPattern = Pattern.compile(regEx);
+            }
+            unpredictableAssignmentsPatternInitialized = true;
+        }
+
+        if (regExPattern == null) {
+            return false;
+        }
+
+        return regExPattern.matcher(assignment).matches();
+    }
+
     /**
      * Processes the AVL report by matching to the assignment and generating predictions and such.
      * Sets VehicleState for the vehicle based on the results. Also stores AVL report into the
@@ -1244,6 +1271,7 @@ public class AvlProcessor {
             boolean matchAlreadyPredictableVehicle =
                     vehicleStatus.isPredictable() && !vehicleStatus.hasNewAssignment(avlReport, blockAssigner);
             boolean matchToNewAssignment = avlReport.hasValidAssignment()
+                    && !matchesUnpredictableAssignment(avlReport.getAssignmentId())
                     && (!vehicleStatus.isPredictable() || vehicleStatus.hasNewAssignment(avlReport, blockAssigner))
                     && !vehicleStatus.previousAssignmentProblematic(avlReport, blockAssigner);
 

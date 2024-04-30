@@ -68,7 +68,7 @@ public class DataDbLogger {
      *     queue is filling up. Useful for when in batch mode and dumping a whole bunch of data to
      *     the db really quickly.
      */
-    public DataDbLogger(String agencyId, boolean shouldStoreToDb, boolean shouldPauseToReduceQueue) {
+    public DataDbLogger(String agencyId, boolean shouldStoreToDb, boolean shouldPauseToReduceQueue, int batchSize) {
         NamedThreadFactory threadFactory = new NamedThreadFactory("DataWriter");
         ExtendedScheduledThreadPoolExecutor executor = new ExtendedScheduledThreadPoolExecutor(5, threadFactory, new RejectedExecutionHandler() {
             @Override
@@ -86,16 +86,16 @@ public class DataDbLogger {
         // Used by add(). If queue filling up to 25% and shouldPauseToReduceQueue is
         // true then will pause the calling thread for a few seconds so that more
         // objects can be written out and not have the queue fill up.
-        arrivalDepartureQueue = new DbQueue<>(executor, agencyId, shouldStoreToDb, shouldPauseToReduceQueue, ArrivalDeparture.class);
-        avlReportQueue = new DbQueue<>(executor, agencyId, shouldStoreToDb, shouldPauseToReduceQueue, AvlReport.class);
-        vehicleConfigQueue = new DbQueue<>(executor, agencyId, shouldStoreToDb, shouldPauseToReduceQueue, VehicleConfig.class);
-        predictionQueue = new DbQueue<>(executor, agencyId, shouldStoreToDb, shouldPauseToReduceQueue, Prediction.class);
-        matchQueue = new DbQueue<>(executor, agencyId, shouldStoreToDb, shouldPauseToReduceQueue, Match.class);
-        predictionAccuracyQueue = new DbQueue<>(executor, agencyId, shouldStoreToDb, shouldPauseToReduceQueue, PredictionAccuracy.class);
-        monitoringEventQueue = new DbQueue<>(executor, agencyId, shouldStoreToDb, shouldPauseToReduceQueue, MonitoringEvent.class);
-        vehicleEventQueue = new DbQueue<>(executor, agencyId, shouldStoreToDb, shouldPauseToReduceQueue, VehicleEvent.class);
-        vehicleStateQueue = new DbQueue<>(executor, agencyId, shouldStoreToDb, shouldPauseToReduceQueue, VehicleState.class);
-        genericQueue = new DbQueue<>(executor, agencyId, shouldStoreToDb, shouldPauseToReduceQueue, Object.class);
+        arrivalDepartureQueue = new DbQueue<>(executor, agencyId, shouldStoreToDb, shouldPauseToReduceQueue, ArrivalDeparture.class, batchSize);
+        avlReportQueue = new DbQueue<>(executor, agencyId, shouldStoreToDb, shouldPauseToReduceQueue, AvlReport.class, batchSize);
+        vehicleConfigQueue = new DbQueue<>(executor, agencyId, shouldStoreToDb, shouldPauseToReduceQueue, VehicleConfig.class, batchSize);
+        predictionQueue = new DbQueue<>(executor, agencyId, shouldStoreToDb, shouldPauseToReduceQueue, Prediction.class, batchSize);
+        matchQueue = new DbQueue<>(executor, agencyId, shouldStoreToDb, shouldPauseToReduceQueue, Match.class, batchSize);
+        predictionAccuracyQueue = new DbQueue<>(executor, agencyId, shouldStoreToDb, shouldPauseToReduceQueue, PredictionAccuracy.class, batchSize);
+        monitoringEventQueue = new DbQueue<>(executor, agencyId, shouldStoreToDb, shouldPauseToReduceQueue, MonitoringEvent.class, batchSize);
+        vehicleEventQueue = new DbQueue<>(executor, agencyId, shouldStoreToDb, shouldPauseToReduceQueue, VehicleEvent.class, batchSize);
+        vehicleStateQueue = new DbQueue<>(executor, agencyId, shouldStoreToDb, shouldPauseToReduceQueue, VehicleState.class, batchSize);
+        genericQueue = new DbQueue<>(executor, agencyId, shouldStoreToDb, shouldPauseToReduceQueue, Object.class, batchSize);
     }
 
     public boolean add(ArrivalDeparture ad) {

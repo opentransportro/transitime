@@ -2,9 +2,10 @@ spring:
   application:
     name: TempoMat
   datasource:
-    url: jdbc:postgresql://localhost:5432/STPT
+    url: jdbc:postgresql://localhost:5432/transitclock
     username: postgres
     password: transitclock
+    batch-size: 4_000
     hikari:
       auto-commit: false
       idle-timeout: 30_000
@@ -37,6 +38,11 @@ server:
   port: 8080
 
 transitclock:
+  db:
+    dbUserName: postgres
+    dbHost: localhost:5432
+    storeDataInDatabase: true
+    dbType: postgresql
   factory:
     headway-generator: org.transitclock.core.headwaygenerator.LastArrivalsHeadwayGenerator
     prediction-generator: org.transitclock.core.prediction.PredictionGeneratorDefaultImpl
@@ -56,25 +62,27 @@ transitclock:
     minDistanceFromCurrentReport: 100.0
     minTimeBetweenAutoAssigningSecs: 30
   avl:
-    alternativemaxspeed: 15.0
 #    authenticationPassword: 'null'
 #    authenticationUser: 'null'
-    feedPollingRateSecs: 5
-    feedTimeoutInMSecs: 10000
-    maxLatitude: 55.0
-    maxLongitude: -60.0
-    maxSpeed: 31.3
+#    url: 'null'
+    gtfsRealtimeFeedURI: https://api.opentransport.ro/exporter/v1/realtime/stpt/vehicle-positions
+    feedTimeoutInMSecs: 30000
+    maxSpeed: 100
+    numThreads: 1
+    queueSize: 2400
+    minLatitude: 43.0
+    maxLatitude: 48.0
+    maxLongitude: 30.0
+    minLongitude: 20.0
+    feedPollingRateSecs: 15
+
+    alternativemaxspeed: 15.0
     maxStopPathsAhead: 999
-    minLatitude: 15.0
-    minLongitude: -135.0
     minSpeedForValidHeading: 1.5
     minTimeBetweenAvlReportsSecs: 5
-    numThreads: 1
     processInRealTime: false
-    queueSize: 2000
     shouldProcessAvl: true
     unpredictableAssignmentsRegEx: ''
-#    url: 'null'
   blockLoading:
     agressive: false
   core:
@@ -97,6 +105,14 @@ transitclock:
     blockactiveForTimeBeforeSecs: 0
     cache:
       daysPopulateHistoricalCache: 0
+      tripDataHistoryCache: org.transitclock.core.dataCache.ehcache.scheduled.TripDataHistoryCache
+      errorCacheClass: org.transitclock.core.dataCache.ehcache.KalmanErrorCache
+      stopArrivalDepartureCache: org.transitclock.core.dataCache.ehcache.StopArrivalDepartureCache
+      stopPathPredictionCache: org.transitclock.core.dataCache.StopPathPredictionCache
+      dwellTimeModelCache: org.transitclock.core.dataCache.ehcache.scheduled.DwellTimeModelCache
+    dwelltime:
+      model: org.transitclock.core.prediction.scheduled.dwell.DwellAverage
+      headwayGeneratorClass: org.transitclock.core.headwaygenerator.LastArrivalsHeadwayGenerator
     cacheReloadEndTimeStr: ''
     cacheReloadStartTimeStr: ''
     deadheadingShortVersusLongDistance: 1000.0
@@ -155,7 +171,10 @@ transitclock:
         linear:
           rate: 6.0E-4
           updown: -1
-#  gtfs:
+  gtfs:
+    url: https://data.opentransport.ro/routing/gtfs/gtfs-stpt.zip
+    dirName: /var/transitclock/cache
+    intervalMsec: 86400000
 #    auto-update:
 #      enabled: true
 #      url:
@@ -202,12 +221,21 @@ transitclock:
 #    maxRandomStopSelectionsPerTrip: 100
 #    pollingRateMsec: 240000
 #    stopsPerTrip: 5
+  prediction:
+    data:
+      kalman:
+        min-days: 3
+        max-days: 5
+        max-days-to-search: 21
+        percentagePredictionMethodDifferencene: 50
+        thresholdForDifferenceEventLog: 60000
+    rls.lambda: 0.9
   service:
     minutesIntoMorningToIncludePreviousServiceIds: 240
   timeout:
     allowableNoAvlAfterSchedDepartSecs: 360
     allowableNoAvlSecs: 360
-    pollingRateSecs: 30
+    pollingRateSecs: 60
     removeTimedOutVehiclesFromVehicleDataCache: false
   travelTimes:
     resetEarlyTerminalDepartures: true

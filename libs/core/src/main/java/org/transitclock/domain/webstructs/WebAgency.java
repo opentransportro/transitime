@@ -8,7 +8,6 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.annotations.DynamicUpdate;
-import org.transitclock.config.data.DbSetupConfig;
 import org.transitclock.domain.hibernate.HibernateUtils;
 import org.transitclock.domain.structs.ActiveRevision;
 import org.transitclock.domain.structs.Agency;
@@ -177,15 +176,6 @@ public class WebAgency {
         return agencyName;
     }
 
-    /**
-     * Specifies name of database to use for reading in the WebAgency objects. Currently using the
-     * command line option transitclock.core.agencyId .
-     *
-     * @return Name of db to retrieve WebAgency objects from
-     */
-    private static String getWebAgencyDbName() {
-        return DbSetupConfig.getDbName();
-    }
 
     /**
      * Reads in WebAgency objects from the database and returns them as a map keyed on agencyId.
@@ -194,11 +184,9 @@ public class WebAgency {
      * @throws HibernateException
      */
     private static Map<String, WebAgency> getMapFromDb() throws HibernateException {
-        String webAgencyDbName = getWebAgencyDbName();
-        logger.info("Reading WebAgencies data from database \"{}\"...", webAgencyDbName);
         IntervalTimer timer = new IntervalTimer();
 
-        try (Session session = HibernateUtils.getSession(webAgencyDbName)) {
+        try (Session session = HibernateUtils.getSession()) {
             List<WebAgency> list =  session
                     .createQuery("FROM WebAgency", WebAgency.class)
                     .list();
@@ -328,11 +316,10 @@ public class WebAgency {
         // If web agency was not in cache update the cache and try again
         if (webAgency == null) {
             logger.error(
-                    "Did not find agencyId={} in WebAgencies table for "
-                            + "database {}. Will reload data from database to see if "
+                    "Did not find agencyId={} in WebAgencies table"
+                            + ". Will reload data from database to see if "
                             + "agency only recently added.",
-                    agencyId,
-                    getWebAgencyDbName());
+                    agencyId);
         }
 
         // Return the possibly null web agency

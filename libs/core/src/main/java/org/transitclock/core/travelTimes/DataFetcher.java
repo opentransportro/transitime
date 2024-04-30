@@ -216,7 +216,6 @@ public class DataFetcher {
             do {
                 logger.info("querying a/d for between {} and {}", pageBeginTime, pageEndTime);
                 arrDepBatchList = ArrivalDeparture.getArrivalsDeparturesFromDb(
-                        dbName,
                         pageBeginTime,
                         pageEndTime,
                         // Order results by time so that process them in the same
@@ -241,7 +240,6 @@ public class DataFetcher {
             List<ArrivalDeparture> arrDepBatchList;
             do {
                 arrDepBatchList = ArrivalDeparture.getArrivalsDeparturesFromDb(
-                        dbName,
                         beginTime,
                         endTime,
                         // Order results by time so that process them in the same

@@ -1,35 +1,43 @@
 package org.transitclock.config;
 
 import jakarta.annotation.PostConstruct;
-import lombok.extern.slf4j.Slf4j;
-import org.flywaydb.core.Flyway;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import java.util.TimeZone;
+
 import org.transitclock.ApplicationProperties;
-import org.transitclock.config.data.DbSetupConfig;
 import org.transitclock.core.ServiceUtils;
 import org.transitclock.domain.hibernate.DataDbLogger;
+import org.transitclock.domain.hibernate.HibernateUtils;
 import org.transitclock.domain.structs.ActiveRevision;
 import org.transitclock.domain.structs.Agency;
 import org.transitclock.gtfs.DbConfig;
 import org.transitclock.utils.Time;
 
-import java.util.TimeZone;
+import lombok.extern.slf4j.Slf4j;
+import org.flywaydb.core.Flyway;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 @Slf4j
 @Configuration
 public class DatabaseConfiguration {
     private final ApplicationProperties properties;
+    private final DataSourceProperties dataSourceProperties;
 
-    public DatabaseConfiguration(ApplicationProperties properties) {
+    public DatabaseConfiguration(ApplicationProperties properties, DataSourceProperties dataSourceProperties) {
         this.properties = properties;
+        this.dataSourceProperties = dataSourceProperties;
+
+        HibernateUtils.registerDatasourceProperties(dataSourceProperties);
     }
+
 
     @PostConstruct
     private void migrate() {
         Flyway flyway = Flyway.configure()
                 .loggers("slf4j")
-                .dataSource(DbSetupConfig.getConnectionUrl(), DbSetupConfig.getDbUserName(), DbSetupConfig.getDbPassword())
+                .dataSource(dataSourceProperties.getUrl(), dataSourceProperties.getUsername(), dataSourceProperties.getPassword())
                 .load();
         flyway.migrate();
     }
@@ -82,7 +90,7 @@ public class DatabaseConfiguration {
     }
 
     @Bean
-    DataDbLogger dataDbLogger() {
+    DataDbLogger dataDbLogger(@Value("${spring.datasource.batch-size: 4_000}") int batchSize) {
         var coreConfig = properties.getCore();
         String agencyId = coreConfig.getAgencyId();
         boolean storeDataInDatabase = coreConfig.getStoreDataInDatabase();
@@ -97,6 +105,6 @@ public class DatabaseConfiguration {
         // This is strange since setting TimeZone.setDefault() is supposed
         // to work across all threads it appears that sometimes it wouldn't
         // work if Db logger started first.
-        return new DataDbLogger(agencyId, storeDataInDatabase, pauseIfDbQueueFilling);
+        return new DataDbLogger(agencyId, storeDataInDatabase, pauseIfDbQueueFilling, batchSize);
     }
 }

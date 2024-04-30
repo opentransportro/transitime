@@ -28,7 +28,6 @@ import org.hibernate.Session;
 import org.hibernate.annotations.DiscriminatorOptions;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.classic.Lifecycle;
-import org.transitclock.config.data.DbSetupConfig;
 import org.transitclock.core.TemporalDifference;
 import org.transitclock.domain.hibernate.HibernateUtils;
 import org.transitclock.gtfs.DbConfig;
@@ -394,7 +393,6 @@ public abstract class ArrivalDeparture implements Lifecycle, Serializable {
         // Call in standard getArrivalsDeparturesFromDb() but pass in
         // sql clause
         return getArrivalsDeparturesFromDb(
-                null, // Use db specified by transitclock.db.dbName
                 beginTime,
                 endTime,
                 "AND vehicleId='" + vehicleId + "'",
@@ -510,7 +508,6 @@ public abstract class ArrivalDeparture implements Lifecycle, Serializable {
      * @return List<ArrivalDeparture> or null if there is an exception
      */
     public static List<ArrivalDeparture> getArrivalsDeparturesFromDb(
-            String dbName,
             Date beginTime,
             Date endTime,
             String sqlClause,
@@ -518,7 +515,7 @@ public abstract class ArrivalDeparture implements Lifecycle, Serializable {
             final Integer maxResults,
             ArrivalsOrDepartures arrivalOrDeparture) {
         // Get the database session. This is supposed to be pretty light weight
-        try (Session session = dbName != null ? HibernateUtils.getSession(dbName, false) : HibernateUtils.getSession(true)) {
+        try (Session session = HibernateUtils.getSession()) {
             String hql = "FROM ArrivalDeparture WHERE time between :beginDate AND :endDate";
             if (arrivalOrDeparture != null) {
                 if (arrivalOrDeparture == ArrivalsOrDepartures.ARRIVALS) {
@@ -554,7 +551,7 @@ public abstract class ArrivalDeparture implements Lifecycle, Serializable {
             String dbName, Date beginTime, Date endTime, ArrivalsOrDepartures arrivalOrDeparture) {
 
         // Get the database session. This is supposed to be pretty lightweight
-        try (Session session = dbName != null ? HibernateUtils.getSession(dbName, false) : HibernateUtils.getSession(true)) {
+        try (Session session = HibernateUtils.getSession(dbName)) {
             String hql = "select count(*) FROM ArrivalDeparture WHERE time >= :beginDate AND time < :endDate";
             if (arrivalOrDeparture != null) {
                 if (arrivalOrDeparture == ArrivalsOrDepartures.ARRIVALS) {
@@ -573,29 +570,6 @@ public abstract class ArrivalDeparture implements Lifecycle, Serializable {
             logger.error(e.getMessage(), e);
         }
         return 0L;
-    }
-
-    /**
-     * Same as other getArrivalsDeparturesFromDb() but uses -Dtransitclock.db.dbName Java property
-     * to specify the name of the database.
-     *
-     * @param beginTime
-     * @param endTime
-     * @param sqlClause
-     * @param firstResult
-     * @param maxResults
-     * @param arrivalOrDeparture
-     * @return List<ArrivalDeparture> or null if there is an exception
-     */
-    public static List<ArrivalDeparture> getArrivalsDeparturesFromDb(
-            Date beginTime,
-            Date endTime,
-            String sqlClause,
-            final int firstResult,
-            final int maxResults,
-            ArrivalsOrDepartures arrivalOrDeparture) {
-        return getArrivalsDeparturesFromDb(
-                DbSetupConfig.getDbName(), beginTime, endTime, sqlClause, firstResult, maxResults, arrivalOrDeparture);
     }
 
     public Date getDate() {

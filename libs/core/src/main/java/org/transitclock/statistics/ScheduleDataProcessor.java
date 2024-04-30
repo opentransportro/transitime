@@ -14,7 +14,6 @@ import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.transitclock.config.data.DbSetupConfig;
 import org.transitclock.domain.structs.ArrivalDeparture;
 import org.transitclock.domain.structs.ArrivalDeparture.ArrivalsOrDepartures;
 import org.transitclock.gtfs.GtfsFilter;
@@ -492,9 +491,8 @@ public class ScheduleDataProcessor {
     private Map<String, Map<TripStopKey, List<Integer>>> readInArrivalsOrDeparturesFromDb(
             ArrivalsOrDepartures arrivalOrDeparture) {
         logger.info(
-                "Reading {} from db for dbName={} for beginDate={} " + "and endDate={}",
+                "Reading {} for beginDate={} and endDate={}",
                 arrivalOrDeparture,
-                DbSetupConfig.getDbName(),
                 beginTime,
                 endTime);
 

@@ -18,7 +18,6 @@ dependencies {
     implementation("org.hibernate.validator:hibernate-validator")
 //    annotationProcessor("org.hibernate.orm:hibernate-jpamodelgen")
 
-    implementation("org.flywaydb:flyway-core")
     implementation("io.hypersistence:hypersistence-utils-hibernate-62")
     api(group="com.querydsl", name="querydsl-jpa", classifier = "jakarta")
     annotationProcessor(group="com.querydsl", name="querydsl-apt", classifier = "jakarta") {

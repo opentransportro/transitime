@@ -5,7 +5,7 @@ services:
     restart: always
     environment:
       POSTGRES_PASSWORD: transitclock
-      POSTGRES_DB: STPT
+      POSTGRES_DB: transitclock
     ports:
       - "5432:5432"
   gtfsrt-validator:

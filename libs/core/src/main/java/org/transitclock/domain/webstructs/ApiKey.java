@@ -79,13 +79,8 @@ public class ApiKey implements Serializable {
         return query.list();
     }
 
-    /**
-     * Stores the ApiKey in the database
-     *
-     * @param dbName name of database
-     */
-    public void storeApiKey(String dbName) {
-        try (Session session = HibernateUtils.getSession(dbName)) {
+    public void storeApiKey() {
+        try (Session session = HibernateUtils.getSession()) {
             Transaction transaction = session.beginTransaction();
             session.persist(this);
             transaction.commit();
@@ -94,13 +89,8 @@ public class ApiKey implements Serializable {
         }
     }
 
-    /**
-     * Deletes this ApiKey from specified database
-     *
-     * @param dbName name of database
-     */
-    public void deleteApiKey(String dbName) {
-        try (Session session = HibernateUtils.getSession(dbName)) {
+    public void deleteApiKey() {
+        try (Session session = HibernateUtils.getSession()) {
             session.remove(this);
         } catch (Exception e) {
             throw e;

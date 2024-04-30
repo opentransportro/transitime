@@ -24,7 +24,9 @@ import org.springframework.core.env.Environment;
 
 @Slf4j
 @SpringBootApplication
-@EnableConfigurationProperties({ApplicationProperties.class})
+@EnableConfigurationProperties({
+    ApplicationProperties.class
+})
 @RequiredArgsConstructor
 public class Application implements ApplicationRunner {
 

@@ -1,14 +1,45 @@
 /* (C)2023 */
 package org.transitclock.domain.hibernate;
 
-import java.io.File;
-import java.net.URL;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.transitclock.config.data.DbSetupConfig;
-import org.transitclock.domain.structs.*;
+import org.transitclock.domain.structs.ActiveRevision;
+import org.transitclock.domain.structs.Agency;
+import org.transitclock.domain.structs.Arrival;
+import org.transitclock.domain.structs.AvlReport;
+import org.transitclock.domain.structs.Block;
+import org.transitclock.domain.structs.Calendar;
+import org.transitclock.domain.structs.CalendarDate;
+import org.transitclock.domain.structs.ConfigRevision;
+import org.transitclock.domain.structs.DbTest;
+import org.transitclock.domain.structs.Departure;
+import org.transitclock.domain.structs.ExportTable;
+import org.transitclock.domain.structs.FareAttribute;
+import org.transitclock.domain.structs.FareRule;
+import org.transitclock.domain.structs.Frequency;
+import org.transitclock.domain.structs.Headway;
+import org.transitclock.domain.structs.HoldingTime;
+import org.transitclock.domain.structs.Match;
+import org.transitclock.domain.structs.MeasuredArrivalTime;
+import org.transitclock.domain.structs.MonitoringEvent;
+import org.transitclock.domain.structs.Prediction;
+import org.transitclock.domain.structs.PredictionAccuracy;
+import org.transitclock.domain.structs.PredictionEvent;
+import org.transitclock.domain.structs.PredictionForStopPath;
+import org.transitclock.domain.structs.Route;
+import org.transitclock.domain.structs.Stop;
+import org.transitclock.domain.structs.StopPath;
+import org.transitclock.domain.structs.Transfer;
+import org.transitclock.domain.structs.TravelTimesForStopPath;
+import org.transitclock.domain.structs.TravelTimesForTrip;
+import org.transitclock.domain.structs.Trip;
+import org.transitclock.domain.structs.TripPattern;
+import org.transitclock.domain.structs.VehicleConfig;
+import org.transitclock.domain.structs.VehicleEvent;
+import org.transitclock.domain.structs.VehicleState;
+import org.transitclock.domain.structs.VehicleToBlockConfig;
 import org.transitclock.domain.webstructs.ApiKey;
 import org.transitclock.domain.webstructs.WebAgency;
 
@@ -24,6 +55,7 @@ import org.hibernate.cfg.Configuration;
 import org.hibernate.procedure.ProcedureCall;
 import org.hibernate.query.NativeQuery;
 import org.hibernate.service.ServiceRegistry;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 
 @Slf4j
 public class HibernateUtils {
@@ -73,36 +105,13 @@ public class HibernateUtils {
     // Cache. Keyed on database name
     private static final Map<String, SessionFactory> sessionFactoryCache = new ConcurrentHashMap<>();
     private static final Map<Thread, ThreadLocal<Session>> threadSessions = new ConcurrentHashMap<>();
+    public static DataSourceProperties dataSourceProperties;
+    public static void registerDatasourceProperties(DataSourceProperties props) {
+        dataSourceProperties = props;
+    }
 
-    private static SessionFactory createSessionFactory(String dbName, boolean readOnly) throws HibernateException {
+    private static SessionFactory createSessionFactory(String dbName) throws HibernateException {
         Configuration config = new Configuration();
-
-        // Want to be able to specify a configuration file for now
-        // since developing in Eclipse and want all config files
-        // to be in same place. But the Config.configure(String)
-        // method can't seem to work with a Windows directory name such
-        // as C:/users/Mike/software/hibernate.cfg.xml . Therefore create
-        // a File object for that file name and pass in the File object
-        // to configure().
-        String fileName = DbSetupConfig.getHibernateConfigFileName();
-        logger.info("Configuring Hibernate for dbName={} using config file={}", dbName, fileName);
-        File f = new File(fileName);
-        if (!f.exists()) {
-            logger.info("The Hibernate file {} doesn't exist as a regular file so seeing if it is in classpath.", fileName);
-
-            // Couldn't find file directly so look in classpath for it
-            ClassLoader classLoader = HibernateUtils.class.getClassLoader();
-            URL url = classLoader.getResource(fileName);
-            if (url != null) {
-                f = new File(url.getFile());
-            }
-        }
-
-        if (f.exists()) {
-            config.configure(f);
-        } else {
-            logger.error("Could not load in hibernate config file {}", fileName);
-        }
 
         for (Class<?> aClass : classList) {
             config.addAnnotatedClass(aClass);
@@ -113,44 +122,23 @@ public class HibernateUtils {
         // can be overwritten in a standard way. If that property not set then
         // uses values from DbSetupConfig if set. If they are not set then the
         // values will be obtained from the hibernate.cfg.xml config file.
-        String dbUrl = config.getProperty(AvailableSettings.URL);
-        if (readOnly) {
-            dbUrl = config.getProperty("hibernate.ro.connection.url");
-            // override the configured url so its picked up by the driver
-            config.setProperty(AvailableSettings.URL, dbUrl);
-            logger.trace("using read only connection url {}", dbUrl);
-        }
-        if (dbUrl == null || dbUrl.isEmpty()) {
-            dbUrl = "jdbc:" + DbSetupConfig.getDbType() + "://" + DbSetupConfig.getDbHost() + "/" + dbName;
+        String dbUrl = dataSourceProperties.getUrl();
+        config.setProperty(AvailableSettings.JAKARTA_JDBC_URL, dbUrl);
 
-            // If socket timeout specified then add that to the URL
-            Integer timeout = DbSetupConfig.getSocketTimeoutSec();
-            if (timeout != null && timeout != 0) {
-                // If mysql then timeout specified in msec instead of secs
-                if (DbSetupConfig.getDbType().equals("mysql")) {
-                    timeout *= 1000;
-                }
-
-                dbUrl += "?connectTimeout=" + timeout + "&socketTimeout=" + timeout;
-            }
-            config.setProperty(AvailableSettings.URL, dbUrl);
-        }
-
-        String dbUserName = DbSetupConfig.getDbUserName();
+        String dbUserName = dataSourceProperties.getUsername();
         if (dbUserName != null) {
-            config.setProperty(AvailableSettings.USER, dbUserName);
+            config.setProperty(AvailableSettings.JAKARTA_JDBC_USER, dbUserName);
         } else {
-            dbUserName = config.getProperty(AvailableSettings.USER);
+            dbUserName = config.getProperty(AvailableSettings.JAKARTA_JDBC_USER);
         }
 
-        if (DbSetupConfig.getDbPassword() != null) {
-            config.setProperty(AvailableSettings.PASS, DbSetupConfig.getDbPassword());
+        if (dataSourceProperties.getPassword() != null) {
+            config.setProperty(AvailableSettings.JAKARTA_JDBC_PASSWORD, dataSourceProperties.getPassword());
         }
 
         // Log info, but don't log password. This can just be debug logging
         // even though it is important because the C3P0 connector logs the info.
-        logger.info("For Hibernate factory project dbName={} using url={} username={}, and configured password",
-                dbName,
+        logger.info("For Hibernate factory project using url={} username={}, and configured password",
                 dbUrl,
                 dbUserName);
 
@@ -162,27 +150,17 @@ public class HibernateUtils {
         return config.buildSessionFactory(serviceRegistry);
     }
 
+
     /**
      * Returns a cached Hibernate SessionFactory. Returns null if there is a problem.
      *
-     * @param agencyId Used as the database name if the property transitclock.db.dbName is not set
+     * @param dbName Database name
      * @return {@link SessionFactory}
      */
-    public static SessionFactory getSessionFactory(String agencyId) throws HibernateException {
-        return getSessionFactory(agencyId, false);
-    }
-
-    private static SessionFactory getSessionFactory(String agencyId, boolean readOnly) throws HibernateException {
+    public static SessionFactory getSessionFactory(String dbName) throws HibernateException {
         // Determine the database name to use. Will usually use the
         // projectId since each project has a database. But this might
         // be overridden by the transitclock.core.dbName property.
-        String dbName = DbSetupConfig.getDbName();
-        if (dbName == null) dbName = agencyId;
-
-        if (readOnly) {
-            dbName = dbName + "-ro";
-        }
-
         SessionFactory factory;
 
         synchronized (sessionFactoryCache) {
@@ -190,10 +168,10 @@ public class HibernateUtils {
             // If factory not yet created for this projectId then create it
             if (factory == null || factory.isClosed()) {
                 try {
-                    factory = createSessionFactory(dbName, readOnly);
+                    factory = createSessionFactory(dbName);
                     sessionFactoryCache.put(dbName, factory);
                 } catch (Exception e) {
-                    logger.error("Could not create SessionFactory for " + "dbName={}", dbName, e);
+                    logger.error("Could not create SessionFactory for dbName={}", dbName, e);
                     throw e;
                 }
             }
@@ -213,6 +191,11 @@ public class HibernateUtils {
      * the newly configured timezone, and then successfully process dates.
      */
     public static void clearSessionFactory() {
+        sessionFactoryCache.forEach((s, sessionFactory) -> {
+            if(sessionFactory.isOpen()) {
+                sessionFactory.close();
+            }
+        });
         sessionFactoryCache.clear();
     }
 
@@ -229,12 +212,13 @@ public class HibernateUtils {
      * @throws HibernateException
      */
     public static Session getSession(String agencyId) throws HibernateException {
-        return getSession(agencyId, false);
+        SessionFactory sessionFactory = getSessionFactory(agencyId);
+        return sessionFactory.openSession();
     }
 
-    public static Session getSession(String agencyId, boolean readOnly) throws HibernateException {
-        SessionFactory sessionFactory = HibernateUtils.getSessionFactory(agencyId, readOnly);
-        return sessionFactory.openSession();
+
+    public static <T> JPAQuery<T> getJPAQuery() {
+        return new JPAQuery<>(getSession());
     }
 
     /**
@@ -249,26 +233,18 @@ public class HibernateUtils {
      *     of open sessions.
      */
     public static Session getSession() {
-        return getSession(false);
-    }
-
-    public static <T> JPAQuery<T> getJPAQuery() {
-        return new JPAQuery<>(getSession());
-    }
-
-    public static Session getSession(boolean readOnly) {
         return threadSessions
             .compute(Thread.currentThread(), (t, s) -> {
-                String dbName = DbSetupConfig.getDbName();
+                String dbName = "psql";
                 if (s == null) {
                     ThreadLocal<Session> sessionThreadLocal = new ThreadLocal<>();
-                    sessionThreadLocal.set(ContextAwareSession.create(getSessionFactory(dbName, readOnly)));
+                    sessionThreadLocal.set(ContextAwareSession.create(getSessionFactory(dbName)));
                     return sessionThreadLocal;
                 }
 
                 Session session = s.get();
-                if (!session.isOpen() || session.isDefaultReadOnly() != readOnly) {
-                    s.set(ContextAwareSession.create(getSessionFactory(dbName, readOnly)));
+                if (!session.isOpen()) {
+                    s.set(ContextAwareSession.create(getSessionFactory(dbName)));
                 }
 
                 return s;

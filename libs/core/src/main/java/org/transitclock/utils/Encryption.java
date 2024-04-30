@@ -1,8 +1,6 @@
 /* (C)2023 */
 package org.transitclock.utils;
 
-import org.transitclock.config.data.DbSetupConfig;
-
 import lombok.extern.slf4j.Slf4j;
 import org.jasypt.exceptions.EncryptionOperationNotPossibleException;
 import org.jasypt.util.text.BasicTextEncryptor;
@@ -53,7 +51,7 @@ public class Encryption {
     private static TextEncryptor getEncryptor() {
         if (textEncryptor == null) {
             textEncryptor = new BasicTextEncryptor();
-            textEncryptor.setPassword(DbSetupConfig.encryptionPassword.getValue());
+            textEncryptor.setPassword("encrypt");
         }
 
         return textEncryptor;

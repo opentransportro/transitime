@@ -48,7 +48,7 @@ public class AvlReportProcessor {
         public void run() {
             try {
                 // If the data is bad throw it out
-                String errorMsg = avlReport.validateData();
+                String errorMsg = avlReport.validateData(avlProperties);
                 if (errorMsg != null) {
                     logger.error("Throwing away avlReport {} because {}", avlReport, errorMsg);
                     return;

@@ -9,8 +9,6 @@ import org.hibernate.exception.ConstraintViolationException;
 import org.hibernate.exception.GenericJDBCException;
 import org.hibernate.exception.JDBCConnectionException;
 import org.hibernate.exception.SQLGrammarException;
-import org.transitclock.config.data.DbSetupConfig;
-import org.transitclock.domain.structs.VehicleToBlockConfig;
 import org.transitclock.utils.ExceptionUtils;
 import org.transitclock.utils.IntervalTimer;
 import org.transitclock.utils.Time;
@@ -38,6 +36,8 @@ public class DbQueue<T> {
 
     // The queue that objects to be stored are placed in
     private final BlockingQueue<T> queue = new LinkedBlockingQueue<>(500000);
+
+    private final int batchSize;
 
     // When running in playback mode where getting AVLReports from database
     // instead of from an AVL feed, then debugging and don't want to store
@@ -72,9 +72,10 @@ public class DbQueue<T> {
     private long throughputTimestamp = System.currentTimeMillis();
     private final Class<?> shortType;
 
-    public DbQueue(ScheduledExecutorService executor, String projectId, boolean shouldStoreToDb, boolean shouldPauseToReduceQueue, Class<?> shortType) {
+    public DbQueue(ScheduledExecutorService executor, String projectId, boolean shouldStoreToDb, boolean shouldPauseToReduceQueue, Class<?> shortType, int batchSize) {
         this.projectId = projectId;
         this.shouldStoreToDb = shouldStoreToDb;
+        this.batchSize = batchSize;
         this.shouldPauseToReduceQueue = shouldPauseToReduceQueue;
         this.shortType = shortType;
 
@@ -138,8 +139,8 @@ public class DbQueue<T> {
 
     private List<T> drain() {
         // Get the next object from the head of the queue
-        final List<T> buff = new ArrayList<>(DbSetupConfig.getBatchSize());
-        final int count  = queue.drainTo(buff, DbSetupConfig.getBatchSize());
+        final List<T> buff = new ArrayList<>(batchSize);
+        final int count  = queue.drainTo(buff, batchSize);
         if (count == 0) {
             return new ArrayList<>();
         }
@@ -184,7 +185,7 @@ public class DbQueue<T> {
         // then can try to write the objects one at a time to make sure that the
         // the good ones are written. This way don't lose any good data even if
         // an exception occurs while batching data.
-        List<Object> objectsForThisBatch = new ArrayList<>(DbSetupConfig.getBatchSize());
+        List<Object> objectsForThisBatch = new ArrayList<>(batchSize);
 
         Transaction tx = null;
         Session session = null;

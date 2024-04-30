@@ -1,4 +1,4 @@
-# :fire::fire: TransitTime :fire::fire:
+# :fire::fire: TransitTrack :fire::fire:
 
 The complete core Java software for the Transitime real-time transit information project. The goal is to use any type of real-time GPS data to generate useful public transportation information. The system is for both letting passengers know the status of their vehicles and helping agencies more effectively manage their systems. By providing a complete open-source system, agencies can have a cost effective system and have full ownership of it. 
 
@@ -6,8 +6,8 @@ The software is currently being used in a production environment for MBTA Commut
 
 ## :hammer: Setup
 In order to build & run the application make sure you have the following requirements fulfilled:
-- [ ] you have maven installed
-- [ ] you have java 17 or later installed
+- [ ] you have ~~maven~~ **gradle** installed
+- [ ] you have java 17 or later installed (recommended is lattest LTS - 21)
 - [ ] you have docker installed
 
 ### :wrench: Building

@@ -109,20 +109,4 @@ public class DbSetupConfig {
                     + "in a database. This value should be customized for each "
                     + "implementation and should be hidden from users.");
 
-    public static String getConnectionUrl() {
-        String dbUrl = "jdbc:" + DbSetupConfig.getDbType() + "://" + DbSetupConfig.getDbHost() + "/" + dbName;
-
-        // If socket timeout specified then add that to the URL
-        Integer timeout = DbSetupConfig.getSocketTimeoutSec();
-        if (timeout != null && timeout != 0) {
-            // If mysql then timeout specified in msec instead of secs
-            if (DbSetupConfig.getDbType().equals("mysql")) {
-                timeout *= 1000;
-            }
-
-            dbUrl += "?connectTimeout=" + timeout + "&socketTimeout=" + timeout;
-        }
-
-        return dbUrl;
-    }
 }

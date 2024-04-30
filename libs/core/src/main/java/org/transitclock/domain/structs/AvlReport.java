@@ -1,7 +1,30 @@
 /* (C)2023 */
 package org.transitclock.domain.structs;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.Table;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
+import jakarta.persistence.Transient;
+import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
+import java.util.regex.Pattern;
+
+import org.transitclock.domain.hibernate.HibernateUtils;
+import org.transitclock.properties.AvlProperties;
+import org.transitclock.service.dto.IpcAvl;
+import org.transitclock.utils.Geo;
+import org.transitclock.utils.SystemTime;
+import org.transitclock.utils.Time;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,18 +34,6 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Immutable;
-import org.transitclock.config.data.AvlConfig;
-import org.transitclock.domain.hibernate.HibernateUtils;
-import org.transitclock.service.dto.IpcAvl;
-import org.transitclock.utils.Geo;
-import org.transitclock.utils.SystemTime;
-import org.transitclock.utils.Time;
-
-import java.io.Serializable;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
-import java.util.regex.Pattern;
 
 /**
  * An AvlReport is a GPS report with some additional information, such as vehicleId.
@@ -222,7 +233,7 @@ public class AvlReport implements Serializable {
      *
      * @return null if there are no problems. An error message if there are problems with the data.
      */
-    public String validateData() {
+    public String validateData(AvlProperties avlProperties) {
         String errorMsg = "";
 
         // Make sure vehicleId is set
@@ -243,21 +254,21 @@ public class AvlReport implements Serializable {
         double lat = location.getLat();
         double lon = location.getLon();
 
-        if (lat < AvlConfig.getMinAvlLatitude())
-            errorMsg += "Latitude of " + lat + " is less than the parameter " + AvlConfig.getMinAvlLatitudeParamName() + " which is set to " + AvlConfig.getMinAvlLatitude() + " . ";
-        if (lat > AvlConfig.getMaxAvlLatitude())
-            errorMsg += "Latitude of " + lat + " is greater than the parameter " + AvlConfig.getMaxAvlLatitudeParamName() + " which is set to " + AvlConfig.getMaxAvlLatitude() + " . ";
-        if (lon < AvlConfig.getMinAvlLongitude())
-            errorMsg += "Longitude of " + lon + " is less than the parameter " + AvlConfig.getMinAvlLongitudeParamName() + " which is set to " + AvlConfig.getMinAvlLongitude() + " . ";
-        if (lon > AvlConfig.getMaxAvlLongitude())
-            errorMsg += "Longitude of " + lon + " is greater than the parameter " + AvlConfig.getMaxAvlLongitudeParamName() + " which is set to " + AvlConfig.getMaxAvlLongitude() + " . ";
+        if (lat < avlProperties.getMinLatitude())
+            errorMsg += "Latitude of " + lat + " is less than " + avlProperties.getMinLatitude() + " . ";
+        if (lat > avlProperties.getMaxLatitude())
+            errorMsg += "Latitude of " + lat + " is greater than " + avlProperties.getMaxLatitude() + " . ";
+        if (lon < avlProperties.getMinLongitude())
+            errorMsg += "Longitude of " + lon + " is less than " + avlProperties.getMinLongitude() + " . ";
+        if (lon > avlProperties.getMaxLongitude())
+            errorMsg += "Longitude of " + lon + " is greater than " + avlProperties.getMaxLongitude() + " . ";
 
         // Make sure speed is OK
         if (isSpeedValid()) {
             if (speed < 0.0f)
                 errorMsg += "Speed of " + speed + " is less than zero. ";
-            if (speed > AvlConfig.getMaxAvlSpeed()) {
-                errorMsg += "Speed of " + speed + "m/s is greater than maximum allowable speed of " + AvlConfig.getMaxAvlSpeed() + "m/s. ";
+            if (speed > avlProperties.getMaxSpeed()) {
+                errorMsg += "Speed of " + speed + "m/s is greater than maximum allowable speed of " + avlProperties.getMaxSpeed() + "m/s. ";
             }
         }
 
@@ -324,15 +335,8 @@ public class AvlReport implements Serializable {
         // If heading not available then return NaN
         if (heading == null) return Float.NaN;
 
-        // The heading is valid. If there is a valid speed available and
-        // but  it is not high enough to make the heading valid
-        // then return NaN.
-        if (speed != null && speed < AvlConfig.minSpeedForValidHeading()) {
-            return Float.NaN;
-        } else {
-            // Heading is valid so return it
-            return heading;
-        }
+        // Heading is valid so return it
+        return heading;
     }
 
     public void setSource(String source) {
@@ -391,32 +395,6 @@ public class AvlReport implements Serializable {
         return assignmentType == AssignmentType.ROUTE_ID;
     }
 
-    private static boolean unpredictableAssignmentsPatternInitialized = false;
-    private static Pattern regExPattern = null;
-
-    /**
-     * Returns true if the assignment specified matches the regular expression for unpredictable
-     * assignments.
-     *
-     * @param assignment
-     * @return true if assignment matches regular expression
-     */
-    public static boolean matchesUnpredictableAssignment(String assignment) {
-        if (!unpredictableAssignmentsPatternInitialized) {
-            String regEx = AvlConfig.getUnpredictableAssignmentsRegEx();
-            if (regEx != null && !regEx.isEmpty()) {
-                regExPattern = Pattern.compile(regEx);
-            }
-            unpredictableAssignmentsPatternInitialized = true;
-        }
-
-        if (regExPattern == null) {
-            return false;
-        }
-
-        return regExPattern.matcher(assignment).matches();
-    }
-
     /**
      * Returns whether assignment information was set in the AVL data and that assignment is valid.
      * An assignment is not valid if it is configured to be invalid. Examples of such include
@@ -426,16 +404,7 @@ public class AvlReport implements Serializable {
      * @return true if has assignment and it is valid. Otherwise false.
      */
     public boolean hasValidAssignment() {
-        if (assignmentType != AssignmentType.UNSET && matchesUnpredictableAssignment(assignmentId)) {
-            logger.debug(
-                    "For vehicleId={} was assigned to \"{}\" but that assignment is not considered valid due to "
-                        + "transitclock.avl.unpredictableAssignmentsRegEx being set to \"{}\"",
-                    vehicleId,
-                    assignmentId,
-                    AvlConfig.getUnpredictableAssignmentsRegEx());
-        }
-
-        return assignmentType != AssignmentType.UNSET && !matchesUnpredictableAssignment(assignmentId);
+        return assignmentType != AssignmentType.UNSET;
     }
 
     /**
